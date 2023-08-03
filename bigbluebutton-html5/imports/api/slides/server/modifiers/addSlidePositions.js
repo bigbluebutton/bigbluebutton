@@ -62,8 +62,7 @@ export default async function addSlidePositions(
     } = slidePosition;
 
     const payload = {
-      podId,
-      presentationId,
+      slideId,
       width,
       height,
       viewBoxWidth,

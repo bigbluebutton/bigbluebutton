@@ -54,7 +54,7 @@ trait ResizeAndMovePagePubMsgHdlr extends RightsManagementTrait {
 
       } yield {
         broadcastEvent(msg, podId, page)
-        PresPageDAO.resizeAndMovePage(page, presentationId)
+        PresPageDAO.resizeAndMovePage(page)
         val pods = state.presentationPodManager.addPod(updatedPod)
         state.update(pods)
       }

@@ -58,8 +58,7 @@ export default async function resizeSlide(meetingId, slide) {
       const numberAffected = await SlidePositions.updateAsync(selector, modifier);
 
       const payload = {
-        podId,
-        presentationId,
+        pageId,
         ...calculatedData,
       };
 

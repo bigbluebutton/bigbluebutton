@@ -13,7 +13,7 @@ trait AddSlidePositionsPubMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: AddSlidePositionsPubMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus) = {
-    PresPageDAO.addSlidePosition(msg.body.presentationId, msg.body.width, msg.body.height,
+    PresPageDAO.addSlidePosition(msg.body.slideId, msg.body.width, msg.body.height,
       msg.body.viewBoxWidth, msg.body.viewBoxHeight)
     state
   }

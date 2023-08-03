@@ -58,46 +58,38 @@ object PresPageDAO {
       }
   }
 
-  def resizeAndMovePage(presentation: PresentationPage, presentationId: String) = {
+  def resizeAndMovePage(presentation: PresentationPage) = {
     DatabaseConnection.db.run(
-      sqlu"""UPDATE pres_page SET
-            "xOffset" = ${presentation.xOffset},
-            "yOffset" = ${presentation.yOffset},
-            "widthRatio" = ${presentation.widthRatio},
-            "heightRatio" = ${presentation.heightRatio}
-            WHERE "presentationId" = $presentationId"""
+      TableQuery[PresPageDbTableDef]
+        .filter(_.pageId === presentation.id)
+        .map(p => (p.xOffset, p.yOffset, p.widthRatio, p.heightRatio))
+        .update((presentation.xOffset, presentation.yOffset, presentation.widthRatio, presentation.heightRatio))
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated size on PresPage table")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating size on PresPage: $e")
       }
   }
 
-  def addSlidePosition(presentationId: String, width: Double, height: Double,
+  def addSlidePosition(slideId: String, width: Double, height: Double,
                        viewBoxWidth: Double, viewBoxHeight: Double) = {
     DatabaseConnection.db.run(
-      sqlu"""UPDATE pres_page SET
-             "width" = $width,
-             "height" = $height,
-             "viewBoxWidth" = $viewBoxWidth,
-             "viewBoxHeight" = $viewBoxHeight
-             WHERE "presentationId" = $presentationId"""
+      TableQuery[PresPageDbTableDef]
+        .filter(_.pageId === slideId)
+        .map(p => (p.width, p.height, p.viewBoxWidth, p.viewBoxHeight))
+        .update((width, height, viewBoxWidth, viewBoxHeight))
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) added slide position on PresPage table")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating slide position on PresPage: $e")
       }
   }
 
-  def updateSlidePosition(presentationId: String, width: Double, height: Double, x: Double, y: Double,
+  def updateSlidePosition(pageId: String, width: Double, height: Double, x: Double, y: Double,
                           viewBoxWidth: Double, viewBoxHeight: Double) = {
     DatabaseConnection.db.run(
-      sqlu"""UPDATE pres_page SET
-             "width" = $width,
-             "height" = $height,
-             "xOffset" = $x,
-             "yOffset" = $y,
-             "viewBoxWidth" = $viewBoxWidth,
-             "viewBoxHeight" = $viewBoxHeight
-             WHERE "presentationId" = $presentationId"""
+      TableQuery[PresPageDbTableDef]
+        .filter(_.pageId === pageId)
+        .map(p => (p.width, p.height, p.xOffset, p.yOffset, p.viewBoxWidth, p.viewBoxHeight))
+        .update((width, height, x, y, viewBoxWidth, viewBoxHeight))
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated slide position on PresPage table")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating slide position on PresPage: $e")
