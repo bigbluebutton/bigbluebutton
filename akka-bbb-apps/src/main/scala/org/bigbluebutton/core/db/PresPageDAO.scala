@@ -11,7 +11,6 @@ import scala.util.{ Failure, Success }
 case class PresPageDbModel(
     pageId:         String,
     presentationId: String,
-    slideId:        String,
     num:            Int,
     urls:           String,
     slideRevealed:  Boolean,
@@ -29,7 +28,6 @@ case class PresPageDbModel(
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
   val pageId = column[String]("pageId", O.PrimaryKey)
   val presentationId = column[String]("presentationId")
-  val slideId = column[String]("slideId")
   val num = column[Int]("num")
   val urls = column[String]("urls")
   val slideRevealed = column[Boolean]("slideRevealed")
@@ -43,7 +41,7 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val viewBoxWidth = column[Double]("viewBoxWidth")
   val viewBoxHeight = column[Double]("viewBoxHeight")
   //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, slideId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  def * = (pageId, presentationId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
@@ -74,11 +72,10 @@ object PresPageDAO {
       }
   }
 
-  def addSlidePosition(presentationId: String, slideId: String, width: Double, height: Double,
+  def addSlidePosition(presentationId: String, width: Double, height: Double,
                        viewBoxWidth: Double, viewBoxHeight: Double) = {
     DatabaseConnection.db.run(
       sqlu"""UPDATE pres_page SET
-             "slideId" = $slideId,
              "width" = $width,
              "height" = $height,
              "viewBoxWidth" = $viewBoxWidth,

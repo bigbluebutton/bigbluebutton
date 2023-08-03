@@ -16,9 +16,7 @@ select_permissions:
         - isCurrentPage
         - num
         - pageId
-        - podId
-        - removable
-        - slideId
+        - removable 
         - slideRevealed
         - urls
         - viewBoxHeight

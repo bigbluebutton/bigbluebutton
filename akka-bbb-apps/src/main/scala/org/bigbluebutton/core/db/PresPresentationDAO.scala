@@ -50,7 +50,6 @@ object PresPresentationDAO {
                 PresPageDbModel(
                   pageId = page._2.id,
                   presentationId = presentation.id,
-                  slideId = "",
                   num = page._2.num,
                   urls = page._2.urls.toJson.asJsObject.compactPrint,
                   slideRevealed = page._2.current,
