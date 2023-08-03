@@ -9,7 +9,7 @@
     "app.chat.emojiButtonLabel": "Emoji valija",
     "app.chat.inputPlaceholder": "Sõnum: {0}",
     "app.chat.titlePublic": "Avalik vestlus",
-    "app.chat.titlePrivate": "Privaatne vestlus ({0})",
+    "app.chat.titlePrivate": "Privaatne vestlus - {0}",
     "app.chat.partnerDisconnected": "{0} lahkus koosolekult",
     "app.chat.closeChatLabel": "Sulge {0}",
     "app.chat.hideChatLabel": "Peida {0}",
