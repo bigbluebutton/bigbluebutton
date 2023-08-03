@@ -696,7 +696,7 @@
     "app.audio.speakers": "Kõlarid",
     "app.audio.noDeviceFound": "Seadmeid ei leitud",
     "app.audio.audioSettings.titleLabel": "Vali oma audio sätted",
-    "app.audio.audioSettings.descriptionLabel": "Pane tähele, et veebilehitsejas avaneb dialoogiaken, kus palutakse nõustuda mikrofoni jagamisega.",
+    "app.audio.audioSettings.descriptionLabel": "Pane tähele, et brauseris avaneb dialoogiaken, kus palutakse nõustuda mikrofoni jagamisega.",
     "app.audio.audioSettings.microphoneSourceLabel": "Mikrofoni sisend",
     "app.audio.audioSettings.speakerSourceLabel": "Kõlarite sisend",
     "app.audio.audioSettings.testSpeakerLabel": "Testi kõlarit",
