@@ -34,6 +34,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
           ./build/setup.sh bbb-apps-akka
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -46,28 +48,32 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-config
-      - run: tar cvf artifacts.tar artifacts/
+      - run: |
+          ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
+          ./build/setup.sh bbb-config
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
           name: artifacts_bbb-config.tar
-          path: |
-            artifacts.tar
+          path: artifacts.tar
   build-bbb-export-annotations:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-export-annotations
-      - run: tar cvf artifacts.tar artifacts/
+      - run: |
+          ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
+          ./build/setup.sh bbb-export-annotations
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
           name: artifacts_bbb-export-annotations.tar
-          path: |
-            artifacts.tar
+          path: artifacts.tar
   build-bbb-learning-dashboard:
     runs-on: ubuntu-20.04
     steps:
@@ -85,6 +91,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
           ./build/setup.sh bbb-learning-dashboard
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -97,6 +105,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - run: ./build/setup.sh bbb-playback
       - run: ./build/setup.sh bbb-playback-notes
       - run: ./build/setup.sh bbb-playback-podcast
@@ -133,6 +143,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
           ./build/setup.sh bbb-etherpad
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -160,6 +172,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
           ./build/setup.sh bbb-web
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -186,6 +200,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
           ./build/setup.sh bbb-fsesl-akka
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -211,6 +227,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
           ./build/setup.sh bbb-html5-nodejs
           ./build/setup.sh bbb-html5
           tar cvf artifacts.tar artifacts/
@@ -239,6 +257,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
+          FORCE_GIT_REV="0"
+          FORCE_COMMIT_DATE="0"
           ./build/setup.sh bbb-freeswitch-core
           ./build/setup.sh bbb-freeswitch-sounds
           tar cvf artifacts.tar artifacts/
@@ -253,6 +273,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - run: ./build/setup.sh bbb-mkclean
       - run: ./build/setup.sh bbb-pads
       - run: ./build/setup.sh bbb-libreoffice-docker
@@ -355,18 +377,18 @@ jobs:
           echo "VERSION_ADDON: $VERSION_ADDON"
           echo "GIT_REV: $GIT_REV"
           echo "VERSION: $VERSION"
-          mv artifacts/bbb-apps-akka_2* artifacts/bbb-apps-akka_2:${VERSION}_all.deb 2>/dev/null || true
-          mv artifacts/bbb-fsesl-akka_2* artifacts/bbb-fsesl-akka_2:${VERSION}_all.deb 2>/dev/null || true
-          mv artifacts/bbb-etherpad* artifacts/bbb-etherpad_${VERSION}_amd64.deb 2>/dev/null || true
-          mv artifacts/bbb-freeswitch-core* artifacts/bbb-freeswitch-core_${VERSION}_amd64.deb 2>/dev/null || true
-          mv artifacts/bbb-freeswitch-sounds* artifacts/bbb-freeswitch-sounds_${VERSION}_amd64.deb 2>/dev/null || true
-          mv artifacts/bbb-html5-nodejs* artifacts/bbb-html5-nodejs_${VERSION}_amd64.deb 2>/dev/null || true
-          mv artifacts/bbb-html5_* artifacts/bbb-html5_${VERSION}_amd64.deb 2>/dev/null || true
-          mv artifacts/bbb-web_* artifacts/bbb-web_${VERSION}_amd64.deb 2>/dev/null || true
-          mv artifacts/bbb-learning-dashboard_* artifacts/bbb-learning-dashboard_${VERSION}_amd64.deb 2>/dev/null || true
-          mv artifacts/bbb-config_* artifacts/bbb-config_${VERSION}_amd64.deb 2>/dev/null || true
-          echo "----Renamed----"
-          ls artifacts/
+#          mv artifacts/bbb-apps-akka_2* artifacts/bbb-apps-akka_2:${VERSION}_all.deb 2>/dev/null || true
+#          mv artifacts/bbb-fsesl-akka_2* artifacts/bbb-fsesl-akka_2:${VERSION}_all.deb 2>/dev/null || true
+#          mv artifacts/bbb-etherpad* artifacts/bbb-etherpad_${VERSION}_amd64.deb 2>/dev/null || true
+#          mv artifacts/bbb-freeswitch-core* artifacts/bbb-freeswitch-core_${VERSION}_amd64.deb 2>/dev/null || true
+#          mv artifacts/bbb-freeswitch-sounds* artifacts/bbb-freeswitch-sounds_${VERSION}_amd64.deb 2>/dev/null || true
+#          mv artifacts/bbb-html5-nodejs* artifacts/bbb-html5-nodejs_${VERSION}_amd64.deb 2>/dev/null || true
+#          mv artifacts/bbb-html5_* artifacts/bbb-html5_${VERSION}_amd64.deb 2>/dev/null || true
+#          mv artifacts/bbb-web_* artifacts/bbb-web_${VERSION}_amd64.deb 2>/dev/null || true
+#          mv artifacts/bbb-learning-dashboard_* artifacts/bbb-learning-dashboard_${VERSION}_amd64.deb 2>/dev/null || true
+#          mv artifacts/bbb-config_* artifacts/bbb-config_${VERSION}_amd64.deb 2>/dev/null || true
+#          echo "----Renamed----"
+#          ls artifacts/
           echo "Done"
       - name: Generate CA
         run: |

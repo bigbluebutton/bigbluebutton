@@ -24,6 +24,14 @@ else
 fi
 COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
 
+if [ ! -z "$FORCE_GIT_REV" ]; then
+    GIT_REV=$FORCE_GIT_REV
+fi
+
+if [ ! -z "$FORCE_COMMIT_DATE" ]; then
+    COMMIT_DATE=$FORCE_COMMIT_DATE
+fi
+
 # Arrange to write the docker container ID to a temp file, then run
 # the container detached and immediately attach it (without stdin) so
 # we can catch CTRL-C in this script and kill the container if so.
