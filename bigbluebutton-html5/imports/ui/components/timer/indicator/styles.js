@@ -22,7 +22,7 @@ const TimerWrapper = styled.div`
 `;
 
 const Timer = styled.div`
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   display: flex;
   max-height: ${timerPaddingXL});
 `;
