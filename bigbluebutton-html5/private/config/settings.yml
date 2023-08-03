@@ -639,6 +639,9 @@ public:
           path: 'bridge/sip'
         - name: fullaudio
           path: 'bridge/sfu-audio-bridge'
+      # Forces a retry with iceTransportPolicy = 'relay' if the first attempt
+      # fails with a few selected errors codes (eg 1007, 1010)
+      retryThroughRelay: false
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -653,7 +656,7 @@ public:
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
-    listenOnlyCallTimeout: 25000
+    listenOnlyCallTimeout: 15000
     # Experimental. True is the canonical behavior. Flip to false to reverse
     # the negotiation flow for LO subscribers.
     listenOnlyOffering: false
