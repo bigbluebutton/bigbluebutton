@@ -852,7 +852,9 @@ CREATE TABLE "pres_page" (
     "width" NUMERIC,
     "height" NUMERIC,
     "viewBoxWidth" NUMERIC,
-    "viewBoxHeight" NUMERIC
+    "viewBoxHeight" NUMERIC,
+    "maxImageWidth" integer,
+    "maxImageHeight" integer
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
@@ -871,8 +873,12 @@ SELECT pres_presentation."meetingId",
     pres_page."heightRatio",
     pres_page."width",
     pres_page."height",
-    preS_page."viewBoxWidth",
-    pres_page."viewBoxHeight"
+    pres_page."viewBoxWidth",
+    pres_page."viewBoxHeight",
+    (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS scaledWidth,
+    (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS scaledHeight,
+    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS scaledViewBoxWidth,
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS scaledViewBoxHeight
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 

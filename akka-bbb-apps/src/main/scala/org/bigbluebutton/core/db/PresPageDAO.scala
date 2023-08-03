@@ -22,7 +22,9 @@ case class PresPageDbModel(
     width:          Double,
     height:         Double,
     viewBoxWidth:   Double,
-    viewBoxHeight:  Double
+    viewBoxHeight:  Double,
+    maxImageWidth:  Int,
+    maxImageHeight: Int
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
@@ -40,8 +42,10 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val height = column[Double]("height")
   val viewBoxWidth = column[Double]("viewBoxWidth")
   val viewBoxHeight = column[Double]("viewBoxHeight")
+  val maxImageWidth = column[Int]("maxImageWidth")
+  val maxImageHeight = column[Int]("maxImageHeight")
   //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  def * = (pageId, presentationId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
@@ -83,13 +87,13 @@ object PresPageDAO {
       }
   }
 
-  def updateSlidePosition(pageId: String, width: Double, height: Double, x: Double, y: Double,
-                          viewBoxWidth: Double, viewBoxHeight: Double) = {
+  def updateSlidePosition(pageId: String, width: Double, height: Double, xOffset: Double, yOffset: Double,
+                          widthRatio: Double, heightRatio: Double) = {
     DatabaseConnection.db.run(
       TableQuery[PresPageDbTableDef]
         .filter(_.pageId === pageId)
         .map(p => (p.width, p.height, p.xOffset, p.yOffset, p.viewBoxWidth, p.viewBoxHeight))
-        .update((width, height, x, y, viewBoxWidth, viewBoxHeight))
+        .update((width, height, xOffset, yOffset, widthRatio, heightRatio))
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated slide position on PresPage table")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating slide position on PresPage: $e")

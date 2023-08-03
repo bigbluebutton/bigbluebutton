@@ -13,7 +13,7 @@ trait SlideResizedPubMsgHdlr extends RightsManagementTrait {
   def handle(msg: SlideResizedPubMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus) = {
     PresPageDAO.updateSlidePosition(msg.body.pageId, msg.body.width, msg.body.height,
-      msg.body.x, msg.body.y, msg.body.viewBoxHeight, msg.body.viewBoxWidth)
+      msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio)
     state
   }
 }

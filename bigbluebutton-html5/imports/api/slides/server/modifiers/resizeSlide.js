@@ -59,7 +59,7 @@ export default async function resizeSlide(meetingId, slide) {
 
       const payload = {
         pageId,
-        ...calculatedData,
+        ...slideData,
       };
 
       RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, '', payload);

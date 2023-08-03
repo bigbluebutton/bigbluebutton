@@ -61,7 +61,9 @@ object PresPresentationDAO {
                   width = 1,
                   height = 1,
                   viewBoxWidth = 1,
-                  viewBoxHeight = 1
+                  viewBoxHeight = 1,
+                  maxImageWidth = 1440,
+                  maxImageHeight = 1080
                 )
               )
             }
