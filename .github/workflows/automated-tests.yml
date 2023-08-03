@@ -25,6 +25,8 @@ jobs:
       - run: echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
       - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -35,8 +37,6 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-apps-akka
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -49,10 +49,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-config
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -64,10 +64,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-export-annotations
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -83,6 +83,8 @@ jobs:
           fetch-depth: 0 # Fetch all history
       - run: echo "CACHE_LEARNING_DASHBOARD_KEY=$(git log -1 --format=%H -- bbb-learning-dashboard)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -93,8 +95,6 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-learning-dashboard
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -136,6 +136,8 @@ jobs:
       - run: echo "CACHE_URL3_KEY=$(curl -s https://api.github.com/repos/mconf/ep_redis_publisher/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
       - run: echo "CACHE_URL4_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -146,8 +148,6 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-etherpad
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -166,6 +166,8 @@ jobs:
       - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
       - run: echo "CACHE_COMMON_WEB_KEY=$(git log -1 --format=%H -- bbb-common-web)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -176,8 +178,6 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-web
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -195,6 +195,8 @@ jobs:
       - run: echo "CACHE_AKKA_FSESL_KEY=$(git log -1 --format=%H -- akka-bbb-fsesl)" >> $GITHUB_ENV
       - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -205,8 +207,6 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-fsesl-akka
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -223,6 +223,8 @@ jobs:
           fetch-depth: 0 # Fetch all history
       - run: echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -233,8 +235,6 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-html5-nodejs
           ./build/setup.sh bbb-html5
           tar cvf artifacts.tar artifacts/
@@ -254,6 +254,8 @@ jobs:
       - run: echo "CACHE_FREESWITCH_SOUNDS_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-sounds)" >> $GITHUB_ENV
       - run: echo "CACHE_SOUNDS_KEY=$(curl -Is http://bigbluebutton.org/downloads/sounds.tar.gz | grep "Last-Modified" | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -264,8 +266,6 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-freeswitch-core
           ./build/setup.sh bbb-freeswitch-sounds
           tar cvf artifacts.tar artifacts/
