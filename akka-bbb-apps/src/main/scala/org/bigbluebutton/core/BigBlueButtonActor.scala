@@ -106,7 +106,6 @@ class BigBlueButtonActor(
   }
 
   def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    //test
     log.debug("RECEIVED CreateMeetingReqMsg msg {}", msg)
 
     RunningMeetings.findWithId(meetings, msg.body.props.meetingProp.intId) match {
