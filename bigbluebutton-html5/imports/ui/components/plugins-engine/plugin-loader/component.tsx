@@ -8,7 +8,7 @@ const PluginsLoaderComponent = (props: PluginLoaderComponentProps) => {
         containerRef,
         loadedPlugins,
         setLastLoadedPlugin,
-        pluginConfigSettings: plugin,
+        pluginConfig: plugin,
     } = props;
     
     useEffect(() => {

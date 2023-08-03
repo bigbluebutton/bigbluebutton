@@ -1,10 +1,10 @@
 import { useEffect, useState, useContext } from 'react';
-import { PluginProvidedStateProps, PluginProvidedStateStaticData, PluginObjects } from '../types';
+import { PluginProvidedStateProps, PluginsProvidedStateMap, PluginObjects } from '../types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { PluginsContext } from '../../components-data/plugin-context/context';
 import { ProvidedPlugins } from '../../components-data/plugin-context/types';
 
-const pluginsProvidedState: PluginProvidedStateStaticData = {};
+const pluginsProvidedState: PluginsProvidedStateMap = {};
 
 function mapItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(item: T, index: number) {
     item.setItemId(`${index}`);

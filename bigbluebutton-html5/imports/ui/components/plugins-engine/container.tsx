@@ -3,7 +3,7 @@ import logger from '/imports/startup/client/logger';
 
 import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
 import PluginsEngineComponent from './component';
-import { PluginConfigSetting, PluginEngineProps, UniquePluginConfigSetting } from './types';
+import { PluginConfig, PluginEngineProps, EffectivePluginConfig } from './types';
 import PluginsLoaderComponent from './plugin-loader/component';
 import PluginProvidedStateComponent from './plugin-provided-state/component';
 import * as uuid from 'uuid';
@@ -19,11 +19,11 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
   const [lastLoadedPlugin, setLastLoadedPlugin] = useState<HTMLScriptElement | undefined>();
   const loadedPlugins = useRef<number>(0);
 
-  const pluginsFromConfigMapped: UniquePluginConfigSetting[] = useMemo<UniquePluginConfigSetting[]>(() => PLUGINS.map((p: PluginConfigSetting) => {
+  const pluginsFromConfigMapped: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(() => PLUGINS.map((p: PluginConfig) => {
     return {
       ...p,
       uuid: uuid.v4(),
-    } as UniquePluginConfigSetting
+    } as EffectivePluginConfig
   }), [ PLUGINS ]);
 
 
@@ -46,7 +46,7 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
         }}
       />
       {
-        pluginsFromConfigMapped.map((plugin: UniquePluginConfigSetting) => {
+        pluginsFromConfigMapped.map((plugin: EffectivePluginConfig) => {
           const uuid = plugin.uuid;
           return (
             <div key={uuid}>
@@ -56,7 +56,7 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
                   containerRef, 
                   loadedPlugins, 
                   setLastLoadedPlugin,
-                  pluginConfigSettings: plugin
+                  pluginConfig: plugin
                 }}
               />
               <PluginProvidedStateComponent 
