@@ -142,6 +142,8 @@ const IsTalkingWrapper = styled.div`
   flex-direction: row;
   position: relative;
   overflow: hidden;
+  margin-top: 0.5rem;
+}
 `;
 
 const Speaking = styled.div`
