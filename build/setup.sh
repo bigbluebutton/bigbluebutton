@@ -24,10 +24,11 @@ else
 fi
 COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
 
+# FORCE_GIT_REV and FORCE_COMMIT_DATE are useful for Github Actions be able to cache previous packages
+# It sets FORCE_GIT_REV=0 and FORCE_COMMIT_DATE=0 in order to keep the same package version always
 if [ ! -z "$FORCE_GIT_REV" ]; then
     GIT_REV=$FORCE_GIT_REV
 fi
-
 if [ ! -z "$FORCE_COMMIT_DATE" ]; then
     COMMIT_DATE=$FORCE_COMMIT_DATE
 fi

@@ -25,8 +25,8 @@ jobs:
       - run: echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
       - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -49,8 +49,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: |
           ./build/get_external_dependencies.sh
           ./build/setup.sh bbb-config
@@ -64,8 +64,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: |
           ./build/get_external_dependencies.sh
           ./build/setup.sh bbb-export-annotations
@@ -83,8 +83,8 @@ jobs:
           fetch-depth: 0 # Fetch all history
       - run: echo "CACHE_LEARNING_DASHBOARD_KEY=$(git log -1 --format=%H -- bbb-learning-dashboard)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -107,8 +107,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: ./build/setup.sh bbb-playback
       - run: ./build/setup.sh bbb-playback-notes
       - run: ./build/setup.sh bbb-playback-podcast
@@ -136,8 +136,8 @@ jobs:
       - run: echo "CACHE_URL3_KEY=$(curl -s https://api.github.com/repos/mconf/ep_redis_publisher/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
       - run: echo "CACHE_URL4_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -166,8 +166,8 @@ jobs:
       - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
       - run: echo "CACHE_COMMON_WEB_KEY=$(git log -1 --format=%H -- bbb-common-web)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -195,8 +195,8 @@ jobs:
       - run: echo "CACHE_AKKA_FSESL_KEY=$(git log -1 --format=%H -- akka-bbb-fsesl)" >> $GITHUB_ENV
       - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -223,8 +223,8 @@ jobs:
           fetch-depth: 0 # Fetch all history
       - run: echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -254,8 +254,8 @@ jobs:
       - run: echo "CACHE_FREESWITCH_SOUNDS_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-sounds)" >> $GITHUB_ENV
       - run: echo "CACHE_SOUNDS_KEY=$(curl -Is http://bigbluebutton.org/downloads/sounds.tar.gz | grep "Last-Modified" | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
       - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -280,8 +280,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: ./build/setup.sh bbb-mkclean
       - run: ./build/setup.sh bbb-pads
       - run: ./build/setup.sh bbb-libreoffice-docker
@@ -374,18 +374,6 @@ jobs:
           echo "----ls artifacts/----"
           ls artifacts/
           echo "Done"
-        #          COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
-        #          VERSION_NUMBER="$(cat bigbluebutton-config/bigbluebutton-release | cut -d '=' -f2 | cut -d "-" -f1)"
-        #          VERSION_ADDON="$(cat bigbluebutton-config/bigbluebutton-release | cut -d '=' -f2 | cut -d "-" -f2)"
-        #          GIT_REV=$(git rev-parse HEAD)
-        #          GIT_REV="local-build-${GIT_REV:0:10}"
-        #          VERSION="${VERSION_NUMBER}~${VERSION_ADDON}+${COMMIT_DATE}-git.${GIT_REV}"
-        #          echo "COMMIT_DATE: $COMMIT_DATE"
-        #          echo "VERSION_NUMBER: $VERSION_NUMBER"
-        #          echo "VERSION_ADDON: $VERSION_ADDON"
-        #          echo "GIT_REV: $GIT_REV"
-        #          echo "VERSION: $VERSION"
-
       - name: Generate CA
         run: |
           sudo -i <<EOF
