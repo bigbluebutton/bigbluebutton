@@ -35,8 +35,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-apps-akka
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -51,8 +51,8 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-config
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -66,8 +66,8 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-export-annotations
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -93,8 +93,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-learning-dashboard
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -146,8 +146,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-etherpad
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -176,8 +176,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-web
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -205,8 +205,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-fsesl-akka
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -233,8 +233,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-html5-nodejs
           ./build/setup.sh bbb-html5
           tar cvf artifacts.tar artifacts/
@@ -264,8 +264,8 @@ jobs:
         name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
-          FORCE_GIT_REV="0"
-          FORCE_COMMIT_DATE="0"
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV
           ./build/setup.sh bbb-freeswitch-core
           ./build/setup.sh bbb-freeswitch-sounds
           tar cvf artifacts.tar artifacts/
