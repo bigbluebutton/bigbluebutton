@@ -143,7 +143,6 @@ const IsTalkingWrapper = styled.div`
   position: relative;
   overflow: hidden;
   margin-top: 0.5rem;
-}
 `;
 
 const Speaking = styled.div`
