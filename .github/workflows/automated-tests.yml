@@ -20,9 +20,25 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-apps-akka
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
+      - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
+      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-apps-akka-${{ env.CACHE_AKKA_APPS_KEY }}-${{ env.CACHE_COMMON_MSG_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-apps-akka
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -33,22 +49,107 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-config
-      - run: tar cvf artifacts.tar artifacts/
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-config
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
           name: artifacts_bbb-config.tar
+          path: artifacts.tar
+  build-bbb-export-annotations:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-export-annotations
+          tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-export-annotations.tar
+          path: artifacts.tar
+  build-bbb-learning-dashboard:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_LEARNING_DASHBOARD_KEY=$(git log -1 --format=%H -- bbb-learning-dashboard)" >> $GITHUB_ENV
+      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-learning-dashboard-${{ env.CACHE_LEARNING_DASHBOARD_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-learning-dashboard
+          tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-learning-dashboard.tar
+          path: artifacts.tar
+  build-bbb-playback-record:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - run: ./build/setup.sh bbb-playback
+      - run: ./build/setup.sh bbb-playback-notes
+      - run: ./build/setup.sh bbb-playback-podcast
+      - run: ./build/setup.sh bbb-playback-presentation
+      - run: ./build/setup.sh bbb-playback-screenshare
+      - run: ./build/setup.sh bbb-playback-video
+      - run: ./build/setup.sh bbb-record-core
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-playback-record.tar
           path: |
             artifacts.tar
   build-bbb-etherpad:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-etherpad
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_ETHERPAD_VERSION_KEY=$(git log -1 --format=%H -- bbb-etherpad.placeholder.sh)" >> $GITHUB_ENV
+      - run: echo "CACHE_ETHERPAD_BUILD_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-etherpad)" >> $GITHUB_ENV
+      - run: echo "CACHE_URL1_KEY=$(curl -s https://api.github.com/repos/mconf/ep_pad_ttl/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - run: echo "CACHE_URL2_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - run: echo "CACHE_URL3_KEY=$(curl -s https://api.github.com/repos/mconf/ep_redis_publisher/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - run: echo "CACHE_URL4_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-etherpad-${{ env.CACHE_ETHERPAD_VERSION_KEY }}-${{ env.CACHE_ETHERPAD_BUILD_KEY }}-${{ env.CACHE_URL1_KEY }}-${{ env.CACHE_URL2_KEY }}-${{ env.CACHE_URL3_KEY }}-${{ env.CACHE_URL4_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-etherpad
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -59,9 +160,26 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-web
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_BBB_WEB_KEY=$(git log -1 --format=%H -- bigbluebutton-web)" >> $GITHUB_ENV
+      - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
+      - run: echo "CACHE_COMMON_WEB_KEY=$(git log -1 --format=%H -- bbb-common-web)" >> $GITHUB_ENV
+      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-web-${{ env.CACHE_BBB_WEB_KEY }}-${{ env.CACHE_COMMON_MSG_KEY }}-${{ env.CACHE_COMMON_WEB_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-web
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -72,9 +190,25 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-fsesl-akka
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_AKKA_FSESL_KEY=$(git log -1 --format=%H -- akka-bbb-fsesl)" >> $GITHUB_ENV
+      - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
+      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-fsesl-akka-${{ env.CACHE_AKKA_FSESL_KEY }}-${{ env.CACHE_COMMON_MSG_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-fsesl-akka
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -85,10 +219,25 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-html5-nodejs
-      - run: ./build/setup.sh bbb-html5
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
+      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-html5-${{ env.CACHE_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-html5-nodejs
+          ./build/setup.sh bbb-html5
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -99,10 +248,27 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-freeswitch-core
-      - run: ./build/setup.sh bbb-freeswitch-sounds
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_FREESWITCH_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-core)" >> $GITHUB_ENV
+      - run: echo "CACHE_FREESWITCH_SOUNDS_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-sounds)" >> $GITHUB_ENV
+      - run: echo "CACHE_SOUNDS_KEY=$(curl -Is http://bigbluebutton.org/downloads/sounds.tar.gz | grep "Last-Modified" | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-freeswitch-${{ env.CACHE_FREESWITCH_KEY }}-${{ env.CACHE_FREESWITCH_SOUNDS_KEY }}-${{ env.CACHE_SOUNDS_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-freeswitch-core
+          ./build/setup.sh bbb-freeswitch-sounds
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -114,18 +280,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-export-annotations
-      - run: ./build/setup.sh bbb-learning-dashboard
-      - run: ./build/setup.sh bbb-libreoffice-docker
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: ./build/setup.sh bbb-mkclean
       - run: ./build/setup.sh bbb-pads
-      - run: ./build/setup.sh bbb-playback
-      - run: ./build/setup.sh bbb-playback-notes
-      - run: ./build/setup.sh bbb-playback-podcast
-      - run: ./build/setup.sh bbb-playback-presentation
-      - run: ./build/setup.sh bbb-playback-screenshare
-      - run: ./build/setup.sh bbb-playback-video
-      - run: ./build/setup.sh bbb-record-core
+      - run: ./build/setup.sh bbb-libreoffice-docker
       - run: ./build/setup.sh bbb-webrtc-sfu
       - run: ./build/setup.sh bbb-webrtc-recorder
       - run: ./build/setup.sh bbb-transcription-controller
@@ -148,7 +307,7 @@ jobs:
       #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
       #     EOF
   install-and-run-tests:
-    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
+    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-export-annotations, build-bbb-learning-dashboard, build-bbb-playback-record, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -162,6 +321,21 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-config.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-export-annotations
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-export-annotations.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-learning-dashboard
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-learning-dashboard.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-playback-record
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-playback-record.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
         uses: actions/download-artifact@v3
@@ -197,7 +371,7 @@ jobs:
         run: |
           set -e
           pwd
-          ls
+          echo "----ls artifacts/----"
           ls artifacts/
           echo "Done"
       - name: Generate CA
