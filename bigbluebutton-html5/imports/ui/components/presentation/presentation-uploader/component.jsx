@@ -20,7 +20,8 @@ import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const { isMobile } = deviceInfo;
 const propTypes = {
-  allowDownloadable: PropTypes.bool.isRequired,
+  allowDownloadOriginal: PropTypes.bool.isRequired,
+  allowDownloadWithAnnotations: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -804,7 +805,7 @@ class PresentationUploader extends Component {
 
   renderPresentationList() {
     const { presentations } = this.state;
-    const { intl, allowDownloadable } = this.props;
+    const { intl } = this.props;
 
     let presentationsSorted = presentations;
 
@@ -846,9 +847,7 @@ class PresentationUploader extends Component {
             </tr>
             <Styled.Head>
               <th colSpan={4}>{intl.formatMessage(intlMessages.currentLabel)}</th>
-              {
-                allowDownloadable ? <th>{intl.formatMessage(intlMessages.actionsLabel)}</th> : null
-              }
+              <th>{intl.formatMessage(intlMessages.actionsLabel)}</th>
             </Styled.Head>
           </thead>
           <tbody>
@@ -978,10 +977,10 @@ class PresentationUploader extends Component {
   renderDownloadableWithAnnotationsHint() {
     const {
       intl,
-      allowDownloadable,
+      allowDownloadWithAnnotations,
     } = this.props;
 
-    return allowDownloadable ? (
+    return allowDownloadWithAnnotations ? (
       <Styled.ExportHint>
         {intl.formatMessage(intlMessages.exportHint)}
       </Styled.ExportHint>
@@ -994,7 +993,8 @@ class PresentationUploader extends Component {
     const {
       intl,
       selectedToBeNextCurrent,
-      allowDownloadable,
+      allowDownloadOriginal,
+      allowDownloadWithAnnotations,
       renderPresentationItemStatus,
       hasAnnotations,
     } = this.props;
@@ -1068,8 +1068,8 @@ class PresentationUploader extends Component {
         </Styled.TableItemStatus>
         {
         hasError ? null : (
-          <Styled.TableItemActions notDownloadable={!allowDownloadable}>
-            {allowDownloadable ? (
+          <Styled.TableItemActions notDownloadable={!allowDownloadOriginal}>
+            {allowDownloadOriginal || allowDownloadWithAnnotations ? (
               <PresentationDownloadDropdown
                 hasAnnotations={hasAnyAnnotation}
                 disabled={shouldDisableExportButton}
@@ -1077,6 +1077,8 @@ class PresentationUploader extends Component {
                 aria-label={formattedDownloadAriaLabel}
                 color="primary"
                 isDownloadable={isDownloadable}
+                allowDownloadOriginal={allowDownloadOriginal}
+                allowDownloadWithAnnotations={allowDownloadWithAnnotations}
                 handleToggleDownloadable={this.handleToggleDownloadable}
                 item={item}
                 closeModal={() => Session.set('showUploadPresentationView', false)}
