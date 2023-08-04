@@ -30,8 +30,6 @@ jobs:
       - run: ./build/setup.sh bbb-playback-screenshare
       - run: ./build/setup.sh bbb-playback-video
       - run: ./build/setup.sh bbb-record-core
-      - run: ./build/setup.sh bbb-graphql-middleware
-      - run: ./build/setup.sh bbb-graphql-server
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
@@ -198,6 +196,8 @@ jobs:
       - run: ./build/get_external_dependencies.sh
       - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
       - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - run: ./build/setup.sh bbb-graphql-middleware
+      - run: ./build/setup.sh bbb-graphql-server
       - run: ./build/setup.sh bbb-mkclean
       - run: ./build/setup.sh bbb-pads
       - run: ./build/setup.sh bbb-libreoffice-docker
