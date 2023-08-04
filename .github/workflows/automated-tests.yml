@@ -123,6 +123,22 @@ jobs:
           name: artifacts_bbb-playback-record.tar
           path: |
             artifacts.tar
+  build-bbb-graphql-server:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
+      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - run: ./build/setup.sh bbb-graphql-middleware
+      - run: ./build/setup.sh bbb-graphql-server
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-graphql-server.tar
+          path: |
+            artifacts.tar
   build-bbb-etherpad:
     runs-on: ubuntu-22.04
     steps:
@@ -282,8 +298,6 @@ jobs:
       - run: ./build/get_external_dependencies.sh
       - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
       - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
-      - run: ./build/setup.sh bbb-graphql-middleware
-      - run: ./build/setup.sh bbb-graphql-server
       - run: ./build/setup.sh bbb-mkclean
       - run: ./build/setup.sh bbb-pads
       - run: ./build/setup.sh bbb-libreoffice-docker
@@ -309,7 +323,7 @@ jobs:
       #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
       #     EOF
   install-and-run-tests:
-    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-export-annotations, build-bbb-learning-dashboard, build-bbb-playback-record, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
+    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-export-annotations, build-bbb-learning-dashboard, build-bbb-playback-record, build-bbb-graphql-server, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -338,6 +352,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-playback-record.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-graphql-server
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-graphql-server.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
         uses: actions/download-artifact@v3
