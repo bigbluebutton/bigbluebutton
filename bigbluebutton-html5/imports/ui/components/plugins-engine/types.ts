@@ -30,7 +30,7 @@ export interface EffectivePluginConfig extends PluginConfig {
     uuid: string
 }
 
-export interface PluginObjects {
+export interface PluginProvidedState {
     whiteboardToolbarItems: PluginSdk.WhiteboardToolbarItem[]
 }
 
@@ -42,5 +42,5 @@ export interface PluginObjects {
  *  label: "I am a plugin", ...restOfObject}]}}
  */
 export type PluginsProvidedStateMap = {
-    [uuid: string]: PluginObjects
+    [uuid: string]: PluginProvidedState
 }

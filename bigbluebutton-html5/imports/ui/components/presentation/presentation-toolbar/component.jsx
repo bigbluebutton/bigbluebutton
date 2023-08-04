@@ -141,15 +141,15 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleRenderToolbarPluginItems() {
-    let pluginProvidedButtons = [];
+    let pluginProvidedItems = [];
     if (this.props) {
       const {
         whiteboardPluginProvidedItems: ppb,
       } = this.props;
-      pluginProvidedButtons = ppb;
+      pluginProvidedItems = ppb;
     }
 
-    return pluginProvidedButtons?.map((ppb) => {
+    return pluginProvidedItems?.map((ppb) => {
       let returnComponent;
       const ppbId = ppb.id;
 

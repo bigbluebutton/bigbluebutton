@@ -1,11 +1,7 @@
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { PluginProvidedState } from '/imports/ui/components/plugins-engine/types'
 import React from 'react';
 
 export interface PluginContextData {
-    providedPlugins: ProvidedPlugins
-    setProvidedPlugins: React.Dispatch<React.SetStateAction<ProvidedPlugins>>
-}
-
-export interface ProvidedPlugins {
-    whiteboardToolbarItems: PluginSdk.WhiteboardToolbarItem[];
+    providedPlugins: PluginProvidedState
+    setProvidedPlugins: React.Dispatch<React.SetStateAction<PluginProvidedState>>
 }
