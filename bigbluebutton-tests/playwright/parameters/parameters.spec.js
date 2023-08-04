@@ -247,13 +247,12 @@ test.describe.parallel('Create Parameters', () => {
     });
   
     test.describe.serial(() => {
-      test('Download Presentation With Annotations @flaky', async ({ browser, context, page }) => {
-        linkIssue('18408');
+      test('Download Presentation With Annotations', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.downloadPresentationWithAnnotationsDisabled });
         await disabledFeatures.downloadPresentationWithAnnotations();
       });
-      test('Download Presentation With Annotations (exclude) @flaky', async ({ browser, context, page }) => {
+      test('Download Presentation With Annotations (exclude)', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.downloadPresentationWithAnnotationsExclude });
         await disabledFeatures.downloadPresentationWithAnnotationsExclude();
