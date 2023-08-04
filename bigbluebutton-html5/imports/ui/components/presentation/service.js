@@ -6,6 +6,7 @@ import { safeMatch } from '/imports/utils/string-utils';
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
+const APP = Meteor.settings.public.app;
 
 const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
@@ -19,7 +20,7 @@ const downloadPresentationUri = (podId) => {
   }
 
   const { originalFileURI: uri } = currentPresentation;
-  return uri;
+  return `${APP.bbbWebBase}/${uri}`;
 };
 
 const isPresentationDownloadable = (podId) => {
