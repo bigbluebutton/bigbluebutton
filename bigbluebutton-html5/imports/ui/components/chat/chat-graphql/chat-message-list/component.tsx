@@ -18,6 +18,7 @@ import { useCurrentUser } from "/imports/ui/core/hooks/useCurrentUser";
 import { User } from "/imports/ui/Types/user";
 import ChatPopupContainer from "../chat-popup/component";
 
+// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -220,10 +221,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
           }
         }}
-        onMouseUp={(e) => {
+        onMouseUp={() => {
           setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
         }}
-        onTouchEnd={(e) => {
+        onTouchEnd={() => {
           setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
         }}
       >
@@ -248,6 +249,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         <div id="contentRef" ref={contentRef}>
           <ChatPopupContainer />
           {
+            // @ts-ignore
             Array.from({ length: pagesToLoad }, (v, k) => k + (firstPageToLoad)).map((page) => {
               return (
                 <ChatListPage

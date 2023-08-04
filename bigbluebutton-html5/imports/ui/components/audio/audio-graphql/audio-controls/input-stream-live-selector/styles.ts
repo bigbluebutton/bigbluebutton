@@ -1,4 +1,3 @@
-import styled, { css } from 'styled-components';
 import styled, { css, keyframes } from 'styled-components';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import Button from '/imports/ui/components/common/button/component';
@@ -22,6 +21,7 @@ const pulse = keyframes`
   }
 `;
 
+// @ts-ignore - as button comes from JS, we can't provide its props
 export const MuteToggleButton = styled(Button)`
   margin-right: 0.5rem;
   ${({ ghost }) =>
@@ -76,6 +76,7 @@ export const DangerColor = {
   paddingLeft: 12,
 };
 
+// @ts-ignore - as button comes from JS, we can't provide its props
 export const AudioDropdown = styled(ButtonEmoji)`
   span {
     i {

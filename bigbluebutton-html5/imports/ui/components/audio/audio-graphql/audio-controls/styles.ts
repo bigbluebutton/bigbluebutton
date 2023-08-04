@@ -16,6 +16,7 @@ const pulse = keyframes`
   }
 `;
 
+// @ts-ignore - as button comes from JS, we can't provide its props
 const LeaveButtonWithoutLiveStreamSelector = styled(Button)`
   ${({ ghost }) =>
     ghost &&
@@ -27,6 +28,7 @@ const LeaveButtonWithoutLiveStreamSelector = styled(Button)`
   `}
 `;
 
+// @ts-ignore - as button comes from JS, we can't provide its props
 const MuteToggleButton = styled(Button)`
   margin-right: ${smPaddingX};
   margin-left: 0;

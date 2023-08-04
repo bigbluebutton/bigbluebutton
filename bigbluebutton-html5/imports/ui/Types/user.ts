@@ -57,7 +57,7 @@ export interface User {
   guest?: boolean;
   mobile?: boolean;
   whiteboardAccess?: boolean;
-  voice?: Voice;
+  voice?: Partial<Voice>;
   locked: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   cameras: Array<Cameras>;

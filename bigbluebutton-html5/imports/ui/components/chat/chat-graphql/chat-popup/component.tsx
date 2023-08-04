@@ -14,8 +14,8 @@ interface ChatPopupProps {
 
 const WELCOME_MSG_KEY = 'welcomeMsg';
 const WELCOME_MSG_FOR_MODERATORS_KEY = 'welcomeMsgForModerators';
+// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
 

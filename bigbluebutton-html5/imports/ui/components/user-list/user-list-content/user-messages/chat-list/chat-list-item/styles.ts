@@ -150,7 +150,7 @@ const ChatNameMain = styled.span`
   `}
 `;
 
-const ChatListItem = styled.div`
+const ChatListItem = styled.button`
   display: flex;
   flex-flow: row;
   border-top-left-radius: 5px;

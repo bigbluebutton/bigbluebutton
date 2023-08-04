@@ -7,16 +7,11 @@ interface ShortcutObject {
     descId: string,
 }
 
-interface Accumulator {
-    [key: string]: string,
-}
-
-type UseShortcutHelp = Object | string
-
+// @ts-ignore - temporary, while meteor exists in the project
 const BASE_SHORTCUTS: Array<ShortcutObject> = Meteor.settings.public.app.shortcuts;
 
-function useShortcutHelp(param: string): UseShortcutHelp {
-  const [shortcut, setShortcut] = useState<UseShortcutHelp>("");
+function useShortcut(param: string): string {
+  const [shortcut, setShortcut] = useState<string>("");
 
   useEffect(() => {
     const ENABLED_SHORTCUTS = getFromUserSettings('bbb_shortcuts', null);
@@ -33,25 +28,18 @@ function useShortcutHelp(param: string): UseShortcutHelp {
         ENABLED_SHORTCUTS.includes(el.descId));
     }
 
-    let shortcutsString: Object = "";
-    if (!Array.isArray(param)) {
-      shortcutsString = shortcuts
+    let shortcutsString: string = "";
+    
+    shortcutsString = shortcuts
         .filter(el => {
           return el.descId === param.toLowerCase()})
         .map(el => {
           return el.accesskey})
         .pop() || "";
-    } else {
-        shortcutsString = shortcuts
-        .filter(el => param.map(p => p.toLowerCase()).includes(el.descId.toLowerCase()))
-        .reduce((acc: Accumulator, current: ShortcutObject) => {
-          acc[current.descId.toLowerCase()] = current.accesskey;
-          return acc;
-        }, {});
-    }
+    
     setShortcut(shortcutsString);
   }, [])
   return shortcut;
 }
 
-export { useShortcutHelp, UseShortcutHelp };
+export { useShortcut };

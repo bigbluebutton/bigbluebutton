@@ -33,8 +33,6 @@ const UserTitle: React.FC<UserTitleProps> = ({
 
 const UserTitleContainer: React.FC = () => {
   const {
-    loading: countLoading,
-    error: countError,
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;

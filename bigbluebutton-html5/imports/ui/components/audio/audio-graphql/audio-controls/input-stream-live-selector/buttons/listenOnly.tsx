@@ -1,5 +1,5 @@
 import React from "react";
-import { useShortcutHelp } from "/imports/ui/core/hooks/useShortcutHelp";
+import { useShortcut } from "/imports/ui/core/hooks/useShortcut";
 import { defineMessages, useIntl } from "react-intl";
 import Button from "/imports/ui/components/common/button/component";
 
@@ -22,7 +22,7 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
   meetingIsBreakout,
 }) => {
   const intl = useIntl();
-  const leaveAudioShourtcut = useShortcutHelp('leaveAudio');
+  const leaveAudioShourtcut = useShortcut('leaveAudio');
   return (<Button
     aria-label={intl.formatMessage(intlMessages.leaveAudio)}
     label={intl.formatMessage(intlMessages.leaveAudio)}
@@ -33,7 +33,7 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
     icon={listenOnly ? 'listen' : 'volume_level_2'}
     size="lg"
     circle
-    onClick={(e) => {
+    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       handleLeaveAudio(meetingIsBreakout);
     }}
