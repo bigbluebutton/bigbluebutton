@@ -16,6 +16,7 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const POLL_RESULT_KEY = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const QUESTION_MESSAGE_KEY = CHAT_CONFIG.system_messages_keys.chat_question_message;
 
 const propTypes = {
   pushAlertEnabled: PropTypes.bool.isRequired,
@@ -65,6 +66,10 @@ const intlMessages = defineMessages({
   pollResultsClick: {
     id: 'app.toast.chat.pollClick',
     description: 'chat toast click message for polls',
+  },
+  newQuestion: {
+    id: 'app.toast.chat.question',
+    description: 'chat toast message for questions',
   },
 });
 
@@ -189,6 +194,13 @@ const ChatAlert = (props) => {
     </Styled.PushMessageContent>
   );
 
+  const createQuestionMessage = (questionTitle) => (
+    <Styled.PushMessageContent>
+      <Styled.UserNameMessage>{intl.formatMessage(intlMessages.newQuestion)}</Styled.UserNameMessage>
+      <Styled.ContentMessageQuestion>{questionTitle}</Styled.ContentMessageQuestion>
+    </Styled.PushMessageContent>
+  )
+
   if (isEqual(prevUnreadMessages, unreadMessages)) {
     return null;
   }
@@ -203,6 +215,8 @@ const ChatAlert = (props) => {
         if (mappedMessage.id.includes(POLL_RESULT_KEY)) {
           content = createPollMessage();
           isPollResult = true;
+        } else if (mappedMessage.id.includes(QUESTION_MESSAGE_KEY)) {
+          content = createQuestionMessage(mappedMessage.extra.question.text)
         } else {
           content = createMessage(mappedMessage.sender.name, mappedMessage.content.slice(-5));
         }

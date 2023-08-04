@@ -19,6 +19,7 @@ import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
 import org.bigbluebutton.core.apps.pads.PadsApp2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
+import org.bigbluebutton.core.apps.questions.QuestionsApp2x
 import org.bigbluebutton.core.apps.timer.TimerApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
@@ -127,6 +128,7 @@ class MeetingActor(
   val presentationApp2x = new PresentationApp2x
   val screenshareApp2x = new ScreenshareApp2x
   val audioCaptionsApp2x = new AudioCaptionsApp2x
+  val questionsApp2x = new QuestionsApp2x
   val captionApp2x = new CaptionApp2x
   val chatApp2x = new ChatApp2x
   val externalVideoApp2x = new ExternalVideoApp2x
@@ -578,6 +580,15 @@ class MeetingActor(
 
       // AudioCaptions
       case m: UpdateTranscriptPubMsg                         => audioCaptionsApp2x.handle(m, liveMeeting, msgBus)
+
+      // Questions
+      case m: CreateQuestionPubMsg                           => questionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: ApproveQuestionPubMsg                          => questionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: DeleteQuestionPubMsg                           => questionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: QuestionAnsweredPubMsg                         => questionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpvoteQuestionPubMsg                           => questionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: SetAutoApproveQuestionsPubMsg                  => questionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetAutoApproveQuestionsReqMsg                  => questionsApp2x.handle(m, liveMeeting, msgBus)
 
       // GroupChat
       case m: CreateGroupChatReqMsg =>

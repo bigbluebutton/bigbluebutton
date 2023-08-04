@@ -60,6 +60,10 @@ export function isCustomVirtualBackgroundsEnabled() {
   return getDisabledFeatures().indexOf('customVirtualBackgrounds') === -1;
 }
 
+export function isQuestionsEnabled() {
+  return getDisabledFeatures().indexOf('questions') === -1 && Meteor.settings.public.questions.enabled;
+}
+
 export function isDownloadPresentationWithAnnotationsEnabled() {
   return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadWithAnnotations;
 }

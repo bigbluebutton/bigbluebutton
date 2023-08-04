@@ -14,6 +14,7 @@ import { isChatEnabled } from '/imports/ui/services/features';
 const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
   isTimerActive: PropTypes.bool.isRequired,
+  isQuestionsVisible: PropTypes.bool.isRequired,
 };
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -24,6 +25,7 @@ class UserContent extends PureComponent {
     const {
       currentUser,
       isTimerActive,
+      isQuestionsEnabled,
       pendingUsers,
       isWaitingRoomEnabled,
       isGuestLobbyMessageEnabled,
@@ -35,7 +37,7 @@ class UserContent extends PureComponent {
 
     return (
       <Styled.Content data-test="userListContent">
-        {isChatEnabled() ? <UserMessagesContainer /> : null}
+        {isChatEnabled() || isQuestionsEnabled ? <UserMessagesContainer {...{isQuestionsEnabled}} /> : null}
         {currentUser.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
         <UserNotesContainer />
         { isTimerActive && (

@@ -5,6 +5,7 @@ import { defineMessages } from 'react-intl';
 import Styled from './styles';
 import { findDOMNode } from 'react-dom';
 import ChatListItemContainer from '../../chat-list-item/container';
+import QuestionsListItemContainer from '/imports/ui/components/user-list/questions-list-item/container';
 import { injectIntl } from 'react-intl';
 
 const propTypes = {
@@ -92,6 +93,26 @@ class UserMessages extends PureComponent {
     this.setState({ selectedChat: ref });
   }
 
+  renderQuestions() {
+    const {
+      compact,
+      isQuestionsEnabled,
+    } = this.props;
+
+    if (!isQuestionsEnabled) return null;
+
+    return (
+      <QuestionsListItemContainer
+        compact={compact}
+        tabIndex={-1}
+      />
+    );
+  }
+
+  changeState(ref) {
+    this.setState({ selectedChat: ref });
+  }
+
   rove(event) {
     const { roving } = this.props;
     const { selectedChat } = this.state;
@@ -125,6 +146,7 @@ class UserMessages extends PureComponent {
           ref={(ref) => { this._msgsList = ref; }}
         >
           <Styled.List>
+            {this.renderQuestions()}
             <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
               {this.getActiveChats()}
             </TransitionGroup>

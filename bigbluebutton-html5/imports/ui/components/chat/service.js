@@ -9,6 +9,7 @@ import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
+import QuestionService from '/imports/ui/components/questions/service';
 
 const APP = Meteor.settings.public.app;
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -22,6 +23,7 @@ const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const CHAT_QUESTION_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_question_message;
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -301,6 +303,12 @@ const exportChat = (timeWindowList, intl) => {
         const pollText = htmlDecode(PollService.getPollResultString(pollResultData, intl).split('<br/>').join('\n'));
         // remove last \n to avoid empty line
         messageText = pollText.slice(0, -1);
+      }  else if (message.id.includes(CHAT_QUESTION_MESSAGE)) {
+        const margin = '\n        ';
+        userName = `${intl.formatMessage(intlMessages.questionTitle)} ${margin}`;
+        const { question } = timeWindow.extra;
+        const questionText = htmlDecode(QuestionService.getQuestionString(question, intl).split('<br/>').join(margin));
+        messageText = questionText;
       } else {
         messageText = message.text;
       }

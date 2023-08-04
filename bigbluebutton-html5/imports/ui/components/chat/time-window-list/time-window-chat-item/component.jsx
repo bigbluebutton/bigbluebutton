@@ -5,6 +5,7 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import { Meteor } from 'meteor/meteor';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import PollService from '/imports/ui/components/poll/service';
+import QuestionsService from '/imports/ui/components/questions/service';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import Styled from './styles';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -12,6 +13,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const CHAT_QUESTION_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_question_message;
 const CHAT_USER_STATUS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_status_message;
 const CHAT_PUBLIC_ID = CHAT_CONFIG.public_id;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
@@ -54,6 +56,10 @@ const intlMessages = defineMessages({
   pollResult: {
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
+  },
+  questionTitle: {
+    id: 'app.chat.questionTitle',
+    description: 'header of question in chat',
   },
   [CHAT_CLEAR_MESSAGE]: {
     id: 'app.chat.clearPublicChatMessage',
@@ -137,6 +143,10 @@ class TimeWindowChatItem extends PureComponent {
 
     if (messages && messages[0].id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
       return this.renderPollItem();
+    }
+
+    if (messages && messages[0].id.includes(CHAT_QUESTION_MESSAGE)) {
+      return this.renderQuestionItem();
     }
 
     if (messages && messages[0].id.includes(CHAT_EXPORTED_PRESENTATION_MESSAGE)) {
@@ -432,6 +442,72 @@ class TimeWindowChatItem extends PureComponent {
               }}
               scrollArea={scrollArea}
               color={color}
+            />
+          </Styled.Content>
+        </Styled.Wrapper>
+      </Styled.Item>
+    ) : null;
+  }
+
+  renderQuestionItem() {
+    const {
+      timestamp,
+      color,
+      intl,
+      messages,
+      extra,
+      getQuestionString,
+      scrollArea,
+      chatAreaId,
+      lastReadMessageTime,
+      dispatch,
+      chatId,
+      read,
+    } = this.props;
+
+    const dateTime = new Date(timestamp);
+
+    return messages ? (
+      <Styled.Item key={uniqueId('message-question-item-')}>
+        <Styled.Wrapper ref={(ref) => { this.item = ref; }}>
+          <Styled.AvatarWrapper>
+            <UserAvatar
+              color={QuestionsService.QUESTION_AVATAR_COLOR}
+              moderator={true}
+            >
+              <Styled.QuestionIcon iconName="hand" />
+            </UserAvatar>
+          </Styled.AvatarWrapper>
+          <Styled.Content>
+            <Styled.Meta>
+              <Styled.Name>
+                <span>{intl.formatMessage(intlMessages.questionTitle)}</span>
+              </Styled.Name>
+              <Styled.Time dateTime={dateTime}>
+                <FormattedTime value={dateTime} />
+              </Styled.Time>
+            </Styled.Meta>
+            <Styled.QuestionMessageChatItem
+              type="question"
+              key={messages[0].id}
+              text={getQuestionString(extra.question, intl)}
+              time={messages[0].time}
+              chatAreaId={chatAreaId}
+              lastReadMessageTime={lastReadMessageTime}
+              handleReadMessage={(time) => {
+                if (!read) {
+                  dispatch({
+                    type: 'last_read_message_timestamp_changed',
+                    value: {
+                      chatId,
+                      timestamp: time,
+                    },
+                  });
+                }
+              }}
+              scrollArea={scrollArea}
+              color={color}
+              border
             />
           </Styled.Content>
         </Styled.Wrapper>

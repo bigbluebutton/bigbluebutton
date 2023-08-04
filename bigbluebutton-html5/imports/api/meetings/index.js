@@ -10,6 +10,7 @@ const ExternalVideoMeetings = new Mongo.Collection('external-video-meetings', co
 const MeetingTimeRemaining = new Mongo.Collection('meeting-time-remaining', collectionOptions);
 const Notifications = new Mongo.Collection('notifications', collectionOptions);
 const LayoutMeetings = new Mongo.Collection('layout-meetings');
+const AutoApproveQuestionsMeetings = new Mongo.Collection('auto-approve-questions-meetings');
 
 if (Meteor.isServer) {
   // types of queries for the meetings:
@@ -20,6 +21,7 @@ if (Meteor.isServer) {
   ExternalVideoMeetings.createIndexAsync({ meetingId: 1 });
   MeetingTimeRemaining.createIndexAsync({ meetingId: 1 });
   LayoutMeetings.createIndexAsync({ meetingId: 1 });
+  AutoApproveQuestionsMeetings.createIndexAsync({ meetingId: 1 });
 }
 
 export {
@@ -28,5 +30,6 @@ export {
   MeetingTimeRemaining,
   Notifications,
   LayoutMeetings,
+  AutoApproveQuestionsMeetings,
 };
 export default Meetings;

@@ -12,7 +12,7 @@ import { Session } from 'meteor/session';
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
-const UserMessagesContainer = () => {
+const UserMessagesContainer = (props) => {
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
   const usingGroupChatContext = useContext(GroupChatContext);
@@ -22,7 +22,7 @@ const UserMessagesContainer = () => {
   const activeChats = Service.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { roving } = Service;
 
-  return <UserMessages {...{ activeChats, roving }} />;
+  return <UserMessages {...{ activeChats, roving, ...props }} />;
 };
 
 export default withTracker(() => {

@@ -231,6 +231,14 @@ const PollMessageChatItem = styled(MessageChatItem)`
   margin-top: ${chatPollMarginSm} !important;
 `;
 
+const QuestionIcon = styled(Icon)`
+  bottom: 1px;
+`;
+
+const QuestionMessageChatItem = styled(SystemMessageChatItem)`
+  border: solid 1px ${colorGrayLighter};
+`;
+
 const PresentationWrapper = styled(Wrapper)`
   display: flex;
   flex-flow: row;
@@ -278,6 +286,8 @@ export default {
   ChatItem,
   PollIcon,
   PollMessageChatItem,
+  QuestionIcon,
+  QuestionMessageChatItem,
   PresentationChatItem,
   PresentationWrapper,
   StatusMessageChatItem,
