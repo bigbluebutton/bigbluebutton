@@ -123,8 +123,8 @@ const intlMessages = defineMessages({
     description: 'label for custom layout style (push to all)',
   },
   disableLabel: {
-    id: 'app.videoDock.webcamDisableLabel',
-  }
+    id: 'app.videoDock.webcamDisableLabelAllCams',
+  },
 });
 
 class ApplicationMenu extends BaseMenu {

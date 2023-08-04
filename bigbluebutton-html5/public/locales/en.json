@@ -1155,6 +1155,7 @@
     "app.videoDock.webcamUnfocusLabel": "Unfocus",
     "app.videoDock.webcamUnfocusDesc": "Unfocus the selected webcam",
     "app.videoDock.webcamDisableLabel": "Disable self-view",
+    "app.videoDock.webcamDisableLabelAllCams": "Disable self-view (all cameras)",
     "app.videoDock.webcamEnableLabel": "Enable self-view",
     "app.videoDock.webcamDisableDesc": "Self-view disabled",
     "app.videoDock.webcamPinLabel": "Pin",
