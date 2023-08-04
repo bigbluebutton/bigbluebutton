@@ -25,6 +25,10 @@ select_permissions:
         - isCurrentPage
         - num
         - pageId
+        - scaledHeight
+        - scaledViewBoxHeight
+        - scaledViewBoxWidth
+        - scaledWidth
         - slideRevealed
         - urls
         - viewBoxHeight
