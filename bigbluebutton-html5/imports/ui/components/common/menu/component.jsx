@@ -98,7 +98,7 @@ class BBBMenu extends React.Component {
   };
 
   makeMenuItems() {
-    const { actions, selectedEmoji, intl, isHorizontal, isMobile } = this.props;
+    const { actions, selectedEmoji, intl, isHorizontal, isMobile, roundButtons, keepOpen } = this.props;
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled, description, selected } = a;
@@ -128,9 +128,10 @@ class BBBMenu extends React.Component {
           disableGutters={true}
           disabled={disabled}
           style={customStyles}
+          roundButtons={roundButtons}
           onClick={(event) => {
             onClick();
-            const close = !key?.includes('setstatus') && !key?.includes('back');
+            const close = !keepOpen && !key?.includes('setstatus') && !key?.includes('back');
             // prevent menu close for sub menu actions
             if (close) this.handleClose(event);
             event.stopPropagation();

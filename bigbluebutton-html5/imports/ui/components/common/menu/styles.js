@@ -107,6 +107,15 @@ const BBBMenuItem = styled(MenuItem)`
       }
     }
   `}
+  ${({ roundButtons }) => roundButtons && `
+    &:focus,
+    &:hover {
+      background-color: ${colorWhite} !important;
+      div div div {
+        background-color: ${colorPrimary} !important;
+      }
+    }
+  `}
 `;
 
 export default {

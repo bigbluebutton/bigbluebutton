@@ -150,6 +150,8 @@ const ReactionsButton = (props) => {
       overrideMobileStyles
       isHorizontal={!isMobile}
       isMobile={isMobile}
+      roundButtons={true}
+      keepOpen={true}
       opts={{
         id: 'reactions-dropdown-menu',
         keepMounted: true,
