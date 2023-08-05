@@ -20,12 +20,20 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - height
         - heightRatio
         - isCurrentPage
         - num
         - pageId
+        - scaledHeight
+        - scaledViewBoxHeight
+        - scaledViewBoxWidth
+        - scaledWidth
         - slideRevealed
         - urls
+        - viewBoxHeight
+        - viewBoxWidth
+        - width
         - widthRatio
         - xOffset
         - yOffset

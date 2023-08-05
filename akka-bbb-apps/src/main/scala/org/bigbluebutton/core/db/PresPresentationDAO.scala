@@ -58,6 +58,12 @@ object PresPresentationDAO {
                   yOffset = page._2.yOffset,
                   widthRatio = page._2.widthRatio,
                   heightRatio = page._2.heightRatio,
+                  width = 1,
+                  height = 1,
+                  viewBoxWidth = 1,
+                  viewBoxHeight = 1,
+                  maxImageWidth = 1440,
+                  maxImageHeight = 1080
                 )
               )
             }
@@ -68,7 +74,7 @@ object PresPresentationDAO {
             }
 
           //Set current
-          if(presentation.current) {
+          if (presentation.current) {
             setCurrentPres(presentation.id)
           }
         }
@@ -82,9 +88,9 @@ object PresPresentationDAO {
                 "current" = (case when "presentationId" = ${presentationId} then true else false end)
                 WHERE "meetingId" = (select "meetingId" from pres_presentation where "presentationId" = ${presentationId})"""
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPresentation table")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating current on PresPresentation: $e")
-    }
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPresentation table")
+        case Failure(e)            => DatabaseConnection.logger.error(s"Error updating current on PresPresentation: $e")
+      }
   }
 
 }
