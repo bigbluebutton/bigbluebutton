@@ -56,6 +56,7 @@ export default withTracker((props) => {
         clientType: 1,
       },
     }),
+    disabledCams: Session.get('disabledCams') || [],
   };
 })(VideoListItemContainer);
 

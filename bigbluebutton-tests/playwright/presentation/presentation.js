@@ -162,8 +162,8 @@ class Presentation extends MultiUsers {
   }
 
   async enableAndDisablePresentationDownload(testInfo) {
-    const { presentationDownloadable } = getSettings();
-    test.fail(!presentationDownloadable, 'Presentation download is disable');
+    const { originalPresentationDownloadable } = getSettings();
+    test.fail(!originalPresentationDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     // enable original presentation download
@@ -192,8 +192,8 @@ class Presentation extends MultiUsers {
   }
 
   async sendPresentationToDownload(testInfo) {
-    const { presentationDownloadable } = getSettings();
-    test.fail(!presentationDownloadable, 'Presentation download is disable');
+    const { presentationWithAnnotationsDownloadable } = getSettings();
+    test.fail(!presentationWithAnnotationsDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);

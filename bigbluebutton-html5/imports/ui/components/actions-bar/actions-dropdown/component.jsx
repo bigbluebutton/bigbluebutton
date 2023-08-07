@@ -276,7 +276,7 @@ class ActionsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.layoutModal),
         key: 'layoutModal',
         onClick: () => this.setLayoutModalIsOpen(true),
-        dataTest: 'layoutModal',
+        dataTest: 'manageLayoutBtn',
       });
     }
 

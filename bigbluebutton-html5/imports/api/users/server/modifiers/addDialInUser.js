@@ -20,6 +20,9 @@ export default async function addDialInUser(meetingId, voiceUser) {
     waitingForAcceptance: false,
     guestStatus: 'ALLOW',
     emoji: 'none',
+    reactionEmoji: 'none',
+    raiseHand: false,
+    away: false,
     presenter: false,
     locked: false, // TODO
     avatar: '',

@@ -1,8 +1,33 @@
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
+import RegexWebUrl from '/imports/utils/regex-weburl';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
+
+const HTML_SAFE_MAP = {
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+export const parseMessage = (message) => {
+  let parsedMessage = message || '';
+  parsedMessage = parsedMessage.trim();
+
+  // Replace <br/> with \n\r
+  parsedMessage = parsedMessage.replace(/<br\s*[\\/]?>/gi, '\n\r');
+
+  // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
+  parsedMessage = parsedMessage.replace(/[<>'"]/g, (c) => HTML_SAFE_MAP[c]);
+
+  // Replace flash links to flash valid ones
+  parsedMessage = parsedMessage.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
+
+  return parsedMessage;
+};
+
 
 export const spokeTimeoutHandles = {};
 export const clearSpokeTimeout = (meetingId, userId) => {
