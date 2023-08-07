@@ -630,6 +630,7 @@ class UserListItem extends PureComponent {
       breakoutSequence,
       meetingIsBreakout,
       voiceUser,
+      isReactionsEnabled,
     } = this.props;
 
     const emojiProps = {
@@ -641,9 +642,13 @@ class UserListItem extends PureComponent {
 
     const getIconUser = () => {
       if (user.raiseHand === true) {
-        return <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />;
+        return isReactionsEnabled 
+          ? <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />
+          : <Icon iconName={normalizeEmojiName('raiseHand')} />;
       } if (user.away === true) {
-        return <Emoji key="away" emoji={{ id: 'clock7' }} {...emojiProps} />;
+        return isReactionsEnabled 
+          ? <Emoji key="away" emoji={{ id: 'clock7' }} {...emojiProps} />
+          : <Icon iconName={normalizeEmojiName('away')} />;
       } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
         return <Icon iconName={normalizeEmojiName(user.emoji)} />;
       } if (user.reaction !== 'none') {
