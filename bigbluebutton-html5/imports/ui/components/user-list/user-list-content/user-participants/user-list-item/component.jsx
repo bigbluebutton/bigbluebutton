@@ -4,6 +4,7 @@ import { injectIntl, defineMessages } from 'react-intl';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { Session } from 'meteor/session';
 import { findDOMNode } from 'react-dom';
+import { Emoji } from 'emoji-mart';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
@@ -631,13 +632,18 @@ class UserListItem extends PureComponent {
       voiceUser,
     } = this.props;
 
+    const emojiProps = {
+      native: true,
+      size: '1.3rem',
+    };
+
     let userAvatarFiltered = user.avatar;
 
     const getIconUser = () => {
       if (user.raiseHand === true) {
-        return <Icon iconName={normalizeEmojiName('raiseHand')} />;
+        return <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />;
       } if (user.away === true) {
-        return <Icon iconName={normalizeEmojiName('away')} />;
+        return <Emoji key="away" emoji={{ id: 'clock7' }} {...emojiProps} />;
       } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
         return <Icon iconName={normalizeEmojiName(user.emoji)} />;
       } if (user.reaction !== 'none') {
