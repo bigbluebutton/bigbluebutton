@@ -484,6 +484,10 @@ class MeetingActor(
         handleGetGlobalAudioPermissionReqMsg(m)
       case m: GetMicrophonePermissionReqMsg =>
         handleGetMicrophonePermissionReqMsg(m)
+      case m: ChannelHoldChangedVoiceConfEvtMsg =>
+        handleChannelHoldChangedVoiceConfEvtMsg(m)
+      case m: ListenOnlyModeToggledInSfuEvtMsg =>
+        handleListenOnlyModeToggledInSfuEvtMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg  => handleGetCurrentLayoutReqMsg(m)
