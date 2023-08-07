@@ -59,13 +59,13 @@ public:
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
-    wakeLock:
+    wakeLock: 
       enabled: false
     allowDefaultLogoutUrl: true
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
-    guestPolicyExtraAllowOptions: true
+    guestPolicyExtraAllowOptions: false
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
@@ -169,7 +169,7 @@ public:
     enableCopyNetworkStatsButton: true
     # where should client settings be stored? if you run a single BBB server or
     # a cluster with a reverse proxy in front of it, you may set this to 'local'
-    # See https://docs.bigbluebutton.org/administration/cluster-proxy
+    # See See https://docs.bigbluebutton.org/administration/cluster-proxy
     # allowed values:
     # 'session' -> settings are stored in browser sessionStorage
     # 'local' -> settings are stored in browser localStorage
@@ -563,7 +563,7 @@ public:
     type_private: PRIVATE_ACCESS
     system_userid: SYSTEM_MESSAGE
     system_username: SYSTEM_MESSAGE
-    public_id: MAIN-PUBLIC-GROUP-CHAT
+    public_id: public
     public_group_id: MAIN-PUBLIC-GROUP-CHAT
     public_userid: public_chat_userid
     public_username: public_chat_username
@@ -639,6 +639,9 @@ public:
           path: 'bridge/sip'
         - name: fullaudio
           path: 'bridge/sfu-audio-bridge'
+      # Forces a retry with iceTransportPolicy = 'relay' if the first attempt
+      # fails with a few selected errors codes (eg 1007, 1010)
+      retryThroughRelay: false
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -653,7 +656,7 @@ public:
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
-    listenOnlyCallTimeout: 25000
+    listenOnlyCallTimeout: 15000
     # Experimental. True is the canonical behavior. Flip to false to reverse
     # the negotiation flow for LO subscribers.
     listenOnlyOffering: false
@@ -742,7 +745,8 @@ public:
       - critical
     help: STATS_HELP_URL
   presentation:
-    allowDownloadable: true
+    allowDownloadOriginal: true
+    allowDownloadWithAnnotations: true
     allowSnapshotOfCurrentSlide: true
     panZoomThrottle: 32
     restoreOnUpdate: true

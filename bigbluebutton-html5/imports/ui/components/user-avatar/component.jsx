@@ -80,7 +80,7 @@ const UserAvatar = ({
         }}
       >
 
-        <Styled.Talking talking={talking && !muted && avatar.length === 0} animations={animations} />
+        <Styled.Talking talking={talking && !muted} animations={animations} />
 
         {avatar.length !== 0 && !emoji
           ? (

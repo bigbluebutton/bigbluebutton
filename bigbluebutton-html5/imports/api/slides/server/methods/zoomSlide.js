@@ -56,6 +56,7 @@ export default async function zoomSlide(slideNumber, podId, widthRatio, heightRa
       yOffset: y,
       widthRatio,
       heightRatio,
+      slideNumber: validSlideNum,
     };
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

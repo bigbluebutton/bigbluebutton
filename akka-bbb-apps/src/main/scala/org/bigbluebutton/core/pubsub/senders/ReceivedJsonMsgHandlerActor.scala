@@ -292,6 +292,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetCurrentPagePubMsg](envelope, jsonNode)
       case ResizeAndMovePagePubMsg.NAME =>
         routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
+      case AddSlidePositionsPubMsg.NAME =>
+        routeGenericMsg[AddSlidePositionsPubMsg](envelope, jsonNode)
+      case SlideResizedPubMsg.NAME =>
+        routeGenericMsg[SlideResizedPubMsg](envelope, jsonNode)
       case RemovePresentationPubMsg.NAME =>
         routeGenericMsg[RemovePresentationPubMsg](envelope, jsonNode)
       case SetPresentationDownloadablePubMsg.NAME =>

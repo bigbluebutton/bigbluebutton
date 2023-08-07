@@ -4,6 +4,7 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Create Parameters', () => {
   test('Record Meeting', async ({ browser, context, page }) => {
@@ -257,7 +258,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.downloadPresentationWithAnnotationsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Import Presentation With Annotations From Breakout Rooms', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
