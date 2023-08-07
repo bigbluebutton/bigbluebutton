@@ -562,7 +562,7 @@
     "app.statusNotifier.raisedHandDescOneUser": "{0} a levé la main",
     "app.statusNotifier.and": "et",
     "app.switch.onLabel": "Activé",
-    "app.switch.offLabel": "Éteint",
+    "app.switch.offLabel": "Désactivé",
     "app.talkingIndicator.ariaMuteDesc" : "Sélectionner pour rendre l'utilisateur silencieux",
     "app.talkingIndicator.isTalking" : "{0} est en train de parler",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking" : "{0}+ parlent",
