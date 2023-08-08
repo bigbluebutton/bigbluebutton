@@ -907,7 +907,7 @@
     "app.guest-policy.button.askModerator": "Pregunta ao moderador",
     "app.guest-policy.button.alwaysAccept": "Aceptar sempre",
     "app.guest-policy.button.alwaysDeny": "Denegar sempre",
-    "app.guest-policy.policyBtnDesc": "Establece a política de convidados á xuntanza",
+    "app.guest-policy.policyBtnDesc": "Estabelece a política de convidados á xuntanza",
     "app.connection-status.ariaTitle": "Estado da conexión modal",
     "app.connection-status.title": "Estado da conexión",
     "app.connection-status.description": "Ver o estado de conexión dos usuarios",
