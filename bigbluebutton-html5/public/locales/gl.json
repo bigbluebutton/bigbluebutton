@@ -1142,7 +1142,7 @@
     "app.createBreakoutRoom.numberOfRoomsError": "O número de salas non é válido",
     "app.createBreakoutRoom.duplicatedRoomNameError": "Non é posíbel duplicar o nome da sala.",
     "app.createBreakoutRoom.emptyRoomNameError": "O nome da sala non pode estar baleiro.",
-    "app.createBreakoutRoom.setTimeInMinutes": "Establecer a duración en (minutos)",
+    "app.createBreakoutRoom.setTimeInMinutes": "Estabelecer a duración en (minutos)",
     "app.createBreakoutRoom.setTimeLabel": "Aplicar",
     "app.createBreakoutRoom.setTimeCancel": "Cancelar",
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "A duración das salas parciais non pode exceder o tempo restante da xuntanza.",
