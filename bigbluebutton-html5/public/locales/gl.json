@@ -4,7 +4,7 @@
     "app.chat.loading": "Mensaxes de parola cargadas: {0}%",
     "app.chat.errorMaxMessageLength": "A mensaxe é demasiado longa, superou o máximo de {0} caracteres",
     "app.chat.disconnected": "Vde. esta desconectado, non é posíbel enviar as mensaxes",
-    "app.chat.locked": "Conversa bloqueado, anon é posíbel enviar as mensaxes",
+    "app.chat.locked": "Parola bloqueada, non é posíbel enviar as mensaxes",
     "app.chat.inputLabel": "Entrada de mensaxe para a parola {0}",
     "app.chat.emojiButtonLabel": "Selector de «emojis»",
     "app.chat.inputPlaceholder": "Mensaxe {0}",
