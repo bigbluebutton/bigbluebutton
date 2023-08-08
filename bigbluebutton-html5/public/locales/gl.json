@@ -22,7 +22,7 @@
     "app.chat.offline": "Sen conexión",
     "app.chat.pollResult": "Resultados da enquisa",
     "app.chat.breakoutDurationUpdated": "O tempo restante da sala parcial é agora de {0} minutos",
-    "app.chat.breakoutDurationUpdatedModerator": "O tempo das salas de descanso é agora de {0} minutos, e enviouse unha notificación.",
+    "app.chat.breakoutDurationUpdatedModerator": "O tempo das salas parciais é agora de {0} minutos, e enviouse unha notificación.",
     "app.chat.emptyLogLabel": "Rexistro da conversa baleiro",
     "app.chat.clearPublicChatMessage": "A conversa publica foi retirada por un moderador",
     "app.chat.multi.typing": "Varios usuarios están a escribir",
