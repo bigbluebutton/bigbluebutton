@@ -243,7 +243,7 @@
     "app.presentationUploader.exportHint": "Ao seleccionar \"Enviar ao chat\" proporcionarase aos usuarios unha ligazón para descargar con anotacións no chat público.",
     "app.presentationUploader.exportToastHeader": "Enviando ao chat (elemento {0})",
     "app.presentationUploader.exportToastHeaderPlural": "Enviando ao chat ({0} elementos)",
-    "app.presentationUploader.exporting": "Enviando ao chat",
+    "app.presentationUploader.exporting": "Enviando á parola",
     "app.presentationUploader.sending": "Enviando...",
     "app.presentationUploader.collecting": "Extraendo a diapositiva {0} de {1}...",
     "app.presentationUploader.processing": "Anotando a diapositiva {0} de {1}...",
