@@ -6,7 +6,7 @@
     "app.chat.disconnected": "Esta desconectado, non é posíbel enviar as mensaxes",
     "app.chat.locked": "Conversa bloqueado, anon é posíbel enviar as mensaxes",
     "app.chat.inputLabel": "Entrada de mensaxe para a conversa {0}",
-    "app.chat.emojiButtonLabel": "Selector de emojis",
+    "app.chat.emojiButtonLabel": "Selector de «emojis»",
     "app.chat.inputPlaceholder": "Mensaxe {0}",
     "app.chat.titlePublic": "Conversa pública",
     "app.chat.titlePrivate": "Conversa privada con {0}.",
