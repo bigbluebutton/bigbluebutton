@@ -120,7 +120,7 @@
     "app.userList.menu.clearStatus.label": "Limpar o estado",
     "app.userList.menu.removeUser.label": "Retirar o usuario",
     "app.userList.menu.removeConfirmation.label": "Retirar o usuario ({0})",
-    "app.userlist.menu.removeConfirmation.desc": " Impedir que este usuario se reincorpore á sesión.",
+    "app.userlist.menu.removeConfirmation.desc": "Impedir que este usuario volva unirse á sesión.",
     "app.userList.menu.muteUserAudio.label": "Desactivar o son do usuario",
     "app.userList.menu.unmuteUserAudio.label": "Devolverlle o son ao usuario",
     "app.userList.menu.webcamPin.label": " Fixar a cámara web do usuario",
