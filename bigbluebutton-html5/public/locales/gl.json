@@ -1152,7 +1152,7 @@
     "app.updateBreakoutRoom.cancelLabel": "Cancelar",
     "app.updateBreakoutRoom.title": "Actualizar salas de grupos",
     "app.updateBreakoutRoom.confirm": "Aplicar",
-    "app.updateBreakoutRoom.userChangeRoomNotification": "Trasladáronte á sala {0}.",
+    "app.updateBreakoutRoom.userChangeRoomNotification": "Vde. foi trasladado á sala {0}.",
     "app.smartMediaShare.externalVideo": "Vídeo(s) externo(s)",
     "app.update.resetRoom": "Restabelecer a sala de usuarios",
     "app.externalVideo.start": "Compartir un novo vídeo",
