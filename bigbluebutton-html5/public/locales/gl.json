@@ -240,7 +240,7 @@
     "app.presentation.placeholder": "Non hai ningunha presentación activa actualmente",
     "app.presentationUploder.title": "Presentación",
     "app.presentationUploder.message": "Como presentador tes a posibilidade de cargar calquera documento de Office ou ficheiro PDF. Recomendamos o ficheiro PDF para obter os mellores resultados. Asegúrate de seleccionar unha presentación usando a caixa de verificación do círculo do lado esquerdo.",
-    "app.presentationUploader.exportHint": "Ao seleccionar \"Enviar ao chat\" proporcionarase aos usuarios unha ligazón para descargar con anotacións no chat público.",
+    "app.presentationUploader.exportHint": "Ao seleccionar \"Enviando á parola\" fornéceselle aos usuarios unha ligazón para descargar con anotacións na parola pública.",
     "app.presentationUploader.exportToastHeader": "Enviando á parola (elemento {0})",
     "app.presentationUploader.exportToastHeaderPlural": "Enviando á parola ({0} elementos)",
     "app.presentationUploader.exporting": "Enviando á parola",
