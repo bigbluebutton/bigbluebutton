@@ -434,7 +434,7 @@
     "app.mobileAppModal.openStore": "Non, abre a App Store para descargar",
     "app.mobileAppModal.dismissLabel": "Cancelar",
     "app.mobileAppModal.dismissDesc": "Pechar",
-    "app.mobileAppModal.userConnectedWithSameId": "O usuario {0} ven de conectarse co mesmo ID que Vde.",
+    "app.mobileAppModal.userConnectedWithSameId": "O usuario {0} vén de conectarse co mesmo ID que Vde.",
     "app.actionsBar.changeStatusLabel": "Cambiar o estado",
     "app.actionsBar.muteLabel": "Desactivar o son",
     "app.actionsBar.unmuteLabel": "Devolver o son ",
