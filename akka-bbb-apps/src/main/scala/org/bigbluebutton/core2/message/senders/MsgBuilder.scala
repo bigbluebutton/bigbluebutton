@@ -618,4 +618,34 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildHoldChannelInVoiceConfSysMsg(
+      meetingId: String,
+      voiceConf: String,
+      uuid:      String,
+      hold:      Boolean
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(HoldChannelInVoiceConfSysMsg.NAME, routing)
+    val body = HoldChannelInVoiceConfSysMsgBody(voiceConf, uuid, hold)
+    val header = BbbCoreHeaderWithMeetingId(HoldChannelInVoiceConfSysMsg.NAME, meetingId)
+    val event = HoldChannelInVoiceConfSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildToggleListenOnlyModeSysMsg(
+      meetingId: String,
+      voiceConf: String,
+      userId:    String,
+      enabled:   Boolean
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(ToggleListenOnlyModeSysMsg.NAME, routing)
+    val body = ToggleListenOnlyModeSysMsgBody(voiceConf, userId, enabled)
+    val header = BbbCoreHeaderWithMeetingId(ToggleListenOnlyModeSysMsg.NAME, meetingId)
+    val event = ToggleListenOnlyModeSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
 }

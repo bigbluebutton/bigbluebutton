@@ -406,6 +406,28 @@ export default class WebRtcPeer extends EventEmitter2 {
     });
 
     return this._setRemoteDescription(offer)
+      .then(async () => {
+        if (this.mode === 'sendonly' || this.mode === 'sendrecv') {
+          await this.mediaStreamFactory();
+
+          if (this.videoStream) {
+            this.videoStream.getTracks().forEach((track) => {
+              this.peerConnection.addTrack(track, this.videoStream);
+            });
+          }
+
+          if (this.audioStream) {
+            this.audioStream.getTracks().forEach((track) => {
+              this.peerConnection.addTrack(track, this.audioStream);
+            });
+          }
+
+          this.peerConnection.getTransceivers().forEach((transceiver) => {
+            // eslint-disable-next-line no-param-reassign
+            transceiver.direction = this.mode;
+          });
+        }
+      })
       .then(() => this.peerConnection.createAnswer())
       .then((answer) => {
         this.logger.debug('BBB::WebRtcPeer::processOffer - created answer', answer);

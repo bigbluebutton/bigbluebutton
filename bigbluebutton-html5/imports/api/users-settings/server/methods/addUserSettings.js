@@ -35,6 +35,7 @@ const currentParameters = [
   'bbb_skip_check_audio',
   'bbb_skip_check_audio_on_first_join',
   'bbb_fullaudio_bridge',
+  'bbb_transparent_listen_only',
   // BRANDING
   'bbb_display_branding_area',
   // SHORTCUTS

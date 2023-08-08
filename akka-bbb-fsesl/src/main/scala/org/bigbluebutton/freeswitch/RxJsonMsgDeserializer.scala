@@ -243,4 +243,21 @@ trait RxJsonMsgDeserializer {
     }
   }
 
+  def routeHoldChannelInVoiceConfMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
+    def deserialize(jsonNode: JsonNode): Option[HoldChannelInVoiceConfSysMsg] = {
+      val (result, error) = JsonDeserializer.toBbbCommonMsg[HoldChannelInVoiceConfSysMsg](jsonNode)
+      result match {
+        case Some(msg) => Some(msg.asInstanceOf[HoldChannelInVoiceConfSysMsg])
+        case None =>
+          log.error("Failed to deserialize message: error: {} \n msg: {}", error, jsonNode)
+          None
+      }
+    }
+
+    for {
+      m <- deserialize(jsonNode)
+    } yield {
+      fsApp.holdChannel(m.body.voiceConf, m.body.uuid, m.body.hold)
+    }
+  }
 }
