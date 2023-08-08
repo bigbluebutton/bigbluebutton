@@ -1,4 +1,7 @@
 import styled from 'styled-components';
+import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import Button from '/imports/ui/components/common/button/component';
+
 import {
   colorOffWhite,
   colorGrayLightest,
@@ -7,15 +10,18 @@ import {
   btnPrimaryBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const Wrapper = styled.div`
-  display: flex;
-  padding: .5rem;
+const RaiseHandButton = styled(Button)`
+${({ ghost }) => ghost && `
+  & > span {
+    box-shadow: none;
+    background-color: transparent !important;
+    border-color: ${colorWhite} !important;
+  }
+   `}
+`;
 
-  ${({ isMobile }) => isMobile && `
-    flex-direction: column;
-    align-items: center;
-    padding: .5rem 0;
- `}
+const ReactionsDropdown = styled.div`
+  position: relative;
 `;
 
 const ButtonWrapper = styled.div`
@@ -38,8 +44,7 @@ const ButtonWrapper = styled.div`
   }
 
   & > * > span {
-    height: 1.8rem !important;
-    width: 1.8rem !important;
+    margin-left: 4px;
   }
 
   ${({ active }) => active && `
@@ -56,10 +61,18 @@ const ButtonWrapper = styled.div`
 `;
 
 const RaiseHandButtonWrapper = styled(ButtonWrapper)`
-  width: auto;
-  border: 1px solid ${colorGrayLightest};
+  width: 2.5rem;
   border-radius: 1.7rem;
-  padding: 1rem 0.5rem;
+
+  & > * > span {
+    margin-left: 5px;
+  }
+
+  ${({ isMobile }) => !isMobile && `
+    border: 1px solid ${colorGrayLightest};
+    padding: 1rem 0.5rem;
+    width: auto;
+  `}
 
   ${({ active }) => active && `
     color: ${btnPrimaryColor};
@@ -71,23 +84,11 @@ const RaiseHandButtonWrapper = styled(ButtonWrapper)`
       background-color: ${btnPrimaryHoverBg} !important;
     }  
   `}
-`
-
-const Separator = styled.div`
-  height: 2.5rem;
-  width: 0;
-  border: 1px solid ${colorGrayLightest};
-  align-self: center;
-  opacity: .75;
-
-  ${({ isMobile }) => isMobile && `
-    display: none;
- `}
 `;
 
 export default {
-  Wrapper,
+  RaiseHandButton,
+  ReactionsDropdown,
   ButtonWrapper,
   RaiseHandButtonWrapper,
-  Separator,
 };
