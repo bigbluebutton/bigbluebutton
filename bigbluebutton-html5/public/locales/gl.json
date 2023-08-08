@@ -305,7 +305,7 @@
     "app.presentationUploder.uploadViewTitle": "Enviar presentación",
     "app.poll.questionAndoptions.label" : "Texto da pregunta que se amosará.\nA. Opción de enquisa *\nB. Opción de enquisa (opcional)\nC. Opción de enquisa (opcional)\nD. Opción de enquisa (opcional)\nE. Opción de enquisa (opcional)",
     "app.poll.customInput.label": "Entrada personalizada",
-    "app.poll.customInputInstructions.label": "A entrada personalizada está activada: escribe a pregunta de enquisa e as opcións nun formato determinado ou arrastra e solta un ficheiro de texto no mesmo formato.",
+    "app.poll.customInputInstructions.label": "A entrada personalizada está activada: escriba a pregunta de enquisa e a(s) opción(s) no formato indicado ou arrastre e solte un ficheiro de texto no mesmo formato.",
     "app.poll.maxOptionsWarning.label": "Só se poden usar as 5 primeiras opcións!",
     "app.poll.pollPaneTitle": "Enquisa",
     "app.poll.enableMultipleResponseLabel": "Permitir varias respostas por enquisado?",
