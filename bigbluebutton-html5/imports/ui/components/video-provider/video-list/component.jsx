@@ -10,9 +10,6 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS } from '../../layout/enums';
-import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
-
-const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,

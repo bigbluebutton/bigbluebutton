@@ -319,11 +319,7 @@ class VideoService {
   getPageSizeDictionary () {
     // Dynamic page sizes are disabled. Fetch the stock page sizes.
     if (!PAGINATION_THRESHOLDS_ENABLED || PAGINATION_THRESHOLDS.length <= 0) {
-      if (this.isGridEnabled()) {
-        return !this.isMobile ? DESKTOP_GRID_PAGE_SIZES : MOBILE_GRID_PAGE_SIZES;
-      } else {
-        return !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
-      }
+      return !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
     }
 
     // Dynamic page sizes are enabled. Get the user count, isolate the
@@ -380,6 +376,23 @@ class VideoService {
     }
 
     return this.setPageSize(size);
+  }
+
+  getGridSize () {
+    let size;
+    const myRole = this.getMyRole();
+    const pageSizes = !this.isMobile ? DESKTOP_GRID_PAGE_SIZES : MOBILE_GRID_PAGE_SIZES;
+    
+    switch (myRole) {
+      case ROLE_MODERATOR:
+        size = pageSizes.moderator;
+        break;
+      case ROLE_VIEWER:
+      default:
+        size = pageSizes.viewer
+    }
+
+    return size;
   }
 
   getVideoPage (streams, pageSize) {
@@ -443,24 +456,6 @@ class VideoService {
       { fields: neededDataTypes },
     ).fetch();
 
-    if (isGridEnabled) {
-      const users = Users.find(
-        { meetingId: Auth.meetingID },
-        { fields: { loggedOut: 1, left: 1, ...neededDataTypes} },
-      ).fetch();
-
-      const streamUsers = streams.map((stream) => stream.userId);
-
-      const filteredUsers = users.filter(
-        (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId)
-      ).map((user) => ({
-        isGridItem: true,
-        ...user,
-        }));
-
-      streams = sortVideoStreams(streams.concat(filteredUsers), DEFAULT_SORTING);
-    }
-
     // Data savings enabled will only show local streams
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
@@ -482,7 +477,26 @@ class VideoService {
 
     const paginatedStreams = this.getVideoPage(streams, pageSize);
 
-    return { streams: paginatedStreams, totalNumberOfStreams: streams.length };
+    let gridUsers = [];
+
+    if (isGridEnabled) {
+      const users = Users.find(
+        { meetingId: Auth.meetingID },
+        { fields: { loggedOut: 1, left: 1, ...neededDataTypes} },
+      ).fetch();
+
+      const streamUsers = paginatedStreams.map((stream) => stream.userId);
+
+      gridUsers = users.filter(
+        (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId)
+      ).map((user) => ({
+        isGridItem: true,
+        ...user,
+        }));
+
+    }
+
+    return { streams: paginatedStreams, gridUsers, totalNumberOfStreams: streams.length };
   }
 
   stopConnectingStream () {
