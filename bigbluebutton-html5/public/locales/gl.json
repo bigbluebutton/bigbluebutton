@@ -116,7 +116,7 @@
     "app.userList.menuTitleContext": "Opcións dispoñíbeis",
     "app.userList.chatListItem.unreadSingular": "Unha nova mensaxe",
     "app.userList.chatListItem.unreadPlural": "{0} novas mensaxes",
-    "app.userList.menu.chat.label": "Iniciar a conversa privada",
+    "app.userList.menu.chat.label": "Iniciar a parola privada",
     "app.userList.menu.clearStatus.label": "Limpar o estado",
     "app.userList.menu.removeUser.label": "Retirar o usuario",
     "app.userList.menu.removeConfirmation.label": "Retirar o usuario ({0})",
