@@ -945,7 +945,7 @@
     "app.recording.notify.title": "Comezou a gravación",
     "app.recording.notify.description": "Haberá unha gravación dispoñible en función do resto desta sesión",
     "app.recording.notify.continue": "Continuar",
-    "app.recording.notify.leave": "Abandonar a xuntanza",
+    "app.recording.notify.leave": "Abandonar a sesión",
     "app.recording.notify.continueLabel" : "Aceptar a gravación e continuar",
     "app.recording.notify.leaveLabel" : "Non aceptar a gravación e saír da xuntanza",
     "app.videoPreview.cameraLabel": "Cámara web",
