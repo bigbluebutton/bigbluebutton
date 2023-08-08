@@ -1025,7 +1025,7 @@
     "app.video.virtualBackground.typeNotAllowed": "Non se permite o tipo de ficheiro.",
     "app.video.virtualBackground.errorOnRead": "Produciuse un erro ao ler o ficheiro.",
     "app.video.virtualBackground.uploaded": "Cargado",
-    "app.video.virtualBackground.uploading": "Cargando...",
+    "app.video.virtualBackground.uploading": "Enviando…",
     "app.video.virtualBackground.button.customDesc": "Engade unha nova imaxe de fondo virtual",
     "app.video.camCapReached": "Non pode compartir máis cámaras",
     "app.video.meetingCamCapReached": "A xuntanza acadou o seu límite de cámaras simultáneas",
