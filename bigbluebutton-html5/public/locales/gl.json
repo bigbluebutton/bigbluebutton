@@ -816,7 +816,7 @@
     "app.toast.setEmoji.label": "Estado do emoji cambiado a {0}",
     "app.toast.meetingMuteOn.label": "Todos os usuarios foron silenciados",
     "app.toast.meetingMuteOnViewers.label": "Todos os espectadores foron silenciados",
-    "app.toast.meetingMuteOff.label": "Desactivouse a reunión silenciosa",
+    "app.toast.meetingMuteOff.label": "Desactivouse o silencio da xuntanza",
     "app.toast.setEmoji.raiseHand": "Vostede ergueu a man",
     "app.toast.setEmoji.lowerHand": "A túa man foi baixada",
     "app.toast.promotedLabel": "Vostede foi promovido a moderador",
