@@ -74,6 +74,7 @@ const ReactionsButton = (props) => {
   const emojiProps = {
     native: true,
     size: '1.5rem',
+    padding: '4px',
   };
 
   const reactions = [
