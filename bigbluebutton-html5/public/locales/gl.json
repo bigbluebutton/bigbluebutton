@@ -230,7 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Presentacións xeradas…",
     "app.presentationUploder.conversion.generatingSvg": "Xerando imaxes SVG…",
     "app.presentationUploder.conversion.pageCountExceeded": "O número de páxinas superou o máximo de {0}",
-    "app.presentationUploder.conversion.conversionTimeout": "Non se puido procesar a diapositiva {0} tras {1} intentos.",
+    "app.presentationUploder.conversion.conversionTimeout": "Non foi posíbel procesar a diapositiva {0} tras {1} intentos.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Produciuse un fallo ao procesar o documento de oficina. No seu lugar envíe un PDF.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Produciuse un fallo ao procesar o documento de oficina. No seu lugar envíe un PDF.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Non foi posíbel converter o ficheiro PDF. Tente optimizalo. Tamaño máximo de páxina {0}",
