@@ -429,7 +429,7 @@
     "app.mobileAppModal.title": "Abrir a aplicación BigBlueButton Tablet",
     "app.mobileAppModal.description": "Tes a aplicación BigBlueButton Tablet instalada no teu dispositivo?",
     "app.mobileAppModal.openApp": "Si, abre a aplicación agora",
-    "app.mobileAppModal.obtainUrlMsg": "Obtendo da URL da reunión",
+    "app.mobileAppModal.obtainUrlMsg": "Obtendo o URL da xuntanza",
     "app.mobileAppModal.obtainUrlErrorMsg": "Produciuse un erro ao tentar obter a URL da xuntanza",
     "app.mobileAppModal.openStore": "Non, abra a Tenda de aplicacións para descargala",
     "app.mobileAppModal.dismissLabel": "Cancelar",
