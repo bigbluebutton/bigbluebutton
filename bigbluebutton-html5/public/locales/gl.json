@@ -735,7 +735,7 @@
     "app.meeting.logout.ejectedFromMeeting": "Vostede foi retirado/a da xuntanza",
     "app.meeting.logout.validateTokenFailedEjectReason": "Produciuse un erro ao validar o testemuño de autorización",
     "app.meeting.logout.userInactivityEjectReason": "Usuario inactivo durante demasiado tempo",
-    "app.meeting.logout.maxParticipantsReached": "Alcanzouse o número máximo de participantes permitido para esta reunión",
+    "app.meeting.logout.maxParticipantsReached": "Acadouse o número máximo de participantes permitido para esta xuntanza",
     "app.meeting-ended.rating.legendLabel": "Valoración de comentarios",
     "app.meeting-ended.rating.starLabel": "Estrela",
     "app.modal.close": "Pechar",
