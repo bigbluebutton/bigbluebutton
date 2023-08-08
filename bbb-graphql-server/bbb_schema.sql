@@ -672,7 +672,7 @@ CREATE TRIGGER "update_user_reaction_trigger" BEFORE UPDATE ON "user_reaction"
 CREATE TRIGGER "insert_user_reaction_trigger" BEFORE INSERT ON "user_reaction" FOR EACH ROW
 EXECUTE FUNCTION "update_user_reaction_trigger_func"();
 
---ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp GENERATED ALWAYS AS ("createdAt" + '1 seconds'::INTERVAL * "duration") STORED;
+--ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp with time zone GENERATED ALWAYS AS ("createdAt" + '1 seconds'::INTERVAL * "duration") STORED;
 
 CREATE INDEX "idx_user_reaction_userId_createdAt" ON "user_reaction"("userId", "expiresAt");
 
@@ -909,7 +909,7 @@ CREATE TABLE "pres_annotation" (
 	"userId" varchar(50),
 	"annotationInfo" TEXT,
 	"lastHistorySequence" integer,
-	"lastUpdatedAt" timestamp DEFAULT now()
+	"lastUpdatedAt" timestamp with time zone DEFAULT now()
 );
 CREATE INDEX "idx_pres_annotation_pageId" ON "pres_annotation"("pageId");
 CREATE INDEX "idx_pres_annotation_updatedAt" ON "pres_annotation"("pageId","lastUpdatedAt");
@@ -920,7 +920,7 @@ CREATE TABLE "pres_annotation_history" (
 	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
 	"userId" varchar(50),
 	"annotationInfo" TEXT
---	"lastUpdatedAt" timestamp DEFAULT now()
+--	"lastUpdatedAt" timestamp with time zone DEFAULT now()
 );
 CREATE INDEX "idx_pres_annotation_history_pageId" ON "pres_annotation"("pageId");
 
@@ -1059,7 +1059,7 @@ CREATE TABLE "pres_page_cursor" (
     "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
     "xPercent" numeric,
     "yPercent" numeric,
-    "lastUpdatedAt" timestamp DEFAULT now(),
+    "lastUpdatedAt" timestamp with time zone DEFAULT now(),
     CONSTRAINT "pres_page_cursor_pkey" PRIMARY KEY ("pageId","userId")
 );
 create index "idx_pres_page_cursor_pageId" on "pres_page_cursor"("pageId");
