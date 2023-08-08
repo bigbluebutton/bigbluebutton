@@ -1134,7 +1134,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Engadir participante",
     "app.createBreakoutRoom.freeJoin": "Permitirlle aos usuarios escoller a sala parcial á que incorporarse",
     "app.createBreakoutRoom.captureNotes": "Captura notas compartidas cando rematen as salas de grupos",
-    "app.createBreakoutRoom.captureSlides": "Captura o encerado cando rematen as salas de grupos",
+    "app.createBreakoutRoom.captureSlides": "Capturar o encerado cando rematen as salas parciais",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Debe poñer polo menos un usuario nunha sala parcial",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "A duración mínima para unha sala parcial é de {0} minutos.",
     "app.createBreakoutRoom.modalDesc": "Consello: pode arrastrar e soltar o nome dun usuario para asignalo a unha sala parcial específica.",
