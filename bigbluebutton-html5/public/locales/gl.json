@@ -249,7 +249,7 @@
     "app.presentationUploader.processing": "Anotando diapositiva {0} de {1}...",
     "app.presentationUploader.sent": "Enviado",
     "app.presentationUploader.exportingTimeout": "A exportación está tardando demasiado...",
-    "app.presentationUploader.export": "Enviar para o chat",
+    "app.presentationUploader.export": "Enviar para a parola",
     "app.presentationUploader.export.linkAvailable": "Ligazón para descargar {0} dispoñible na parola pública.",
     "app.presentationUploader.export.notAccessibleWarning": "é posíbel que non cumpra as normas de accesibilidade",
     "app.presentationUploader.currentPresentationLabel": "Presentación actual",
