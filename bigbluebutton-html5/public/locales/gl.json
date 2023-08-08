@@ -251,7 +251,7 @@
     "app.presentationUploader.exportingTimeout": "A exportación está tardando demasiado...",
     "app.presentationUploader.export": "Enviar para o chat",
     "app.presentationUploader.export.linkAvailable": "Ligazón para descargar {0} dispoñible no chat público.",
-    "app.presentationUploader.export.notAccessibleWarning": "pode non cumprir as normas de accesibilidade",
+    "app.presentationUploader.export.notAccessibleWarning": "é posíbel que non cumpra as normas de accesibilidade",
     "app.presentationUploader.currentPresentationLabel": "Presentación actual",
     "app.presentationUploder.extraHint": "IMPORTANTE: cada ficheiro non pode exceder {0} MB e {1} páxinas.",
     "app.presentationUploder.uploadLabel": "Enviar",
