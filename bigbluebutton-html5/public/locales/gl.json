@@ -183,7 +183,7 @@
     "app.screenshare.screenshareFinalError": "Código {0}. Non foi posíbel compartir a pantalla.",
     "app.screenshare.screenshareRetryError": "Código {0}. Tente compartir a pantalla de novo.",
     "app.screenshare.screenshareRetryOtherEnvError": "Código {0}. Non foi posíbel compartir a pantalla. Ténteo de novo usando outro navegador ou dispositivo.",
-    "app.screenshare.screenshareUnsupportedEnv": "Código {0}. O navegador non é compatible. Ténteo de novo usando outro navegador ou dispositivo.",
+    "app.screenshare.screenshareUnsupportedEnv": "Código {0}. O navegador non é compatíbel. Ténteo de novo usando outro navegador ou dispositivo.",
     "app.screenshare.screensharePermissionError": "Código {0}. É necesario conceder o permiso para capturar a pantalla.",
     "app.meeting.ended": "Rematou a sesión",
     "app.meeting.meetingTimeRemaining": "Tempo restante da xuntanza: {0}",
