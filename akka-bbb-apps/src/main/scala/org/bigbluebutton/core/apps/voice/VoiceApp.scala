@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.voice
 
-import akka.actor.{ ActorSystem, Cancellable }
+import akka.actor.{ ActorContext, ActorSystem, Cancellable }
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
@@ -110,7 +110,7 @@ object VoiceApp extends SystemConfiguration {
       outGW:       OutMsgRouter,
       voiceUserId: String,
       muted:       Boolean
-  )(implicit context: akka.actor.ActorContext): Unit = {
+  )(implicit context: ActorContext): Unit = {
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
     } yield {
@@ -157,7 +157,7 @@ object VoiceApp extends SystemConfiguration {
       outGW:       OutMsgRouter,
       eventBus:    InternalEventBus,
       users:       Vector[ConfVoiceUser]
-  )(implicit context: akka.actor.ActorContext): Unit = {
+  )(implicit context: ActorContext): Unit = {
     users foreach { cvu =>
       VoiceUsers.findWithVoiceUserId(
         liveMeeting.voiceUsers,
@@ -478,7 +478,7 @@ object VoiceApp extends SystemConfiguration {
     userId:         String,
     enabled:        Boolean,
     delay:          Int = 0
-  )(implicit context: akka.actor.ActorContext): Unit = {
+  )(implicit context: ActorContext): Unit = {
     implicit def executionContext = context.system.dispatcher
     def broacastEvent(): Unit = {
       val event = MsgBuilder.buildToggleListenOnlyModeSysMsg(
@@ -535,7 +535,7 @@ object VoiceApp extends SystemConfiguration {
     intId:        String,
     uuid:         String,
     hold:         Boolean
-  )(implicit context: akka.actor.ActorContext): Unit = {
+  )(implicit context: ActorContext): Unit = {
     VoiceUsers.holdStateChanged(
       liveMeeting.voiceUsers,
       intId,
