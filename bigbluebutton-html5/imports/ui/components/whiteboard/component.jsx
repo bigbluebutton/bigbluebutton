@@ -822,6 +822,11 @@ export default function Whiteboard(props) {
         camera.point[1] = 0;
       }
 
+      if (camera.point[0] === 0 && camera.point[1] === 0) {
+        const newZoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
+        e?.setCamera([slidePosition.x, slidePosition.y], newZoom);
+      }
+
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
       if (camera.zoom < zoomFitSlide) {
         camera.zoom = zoomFitSlide;
