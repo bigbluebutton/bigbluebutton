@@ -242,7 +242,7 @@
     "app.presentationUploder.message": "Como presentador tes a posibilidade de cargar calquera documento de Office ou ficheiro PDF. Recomendamos o ficheiro PDF para obter os mellores resultados. Asegúrate de seleccionar unha presentación usando a caixa de verificación do círculo do lado esquerdo.",
     "app.presentationUploader.exportHint": "Ao seleccionar \"Enviar ao chat\" proporcionarase aos usuarios unha ligazón para descargar con anotacións no chat público.",
     "app.presentationUploader.exportToastHeader": "Enviando ao chat (elemento {0})",
-    "app.presentationUploader.exportToastHeaderPlural": "Enviando ao chat ({0} elementos)",
+    "app.presentationUploader.exportToastHeaderPlural": "Enviando á parola ({0} elementos)",
     "app.presentationUploader.exporting": "Enviando á parola",
     "app.presentationUploader.sending": "Enviando...",
     "app.presentationUploader.collecting": "Extraendo a diapositiva {0} de {1}...",
