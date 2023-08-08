@@ -250,7 +250,7 @@
     "app.presentationUploader.sent": "Enviado",
     "app.presentationUploader.exportingTimeout": "A exportación está a tardar demasiado…",
     "app.presentationUploader.export": "Enviar para a parola",
-    "app.presentationUploader.export.linkAvailable": "Ligazón para descargar {0} dispoñible na parola pública.",
+    "app.presentationUploader.export.linkAvailable": "Ligazón para descargar {0} dispoñíbel na parola pública.",
     "app.presentationUploader.export.notAccessibleWarning": "é posíbel que non cumpra as normas de accesibilidade",
     "app.presentationUploader.currentPresentationLabel": "Presentación actual",
     "app.presentationUploder.extraHint": "IMPORTANTE: cada ficheiro non pode exceder {0} MB e {1} páxinas.",
