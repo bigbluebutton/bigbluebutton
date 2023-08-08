@@ -702,7 +702,7 @@
     "app.audio.audioSettings.testSpeakerLabel": "Probar o seu altofalante",
     "app.audio.audioSettings.microphoneStreamLabel": "O seu volume do fluxo de son",
     "app.audio.audioSettings.retryLabel": "Tentar de novo",
-    "app.audio.audioSettings.fallbackInputLabel": "Entrada de audio {0}",
+    "app.audio.audioSettings.fallbackInputLabel": "Entrada de son {0}",
     "app.audio.audioSettings.fallbackOutputLabel": "Saída de son {0}",
     "app.audio.audioSettings.defaultOutputDeviceLabel": "Predeterminado",
     "app.audio.audioSettings.findingDevicesLabel": "Buscando dispositivos…",
