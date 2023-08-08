@@ -517,7 +517,7 @@ CREATE TABLE "user_connectionStatus" (
 	"userClientResponseAt" timestamp with time zone,
 	"rttInMs" numeric,
 	"status" varchar(25),
-	"statusUpdatedAt" timestamp
+	"statusUpdatedAt" timestamp with time zone
 );
 create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("meetingId");
 
@@ -527,7 +527,7 @@ create view "v_user_connectionStatus" as select * from "user_connectionStatus";
 --	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 --	"rttInMs" numeric,
 --	"status" varchar(25),
---	"statusUpdatedAt" timestamp
+--	"statusUpdatedAt" timestamp with time zone
 --);
 --CREATE TABLE "user_connectionStatusHistory" (
 --	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
@@ -1087,7 +1087,7 @@ CREATE TABLE "poll" (
 "multipleResponses" boolean,
 "ended" boolean,
 "published" boolean,
-"publishedAt" timestamp
+"publishedAt" timestamp with time zone
 );
 CREATE INDEX "idx_poll_meetingId" ON "poll"("meetingId");
 CREATE INDEX "idx_poll_meetingId_active" ON "poll"("meetingId") where ended is false;
@@ -1190,7 +1190,7 @@ create table "screenshare"(
 "vidHeight" integer,
 "hasAudio" boolean,
 "startedAt" timestamp with time zone,
-"stoppedAt" timestamp
+"stoppedAt" timestamp with time zone
 
 );
 create index "screenshare_meetingId" on "screenshare"("meetingId");
