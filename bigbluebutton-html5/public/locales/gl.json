@@ -284,7 +284,7 @@
     "app.presentationUploder.conversion.pageCountExceeded": "O número de páxinas superou o máximo de {0}",
     "app.presentationUploder.conversion.invalidMimeType": "Detectouse un formato non válido (extensión={0}, tipo de contido={1})",
     "app.presentationUploder.conversion.conversionTimeout": "Non se puido procesar a diapositiva {0} en {1} intentos.",
-    "app.presentationUploder.conversion.officeDocConversionInvalid": "Non se puido procesar o documento de Office. Cargue un PDF no seu lugar.",
+    "app.presentationUploder.conversion.officeDocConversionInvalid": "Non foi posíbel procesar o documento de Office. Envíe un PDF no seu lugar.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Non foi posíbel procesar o documento de Office. Envíe un PDF no seu lugar.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Non foi posíbel converter o ficheiro PDF. Tente optimizalo. Tamaño máximo de páxina {0}",
     "app.presentationUploder.conversion.timeout": " Ouh! a conversión tomou demasiado tempo",
