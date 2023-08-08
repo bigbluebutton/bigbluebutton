@@ -628,7 +628,7 @@
     "app.audioNotification.audioFailedError1012": "Conexión pechada (erro ICE 1012)",
     "app.audioNotification.audioFailedMessage": "Produciuse un fallo na súa conexión de son",
     "app.audioNotification.mediaFailedMessage": "Produciuse un fallo en getUserMicMedia xa que só se permiten as orixes seguras",
-    "app.audioNotification.deviceChangeFailed": "Produciuse un erro no cambio do dispositivo de audio. Comproba se o dispositivo escollido está correctamente configurado e dispoñible",
+    "app.audioNotification.deviceChangeFailed": "Produciuse un erro no cambio do dispositivo de son. Comprobe que o dispositivo escollido está correctamente definido e está dispoñíbel",
     "app.audioNotification.closeLabel": "Pechar",
     "app.audioNotificaion.reconnectingAsListenOnly": "O micrófono bloqueouse para os espectadores, vostede está conectado só como oínte",
     "app.breakoutJoinConfirmation.title": "Unirse á sala parcial",
