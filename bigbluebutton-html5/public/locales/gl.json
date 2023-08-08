@@ -1150,7 +1150,7 @@
     "app.createBreakoutRoom.movedUserLabel": "Moveuse {0} á sala {1}",
     "app.updateBreakoutRoom.modalDesc": "Para actualizar ou invitar un usuario, só tes que arrástralo á sala desexada.",
     "app.updateBreakoutRoom.cancelLabel": "Cancelar",
-    "app.updateBreakoutRoom.title": "Actualizar salas de grupos",
+    "app.updateBreakoutRoom.title": "Actualizar as salas parciais",
     "app.updateBreakoutRoom.confirm": "Aplicar",
     "app.updateBreakoutRoom.userChangeRoomNotification": "Vde. foi trasladado á sala {0}.",
     "app.smartMediaShare.externalVideo": "Vídeo(s) externo(s)",
