@@ -38,6 +38,8 @@
 - "!include public_v_user_current.yaml"
 - "!include public_v_user_customParameter.yaml"
 - "!include public_v_user_guest.yaml"
+- "!include public_v_user_reaction.yaml"
+- "!include public_v_user_reaction_current.yaml"
 - "!include public_v_user_ref.yaml"
 - "!include public_v_user_typing_private.yaml"
 - "!include public_v_user_typing_public.yaml"

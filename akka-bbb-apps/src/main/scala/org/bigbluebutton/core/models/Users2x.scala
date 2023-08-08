@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{ UserDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ UserDAO, UserReactionDAO, UserStateDAO }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -203,6 +203,7 @@ object Users2x {
         .modify(_.reactionChangedOn).setTo(System.currentTimeMillis())
 
       users.save(newUser)
+      UserReactionDAO.insert(intId, reactionEmoji)
       newUser
     }
   }
@@ -211,8 +212,9 @@ object Users2x {
     for {
       u <- findWithIntId(users, intId)
     } yield {
-      val newUserState = u.modify(_.away).setTo(raiseHand)
+      val newUserState = u.modify(_.raiseHand).setTo(raiseHand)
       users.save(newUserState)
+      UserStateDAO.update(newUserState)
       newUserState
     }
   }
@@ -223,6 +225,7 @@ object Users2x {
     } yield {
       val newUserState = u.modify(_.away).setTo(away)
       users.save(newUserState)
+      UserStateDAO.update(newUserState)
       newUserState
     }
   }
