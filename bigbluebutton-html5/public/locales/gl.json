@@ -993,7 +993,7 @@
     "app.video.notReadableError": "Non foi posíbel obter vídeo da cámara web. Asegúrese de que outro programa non estea a usar a cámara web",
     "app.video.timeoutError": "O navegador non respondeu a tempo.",
     "app.video.genericError": "Produciuse un erro descoñecido co dispositivo (erro {0})",
-    "app.video.inactiveError": "A túa cámara web parouse inesperadamente. Revisa os permisos do teu navegador",
+    "app.video.inactiveError": "A súa cámara web detívose inesperadamente. Revise os permisos do seu navegador",
     "app.video.mediaTimedOutError": "A transmisión da súa cámara web foi interrompida. Tente compartila de novo",
     "app.video.mediaFlowTimeout1020": "Os recursos multimedia non foron quen de acadar o servidor (erro 1020)",
     "app.video.suggestWebcamLock": "Forzar os axustes  de bloqueo para as cámaras web dos espectadores?",
