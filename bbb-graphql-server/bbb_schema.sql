@@ -53,6 +53,8 @@ DROP VIEW IF EXISTS "v_user_guest";
 DROP VIEW IF EXISTS "v_user_ref";
 DROP VIEW IF EXISTS "v_user_customParameter";
 DROP VIEW IF EXISTS "v_user_welcomeMsgs";
+DROP VIEW IF EXISTS "v_user_reaction";
+DROP VIEW IF EXISTS "v_user_reaction_current";
 DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
 --DROP TABLE IF EXISTS "user_whiteboard";
@@ -62,6 +64,7 @@ DROP TABLE IF EXISTS "user_connectionStatus";
 DROP TABLE IF EXISTS "user_connectionStatusMetrics";
 DROP TABLE IF EXISTS "user_customParameter";
 DROP TABLE IF EXISTS "user_localSettings";
+DROP TABLE IF EXISTS "user_reaction";
 DROP TABLE IF EXISTS "user";
 
 DROP VIEW IF EXISTS "v_meeting_lockSettings";
@@ -729,6 +732,28 @@ CREATE TABLE "user_localSettings"(
 CREATE INDEX "idx_user_local_settings_meetingId" ON "user_localSettings"("meetingId");
 
 
+CREATE TABLE "user_reaction" (
+	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"reactionEmoji" varchar(25),
+	"duration" integer,
+	"createdAt" timestamp
+);
+
+ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp GENERATED ALWAYS AS
+("createdAt" + '1 seconds'::INTERVAL * "duration") STORED;
+
+CREATE INDEX "idx_user_reaction_userId_createdAt" ON "user_reaction"("userId", "expiresAt");
+
+CREATE VIEW v_user_reaction AS
+SELECT u."meetingId", ur."userId", ur."reactionEmoji", ur."createdAt", ur."expiresAt"
+FROM "user" u
+JOIN "user_reaction" ur ON u."userId" = ur."userId" AND "expiresAt" > current_timestamp;
+
+CREATE VIEW v_user_reaction_current AS
+SELECT u."meetingId", ur."userId", (array_agg(ur."reactionEmoji" ORDER BY ur."expiresAt" DESC))[1] as "reactionEmoji"
+FROM "user" u
+JOIN "user_reaction" ur ON u."userId" = ur."userId" AND "expiresAt" > current_timestamp
+GROUP BY u."meetingId", ur."userId";
 
 
 -- ===================== CHAT TABLES
