@@ -1,9 +1,15 @@
 import { check } from 'meteor/check';
 import { SlidePositions } from '/imports/api/slides';
+import { Meteor } from 'meteor/meteor';
+import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import calculateSlideData from '/imports/api/slides/server/helpers';
 
 export default async function resizeSlide(meetingId, slide) {
+  const REDIS_CONFIG = Meteor.settings.private.redis;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'SlideResizedPubMsg';
+
   check(meetingId, String);
 
   const {
@@ -50,6 +56,13 @@ export default async function resizeSlide(meetingId, slide) {
 
     try {
       const numberAffected = await SlidePositions.updateAsync(selector, modifier);
+
+      const payload = {
+        pageId,
+        ...slideData,
+      };
+
+      RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, '', payload);
 
       if (numberAffected) {
         Logger.debug(`Resized slide positions id=${pageId}`);

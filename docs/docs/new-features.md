@@ -118,6 +118,7 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.3)
 - [2.7.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.2)
 - [2.7.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.1)
 - [2.7.0-alpha.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-alpha.3)
@@ -129,6 +130,10 @@ Recent releases:
 #### Renaming (bigbluebutton/bbb-install)bbb-install-2.7.sh from master branch to bbb-install.sh on branch v2.7.x-release
 
 If you are using bbb-install to configure your servers, be aware that starting with BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
+
+#### Changing the default setting `guestPolicyExtraAllowOptions`
+
+Starting with BigBlueButton 2.7.0-beta.3 we are hiding by default a couple extra options in the guest approve panel. 'Allow all authenticated users' and 'Allow all guests' options will be hidden unless you override the option `app.public.guestPolicyExtraAllowOptions` in `bbb-html5` config file `settings.yml`. These extra options were not relevant to the vast majority of the use cases and when hidden, the interface becomes much simpler.
 
 ### Development
 

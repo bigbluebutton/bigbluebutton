@@ -163,7 +163,7 @@ case class PresentationPod(id: String, currentPresenter: String,
 
   def resizePage(presentationId: String, pageId: String,
                  xOffset: Double, yOffset: Double, widthRatio: Double,
-                 heightRatio: Double): Option[(PresentationPod, PresentationPage)] = {
+                 heightRatio: Double, slideNumber: Int): Option[(PresentationPod, PresentationPage)] = {
     // Force coordinate that are out-of-bounds inside valid values
     // 0.25D is 400% zoom
     // 100D-checkedWidth is the maximum the page can be moved over
@@ -177,7 +177,7 @@ case class PresentationPod(id: String, currentPresenter: String,
       page <- pres.pages.get(pageId)
     } yield {
       val nPage = page.copy(xOffset = checkedXOffset, yOffset = checkedYOffset,
-        widthRatio = checkedWidth, heightRatio = checkedHeight)
+        widthRatio = checkedWidth, heightRatio = checkedHeight, num = slideNumber)
       val nPages = pres.pages + (nPage.id -> nPage)
       val newPres = pres.copy(pages = nPages)
       (addPresentation(newPres), nPage)

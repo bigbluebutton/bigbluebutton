@@ -1,6 +1,11 @@
 table:
-  name: meeting
+  name: v_meeting
   schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: meeting
+  custom_root_fields: {}
 object_relationships:
   - name: breakoutPolicies
     using:
