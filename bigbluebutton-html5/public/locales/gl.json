@@ -1075,7 +1075,7 @@
     "app.whiteboard.toolbar.color.silver": "Prata",
     "app.whiteboard.toolbar.undo": "Desfacer as anotacións",
     "app.whiteboard.toolbar.clear": "Limpar todas as anotacións",
-    "app.whiteboard.toolbar.clearConfirmation": "Estás seguro de que queres borrar todas as anotacións?",
+    "app.whiteboard.toolbar.clearConfirmation": "Confirma que quere limpar todas as anotacións?",
     "app.whiteboard.toolbar.multiUserOn": "Activar o modo multiusuario do encerado",
     "app.whiteboard.toolbar.multiUserOff": "Desactivar o modo multiusuario do encerado",
     "app.whiteboard.toolbar.palmRejectionOn": "Activar o rexeitamento da palma da man",
