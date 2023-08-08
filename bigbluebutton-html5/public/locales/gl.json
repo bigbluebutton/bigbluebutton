@@ -431,7 +431,7 @@
     "app.mobileAppModal.openApp": "Si, abre a aplicación agora",
     "app.mobileAppModal.obtainUrlMsg": "Obtendo o URL da xuntanza",
     "app.mobileAppModal.obtainUrlErrorMsg": "Produciuse un erro ao tentar obter a URL da xuntanza",
-    "app.mobileAppModal.openStore": "Non, abra a Tenda de aplicacións para descargala",
+    "app.mobileAppModal.openStore": "Non, abrir a Tenda de aplicacións para descargala",
     "app.mobileAppModal.dismissLabel": "Cancelar",
     "app.mobileAppModal.dismissDesc": "Pechar",
     "app.mobileAppModal.userConnectedWithSameId": "O usuario {0} vén de conectarse co mesmo ID que Vde.",
