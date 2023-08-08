@@ -189,7 +189,7 @@
     "app.meeting.meetingTimeRemaining": "Tempo restante da xuntanza: {0}",
     "app.meeting.meetingTimeHasEnded": "Rematou o tempo. A xuntanza pecharase en breve",
     "app.meeting.endedByUserMessage": "Esta sesión foi rematada por {0}",
-    "app.meeting.endedByNoModeratorMessageSingular": "A reunión rematou porque non estivo presente ningún moderador durante un minuto",
+    "app.meeting.endedByNoModeratorMessageSingular": "A xuntanza rematou porque non estivo presente ningún moderador durante un minuto",
     "app.meeting.endedByNoModeratorMessagePlural": "A xuntanza rematou porque ningún moderador estivo presente durante {0} minutos",
     "app.meeting.endedMessage": "Será reenviado á pantalla de inicio",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "A xuntanza pecharase nun minuto.",
