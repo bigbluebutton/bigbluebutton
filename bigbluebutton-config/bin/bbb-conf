@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash
 #
 # BlueButton open source conferencing system - https://www.bigbluebutton.org/
 #
@@ -69,8 +69,8 @@
 #   2020-10-22 AGG  Removing Flash/Red5 related code (yay!)
 #   2021-07-16 JFS  Add defaultMeetingLayout information
 
-#set -x
-#set -e
+set -x
+set -e
 
 PATH=$PATH:/sbin
 
