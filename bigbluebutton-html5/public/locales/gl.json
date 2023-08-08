@@ -710,7 +710,7 @@
     "app.audio.listenOnly.closeLabel": "Pechar",
     "app.audio.permissionsOverlay.title": "Permitir o acceso ao seu micrófono",
     "app.audio.permissionsOverlay.hint": "Necesitamos que nos permita usar os seus dispositivos multimedia para unilo á conferencia de voz :)",
-    "app.audio.captions.button.start": "Iniciar subtítulos",
+    "app.audio.captions.button.start": "Iniciar os subtítulos",
     "app.audio.captions.button.stop": "Deter os subtítulos",
     "app.audio.captions.button.language": "Idioma",
     "app.audio.captions.button.transcription": "Transcrición",
