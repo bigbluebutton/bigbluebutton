@@ -838,7 +838,7 @@
     "app.shortcut-help.openOptions": "Abrir opcións",
     "app.shortcut-help.toggleUserList": "Alternar a lista de usuarios",
     "app.shortcut-help.toggleMute": "Silenciar/Devolver o son",
-    "app.shortcut-help.togglePublicChat": "Alternar a conversa pública (a lista de usuarios debe estar aberta)",
+    "app.shortcut-help.togglePublicChat": "Alternar a parola pública (a lista de usuarios debe estar aberta)",
     "app.shortcut-help.hidePrivateChat": "Agochar a conversa privada",
     "app.shortcut-help.closePrivateChat": "Pechar a conversa privada",
     "app.shortcut-help.openActions": "Abrir o menú de accións",
