@@ -1183,7 +1183,7 @@
     "app.layout.modal.confirm": "Confirmar",
     "app.layout.modal.cancel": "Cancelar",
     "app.layout.modal.layoutLabel": "Selecciona o teu deseño",
-    "app.layout.modal.keepPushingLayoutLabel": "Forzar o deseño para todos",
+    "app.layout.modal.keepPushingLayoutLabel": "Aplicar o deseño para todos",
     "app.layout.modal.pushLayoutLabel": "Forzar para todos",
     "app.layout.modal.layoutToastLabel": "Cambiaron os axustes de deseño",
     "app.layout.modal.layoutSingular": "Deseño",
