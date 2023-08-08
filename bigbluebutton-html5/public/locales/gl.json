@@ -704,7 +704,7 @@
     "app.audio.audioSettings.retryLabel": "Tentar de novo",
     "app.audio.audioSettings.fallbackInputLabel": "Entrada de audio {0}",
     "app.audio.audioSettings.fallbackOutputLabel": "Saída de audio {0}",
-    "app.audio.audioSettings.defaultOutputDeviceLabel": "Por defecto",
+    "app.audio.audioSettings.defaultOutputDeviceLabel": "Predeterminado",
     "app.audio.audioSettings.findingDevicesLabel": "Buscando dispositivos…",
     "app.audio.listenOnly.backLabel": "Atrás",
     "app.audio.listenOnly.closeLabel": "Pechar",
