@@ -76,7 +76,7 @@
     "app.captions.speech.start": "Comezou o recoñecemento de voz",
     "app.captions.speech.stop": "O recoñecemento de voz detívose",
     "app.captions.speech.error": "O recoñecemento de voz detívose por mor da incompatibilidade do navegador ou dalgún tempo de silencio",
-    "app.confirmation.skipConfirm": "Non preguntar de novo",
+    "app.confirmation.skipConfirm": "Non volver preguntar",
     "app.confirmation.virtualBackground.title": "Comezar novo fondo virtual",
     "app.confirmation.virtualBackground.description": "{0} engadirase como fondo virtual. Continuar?",
     "app.confirmationModal.yesLabel": "Sí",
