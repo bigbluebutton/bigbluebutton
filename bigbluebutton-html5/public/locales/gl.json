@@ -400,7 +400,7 @@
     "app.navBar.settingsDropdown.helpLabel": "Axuda",
     "app.navBar.settingsDropdown.openAppLabel": "Abrir na aplicación BigBlueButton Tablet",
     "app.navBar.settingsDropdown.helpDesc": "Vincular o usuario a vídeo titoriais (abre unha nova lapela)",
-    "app.navBar.settingsDropdown.endMeetingDesc": "Finaliza a sesión actual",
+    "app.navBar.settingsDropdown.endMeetingDesc": "Finaliza a xuntanza en curso",
     "app.navBar.settingsDropdown.endMeetingLabel": "Rematar a xuntanza",
     "app.navBar.userListToggleBtnLabel": "Abrir/pechar a lista de usuarios",
     "app.navBar.toggleUserList.ariaLabel": "Os usuarios e as mensaxes se alternan",
