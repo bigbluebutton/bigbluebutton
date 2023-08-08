@@ -760,7 +760,7 @@
     "app.error.409": "Conflito",
     "app.error.410": "Rematou a xuntanza",
     "app.error.500": "Ouh! algo foi mal",
-    "app.error.503": "Desconectácheste",
+    "app.error.503": "Vde. foi desconectado",
     "app.error.disconnected.rejoin": "Podes actualizar a páxina para unirte de novo.",
     "app.error.userLoggedOut": "O usuario ten un testemuño de sesión non válido por mor do peche da sesión",
     "app.error.ejectedUser": "O usuario ten un testemuño de sesión non válido por mor da expulsión",
