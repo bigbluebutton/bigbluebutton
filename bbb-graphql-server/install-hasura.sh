@@ -13,6 +13,7 @@ apt install postgresql postgresql-contrib -y
 sudo -u postgres psql -c "alter user postgres password 'bbb_graphql'"
 sudo -u postgres psql -c "drop database if exists bbb_graphql"
 sudo -u postgres psql -c "create database bbb_graphql"
+sudo -u postgres psql -c "alter database bbb_graphql set timezone to 'UTC'"
 sudo -u postgres psql -U postgres -d bbb_graphql -a -f bbb_schema.sql --set ON_ERROR_STOP=on
 sudo -u postgres psql -c "drop database if exists hasura_app"
 sudo -u postgres psql -c "create database hasura_app"
