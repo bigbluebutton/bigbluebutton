@@ -154,7 +154,7 @@
     "app.userList.userOptions.disablePubChat": "A parola pública está desactivada",
     "app.userList.userOptions.disableNotes": "As notas compartidas agora están bloqueadas",
     "app.userList.userOptions.hideUserList": "A lista de usuarios agora está agochada para os espectadores",
-    "app.userList.userOptions.webcamsOnlyForModerator": "Só os moderadores poden ver as cámaras web dos convidados (por mor da configuración de bloqueo)",
+    "app.userList.userOptions.webcamsOnlyForModerator": "Só os moderadores poden ver as cámaras web dos convidados (por mor dos axustes de bloqueo)",
     "app.userList.content.participants.options.clearedStatus": "Limparonse todos os estados de usuario",
     "app.userList.userOptions.enableCam": "As cámaras web dos espectadores están activadas",
     "app.userList.userOptions.enableMic": "Os micrófonos dos espectadores están activados",
