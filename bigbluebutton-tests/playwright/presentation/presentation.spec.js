@@ -76,6 +76,12 @@ test.describe.parallel('Presentation', () => {
       await presentation.uploadSinglePresentationTest();
     });
 
+    test('Upload Other Presentations Format', async ({ browser, context, page }) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, true);
+      await presentation.uploadOtherPresentationsFormat();
+    });
+
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-multiple-presentations-automated
     test('Upload multiple presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);

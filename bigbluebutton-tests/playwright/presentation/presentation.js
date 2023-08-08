@@ -84,12 +84,17 @@ class Presentation extends MultiUsers {
     await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
+  }
 
+  async uploadOtherPresentationsFormat() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME);
     await this.modPage.waitAndClick(e.smallToastMsg);
     await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.wasRemoved(e.presentationStatusInfo);
     await this.userPage.wasRemoved(e.smallToastMsg);
+
+    const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
+    const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
 
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-png-presentation-screenshot.png', {
       maxDiffPixels: 1000,
