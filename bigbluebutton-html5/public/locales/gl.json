@@ -145,7 +145,7 @@
     "app.userList.userOptions.unmuteAllLabel": "Desactivar o silencio na xuntanza",
     "app.userList.userOptions.unmuteAllDesc": "Devolverlle o son á xuntanza",
     "app.userList.userOptions.lockViewersLabel": "Bloquear espectadores",
-    "app.userList.userOptions.lockViewersDesc": "Bloquear certas funcionalidades para os asistentes ao encontro",
+    "app.userList.userOptions.lockViewersDesc": "Bloquear certas funcionalidades para os asistentes á xuntanza",
     "app.userList.userOptions.guestPolicyLabel": "Normas para os convidados",
     "app.userList.userOptions.guestPolicyDesc": "Cambiar os axustes das normas de convidados á xuntanza",
     "app.userList.userOptions.disableCam": "As cámaras web dos espectadores están desactivadas",
