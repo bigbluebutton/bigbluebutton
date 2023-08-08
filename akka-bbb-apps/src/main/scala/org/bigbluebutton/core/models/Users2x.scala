@@ -199,7 +199,7 @@ object Users2x {
     for {
       u <- findWithIntId(users, intId)
     } yield {
-      val newUserState = u.modify(_.away).setTo(raiseHand)
+      val newUserState = u.modify(_.raiseHand).setTo(raiseHand)
       users.save(newUserState)
       newUserState
     }
