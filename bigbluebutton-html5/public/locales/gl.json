@@ -31,7 +31,7 @@
     "app.chat.copySuccess": "A conversa transcrita foi copiada",
     "app.chat.copyErr": "Produciuse un erro ao copiar a conversa transcrita",
     "app.emojiPicker.search": "Buscar",
-    "app.emojiPicker.notFound": "Non se atoparon Emojis",
+    "app.emojiPicker.notFound": "Non se atopou ningún «emoji»",
     "app.emojiPicker.skintext": "Escolla o seu ton de pel predeterminado",
     "app.emojiPicker.clear": "Limpar",
     "app.emojiPicker.categories.label": "Categorías de «emoji»",
