@@ -170,14 +170,11 @@ else
     HTML5_CONFIG=$(yq e $HTML5_DEFAULT_CONFIG > /dev/null)
 fi
 
+mkdir -p $(dirname $WEBRTC_SFU_ETC_CONFIG)
+touch $WEBRTC_SFU_ETC_CONFIG # create it as it gets modified later in this script
 WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-if [ -f $WEBRTC_SFU_ETC_CONFIG ]; then
-    WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG > /dev/null)
-else
-    WEBRTC_SFU_CONFIG=$(yq e $WEBRTC_SFU_DEFAULT_CONFIG > /dev/null)
-    touch $WEBRTC_SFU_ETC_CONFIG # create it as it gets modified later in this script
-fi
+WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG > /dev/null)
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
@@ -709,8 +706,6 @@ if [[ $PORT_RANGE ]]; then
         xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-start-port"]/@value' --value $START_PORT $FREESWITCH_SWITCH_CONF
         xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-end-port"]/@value' --value $END_PORT $FREESWITCH_SWITCH_CONF
 
-        mkdir -p $(dirname $WEBRTC_SFU_ETC_CONFIG)
-        touch $WEBRTC_SFU_ETC_CONFIG
         yq e -i ".mediasoup.worker.rtcMinPort = \"$START_PORT\"" $WEBRTC_SFU_ETC_CONFIG
         yq e -i ".mediasoup.worker.rtcMaxPort = \"$END_PORT\"" $WEBRTC_SFU_ETC_CONFIG
 
