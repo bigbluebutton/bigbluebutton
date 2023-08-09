@@ -1146,18 +1146,7 @@ check_state() {
         echo "#"
     fi
 
-    if [ `yq e '.public.media.sipjsHackViaWs' "$HTML5_CONFIG" ` != "true" ]; then
-      if [ "$PROTOCOL" == "https" ]; then
-        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
-          echo "# Warning: You have this server defined for https, but in"
-          echo "#"
-          echo "#   $SIP_CONFIG"
-          echo "#"
-          echo "#  did not find the use of https in definition for proxy_pass"
-          echo "#"
-          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-          echo "#"
-        fi
+    if [ `echo "$HTML5_CONFIG" | yq e '.public.media.sipjsHackViaWs' -` != "true" ]; then
 
       if [ "$SIP_NGINX_IP" != $IP ]; then
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
@@ -1231,7 +1220,7 @@ check_state() {
     fi
 
     FREESWITCH_SIP=$(ss -anlt4 | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
-    WEBRTC_SFU_SIP_IP=$(yq e '.freeswitch.sip_ip' "$WEBRTC_SFU_CONFIG" )
+    WEBRTC_SFU_SIP_IP=$(echo "$WEBRTC_SFU_CONFIG" | yq e '.freeswitch.sip_ip' -)
 
     if [ ! -z "$FREESWITCH_SIP" ]; then
       if [ "$FREESWITCH_SIP" != "$WEBRTC_SFU_SIP_IP" ]; then
@@ -1405,8 +1394,8 @@ if [ $CHECK ]; then
     echo
     echo "                        FreeSWITCH: $(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-start-port"]' -v @value $FREESWITCH_SWITCH_CONF)-$(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-end-port"]' -v @value $FREESWITCH_SWITCH_CONF)"
 
-    echo "                    bbb-webrtc-sfu: $(yq e '.mediasoup.worker.rtcMinPort' "$WEBRTC_SFU_CONFIG")-$(yq e '.mediasoup.worker.rtcMaxPort' "$WEBRTC_SFU_CONFIG")"
-    echo "                    bbb-webrtc-recorder: $(yq e '.webrtc.rtcMinPort' "$WEBRTC_RECORDER_CONFIG")-$(yq e '.webrtc.rtcMaxPort' "$WEBRTC_RECORDER_CONFIG")"
+    echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.mediasoup.worker.rtcMinPort' -)-$(echo "$WEBRTC_SFU_CONFIG" |yq e '.mediasoup.worker.rtcMaxPort' -)"
+    echo "                    bbb-webrtc-recorder: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.webrtc.rtcMinPort' -)-$(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.webrtc.rtcMaxPort' -)"
 
 
 
@@ -1433,19 +1422,19 @@ if [ $CHECK ]; then
     fi
 
     if [ -n "$WEBRTC_SFU_CONFIG" ]; then
-        MEDIASOUP_WEBRTC_IPS=$(yq e '.mediasoup.webrtc.listenIps.[] | .announcedIp' "$WEBRTC_SFU_CONFIG")
-        MEDIASOUP_PLAINRTP_IPS=$(yq e '.mediasoup.plainRtp.listenIp[] | .announcedIp' "$WEBRTC_SFU_CONFIG")
+        MEDIASOUP_WEBRTC_IPS=$(echo "$WEBRTC_SFU_CONFIG" | yq e '.mediasoup.webrtc.listenIps.[] | .announcedIp' -)
+        MEDIASOUP_PLAINRTP_IPS=$(echo "$WEBRTC_SFU_CONFIG" | yq e '.mediasoup.plainRtp.listenIp | .announcedIp' -)
         echo
         echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (bbb-webrtc-sfu)"
         echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (bbb-webrtc-sfu - override)"
         echo "    mediasoup.webrtc.*.announcedIp: $(echo "$MEDIASOUP_WEBRTC_IPS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
         echo "  mediasoup.plainRtp.*.announcedIp: $(echo "$MEDIASOUP_PLAINRTP_IPS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
-        echo "                 freeswitch.sip_ip: $(yq e '.freeswitch.sip_ip' "$WEBRTC_SFU_CONFIG")"
-        echo "                  recordingAdapter: $(yq e '.recordingAdapter' "$WEBRTC_SFU_CONFIG")"
-        echo "               recordScreenSharing: $(yq e '.recordScreenSharing' "$WEBRTC_SFU_CONFIG")"
-        echo "                     recordWebcams: $(yq e '.recordWebcams' "$WEBRTC_SFU_CONFIG")"
-        echo "                  codec_video_main: $(yq e '.conference-media-specs.codec_video_main' "$WEBRTC_SFU_CONFIG")"
-        echo "               codec_video_content: $(yq e '.conference-media-specs.codec_video_content' "$WEBRTC_SFU_CONFIG")"
+        echo "                 freeswitch.sip_ip: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.freeswitch.sip_ip' -)"
+        echo "                  recordingAdapter: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.recordingAdapter' -)"
+        echo "               recordScreenSharing: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.recordScreenSharing' -)"
+        echo "                     recordWebcams: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.recordWebcams' -)"
+        echo "                  codec_video_main: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.conference-media-specs.codec_video_main' -)"
+        echo "               codec_video_content: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.conference-media-specs.codec_video_content' -)"
 
     fi
 
@@ -1453,19 +1442,19 @@ if [ $CHECK ]; then
         echo
         echo "/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml (bbb-webrtc-recorder)"
         echo "/etc/bigbluebutton/bbb-webrtc-recorder.yml (bbb-webrtc-recorder - override)"
-        echo "               debug: $(yq e '.debug' "$WEBRTC_RECORDER_CONFIG")"
-        echo "               recorder.directory: $(yq e '.recorder.directory' "$WEBRTC_RECORDER_CONFIG")"
+        echo "               debug: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.debug' -)"
+        echo "               recorder.directory: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.recorder.directory' -)"
     fi
 
     if [ -n "$HTML5_CONFIG" ]; then
     echo
     echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
     echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
-    echo "                             build: $(yq e '.public.app.html5ClientBuild' "$HTML5_CONFIG")"
-    echo "                        kurentoUrl: $(yq e '.public.kurento.wsUrl' "$HTML5_CONFIG")"
-    echo "            defaultFullAudioBridge: $(yq e '.public.media.audio.defaultFullAudioBridge' "$HTML5_CONFIG")"
-    echo "           defaultListenOnlyBridge: $(yq e '.public.media.audio.defaultListenOnlyBridge' "$HTML5_CONFIG")"
-    echo "                    sipjsHackViaWs: $(yq e '.public.media.sipjsHackViaWs' "$HTML5_CONFIG")"
+    echo "                             build: $(echo "$HTML5_CONFIG" | yq e '.public.app.html5ClientBuild' -)"
+    echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq e '.public.kurento.wsUrl' -)"
+    echo "            defaultFullAudioBridge: $(echo "$HTML5_CONFIG" | yq e '.public.media.audio.defaultFullAudioBridge' -)"
+    echo "           defaultListenOnlyBridge: $(echo "$HTML5_CONFIG" | yq e '.public.media.audio.defaultListenOnlyBridge' -)"
+    echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq e '.public.media.sipjsHackViaWs' -)"
     fi
 
     if [ ! -z "$STUN" ]; then
@@ -1706,9 +1695,6 @@ if [ -n "$HOST" ]; then
         sudo sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
     fi
 
-    if [ ! -f $WEBRTC_SFU_ETC_CONFIG ]; then
-        touch $WEBRTC_SFU_ETC_CONFIG
-    fi
     sudo yq e -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" $WEBRTC_SFU_ETC_CONFIG
     sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
     if [ -f /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml ]; then
