@@ -320,7 +320,7 @@
     "app.presentationUploder.upload.408": "請求上傳令牌超時。",
     "app.presentationUploder.upload.404": "404：無效的上傳令牌",
     "app.presentationUploder.upload.401": "請求簡報上傳令牌失敗。",
-    "app.presentationUploder.conversion.conversionProcessingSlides": "正在處理第 {0} 頁（共 {1} 頁）",
+    "app.presentationUploder.conversion.conversionProcessingSlides": "正在處理第 {0}/{1} 頁",
     "app.presentationUploder.conversion.genericConversionStatus": "正在轉換文件...",
     "app.presentationUploder.conversion.generatingThumbnail": "正在生成縮略圖...",
     "app.presentationUploder.conversion.generatedSlides": "已生成簡報頁面...",
