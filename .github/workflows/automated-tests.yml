@@ -19,41 +19,41 @@ jobs:
   build-bbb-apps-akka:
     runs-on: ubuntu-20.04
     steps:
-      - name: Checkout v2.7.x-release
+      - name: checkout Master-branch and merge PR-branch into it
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
-          fetch-depth: 0 # Fetch all history
-      # - name: Checkout PR branch
-      #   uses: actions/checkout@v3
-      #   with:
-      #     fetch-depth: 0 # Fetch all history
-      #     path: pr-branch
-      - name: Checkout PR branch and merge into v2.7.x-release
         run: |
-          echo "-----------"
-          git status
-          echo "$(git log -5)"
-          echo "-----------"
-          # git checkout v2.7.x-release
-          echo "----------- fetch pr"
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
           git config pull.rebase false
           git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
-          # git fetch origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
-          echo "----------- vars"
-          echo "${{ github.event.number }}"
-          echo "${{ github.head_ref }}"
-          echo "${{ github.event.pull_request.branch }}"
-          echo "${{ github.event.pull_request.head.ref }}"
-          echo "${{ github.event.pull_request.head.sha }}"
-          echo "----------- merge"
-          # git merge --no-commit --no-ff ${{ github.head_ref }}
-          echo "-----------"
-          git status
-          echo "$(git log -5)"
-          echo "-----------"
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0 # Fetch all history
+      # - name: Checkout PR branch and merge into v2.7.x-release
+      #   run: |
+      #     echo "-----------"
+      #     git status
+      #     echo "$(git log -5)"
+      #     echo "-----------"
+      #     # git checkout v2.7.x-release
+      #     echo "----------- fetch pr"
+      #     git config user.name "BBB Automated Tests"
+      #     git config user.email "tests@bigbluebutton.org"
+      #     git config pull.rebase false
+      #     git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      #     # git fetch origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      #     echo "----------- vars"
+      #     echo "${{ github.event.number }}"
+      #     echo "${{ github.head_ref }}"
+      #     echo "${{ github.event.pull_request.branch }}"
+      #     echo "${{ github.event.pull_request.head.ref }}"
+      #     echo "${{ github.event.pull_request.head.sha }}"
+      #     echo "----------- merge"
+      #     # git merge --no-commit --no-ff ${{ github.head_ref }}
+      #     echo "-----------"
+      #     git status
+      #     echo "$(git log -5)"
+      #     echo "-----------"
       - name: Set cache-key vars
         run: |
           echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
