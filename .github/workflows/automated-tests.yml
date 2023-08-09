@@ -24,6 +24,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
+          path: master
       - name: Checkout PR branch
         uses: actions/checkout@v3
         with:
@@ -31,11 +32,13 @@ jobs:
           path: pr-branch
       - name: Checkout PR branch and merge into v2.7.x-release
         run: |
+          cd master
           echo "-----------"
           git status
           echo "$(git log -5)"
           echo "-----------"
-          git checkout v2.7.x-release
+          # git checkout v2.7.x-release
+          cd ../pr-branch
           echo "-----------"
           git status
           echo "$(git log -5)"
@@ -43,7 +46,9 @@ jobs:
           echo "${{ github.head_ref }}"
           echo "${{ github.event.pull_request.branch }}"
           echo "${{ github.event.pull_request.head.ref }}"
-          git merge --no-commit --no-ff "pr-branch/${{ github.event.pull_request.head.ref }}"
+          echo "${{ github.event.pull_request.head.sha }}"
+          cd ../master
+          git merge --no-commit --no-ff "../pr-branch/${{ github.event.pull_request.head.sha }}"
           # git merge ${{ github.event.pull_request.head.ref }}
           echo "-----------"
           git status
