@@ -280,6 +280,11 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           },
         }, 'SFU audio media play failed due to autoplay error');
         this.dispatchAutoplayHandlingEvent(mediaElement);
+        // For connection purposes, this worked - the autoplay thing is a client
+        // side soft issue to be handled at the UI/UX level, not WebRTC/negotiation
+        // So: clear the connection timer
+        this.clearConnectionTimeout();
+        this.reconnecting = false;
       } else {
         const normalizedError = {
           errorCode: 1004,
