@@ -507,7 +507,7 @@
     "app.submenu.application.languageOptionLabel": "Aukeratu hizkuntza",
     "app.submenu.application.noLocaleOptionLabel": "Ez dago lokal aktiborik",
     "app.submenu.application.paginationEnabledLabel": "Bideo orrialdeak",
-    "app.submenu.application.wakeLockEnabledLabel": "Aktibazioaren blokeoa",
+    "app.submenu.application.wakeLockEnabledLabel": "Pantaila beti aktiboa",
     "app.submenu.application.layoutOptionLabel": "Deseinu mota",
     "app.submenu.application.pushLayoutLabel": "Zabaldu diseinua",
     "app.submenu.application.localeDropdown.af": "Afrikarra",
