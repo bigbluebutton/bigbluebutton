@@ -24,10 +24,10 @@ jobs:
         with:
           ref: v2.7.x-release
           fetch-depth: 0 # Fetch all history
-      - name: Checkout ${{ github.event.pull_request.branch }}
+      - name: Checkout PR branch
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.branch }}
+          ref: ${{ github.head_ref }}
           fetch-depth: 0 # Fetch all history
       - name: Checkout PR branch and merge into v2.7.x-release
         run: |
@@ -40,7 +40,7 @@ jobs:
           git status
           echo "$(git log -5)"
           echo "-----------"
-          git merge ${{ github.event.pull_request.branch }}
+          git merge ${{ github.head_ref }}
           echo "-----------"
           git status
           echo "$(git log -5)"
