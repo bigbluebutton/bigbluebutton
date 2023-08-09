@@ -30,7 +30,16 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: checkout Master-branch and merge PR-branch into it
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0 # Fetch all history
+      - name: checkout master and merge PR branch into it
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -65,8 +74,19 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0 # Fetch all history
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      - name: Set cache-key vars
+        run: |
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: |
           ./build/get_external_dependencies.sh
           ./build/setup.sh bbb-config
@@ -80,8 +100,19 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0 # Fetch all history
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      - name: Set cache-key vars
+        run: |
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: |
           ./build/get_external_dependencies.sh
           ./build/setup.sh bbb-export-annotations
@@ -96,11 +127,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - run: echo "CACHE_LEARNING_DASHBOARD_KEY=$(git log -1 --format=%H -- bbb-learning-dashboard)" >> $GITHUB_ENV
-      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      - name: Set cache-key vars
+        run: |
+          echo "CACHE_LEARNING_DASHBOARD_KEY=$(git log -1 --format=%H -- bbb-learning-dashboard)" >> $GITHUB_ENV
+          echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -122,9 +162,20 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0 # Fetch all history
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
       - run: ./build/get_external_dependencies.sh
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Set cache-key vars
+        run: |
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: ./build/setup.sh bbb-playback
       - run: ./build/setup.sh bbb-playback-notes
       - run: ./build/setup.sh bbb-playback-podcast
@@ -144,16 +195,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - run: echo "CACHE_ETHERPAD_VERSION_KEY=$(git log -1 --format=%H -- bbb-etherpad.placeholder.sh)" >> $GITHUB_ENV
-      - run: echo "CACHE_ETHERPAD_BUILD_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-etherpad)" >> $GITHUB_ENV
-      - run: echo "CACHE_URL1_KEY=$(curl -s https://api.github.com/repos/mconf/ep_pad_ttl/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
-      - run: echo "CACHE_URL2_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
-      - run: echo "CACHE_URL3_KEY=$(curl -s https://api.github.com/repos/mconf/ep_redis_publisher/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
-      - run: echo "CACHE_URL4_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
-      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+        with:
+          fetch-depth: 0 # Fetch all history
+      - name: Set cache-key vars
+        run: |
+          echo "CACHE_ETHERPAD_VERSION_KEY=$(git log -1 --format=%H -- bbb-etherpad.placeholder.sh)" >> $GITHUB_ENV
+          echo "CACHE_ETHERPAD_BUILD_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-etherpad)" >> $GITHUB_ENV
+          echo "CACHE_URL1_KEY=$(curl -s https://api.github.com/repos/mconf/ep_pad_ttl/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "CACHE_URL2_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "CACHE_URL3_KEY=$(curl -s https://api.github.com/repos/mconf/ep_redis_publisher/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "CACHE_URL4_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -177,13 +239,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - run: echo "CACHE_BBB_WEB_KEY=$(git log -1 --format=%H -- bigbluebutton-web)" >> $GITHUB_ENV
-      - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
-      - run: echo "CACHE_COMMON_WEB_KEY=$(git log -1 --format=%H -- bbb-common-web)" >> $GITHUB_ENV
-      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      - name: Set cache-key vars
+        run: |
+          echo "CACHE_BBB_WEB_KEY=$(git log -1 --format=%H -- bigbluebutton-web)" >> $GITHUB_ENV
+          echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
+          echo "CACHE_COMMON_WEB_KEY=$(git log -1 --format=%H -- bbb-common-web)" >> $GITHUB_ENV
+          echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -207,12 +278,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - run: echo "CACHE_AKKA_FSESL_KEY=$(git log -1 --format=%H -- akka-bbb-fsesl)" >> $GITHUB_ENV
-      - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
-      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      - name: Set cache-key vars
+        run: |
+          echo "CACHE_AKKA_FSESL_KEY=$(git log -1 --format=%H -- akka-bbb-fsesl)" >> $GITHUB_ENV
+          echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
+          echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -236,11 +316,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - run: echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
-      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      - name: Set cache-key vars
+        run: |
+          echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
+          echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -265,13 +354,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - run: echo "CACHE_FREESWITCH_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-core)" >> $GITHUB_ENV
-      - run: echo "CACHE_FREESWITCH_SOUNDS_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-sounds)" >> $GITHUB_ENV
-      - run: echo "CACHE_SOUNDS_KEY=$(curl -Is http://bigbluebutton.org/downloads/sounds.tar.gz | grep "Last-Modified" | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
-      - run: echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      - name: Set cache-key vars
+        run: |
+          echo "CACHE_FREESWITCH_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-core)" >> $GITHUB_ENV
+          echo "CACHE_FREESWITCH_SOUNDS_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-sounds)" >> $GITHUB_ENV
+          echo "CACHE_SOUNDS_KEY=$(curl -Is http://bigbluebutton.org/downloads/sounds.tar.gz | grep "Last-Modified" | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "CACHE_BBB_RELEASE_KEY=$(git log -1 --format=%H -- bigbluebutton-config/bigbluebutton-release)" >> $GITHUB_ENV
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
         id: cache-action
         uses: actions/cache@v3
@@ -295,9 +393,20 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0 # Fetch all history
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
       - run: ./build/get_external_dependencies.sh
-      - run: echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-      - run: echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Set cache-key vars
+        run: |
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - run: ./build/setup.sh bbb-mkclean
       - run: ./build/setup.sh bbb-pads
       - run: ./build/setup.sh bbb-libreoffice-docker
@@ -327,6 +436,15 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0 # Fetch all history
+      - name: checkout master and merge PR branch into it
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
       - run: ./build/get_external_dependencies.sh
       - name: Download artifacts_bbb-apps-akka
         uses: actions/download-artifact@v3
