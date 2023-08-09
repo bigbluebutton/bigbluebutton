@@ -1,0 +1,13 @@
+table:
+  name: v_audio_caption
+  schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - transcriptId
+        - meetingId
+        - transcript
+      filter:
+        meetingId:
+          _eq: X-Hasura-PresenterInMeeting

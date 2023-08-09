@@ -1282,3 +1282,15 @@ CREATE OR REPLACE VIEW "v_current_time" AS
 SELECT
 	current_timestamp AS "currentTimestamp",
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
+
+------------------------------------
+----audioCaption
+
+CREATE TABLE "audio_caption" (
+    "transcriptId" varchar(100) NOT NULL PRIMARY KEY,
+    "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+    "transcript" text
+);
+
+CREATE VIEW "v_audio_caption" AS
+SELECT * FROM "audio_caption";
