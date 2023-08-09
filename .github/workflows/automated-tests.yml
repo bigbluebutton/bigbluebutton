@@ -19,6 +19,8 @@ jobs:
   build-bbb-apps-akka:
     runs-on: ubuntu-20.04
     steps:
+      - name: Debug print context
+        run: echo "${{ toJson(github.event) }}"
       - name: Checkout v2.7.x-release
         uses: actions/checkout@v3
         with:
@@ -27,7 +29,6 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0 # Fetch all history
       - name: Checkout PR branch and merge into v2.7.x-release
         run: |
@@ -40,6 +41,9 @@ jobs:
           git status
           echo "$(git log -5)"
           echo "-----------"
+          echo "${{ github.head_ref }}"
+          echo "${{ github.event.pull_request.branch }}"
+          echo "${{ github.event.pull_request.head.ref }}"
           git merge ${{ github.event.pull_request.head.ref }}
           echo "-----------"
           git status
