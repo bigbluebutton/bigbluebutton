@@ -34,19 +34,23 @@ test.describe.parallel('Presentation', () => {
     await presentation.fitToWidthTest();
   });
 
-  test('Presentation fullscreen @ci', async ({ browser, context, page }) => {
+  /**
+   * following 3 tests failing due to multiple render of whiteboard options dropdown
+   * https://github.com/bigbluebutton/bigbluebutton/issues/18505
+   */
+  test('Presentation fullscreen @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot @ci', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot @ci @flaky', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
   });
 
-  test('Hide Presentation Toolbar @ci', async ({ browser, context, page }) => {
+  test('Hide Presentation Toolbar @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hidePresentationToolbar();
