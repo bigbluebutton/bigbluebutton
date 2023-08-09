@@ -27,7 +27,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -66,7 +66,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -93,7 +93,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -120,7 +120,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -157,7 +157,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -190,7 +190,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -233,7 +233,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -273,7 +273,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -312,7 +312,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -351,7 +351,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -392,7 +392,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
@@ -436,7 +436,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: Merge ${{ github.head_ref }} into ${{ github.event.pull_request.base.ref }}
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
