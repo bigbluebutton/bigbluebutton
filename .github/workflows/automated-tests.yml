@@ -16,13 +16,6 @@ on:
 permissions:
   contents: read
 jobs:
-  cancel:
-    runs-on: ubuntu-20.04
-    steps:
-    - name: Cancel Previous Runs
-      uses: styfle/cancel-workflow-action
-      with:
-        workflow_id: ${{ github.event.workflow.id }}
   build-bbb-apps-akka:
     runs-on: ubuntu-20.04
     steps:
