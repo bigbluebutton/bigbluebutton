@@ -873,7 +873,7 @@
     "app.toast.wakeLock.offerAccept": "Bai!",
     "app.toast.wakeLock.offerDecline": "Orain ez",
     "app.toast.wakeLock.acquireSuccess": "Pantaila beti aktiboa martxan! Ezarpenen menuan desaktibatu dezakezu.",
-    "app.toast.wakeLock.acquireFailed": "Errore bat gertatu da pantaila aktiboa eskuratzean.",
+    "app.toast.wakeLock.acquireFailed": "Errore bat gertatu da pantaila beti aktiboa eskuratzean.",
     "app.toast.setEmoji.raiseHand": "Eskua altxatu duzu",
     "app.toast.setEmoji.lowerHand": "Zure eskua jaitsi dute",
     "app.toast.setEmoji.away": "Adierazi duzu kanpoan zaudela",
