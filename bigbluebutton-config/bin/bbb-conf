@@ -1147,7 +1147,17 @@ check_state() {
     fi
 
     if [ $(echo "$HTML5_CONFIG" | yq e '.public.media.sipjsHackViaWs' -) != "true" ]; then
-
+      if [ "$PROTOCOL" == "https" ]; then
+        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
+          echo "# Warning: You have this server defined for https, but in"
+          echo "#"
+          echo "#   $SIP_CONFIG"
+          echo "#"
+          echo "#  did not find the use of https in definition for proxy_pass"
+          echo "#"
+          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
+          echo "#"
+        fi
       if [ "$SIP_NGINX_IP" != $IP ]; then
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
           echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
