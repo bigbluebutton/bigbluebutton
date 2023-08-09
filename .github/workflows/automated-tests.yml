@@ -36,17 +36,19 @@ jobs:
           echo "$(git log -5)"
           echo "-----------"
           # git checkout v2.7.x-release
+          echo "----------- status pull pr"
           git config pull.rebase false
-          git pull origin pull/${{ github.event.number }}/head:pr-branch
-          echo "-----------"
+          git pull --rebase origin pull/${{ github.event.number }}/head:pr-branch
+          echo "----------- status"
           git status
           echo "$(git log -5)"
-          echo "-----------"
+          echo "----------- vars"
           echo "${{ github.event.number }}"
           echo "${{ github.head_ref }}"
           echo "${{ github.event.pull_request.branch }}"
           echo "${{ github.event.pull_request.head.ref }}"
           echo "${{ github.event.pull_request.head.sha }}"
+          echo "----------- merge"
           git merge pr-branch
           # git merge ${{ github.event.pull_request.head.ref }}
           echo "-----------"
