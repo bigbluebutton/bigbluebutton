@@ -196,7 +196,6 @@ object Users2x {
   }
 
   def setUserRaiseHand(users: Users2x, intId: String, raiseHand: Boolean): Option[UserState] = {
-    //test
     for {
       u <- findWithIntId(users, intId)
     } yield {
