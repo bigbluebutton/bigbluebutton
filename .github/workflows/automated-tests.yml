@@ -31,8 +31,20 @@ jobs:
           fetch-depth: 0 # Fetch all history
       - name: Checkout PR branch and merge into v2.7.x-release
         run: |
+          echo "-----------"
+          git status
+          echo "$(git log -5)"
+          echo "-----------"
           git checkout v2.7.x-release
+          echo "-----------"
+          git status
+          echo "$(git log -5)"
+          echo "-----------"
           git merge ${{ github.event.pull_request.branch }}
+          echo "-----------"
+          git status
+          echo "$(git log -5)"
+          echo "-----------"
       - name: Set cache-key vars
         run: |
           echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
@@ -45,7 +57,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: artifacts.tar
-          key: ${{ runner.os }}-test-bbb-apps-akka-${{ env.CACHE_AKKA_APPS_KEY }}-${{ env.CACHE_COMMON_MSG_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
+          key: ${{ runner.os }}-test1-bbb-apps-akka-${{ env.CACHE_AKKA_APPS_KEY }}-${{ env.CACHE_COMMON_MSG_KEY }}-${{ env.CACHE_BBB_RELEASE_KEY }}
       - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
         name: Generate artifacts
         run: |
