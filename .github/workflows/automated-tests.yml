@@ -39,7 +39,7 @@ jobs:
           echo "----------- fetch pr"
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
-          git config pull.ff only
+          git config pull.rebase false
           git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
           # git fetch origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
           echo "----------- vars"
