@@ -200,8 +200,6 @@ jobs:
           git config user.email "tests@bigbluebutton.org"
           git config pull.rebase false
           git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
-        with:
-          fetch-depth: 0 # Fetch all history
       - name: Set cache-key vars
         run: |
           echo "CACHE_ETHERPAD_VERSION_KEY=$(git log -1 --format=%H -- bbb-etherpad.placeholder.sh)" >> $GITHUB_ENV
