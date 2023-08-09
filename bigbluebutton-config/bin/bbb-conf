@@ -1146,7 +1146,7 @@ check_state() {
         echo "#"
     fi
 
-    if [ `echo "$HTML5_CONFIG" | yq e '.public.media.sipjsHackViaWs' -` != "true" ]; then
+    if [ $(echo "$HTML5_CONFIG" | yq e '.public.media.sipjsHackViaWs' -) != "true" ]; then
 
       if [ "$SIP_NGINX_IP" != $IP ]; then
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
@@ -1411,6 +1411,7 @@ if [ $CHECK ]; then
         echo "$RECORD_CONFIG (record and playback)"
         echo "                     playback_host: $(yq e '.playback_host' $RECORD_CONFIG)"
         echo "                 playback_protocol: $(yq e '.playback_protocol' $RECORD_CONFIG)"
+
         echo "                            ffmpeg: $(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')"
     fi
 
