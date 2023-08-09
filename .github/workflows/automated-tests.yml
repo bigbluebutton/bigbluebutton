@@ -16,19 +16,26 @@ on:
 permissions:
   contents: read
 jobs:
+  cancel:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.9.1
+      with:
+        access_token: ${{ github.token }}
   build-bbb-apps-akka:
     runs-on: ubuntu-20.04
     steps:
       - name: checkout Master-branch and merge PR-branch into it
-        uses: actions/checkout@v3
-        run: |
+        - uses: actions/checkout@v3
+          with:
+            ref: ${{ github.event.pull_request.base.ref }}
+            fetch-depth: 0 # Fetch all history
+        - run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
           git config pull.rebase false
           git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
-          fetch-depth: 0 # Fetch all history
       - name: Set cache-key vars
         run: |
           echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
