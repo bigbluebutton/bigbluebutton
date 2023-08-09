@@ -124,7 +124,7 @@
     "app.userList.menu.muteUserAudio.label": "靜音使用者",
     "app.userList.menu.unmuteUserAudio.label": "取消靜音使用者",
     "app.userList.menu.webcamPin.label": "固定使用者的視訊鏡頭",
-    "app.userList.menu.webcamUnpin.label": "取消釘選使用者的攝像頭",
+    "app.userList.menu.webcamUnpin.label": "取消固定使用者的視訊鏡頭",
     "app.userList.menu.giveWhiteboardAccess.label" : "授予白板訪問權限",
     "app.userList.menu.removeWhiteboardAccess.label": "移除白板訪問權限",
     "app.userList.menu.ejectUserCameras.label": "關閉攝像頭",
