@@ -727,7 +727,7 @@
     "app.audio.captions.select.ja-JP": "日語",
     "app.audio.captions.select.pt-BR": "葡萄牙語",
     "app.audio.captions.select.ru-RU": "俄語",
-    "app.audio.captions.select.zh-CN": "普通話",
+    "app.audio.captions.select.zh-CN": "中文普通話",
     "app.error.removed": "您已從會議中被移除",
     "app.error.meeting.ended": "您已登出會議",
     "app.meeting.logout.duplicateUserEjectReason": "重複使用者試圖加入會議",
