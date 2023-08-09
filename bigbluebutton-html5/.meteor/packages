@@ -5,7 +5,7 @@
 
 meteor-base@1.5.1
 mobile-experience@1.1.0
-mongo@1.16.6
+mongo@1.16.7
 reactive-var@1.0.12
 
 standard-minifier-css@1.9.2
