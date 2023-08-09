@@ -4,6 +4,7 @@ import BreakoutService from '/imports/ui/components/breakout-room/service';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
+import UserReactionService from '/imports/ui/components/user-reaction/service';
 import { layoutDispatch } from '../../../../layout/context';
 
 const UserListItemContainer = (props) => {
@@ -57,5 +58,6 @@ export default withTracker(({ user }) => {
     getEmoji: UserListService.getEmoji(),
     usersProp: UserListService.getUsersProp(),
     selectedUserId: Session.get('dropdownOpenUserId'),
+    isReactionsEnabled: UserReactionService.isEnabled(),
   };
 })(UserListItemContainer);
