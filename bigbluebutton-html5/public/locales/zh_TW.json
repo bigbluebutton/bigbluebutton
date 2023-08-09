@@ -24,7 +24,7 @@
     "app.chat.breakoutDurationUpdated": "分組討論時間已設定為 {0} 分鐘",
     "app.chat.breakoutDurationUpdatedModerator": "分組討論室時間已設定為 {0} 分鐘，並已發送通知。",
     "app.chat.emptyLogLabel": "聊天記錄為空",
-    "app.chat.clearPublicChatMessage": "公共聊天歷史紀錄已被管理員清除",
+    "app.chat.clearPublicChatMessage": "主持人已清除公開聊天歷史記錄",
     "app.chat.multi.typing": "多個使用者正在輸入",
     "app.chat.one.typing": "{0} 正在輸入",
     "app.chat.two.typing": "{0} 和 {1} 正在輸入",
