@@ -311,7 +311,7 @@
     "app.presentationUploder.externalUploadLabel": "瀏覽文件",
     "app.presentationUploder.fileToUpload": "即將上傳...",
     "app.presentationUploder.currentBadge": "當前",
-    "app.presentationUploder.rejectedError": "所選文件已被拒絕。請檢查文件類型。",
+    "app.presentationUploder.rejectedError": "所選文件(s)已被拒絕。請檢查文件類型(s)。",
     "app.presentationUploder.connectionClosedError": "連接中斷，請重試。",
     "app.presentationUploder.upload.progress": "正在上傳（{0}%）",
     "app.presentationUploder.conversion.204": "無內容可捕獲",
