@@ -282,7 +282,7 @@
     "app.presentationUploader.exportToastHeaderPlural": "傳送到聊天中（{0} 項）",
     "app.presentationUploader.exporting": "傳送至聊天中",
     "app.presentationUploader.sending": "傳送中...",
-    "app.presentationUploader.collecting": "正在提取第 {0} 張（共 {1} 張）投影片...",
+    "app.presentationUploader.collecting": "正在提取投影片 {0}/{1}...",
     "app.presentationUploader.processing": "正在對第 {0} 張（共 {1} 張）投影片註釋...",
     "app.presentationUploader.sent": "已傳送",
     "app.presentationUploader.exportingTimeout": "匯出時間過長...",
