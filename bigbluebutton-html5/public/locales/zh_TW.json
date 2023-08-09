@@ -779,7 +779,7 @@
     "app.audio.captions.select.ja-JP": "日語",
     "app.audio.captions.select.pt-BR": "葡萄牙語",
     "app.audio.captions.select.ru-RU": "俄語",
-    "app.audio.captions.select.zh-CN": "中文",
+    "app.audio.captions.select.zh-CN": "中文普通話",
     "app.error.removed": "您已被移出會議",
     "app.error.meeting.ended": "您已登出會議",
     "app.meeting.logout.duplicateUserEjectReason": "重複的使用者嘗試加入會議",
