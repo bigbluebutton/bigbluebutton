@@ -45,6 +45,8 @@ jobs:
           echo "${{ github.event.pull_request.head.ref }}"
           echo "${{ github.event.pull_request.head.sha }}"
           echo "----------- merge"
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
           git merge --no-commit --no-ff ${{ github.head_ref }}
           # git merge --no-commit --no-ff ${{ github.event.pull_request.head.ref }}
           echo "-----------"
