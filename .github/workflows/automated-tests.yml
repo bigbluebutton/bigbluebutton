@@ -36,6 +36,7 @@ jobs:
           echo "$(git log -5)"
           echo "-----------"
           # git checkout v2.7.x-release
+          git config pull.rebase false
           git pull origin pull/${{ github.event.number }}/head:pr-branch
           echo "-----------"
           git status
