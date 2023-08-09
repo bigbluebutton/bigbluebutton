@@ -89,7 +89,7 @@
     "app.userlist.menu.removeConfirmation.desc": "阻止該用戶重新加入會話。",
     "app.userList.menu.muteUserAudio.label": "用戶靜音",
     "app.userList.menu.unmuteUserAudio.label": "取消用戶靜音",
-    "app.userList.menu.webcamPin.label": "固定用戶視訊畫面",
+    "app.userList.menu.webcamPin.label": "固定使用者的視訊鏡頭",
     "app.userList.menu.webcamUnpin.label": "取消固定使用者的視訊鏡頭",
     "app.userList.menu.giveWhiteboardAccess.label" : "提供白板存取",
     "app.userList.menu.removeWhiteboardAccess.label": "移除白板存取",
