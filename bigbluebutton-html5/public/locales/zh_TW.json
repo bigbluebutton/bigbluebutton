@@ -105,7 +105,7 @@
     "app.textInput.sendLabel": "發送",
     "app.title.defaultViewLabel": "預設演示視圖",
     "app.notes.title": "共享筆記",
-    "app.notes.titlePinned": "已固定的共享筆記",
+    "app.notes.titlePinned": "共享筆記（已釘選）",
     "app.notes.pinnedNotification": "共享筆記已固定在白板上。",
     "app.notes.label": "筆記",
     "app.notes.hide": "隱藏筆記",
