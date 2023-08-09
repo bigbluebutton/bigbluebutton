@@ -1135,7 +1135,7 @@
     "app.createBreakoutRoom.freeJoin": "允許使用者選擇加入的分組討論室",
     "app.createBreakoutRoom.captureNotes": "在分組討論室結束時捕獲共享筆記",
     "app.createBreakoutRoom.captureSlides": "在分組討論室結束時捕獲白板",
-    "app.createBreakoutRoom.leastOneWarnBreakout": "您必須至少將一位使用者放置在分組討論室中。",
+    "app.createBreakoutRoom.leastOneWarnBreakout": "您必須至少將一名使用者放入分組房間。",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "分組討論室的最短持續時間為 {0} 分鐘。",
     "app.createBreakoutRoom.modalDesc": "提示：您可以拖放使用者的名稱以將其指派到特定的分組討論室。",
     "app.createBreakoutRoom.roomTime": "{0} 分鐘",
