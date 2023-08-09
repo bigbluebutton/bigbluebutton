@@ -1221,7 +1221,7 @@
     "app.updateBreakoutRoom.title": "更新分組房間",
     "app.updateBreakoutRoom.confirm": "套用",
     "app.updateBreakoutRoom.userChangeRoomNotification": "您已被移至房間 {0}。",
-    "app.smartMediaShare.externalVideo": "外部影片",
+    "app.smartMediaShare.externalVideo": "外部影片(s)",
     "app.update.resetRoom": "重置使用者房間",
     "app.externalVideo.start": "分享新影片",
     "app.externalVideo.title": "分享外部影片",
