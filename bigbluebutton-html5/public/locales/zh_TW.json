@@ -22,7 +22,7 @@
     "app.chat.pollResult": "投票結果",
     "app.chat.breakoutDurationUpdated": "現在分組會議是 {0} 分鐘",
     "app.chat.emptyLogLabel": "空的聊天紀錄",
-    "app.chat.clearPublicChatMessage": "公開聊天紀錄已被主持人清空了",
+    "app.chat.clearPublicChatMessage": "主持人已清除公開聊天歷史記錄",
     "app.chat.multi.typing": "多個使用者都在輸入",
     "app.chat.one.typing": "{0} 正在打字",
     "app.chat.two.typing": "{0} 和 {1} 正在打字",
