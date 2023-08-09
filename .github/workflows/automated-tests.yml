@@ -32,12 +32,6 @@ jobs:
           git config user.email "tests@bigbluebutton.org"
           git config pull.rebase false
           git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
-      - name: checkout master and merge PR branch into it
-        run: |
-          git config user.name "BBB Automated Tests"
-          git config user.email "tests@bigbluebutton.org"
-          git config pull.rebase false
-          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
       - name: Set cache-key vars
         run: |
           echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
