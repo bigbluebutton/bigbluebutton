@@ -176,6 +176,7 @@ if [ -f $WEBRTC_SFU_ETC_CONFIG ]; then
     WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG)
 else
     WEBRTC_SFU_CONFIG=$(yq e $WEBRTC_SFU_DEFAULT_CONFIG)
+    touch $WEBRTC_SFU_ETC_CONFIG # create it as it gets modified later in this script
 fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
