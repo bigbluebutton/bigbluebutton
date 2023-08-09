@@ -22,11 +22,12 @@ jobs:
   build-bbb-apps-akka:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout ${{ github.event.pull_request.base.ref }}
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0 # Fetch all history
-      - name: checkout master and merge PR branch into it
+      - name: Merge PR branch into ${{ github.event.pull_request.base.ref }}
         run: |
           git config user.name "BBB Automated Tests"
           git config user.email "tests@bigbluebutton.org"
