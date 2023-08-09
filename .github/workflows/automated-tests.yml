@@ -20,16 +20,19 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout v2.7.x-release
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: v2.7.x-release
           fetch-depth: 0 # Fetch all history
+      - name: Checkout ${{ github.event.pull_request.branch }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.branch }}
+          fetch-depth: 0 # Fetch all history
       - name: Checkout PR branch and merge into v2.7.x-release
         run: |
-          git fetch origin ${{ github.head_ref }}:${{ github.head_ref }}
-          git checkout ${{ github.head_ref }}
           git checkout v2.7.x-release
-          git merge ${{ github.head_ref }}
+          git merge ${{ github.event.pull_request.branch }}
       - name: Set cache-key vars
         run: |
           echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
