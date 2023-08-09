@@ -27,9 +27,9 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-          with:
-            ref: ${{ github.event.pull_request.base.ref }}
-            fetch-depth: 0 # Fetch all history
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0 # Fetch all history
       - name: checkout Master-branch and merge PR-branch into it
         run: |
           git config user.name "BBB Automated Tests"
