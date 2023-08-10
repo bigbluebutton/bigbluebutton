@@ -988,7 +988,7 @@
     "app.video.securityError": "A compatibilidade multimedia está desactivada no documento",
     "app.video.typeError": "A lista de restricións especificada está baleira ou ten todas as restricións estabelecidas a falso",
     "app.video.notFoundError": "Non se atopou a cámara web. Asegúrese de que estea conectada",
-    "app.video.notAllowed": "Fallo o permiso para a cámara web compartida, asegúrese de que os permisos do seu navegador son correctos",
+    "app.video.notAllowed": "É necesario conceder permiso para acceder ás cámaras web",
     "app.video.notSupportedError": "Só é posíbel compartir cámaras web de fontes seguras, asegúrese de que o certificado SSL sexa valido",
     "app.video.notReadableError": "Non foi posíbel obter vídeo da cámara web. Asegúrese de que outro programa non estea a usar a cámara web",
     "app.video.timeoutError": "O navegador non respondeu a tempo.",
