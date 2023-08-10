@@ -109,8 +109,6 @@ public class SlidesGenerationProgressNotifier {
       return;
     }
     // Completed conversion -> delete original file
-    pres.deleteOriginalFile();
-
     DocPageCompletedProgress progress = new DocPageCompletedProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getTemporaryPresentationId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",

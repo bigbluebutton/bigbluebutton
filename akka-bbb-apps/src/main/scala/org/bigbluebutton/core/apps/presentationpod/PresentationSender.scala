@@ -6,12 +6,55 @@ import org.bigbluebutton.core.bus.MessageBus
 
 object PresentationSender {
   def broadcastSetPresentationDownloadableEvtMsg(
+                                                  bus: MessageBus,
+                                                  meetingId: String,
+                                                  podId: String, userId: String,
+                                                  presentationId: String,
+                                                  downloadable: Boolean,
+                                                  presFilename: String,
+                                                ): Unit = {
+    broadcastSetPresentationDownloadableEvtMsgLogic(
+      bus,
+      meetingId,
+      podId,
+      userId,
+      presentationId,
+      downloadable,
+      presFilename,
+      "pdf",
+    )
+  }
+  def broadcastSetPresentationDownloadableEvtMsg(
       bus:       MessageBus,
       meetingId: String,
-      podId:     String, userId: String,
+      podId:     String,
+      userId: String,
       presentationId: String,
       downloadable:   Boolean,
       presFilename:   String,
+      downloadableExtension: String
+  ): Unit = {
+    broadcastSetPresentationDownloadableEvtMsgLogic(
+      bus,
+      meetingId,
+      podId,
+      userId,
+      presentationId,
+      downloadable,
+      presFilename,
+      downloadableExtension,
+    )
+  }
+
+  def broadcastSetPresentationDownloadableEvtMsgLogic(
+    bus: MessageBus,
+    meetingId: String,
+    podId: String,
+    userId: String,
+    presentationId: String,
+    downloadable: Boolean,
+    presFilename: String,
+    downloadableExtension: String,
   ): Unit = {
     val routing = Routing.addMsgToClientRouting(
       MessageTypes.BROADCAST_TO_MEETING,
@@ -20,12 +63,11 @@ object PresentationSender {
     val envelope = BbbCoreEnvelope(SetPresentationDownloadableEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(SetPresentationDownloadableEvtMsg.NAME, meetingId, userId)
 
-    val body = SetPresentationDownloadableEvtMsgBody(podId, presentationId, downloadable, presFilename)
+    val body = SetPresentationDownloadableEvtMsgBody(podId, presentationId, downloadable, presFilename, downloadableExtension)
     val event = SetPresentationDownloadableEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
     bus.outGW.send(msgEvent)
   }
-
   def broadcastPresentationConversionCompletedEvtMsg(
       bus:       MessageBus,
       meetingId: String,

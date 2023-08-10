@@ -56,6 +56,8 @@ const getPresentations = () => Presentations
       id,
       name,
       exportation,
+      filenameConverted,
+      downloadableExtension,
     } = presentation;
 
     const uploadTimestamp = id.split('-').pop();
@@ -72,6 +74,8 @@ const getPresentations = () => Presentations
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
       exportation: exportation || { error: false },
+      filenameConverted,
+      downloadableExtension,
     };
   });
 

@@ -43,6 +43,7 @@ const propTypes = {
   item: PropTypes.shape({
     id: PropTypes.string.isRequired,
     filename: PropTypes.string.isRequired,
+    filenameConverted: PropTypes.string.isRequired,
     isCurrent: PropTypes.bool.isRequired,
     temporaryPresentationId: PropTypes.string.isRequired,
     isDownloadable: PropTypes.bool.isRequired,
@@ -51,6 +52,7 @@ const propTypes = {
     upload: PropTypes.shape,
     exportation: PropTypes.shape,
     uploadTimestamp: PropTypes.number.isRequired,
+    downloadableExtension: PropTypes.string.isRequired,
   }).isRequired,
   closeModal: PropTypes.func.isRequired,
   isRTL: PropTypes.bool.isRequired,
@@ -82,29 +84,60 @@ class PresentationDownloadDropdown extends PureComponent {
 
     this.menuItems = [];
 
-    const toggleDownloadOriginalPresentation = (enableDownload) => {
+    const { filenameConverted, filename, downloadableExtension } = item;
+    const convertedFileExtension = filenameConverted?.split('.').slice(-1)[0] || 'pdf';
+    const originalFileExtension = filename?.split('.').slice(-1)[0];
+    const toggleDownloadOriginalPresentation = (enableDownload, isConverted) => {
       handleToggleDownloadable(item);
       if (enableDownload) {
-        handleDownloadingOfPresentation('Original');
+        handleDownloadingOfPresentation(`Original_${isConverted}`);
       }
       closeModal();
     };
 
     if (allowDownloadOriginal) {
-      if (!isDownloadable) {
+      if (isDownloadable && !!downloadableExtension
+        && downloadableExtension === originalFileExtension) {
         this.menuItems.push({
           key: this.actionsKey[0],
-          dataTest: 'enableOriginalPresentationDownload',
-          label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload),
-          onClick: () => toggleDownloadOriginalPresentation(true),
+          dataTest: 'disableOriginalPresentationDownload',
+          disabled: !!downloadableExtension && downloadableExtension !== originalFileExtension,
+          label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
+            { 0: originalFileExtension }),
+          onClick: () => toggleDownloadOriginalPresentation(false, 'Not-converted'),
         });
       } else {
         this.menuItems.push({
           key: this.actionsKey[0],
-          dataTest: 'disableOriginalPresentationDownload',
-          label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload),
-          onClick: () => toggleDownloadOriginalPresentation(false),
+          dataTest: 'enableOriginalPresentationDownload',
+          disabled: !!downloadableExtension && downloadableExtension !== originalFileExtension,
+          label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
+            { 0: originalFileExtension }),
+          onClick: () => toggleDownloadOriginalPresentation(true, 'Not-converted'),
         });
+      }
+      if ((!!filenameConverted && filenameConverted !== '')
+        && convertedFileExtension !== originalFileExtension) {
+        if (isDownloadable && !!downloadableExtension
+          && downloadableExtension === convertedFileExtension) {
+          this.menuItems.push({
+            key: this.actionsKey[0],
+            dataTest: 'disableOriginalPresentationDownload',
+            disabled: !!downloadableExtension && downloadableExtension !== convertedFileExtension,
+            label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
+              { 0: convertedFileExtension }),
+            onClick: () => toggleDownloadOriginalPresentation(false, 'Converted'),
+          });
+        } else {
+          this.menuItems.push({
+            key: this.actionsKey[0],
+            dataTest: 'enableOriginalPresentationDownload',
+            disabled: !!downloadableExtension && downloadableExtension !== convertedFileExtension,
+            label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
+              { 0: convertedFileExtension }),
+            onClick: () => toggleDownloadOriginalPresentation(true, 'Converted'),
+          });
+        }
       }
     }
     if (allowDownloadWithAnnotations) {

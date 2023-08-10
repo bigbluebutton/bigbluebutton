@@ -105,9 +105,9 @@ public final class Util {
 		return path;
 	}
 
-	public static File getPresFileDownloadMarker(File presBaseDir, String presId) {
+	public static File getPresFileDownloadMarker(File presBaseDir, String presId, String downloadableExtension) {
 		if (presBaseDir != null) {
-			String downloadMarker = presId.concat(".downloadable");
+			String downloadMarker = presId.concat(".").concat(downloadableExtension).concat(".downloadable");
 			return new File(presBaseDir.getAbsolutePath() + File.separatorChar + downloadMarker);
 		}
 		return null;
@@ -116,9 +116,10 @@ public final class Util {
 	public static void makePresentationDownloadable(
 		File presFileDir,
 		String presId,
-		boolean downloadable
+		boolean downloadable,
+		String downloadableExtension
 	) throws IOException {
-		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId);
+		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId, downloadableExtension);
 		if (downloadable && downloadMarker != null && ! downloadMarker.exists()) {
 			downloadMarker.createNewFile();
 		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {

@@ -418,6 +418,16 @@ class PresentationUploader extends Component {
         shouldUpdateState = true;
       }
 
+      if (currentPropPres?.downloadableExtension !== prevPropPres?.downloadableExtension) {
+        presentation.downloadableExtension = currentPropPres.downloadableExtension;
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres?.filenameConverted !== prevPropPres?.filenameConverted) {
+        presentation.filenameConverted = currentPropPres.filenameConverted;
+        shouldUpdateState = true;
+      }
+
       modPresentation.conversion = currentPropPres.conversion;
       modPresentation.isRemovable = currentPropPres.isRemovable;
 
@@ -702,7 +712,7 @@ class PresentationUploader extends Component {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
 
       if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
-        if (type === 'Original') {
+        if (type.indexOf('Original') !== -1) {
           if (!item.isDownloadable) {
             notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.filename }), 'success');
           }
@@ -715,7 +725,7 @@ class PresentationUploader extends Component {
         EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING,
-      ].includes(exportation.status) && type !== 'Original') {
+      ].includes(exportation.status) && type.indexOf('Original') === -1) {
         this.setState((prevState) => {
           prevState.presExporting.add(item.id);
           return {
