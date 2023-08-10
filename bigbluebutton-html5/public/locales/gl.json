@@ -748,7 +748,7 @@
     "app.modal.randomUser.title": "Usuario seleccionado ao chou",
     "app.modal.randomUser.who": "Quen será seleccionado…?",
     "app.modal.randomUser.alone": "Só hai un espectador",
-    "app.modal.randomUser.reselect.label": "Selecciona de novo",
+    "app.modal.randomUser.reselect.label": "Volver seleccionar",
     "app.modal.randomUser.ariaLabel.title": "Xanela modal do usuario seleccionado",
     "app.dropdown.close": "Pechar",
     "app.dropdown.list.item.activeLabel": "Activo",
