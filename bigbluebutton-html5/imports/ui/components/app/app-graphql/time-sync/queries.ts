@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client';
 
 export interface GetServerTimeResponse {
-  current_time: Array<{ currentTimestampWithoutTimeZone: Date }>;
+  current_time: Array<{ currentTimestamp: Date }>;
 }
 
 export const GET_SERVER_TIME = gql`
   query getServerTime {
     current_time {
-      currentTimestampWithoutTimeZone
+      currentTimestamp
     }
   }
 `;
