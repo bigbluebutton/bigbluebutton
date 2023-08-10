@@ -583,7 +583,7 @@
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Crear salas parciais",
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "crear salas parciais para dividir a xuntanza actual",
     "app.actionsBar.actionsDropdown.captionsLabel": "Escribir subtítulos",
-    "app.actionsBar.actionsDropdown.captionsDesc": "Alternar o panel de subtítulos",
+    "app.actionsBar.actionsDropdown.captionsDesc": "Amosar/agochar o panel de subtítulos",
     "app.actionsBar.actionsDropdown.takePresenter": "Tomar o rol de presentador",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Asignarse a un mesmo como novo presentador",
     "app.actionsBar.actionsDropdown.selectRandUserLabel": "Seleccionar un usuario ao chou",
