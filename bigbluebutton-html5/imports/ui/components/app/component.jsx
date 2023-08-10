@@ -147,11 +147,13 @@ class App extends Component {
       isAudioModalOpen: false,
       isRandomUserSelectModalOpen: false,
       isVideoPreviewModalOpen: false,
+      presentationFitToWidth: false,
     };
 
     this.isTimerEnabled = TimerService.isEnabled();
     this.timeOffsetInterval = null;
 
+    this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
@@ -327,6 +329,10 @@ class App extends Component {
     }
   }
 
+  setPresentationFitToWidth(presentationFitToWidth) {
+    this.setState({ presentationFitToWidth });
+  }
+
   handleWindowResize() {
     const { enableResize } = this.state;
     const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
@@ -447,6 +453,7 @@ class App extends Component {
           setMeetingLayout={setMeetingLayout}
           showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
           presentationIsOpen={presentationIsOpen}
+          setPresentationFitToWidth={this.setPresentationFitToWidth}
         />
       </Styled.ActionsBar>
     );
@@ -575,7 +582,8 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
-    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen } = this.state;
+    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen, presentationFitToWidth } = this.state;
+
     return (
       <>
         <Notifications />
@@ -599,7 +607,7 @@ class App extends Component {
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
-          {shouldShowPresentation ? <PresentationAreaContainer darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
+          {shouldShowPresentation ? <PresentationAreaContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo
