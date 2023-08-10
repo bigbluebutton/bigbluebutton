@@ -191,7 +191,7 @@
     "app.meeting.endedByUserMessage": "Esta sesión foi rematada por {0}",
     "app.meeting.endedByNoModeratorMessageSingular": "A xuntanza rematou porque non estivo presente ningún moderador durante un minuto",
     "app.meeting.endedByNoModeratorMessagePlural": "A xuntanza rematou porque ningún moderador estivo presente durante {0} minutos",
-    "app.meeting.endedMessage": "Será reenviado á pantalla de inicio",
+    "app.meeting.endedMessage": "Vai ser reenviado á pantalla de inicio",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "A xuntanza pecharase nun minuto.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "A xuntanza pecharase en {0} minutos.",
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "A sala parcial pecharase en {0} minutos.",
