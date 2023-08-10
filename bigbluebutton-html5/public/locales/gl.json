@@ -108,7 +108,7 @@
     "app.userList.locked": "Bloqueado",
     "app.userList.byModerator": "por (Moderador)",
     "app.userList.label": "Lista de usuarios",
-    "app.userList.toggleCompactView.label": "Alternar o modo de vista compacta",
+    "app.userList.toggleCompactView.label": "Amosar/agochar o modo de vista compacta",
     "app.userList.moderator": "Moderador",
     "app.userList.mobile": "Móbil",
     "app.userList.guest": "Convidado",
