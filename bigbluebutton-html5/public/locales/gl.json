@@ -689,7 +689,7 @@
     "app.audio.changeAudioDevice": "Cambiar o dispositivo de son",
     "app.audio.enterSessionLabel": "Entrar na sesión",
     "app.audio.playSoundLabel": "Reproducir son",
-    "app.audio.stopAudioFeedback": "Deter a retroalimentación do son",
+    "app.audio.stopAudioFeedback": "Deter o retorno de son",
     "app.audio.backLabel": "Atrás",
     "app.audio.loading": "Cargando",
     "app.audio.microphones": "Micrófonos",
