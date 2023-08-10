@@ -70,7 +70,7 @@
 #   2021-07-16 JFS  Add defaultMeetingLayout information
 
 set -x
-set -e
+#set -e
 
 PATH=$PATH:/sbin
 
