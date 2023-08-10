@@ -375,7 +375,7 @@
     "app.polling.responseSecret": "Enquisa anónima: o presentador non pode ver a súa resposta.",
     "app.polling.responseNotSecret": "Enquisa normal: o presentador pode ver a súa resposta.",
     "app.polling.pollAnswerLabel": "Resposta á enquisa {0}",
-    "app.polling.pollAnswerDesc": "Selecciona esta opción para votar por {0}",
+    "app.polling.pollAnswerDesc": "Seleccione esta opción para votar por {0}",
     "app.failedMessage": "Desculpas, hai problemas para conectar co servidor.",
     "app.downloadPresentationButton.label": "Descargar a presentación orixinal",
     "app.connectingMessage": "Conectandose…",
