@@ -665,7 +665,7 @@
     "app.audioModal.helpTitle": "Houbo un problema cos seus dispositivos multimedia",
     "app.audioModal.helpText": "Deu permiso para acceder ao seu micrófono? Teña en conta que debería aparecer un diálogo cando tente unirse ao son, solicitando os permisos do seu dispositivo multimedia, acépteos para unirse á conferencia de son. Se non é así, tente cambiar os permisos do micrófono nos axustes do seu navegador.",
     "app.audioModal.help.noSSL": "Esta páxina non é segura. Para poder acceder ao micrófono a páxina ten que ser servida mediante HTTPS. Contacte co administrador do servidor.",
-    "app.audioModal.help.macNotAllowed": "Parece que as preferencias do teu sistema Mac están a bloquear o acceso ao mícrofono. Abra Preferencias do sistema > Seguridade e privacidade > Privacidade > Micrófono, e verifique que o navegador que está a usar está marcado.",
+    "app.audioModal.help.macNotAllowed": "Parece que as preferencias do seu sistema Mac están a bloquear o acceso ao mícrofono. Abra Preferencias do sistema > Seguridade e privacidade > Privacidade > Micrófono, e verifique que o navegador que está a usar está marcado.",
     "app.audioModal.audioDialTitle": "Unirse usando o seu teléfono",
     "app.audioDial.audioDialDescription": "Marcar",
     "app.audioDial.audioDialConfrenceText": "e introduza o número de PIN da conferencia:",
