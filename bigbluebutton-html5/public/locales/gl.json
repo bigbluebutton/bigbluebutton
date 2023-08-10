@@ -1020,7 +1020,7 @@
     "app.video.virtualBackground.custom": "Enviar dende o seu computador",
     "app.video.virtualBackground.remove": "Retirar a imaxe engadida",
     "app.video.virtualBackground.genericError": "Produciuse un fallo ao aplicar o efecto da cámara. Ténteo de novo.",
-    "app.video.virtualBackground.camBgAriaDesc": "Estabelece o fondo virtual da cámara web a {0}",
+    "app.video.virtualBackground.camBgAriaDesc": "Define o fondo virtual da cámara web a {0}",
     "app.video.virtualBackground.maximumFileSizeExceeded": "Superouse o tamaño máximo do ficheiro. ({0}MB)",
     "app.video.virtualBackground.typeNotAllowed": "Non se permite o tipo de ficheiro.",
     "app.video.virtualBackground.errorOnRead": "Produciuse un erro ao ler o ficheiro.",
