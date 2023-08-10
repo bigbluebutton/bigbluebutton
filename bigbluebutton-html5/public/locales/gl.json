@@ -322,7 +322,7 @@
     "app.poll.waitingLabel": "Agardando respostas ({0}/{1})",
     "app.poll.ariaInputCount": "Opción da enquisa personalizada {0} de {1}",
     "app.poll.customPlaceholder": "Engadir opción de enquisa",
-    "app.poll.noPresentationSelected": "Non se seleccionou ningunha presentación Seleccione unha.",
+    "app.poll.noPresentationSelected": "Non foi seleccionada ningunha presentación Seleccione unha.",
     "app.poll.clickHereToSelect": "Prema aquí para seleccionar",
     "app.poll.question.label" : "Escriba a súa pregunta...",
     "app.poll.optionalQuestion.label" : "Escriba a súa pregunta (opcional)...",
