@@ -315,7 +315,7 @@
     "app.poll.activePollInstruction": "Deixe este panel aberto para ver as respostas en tempo real da súa enquisa. Cando estea listo prema en «Publicar os resultados da enquisa» para publicar os resultados e rematar a enquisa.",
     "app.poll.dragDropPollInstruction": "Para encher os valores da enquisa, arrastre un ficheiro de texto cos valores da enquisa ao campo resaltado",
     "app.poll.customPollTextArea": "Encher os valores da enquisa",
-    "app.poll.publishLabel": "Publicar enquisa",
+    "app.poll.publishLabel": "Publicar a enquisa",
     "app.poll.cancelPollLabel": "Cancelar",
     "app.poll.backLabel": "Iniciar unha enquisa",
     "app.poll.closeLabel": "Pechar",
