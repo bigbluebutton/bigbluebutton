@@ -123,7 +123,7 @@
     "app.userlist.menu.removeConfirmation.desc": "Impedir que este usuario volva unirse á sesión.",
     "app.userList.menu.muteUserAudio.label": "Desactivar o son do usuario",
     "app.userList.menu.unmuteUserAudio.label": "Devolverlle o son ao usuario",
-    "app.userList.menu.webcamPin.label": " Fixar a cámara web do usuario",
+    "app.userList.menu.webcamPin.label": "Fixar a cámara web do usuario",
     "app.userList.menu.webcamUnpin.label": "Desprender a cámara web do usuario",
     "app.userList.menu.giveWhiteboardAccess.label" : "Dar acceso ao encerado",
     "app.userList.menu.removeWhiteboardAccess.label": "Retirar o acceso ao encerado",
