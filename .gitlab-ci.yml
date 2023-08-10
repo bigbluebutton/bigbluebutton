@@ -122,11 +122,6 @@ bbb-libreoffice-docker-build:
   script:
     - build/setup-inside-docker.sh bbb-libreoffice-docker
 
-bbb-lti-build:
-  extends: .build_job
-  script:
-    - build/setup-inside-docker.sh bbb-lti
-
 bbb-mkclean-build:
   extends: .build_job
   script:

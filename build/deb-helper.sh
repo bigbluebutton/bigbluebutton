@@ -211,29 +211,6 @@ if [ -z "$IP" ]; then
   read -r IP _ <<< "$(hostname -I)"
 fi
 
-if [ -f /etc/redhat-release ]; then
-  TOMCAT_SERVICE=tomcat
-else
-  if grep -q jammy /etc/lsb-release; then
-    TOMCAT_SERVICE=tomcat9
-  fi
-fi
-
-if [ -f /var/lib/$TOMCAT_SERVICE/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVLET_DIR=/var/lib/$TOMCAT_SERVICE/webapps/bigbluebutton
-else 
-  SERVLET_DIR=/usr/share/bbb-web
-fi
-
-PROTOCOL=http
-if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
-    PROTOCOL=https
-  fi
-fi
-
-
 ##########################
 ### END DEB-HELPERS.SH ###
 ##########################

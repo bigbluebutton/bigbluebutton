@@ -35,7 +35,7 @@ else
 fi
 
 #
-# Set the permissions to /var/bigbluebutton tomcat (and possibly other services) can write
+# Set the permissions to /var/bigbluebutton so services can write
 #
 if [ -d /var/bigbluebutton ]; then
   echo -n "."

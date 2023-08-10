@@ -99,17 +99,9 @@ source /etc/bigbluebutton/bigbluebutton-release
 
 if [ -f /etc/centos-release ] || [ -f /etc/system-release ]; then
     DISTRIB_ID=centos
-    TOMCAT_USER=tomcat
-    TOMCAT_DIR=/var/lib/$TOMCAT_USER
-    SERVLET_LOGS=/usr/share/tomcat/logs
     REDIS_SERVICE=redis.service
 else
     . /etc/lsb-release    # Get value for DISTRIB_ID
-    if [ "$DISTRIB_CODENAME" == "focal" ]; then
-      TOMCAT_USER=tomcat9
-    fi
-    TOMCAT_DIR=/var/lib/$TOMCAT_USER
-    SERVLET_LOGS=$TOMCAT_DIR/logs
     REDIS_SERVICE=redis-server
 fi
 
@@ -119,8 +111,6 @@ FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 FREESWITCH_SWITCH_CONF=/opt/freeswitch/etc/freeswitch/autoload_configs/switch.conf.xml
-
-LTI_DIR=/usr/share/bbb-lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
@@ -292,7 +282,6 @@ usage() {
     echo "   --watch                          Scan the log files for error messages every 2 seconds"
     echo "   --network                        View network connections on 80, 443 and 1935 by IP address. 1935 is deprecated. You will need to modify bbb-conf if you have custom ports."
     echo "   --secret                         View the URL and shared secret for the server"
-    echo "   --lti                            View the URL and secret for LTI (if installed)"
     echo
     echo "Administration:"
     echo "   --restart                        Restart BigBlueButton"
@@ -350,12 +339,6 @@ uncomment () {
 
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
-
-    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
-      TOMCAT_SERVICE=$TOMCAT_USER
-      systemctl stop $TOMCAT_SERVICE
-    fi
-
     systemctl stop bigbluebutton.target
 }
 
@@ -383,18 +366,6 @@ start_bigbluebutton () {
 
     echo "Starting BigBlueButton"
 
-    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
-        TOMCAT_SERVICE=$TOMCAT_USER
-
-        [ -z "$TOMCAT_SERVICE" ] || systemctl start $TOMCAT_SERVICE || {
-            echo
-            echo "# Warning: $TOMCAT_SERVICE could not be started. Please, check BBB-LTI."
-            echo "#     Run the command:"
-            echo "#       sudo journalctl -u $TOMCAT_SERVICE"
-            echo "#     To better understand the ERROR"
-        }
-    fi
-
     systemctl restart bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
@@ -406,10 +377,6 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
-
-    if [ -d $TOMCAT_DIR ]; then
-        units="$units $TOMCAT_USER"
-    fi
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         units="$units mongod bbb-html5"
@@ -449,10 +416,6 @@ display_bigbluebutton_status () {
         units="$units bbb-webhooks"
     fi
 
-    if [ -f /usr/lib/systemd/system/bbb-lti.service ]; then
-        units="$units bbb-lti"
-    fi
-
     if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
         units="$units bbb-pads"
     fi
@@ -475,10 +438,6 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-transcription-controller.service ]; then
         units="$units bbb-transcription-controller"
-    fi
-
-    if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
-      TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
     line='—————————————————————————————►'
@@ -605,28 +564,6 @@ while [ $# -gt 0 ]; do
         continue
     fi
 
-    if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
-        if [ -z "$SECRET" ]; then
-            if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
-                LTI_URL="${PROTOCOL}://"$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
-                CUSTOMER=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
-                SECRET=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
-                echo
-                echo "       URL: $LTI_URL"
-                echo "  Customer: $CUSTOMER"
-                echo "    Secret: $SECRET"
-                echo
-                ICON_URL=$( echo $LTI_URL | sed 's/tool/images\/icon.ico/')
-                echo "  Icon URL: $ICON_URL"
-                echo
-                echo
-                exit 0
-            fi
-        fi
-        shift; shift
-        continue
-    fi
-
     usage
     exit 1
 done
@@ -634,9 +571,9 @@ done
 print_bigbluebutton_version() {
     echo
     if [ $DISTRIB_ID == "centos" ]; then
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-lti | grep -v bbb-redis | grep -v bbb-tomcat | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-redis | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
     else
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
     fi
 }
 
@@ -676,10 +613,6 @@ if [[ $SECRET ]]; then
 
     if [ -f /etc/bigbluebutton/bbb-apps-akka.conf ]; then
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /etc/bigbluebutton/bbb-apps-akka.conf
-    fi
-
-    if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
-        sed -i "s/bigbluebuttonSalt=.*/bigbluebuttonSalt=$SECRET/g" ${LTI_DIR}/WEB-INF/classes/lti-config.properties
     fi
 
     echo
@@ -809,18 +742,6 @@ check_configuration() {
         fi
     fi
 
-
-    if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
-        LTI_SECRET=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
-
-        if [ "$LTI_SECRET" != "$BBB_SECRET" ]; then
-            echo "# Warning: LTI shared secret mismatch:"
-            echo "#  ${LTI_DIR}/WEB-INF/classes/lti-config.properties                      = $LTI_SECRET"
-            echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties  = $BBB_SECRET"
-            echo
-        fi
-    fi
-
     SIP_PROTOCOL=$(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
     if [[ $SIP_PROTOCOL == "https" ]]; then
         if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
@@ -891,23 +812,6 @@ check_state() {
         NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Nginx"
     else
         RUNNING_APPS="${RUNNING_APPS} Nginx"
-    fi
-
-    if ! ss -ant | grep '8090' > /dev/null; then
-        print_header
-        if [ ! -z "$TOMCAT_SERVICE" ]; then
-            NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_USER} or grails"
-        fi
-    else
-        if ps aux |  ps -aef | grep -v grep | grep grails | grep run-app > /dev/null; then
-        print_header
-        RUNNING_APPS="${RUNNING_APPS} Grails"
-        echo "#   ${TOMCAT_USER}:      noticed you are running grails run-app instead of ${TOMCAT_USER}"
-        else
-            if [ ! -z "$TOMCAT_SERVICE" ]; then
-                RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_USER}"
-            fi
-        fi
     fi
 
     if ! ps aux | grep -v grep | grep '[/]usr/[s]*bin/redis-server' > /dev/null; then
@@ -996,16 +900,6 @@ check_state() {
             ;;
     esac
 
-
-    #
-    # Check that the servlet container has started properly and has created log files
-    #
-    if [ -d $TOMCAT_DIR ]; then
-      if [ -z "$(ls -A $SERVLET_LOGS)" ]; then
-        echo "#                     empty directory: $SERVLET_LOGS contains no logs"
-      fi
-    fi
-
     #
     # Check if the user is running their own bbb-web
     #
@@ -1067,18 +961,6 @@ check_state() {
 
     BBB_WEB="$(get_bbb_web_config_value bigbluebutton.web.serverURL)"
 
-    if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
-        LTI_URL="${PROTOCOL}://"$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
-        echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
-        echo "#"
-        echo "#    $LTI_URL"
-        echo "#"
-        echo "# To get the access parameters for LTI, run the command"
-        echo "#"
-        echo "#    bbb-conf --lti"
-        echo
-    fi
-
     DEFAULT_PDF="$(get_bbb_web_config_value beans.presentationService.defaultUploadedPresentation)"
     if echo $DEFAULT_PDF | grep -q "bigbluebutton.web.serverURL"; then
         if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs curl -sS >/dev/null; then
@@ -1110,14 +992,6 @@ check_state() {
     fi
 
     if bbb-conf --status | grep -q inactive; then
-        if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
-            TOMCAT_SERVICE=$TOMCAT_USER
-
-            if bbb-conf --status | grep -q inactive | grep -q $TOMCAT_SERVICE; then
-                echo "# Warning: $TOMCAT_SERVICE is not started correctly"
-                echo "#"
-            fi
-        fi
         if bbb-conf --status | grep inactive; then
             echo "# Error: Detected some processes have not started correctly"
             echo "#"
@@ -1404,15 +1278,6 @@ if [ $CHECK ]; then
     echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.mediasoup.worker.rtcMinPort' -)-$(echo "$WEBRTC_SFU_CONFIG" |yq e '.mediasoup.worker.rtcMaxPort' -)"
     echo "                    bbb-webrtc-recorder: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.webrtc.rtcMinPort' -)-$(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.webrtc.rtcMaxPort' -)"
 
-
-
-#     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
-#          LTI_URL=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
-#          echo
-#          echo "${LTI_DIR}/WEB-INF/classes/lti-config.properties (LTI integration)"
-#          echo "                           api url: $LTI_URL"
-#     fi
-
     if [ -f $RECORD_CONFIG ]; then
         echo
         echo "$RECORD_CONFIG (record and playback)"
@@ -1494,7 +1359,6 @@ if [ $ZIP ]; then
 
     touch /tmp/empty
     tar cf  $TMP_LOG_FILE /tmp/empty               > /dev/null 2>&1
-    tar rfh $TMP_LOG_FILE $SERVLET_LOGS            > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bigbluebutton/* > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-apps-akka   > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-fsesl-akka         > /dev/null 2>&1
@@ -1544,16 +1408,6 @@ if [ $DEBUG ]; then
         echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
         cat /tmp/t
         echo
-    fi
-
-    if [ -d $SERVLET_LOGS ]; then
-      rm -rf /tmp/t
-      $SUDO grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t
-      if [ -s /tmp/t ]; then
-        echo "   -- Exceptions found in $SERVLET_LOGS/ -- "
-        cat /tmp/t
-        echo
-      fi
     fi
 
     rm -rf /tmp/t
@@ -1646,18 +1500,6 @@ if [ -n "$HOST" ]; then
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
     fi
-
-    if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
-        echo "Assigning $HOST for LTI integration in ${LTI_DIR}/WEB-INF/classes/lti-config.properties"
-        # We don't wat to guess on http/https as the lti endpoint may be a different BigBlueButton server
-        sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
-                ${LTI_DIR}/WEB-INF/classes/lti-config.properties
-        sed -i "s/bigbluebuttonURL=https:\/\/.*/bigbluebuttonURL=https:\/\/$HOST\/bigbluebutton/g" \
-                ${LTI_DIR}/WEB-INF/classes/lti-config.properties
-        sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
-                ${LTI_DIR}/WEB-INF/classes/lti-config.properties
-    fi
-
 
     if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
         echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml"
@@ -1761,10 +1603,6 @@ if [ $CLEAN ]; then
 
     if [ -d /var/log/bigbluebutton/presentation ]; then
         rm -f /var/log/bigbluebutton/presentation/*
-    fi
-
-    if [[ $SERVLET_LOGS ]]; then
-        rm -rf $SERVLET_LOGS/*
     fi
 
     # Check if we are storing HTML5 logs in the server
