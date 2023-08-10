@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { layoutSelectOutput } from '../../layout/context';
 import PresentationArea from './component';
 
-const PresentationAreaContainer = ({ presentationIsOpen, darkTheme }) => {
+const PresentationAreaContainer = ({ presentationIsOpen, darkTheme, setPresentationFitToWidth, fitToWidth }) => {
   const presentation = layoutSelectOutput((i) => i.presentation);
 
-  return <PresentationArea {...{ ...presentation, presentationIsOpen, darkTheme }} />;
+  return <PresentationArea {...{ ...presentation, presentationIsOpen, darkTheme, setPresentationFitToWidth, fitToWidth }} />;
 };
 
 export default PresentationAreaContainer;

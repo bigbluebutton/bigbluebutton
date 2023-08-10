@@ -74,7 +74,6 @@ class Presentation extends PureComponent {
       presentationWidth: 0,
       presentationHeight: 0,
       zoom: 100,
-      fitToWidth: false,
       isFullscreen: false,
       tldrawAPI: null,
       isPanning: false,
@@ -86,7 +85,6 @@ class Presentation extends PureComponent {
     this.currentPresentationToastId = null;
 
     this.getSvgRef = this.getSvgRef.bind(this);
-    this.setFitToWidth = this.setFitToWidth.bind(this);
     this.zoomChanger = debounce({ delay: 200 }, this.zoomChanger.bind(this));
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
@@ -207,13 +205,13 @@ class Presentation extends PureComponent {
       multiUser,
       numPages,
       currentPresentationId,
+      fitToWidth,
     } = this.props;
     const {
       presentationWidth,
       presentationHeight,
       zoom,
       isPanning,
-      fitToWidth,
       presentationId,
       hadPresentation,
     } = this.state;
@@ -505,19 +503,14 @@ class Presentation extends PureComponent {
     }
   }
 
-  setFitToWidth(fitToWidth) {
-    this.setState({ fitToWidth });
-  }
-
   zoomChanger(zoom) {
     this.setState({ zoom });
   }
 
   fitToWidthHandler() {
-    const { fitToWidth } = this.state;
-
+    const { setPresentationFitToWidth, fitToWidth } = this.props;
+    setPresentationFitToWidth(!fitToWidth)
     this.setState({
-      fitToWidth: !fitToWidth,
       zoom: HUNDRED_PERCENT,
     });
   }
@@ -535,9 +528,9 @@ class Presentation extends PureComponent {
   }
 
   calculateSize(viewBoxDimensions) {
-    const { presentationHeight, presentationWidth, fitToWidth } = this.state;
+    const { presentationHeight, presentationWidth } = this.state;
 
-    const { userIsPresenter, currentSlide, slidePosition } = this.props;
+    const { userIsPresenter, currentSlide, slidePosition, fitToWidth } = this.props;
 
     if (!currentSlide || !slidePosition) {
       return { width: 0, height: 0 };
@@ -605,8 +598,9 @@ class Presentation extends PureComponent {
       removeWhiteboardGlobalAccess,
       multiUserSize,
       multiUser,
+      fitToWidth,
     } = this.props;
-    const { zoom, fitToWidth, isPanning } = this.state;
+    const { zoom, isPanning } = this.state;
 
     if (!currentSlide) return null;
 
@@ -733,12 +727,12 @@ class Presentation extends PureComponent {
       layoutContextDispatch,
       presentationIsOpen,
       darkTheme,
+      fitToWidth,
     } = this.props;
 
     const {
       isFullscreen,
       localPosition,
-      fitToWidth,
       zoom,
       tldrawIsMounting,
       isPanning,

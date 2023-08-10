@@ -249,6 +249,7 @@ class ActionsDropdown extends PureComponent {
       presentations,
       setPresentation,
       podIds,
+      setPresentationFitToWidth,
     } = this.props;
 
     if (!podIds || podIds.length < 1) return [];
@@ -272,6 +273,7 @@ class ActionsDropdown extends PureComponent {
             description: "uploaded presentation file",
             key: `uploaded-presentation-${p.id}`,
             onClick: () => {
+              setPresentationFitToWidth(false);
               setPresentation(p.id, podId);
             },
           }
