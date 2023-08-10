@@ -125,6 +125,9 @@ const intlMessages = defineMessages({
   disableLabel: {
     id: 'app.videoDock.webcamDisableLabelAllCams',
   },
+  autoCloseReactionsBarLabel: {
+    id: 'app.actionsBar.reactions.autoCloseReactionsBarLabel',
+  },
 });
 
 class ApplicationMenu extends BaseMenu {
@@ -504,6 +507,28 @@ class ApplicationMenu extends BaseMenu {
                   defaultChecked={settings.selfViewDisable}
                   onChange={() => this.handleToggle('selfViewDisable')}
                   ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.autoCloseReactionsBar)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.autoCloseReactionsBar}
+                  onChange={() => this.handleToggle('autoCloseReactionsBar')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>

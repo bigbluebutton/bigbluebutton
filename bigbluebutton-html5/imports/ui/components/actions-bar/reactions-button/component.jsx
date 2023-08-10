@@ -16,6 +16,7 @@ const ReactionsButton = (props) => {
     raiseHand,
     isMobile,
     currentUserReaction,
+    autoCloseReactionsBar,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -152,7 +153,7 @@ const ReactionsButton = (props) => {
       isHorizontal={!isMobile}
       isMobile={isMobile}
       roundButtons={true}
-      keepOpen={true}
+      keepOpen={!autoCloseReactionsBar}
       opts={{
         id: 'reactions-dropdown-menu',
         keepMounted: true,
