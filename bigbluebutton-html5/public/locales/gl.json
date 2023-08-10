@@ -846,7 +846,7 @@
     "app.shortcut-help.openDebugWindow": "Abrir a xanela de depuración",
     "app.shortcut-help.openStatus": "Abrir o menú de estados",
     "app.shortcut-help.togglePan": "Activar a ferramenta Pan (Presentador)",
-    "app.shortcut-help.toggleFullscreen": "Alternar a pantalla completa (presentador)",
+    "app.shortcut-help.toggleFullscreen": "Amosar/agochar a pantalla completa (presentador)",
     "app.shortcut-help.nextSlideDesc": "Diapositiva seguinte (Presentador)",
     "app.shortcut-help.previousSlideDesc": "Diapositiva anterior (Presentador)",
     "app.shortcut-help.togglePanKey": "Barra espazadora",
