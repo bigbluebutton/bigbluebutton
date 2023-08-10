@@ -630,7 +630,7 @@
     "app.audioNotification.mediaFailedMessage": "Produciuse un fallo en getUserMicMedia xa que só se permiten as orixes seguras",
     "app.audioNotification.deviceChangeFailed": "Produciuse un erro no cambio do dispositivo de son. Comprobe que o dispositivo escollido está correctamente definido e está dispoñíbel",
     "app.audioNotification.closeLabel": "Pechar",
-    "app.audioNotificaion.reconnectingAsListenOnly": "O micrófono bloqueouse para os espectadores, vostede está conectado só como oínte",
+    "app.audioNotificaion.reconnectingAsListenOnly": "O micrófono foi bloqueado para os espectadores, vostede está conectado só como oínte",
     "app.breakoutJoinConfirmation.title": "Unirse á sala parcial",
     "app.breakoutJoinConfirmation.message": "Quere unirse?",
     "app.breakoutJoinConfirmation.confirmDesc": "Unirse a unha sala parcial",
