@@ -1297,7 +1297,7 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Miniatura da presentación",
     "app.learningDashboard.statusTimelineTable.presentation": "Presentación",
     "app.learningDashboard.statusTimelineTable.pageNumber": "Páxina",
-    "app.learningDashboard.statusTimelineTable.setAt": "Estabelecido en",
+    "app.learningDashboard.statusTimelineTable.setAt": "Definir en",
     "app.learningDashboard.errors.invalidToken": "O testemuño de sesión non é válido",
     "app.learningDashboard.errors.dataUnavailable": "Os datos xa non están dispoñíbeis",
     "mobileApp.portals.list.empty.addFirstPortal.label": "Engada o seu primeiro portal usando o botón anterior,",
