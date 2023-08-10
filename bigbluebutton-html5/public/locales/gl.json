@@ -532,7 +532,7 @@
     "app.submenu.notification.userJoinLabel": "Uniuse un usuario",
     "app.submenu.notification.userLeaveLabel": "Abandono do usuario",
     "app.submenu.notification.guestWaitingLabel": "Convidado agardando pola aprobación",
-    "app.submenu.audio.micSourceLabel": "Escolla do micrófono",
+    "app.submenu.audio.micSourceLabel": "Entrada de micrófono",
     "app.submenu.audio.speakerSourceLabel": "Escolla do altofalante",
     "app.submenu.audio.streamVolumeLabel": "Volume do fluxo de son",
     "app.submenu.video.title": "Vídeo",
