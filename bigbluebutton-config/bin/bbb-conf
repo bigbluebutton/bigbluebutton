@@ -170,10 +170,10 @@ else
     HTML5_CONFIG=$(yq e $HTML5_DEFAULT_CONFIG > /dev/null)
 fi
 
-mkdir -p $(dirname $WEBRTC_SFU_ETC_CONFIG)
-touch $WEBRTC_SFU_ETC_CONFIG # create it as it gets modified later in this script
+mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
 WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+touch $WEBRTC_SFU_ETC_CONFIG # create it as it gets modified later in this script
 WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG > /dev/null)
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
