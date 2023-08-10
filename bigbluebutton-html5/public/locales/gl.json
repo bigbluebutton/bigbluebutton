@@ -172,7 +172,7 @@
     "app.media.autoplayAlertDesc": "Permitir acceso",
     "app.media.screenshare.start": "Comezou a pantalla compartida",
     "app.media.screenshare.end": "Rematou a pantalla compartida",
-    "app.media.screenshare.endDueToDataSaving": "Detívose a compartición de pantalla por mor do aforro de datos",
+    "app.media.screenshare.endDueToDataSaving": "A compartición de pantalla foi detida por mor do aforro de datos",
     "app.media.screenshare.unavailable": "A pantalla compartida non está dispoñíbel",
     "app.media.screenshare.notSupported": "Este navegador non admite a compartición de pantalla.",
     "app.media.screenshare.autoplayBlockedDesc": "Necesitamos o seu permiso para amosarlle a pantalla do presentador",
