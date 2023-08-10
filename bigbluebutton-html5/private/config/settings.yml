@@ -60,7 +60,7 @@ public:
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
     wakeLock: 
-      enabled: false
+      enabled: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
     dynamicGuestPolicy: true
@@ -188,7 +188,7 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
-        wakeLock: false
+        wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
         darkTheme: false
