@@ -365,7 +365,7 @@
     "app.poll.liveResult.usersTitle": "Usuarios",
     "app.poll.liveResult.responsesTitle": "Resposta",
     "app.poll.liveResult.secretLabel": "Esta é unha enquisa anónima. Non se amosan as respostas individuais.",
-    "app.poll.removePollOpt": "Retirouse a opción de enquisa {0}",
+    "app.poll.removePollOpt": "Foi retirada a opción de enquisa {0}",
     "app.poll.emptyPollOpt": "Baleiro",
     "app.polling.pollingTitle": "Opcións da enquisa",
     "app.polling.pollQuestionTitle": "Pregunta da enquisa",
