@@ -276,7 +276,7 @@
     "app.presentationUploder.upload.408": "Solicitar o tempo de espera do testemuño de envío.",
     "app.presentationUploder.upload.404": "404: o testemuño de envío non é válido",
     "app.presentationUploder.upload.401": "Produciuse un fallo na solicitude do tempo de espera do testemuño de envío.",
-    "app.presentationUploder.conversion.conversionProcessingSlides": "Procesando páxina {0} de {1}",
+    "app.presentationUploder.conversion.conversionProcessingSlides": "Procesando a páxina {0} de {1}",
     "app.presentationUploder.conversion.genericConversionStatus": "Convertendo ficheiros…",
     "app.presentationUploder.conversion.generatingThumbnail": "Xerando miniaturas…",
     "app.presentationUploder.conversion.generatedSlides": "Presentacións xeradas…",
