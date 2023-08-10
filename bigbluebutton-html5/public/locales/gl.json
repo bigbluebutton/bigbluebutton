@@ -537,7 +537,7 @@
     "app.submenu.audio.streamVolumeLabel": "Volume do fluxo de son",
     "app.submenu.video.title": "Vídeo",
     "app.submenu.video.videoSourceLabel": "Entrada de vídeo",
-    "app.submenu.video.videoOptionLabel": "Escoller ver a fonte",
+    "app.submenu.video.videoOptionLabel": "Escoller a entrada de vídeo",
     "app.submenu.video.videoQualityLabel": "Calidade do vídeo",
     "app.submenu.video.qualityOptionLabel": "Escoller a calidade do vídeo",
     "app.submenu.video.participantsCamLabel": "Vista das cámaras web dos participantes",
