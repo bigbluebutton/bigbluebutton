@@ -289,7 +289,7 @@
     "app.presentationUploder.conversion.pdfHasBigPage": "Non foi posíbel converter o ficheiro PDF. Tente optimizalo. Tamaño máximo de páxina {0}",
     "app.presentationUploder.conversion.timeout": "Ouh! a conversión tomou demasiado tempo",
     "app.presentationUploder.conversion.pageCountFailed": "Produciuse un fallo ao determinar o número de páxinas.",
-    "app.presentationUploder.conversion.unsupportedDocument": "Extensión de ficheiro non se admitida",
+    "app.presentationUploder.conversion.unsupportedDocument": "A extensión de ficheiro non está admitida",
     "app.presentationUploder.removePresentationLabel": "Retirar a presentación",
     "app.presentationUploder.setAsCurrentPresentation": "Definir a presentación como actual",
     "app.presentationUploder.tableHeading.filename": "Nome de ficheiro",
