@@ -698,7 +698,7 @@
     "app.audio.audioSettings.titleLabel": "Escolla os seus axustes do son",
     "app.audio.audioSettings.descriptionLabel": "Teña en conta que aparecerá un diálogo no navegador que lle solicitará que acepte compartir o seu micrófono",
     "app.audio.audioSettings.microphoneSourceLabel": "Entrada de micrófono",
-    "app.audio.audioSettings.speakerSourceLabel": "Fonte de altofalante",
+    "app.audio.audioSettings.speakerSourceLabel": "Saída de altofalante",
     "app.audio.audioSettings.testSpeakerLabel": "Probar o seu altofalante",
     "app.audio.audioSettings.microphoneStreamLabel": "O seu volume do fluxo de son",
     "app.audio.audioSettings.retryLabel": "Tentar de novo",
