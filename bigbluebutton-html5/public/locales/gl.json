@@ -648,7 +648,7 @@
     "app.audioModal.microphoneLabel": "Micrófono",
     "app.audioModal.listenOnlyLabel": "Só escoitar",
     "app.audioModal.microphoneDesc": "Únase á xuntanza de son co micrófono",
-    "app.audioModal.listenOnlyDesc": "Únese á conferencia de son só como ointe",
+    "app.audioModal.listenOnlyDesc": "Únase á conferencia de son só como ointe",
     "app.audioModal.audioChoiceLabel": "Gustaríalle unirse ao son?",
     "app.audioModal.iOSBrowser": "Son/vídeo non admitido",
     "app.audioModal.iOSErrorDescription": "Neste momento o son e o vídeo non son compatíbeis co Chrome para iOS.",
