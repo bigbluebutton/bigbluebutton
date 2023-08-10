@@ -291,7 +291,7 @@
     "app.presentationUploder.conversion.pageCountFailed": "Produciuse un fallo ao determinar o número de páxinas.",
     "app.presentationUploder.conversion.unsupportedDocument": "Extensión de ficheiro non se admitida",
     "app.presentationUploder.removePresentationLabel": "Retirar a presentación",
-    "app.presentationUploder.setAsCurrentPresentation": "Estabelecer a presentación como actual",
+    "app.presentationUploder.setAsCurrentPresentation": "Definir a presentación como actual",
     "app.presentationUploder.tableHeading.filename": "Nome de ficheiro",
     "app.presentationUploder.tableHeading.options": "Opcións",
     "app.presentationUploder.tableHeading.status": "Estado",
