@@ -19,7 +19,7 @@ import { colorContentBackground } from '/imports/ui/stylesheets/styled-component
 import browserInfo from '/imports/utils/browserInfo';
 import { addNewAlert } from '../screenreader-alert/service';
 import { clearCursors } from '/imports/ui/components/whiteboard/cursors/service';
-import { debounce } from 'radash';
+import { debounce } from '/imports/utils/debounce';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -86,13 +86,13 @@ class Presentation extends PureComponent {
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.setFitToWidth = this.setFitToWidth.bind(this);
-    this.zoomChanger = debounce({ delay: 200 }, this.zoomChanger.bind(this));
+    this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
-    this.handleResize = debounce({ delay: 200 }, this.handleResize.bind(this));
+    this.handleResize = debounce(this.handleResize.bind(this), 200);
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
     this.setIsPanning = this.setIsPanning.bind(this);
     this.setIsToolbarVisible = this.setIsToolbarVisible.bind(this);
