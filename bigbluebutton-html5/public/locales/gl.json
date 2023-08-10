@@ -378,7 +378,7 @@
     "app.polling.pollAnswerDesc": "Seleccione esta opción para votar por {0}",
     "app.failedMessage": "Desculpas, hai problemas para conectar co servidor.",
     "app.downloadPresentationButton.label": "Descargar a presentación orixinal",
-    "app.connectingMessage": "Conectandose…",
+    "app.connectingMessage": "Conectando…",
     "app.waitingMessage": "Desconectado. Tentando volver conectar en {0} segundos…",
     "app.retryNow": "Volver tentalo agora",
     "app.muteWarning.label": "Prema en {0} para silenciarse a vostede mesmo.",
