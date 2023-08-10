@@ -3,11 +3,10 @@ import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
 import {
-  colorOffWhite,
+  colorGrayDark,
   colorGrayLightest,
-  btnPrimaryHoverBg,
   btnPrimaryColor,
-  btnPrimaryBg,
+  btnPrimaryActiveBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const RaiseHandButton = styled(Button)`
@@ -25,17 +24,16 @@ const ReactionsDropdown = styled.div`
 `;
 
 const ButtonWrapper = styled.div`
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   height: 2.5rem;
-  width: 2.5rem;
   display: flex;
   align-items: center;
   border-radius: 50%;
   margin: 0 .5rem;
 
-  &:hover {
-    background-color: ${colorOffWhite};
+  &:focus {
+    background-color: ${colorGrayDark};
   }
 
   & > button {
@@ -44,18 +42,17 @@ const ButtonWrapper = styled.div`
   }
 
   & > * > span {
-    margin-left: 4px;
+    padding: 4px;
   }
 
   ${({ active }) => active && `
     color: ${btnPrimaryColor};
-    background-color: ${btnPrimaryBg};
-    border: none;
+    background-color: ${btnPrimaryActiveBg};
 
     &:hover{
       filter: brightness(90%);
       color: ${btnPrimaryColor};
-      background-color: ${btnPrimaryHoverBg} !important;
+      background-color: ${btnPrimaryActiveBg} !important;
     }
   `}
 `;
@@ -64,9 +61,6 @@ const RaiseHandButtonWrapper = styled(ButtonWrapper)`
   width: 2.5rem;
   border-radius: 1.7rem;
 
-  & > * > span {
-    margin-left: 5px;
-  }
 
   ${({ isMobile }) => !isMobile && `
     border: 1px solid ${colorGrayLightest};
@@ -76,12 +70,12 @@ const RaiseHandButtonWrapper = styled(ButtonWrapper)`
 
   ${({ active }) => active && `
     color: ${btnPrimaryColor};
-    background-color: ${btnPrimaryBg};
+    background-color: ${btnPrimaryActiveBg};
 
     &:hover{
       filter: brightness(90%);
       color: ${btnPrimaryColor};
-      background-color: ${btnPrimaryHoverBg} !important;
+      background-color: ${btnPrimaryActiveBg} !important;
     }  
   `}
 `;

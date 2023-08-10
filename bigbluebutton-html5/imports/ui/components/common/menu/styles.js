@@ -113,6 +113,7 @@ const BBBMenuItem = styled(MenuItem)`
       background-color: ${colorWhite} !important;
       div div div {
         background-color: ${colorPrimary} !important;
+        border: 1px solid ${colorPrimary} !important;
       }
     }
   `}
