@@ -116,10 +116,8 @@ In version 2.7, we present the initial iteration of this audio mode, primarily f
 The primary objective is to assess the viability of the proposed approach and gather community feedback.
 
 The new mode is *turned off by default* and is considered *experimental*. To enable it:
-  - Add `transparentListenOnly: true` to `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
-  - Restart `bbb-webrtc-sfu` with `systemctl restart bbb-webrtc-sfu`
   - To enable on clients:
-    * Server wide: configure `public.media.transparentListenOnly: true` in `/etc/bigbluebutton/bbb-html5.yml`
+    * Server wide: configure `public.media.transparentListenOnly: true` in `/etc/bigbluebutton/bbb-html5.yml`, then restart `bbb-html5` (`systemctl restart bbb-html5`)
     * Per user: utilize `userdata-bbb_transparent_listen_only=true`
 
 ### Upgraded components
