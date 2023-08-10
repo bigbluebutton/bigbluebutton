@@ -696,7 +696,7 @@
     "app.audio.speakers": "Altofalantes",
     "app.audio.noDeviceFound": "Non se atopou ningún dispositivo",
     "app.audio.audioSettings.titleLabel": "Escolla os seus axustes do son",
-    "app.audio.audioSettings.descriptionLabel": "Teña en conta que aparecerá un diálogo no navegador que lle requerira que acepte compartir o seu micrófono",
+    "app.audio.audioSettings.descriptionLabel": "Teña en conta que aparecerá un diálogo no navegador que lle solicitará que acepte compartir o seu micrófono",
     "app.audio.audioSettings.microphoneSourceLabel": "Fonte de micrófono",
     "app.audio.audioSettings.speakerSourceLabel": "Fonte de altofalante",
     "app.audio.audioSettings.testSpeakerLabel": "Probar o seu altofalante",
