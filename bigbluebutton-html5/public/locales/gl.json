@@ -287,7 +287,7 @@
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Non foi posíbel procesar o documento de Office. Envíe un PDF no seu lugar.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Non foi posíbel procesar o documento de Office. Envíe un PDF no seu lugar.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Non foi posíbel converter o ficheiro PDF. Tente optimizalo. Tamaño máximo de páxina {0}",
-    "app.presentationUploder.conversion.timeout": " Ouh! a conversión tomou demasiado tempo",
+    "app.presentationUploder.conversion.timeout": "Ouh! a conversión tomou demasiado tempo",
     "app.presentationUploder.conversion.pageCountFailed": "Produciuse un fallo ao determinar o número de páxinas.",
     "app.presentationUploder.conversion.unsupportedDocument": "Extensión de ficheiro non se admitida",
     "app.presentationUploder.removePresentationLabel": "Retirar a presentación",
