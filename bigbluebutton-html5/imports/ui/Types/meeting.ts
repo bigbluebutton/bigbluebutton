@@ -18,6 +18,26 @@ export interface WelcomeSettings {
   meetingId: string;
 }
 
+export interface MeetingRecording {
+  isRecording: boolean;
+  startedAt: Date;
+  previousRecordedTimeInSeconds: number;
+  startedBy: string;
+  stoppedAt: number;
+  stoppedBy: string;
+}
+export interface MeetingRecordingPolicies {
+  allowStartStopRecording: boolean;
+  autoStartRecording: boolean;
+  record: boolean;
+  keepEvents: boolean;
+  startedAt: number;
+  startedBy: string;
+  stoppedAt: number;
+  stoppedBy: string;
+}
+
+
 export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
   allowModsToUnmuteUsers: boolean;

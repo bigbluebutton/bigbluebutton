@@ -86,7 +86,7 @@ FROM (
 	(array_agg("startedBy" ORDER BY "startedAt" DESC))[1] as "startedBy",
 	(array_agg("stoppedAt" ORDER BY "startedAt" DESC))[1] as "stoppedAt",
 	(array_agg("stoppedBy" ORDER BY "startedAt" DESC))[1] as "stoppedBy",
-	sum("recordedTimeInSeconds") "previousRecordedTimeInSeconds"
+    coalesce(sum("recordedTimeInSeconds"),0) "previousRecordedTimeInSeconds"
 	from "meeting_recording"
 	GROUP BY "meetingId"
 ) r;
