@@ -8,6 +8,7 @@ on:
     paths-ignore:
       - 'docs/**'
       - '**/*.md'
+      - 'bigbluebutton-html5/public/locales/*.json'
   pull_request:
     types: [opened, synchronize, reopened]
     paths-ignore:
