@@ -1022,7 +1022,7 @@
     "app.video.virtualBackground.genericError": "Produciuse un fallo ao aplicar o efecto da cámara. Ténteo de novo.",
     "app.video.virtualBackground.camBgAriaDesc": "Define o fondo virtual da cámara web a {0}",
     "app.video.virtualBackground.maximumFileSizeExceeded": "Superouse o tamaño máximo do ficheiro. ({0}MB)",
-    "app.video.virtualBackground.typeNotAllowed": "Non se permite o tipo de ficheiro.",
+    "app.video.virtualBackground.typeNotAllowed": "Este tipo de ficheiro non está permitido.",
     "app.video.virtualBackground.errorOnRead": "Produciuse un erro ao ler o ficheiro.",
     "app.video.virtualBackground.uploaded": "Enviado",
     "app.video.virtualBackground.uploading": "Enviando…",
