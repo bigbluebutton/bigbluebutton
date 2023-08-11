@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { TldrawApp, Tldraw } from '@tldraw/tldraw';
@@ -20,7 +19,6 @@ import PanToolInjector from './pan-tool-injector/component';
 import {
   findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious,
 } from './utils';
-import PresentationOpsContainer from './presentation-ops-injector/container';
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_DOCK_HEIGHT = 475;
@@ -78,8 +76,6 @@ export default function Whiteboard(props) {
     animations,
     isToolbarVisible,
     fullscreenRef,
-    fullscreen,
-    setIsToolbarVisible,
     fullscreenElementId,
     layoutContextDispatch,
   } = props;
@@ -110,37 +106,6 @@ export default function Whiteboard(props) {
   const isMountedRef = React.useRef(true);
   const [isToolLocked, setIsToolLocked] = React.useState(tldrawAPI?.appState?.isToolLocked);
   const [bgShape, setBgShape] = React.useState(null);
-  const [labels, setLabels] = React.useState({
-    closeLabel: '',
-    activeLable: '',
-    optionsLabel: '',
-    fullscreenLabel: '',
-    exitFullscreenLabel: '',
-    hideToolsDesc: '',
-    showToolsDesc: '',
-    downloading: '',
-    downloaded: '',
-    downloadFailed: '',
-    snapshotLabel: '',
-    whiteboardLabel: '',
-  });
-
-  React.useEffect(() => {
-   setLabels({
-      closeLabel: intl.formatMessage({id: 'app.dropdown.close', description: 'Close button label'}),
-      activeLable: intl.formatMessage({id: 'app.dropdown.list.item.activeLabel', description: 'active item label'}),
-      optionsLabel: intl.formatMessage({id: 'app.navBar.settingsDropdown.optionsLabel', description: 'Options button label'}),
-      fullscreenLabel: intl.formatMessage({id: 'app.presentation.options.fullscreen', description: 'Fullscreen label'}),
-      exitFullscreenLabel: intl.formatMessage({id: 'app.presentation.options.exitFullscreen', description: 'Exit fullscreen label'}),
-      hideToolsDesc: intl.formatMessage({id: 'app.presentation.presentationToolbar.hideToolsDesc', description: 'Hide toolbar label'}),
-      showToolsDesc: intl.formatMessage({id: 'app.presentation.presentationToolbar.showToolsDesc', description: 'Show toolbar label'}),
-      downloading: intl.formatMessage({id: 'app.presentation.options.downloading', description: 'Downloading label'}),
-      downloaded: intl.formatMessage({id: 'app.presentation.options.downloaded', description: 'Downloaded label'}),
-      downloadFailed: intl.formatMessage({id: 'app.presentation.options.downloadFailed', description: 'Downloaded failed label'}),
-      snapshotLabel: intl.formatMessage({id: 'app.presentation.options.snapshot', description: 'Snapshot of current slide label'}),
-      whiteboardLabel: intl.formatMessage({id: 'app.shortcut-help.whiteboard', description: 'used for aria whiteboard options button label'}),
-    });
-  }, [intl?.locale]);
 
   // eslint-disable-next-line arrow-body-style
   React.useEffect(() => {
@@ -643,15 +608,9 @@ export default function Whiteboard(props) {
     }
 
     if (menu) {
-      const MENU_OFFSET = '48px';
       menu.style.position = 'relative';
       menu.style.height = presentationMenuHeight;
       menu.setAttribute('id', 'TD-Styles-Parent');
-      if (isRTL) {
-        menu.style.left = MENU_OFFSET;
-      } else {
-        menu.style.right = MENU_OFFSET;
-      }
 
       [...menu.children]
         .sort((a, b) => (a?.id > b?.id ? -1 : 1))
@@ -706,43 +665,6 @@ export default function Whiteboard(props) {
 
   const onPatch = (e, t, reason) => {
     if (!e?.pageState || !reason) return;
-    // Append Presentation Options to Tldraw
-    const tdStylesParent = document.getElementById('TD-Styles-Parent');
-    if (tdStylesParent) {
-      tdStylesParent.style.right = '0px';
-      tdStylesParent.style.width = '17.75rem';
-      let presentationMenuNode = document.getElementById('PresentationMenuId');
-      if (!presentationMenuNode) {
-        presentationMenuNode = document.createElement('div');
-        presentationMenuNode.setAttribute('id', 'PresentationMenuId');
-        tdStylesParent.appendChild(presentationMenuNode);
-      }
-
-      ReactDOM.render(
-        <PresentationOpsContainer
-          fullscreenRef={fullscreenRef}
-          elementId={fullscreenElementId}
-          fullscreen={fullscreen}
-          isRTL={isRTL}
-          setIsToolbarVisible={setIsToolbarVisible}
-          isToolbarVisible={isToolbarVisible}
-          layoutContextDispatch={layoutContextDispatch}
-          tldrawAPI={e}
-          closeLabel={labels.closeLabel}
-          activeLable={labels.activeLable}
-          optionsLabel={labels.optionsLabel}
-          fullscreenLabel={labels.fullscreenLabel}
-          exitFullscreenLabel={labels.exitFullscreenLabel}
-          hideToolsDesc={labels.hideToolsDesc}
-          showToolsDesc={labels.showToolsDesc}
-          downloading={labels.downloading}
-          downloaded={labels.downloaded}
-          downloadFailed={labels.downloadFailed}
-          snapshotLabel={labels.snapshotLabel}
-          whiteboardLabel={labels.whiteboardLabel}
-        />, presentationMenuNode
-      );
-    }
 
     if (((isPanning || panSelected) && (reason === 'selected' || reason === 'set_hovered_id'))) {
       e.patchState(
@@ -1113,7 +1035,7 @@ export default function Whiteboard(props) {
   const menuOffset = menuOffsetValues[isRTL][isIphone];
 
   return (
-    <div key={`animations=-${animations}-${intl?.locale}-${isToolbarVisible}`}>
+    <div key={`animations=-${animations}`}>
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
