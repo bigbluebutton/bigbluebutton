@@ -36,7 +36,7 @@ const PresentationToolbarContainer = (props) => {
     Object.keys(providedPlugins).forEach((plugin) => {
       if (plugin === 'presentationToolbarItems') {
         pluginProvidedPresentationToolbarItems = [...pluginProvidedPresentationToolbarItems,
-          ...providedPlugins.whiteboardToolbarItems];
+          ...providedPlugins.presentationToolbarItems];
       }
     });
 
