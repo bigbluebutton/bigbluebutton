@@ -1031,7 +1031,7 @@
     "app.video.meetingCamCapReached": "A xuntanza acadou o seu límite de cámaras simultáneas",
     "app.video.dropZoneLabel": "Soltar aquí",
     "app.fullscreenButton.label": "Poñer {0} a pantalla completa",
-    "app.fullscreenUndoButton.label": "Desfacer a pantalla completa de {0}",
+    "app.fullscreenUndoButton.label": "Saír da pantalla completa de {0}",
     "app.switchButton.expandLabel": "Ampliar a pantalla compartida de vídeo",
     "app.switchButton.shrinkLabel": "Reducir a pantalla compartida de vídeo",
     "app.sfu.mediaServerConnectionError2000": "Non foi posíbel conectar co servidor multimedia (erro 2000)",
