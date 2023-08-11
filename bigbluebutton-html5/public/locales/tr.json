@@ -149,7 +149,7 @@
     "app.screenshare.screenshareFinalError": "Kod {0}. Ekran paylaşılamadı.",
     "app.screenshare.screenshareRetryError": "Kod {0}. Ekranı paylaşmayı yeniden deneyin.",
     "app.screenshare.screenshareRetryOtherEnvError": "Kod {0}. Ekran paylaşılamadı. Farklı bir tarayıcı veya aygıt kullanarak yeniden deneyin.",
-    "app.screenshare.screenshareUnsupportedEnv": "Kod {0}. Web tarayıcı desteklenmiyor. Farklı bir web tarayıcı ya da aygıt kullanarak yeniden deneyin.",
+    "app.screenshare.screenshareUnsupportedEnv": "Kod {0}. Tarayıcı desteklenmiyor. Farklı bir tarayıcı ya da aygıt kullanarak yeniden deneyin.",
     "app.screenshare.screensharePermissionError": "Kod {0}.  Ekran yakalama izninin verilmesi gerekiyor.",
     "app.meeting.ended": "Bu oturum sona erdi",
     "app.meeting.meetingTimeRemaining": "Toplantının bitmesine kalan süre: {0}",
