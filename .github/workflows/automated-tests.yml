@@ -19,7 +19,31 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+  check-previous-comment:
+    needs: check-previous-comment
+    runs-on: ubuntu-20.04
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Automated tests Summary
+      - name: Remove previous comment
+        if: steps.fc.outputs.comment-id != ''
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: ${{ steps.fc.outputs.comment-id }}
+            })
   build-bbb-apps-akka:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -59,6 +83,7 @@ jobs:
           path: |
             artifacts.tar
   build-bbb-config:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -86,6 +111,7 @@ jobs:
           name: artifacts_bbb-config.tar
           path: artifacts.tar
   build-bbb-export-annotations:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -113,6 +139,7 @@ jobs:
           name: artifacts_bbb-export-annotations.tar
           path: artifacts.tar
   build-bbb-learning-dashboard:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -150,6 +177,7 @@ jobs:
           name: artifacts_bbb-learning-dashboard.tar
           path: artifacts.tar
   build-bbb-playback-record:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -183,6 +211,7 @@ jobs:
           path: |
             artifacts.tar
   build-bbb-etherpad:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -226,6 +255,7 @@ jobs:
           path: |
             artifacts.tar
   build-bbb-bbb-web:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -266,6 +296,7 @@ jobs:
           path: |
             artifacts.tar
   build-bbb-fsesl-akka:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -305,6 +336,7 @@ jobs:
           path: |
             artifacts.tar
   build-bbb-html5:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -344,6 +376,7 @@ jobs:
           path: |
             artifacts.tar
   build-bbb-freeswitch:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -385,6 +418,7 @@ jobs:
           path: |
             artifacts.tar
   build-others:
+    needs: check-previous-comment
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref }}
@@ -596,8 +630,9 @@ jobs:
         run: npm run test-chromium-ci
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'test Firefox')
-                || contains(github.event.pull_request.labels.*.name, 'Test Firefox') }}
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'test Firefox') ||
+          contains(github.event.pull_request.labels.*.name, 'Test Firefox')
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
@@ -651,3 +686,28 @@ jobs:
         with:
           name: bbb-logs
           path: ./bbb-logs.tar.gz
+  outcome-comment:
+    needs: [check-previous-comment, install-and-run-tests]
+    runs-on: ubuntu-20.04
+    if: always()
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Passing tests comment
+        if: ${{ needs.install-and-run-tests.result == 'success' }}
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <h1>Automated tests Summary</h1>
+            <h3><strong>:white_check_mark:</strong> All the CI tests have passed!</h3>
+      - name: Failing tests comment
+        if: ${{ needs.install-and-run-tests.result == 'failure' }}
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <h1> Automated tests Summary</h1>
+            <h3><strong>:rotating_light:</strong> There are some failed tests</h3>
+            ___
+            [Click here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) to check the action test reports
