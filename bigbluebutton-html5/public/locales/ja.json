@@ -248,7 +248,7 @@
     "app.presentationUploader.collecting": "{1}枚のスライドのうち{0}番目を抽出中...",
     "app.presentationUploader.processing": "{1}枚のスライドのうち{0}番目に書き込み中...",
     "app.presentationUploader.sent": "送信終了",
-    "app.presentationUploader.exportingTimeout": "エクスポートに時間がかかりすぎています...",
+    "app.presentationUploader.exportingTimeout": "書き出しに時間がかかりすぎています...",
     "app.presentationUploader.export": "チャットへ送信",
     "app.presentationUploader.export.linkAvailable": "{0}をダウンロードするためのリンクが、公開チャットから利用できます。",
     "app.presentationUploader.export.notAccessibleWarning": "一部の視聴者には、ファイルが読み取りづらい可能性があります",
