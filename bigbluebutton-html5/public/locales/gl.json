@@ -654,7 +654,7 @@
     "app.audioModal.iOSErrorDescription": "Neste momento o son e o vídeo non son compatíbeis co Chrome para iOS.",
     "app.audioModal.iOSErrorRecommendation": "Recomendámoslle empregar Safari iOS.",
     "app.audioModal.audioChoiceDesc": "Seleccionar como unirse ao son nesta xuntanza",
-    "app.audioModal.unsupportedBrowserLabel": "Parece que estás a usar un navegador que non é totalmente compatíbel. Utilice {0} ou {1} para obter unha compatibilidade completa.",
+    "app.audioModal.unsupportedBrowserLabel": "Semella que está a usar un navegador que non é totalmente compatíbel. Utilice {0} ou {1} para obter unha compatibilidade completa.",
     "app.audioModal.closeLabel": "Pechar",
     "app.audioModal.yes": "Si",
     "app.audioModal.no": "Non",
