@@ -52,7 +52,7 @@
     "app.captions.dictationOffDesc": " Konuşma tanımayı kapatır",
     "app.captions.speech.start": "Konuşma tanıma başlatıldı",
     "app.captions.speech.stop": "Konuşma tanıma durduruldu",
-    "app.captions.speech.error": "Sesli algılama web tarayıcı uyumsuzluğu ya da belirli bir süre sessizlikten dolayı durduruldu.",
+    "app.captions.speech.error": "Sesli algılama tarayıcı uyumsuzluğu ya da belirli bir süre sessizlikten dolayı durduruldu.",
     "app.textInput.sendLabel": "Gönder",
     "app.title.defaultViewLabel": "Varsayılan sunum görünümü",
     "app.notes.title": "Paylaşılmış notlar",
