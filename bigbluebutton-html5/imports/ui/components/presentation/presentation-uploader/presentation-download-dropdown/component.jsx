@@ -101,7 +101,6 @@ class PresentationDownloadDropdown extends PureComponent {
         this.menuItems.push({
           key: this.actionsKey[0],
           dataTest: 'disableOriginalPresentationDownload',
-          disabled: !!downloadableExtension && downloadableExtension !== originalFileExtension,
           label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
             { 0: originalFileExtension }),
           onClick: () => toggleDownloadOriginalPresentation(false, 'Not-converted'),
@@ -110,7 +109,6 @@ class PresentationDownloadDropdown extends PureComponent {
         this.menuItems.push({
           key: this.actionsKey[0],
           dataTest: 'enableOriginalPresentationDownload',
-          disabled: !!downloadableExtension && downloadableExtension !== originalFileExtension,
           label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
             { 0: originalFileExtension }),
           onClick: () => toggleDownloadOriginalPresentation(true, 'Not-converted'),
@@ -123,7 +121,6 @@ class PresentationDownloadDropdown extends PureComponent {
           this.menuItems.push({
             key: this.actionsKey[0],
             dataTest: 'disableOriginalPresentationDownload',
-            disabled: !!downloadableExtension && downloadableExtension !== convertedFileExtension,
             label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
               { 0: convertedFileExtension }),
             onClick: () => toggleDownloadOriginalPresentation(false, 'Converted'),
@@ -132,7 +129,6 @@ class PresentationDownloadDropdown extends PureComponent {
           this.menuItems.push({
             key: this.actionsKey[0],
             dataTest: 'enableOriginalPresentationDownload',
-            disabled: !!downloadableExtension && downloadableExtension !== convertedFileExtension,
             label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
               { 0: convertedFileExtension }),
             onClick: () => toggleDownloadOriginalPresentation(true, 'Converted'),

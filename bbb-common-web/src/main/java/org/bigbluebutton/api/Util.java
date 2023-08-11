@@ -1,6 +1,7 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -8,6 +9,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.bigbluebutton.presentation.SupportedFileTypes;
 
 public final class Util {
 
@@ -113,6 +116,23 @@ public final class Util {
 		return null;
 	}
 
+	public static void deleteAlreadyMarkedDownloadableFiles(File presFileDir, String presId) {
+		String regexString = "\\.(" + String.join("|",
+				SupportedFileTypes.getSupportedFileTypes()) + ")\\.downloadable";
+		File[] filesWithDownloadMark = presFileDir.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.matches(presId + regexString);
+			}
+		});
+
+		for (File file: filesWithDownloadMark) {
+			if (file != null && file.exists()) {
+				file.delete();
+			}
+		}
+	}
+
 	public static void makePresentationDownloadable(
 		File presFileDir,
 		String presId,
@@ -121,6 +141,7 @@ public final class Util {
 	) throws IOException {
 		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId, downloadableExtension);
 		if (downloadable && downloadMarker != null && ! downloadMarker.exists()) {
+			Util.deleteAlreadyMarkedDownloadableFiles(presFileDir, presId);
 			downloadMarker.createNewFile();
 		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {
 			downloadMarker.delete();
