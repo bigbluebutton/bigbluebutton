@@ -19,26 +19,26 @@ const PluginProvidedStateComponent = (props: PluginProvidedStateProps) => {
     } 
     const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
 
-    const [whiteboardToolbarItems, setWhiteboardToolbarItems] = useState<PluginSdk.WhiteboardToolbarItem[]>([]);
+    const [presentationToolbarItems, setPresentationToolbarItems] = useState<PluginSdk.PresentationToolbarItem[]>([]);
 
     const { setProvidedPlugins } = useContext(PluginsContext);
 
     useEffect(() => {
         // Change this plugin provided toolbar items
-        pluginProvidedStateMap[uuid].whiteboardToolbarItems = whiteboardToolbarItems;
+        pluginProvidedStateMap[uuid].presentationToolbarItems = presentationToolbarItems;
 
         // Update context with computed aggregated list of all plugin provided toolbar items
         const pluginsProvidedStateForContext: PluginProvidedState = {} as PluginProvidedState;
-        pluginsProvidedStateForContext.whiteboardToolbarItems = ([] as PluginSdk.WhiteboardToolbarItem[]).concat(
+        pluginsProvidedStateForContext.presentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
             ...Object.values(pluginProvidedStateMap).map((pps: PluginProvidedState) => {
-                return pps.whiteboardToolbarItems}));
+                return pps.presentationToolbarItems}));
         setProvidedPlugins( {...pluginsProvidedStateForContext} );
 
-    }, [whiteboardToolbarItems]);
+    }, [presentationToolbarItems]);
 
-    pluginApi.setWhiteboardToolbarItems = (item) => {
+    pluginApi.setPresentationToolbarItems = (item) => {
         const mappedItem = item.map(mapItemWithId)
-        return setWhiteboardToolbarItems(mappedItem)
+        return setPresentationToolbarItems(mappedItem)
     };
     return null;
 }

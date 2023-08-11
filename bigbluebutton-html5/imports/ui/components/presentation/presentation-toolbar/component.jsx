@@ -144,7 +144,7 @@ class PresentationToolbar extends PureComponent {
     let pluginProvidedItems = [];
     if (this.props) {
       const {
-        whiteboardPluginProvidedItems: ppb,
+        presentationPluginProvidedItems: ppb,
       } = this.props;
       pluginProvidedItems = ppb;
     }
@@ -154,7 +154,7 @@ class PresentationToolbar extends PureComponent {
       const ppbId = ppb.id;
 
       switch (ppb.type) {
-        case PluginSdk.WhiteboardToolbarItemType.BUTTON:
+        case PluginSdk.PresentationToolbarItemType.BUTTON:
           returnComponent = (
             <Button
               key={ppbId}
@@ -165,7 +165,7 @@ class PresentationToolbar extends PureComponent {
             />
           );
           break;
-        case PluginSdk.WhiteboardToolbarItemType.SPINNER:
+        case PluginSdk.PresentationToolbarItemType.SPINNER:
           returnComponent = (
             <Spinner
               key={ppbId}

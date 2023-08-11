@@ -273,8 +273,8 @@ public:
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
   # plugins:
-  #   - name: SampleWhiteboardToolbarPlugin
-  #     url: https://<your-Host>/plugins/SampleWhiteboardToolbarPlugin.js
+  #   - name: SamplePresentationToolbarPlugin
+  #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
   externalVideoPlayer:
     enabled: true
   kurento:

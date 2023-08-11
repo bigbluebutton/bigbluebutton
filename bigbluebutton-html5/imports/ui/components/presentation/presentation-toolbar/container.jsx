@@ -32,10 +32,10 @@ const PresentationToolbarContainer = (props) => {
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
-    let pluginProvidedWhiteboardToolbarItems = [];
+    let pluginProvidedPresentationToolbarItems = [];
     Object.keys(providedPlugins).forEach((plugin) => {
-      if (plugin === 'whiteboardToolbarItems') {
-        pluginProvidedWhiteboardToolbarItems = [...pluginProvidedWhiteboardToolbarItems,
+      if (plugin === 'presentationToolbarItems') {
+        pluginProvidedPresentationToolbarItems = [...pluginProvidedPresentationToolbarItems,
           ...providedPlugins.whiteboardToolbarItems];
       }
     });
@@ -46,7 +46,7 @@ const PresentationToolbarContainer = (props) => {
         amIPresenter={userIsPresenter}
         endCurrentPoll={endCurrentPoll}
         {...{
-          whiteboardPluginProvidedItems: pluginProvidedWhiteboardToolbarItems,
+          presentationPluginProvidedItems: pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,
         }}
       />
