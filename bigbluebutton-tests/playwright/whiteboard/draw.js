@@ -17,7 +17,7 @@ class Draw extends Page {
 
     const wbBox = await this.getElementBoundingBox(e.whiteboard);
 
-    await this.page.mouse.click(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height,{button: 'right'});
+    await this.page.mouse.click(wbBox.x + 0.4 * wbBox.width, wbBox.y + 0.4 * wbBox.height, { button: 'right' });
     const pasteLocator = this.page.locator(e.wbPaste);
     await expect(pasteLocator).toBeVisible();
 
