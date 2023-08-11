@@ -56,6 +56,7 @@ const Left = styled.div`
 
   [dir="rtl"] & {
     right: 0px;
+    left: auto;
   }
 `;
 
