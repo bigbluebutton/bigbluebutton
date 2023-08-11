@@ -707,11 +707,8 @@ class Presentation extends PureComponent {
       intl,
       fullscreenElementId,
       layoutContextDispatch,
-      userIsPresenter,
     } = this.props;
     const { tldrawAPI, isToolbarVisible } = this.state;
-
-    if (userIsPresenter && isToolbarVisible) return null;
 
     return (
       <PresentationMenu
