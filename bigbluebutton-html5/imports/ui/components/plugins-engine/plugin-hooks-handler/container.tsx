@@ -7,7 +7,7 @@ const PluginHooksHandlerContainer = () => {
   const [countCurrentPresentationHookActive, setCountCurrentPresentationHookActive ] = useState(0)
 
   useEffect(() => {
-    const handleNewSubscriber: EventListener = (
+    const newSubscriberHandler: EventListener = (
       (event: PluginSdk.CustomEventHookWrapper<void>) => {
         switch(event.detail.hook){
           case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
@@ -15,7 +15,7 @@ const PluginHooksHandlerContainer = () => {
             break;
         }
       }) as EventListener;
-    const handleUnsubscribe: EventListener = (
+    const unsubscribeHandler: EventListener = (
       (event: PluginSdk.CustomEventHookWrapper<void>) => {
         switch(event.detail.hook){
           case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
@@ -24,11 +24,11 @@ const PluginHooksHandlerContainer = () => {
         }
       }) as EventListener;
 
-    window.addEventListener(PluginSdk.Internal.BbbHookEvents.NewSubscriber, handleNewSubscriber as EventListener);
-    window.addEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, handleUnsubscribe as EventListener);
+    window.addEventListener(PluginSdk.Internal.BbbHookEvents.NewSubscriber, newSubscriberHandler);
+    window.addEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler );
     return () => {
-      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.NewSubscriber, handleNewSubscriber as EventListener);
-      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, handleUnsubscribe as EventListener);
+      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.NewSubscriber, newSubscriberHandler);
+      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler);
     }
   }, [])
   

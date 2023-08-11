@@ -2,7 +2,7 @@ import styled, { keyframes } from 'styled-components';
 
 const colorGray = '#4E5A66';
 
-const ldsRingAnimation = keyframes`
+const LoadingSpinnerAnimation = keyframes`
   0% {
     transform: rotate(0deg);
   }
@@ -11,7 +11,7 @@ const ldsRingAnimation = keyframes`
   }
 `;
 
-const LdsRingContainer = styled.div`
+const LoadingSpinnerContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,7 +19,7 @@ const LdsRingContainer = styled.div`
   height: 100%;
 `;
 
-const LdsRingDiv = styled.div`
+const LoadingSpinnerComponent = styled.div`
   box-sizing: border-box;
   display: block;
   position: absolute;
@@ -27,7 +27,7 @@ const LdsRingDiv = styled.div`
   height: 1.7rem;
   border: 3px solid ${colorGray};
   border-radius: 2rem;
-  animation: ${ldsRingAnimation} 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  animation: ${LoadingSpinnerAnimation} 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
   border-color: ${colorGray} transparent transparent transparent;
   cursor: not-allowed;
 
@@ -45,5 +45,5 @@ const LdsRingDiv = styled.div`
 `;
 
 export {
-  LdsRingDiv, LdsRingContainer,
+  LoadingSpinnerComponent, LoadingSpinnerContainer,
 };

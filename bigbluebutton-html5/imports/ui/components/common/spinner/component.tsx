@@ -1,12 +1,12 @@
 import React from 'react';
-import { LdsRingDiv, LdsRingContainer,
+import { LoadingSpinnerComponent, LoadingSpinnerContainer,
 } from './styles';
 
 const Spinner = () => {
   return (
-    <LdsRingContainer>
-        <LdsRingDiv />
-    </LdsRingContainer>
+    <LoadingSpinnerContainer>
+        <LoadingSpinnerComponent />
+    </LoadingSpinnerContainer>
   );
 };
 

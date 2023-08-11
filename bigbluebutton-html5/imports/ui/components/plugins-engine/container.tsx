@@ -19,7 +19,7 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
   const [lastLoadedPlugin, setLastLoadedPlugin] = useState<HTMLScriptElement | undefined>();
   const loadedPlugins = useRef<number>(0);
 
-  const pluginsFromConfigMapped: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(() => PLUGINS.map((p: PluginConfig) => {
+  const effectivePluginsConfig: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(() => PLUGINS.map((p: PluginConfig) => {
     return {
       ...p,
       uuid: uuid.v4(),
@@ -46,8 +46,8 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
         }}
       />
       {
-        pluginsFromConfigMapped.map((plugin: EffectivePluginConfig) => {
-          const uuid = plugin.uuid;
+        effectivePluginsConfig.map((effectivePluginConfig: EffectivePluginConfig) => {
+          const uuid = effectivePluginConfig.uuid;
           return (
             <div key={uuid}>
               <PluginsLoaderComponent 
@@ -56,7 +56,7 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
                   containerRef, 
                   loadedPlugins, 
                   setLastLoadedPlugin,
-                  pluginConfig: plugin
+                  pluginConfig: effectivePluginConfig
                 }}
               />
               <PluginProvidedStateComponent 
