@@ -21,7 +21,6 @@ concurrency:
   cancel-in-progress: true
 jobs:
   check-previous-comment:
-    needs: check-previous-comment
     runs-on: ubuntu-20.04
     permissions:
       pull-requests: write
