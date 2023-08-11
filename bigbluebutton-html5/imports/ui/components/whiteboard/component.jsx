@@ -21,6 +21,7 @@ import {
   findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious,
 } from './utils';
 import PresentationOpsContainer from './presentation-ops-injector/container';
+import { debounce } from 'radash';
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_DOCK_HEIGHT = 475;
@@ -706,43 +707,9 @@ export default function Whiteboard(props) {
 
   const onPatch = (e, t, reason) => {
     if (!e?.pageState || !reason) return;
-    // Append Presentation Options to Tldraw
-    const tdStylesParent = document.getElementById('TD-Styles-Parent');
-    if (tdStylesParent) {
-      tdStylesParent.style.right = '0px';
-      tdStylesParent.style.width = '17.75rem';
-      let presentationMenuNode = document.getElementById('PresentationMenuId');
-      if (!presentationMenuNode) {
-        presentationMenuNode = document.createElement('div');
-        presentationMenuNode.setAttribute('id', 'PresentationMenuId');
-        tdStylesParent.appendChild(presentationMenuNode);
-      }
 
-      ReactDOM.render(
-        <PresentationOpsContainer
-          fullscreenRef={fullscreenRef}
-          elementId={fullscreenElementId}
-          fullscreen={fullscreen}
-          isRTL={isRTL}
-          setIsToolbarVisible={setIsToolbarVisible}
-          isToolbarVisible={isToolbarVisible}
-          layoutContextDispatch={layoutContextDispatch}
-          tldrawAPI={e}
-          closeLabel={labels.closeLabel}
-          activeLable={labels.activeLable}
-          optionsLabel={labels.optionsLabel}
-          fullscreenLabel={labels.fullscreenLabel}
-          exitFullscreenLabel={labels.exitFullscreenLabel}
-          hideToolsDesc={labels.hideToolsDesc}
-          showToolsDesc={labels.showToolsDesc}
-          downloading={labels.downloading}
-          downloaded={labels.downloaded}
-          downloadFailed={labels.downloadFailed}
-          snapshotLabel={labels.snapshotLabel}
-          whiteboardLabel={labels.whiteboardLabel}
-        />, presentationMenuNode
-      );
-    }
+
+
 
     if (((isPanning || panSelected) && (reason === 'selected' || reason === 'set_hovered_id'))) {
       e.patchState(
@@ -938,6 +905,60 @@ export default function Whiteboard(props) {
     if ((panSelected || isPanning)) {
       e.isForcePanning = isPanning;
     }
+
+    const executeDebouncedInjection = () => {
+      // Remove any instances with the id "presentation-dropdown-menu" but leave one
+      let elements = Array.from(document.querySelectorAll('#presentation-dropdown-menu'));
+      if (elements.length > 1 && isToolbarVisible) {
+        for (let i = 0; i < elements.length - 1; i++) {
+            elements[i]?.remove();
+        }
+      }
+
+      // Append Presentation Options to Tldraw
+      const tdStylesParent = document.getElementById('TD-Styles-Parent');
+      if (tdStylesParent) {
+        tdStylesParent.style.right = '0px';
+        tdStylesParent.style.width = '17.75rem';
+        let presentationMenuNode = document.getElementById('PresentationMenuId');
+        if (!presentationMenuNode) {
+          presentationMenuNode = document.createElement('div');
+          presentationMenuNode.setAttribute('id', 'PresentationMenuId');
+          tdStylesParent.appendChild(presentationMenuNode);
+        }
+
+        setTimeout(() => {
+          ReactDOM.render(
+            <PresentationOpsContainer
+              fullscreenRef={fullscreenRef}
+              elementId={fullscreenElementId}
+              fullscreen={fullscreen}
+              isRTL={isRTL}
+              setIsToolbarVisible={setIsToolbarVisible}
+              isToolbarVisible={isToolbarVisible}
+              layoutContextDispatch={layoutContextDispatch}
+              tldrawAPI={e}
+              closeLabel={labels.closeLabel}
+              activeLable={labels.activeLable}
+              optionsLabel={labels.optionsLabel}
+              fullscreenLabel={labels.fullscreenLabel}
+              exitFullscreenLabel={labels.exitFullscreenLabel}
+              hideToolsDesc={labels.hideToolsDesc}
+              showToolsDesc={labels.showToolsDesc}
+              downloading={labels.downloading}
+              downloaded={labels.downloaded}
+              downloadFailed={labels.downloadFailed}
+              snapshotLabel={labels.snapshotLabel}
+              whiteboardLabel={labels.whsiteboardLabel}
+            />, presentationMenuNode
+          );
+        }, 150);
+      }
+    };
+
+    const debouncedExecute = debounce({ delay: 300 }, executeDebouncedInjection);
+
+    debouncedExecute();
   };
 
   const onUndo = (app) => {
