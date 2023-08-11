@@ -1154,7 +1154,7 @@
     "app.updateBreakoutRoom.confirm": "Aplicar",
     "app.updateBreakoutRoom.userChangeRoomNotification": "Vde. foi trasladado á sala {0}.",
     "app.smartMediaShare.externalVideo": "Vídeo(s) externo(s)",
-    "app.update.resetRoom": "Restabelecer a sala de usuarios",
+    "app.update.resetRoom": "Restabelecer os usuarios da sala",
     "app.externalVideo.start": "Compartir un novo vídeo",
     "app.externalVideo.title": "Compartir un vídeo externo",
     "app.externalVideo.input": "URL do vídeo externo",
