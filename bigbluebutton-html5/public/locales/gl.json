@@ -1100,7 +1100,7 @@
     "app.videoDock.webcamUnpinLabel": "Desprender",
     "app.videoDock.webcamUnpinLabelDisabled": "Só os moderadores poden desprender aos usuarios",
     "app.videoDock.webcamUnpinDesc": "Desprender a cámara web seleccionada",
-    "app.videoDock.autoplayBlockedDesc": "Necesitamos o seu permiso para mostrarlle as cámaras web doutros usuarios.",
+    "app.videoDock.autoplayBlockedDesc": "Necesitamos o seu permiso para amosarlle as cámaras web doutros usuarios.",
     "app.videoDock.autoplayAllowLabel": "Ver cámaras web",
     "app.createBreakoutRoom.title": "Salas parciais",
     "app.createBreakoutRoom.ariaTitle": "Agochar as salas parciais",
