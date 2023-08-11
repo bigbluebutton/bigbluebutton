@@ -123,19 +123,24 @@ const ReactionsButton = (props) => {
     customStyles: {...actionCustomStyles, width: 'auto'},
   });
 
+  const icon = currentUserReaction === 'none' ? 'hand' : null;
+  const currentUserReactionEmoji = reactions.find(({ native }) => native === currentUserReaction);
+  const customIcon = !icon ? <Emoji key={currentUserReactionEmoji?.id} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} /> : null;
+
   return (
     <BBBMenu
       trigger={(
         <Styled.ReactionsDropdown>
           <Styled.RaiseHandButton
             data-test="reactionsButton"
-            icon="hand"
+            icon={icon}
+            customIcon={customIcon}
             label={intl.formatMessage(intlMessages.reactionsLabel)}
             description="Reactions"
-            ghost={!showEmojiPicker}
+            ghost={!showEmojiPicker && !customIcon}
             onKeyPress={() => {}}
             onClick={() => setShowEmojiPicker(true)}
-            color={showEmojiPicker ? 'primary' : 'default'}
+            color={showEmojiPicker || customIcon ? 'primary' : 'default'}
             hideLabel
             circle
             size="lg"
