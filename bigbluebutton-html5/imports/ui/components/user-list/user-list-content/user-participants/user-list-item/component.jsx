@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl, defineMessages } from 'react-intl';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -17,6 +17,9 @@ import { isChatEnabled } from '/imports/ui/services/features';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { uniqueId } from '/imports/utils/string-utils';
+import AudioService from '/imports/ui/components/audio/service';
+import VoiceUsers from '/imports/api/voice-users';
+import Auth from '/imports/ui/services/auth';
 
 const messages = defineMessages({
   presenter: {
@@ -212,6 +215,7 @@ class UserListItem extends PureComponent {
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
     this.setConfirmationModalIsOpen = this.setConfirmationModalIsOpen.bind(this);
+    this.prevMutedRef = React.createRef(false);
 
     this.title = uniqueId('dropdown-title-');
     this.seperator = uniqueId('action-separator-');
@@ -345,6 +349,24 @@ class UserListItem extends PureComponent {
 
     const { allowUserLookup } = Meteor.settings.public.app;
     const userLocked = user.locked && user.role !== ROLE_MODERATOR;
+
+    const muteAway = () => {
+      const voiceUserAway = VoiceUsers.findOne({
+        meetingId: Auth.meetingID, intId: Auth.userID,
+      }, { fields: { muted: 1 } });
+      const prevAwayMuted = this.prevMutedRef.current;
+      if (!voiceUserAway.muted && !user.away && !prevAwayMuted) {
+        AudioService.toggleMuteMicrophone();
+        this.prevMutedRef.current = true;
+      } else if (voiceUserAway.muted && user.away && prevAwayMuted) {
+        AudioService.toggleMuteMicrophone();
+      }
+      if (!user.away) {
+        VideoService.setTrackEnabled(false);
+      } else {
+        VideoService.setTrackEnabled(true);
+      }
+    };
 
     const availableActions = [
       {
@@ -556,6 +578,7 @@ class UserListItem extends PureComponent {
         key: 'setAway',
         label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
         onClick: () => {
+          muteAway();
           this.onActionsHide(setUserAway(user.userId, !user.away));
           this.handleClose();
         },

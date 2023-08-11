@@ -23,6 +23,7 @@ import {
   sortVideoStreams,
 } from '/imports/ui/components/video-provider/stream-sorting';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
@@ -82,7 +83,8 @@ class VideoService {
       this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
       // Safari doesn't support ondevicechange
       if (!this.isSafari) {
-        navigator.mediaDevices.ondevicechange = event => this.updateNumberOfDevices();
+        navigator.mediaDevices.ondevicechange = (event) =>
+          this.updateNumberOfDevices();
       }
       this.updateNumberOfDevices();
     }
@@ -116,9 +118,10 @@ class VideoService {
 
   fetchNumberOfDevices(devices) {
     const deviceIds = [];
-    devices.forEach(d => {
-      const validDeviceId = d.deviceId !== '' && !deviceIds.includes(d.deviceId)
-      if (d.kind === 'videoinput' && validDeviceId) {
+    devices.forEach((d) => {
+      const validDeviceId =
+        d.deviceId !== "" && !deviceIds.includes(d.deviceId);
+      if (d.kind === "videoinput" && validDeviceId) {
         deviceIds.push(d.deviceId);
       }
     });
@@ -130,7 +133,7 @@ class VideoService {
     if (devices) {
       this.numberOfDevices = this.fetchNumberOfDevices(devices);
     } else {
-      navigator.mediaDevices.enumerateDevices().then(devices => {
+      navigator.mediaDevices.enumerateDevices().then((devices) => {
         this.numberOfDevices = this.fetchNumberOfDevices(devices);
       });
     }
@@ -139,7 +142,7 @@ class VideoService {
   joinVideo(deviceId) {
     this.deviceId = deviceId;
     this.isConnecting = true;
-    Storage.setItem('isFirstJoin', false);
+    Storage.setItem("isFirstJoin", false);
   }
 
   joinedVideo() {
@@ -151,30 +154,34 @@ class VideoService {
       {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
-      }, { fields: { deviceId: 1 } },
+      },
+      { fields: { deviceId: 1 } }
     ).fetch();
 
     let deviceIds = [];
-    streams.forEach(s => {
+    streams.forEach((s) => {
       deviceIds.push(s.deviceId);
-    }
-    );
-    Session.set('deviceIds', deviceIds.join());
+    });
+    Session.set("deviceIds", deviceIds.join());
   }
 
   exitVideo() {
     if (this.isConnected) {
-      logger.info({
-        logCode: 'video_provider_unsharewebcam',
-      }, `Sending unshare all ${Auth.userID} webcams notification to meteor`);
+      logger.info(
+        {
+          logCode: "video_provider_unsharewebcam",
+        },
+        `Sending unshare all ${Auth.userID} webcams notification to meteor`
+      );
       const streams = VideoStreams.find(
         {
           meetingId: Auth.meetingID,
           userId: Auth.userID,
-        }, { fields: { stream: 1 } },
+        },
+        { fields: { stream: 1 } }
       ).fetch();
 
-      streams.forEach(s => this.sendUserUnshareWebcam(s.stream));
+      streams.forEach((s) => this.sendUserUnshareWebcam(s.stream));
       this.exitedVideo();
     }
   }
@@ -190,11 +197,12 @@ class VideoService {
       {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
-      }, { fields: { stream: 1 } },
+      },
+      { fields: { stream: 1 } }
     ).fetch();
 
-    const hasTargetStream = streams.some(s => s.stream === cameraId);
-    const hasOtherStream = streams.some(s => s.stream !== cameraId);
+    const hasTargetStream = streams.some((s) => s.stream === cameraId);
+    const hasOtherStream = streams.some((s) => s.stream !== cameraId);
 
     // Check if the target (cameraId) stream exists in the remote collection.
     // If it does, means it was successfully shared. So do the full stop procedure.
@@ -221,18 +229,21 @@ class VideoService {
       {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
-      }, { fields: { deviceId: 1 } },
-    ).fetch().map(vs => vs.deviceId);
+      },
+      { fields: { deviceId: 1 } }
+    )
+      .fetch()
+      .map((vs) => vs.deviceId);
 
     return devices;
   }
 
   sendUserShareWebcam(cameraId) {
-    makeCall('userShareWebcam', cameraId);
+    makeCall("userShareWebcam", cameraId);
   }
 
   sendUserUnshareWebcam(cameraId) {
-    makeCall('userUnshareWebcam', cameraId);
+    makeCall("userUnshareWebcam", cameraId);
   }
 
   getAuthenticatedURL() {
@@ -241,14 +252,14 @@ class VideoService {
 
   shouldRenderPaginationToggle() {
     // Only enable toggle if configured to do so and if we have a page size properly setup
-    return PAGINATION_TOGGLE_ENABLED && (this.getMyPageSize() > 0);
+    return PAGINATION_TOGGLE_ENABLED && this.getMyPageSize() > 0;
   }
 
-  isPaginationEnabled () {
-    return Settings.application.paginationEnabled && (this.getMyPageSize() > 0);
+  isPaginationEnabled() {
+    return Settings.application.paginationEnabled && this.getMyPageSize() > 0;
   }
 
-  setNumberOfPages (numberOfPublishers, numberOfSubscribers, pageSize) {
+  setNumberOfPages(numberOfPublishers, numberOfSubscribers, pageSize) {
     // Page size 0 means no pagination, return itself
     if (pageSize === 0) return 0;
 
@@ -262,7 +273,7 @@ class VideoService {
       // page ceasing to exist
       if (nofPages === 0) {
         this.currentVideoPageIndex = 0;
-      } else if ((this.currentVideoPageIndex + 1) > this.numberOfPages) {
+      } else if (this.currentVideoPageIndex + 1 > this.numberOfPages) {
         this.getPreviousVideoPage();
       }
     }
@@ -270,34 +281,42 @@ class VideoService {
     return this.numberOfPages;
   }
 
-  getNumberOfPages () {
+  getNumberOfPages() {
     return this.numberOfPages;
   }
 
-  setCurrentVideoPageIndex (newVideoPageIndex) {
+  setCurrentVideoPageIndex(newVideoPageIndex) {
     if (this.currentVideoPageIndex !== newVideoPageIndex) {
       this.currentVideoPageIndex = newVideoPageIndex;
     }
   }
 
-  getCurrentVideoPageIndex () {
+  getCurrentVideoPageIndex() {
     return this.currentVideoPageIndex;
   }
 
-  calculateNextPage () {
+  calculateNextPage() {
     if (this.numberOfPages === 0) {
       return 0;
     }
 
-    return ((this.currentVideoPageIndex + 1) % this.numberOfPages + this.numberOfPages) % this.numberOfPages;
+    return (
+      (((this.currentVideoPageIndex + 1) % this.numberOfPages) +
+        this.numberOfPages) %
+      this.numberOfPages
+    );
   }
 
-  calculatePreviousPage () {
+  calculatePreviousPage() {
     if (this.numberOfPages === 0) {
       return 0;
     }
 
-    return ((this.currentVideoPageIndex - 1) % this.numberOfPages + this.numberOfPages) % this.numberOfPages;
+    return (
+      (((this.currentVideoPageIndex - 1) % this.numberOfPages) +
+        this.numberOfPages) %
+      this.numberOfPages
+    );
   }
 
   getNextVideoPage() {
@@ -314,7 +333,7 @@ class VideoService {
     return this.currentVideoPageIndex;
   }
 
-  getPageSizeDictionary () {
+  getPageSizeDictionary() {
     // Dynamic page sizes are disabled. Fetch the stock page sizes.
     if (!PAGINATION_THRESHOLDS_ENABLED || PAGINATION_THRESHOLDS.length <= 0) {
       return !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
@@ -324,10 +343,12 @@ class VideoService {
     // matching threshold entry, return the val.
     let targetThreshold;
     const userCount = UserListService.getUserCount();
-    const processThreshold = (threshold = {
-      desktopPageSizes: DESKTOP_PAGE_SIZES,
-      mobilePageSizes: MOBILE_PAGE_SIZES
-    }) => {
+    const processThreshold = (
+      threshold = {
+        desktopPageSizes: DESKTOP_PAGE_SIZES,
+        mobilePageSizes: MOBILE_PAGE_SIZES,
+      }
+    ) => {
       // We don't demand that all page sizes should be set in pagination profiles.
       // That saves us some space because don't necessarily need to scale mobile
       // endpoints.
@@ -344,7 +365,11 @@ class VideoService {
 
     // Reverse search for the threshold where our participant count is directly equal or great
     // The PAGINATION_THRESHOLDS config is sorted when imported.
-    for (let mapIndex = PAGINATION_THRESHOLDS.length - 1; mapIndex >= 0; --mapIndex) {
+    for (
+      let mapIndex = PAGINATION_THRESHOLDS.length - 1;
+      mapIndex >= 0;
+      --mapIndex
+    ) {
       targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
       if (targetThreshold.users <= userCount) {
         return processThreshold(targetThreshold);
@@ -352,7 +377,7 @@ class VideoService {
     }
   }
 
-  setPageSize (size) {
+  setPageSize(size) {
     if (this.pageSize !== size) {
       this.pageSize = size;
     }
@@ -360,7 +385,7 @@ class VideoService {
     return this.pageSize;
   }
 
-  getMyPageSize () {
+  getMyPageSize() {
     let size;
     const myRole = this.getMyRole();
     const pageSizes = this.getPageSizeDictionary();
@@ -370,16 +395,19 @@ class VideoService {
         break;
       case ROLE_VIEWER:
       default:
-        size = pageSizes.viewer
+        size = pageSizes.viewer;
     }
 
     return this.setPageSize(size);
   }
 
-  getVideoPage (streams, pageSize) {
+  getVideoPage(streams, pageSize) {
     // Publishers are taken into account for the page size calculations. They
     // also appear on every page. Same for pinned user.
-    const [filtered, others] = partition(streams, (vs) => Auth.userID === vs.userId || vs.pin);
+    const [filtered, others] = partition(
+      streams,
+      (vs) => Auth.userID === vs.userId || vs.pin
+    );
 
     // Separate pin from local cameras
     const [pin, mine] = partition(filtered, (vs) => vs.pin);
@@ -391,9 +419,13 @@ class VideoService {
     // This is an extra check because pagination is globally in effect (hard
     // limited page sizes, toggles on), but we might still only have one page.
     // Use the default sorting method if that's the case.
-    const sortingMethod = (this.numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
-    const paginatedStreams = sortVideoStreams(others, sortingMethod)
-      .slice(chunkIndex, (chunkIndex + pageSize)) || [];
+    const sortingMethod =
+      this.numberOfPages > 1 ? PAGINATION_SORTING : DEFAULT_SORTING;
+    const paginatedStreams =
+      sortVideoStreams(others, sortingMethod).slice(
+        chunkIndex,
+        chunkIndex + pageSize
+      ) || [];
 
     if (getSortingMethod(sortingMethod).localFirst) {
       return [...pin, ...mine, ...paginatedStreams];
@@ -404,8 +436,10 @@ class VideoService {
   getUsersIdFromVideoStreams() {
     const usersId = VideoStreams.find(
       { meetingId: Auth.meetingID },
-      { fields: { userId: 1 } },
-    ).fetch().map(user => user.userId);
+      { fields: { userId: 1 } }
+    )
+      .fetch()
+      .map((user) => user.userId);
 
     return usersId;
   }
@@ -417,7 +451,7 @@ class VideoService {
   }
 
   toggleVideoPin(userId, userIsPinned) {
-    makeCall('changePin', userId, !userIsPinned);
+    makeCall("changePin", userId, !userIsPinned);
   }
 
   getVideoStreams() {
@@ -429,7 +463,7 @@ class VideoService {
 
     let streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
-      { fields: neededDataTypes },
+      { fields: neededDataTypes }
     ).fetch();
 
     // Data savings enabled will only show local streams
@@ -447,7 +481,7 @@ class VideoService {
     if (isPaginationDisabled) {
       return {
         streams: sortVideoStreams(streams, DEFAULT_SORTING),
-        totalNumberOfStreams: streams.length
+        totalNumberOfStreams: streams.length,
       };
     }
 
@@ -456,7 +490,7 @@ class VideoService {
     return { streams: paginatedStreams, totalNumberOfStreams: streams.length };
   }
 
-  stopConnectingStream () {
+  stopConnectingStream() {
     this.deviceId = null;
     this.isConnecting = false;
   }
@@ -478,9 +512,12 @@ class VideoService {
           this.stopConnectingStream();
         }
       } else {
-        logger.error({
-          logCode: 'video_provider_missing_deviceid',
-        }, 'Could not retrieve a valid deviceId');
+        logger.error(
+          {
+            logCode: "video_provider_missing_deviceid",
+          },
+          "Could not retrieve a valid deviceId"
+        );
       }
     }
 
@@ -492,27 +529,32 @@ class VideoService {
   }
 
   hasVideoStream() {
-    const videoStreams = VideoStreams.findOne({ userId: Auth.userID },
-      { fields: {} });
+    const videoStreams = VideoStreams.findOne(
+      { userId: Auth.userID },
+      { fields: {} }
+    );
     return !!videoStreams;
   }
 
   hasStream(streams, stream) {
-    return streams.find(s => s.stream === stream);
+    return streams.find((s) => s.stream === stream);
   }
 
   getMediaServerAdapter() {
-    return getFromMeetingSettings('media-server-video', DEFAULT_VIDEO_MEDIA_SERVER);
+    return getFromMeetingSettings(
+      "media-server-video",
+      DEFAULT_VIDEO_MEDIA_SERVER
+    );
   }
 
-  getMyRole () {
-    return Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } })?.role;
+  getMyRole() {
+    return Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } })
+      ?.role;
   }
 
   getRecord() {
     if (this.record === null) {
-      this.record = getFromUserSettings('bbb_record_video', true);
+      this.record = getFromUserSettings("bbb_record_video", true);
     }
 
     // TODO: Remove this
@@ -521,11 +563,12 @@ class VideoService {
     // meta_hack-record-viewer-video is 'false' this user won't have this video
     // stream recorded.
     if (this.hackRecordViewer === null) {
-      const value = getFromMeetingSettings('hack-record-viewer-video', null);
-      this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
+      const value = getFromMeetingSettings("hack-record-viewer-video", null);
+      this.hackRecordViewer = value ? value.toLowerCase() === "true" : true;
     }
 
-    const hackRecord = this.getMyRole() === ROLE_MODERATOR || this.hackRecordViewer;
+    const hackRecord =
+      this.getMyRole() === ROLE_MODERATOR || this.hackRecordViewer;
 
     return this.record && hackRecord;
   }
@@ -539,8 +582,10 @@ class VideoService {
           meetingId: Auth.meetingID,
           role: ROLE_MODERATOR,
         },
-        { fields: { userId: 1 } },
-      ).fetch().map(user => user.userId);
+        { fields: { userId: 1 } }
+      )
+        .fetch()
+        .map((user) => user.userId);
 
       return streams.reduce((result, stream) => {
         const { userId } = stream;
@@ -557,19 +602,26 @@ class VideoService {
   }
 
   filterLocalOnly(streams) {
-    return streams.filter(stream => stream.userId === Auth.userID);
+    return streams.filter((stream) => stream.userId === Auth.userID);
   }
 
   disableCam() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.disableCam': 1 } });
+    const m = Meetings.findOne(
+      { meetingId: Auth.meetingID },
+      { fields: { "lockSettingsProps.disableCam": 1 } }
+    );
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
   }
 
   webcamsOnlyForModerator() {
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
-    const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
+    const meeting = Meetings.findOne(
+      { meetingId: Auth.meetingID },
+      { fields: { "usersProp.webcamsOnlyForModerator": 1 } }
+    );
+    const user = Users.findOne(
+      { userId: Auth.userID },
+      { fields: { locked: 1, role: 1 } }
+    );
 
     if (meeting?.usersProp && user?.role !== ROLE_MODERATOR && user?.locked) {
       return meeting.usersProp.webcamsOnlyForModerator;
@@ -582,10 +634,10 @@ class VideoService {
       { meetingId: Auth.meetingID },
       {
         fields: {
-          'meetingProp.meetingCameraCap': 1,
-          'usersProp.userCameraCap': 1,
+          "meetingProp.meetingCameraCap": 1,
+          "usersProp.userCameraCap": 1,
         },
-      },
+      }
     );
 
     // If the meeting prop data is unreachable, force a safe return
@@ -594,8 +646,10 @@ class VideoService {
     const { meetingCameraCap } = meeting.meetingProp;
     const { userCameraCap } = meeting.usersProp;
 
-    const meetingCap = meetingCameraCap !== 0 && this.getVideoStreamsCount() >= meetingCameraCap;
-    const userCap = userCameraCap !== 0 && this.getLocalVideoStreamsCount() >= userCameraCap;
+    const meetingCap =
+      meetingCameraCap !== 0 && this.getVideoStreamsCount() >= meetingCameraCap;
+    const userCap =
+      userCameraCap !== 0 && this.getLocalVideoStreamsCount() >= userCameraCap;
 
     return meetingCap || userCap;
   }
@@ -607,16 +661,16 @@ class VideoService {
   }
 
   getLocalVideoStreamsCount() {
-    const localStreams = VideoStreams.find(
-      { userId: Auth.userID }
-    ).count();
+    const localStreams = VideoStreams.find({ userId: Auth.userID }).count();
 
     return localStreams;
   }
 
   getInfo() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'voiceProp.voiceConf': 1 } });
+    const m = Meetings.findOne(
+      { meetingId: Auth.meetingID },
+      { fields: { "voiceProp.voiceConf": 1 } }
+    );
     const voiceBridge = m.voiceProp ? m.voiceProp.voiceConf : null;
     return {
       userId: Auth.userID,
@@ -630,7 +684,10 @@ class VideoService {
   mirrorOwnWebcam(userId = null) {
     // only true if setting defined and video ids match
     const isOwnWebcam = userId ? Auth.userID === userId : true;
-    const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', MIRROR_WEBCAM);
+    const isEnabledMirroring = getFromUserSettings(
+      "bbb_mirror_own_webcam",
+      MIRROR_WEBCAM
+    );
     return isOwnWebcam && isEnabledMirroring;
   }
 
@@ -640,16 +697,16 @@ class VideoService {
 
   // In user-list it is necessary to check if the user is sharing his webcam
   isVideoPinEnabledForCurrentUser() {
-    const currentUser = Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } });
+    const currentUser = Users.findOne(
+      { userId: Auth.userID },
+      { fields: { role: 1 } }
+    );
 
-    const isModerator = currentUser?.role === 'MODERATOR';
+    const isModerator = currentUser?.role === "MODERATOR";
     const isBreakout = meetingIsBreakout();
     const isPinEnabled = this.isPinEnabled();
 
-    return !!(isModerator
-      && isPinEnabled
-      && !isBreakout);
+    return !!(isModerator && isPinEnabled && !isBreakout);
   }
 
   getMyStreamId(deviceId) {
@@ -658,18 +715,24 @@ class VideoService {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
         deviceId,
-      }, { fields: { stream: 1 } },
+      },
+      { fields: { stream: 1 } }
     );
     return videoStream ? videoStream.stream : null;
   }
 
   isUserLocked() {
-    return !!Users.findOne({
-      meetingId: Auth.meetingID,
-      userId: Auth.userID,
-      locked: true,
-      role: { $ne: ROLE_MODERATOR },
-    }, { fields: {} }) && this.disableCam();
+    return (
+      !!Users.findOne(
+        {
+          meetingId: Auth.meetingID,
+          userId: Auth.userID,
+          locked: true,
+          role: { $ne: ROLE_MODERATOR },
+        },
+        { fields: {} }
+      ) && this.disableCam()
+    );
   }
 
   lockUser() {
@@ -690,11 +753,12 @@ class VideoService {
   }
 
   getCameraProfile() {
-    const profileId = BBBStorage.getItem('WebcamProfileId') || '';
-    const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
-      || CAMERA_PROFILES.find(profile => profile.default)
-      || CAMERA_PROFILES[0];
-    const deviceId = BBBStorage.getItem('WebcamDeviceId');
+    const profileId = BBBStorage.getItem("WebcamProfileId") || "";
+    const cameraProfile =
+      CAMERA_PROFILES.find((profile) => profile.id === profileId) ||
+      CAMERA_PROFILES.find((profile) => profile.default) ||
+      CAMERA_PROFILES[0];
+    const deviceId = BBBStorage.getItem("WebcamDeviceId");
     if (deviceId) {
       cameraProfile.constraints = cameraProfile.constraints || {};
       cameraProfile.constraints.deviceId = { exact: deviceId };
@@ -710,13 +774,16 @@ class VideoService {
         // fatal or not, so that's why we have a timeout set up for negotiations
         // and listeners for ICE state transitioning to failures, so we won't
         // act on it here
-        logger.error({
-          logCode: 'video_provider_addicecandidate_error',
-          extraInfo: {
-            cameraId,
-            error,
+        logger.error(
+          {
+            logCode: "video_provider_addicecandidate_error",
+            extraInfo: {
+              cameraId,
+              error,
+            },
           },
-        }, `Adding ICE candidate failed for ${cameraId} due to ${error.message}`);
+          `Adding ICE candidate failed for ${cameraId} due to ${error.message}`
+        );
       }
     });
   }
@@ -733,31 +800,31 @@ class VideoService {
   }
 
   getStatus() {
-    if (this.isConnecting) return 'videoConnecting';
-    if (this.isConnected) return 'connected';
-    return 'disconnected';
+    if (this.isConnecting) return "videoConnecting";
+    if (this.isConnected) return "connected";
+    return "disconnected";
   }
 
   disableReason() {
     const locks = {
       videoLocked: this.isUserLocked(),
       camCapReached: this.hasCapReached() && !this.hasVideoStream(),
-      meteorDisconnected: !Meteor.status().connected
+      meteorDisconnected: !Meteor.status().connected,
     };
     const locksKeys = Object.keys(locks);
-    const disableReason = locksKeys.filter( i => locks[i]).shift();
+    const disableReason = locksKeys.filter((i) => locks[i]).shift();
     return disableReason ? disableReason : false;
   }
 
   getRole(isLocal) {
-    return isLocal ? 'share' : 'viewer';
+    return isLocal ? "share" : "viewer";
   }
 
   getUserParameterProfile() {
     if (this.userParameterProfile === null) {
       this.userParameterProfile = getFromUserSettings(
-        'bbb_preferred_camera_profile',
-        (CAMERA_PROFILES.find(i => i.default) || {}).id || null,
+        "bbb_preferred_camera_profile",
+        (CAMERA_PROFILES.find((i) => i.default) || {}).id || null
       );
     }
 
@@ -768,61 +835,81 @@ class VideoService {
     // Multiple cameras shouldn't be enabled with video preview skipping
     // Mobile shouldn't be able to share more than one camera at the same time
     // Safari needs to implement devicechange event for safe device control
-    return MULTIPLE_CAMERAS
-      && !VideoPreviewService.getSkipVideoPreview()
-      && !this.isMobile
-      && !this.isSafari
-      && this.numberOfDevices > 1;
+    return (
+      MULTIPLE_CAMERAS &&
+      !VideoPreviewService.getSkipVideoPreview() &&
+      !this.isMobile &&
+      !this.isSafari &&
+      this.numberOfDevices > 1
+    );
   }
 
-  isProfileBetter (newProfileId, originalProfileId) {
-    return CAMERA_PROFILES.findIndex(({ id }) => id === newProfileId)
-      > CAMERA_PROFILES.findIndex(({ id }) => id === originalProfileId);
+  isProfileBetter(newProfileId, originalProfileId) {
+    return (
+      CAMERA_PROFILES.findIndex(({ id }) => id === newProfileId) >
+      CAMERA_PROFILES.findIndex(({ id }) => id === originalProfileId)
+    );
   }
 
-  applyBitrate (peer, bitrate) {
+  applyBitrate(peer, bitrate) {
     const peerConnection = peer.peerConnection;
-    if ('RTCRtpSender' in window
-      && 'setParameters' in window.RTCRtpSender.prototype
-      && 'getParameters' in window.RTCRtpSender.prototype) {
-      peerConnection.getSenders().forEach(sender => {
+    if (
+      "RTCRtpSender" in window &&
+      "setParameters" in window.RTCRtpSender.prototype &&
+      "getParameters" in window.RTCRtpSender.prototype
+    ) {
+      peerConnection.getSenders().forEach((sender) => {
         const { track } = sender;
-        if (track && track.kind === 'video') {
+        if (track && track.kind === "video") {
           const parameters = sender.getParameters();
           const normalizedBitrate = bitrate * 1000;
 
           // The encoder parameters might not be up yet; if that's the case,
           // add a filler object so we can alter the parameters anyways
-          if (parameters.encodings == null || parameters.encodings.length === 0) {
+          if (
+            parameters.encodings == null ||
+            parameters.encodings.length === 0
+          ) {
             parameters.encodings = [{}];
           }
 
           // Only reset bitrate if it changed in some way to avoid enconder fluctuations
           if (parameters.encodings[0].maxBitrate !== normalizedBitrate) {
             parameters.encodings[0].maxBitrate = normalizedBitrate;
-            sender.setParameters(parameters)
+            sender
+              .setParameters(parameters)
               .then(() => {
-                logger.info({
-                  logCode: 'video_provider_bitratechange',
-                  extraInfo: { bitrate },
-                }, `Bitrate changed: ${bitrate}`);
+                logger.info(
+                  {
+                    logCode: "video_provider_bitratechange",
+                    extraInfo: { bitrate },
+                  },
+                  `Bitrate changed: ${bitrate}`
+                );
               })
-              .catch(error => {
-                logger.warn({
-                  logCode: 'video_provider_bitratechange_failed',
-                  extraInfo: { bitrate, errorMessage: error.message, errorCode: error.code },
-                }, `Bitrate change failed.`);
+              .catch((error) => {
+                logger.warn(
+                  {
+                    logCode: "video_provider_bitratechange_failed",
+                    extraInfo: {
+                      bitrate,
+                      errorMessage: error.message,
+                      errorCode: error.code,
+                    },
+                  },
+                  `Bitrate change failed.`
+                );
               });
           }
         }
-      })
+      });
     }
   }
 
   // Some browsers (mainly iOS Safari) garble the stream if a constraint is
   // reconfigured without propagating previous height/width info
-  reapplyResolutionIfNeeded (track, constraints) {
-    if (typeof track.getSettings !== 'function') {
+  reapplyResolutionIfNeeded(track, constraints) {
+    if (typeof track.getSettings !== "function") {
       return constraints;
     }
 
@@ -839,19 +926,23 @@ class VideoService {
     return constraints;
   }
 
-  applyCameraProfile (peer, profileId) {
-    const profile = CAMERA_PROFILES.find((targetProfile) => targetProfile.id === profileId);
+  applyCameraProfile(peer, profileId) {
+    const profile = CAMERA_PROFILES.find(
+      (targetProfile) => targetProfile.id === profileId
+    );
 
     // When this should be skipped:
     // 1 - Badly defined profile
     // 2 - Badly defined peer (ie {})
     // 3 - The target profile is already applied
     // 4 - The targetr profile is better than the original profile
-    if (!profile
-      || peer == null
-      || peer.peerConnection == null
-      || peer.currentProfileId === profileId
-      || this.isProfileBetter(profileId, peer.originalProfileId)) {
+    if (
+      !profile ||
+      peer == null ||
+      peer.peerConnection == null ||
+      peer.currentProfileId === profileId ||
+      this.isProfileBetter(profileId, peer.originalProfileId)
+    ) {
       return;
     }
 
@@ -859,38 +950,55 @@ class VideoService {
 
     if (bitrate) this.applyBitrate(peer, bitrate);
 
-    if (CAMERA_QUALITY_THR_CONSTRAINTS
-      && constraints
-      && typeof constraints === 'object'
+    if (
+      CAMERA_QUALITY_THR_CONSTRAINTS &&
+      constraints &&
+      typeof constraints === "object"
     ) {
       peer.peerConnection.getSenders().forEach((sender) => {
         const { track } = sender;
-        if (track && track.kind === 'video' && typeof track.applyConstraints === 'function') {
-          const normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints);
-          track.applyConstraints(normalizedVideoConstraints)
-            .catch((error) => {
-              logger.warn({
-                logCode: 'video_provider_constraintchange_failed',
+        if (
+          track &&
+          track.kind === "video" &&
+          typeof track.applyConstraints === "function"
+        ) {
+          const normalizedVideoConstraints = this.reapplyResolutionIfNeeded(
+            track,
+            constraints
+          );
+          track.applyConstraints(normalizedVideoConstraints).catch((error) => {
+            logger.warn(
+              {
+                logCode: "video_provider_constraintchange_failed",
                 extraInfo: { errorName: error.name, errorCode: error.code },
-              }, 'Error applying camera profile');
-            });
+              },
+              "Error applying camera profile"
+            );
+          });
         }
       });
     }
 
-    logger.info({
-      logCode: 'video_provider_profile_applied',
-      extraInfo: { profileId },
-    }, `New camera profile applied: ${profileId}`);
+    logger.info(
+      {
+        logCode: "video_provider_profile_applied",
+        extraInfo: { profileId },
+      },
+      `New camera profile applied: ${profileId}`
+    );
 
     peer.currentProfileId = profileId;
   }
 
-  getThreshold (numberOfPublishers) {
-    let targetThreshold = { threshold: 0, profile: 'original' };
-    let finalThreshold = { threshold: 0, profile: 'original' };
+  getThreshold(numberOfPublishers) {
+    let targetThreshold = { threshold: 0, profile: "original" };
+    let finalThreshold = { threshold: 0, profile: "original" };
 
-    for(let mapIndex = 0; mapIndex < CAMERA_QUALITY_THRESHOLDS.length; mapIndex++) {
+    for (
+      let mapIndex = 0;
+      mapIndex < CAMERA_QUALITY_THRESHOLDS.length;
+      mapIndex++
+    ) {
       targetThreshold = CAMERA_QUALITY_THRESHOLDS[mapIndex];
       if (targetThreshold.threshold <= numberOfPublishers) {
         finalThreshold = targetThreshold;
@@ -900,7 +1008,7 @@ class VideoService {
     return finalThreshold;
   }
 
-  getPreloadedStream () {
+  getPreloadedStream() {
     if (this.deviceId == null) return;
     return VideoPreviewService.getStream(this.deviceId);
   }
@@ -922,7 +1030,8 @@ class VideoService {
 
     activeVideoStreams.forEach((stream) => {
       if (this.webRtcPeersRef[stream.stream]) {
-        activePeers[stream.stream] = this.webRtcPeersRef[stream.stream].peerConnection;
+        activePeers[stream.stream] =
+          this.webRtcPeersRef[stream.stream].peerConnection;
       }
     });
 
@@ -971,11 +1080,24 @@ class VideoService {
   updatePeerDictionaryReference(newRef) {
     this.webRtcPeersRef = newRef;
   }
+
+  setTrackEnabled(bool) {
+    const localPeers = Object.values(this.webRtcPeersRef).filter(
+      (peer) => peer.isPublisher,
+    );
+    localPeers.forEach((peer) => {
+      const stream = peer.getLocalStream();
+      MediaStreamUtils.getVideoTracks(stream).forEach((track) => {
+        track.enabled = bool;
+      });
+    });
+  }
 }
 
 const videoService = new VideoService();
 
 export default {
+  setTrackEnabled: (bool) => videoService.setTrackEnabled(bool),
   storeDeviceIds: () => videoService.storeDeviceIds(),
   exitVideo: () => videoService.exitVideo(),
   joinVideo: deviceId => videoService.joinVideo(deviceId),
