@@ -111,7 +111,6 @@ const ReactionsButton = (props) => {
     actions.push({
       label: <Styled.ButtonWrapper active={currentUserReaction === native}><Emoji key={id} emoji={{ id }} {...emojiProps} /></Styled.ButtonWrapper>,
       key: id,
-      dataTest: 'leaveAudio',
       onClick: () => handleReactionSelect(native),
       customStyles: actionCustomStyles,
     });
