@@ -19,7 +19,7 @@
     "app.chat.dropdown.copy": "Kopyala",
     "app.chat.dropdown.save": "Kaydet",
     "app.chat.label": "Sohbet",
-    "app.chat.offline": "Çevrimdışı",
+    "app.chat.offline": "Çevrim dışı",
     "app.chat.pollResult": "Oylama sonuçları",
     "app.chat.breakoutDurationUpdated": "Çalışma grubu zamanı {0} dakika",
     "app.chat.breakoutDurationUpdatedModerator": "Çalışma grubu odaları {0} dakika için açıldı ve bir bildirim gönderildi.",
