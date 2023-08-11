@@ -1356,7 +1356,7 @@
     "app.learningDashboard.pollsTable.title": "Enquisas",
     "app.learningDashboard.pollsTable.anonymousAnswer": "Enquisa anónima (respostas na última fila)",
     "app.learningDashboard.pollsTable.anonymousRowName": "Anónima",
-    "app.learningDashboard.pollsTable.noPollsCreatedHeading": "Non se creou ningunha enquisa",
+    "app.learningDashboard.pollsTable.noPollsCreatedHeading": "Non foi creada ningunha enquisa",
     "app.learningDashboard.pollsTable.noPollsCreatedMessage": "Unha vez enviada unha enquisa aos usuarios, os seus resultados aparecerán nesta lista.",
     "app.learningDashboard.pollsTable.answerTotal": "Total",
     "app.learningDashboard.pollsTable.userLabel": "Usuario/a",
