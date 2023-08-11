@@ -1113,7 +1113,7 @@
     "app.createBreakoutRoom.notAssigned": "Sen asignar ({0})",
     "app.createBreakoutRoom.join": "Unirse á sala",
     "app.createBreakoutRoom.joinAudio": "Unirse ao son",
-    "app.createBreakoutRoom.returnAudio": "Regresar ao son",
+    "app.createBreakoutRoom.returnAudio": "Tornar ao son",
     "app.createBreakoutRoom.alreadyConnected": "Xa está na sala",
     "app.createBreakoutRoom.confirm": "Crear",
     "app.createBreakoutRoom.record": "Gravar",
