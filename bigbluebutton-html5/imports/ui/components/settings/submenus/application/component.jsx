@@ -411,7 +411,11 @@ class ApplicationMenu extends BaseMenu {
 
   render() {
     const {
-      allLocales, intl, showToggleLabel, displaySettingsStatus,
+      allLocales,
+      intl,
+      showToggleLabel,
+      displaySettingsStatus,
+      isReactionsEnabled,
     } = this.props;
     const {
       isLargestFontSize, isSmallestFontSize, settings,
@@ -513,27 +517,29 @@ class ApplicationMenu extends BaseMenu {
             </Styled.Col>
           </Styled.Row>
 
-          <Styled.Row>
-            <Styled.Col aria-hidden="true">
-              <Styled.FormElement>
-                <Styled.Label>
-                  {intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)}
-                </Styled.Label>
-              </Styled.FormElement>
-            </Styled.Col>
-            <Styled.Col>
-              <Styled.FormElementRight>
-                {displaySettingsStatus(settings.autoCloseReactionsBar)}
-                <Toggle
-                  icons={false}
-                  defaultChecked={settings.autoCloseReactionsBar}
-                  onChange={() => this.handleToggle('autoCloseReactionsBar')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
-                  showToggleLabel={showToggleLabel}
-                />
-              </Styled.FormElementRight>
-            </Styled.Col>
-          </Styled.Row>
+          {isReactionsEnabled && (
+            <Styled.Row>
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {displaySettingsStatus(settings.autoCloseReactionsBar)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.autoCloseReactionsBar}
+                    onChange={() => this.handleToggle('autoCloseReactionsBar')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+          )}
 
           <Styled.Row>
             <Styled.Col>
