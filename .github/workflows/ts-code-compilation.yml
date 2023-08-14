@@ -16,9 +16,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Fetch all history
-      - name: run npm install
+      - name: install meteor
+        run: curl https://install.meteor.com/ | sh
+      - name: run meteor npm install
         working-directory: bigbluebutton-html5
-        run: npm install
+        run: meteor npm install
       - name: run ts
         working-directory: bigbluebutton-html5
         run: npx tsc

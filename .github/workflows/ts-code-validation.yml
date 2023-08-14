@@ -14,11 +14,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-          with:
-            fetch-depth: 0 # Fetch all history
-      - name: run npm install
+        with:
+          fetch-depth: 0 # Fetch all history
+      - name: install meteor
+        run: curl https://install.meteor.com/ | sh
+      - name: run meteor npm install
         working-directory: bigbluebutton-html5
-        run: npm install
+        run: meteor npm install
       - name: run ts
         working-directory: bigbluebutton-html5
         run: eslint . --ext .ts,.tsx
