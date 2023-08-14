@@ -4,6 +4,7 @@ import { makeCall } from '/imports/ui/services/api';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { throttle } from '/imports/utils/throttle';;
 
+// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
 
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;

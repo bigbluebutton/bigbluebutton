@@ -2,11 +2,10 @@ import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor'
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
-import { UseShortcutHelp, useShortcutHelp } from '../../../../../../core/hooks/useShortcutHelp'
+import { useShortcut } from '../../../../../../core/hooks/useShortcut'
 import { Chat } from '/imports/ui/Types/chat';
 
 const intlMessages = defineMessages({
@@ -27,8 +26,9 @@ const intlMessages = defineMessages({
 interface ChatListItemProps {
   chat: Partial<Chat>,
 }
-
+// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
+// @ts-ignore - temporary, while meteor exists in the project
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -43,12 +43,12 @@ const ChatListItem = (props: ChatListItemProps) => {
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  const TOGGLE_CHAT_PUB_AK: UseShortcutHelp = useShortcutHelp("togglePublicChat");
+  const TOGGLE_CHAT_PUB_AK: string = useShortcut("togglePublicChat");
   const {
     chat,
   } = props;
 
-  const countUnreadMessages = chat.totalUnread;
+  const countUnreadMessages = chat.totalUnread || 0;
 
   const intl = useIntl();
 
@@ -106,7 +106,7 @@ const ChatListItem = (props: ChatListItemProps) => {
 
   const localizedChatName = isPublicGroupChat(chat)
     ? intl.formatMessage(intlMessages.titlePublic)
-    : chat.participant.name;
+    : chat.participant?.name;
 
   const arialabel = `${localizedChatName} ${countUnreadMessages > 1
     ? intl.formatMessage(intlMessages.unreadPlural, { 0: countUnreadMessages })

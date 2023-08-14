@@ -1,18 +1,15 @@
 
 import { User } from '/imports/ui/Types/user';
-import { Meeting } from '/imports/ui/Types/meeting';
 import {LockSettings, UsersPolicies} from '/imports/ui/Types/meeting';
 import Auth from '/imports/ui/services/auth';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
-import GroupChat from '/imports/api/group-chat';
-import { indexOf, without } from '/imports/utils/array-utils';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-import { Session } from 'meteor/session';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { throttle } from 'radash';
 
+// @ts-ignore - temporary, while meteor exists in the project
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
 
 export const isVoiceOnlyUser = (userId:string) => userId.toString().startsWith('v_');
@@ -87,6 +84,7 @@ export const generateActionsPermissions = (
     const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
+    // @ts-ignore - temporary, while meteor exists in the project
     const allowUserLookup = Meteor.settings.public.app.allowUserLookup;
     return {
       allowedToChatPrivately,

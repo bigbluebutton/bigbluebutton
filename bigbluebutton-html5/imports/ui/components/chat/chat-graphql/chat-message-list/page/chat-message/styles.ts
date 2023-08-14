@@ -1,22 +1,11 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import {
   borderSize,
-  userIndicatorsOffset,
 } from '/imports/ui/stylesheets/styled-components/general';
-import {
-  colorWhite,
-  userListBg,
-  colorSuccess,
-  colorHeading,
-  palettePlaceholderText,
-  colorGrayLight,
-  colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
 import {
   lineHeightComputed,
   fontSizeBase,
-  btnFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
 export const ChatWrapper = styled.div`

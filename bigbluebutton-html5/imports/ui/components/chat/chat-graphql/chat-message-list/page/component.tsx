@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSubscription } from "@apollo/client";
-import { Meteor } from 'meteor/meteor';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
@@ -10,6 +9,7 @@ import {
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/componet';
 
+// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 

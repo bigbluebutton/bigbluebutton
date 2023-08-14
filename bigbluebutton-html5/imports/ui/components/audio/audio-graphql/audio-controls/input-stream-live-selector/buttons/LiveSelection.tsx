@@ -1,9 +1,7 @@
-import React from "react";
-
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback } from "react";
 import deviceInfo from '/imports/utils/deviceInfo';
 import { defineMessages, useIntl } from "react-intl";
-import { useShortcutHelp } from "/imports/ui/core/hooks/useShortcutHelp";
+import { useShortcut } from "/imports/ui/core/hooks/useShortcut";
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from '../styles';
 import {
@@ -50,9 +48,13 @@ const intlMessages = defineMessages({
     id: 'app.audio.changeAudioDevice',
     description: 'Change audio device button label',
   },
+  deviceChangeFailed: {
+    id: 'app.audioNotification.deviceChangeFailed',
+    description: 'Device change failed',
+  },
 });
 
-type deviceListType = {
+type DeviceListItemType = {
   key?: string;
   dataTest?: string;
   label?: string;
@@ -95,7 +97,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
 }) => {
   const intl = useIntl();
 
-  const leaveAudioShourtcut = useShortcutHelp('leaveAudio');
+  const leaveAudioShourtcut = useShortcut('leaveAudio');
 
   const renderDeviceList = useCallback((
     deviceKind: string,
@@ -113,10 +115,10 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         disabled: true,
         customStyles: Styled.DisabledLabel,
         divider: true,
-      },
+      } as DeviceListItemType,
     ];
 
-    let deviceList: deviceListType[] = [];
+    let deviceList: DeviceListItemType[] = [];
 
     if (listLength > 0) {
       deviceList = list.map((device, index) => (
@@ -124,10 +126,10 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           key: `${device.deviceId}-${deviceKind}`,
           dataTest: `${deviceKind}-${index + 1}`,
           label: truncateDeviceName(device.label),
-          customStyles: (device.deviceId === currentDeviceId) && Styled.SelectedLabel,
+          customStyles: (device.deviceId === currentDeviceId) ? Styled.SelectedLabel : null,
           iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
           onClick: () => onDeviceListClick(device.deviceId, deviceKind, callback),
-        }
+        } as DeviceListItemType
       ));
     } else if (deviceKind === AUDIO_OUTPUT && !SET_SINK_ID_SUPPORTED && listLength === 0) {
       // If the browser doesn't support setSinkId, show the chosen output device
@@ -139,7 +141,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           customStyles: Styled.SelectedLabel,
           iconRight: 'check',
           disabled: true,
-        },
+        } as DeviceListItemType
       ];
     } else {
       deviceList = [
@@ -148,7 +150,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           label: listLength < 0
             ? intl.formatMessage(intlMessages.loading)
             : intl.formatMessage(intlMessages.noDeviceFound),
-        },
+        } as DeviceListItemType,
       ];
     }
 
@@ -158,11 +160,11 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   const onDeviceListClick = useCallback((deviceId: string, deviceKind: string, callback: Function) => {
     if (!deviceId) return;
     if (deviceKind === AUDIO_INPUT) {
-      callback(deviceId).catch((error) => {
+      callback(deviceId).catch(() => {
         notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
       });
     } else {
-      callback(deviceId, true).catch((error) => {
+      callback(deviceId, true).catch(() => {
         notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
       });
     }

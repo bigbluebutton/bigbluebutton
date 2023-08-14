@@ -1,15 +1,12 @@
 import { useReactiveVar } from "@apollo/client";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect } from "react";
 import deviceInfo from '/imports/utils/deviceInfo';
 import AudioManager from "/imports/ui/services/audio-manager";
 import { useCurrentUser } from "/imports/ui/core/hooks/useCurrentUser";
 import { User } from "/imports/ui/Types/user";
 import { defineMessages, useIntl } from "react-intl";
-import { useShortcutHelp } from "/imports/ui/core/hooks/useShortcutHelp";
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
-import { handleLeaveAudio, liveChangeInputDevice, liveChangeOutputDevice, notify, toggleMuteMicrophone, truncateDeviceName } from "./service";
+import { handleLeaveAudio, liveChangeInputDevice, liveChangeOutputDevice, notify, toggleMuteMicrophone } from "./service";
 import { useMeeting } from "/imports/ui/core/hooks/useMeeting";
 import { Meeting } from "/imports/ui/Types/meeting";
 import logger from '/imports/startup/client/logger';
@@ -20,14 +17,19 @@ import ListenOnly from "./buttons/listenOnly";
 import LiveSelection from "./buttons/LiveSelection";
 
 
+// @ts-ignore - temporary, while meteor exists in the project
 const enableDynamicAudioDeviceSelection = Meteor.settings.public.app.enableDynamicAudioDeviceSelection;
+// @ts-ignore - temporary, while meteor exists in the project
+const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
+
+// @ts-ignore - temporary while settings are still in .js
 const animations = Settings.application.animations;
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
 const DEFAULT_DEVICE = 'default';
-const SET_SINK_ID_SUPPORTED = 'setSinkId' in HTMLMediaElement.prototype;
-const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
+
+
 const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
 const intlMessages = defineMessages({
@@ -120,7 +122,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         meetingId: Auth.meetingID,
       },
     }, 'Current input device was removed. Fallback to default device');
-    liveChangeInputDevice(fallbackDevice.deviceId).catch((error) => {
+    liveChangeInputDevice(fallbackDevice.deviceId).catch(() => {
       notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
     });
   }, []);
@@ -134,7 +136,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         meetingId: Auth.meetingID,
       },
     }, 'Current output device was removed. Fallback to default device');
-    liveChangeOutputDevice(fallbackDevice.deviceId, true).catch((error) => {
+    liveChangeOutputDevice(fallbackDevice.deviceId, true).catch(() => {
       notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
     });
   }, []);
@@ -213,8 +215,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
     if (!u.voice) {
       return {
         presenter: u.presenter,
-        isModerator: u.isModerator,
-        voice: null
+        isModerator: u.isModerator
       }
     }
 
@@ -237,12 +238,20 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       isBreakout: m?.isBreakout,
     }
   });
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value) as boolean;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value) as boolean;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const inputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value) as string;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value) as string;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const inputStream = useReactiveVar(AudioManager._inputStream) as string;
+  
   return <InputStreamLiveSelector
     isPresenter={currentUser?.presenter ?? false}
     isModerator={currentUser?.isModerator ?? false}
