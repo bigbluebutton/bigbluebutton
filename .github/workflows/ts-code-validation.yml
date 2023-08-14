@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  main:
+  ts-code-validation:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -21,6 +21,6 @@ jobs:
       - name: run meteor npm install
         working-directory: bigbluebutton-html5
         run: meteor npm install
-      - name: run ts
+      - name: typescript code validation with eslint
         working-directory: bigbluebutton-html5
         run: npx eslint . --ext .ts,.tsx
