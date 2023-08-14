@@ -26,8 +26,11 @@ case "$1" in
   sudo -u postgres psql -c "create database hasura_app"
   echo "Postgresql configured"
 
-  systemctl daemon-reload
-  startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
+  if [ ! -f /.dockerenv ]; then
+    systemctl enable bbb-graphql-server.service
+    systemctl daemon-reload
+    startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
+  fi
 
   # Apply BBB metadata in Hasura
   cd /usr/share/bbb-graphql-server
