@@ -3,8 +3,8 @@ import { useCurrentPresentation } from '/imports/ui/core/hooks/useCurrentPresent
 import { CurrentPresentationForPluginHook } from '/imports/ui/Types/presentation';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-const projectCurrentPresentation: (currentPresentation: Partial<CurrentPresentationForPluginHook> | undefined) => PluginSdk.Presentation | undefined = (currentPresentation: Partial<CurrentPresentationForPluginHook> | undefined) => {
-  let currentPresentationToPluginHookProjection: PluginSdk.Presentation | undefined;
+const projectCurrentPresentation: (currentPresentation: Partial<CurrentPresentationForPluginHook> | undefined) => PluginSdk.CurrentPresentation | undefined = (currentPresentation: Partial<CurrentPresentationForPluginHook> | undefined) => {
+  let currentPresentationToPluginHookProjection: PluginSdk.CurrentPresentation | undefined;
   if ( currentPresentation?.presentationId && currentPresentation?.pages) {
     const currentPage = currentPresentation.pages[0];
     currentPresentationToPluginHookProjection = {
@@ -27,7 +27,7 @@ const CurrentPresentationHookContainer = () => {
   });
 
   const updatePresentationForPlugin = () => {
-    const currentPresentationProjection: PluginSdk.Presentation | undefined = projectCurrentPresentation(currentPresentation);
+    const currentPresentationProjection: PluginSdk.CurrentPresentation | undefined = projectCurrentPresentation(currentPresentation);
     window.dispatchEvent(new CustomEvent(PluginSdk.Internal.BbbHookEvents.Update, { detail: { data: currentPresentationProjection, 
       hook: PluginSdk.Internal.BbbHooks.UseCurrentPresentation } }));
   };
