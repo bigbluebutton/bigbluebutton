@@ -12,19 +12,17 @@ if [ "$akka_apps_status" = "active" ]; then
 fi
 if [ "$hasura_status" = "active" ]; then
   echo "Stopping Hasura"
-  sudo systemctl start bbb-graphql-server
+  sudo systemctl stop bbb-graphql-server
 fi
 
 echo "Restarting database bbb_graphql"
 sudo -u postgres psql -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname = 'bbb_graphql'"
 sudo -u postgres psql -c "drop database if exists bbb_graphql"
 sudo -u postgres psql -c "create database bbb_graphql"
+sudo -u postgres psql -c "alter database bbb_graphql set timezone to 'UTC'"
 
 echo "Creating tables in bbb_graphql"
 sudo -u postgres psql -U postgres -d bbb_graphql -a -f bbb_schema.sql --set ON_ERROR_STOP=on
-
-echo "Applying new metadata to Hasura"
-/usr/local/bin/hasura metadata apply
 
 if [ "$hasura_status" = "active" ]; then
   echo "Starting Hasura"
@@ -34,3 +32,6 @@ if [ "$akka_apps_status" = "active" ]; then
   echo "Starting Akka-apps"
   sudo systemctl start bbb-apps-akka
 fi
+
+echo "Applying new metadata to Hasura"
+/usr/local/bin/hasura metadata apply

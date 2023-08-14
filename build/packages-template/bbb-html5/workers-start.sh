@@ -1,4 +1,30 @@
 #!/bin/bash
+
+echo "Starting mongoDB"
+
+#wait for mongo startup
+MONGO_OK=0
+
+while [ "$MONGO_OK" = "0" ]; do
+    MONGO_OK=$(ss -lan | grep 127.0.1.1 | grep 27017 &> /dev/null && echo 1 || echo 0)
+    sleep 1;
+done;
+
+echo "Mongo started";
+
+echo "Initializing replicaset"
+mongosh 127.0.1.1 --eval 'rs.initiate({ _id: "rs0", members: [ {_id: 0, host: "127.0.1.1"} ]})'
+
+echo "Waiting to become a master"
+IS_MASTER="XX"
+while [ "$IS_MASTER" \!= "true" ]; do
+    IS_MASTER=$(mongosh mongodb://127.0.1.1:27017/ --eval  'db.isMaster().ismaster' | tail -n 1)
+    sleep 0.5;
+done;
+
+echo "I'm the master!"
+
+
 # Start parallel nodejs processes for bbb-html5. Number varies on restrictions file bbb-html5-with-roles.conf
 
 source /usr/share/meteor/bundle/bbb-html5-with-roles.conf

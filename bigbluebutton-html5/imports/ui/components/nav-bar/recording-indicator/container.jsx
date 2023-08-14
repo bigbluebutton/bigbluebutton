@@ -3,25 +3,29 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { RecordMeetings } from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import { notify } from '/imports/ui/services/notification';
+import RecordingIndicatorGraphql from '/imports/ui/components/nav-bar/nav-bar-graphql/recording-indicator/component';
 import VoiceUsers from '/imports/api/voice-users';
 import RecordIndicator from './component';
 import deviceInfo from '/imports/utils/deviceInfo';
 import RecordingIndicatorService from './service';
 
-const RecordIndicatorContainer = (props) => (
-  <RecordIndicator {...props} />
-);
+const RecordIndicatorContainer = (props) => <RecordIndicator {...props} />;
 
-export default withTracker(({ currentUserId }) => {
+export default RecordingIndicatorGraphql;
+
+withTracker(({ currentUserId }) => {
   const meetingId = Auth.meetingID;
   const recordObject = RecordMeetings.findOne({ meetingId });
   const recordSetByUser = recordObject?.setBy === currentUserId;
 
-  const micUser = VoiceUsers.findOne({ meetingId, joined: true, listenOnly: false }, {
-    fields: {
-      joined: 1,
-    },
-  });
+  const micUser = VoiceUsers.findOne(
+    { meetingId, joined: true, listenOnly: false },
+    {
+      fields: {
+        joined: 1,
+      },
+    }
+  );
 
   return {
     allowStartStopRecording: !!(recordObject && recordObject.allowStartStopRecording),
@@ -32,6 +36,9 @@ export default withTracker(({ currentUserId }) => {
     notify,
     micUser,
     isPhone: deviceInfo.isPhone,
-    recordingNotificationEnabled: !recordSetByUser && RecordingIndicatorService.isRecordingNotificationEnabled(),
+    recordingNotificationEnabled:
+      !recordSetByUser && RecordingIndicatorService.isRecordingNotificationEnabled(),
   };
 })(RecordIndicatorContainer);
+
+
