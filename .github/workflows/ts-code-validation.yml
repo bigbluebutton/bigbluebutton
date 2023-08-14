@@ -1,4 +1,4 @@
-name: Test eslint for ts
+name: Typescript - validate code (eslint)
 on:
   push:
   pull_request_target:

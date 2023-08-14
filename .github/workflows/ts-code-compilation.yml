@@ -1,4 +1,4 @@
-name: Test ts errors on
+name: Typescript - compile code
 on:
   push:
   pull_request_target:
