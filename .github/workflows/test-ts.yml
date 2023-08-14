@@ -1,0 +1,23 @@
+name: Test ts errors on
+on:
+  push:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+
+permissions:
+  contents: read
+
+jobs:
+  main:
+    permissions:
+      pull-requests: write  # for eps1lon/actions-label-merge-conflict to label PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: run npm install
+        working-directory: ./bigbluebutton-html5
+        run: npm install
+      - name: run ts
+        working-directory: ./bigbluebutton-html5
+        run: npx tsc
