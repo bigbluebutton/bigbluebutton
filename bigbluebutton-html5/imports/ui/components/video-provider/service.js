@@ -42,8 +42,8 @@ const {
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
-  desktopGridPageSizes: DESKTOP_GRID_PAGE_SIZES,
-  mobileGridPageSizes: MOBILE_GRID_PAGE_SIZES,
+  desktopGridSizes: DESKTOP_GRID_SIZES,
+  mobileGridSizes: MOBILE_GRID_SIZES,
 } = Meteor.settings.public.kurento.pagination;
 const PAGINATION_THRESHOLDS_CONF = Meteor.settings.public.kurento.paginationThresholds;
 const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
@@ -381,15 +381,15 @@ class VideoService {
   getGridSize () {
     let size;
     const myRole = this.getMyRole();
-    const pageSizes = !this.isMobile ? DESKTOP_GRID_PAGE_SIZES : MOBILE_GRID_PAGE_SIZES;
+    const gridSizes = !this.isMobile ? DESKTOP_GRID_SIZES : MOBILE_GRID_SIZES;
     
     switch (myRole) {
       case ROLE_MODERATOR:
-        size = pageSizes.moderator;
+        size = gridSizes.moderator;
         break;
       case ROLE_VIEWER:
       default:
-        size = pageSizes.viewer
+        size = gridSizes.viewer
     }
 
     return size;
