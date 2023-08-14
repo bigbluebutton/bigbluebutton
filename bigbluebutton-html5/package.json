@@ -105,6 +105,8 @@
   },
   "devDependencies": {
     "@types/styled-components": "^5.1.26",
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/parser": "^6.4.0",
     "chai": "~4.2.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",

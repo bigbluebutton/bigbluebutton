@@ -23,4 +23,4 @@ jobs:
         run: meteor npm install
       - name: run ts
         working-directory: bigbluebutton-html5
-        run: eslint . --ext .ts,.tsx
+        run: npx eslint . --ext .ts,.tsx
