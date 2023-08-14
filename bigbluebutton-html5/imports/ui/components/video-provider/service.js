@@ -450,6 +450,7 @@ class VideoService {
       ? getSortingMethod(DEFAULT_SORTING)
       : getSortingMethod(PAGINATION_SORTING);
     const isGridEnabled = this.isGridEnabled();
+    let gridUsers = [];
 
     let streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
@@ -471,13 +472,12 @@ class VideoService {
     if (isPaginationDisabled) {
       return {
         streams: sortVideoStreams(streams, DEFAULT_SORTING),
+        gridUsers,
         totalNumberOfStreams: streams.length
       };
     }
 
     const paginatedStreams = this.getVideoPage(streams, pageSize);
-
-    let gridUsers = [];
 
     if (isGridEnabled) {
       const users = Users.find(
