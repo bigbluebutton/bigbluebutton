@@ -1,24 +1,15 @@
 
 import { gql } from "@apollo/client";
 
-export const CURRENT_PRESENTATION_SUBSCRIPTION = gql`
+export const CURRENT_PRESENTATION_SUBSCRIPTION_FOR_PLUGIN_HOOK = gql`
 subscription presentationCurrentSubscription {
-    pres_page (where: {isCurrentPage: {_eq: true }}) {
-        heightRatio
-        isCurrentPage
-        num
-        pageId
-        presentation {
-            current
-            downloadable
-            presentationId
-            removable
+    pres_presentation (where: {current: {_eq: true}}) {
+        presentationId
+        pages (where: {isCurrentPage: {_eq: true}}) {
+            num
+            pageId
+            urls
         }
-        slideRevealed
-        urls
-        widthRatio
-        xOffset
-        yOffset
     }
 }
 `;

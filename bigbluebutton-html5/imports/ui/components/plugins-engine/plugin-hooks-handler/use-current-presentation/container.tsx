@@ -4,40 +4,31 @@ import { CurrentPresentationForPluginHook } from '/imports/ui/Types/presentation
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 const projectCurrentPresentation: (currentPresentation: Partial<CurrentPresentationForPluginHook> | undefined) => PluginSdk.Presentation | undefined = (currentPresentation: Partial<CurrentPresentationForPluginHook> | undefined) => {
-  let presPageData: PluginSdk.Presentation | undefined;
-
-  if ( currentPresentation?.num && currentPresentation?.urls 
-    && currentPresentation?.pageId && currentPresentation?.presentation?.presentationId 
-  ) {
-    presPageData = {
-      presentationId: currentPresentation.presentation?.presentationId,
+  let currentPresentationToPluginHookProjection: PluginSdk.Presentation | undefined;
+  if ( currentPresentation?.presentationId && currentPresentation?.pages) {
+    const currentPage = currentPresentation.pages[0];
+    currentPresentationToPluginHookProjection = {
+      presentationId: currentPresentation.presentationId,
       currentPage: {
-        id: currentPresentation.pageId,
-        num: currentPresentation.num,
-        urls: JSON.parse(currentPresentation.urls),
+        id: currentPage.pageId,
+        num: currentPage.num,
+        urls: JSON.parse(currentPage.urls),
       }
     };
   }
-  return presPageData;
+  return currentPresentationToPluginHookProjection;
 }
 
 const CurrentPresentationHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
 
   const currentPresentation = useCurrentPresentation((currentPres: Partial<CurrentPresentationForPluginHook>) => {
-    return {
-      num: currentPres.num,
-      pageId: currentPres.pageId,
-      presentation: {
-        presentationId: currentPres.presentation?.presentationId,
-      },
-      urls: currentPres.urls,
-    } as Partial<CurrentPresentationForPluginHook>
+    return currentPres;
   });
 
   const updatePresentationForPlugin = () => {
-    const presPageData: PluginSdk.Presentation | undefined = projectCurrentPresentation(currentPresentation);
-    window.dispatchEvent(new CustomEvent(PluginSdk.Internal.BbbHookEvents.Update, { detail: { data: presPageData, 
+    const currentPresentationProjection: PluginSdk.Presentation | undefined = projectCurrentPresentation(currentPresentation);
+    window.dispatchEvent(new CustomEvent(PluginSdk.Internal.BbbHookEvents.Update, { detail: { data: currentPresentationProjection, 
       hook: PluginSdk.Internal.BbbHooks.UseCurrentPresentation } }));
   };
 
