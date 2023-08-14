@@ -244,6 +244,7 @@ class Timer extends Component {
           onClick={() => this.handleControlClick()}
         />
         <Styled.TimerControlButton
+          color="secondary"
           label={intl.formatMessage(intlMessages.reset)}
           onClick={() => Service.resetTimer()}
         />
@@ -304,6 +305,8 @@ class Timer extends Component {
       stopwatch,
     } = timer;
 
+    if (stopwatch) return this.renderControls();
+
     const timeArray = Service.getTimeAsString(time).split(':');
 
     const hasHours = timeArray.length === 3;
@@ -316,7 +319,7 @@ class Timer extends Component {
       <div>
         <Styled.StopwatchTime>
           <Styled.StopwatchTimeInput>
-            <input
+            <Styled.TimerInput
               type="number"
               disabled={stopwatch}
               value={hours}
@@ -331,7 +334,7 @@ class Timer extends Component {
           </Styled.StopwatchTimeInput>
           <Styled.StopwatchTimeColon>:</Styled.StopwatchTimeColon>
           <Styled.StopwatchTimeInput>
-            <input
+            <Styled.TimerInput
               type="number"
               disabled={stopwatch}
               value={minutes}
@@ -346,7 +349,7 @@ class Timer extends Component {
           </Styled.StopwatchTimeInput>
           <Styled.StopwatchTimeColon>:</Styled.StopwatchTimeColon>
           <Styled.StopwatchTimeInput>
-            <input
+            <Styled.TimerInput
               type="number"
               disabled={stopwatch}
               value={seconds}
@@ -390,12 +393,12 @@ class Timer extends Component {
           <Styled.TimerSwitchButton
             label={intl.formatMessage(intlMessages.stopwatch)}
             onClick={() => this.handleSwitchToStopwatch()}
-            color={stopwatch ? 'primary' : 'default'}
+            color={stopwatch ? 'primary' : 'secondary'}
           />
           <Styled.TimerSwitchButton
             label={intl.formatMessage(intlMessages.timer)}
             onClick={() => this.handleSwitchToTimer()}
-            color={!stopwatch ? 'primary' : 'default'}
+            color={!stopwatch ? 'primary' : 'secondary'}
           />
         </Styled.TimerType>
         {this.renderTimer()}

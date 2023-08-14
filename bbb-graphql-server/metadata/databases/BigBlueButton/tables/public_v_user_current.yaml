@@ -23,7 +23,7 @@ object_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: user_connectionStatus
+          name: v_user_connectionStatus
           schema: public
   - name: customParameters
     using:
@@ -59,7 +59,7 @@ object_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: user_localSettings
+          name: v_user_localSettings
           schema: public
   - name: meeting
     using:
@@ -68,7 +68,16 @@ object_relationships:
           meetingId: meetingId
         insertion_order: null
         remote_table:
-          name: meeting
+          name: v_meeting
+          schema: public
+  - name: reaction
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_reaction
           schema: public
   - name: voice
     using:
@@ -119,6 +128,7 @@ select_permissions:
         - clientType
         - color
         - disconnected
+        - echoTestRunningAt
         - ejectReason
         - ejectReasonCode
         - ejected
@@ -129,6 +139,7 @@ select_permissions:
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
+        - isRunningEchoTest
         - joined
         - locked
         - loggedOut
@@ -147,3 +158,15 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
+update_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - echoTestRunningAt
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+      check: null

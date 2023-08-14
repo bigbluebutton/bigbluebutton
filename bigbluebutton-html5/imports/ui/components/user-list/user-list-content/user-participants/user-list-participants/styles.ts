@@ -3,7 +3,6 @@ import {
   userIndicatorsOffset,
   mdPaddingY,
   indicatorPadding,
-  borderSize,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
@@ -15,7 +14,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import {
-  ScrollboxVertical,
   VirtualizedScrollboxVertical,
 } from '/imports/ui/stylesheets/styled-components/scrollable';
 

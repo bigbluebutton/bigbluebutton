@@ -131,7 +131,7 @@ class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.sendNotesToWhiteboard);
 
     await this.modPage.hasText(e.currentSlideText, /test/, 30000);
-    await this.userPage1.hasText(e.currentSlideText, /test/, 20000);
+    await this.userPage.hasText(e.currentSlideText, /test/, 20000);
 
     await notesLocator.press('Control+Z');
 
@@ -147,8 +147,8 @@ class SharedNotes extends MultiUsers {
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type(e.message);
 
-    await startSharedNotes(this.userPage1);
-    const notesLocatorUser = getNotesLocator(this.userPage1);
+    await startSharedNotes(this.userPage);
+    const notesLocatorUser = getNotesLocator(this.userPage);
     await notesLocatorUser.press('Delete');
     await notesLocatorUser.type('J');
 
@@ -156,8 +156,8 @@ class SharedNotes extends MultiUsers {
     await expect(notesLocatorUser).toContainText(/Jello/, { timeout: ELEMENT_WAIT_TIME });
     await this.modPage.waitAndClick(e.hideNotesLabel);
     await this.modPage.wasRemoved(e.hideNotesLabel);
-    await this.userPage1.waitAndClick(e.hideNotesLabel);
-    await this.userPage1.wasRemoved(e.hideNotesLabel);
+    await this.userPage.waitAndClick(e.hideNotesLabel);
+    await this.userPage.wasRemoved(e.hideNotesLabel);
   }
 
   async seeNotesWithoutEditPermission() {
@@ -168,16 +168,16 @@ class SharedNotes extends MultiUsers {
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
 
-    await startSharedNotes(this.userPage1);
+    await startSharedNotes(this.userPage);
 
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.lockViewersButton);
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
-    const notesLocatorUser = getSharedNotesUserWithoutPermission(this.userPage1);
+    const notesLocatorUser = getSharedNotesUserWithoutPermission(this.userPage);
     await expect(notesLocatorUser).toContainText(/Hello/, { timeout: 20000 });
-    await this.userPage1.wasRemoved(e.etherpadFrame);
+    await this.userPage.wasRemoved(e.etherpadFrame);
 
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.lockViewersButton);
@@ -187,25 +187,42 @@ class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.hideNotesLabel);
     await this.modPage.wasRemoved(e.hideNotesLabel);
 
-    await this.userPage1.waitAndClick(e.hideNotesLabel);
-    await this.userPage1.wasRemoved(e.hideNotesLabel);
+    await this.userPage.waitAndClick(e.hideNotesLabel);
+    await this.userPage.wasRemoved(e.hideNotesLabel);
   }
 
-  async pinNotesOntoWhiteboard() {
+  async pinAndUnpinNotesOntoWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
     test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
 
+    await this.userPage.waitAndClick(e.minimizePresentation);
+    await this.userPage.hasElement(e.restorePresentation);
     await startSharedNotes(this.modPage);
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
     await this.modPage.hasElement(e.unpinNotes);
 
+    await this.userPage.hasElement(e.minimizePresentation);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
-    const notesLocatorUser = getNotesLocator(this.userPage1);
-    
+    const notesLocatorUser = getNotesLocator(this.userPage);
     await expect(notesLocator).toContainText(/Hello/, { timeout: 20000 });
     await expect(notesLocatorUser).toContainText(/Hello/);
+
+    // unpin notes
+    await this.modPage.waitAndClick(e.unpinNotes);
+    await this.modPage.hasElement(e.whiteboard);
+    await this.userPage.hasElement(e.whiteboard);
+    await startSharedNotes(this.modPage);
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.pinNotes);
+    await this.modPage.hasElement(e.unpinNotes);
+    // make viewer as presenter and unpin pinned notes
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+    await this.userPage.waitAndClick(e.unpinNotes);
+    await this.userPage.hasElement(e.whiteboard);
+    await this.modPage.hasElement(e.whiteboard);
   }
 
   async editMessage() {

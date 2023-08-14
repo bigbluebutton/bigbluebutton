@@ -11,14 +11,17 @@ exports.modalDismissButton = 'button[data-test="modalDismissButton"]';
 exports.closeModal = 'button[data-test="closeModal"]';
 exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
-exports.raiseHandBtn = 'button[data-test="raiseHandLabel"]';
-exports.lowerHandBtn = 'button[data-test="lowerHandLabel"]';
+exports.reactionsButton = 'button[data-test="reactionsButton"]';
+exports.raiseHandBtn = 'div[data-test="raiseHandBtn"]';
+exports.lowerHandBtn = 'div[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';
 exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 exports.errorMessageLabel = 'span[id="error-message"]';
+exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
+
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';
 exports.userListButton = 'button[accesskey="U"]';
@@ -47,6 +50,8 @@ exports.wasTalking = 'button[data-test="wasTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
 exports.unmuteMicButton = 'button[data-test="unmuteMicButton"]';
 exports.muteMicButton = 'button[data-test="muteMicButton"]';
+exports.speechRecognition = 'select[id="speechSelect"]';
+exports.speechRecognitionUnsupported = 'div[data-test="speechRecognitionUnsupported"]';
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
@@ -60,8 +65,7 @@ exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
 exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
 exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
 exports.durationTime = 'input[data-test="durationTime"]';
-exports.decreaseBreakoutTime = 'button[data-test="decreaseBreakoutTime"]';
-exports.increaseBreakoutTime = 'button[data-test="increaseBreakoutTime"]';
+exports.minimumDurationWarnBreakout = 'span[data-test="minimumDurationWarnBreakout"]';
 exports.selectNumberOfRooms = 'select[id="numberOfRooms"]';
 exports.roomGrid = 'div[data-test="roomGrid"] >> input';
 exports.breakoutBox0 = 'div[id="breakoutBox-0"]';
@@ -153,10 +157,7 @@ exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"
 exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
-exports.speechRecognition = 'div[data-test="speechRecognition"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
-exports.propagateLayout = 'li[data-test="propagateLayout"]';
-exports.layoutModal = 'li[data-test="layoutModal"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -180,6 +181,7 @@ exports.exporthtml = 'span[id="exporthtml"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
+exports.closeToastBtn = 'i[data-test="closeToastBtn"]';
 const currentPresentationToast = 'div[data-test="currentPresentationToast"]';
 exports.currentPresentationToast = currentPresentationToast
 exports.notificationsTab = 'span[id="notificationTab"]';
@@ -337,9 +339,9 @@ exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
 exports.copyStats = 'span[data-test="copyStats"]';
 exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
-exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
+exports.connectionStatusItemEmpty = 'li[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusTab2 = 'li[id="react-tabs-2"]';
-exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.connectionStatusItemUser = 'li[data-test="connectionStatusItemUser"]';
 exports.connectionStatusLinkToSettings = `${networkDataContainer} span[role="button"]`;
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
 exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
@@ -370,6 +372,8 @@ exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]'
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
 exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
+exports.unmuteUser = 'li[data-test="unmuteUser"]';
+exports.ejectCamera = 'li[data-test="ejectCamera"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
@@ -382,6 +386,9 @@ exports.lockPublicChat = 'input[data-test="lockPublicChat"]';
 exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
 exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
+exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
+exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
+exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
 
 // Closed Captions
 exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
@@ -484,13 +491,13 @@ exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
 // Layout management
-exports.layoutSettingsModalButton = 'li[data-test="layoutModal"]';
+exports.manageLayoutBtn = 'li[data-test="manageLayoutBtn"]';
 exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
 exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
 exports.smartLayout = 'button[data-test="smartLayout"]';
 exports.customLayout = 'button[data-test="customLayout"]';
-exports.pushLayoutToggle = 'input#TogglePush';
-exports.confirmButton = 'button[aria-label="Confirm"]';
+exports.updateLayoutBtn = 'button[data-test="updateLayoutBtn"]';
+exports.updateEveryoneLayoutBtn = 'button[data-test="updateEveryoneLayoutBtn"]';
 exports.cameraDock = 'div#cameraDock';
 
 // Font size

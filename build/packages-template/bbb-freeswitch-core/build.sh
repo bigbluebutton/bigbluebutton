@@ -84,7 +84,7 @@ git checkout v3.2.3
 mkdir -p build
 cd build
 
-cmake ..
+cmake .. -DCMAKE_C_FLAGS="-Wno-error" -DCMAKE_CXX_FLAGS="-Wno-error"
 make -j $(nproc)
 make install
 cd ../../
@@ -113,24 +113,11 @@ patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch 
 # Enables mod_audio_fork in the build process  (used in built-in speech transcription)
 patch -p1 < $BUILDDIR/mod_audio_fork_build.patch
 
-# Patch: https://github.com/signalwire/freeswitch/pull/1914
-#   There are some long-standing issues with the way FreeSWITCH changes
-#   candidate pairs based on connectivity checks. That generally manifests
-#   as: 1) an asymmetric start time between inbound and outbound audio (eg
-#   inbound audio takes 20 seconds to come in while outbound works right out
-#   of the bat 2) wrong pairs being picked initially and FS taking longer
-#   than ideal to find a new one 3) 1006s 4) ...
-#
-#   This ports signalwire/freeswitch/pull/1914 in an attempt to mitigate
-#   the aforementioned issues. The PR description explains the rationale
-#   rather well and seems sound.
-patch -p1 < $BUILDDIR/1914.patch
-
-./bootstrap.sh
+./bootstrap.sh 
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
     --without-python --without-erlang --without-java --with-lws=yes \
-    --prefix=/opt/freeswitch
+    --prefix=/opt/freeswitch CFLAGS="-Wno-error" CXXFLAGS="-Wno-error"
 
 # Overrides for generating debug version
 #   --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"

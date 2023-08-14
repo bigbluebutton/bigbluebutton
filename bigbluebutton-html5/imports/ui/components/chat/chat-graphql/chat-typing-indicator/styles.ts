@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorDanger, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeSmaller, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 

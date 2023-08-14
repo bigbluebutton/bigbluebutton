@@ -14,6 +14,7 @@ import { User } from '/imports/ui/Types/user';
 import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
 
+// @ts-ignore - temporary, while meteor exists in the project
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
 
@@ -62,7 +63,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 }) => {
   const intl = useIntl();
   const talkingElements = useMemo(() => {
-    return talkingUsers.map((user, index) => {
+    return talkingUsers.map((user) => {
       const {
         talking,
         muted,

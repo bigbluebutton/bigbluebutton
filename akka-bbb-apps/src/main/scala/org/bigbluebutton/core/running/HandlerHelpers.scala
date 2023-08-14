@@ -2,16 +2,16 @@ package org.bigbluebutton.core.running
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
+import org.bigbluebutton.core.api.{BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg}
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, UserBreakoutRoomDAO }
-import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
+import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
+import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, MeetingRecordingDAO, UserBreakoutRoomDAO}
+import org.bigbluebutton.core.domain.{MeetingEndReason, MeetingState2x}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
+import org.bigbluebutton.core2.message.senders.{MsgBuilder, UserJoinedMeetingEvtMsgBuilder}
 import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
@@ -122,6 +122,7 @@ trait HandlerHelpers extends SystemConfiguration {
       liveMeeting.props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 1) {
 
       MeetingStatus2x.recordingStarted(liveMeeting.status)
+      MeetingRecordingDAO.insertRecording(liveMeeting.props.meetingProp.intId, "")
 
       val tracker = state.recordingTracker.startTimer(TimeUtil.timeNowInMs())
 
@@ -151,6 +152,7 @@ trait HandlerHelpers extends SystemConfiguration {
       liveMeeting.props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 0) {
 
       MeetingStatus2x.recordingStopped(liveMeeting.status)
+      MeetingRecordingDAO.updateStopped(liveMeeting.props.meetingProp.intId, "")
 
       val tracker = state.recordingTracker.pauseTimer(TimeUtil.timeNowInMs())
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { PopupContentBox, PopupContentHeader, PopupContentBody, CloseButton } from './styles';
-import Button from '/imports/ui/components/common/button/component';
 interface PopupContentProps {
   message: string;
   closePopup?: () => void;

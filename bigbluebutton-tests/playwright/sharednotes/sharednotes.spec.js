@@ -8,7 +8,7 @@ test.describe.parallel('Shared Notes', () => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await sharedNotes.initModPage(page, true);
-    await sharedNotes.initUserPage1(true);
+    await sharedNotes.initUserPage(true, context);
   });
   test('Open shared notes @ci', async () => {
     await sharedNotes.openSharedNotes();
@@ -38,7 +38,7 @@ test.describe.parallel('Shared Notes', () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin notes onto whiteboard', async () => {
-    await sharedNotes.pinNotesOntoWhiteboard();
+  test('Pin and unpin notes onto whiteboard', async () => {
+    await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });

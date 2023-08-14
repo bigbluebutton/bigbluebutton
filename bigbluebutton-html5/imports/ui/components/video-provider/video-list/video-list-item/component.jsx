@@ -29,8 +29,8 @@ const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
-    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
-    makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable, 
+    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
+    makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
   } = props;
 
   const intl = useIntl();
@@ -232,12 +232,9 @@ const VideoListItem = (props) => {
       }}
     >
 
-      <Styled.VideoContainer>
-        {isStream && isSelfViewDisabled && user.userId === Auth.userID && (
-          <Styled.VideoDisabled>
-            {intl.formatMessage(intlMessages.disableDesc)}
-          </Styled.VideoDisabled>
-        )}
+      <Styled.VideoContainer
+        $selfViewDisabled={isSelfViewDisabled && user.userId === Auth.userID}
+      >
         <Styled.Video
           mirrored={isMirrored}
           unhealthyStream={videoDataLoaded && !isStreamHealthy}
@@ -249,6 +246,12 @@ const VideoListItem = (props) => {
         />
       </Styled.VideoContainer>
 
+      {isStream && isSelfViewDisabled && user.userId === Auth.userID && (
+        <Styled.VideoDisabled>
+          {intl.formatMessage(intlMessages.disableDesc)}
+        </Styled.VideoDisabled>
+      )}
+
       {/* eslint-disable-next-line no-nested-ternary */}
 
       {(videoIsReady || isSelfViewDisabled) && (
@@ -257,7 +260,7 @@ const VideoListItem = (props) => {
       {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
-
+      {isSelfViewDisabled && user.userId === Auth.userID && renderWebcamConnecting()}
     </Styled.Content>
   );
 };
@@ -266,9 +269,9 @@ export default withDragAndDrop(injectIntl(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,
-  onVideoItemMount: () => {},
-  onVideoItemUnmount: () => {},
-  onVirtualBgDrop: () => {},
+  onVideoItemMount: () => { },
+  onVideoItemUnmount: () => { },
+  onVirtualBgDrop: () => { },
 };
 
 VideoListItem.propTypes = {

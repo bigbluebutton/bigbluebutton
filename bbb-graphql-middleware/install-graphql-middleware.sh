@@ -7,11 +7,17 @@ fi;
 cd "$(dirname "$0")"
 
 #Install Go
-sudo apt install golang -y
+#sudo apt install golang -y
+GO_VERSION=1.20.6
+wget --no-verbose https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
+  && tar -xzf go${GO_VERSION}.linux-amd64.tar.gz \
+  && ln -s ${PWD}/go/bin/go /usr/bin/go \
+  && rm go${GO_VERSION}.linux-amd64.tar.gz
+
 go version
 
 # Build Graphql Middleware
-./build.sh
+./local-build.sh
 mv bbb-graphql-middleware /usr/local/bin/bbb-graphql-middleware
 
 # Create service bbb-graphql-middleware

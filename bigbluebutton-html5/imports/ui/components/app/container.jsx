@@ -69,6 +69,7 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
+    isSharedNotesPinned,
     ...otherProps
   } = props;
 
@@ -92,14 +93,17 @@ const AppContainer = (props) => {
 
   const { focusedId } = cameraDock;
 
-  if(
-    layoutContextDispatch
-    &&  (typeof meetingLayout != "undefined")
-    && (layoutType.current != meetingLayout)
+  useEffect(() => {
+    if (
+      layoutContextDispatch
+      && (typeof meetingLayout !== 'undefined')
+      && (layoutType.current !== meetingLayout)
+      && isSharedNotesPinned
     ) {
       layoutType.current = meetingLayout;
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
-  }
+    }
+  }, [meetingLayout, layoutContextDispatch, layoutType]);
 
   const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
   // this is not exactly right yet
@@ -140,7 +144,8 @@ const AppContainer = (props) => {
   };
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)});
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)
+  });
 
   return currentUserId
     ? (
@@ -319,5 +324,6 @@ export default withTracker(() => {
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
+    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
   };
 })(AppContainer);

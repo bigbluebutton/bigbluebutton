@@ -12,6 +12,7 @@ import { getDateString } from '/imports/utils/string-utils';
 import Events from '/imports/ui/core/events/events';
 import { isEmpty } from 'ramda';
 
+// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
 
@@ -57,7 +58,6 @@ export const ChatActions: React.FC = () => {
   const [
     getChatMessageHistory,
     {
-      loading: loadingHistory,
       error: errorHistory,
       data: dataHistory,
     }] = useLazyQuery<getChatMessageHistory>(GET_CHAT_MESSAGE_HISTORY, { fetchPolicy: 'no-cache' });
@@ -65,7 +65,6 @@ export const ChatActions: React.FC = () => {
   const [
     getPermissions,
     {
-      loading: loadingPermissions,
       error: errorPermissions,
       data: dataPermissions,
     }] = useLazyQuery<getPermissions>(GET_PERMISSIONS, { fetchPolicy: 'cache-and-network' });
@@ -98,7 +97,8 @@ export const ChatActions: React.FC = () => {
     if (dataPermissions) {
       setUserIsmoderator(dataPermissions.user_current[0].isModerator);
       setMeetingIsBreakout(dataPermissions.meeting[0].isBreakout);
-      if (!isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsg)) {
+      if (!isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsg || '') ||
+          !isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsgForModerators || '')) {
         setShowShowWelcomeMessages(true);
       }
     }
@@ -132,13 +132,13 @@ export const ChatActions: React.FC = () => {
       {
         key: uniqueIdsRef.current[2],
         enable: userIsModerator && !meetingIsBreakout,
-        icon: 'download',
+        icon: 'delete',
         dataTest: 'chatClear',
         label: intl.formatMessage(intlMessages.clear),
         onClick: () => clearPublicChatHistory(),
       },
       {
-        key: uniqueIdsRef.current[4],
+        key: uniqueIdsRef.current[3],
         enable: showShowWelcomeMessages,
         icon: 'about',
         dataTest: 'restoreWelcomeMessages',
@@ -150,7 +150,7 @@ export const ChatActions: React.FC = () => {
       },
     ];
     return dropdownActions.filter((action) => action.enable);
-  }, [userIsModerator, meetingIsBreakout]);
+  }, [userIsModerator, meetingIsBreakout, showShowWelcomeMessages]);
   if (errorHistory) return <p>Error loading chat history: {JSON.stringify(errorHistory)}</p>;
   if (errorPermissions) return <p>Error loading permissions: {JSON.stringify(errorPermissions)}</p>;
   return (

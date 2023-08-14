@@ -1,7 +1,5 @@
-import { useSubscription } from "@apollo/client";
 import { TypedQueryDocumentNode, DocumentNode } from "graphql";
-import { object } from "prop-types";
-import { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 
 import { useApolloClient } from "@apollo/client";
 import R from 'ramda';
@@ -14,6 +12,11 @@ export function createUseSubscription<T>(
   const client = useApolloClient();
   const [projectedData, setProjectedData] = useState<Array<T>>([]);
   const oldProjectionOfDataRef = useRef<Array<T>>([]);
+
+  if(usePatchedSubscription) {
+    alert("Not implemented");
+  }
+
   // TODO - manipulate query if usePatchedSubscription===true
   useEffect(() => {
     const apolloSubscription = client

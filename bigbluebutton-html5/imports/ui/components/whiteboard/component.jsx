@@ -27,6 +27,7 @@ const SMALL_WIDTH = 800;
 const SMALLEST_DOCK_WIDTH = 710;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 32;
+const MOUNTED_RESIZE_DELAY = 1500;
 
 export default function Whiteboard(props) {
   const {
@@ -544,9 +545,9 @@ export default function Whiteboard(props) {
   // Reset zoom to default when current presentation changes.
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
-      tldrawAPI.zoomTo(0);
+      tldrawAPI?.zoomTo(0);
       setHistory(null);
-      tldrawAPI.resetHistory();
+      tldrawAPI?.resetHistory();
     }
   }, [curPres?.id]);
 
@@ -683,7 +684,11 @@ export default function Whiteboard(props) {
       );
       setIsMounting(true);
     }
-      
+
+    // needed to ensure the correct calculations for cursors on mount.
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, MOUNTED_RESIZE_DELAY);
   };
 
   const onPatch = (e, t, reason) => {
@@ -751,7 +756,8 @@ export default function Whiteboard(props) {
 
     if (reason && isPresenter && slidePosition && (reason.includes('zoomed') || reason.includes('panned'))) {
       const camera = tldrawAPI?.getPageState()?.camera;
-      if (currentCameraPoint[curPageId] && !isPanning) {
+      const isForcePanning = tldrawAPI?.isForcePanning;
+      if (currentCameraPoint[curPageId] && !isPanning && !isForcePanning) {
         camera.point = currentCameraPoint[curPageId];
       }
 
@@ -947,8 +953,8 @@ export default function Whiteboard(props) {
 
     if (command && command?.id?.includes('change_page')) {
       const camera = tldrawAPI?.getPageState()?.camera;
-      if (currentCameraPoint[app?.currentPageId]) {
-        tldrawAPI?.setCamera([currentCameraPoint[app?.currentPageId][0], currentCameraPoint[app?.currentPageId][1]], camera.zoom);
+      if (currentCameraPoint[app?.currentPageId] && camera) {
+        tldrawAPI?.setCamera([currentCameraPoint[app?.currentPageId][0], currentCameraPoint[app?.currentPageId][1]], camera?.zoom);
       }
     }
 

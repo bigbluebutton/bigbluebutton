@@ -1,5 +1,4 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import { useSubscription } from '@apollo/client';
 import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
@@ -15,8 +14,8 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 const DEBUG_CONSOLE = false;
 
+// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 
@@ -36,7 +35,7 @@ const messages = defineMessages({
 
 const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   typingUsers,
-  indicatorEnabled.
+  indicatorEnabled
 }) => {
   const intl = useIntl();
 

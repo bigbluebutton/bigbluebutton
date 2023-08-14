@@ -1,22 +1,13 @@
 import React, { useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
-import {
-  AutoSizer,
-  CellMeasurer,
-  CellMeasurerCache,
-  List,
-  InfiniteLoader
-} from 'react-virtualized';
+import { AutoSizer } from 'react-virtualized';
 import Styled from './styles';
 import ListItem from './list-item/component';
 import Skeleton from './list-item/skeleton/component';
 import UserActions from './user-actions/component';
-import UsersTitle from './users-title/component';
-import Auth from '/imports/ui/services/auth';
 import {
   USERS_SUBSCRIPTION,
   MEETING_PERMISSIONS_SUBSCRIPTION,
-  CURRENT_USER_SUBSCRIPTION,
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
 } from './queries';
 import { User } from '/imports/ui/Types/user';
@@ -25,12 +16,6 @@ import { debounce } from 'radash';
 
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
-
-const cache = new CellMeasurerCache({
-  keyMapper: () => 1,
-});
-
-const SKELETON_COUNT = 10;
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -48,7 +33,7 @@ interface RowRendererProps extends ListProps {
   offset: number;
 }
 
-const rowRenderer: React.FC<RowRendererProps> = (users, currentUser, offset, meeting, { index, key, parent, style }) => {
+const rowRenderer: React.FC<RowRendererProps> = (users, currentUser, offset, meeting, { index, key, style }) => {
   const user = users && users[index - offset];
   return <div
     key={key}
@@ -101,7 +86,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                 rowCount={count}
                 height={height - 1}
                 width={width - 1}
-                onRowsRendered={debounce({ delay: 500 }, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
+                onRowsRendered={debounce({ delay: 500 }, ({ overscanStartIndex, overscanStopIndex }) => {
                   setOffset(overscanStartIndex);
                   const limit = (overscanStopIndex - overscanStartIndex) + 1;
                   setLimit(limit < 50 ? 50 : limit);
@@ -122,7 +107,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
   const [limit, setLimit] = React.useState(0);
 
-  const { loading: usersLoading, error: usersError, data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
+  const { data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
     variables: {
       offset,
       limit,
@@ -131,16 +116,12 @@ const UserListParticipantsContainer: React.FC = () => {
   const { user: users } = (usersData || {});
 
   const {
-    loading: meetingLoading,
-    error: meetingError,
     data: meetingData,
   } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION)
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
 
   const {
-    loading: countLoading,
-    error: countError,
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
   const count = countData?.user_aggregate?.aggregate?.count || 0;

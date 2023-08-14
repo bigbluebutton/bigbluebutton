@@ -1,4 +1,4 @@
-import React, { Ref, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Message } from '/imports/ui/Types/message';
 import {
   ChatWrapper,

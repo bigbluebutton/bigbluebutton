@@ -40,7 +40,9 @@ const messages = defineMessages({
   },
 });
 
+// @ts-ignore - temporary, while meteor exists in the project
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+// @ts-ignore - temporary, while meteor exists in the project
 const LABEL = Meteor.settings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;

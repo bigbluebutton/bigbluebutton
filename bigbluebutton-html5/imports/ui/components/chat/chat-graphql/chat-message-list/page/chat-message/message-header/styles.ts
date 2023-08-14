@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components';
 
 import {
-  borderSize,
   userIndicatorsOffset,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
@@ -11,13 +10,8 @@ import {
   colorHeading,
   palettePlaceholderText,
   colorGrayLight,
-  colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  lineHeightComputed,
-  fontSizeBase,
-  btnFontWeight,
-} from '/imports/ui/stylesheets/styled-components/typography';
+import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 
 export const HeaderContent = styled.div`
   display: flex;

@@ -5,7 +5,7 @@ import { GET_CHAT_DATA, GetChatDataResponse, CLOSE_PRIVATE_CHAT_MUTATION } from 
 import { defineMessages, useIntl } from 'react-intl';
 import { closePrivateChat } from './services';
 import { layoutSelect, layoutDispatch } from '../../../layout/context';
-import { useShortcutHelp } from '../../../shortcut-help/useShortcutHelp';
+import { useShortcut } from '../../../../core/hooks/useShortcut';
 import { Layout } from '../../../layout/layoutTypes';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import { ChatActions } from './chat-actions/component';
@@ -37,8 +37,8 @@ const intlMessages = defineMessages({
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId, isPublicChat, title }) => {
 
-  const HIDE_CHAT_AK = useShortcutHelp('hideprivatechat');
-  const CLOSE_CHAT_AK = useShortcutHelp('closeprivatechat');
+  const HIDE_CHAT_AK = useShortcut('hideprivatechat');
+  const CLOSE_CHAT_AK = useShortcut('closeprivatechat');
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
   const [updateVisible] = useMutation(CLOSE_PRIVATE_CHAT_MUTATION);

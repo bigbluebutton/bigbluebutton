@@ -45,13 +45,13 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
     description: 'Actions button label',
   },
-  activateTimerLabel: {
-    id: 'app.actionsBar.actionsDropdown.activateTimerLabel',
-    description: 'Activate timer label',
+  activateTimerStopwatchLabel: {
+    id: 'app.actionsBar.actionsDropdown.activateTimerStopwatchLabel',
+    description: 'Activate timer/stopwatch label',
   },
-  deactivateTimerLabel: {
-    id: 'app.actionsBar.actionsDropdown.deactivateTimerLabel',
-    description: 'Deactivate timer label',
+  deactivateTimerStopwatchLabel: {
+    id: 'app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel',
+    description: 'Deactivate timer/stopwatch label',
   },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
@@ -100,10 +100,6 @@ const intlMessages = defineMessages({
   selectRandUserDesc: {
     id: 'app.actionsBar.actionsDropdown.selectRandUserDesc',
     description: 'Description for select random user option',
-  },
-  propagateLayoutLabel: {
-    id: 'app.actionsBar.actionsDropdown.propagateLayoutLabel',
-    description: 'Label for propagate layout button',
   },
   layoutModal: {
     id: 'app.actionsBar.actionsDropdown.layoutModal',
@@ -267,30 +263,20 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: 'time',
         label: isTimerActive
-          ? intl.formatMessage(intlMessages.deactivateTimerLabel)
-          : intl.formatMessage(intlMessages.activateTimerLabel),
+          ? intl.formatMessage(intlMessages.deactivateTimerStopwatchLabel)
+          : intl.formatMessage(intlMessages.activateTimerStopwatchLabel),
         key: this.timerId,
         onClick: () => this.handleTimerClick(),
       });
     }
 
-    if (amIPresenter && showPushLayout && isLayoutsEnabled()) {
-      actions.push({
-        icon: 'send',
-        label: intl.formatMessage(intlMessages.propagateLayoutLabel),
-        key: 'propagate layout',
-        onClick: amIPresenter ? setMeetingLayout : setPushLayout,
-        dataTest: 'propagateLayout',
-      });
-    }
-
     if (isLayoutsEnabled()) {
       actions.push({
-        icon: 'send',
+        icon: 'manage_layout',
         label: intl.formatMessage(intlMessages.layoutModal),
         key: 'layoutModal',
         onClick: () => this.setLayoutModalIsOpen(true),
-        dataTest: 'layoutModal',
+        dataTest: 'manageLayoutBtn',
       });
     }
 
@@ -307,6 +293,7 @@ class ActionsDropdown extends PureComponent {
               screenshareHasEnded();
               this.setCameraAsContentModalIsOpen(true);
             },
+        dataTest: 'shareCameraAsContent',
       });
     }
 
@@ -416,7 +403,7 @@ class ActionsDropdown extends PureComponent {
         <BBBMenu
           customStyles={!isMobile ? customStyles : null}
           accessKey={OPEN_ACTIONS_AK}
-          trigger={
+          trigger={(
             <Styled.HideDropdownButton
               open={isDropdownOpen}
               hideLabel
@@ -429,7 +416,7 @@ class ActionsDropdown extends PureComponent {
               circle
               onClick={() => null}
             />
-          }
+          )}
           actions={children}
           opts={{
             id: 'actions-dropdown-menu',

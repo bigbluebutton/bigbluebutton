@@ -166,7 +166,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
         PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD", "not-used", presId, true, filename)
 
-        val fileURI = List("bigbluebutton", "presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}&filename=${filename}").mkString(File.separator, File.separator, "")
+        val fileURI = List("bigbluebutton", "presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}&filename=${filename}").mkString("", File.separator, "")
         val event = buildNewPresFileAvailable(fileURI, presId, m.body.typeOfExport)
 
         handle(event, liveMeeting, bus)

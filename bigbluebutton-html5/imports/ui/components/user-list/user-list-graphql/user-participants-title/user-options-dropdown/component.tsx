@@ -2,7 +2,6 @@ import React, { useMemo, useRef, useState } from "react";
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
-import CaptionsService from '/imports/ui/components/captions/service';
 import WriterMenuContainer from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
@@ -104,6 +103,7 @@ const intlMessages = defineMessages({
   }
 });
 
+// @ts-ignore - temporary, while meteor exists in the project
 const { dynamicGuestPolicy } = Meteor.settings.public.app;
 
 const renderModal: React.FC = (

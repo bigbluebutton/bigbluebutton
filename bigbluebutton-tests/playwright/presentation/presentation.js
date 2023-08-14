@@ -69,7 +69,7 @@ class Presentation extends MultiUsers {
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
     // wait until the notifications disappear
-    await this.modPage.hasElement(e.presentationStatusInfo, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.smallToastMsg);
     await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.wasRemoved(e.presentationStatusInfo);
     await this.userPage.wasRemoved(e.smallToastMsg);
@@ -104,16 +104,26 @@ class Presentation extends MultiUsers {
   async fitToWidthTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     const width1 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
+    // check if its off
+    const fitToWidthButtonLocator = this.modPage.getLocator(`${e.fitToWidthButton} > span>>nth=0`);
+    const fitToWidthBorderColorOff = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
+    await expect(fitToWidthBorderColorOff).toBe('rgba(0, 0, 0, 0)');
+
     await this.modPage.waitAndClick(e.fitToWidthButton);
+    await sleep(500);
+
+    //check if its on
+    const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
+    await expect(fitToWidthBorderColorOn).toBe('rgb(6, 23, 42)');
+
     const width2 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
-    await expect(Number(width2) > Number(width1)).toBeTruthy();
+    await expect(Number(width2)).toBeGreaterThan(Number(width1));
   }
 
   async enableAndDisablePresentationDownload(testInfo) {
-    const { presentationDownloadable } = getSettings();
-    test.fail(!presentationDownloadable, 'Presentation download is disable');
+    const { originalPresentationDownloadable } = getSettings();
+    test.fail(!originalPresentationDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     // enable original presentation download
@@ -142,8 +152,8 @@ class Presentation extends MultiUsers {
   }
 
   async sendPresentationToDownload(testInfo) {
-    const { presentationDownloadable } = getSettings();
-    test.fail(!presentationDownloadable, 'Presentation download is disable');
+    const { presentationWithAnnotationsDownloadable } = getSettings();
+    test.fail(!presentationWithAnnotationsDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
@@ -151,8 +161,8 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
-    await this.modPage.hasElement(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.hasElement(e.smallToastMsg, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.userPage.hasElement(e.downloadPresentation);
     const downloadPresentationLocator = this.userPage.getLocator(e.downloadPresentation);
     await this.userPage.handleDownload(downloadPresentationLocator, testInfo);
   }
@@ -171,7 +181,6 @@ class Presentation extends MultiUsers {
   }
 
   async uploadAndRemoveAllPresentations() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
@@ -279,8 +288,9 @@ class Presentation extends MultiUsers {
 
     //Zoom In 150%
     await this.modPage.waitAndClick(e.zoomInButton);
-    await this.modPage.waitAndClick(e.zoomInButton);
     await expect(zoomOutButtonLocator).toBeEnabled();
+    await expect(resetZoomButtonLocator).toContainText(/125%/);
+    await this.modPage.waitAndClick(e.zoomInButton);
     await expect(resetZoomButtonLocator).toContainText(/150%/);
     await expect(wbBox).toHaveScreenshot('moderator1-zoom150.png');
 
@@ -290,8 +300,11 @@ class Presentation extends MultiUsers {
     await expect(wbBox).toHaveScreenshot('moderator1-zoom125.png');
 
     //Reset Zoom 100%
+    await this.modPage.waitAndClick(e.zoomInButton);
+    await expect(resetZoomButtonLocator).toContainText(/150%/);
     await this.modPage.waitAndClick(e.resetZoomButton);
     await expect(resetZoomButtonLocator).toContainText(/100%/);
+    await expect(zoomOutButtonLocator).toBeDisabled();
     await expect(wbBox).toHaveScreenshot('moderator1-zoom100.png');
   }
 

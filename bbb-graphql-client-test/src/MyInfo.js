@@ -1,14 +1,36 @@
-import {gql, useQuery} from '@apollo/client';
+import {gql, useMutation, useQuery, useSubscription} from '@apollo/client';
+import React from "react";
 
 export default function MyInfo() {
-  const { loading, error, data } = useQuery(
-    gql`query {
+
+    //where is not necessary once user can update only its own status
+    //Hasura accepts "now()" as value to timestamp fields
+    const [updateUserClientEchoTestRunningAtMeAsNow] = useMutation(gql`
+      mutation UpdateUserClientEchoTestRunningAt {
+        update_user_current(
+            where: {}
+            _set: { echoTestRunningAt: "now()" }
+          ) {
+            affected_rows
+          }
+      }
+    `);
+
+    const handleUpdateUserEchoTestRunningAt = () => {
+        updateUserClientEchoTestRunningAtMeAsNow();
+    };
+
+
+  const { loading, error, data } = useSubscription(
+    gql`subscription {
       user_current {
         userId
         name
         meeting {
             name
         }
+        echoTestRunningAt
+        isRunningEchoTest
       }
     }`
   );
@@ -24,6 +46,8 @@ export default function MyInfo() {
             <th>userId</th>
             <th>name</th>
             <th>Meeting</th>
+            <th>echoTestRunningAt</th>
+            <th>isRunningEchoTest</th>
         </tr>
       </thead>
       <tbody>
@@ -34,6 +58,10 @@ export default function MyInfo() {
                   <td>{curr.userId}</td>
                   <td>{curr.name}</td>
                   <td>{curr.meeting.name}</td>
+                  <td>{curr.echoTestRunningAt}
+                      <button onClick={() => handleUpdateUserEchoTestRunningAt()}>Set running now!</button>
+                  </td>
+                  <td>{curr.isRunningEchoTest ? 'Yes' : 'No'}</td>
               </tr>
           );
         })}

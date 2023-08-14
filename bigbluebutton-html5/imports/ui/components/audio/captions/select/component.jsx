@@ -69,7 +69,7 @@ const Select = ({
 
   if (voices.length === 0) {
     return (
-      <div  data-test="speechRecognition"
+      <div  data-test="speechRecognitionUnsupported"
         style={{
           fontSize: '.75rem',
           padding: '1rem 0',

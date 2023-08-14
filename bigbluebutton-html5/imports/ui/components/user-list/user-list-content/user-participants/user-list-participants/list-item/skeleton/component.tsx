@@ -3,6 +3,8 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Styled from './styles';
 import listItemStyles from '../styles';
 import Settings from '/imports/ui/services/settings';
+
+// @ts-ignore - temporary while settings are still in .js
 const isRTL = Settings.application.isRTL;
 
 const SkeletonUserListItem: React.FC = () =>  {

@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ RecordProp }
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
@@ -9,34 +8,38 @@ import scala.util.{ Failure, Success }
 
 case class MeetingRecordingDbModel(
     meetingId:               String,
-    record:                  Boolean,
-    autoStartRecording:      Boolean,
-    allowStartStopRecording: Boolean,
-    keepEvents:              Boolean
+    startedAt:               java.sql.Timestamp,
+    startedBy:               String,
+    stoppedAt:               Option[java.sql.Timestamp],
+    stoppedBy:               Option[String]
 )
 
 class MeetingRecordingDbTableDef(tag: Tag) extends Table[MeetingRecordingDbModel](tag, "meeting_recording") {
   val meetingId = column[String]("meetingId", O.PrimaryKey)
-  val record = column[Boolean]("record")
-  val autoStartRecording = column[Boolean]("autoStartRecording")
-  val allowStartStopRecording = column[Boolean]("allowStartStopRecording")
-  val keepEvents = column[Boolean]("keepEvents")
+  val startedAt = column[java.sql.Timestamp]("startedAt")
+  val startedBy = column[String]("startedBy")
+  val stoppedAt = column[Option[java.sql.Timestamp]]("stoppedAt")
+  val stoppedBy = column[Option[String]]("stoppedBy")
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingRecordingDbModel] = (meetingId, record, autoStartRecording, allowStartStopRecording, keepEvents) <> (MeetingRecordingDbModel.tupled, MeetingRecordingDbModel.unapply)
+  override def * : ProvenShape[MeetingRecordingDbModel] = (meetingId, startedAt, startedBy, stoppedAt, stoppedBy) <> (MeetingRecordingDbModel.tupled, MeetingRecordingDbModel.unapply)
 }
 
 object MeetingRecordingDAO {
-  def insert(meetingId: String, recordProp: RecordProp) = {
+  def insertRecording(meetingId: String, startedBy: String) = {
+
+    //Stop any previous recoding for this meeting before starting a new one
+    updateStopped(meetingId, startedBy)
+
     DatabaseConnection.db.run(
       TableQuery[MeetingRecordingDbTableDef].forceInsert(
         MeetingRecordingDbModel(
           meetingId = meetingId,
-          record = recordProp.record,
-          autoStartRecording = recordProp.autoStartRecording,
-          allowStartStopRecording = recordProp.allowStartStopRecording,
-          keepEvents = recordProp.keepEvents
+          startedAt = new java.sql.Timestamp(System.currentTimeMillis()),
+          startedBy = startedBy,
+          stoppedAt = None,
+          stoppedBy = None,
         )
       )
     ).onComplete {
@@ -46,4 +49,18 @@ object MeetingRecordingDAO {
         case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingRecording: $e")
       }
   }
+
+  def updateStopped(meetingId: String, stoppedBy: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[MeetingRecordingDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.stoppedAt.isEmpty)
+        .map(r => (r.stoppedAt, r.stoppedBy))
+        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())), Some(stoppedBy))
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated stoppedAt on MeetingRecording table!")
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating stoppedAt on MeetingRecording: $e")
+    }
+  }
+
 }

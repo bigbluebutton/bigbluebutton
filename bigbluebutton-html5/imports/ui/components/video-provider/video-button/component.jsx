@@ -14,7 +14,6 @@ import Settings from '/imports/ui/services/settings';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
 const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
-const isSelfViewDisabled = Settings.application.selfViewDisable;
 
 const intlMessages = defineMessages({
   videoSettings: {

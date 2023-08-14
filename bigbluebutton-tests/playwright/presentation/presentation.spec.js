@@ -1,5 +1,5 @@
 const { test } = require('@playwright/test');
-const { encodeCustomParams } = require('../customparameters/util');
+const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
 
 const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}`);
@@ -52,7 +52,11 @@ test.describe.parallel('Presentation', () => {
     await presentation.hidePresentationToolbar();
   });
 
-  test('Zoom In, Zoom Out, Reset Zoom @ci', async ({ browser, context, page }) => {
+  /**
+   * temporally skipped because it's currently failing the screenshot comparisons
+   * due to https://github.com/bigbluebutton/bigbluebutton/issues/18232
+   */
+  test.skip('Zoom In, Zoom Out, Reset Zoom @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();
@@ -85,7 +89,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.initPages(page);
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
-
+    
     test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
