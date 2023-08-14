@@ -451,6 +451,14 @@ class VideoService {
       : getSortingMethod(PAGINATION_SORTING);
     const isGridEnabled = this.isGridEnabled();
     let gridUsers = [];
+    let users = [];
+
+    if (isGridEnabled) {
+      users = Users.find(
+        { meetingId: Auth.meetingID },
+        { fields: { loggedOut: 1, left: 1, ...neededDataTypes} },
+      ).fetch();
+    }
 
     let streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
@@ -470,6 +478,17 @@ class VideoService {
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
     if (isPaginationDisabled) {
+      if (isGridEnabled) {
+        const streamUsers = streams.map((stream) => stream.userId);
+  
+        gridUsers = users.filter(
+          (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId)
+        ).map((user) => ({
+          isGridItem: true,
+          ...user,
+          }));
+      }
+
       return {
         streams: sortVideoStreams(streams, DEFAULT_SORTING),
         gridUsers,
@@ -480,11 +499,6 @@ class VideoService {
     const paginatedStreams = this.getVideoPage(streams, pageSize);
 
     if (isGridEnabled) {
-      const users = Users.find(
-        { meetingId: Auth.meetingID },
-        { fields: { loggedOut: 1, left: 1, ...neededDataTypes} },
-      ).fetch();
-
       const streamUsers = paginatedStreams.map((stream) => stream.userId);
 
       gridUsers = users.filter(
@@ -493,7 +507,6 @@ class VideoService {
         isGridItem: true,
         ...user,
         }));
-
     }
 
     return { streams: paginatedStreams, gridUsers, totalNumberOfStreams: streams.length };
