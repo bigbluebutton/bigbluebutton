@@ -17,7 +17,7 @@ const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const usingPluginsContext = useContext(PluginsContext);
   const { users } = usingUsersContext;
-  const { providedPlugins } = usingPluginsContext;
+  const { providedPlugins: contextProvidedPlugins } = usingPluginsContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
@@ -33,12 +33,14 @@ const PresentationToolbarContainer = (props) => {
     // Only show controls if user is presenter and layout isn't swapped
 
     let pluginProvidedPresentationToolbarItems = [];
-    Object.keys(providedPlugins).forEach((plugin) => {
-      if (plugin === 'presentationToolbarItems') {
-        pluginProvidedPresentationToolbarItems = [...pluginProvidedPresentationToolbarItems,
-          ...providedPlugins.presentationToolbarItems];
-      }
-    });
+    if (contextProvidedPlugins) {
+      Object.keys(contextProvidedPlugins).forEach((plugin) => {
+        if (plugin === 'presentationToolbarItems') {
+          pluginProvidedPresentationToolbarItems = [...pluginProvidedPresentationToolbarItems,
+            ...contextProvidedPlugins.presentationToolbarItems];
+        }
+      });
+    }
 
     return (
       <PresentationToolbar
@@ -46,7 +48,7 @@ const PresentationToolbarContainer = (props) => {
         amIPresenter={userIsPresenter}
         endCurrentPoll={endCurrentPoll}
         {...{
-          presentationPluginProvidedItems: pluginProvidedPresentationToolbarItems,
+          pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,
         }}
       />

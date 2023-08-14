@@ -3,27 +3,25 @@ import React, {
     useState,
 } from 'react';
 
-import { PluginContextData, ProvidedPlugins } from './types';
+import { PluginProvidedState } from '/imports/ui/components/plugins-engine/types'
+
+import { PluginContextTypes } from './types';
 
 
-export const PluginsContext = createContext<PluginContextData>({} as PluginContextData);
+export const PluginsContext = createContext<PluginContextTypes>({} as PluginContextTypes);
 
 export const PluginsContextProvider = (props: any) => {
-    const [providedPlugins, setProvidedPlugins] =  useState<ProvidedPlugins>({} as ProvidedPlugins);
+    const [pluginProvidedState, setPluginProvidedState] =  useState<PluginProvidedState>({} as PluginProvidedState);
     return (
         <PluginsContext.Provider value={
                 {
                     ...props,
-                    setProvidedPlugins,
-                    providedPlugins,
+                    setPluginProvidedState,
+                    pluginProvidedState,
                 }
             }
         >
         {props.children}
         </PluginsContext.Provider>
     );
-};
-
-export default {
-    PluginsContextProvider,
 };

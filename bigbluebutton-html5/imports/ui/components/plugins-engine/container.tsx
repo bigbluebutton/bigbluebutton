@@ -3,31 +3,31 @@ import logger from '/imports/startup/client/logger';
 
 import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
 import PluginsEngineComponent from './component';
-import { PluginConfig, PluginEngineProps, EffectivePluginConfig } from './types';
-import PluginsLoaderComponent from './plugin-loader/component';
-import PluginProvidedStateComponent from './plugin-provided-state/component';
+import { PluginConfig, PluginsEngineContainerProps, EffectivePluginConfig } from './types';
+import PluginLoaderContainer from './plugin-loader/container';
+import PluginProvidedStateContainer from './plugin-provided-state/container';
 import * as uuid from 'uuid';
 
-const PLUGINS = Meteor.settings.public.plugins;
+const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
-const PluginEngineContainer = (props: PluginEngineProps) => {
+const PluginsEngineContainer = (props: PluginsEngineContainerProps) => {
   // If there is no plugin to load, the engine simply returns null
-  if (!PLUGINS) return null;
+  if (!PLUGINS_CONFIG) return null;
 
   const { onReady } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const [lastLoadedPlugin, setLastLoadedPlugin] = useState<HTMLScriptElement | undefined>();
   const loadedPlugins = useRef<number>(0);
 
-  const effectivePluginsConfig: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(() => PLUGINS.map((p: PluginConfig) => {
+  const effectivePluginsConfig: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(() => PLUGINS_CONFIG.map((p: PluginConfig) => {
     return {
       ...p,
       uuid: uuid.v4(),
     } as EffectivePluginConfig
-  }), [ PLUGINS ]);
+  }), [ PLUGINS_CONFIG ]);
 
 
-  const totalNumberOfPlugins = PLUGINS?.length;
+  const totalNumberOfPlugins = PLUGINS_CONFIG?.length;
   window.React = React;
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
           const uuid = effectivePluginConfig.uuid;
           return (
             <div key={uuid}>
-              <PluginsLoaderComponent 
+              <PluginLoaderContainer 
                 {...{
                   uuid,
                   containerRef, 
@@ -59,7 +59,7 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
                   pluginConfig: effectivePluginConfig
                 }}
               />
-              <PluginProvidedStateComponent 
+              <PluginProvidedStateContainer 
                 {...{
                   uuid,
                 }}
@@ -73,4 +73,4 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
   );
 };
 
-export default PluginEngineContainer;
+export default PluginsEngineContainer;

@@ -1,16 +1,16 @@
 import { useEffect, useState, useContext } from 'react';
-import { PluginProvidedStateProps, PluginsProvidedStateMap, PluginProvidedState } from '../types';
+import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { PluginsContext } from '../../components-data/plugin-context/context';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
-function mapItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(item: T, index: number) {
+function setItemId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(item: T, index: number) {
     item.setItemId(`${index}`);
     return item;
 }
 
-const PluginProvidedStateComponent = (props: PluginProvidedStateProps) => {
+const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) => {
     const { 
         uuid, 
     } = props;
@@ -21,7 +21,7 @@ const PluginProvidedStateComponent = (props: PluginProvidedStateProps) => {
 
     const [presentationToolbarItems, setPresentationToolbarItems] = useState<PluginSdk.PresentationToolbarItem[]>([]);
 
-    const { setProvidedPlugins } = useContext(PluginsContext);
+    const { setPluginProvidedState } = useContext(PluginsContext);
 
     useEffect(() => {
         // Change this plugin provided toolbar items
@@ -32,15 +32,15 @@ const PluginProvidedStateComponent = (props: PluginProvidedStateProps) => {
         pluginsProvidedStateForContext.presentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
             ...Object.values(pluginProvidedStateMap).map((pps: PluginProvidedState) => {
                 return pps.presentationToolbarItems}));
-        setProvidedPlugins( {...pluginsProvidedStateForContext} );
+        setPluginProvidedState( {...pluginsProvidedStateForContext} );
 
     }, [presentationToolbarItems]);
 
     pluginApi.setPresentationToolbarItems = (item) => {
-        const mappedItem = item.map(mapItemWithId)
-        return setPresentationToolbarItems(mappedItem)
+        const itemWithId = item.map(setItemId)
+        return setPresentationToolbarItems(itemWithId)
     };
     return null;
 }
 
-export default PluginProvidedStateComponent
+export default PluginProvidedStateContainer

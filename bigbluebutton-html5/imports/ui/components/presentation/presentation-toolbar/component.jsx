@@ -144,7 +144,7 @@ class PresentationToolbar extends PureComponent {
     let pluginProvidedItems = [];
     if (this.props) {
       const {
-        presentationPluginProvidedItems: ppb,
+        pluginProvidedPresentationToolbarItems: ppb,
       } = this.props;
       pluginProvidedItems = ppb;
     }

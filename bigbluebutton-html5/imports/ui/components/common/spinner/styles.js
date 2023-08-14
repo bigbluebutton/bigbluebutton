@@ -11,7 +11,7 @@ const LoadingSpinnerAnimation = keyframes`
   }
 `;
 
-const LoadingSpinnerContainer = styled.div`
+const LoadingSpinnerWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,7 +19,7 @@ const LoadingSpinnerContainer = styled.div`
   height: 100%;
 `;
 
-const LoadingSpinnerComponent = styled.div`
+const LoadingSpinner = styled.div`
   box-sizing: border-box;
   display: block;
   position: absolute;
@@ -45,5 +45,5 @@ const LoadingSpinnerComponent = styled.div`
 `;
 
 export {
-  LoadingSpinnerComponent, LoadingSpinnerContainer,
+  LoadingSpinner, LoadingSpinnerWrapper,
 };

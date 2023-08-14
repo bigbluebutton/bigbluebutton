@@ -1,12 +1,11 @@
 import React from 'react';
-import { LoadingSpinnerComponent, LoadingSpinnerContainer,
-} from './styles';
+import * as Styled from './styles';
 
 const Spinner = () => {
   return (
-    <LoadingSpinnerContainer>
-        <LoadingSpinnerComponent />
-    </LoadingSpinnerContainer>
+    <Styled.LoadingSpinnerWrapper>
+        <Styled.LoadingSpinner />
+    </Styled.LoadingSpinnerWrapper>
   );
 };
 

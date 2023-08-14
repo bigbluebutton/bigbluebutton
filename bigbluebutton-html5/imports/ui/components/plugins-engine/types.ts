@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-export interface PluginProvidedStateProps {
+export interface PluginProvidedStateContainerProps {
     uuid: string
 }
 
@@ -9,7 +9,7 @@ export interface PluginsEngineComponentProps {
     containerRef: React.RefObject<HTMLDivElement>
 }
 
-export interface PluginLoaderComponentProps {
+export interface PluginLoaderContainerProps {
     uuid: string
     containerRef: React.RefObject<HTMLDivElement>
     loadedPlugins: React.MutableRefObject<number>
@@ -17,7 +17,7 @@ export interface PluginLoaderComponentProps {
     pluginConfig: PluginConfig
 }
 
-export interface PluginEngineProps {
+export interface PluginsEngineContainerProps {
     onReady: Function
 }
 
