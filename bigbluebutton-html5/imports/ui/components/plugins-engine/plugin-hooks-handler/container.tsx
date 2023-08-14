@@ -7,7 +7,7 @@ const PluginHooksHandlerContainer = () => {
   const [countCurrentPresentationHookActive, setCountCurrentPresentationHookActive ] = useState(0)
 
   useEffect(() => {
-    const newSubscriberHandler: EventListener = (
+    const subscribeHandler: EventListener = (
       (event: PluginSdk.CustomEventHookWrapper<void>) => {
         switch(event.detail.hook){
           case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
@@ -24,10 +24,10 @@ const PluginHooksHandlerContainer = () => {
         }
       }) as EventListener;
 
-    window.addEventListener(PluginSdk.Internal.BbbHookEvents.NewSubscriber, newSubscriberHandler);
+    window.addEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, subscribeHandler);
     window.addEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler );
     return () => {
-      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.NewSubscriber, newSubscriberHandler);
+      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, subscribeHandler);
       window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler);
     }
   }, [])

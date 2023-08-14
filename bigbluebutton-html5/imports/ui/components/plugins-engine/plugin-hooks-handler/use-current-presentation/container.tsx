@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useCurrentPresentation } from '/imports/ui/core/hooks/useCurrentPresentation';
-import { Presentation } from '/imports/ui/Types/presentation';
+import { CurrentPresentationForPluginHook } from '/imports/ui/Types/presentation';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-const projectCurrentPresentation: (currentPresentation: Partial<Presentation> | undefined) => PluginSdk.Presentation | undefined = (currentPresentation: Partial<Presentation> | undefined) => {
+const projectCurrentPresentation: (currentPresentation: Partial<CurrentPresentationForPluginHook> | undefined) => PluginSdk.Presentation | undefined = (currentPresentation: Partial<CurrentPresentationForPluginHook> | undefined) => {
   let presPageData: PluginSdk.Presentation | undefined;
 
   if ( currentPresentation?.num && currentPresentation?.urls 
@@ -24,7 +24,7 @@ const projectCurrentPresentation: (currentPresentation: Partial<Presentation> | 
 const CurrentPresentationHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
 
-  const currentPresentation = useCurrentPresentation((currentPres: Partial<Presentation>) => {
+  const currentPresentation = useCurrentPresentation((currentPres: Partial<CurrentPresentationForPluginHook>) => {
     return {
       num: currentPres.num,
       pageId: currentPres.pageId,
@@ -32,7 +32,7 @@ const CurrentPresentationHookContainer = () => {
         presentationId: currentPres.presentation?.presentationId,
       },
       urls: currentPres.urls,
-    } as Partial<Presentation>
+    } as Partial<CurrentPresentationForPluginHook>
   });
 
   const updatePresentationForPlugin = () => {
@@ -50,9 +50,9 @@ const CurrentPresentationHookContainer = () => {
     const updateHookUseCurrentPresentation = () => {
       setSendSignal(!sendSignal);
     }
-    window.addEventListener(PluginSdk.Internal.BbbHookEvents.NewSubscriber, updateHookUseCurrentPresentation);
+    window.addEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, updateHookUseCurrentPresentation);
     return () => {
-      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.NewSubscriber, updateHookUseCurrentPresentation);
+      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, updateHookUseCurrentPresentation);
     }
   }, []);
 

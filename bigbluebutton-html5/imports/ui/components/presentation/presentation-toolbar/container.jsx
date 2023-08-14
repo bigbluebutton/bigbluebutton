@@ -17,7 +17,7 @@ const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const usingPluginsContext = useContext(PluginsContext);
   const { users } = usingUsersContext;
-  const { providedPlugins: contextProvidedPlugins } = usingPluginsContext;
+  const { pluginProvidedState: contextProvidedPlugins } = usingPluginsContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 

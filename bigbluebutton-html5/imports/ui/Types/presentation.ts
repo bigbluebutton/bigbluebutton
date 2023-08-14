@@ -1,4 +1,4 @@
-export interface Presentation {
+export interface CurrentPresentationForPluginHook {
     heightRatio: number,
     isCurrentPage: boolean,
     meetingId: string,
