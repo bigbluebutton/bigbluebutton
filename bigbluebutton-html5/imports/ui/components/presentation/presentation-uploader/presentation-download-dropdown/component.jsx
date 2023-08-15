@@ -85,7 +85,7 @@ class PresentationDownloadDropdown extends PureComponent {
     this.menuItems = [];
 
     const { filenameConverted, filename, downloadableExtension } = item;
-    const convertedFileExtension = filenameConverted?.split('.').slice(-1)[0] || 'pdf';
+    const convertedFileExtension = filenameConverted?.split('.').slice(-1)[0];
     const originalFileExtension = filename?.split('.').slice(-1)[0];
     const toggleDownloadOriginalPresentation = (enableDownload, isConverted) => {
       handleToggleDownloadable(item);

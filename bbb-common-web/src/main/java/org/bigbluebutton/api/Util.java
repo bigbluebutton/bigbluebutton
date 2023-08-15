@@ -116,7 +116,7 @@ public final class Util {
 		return null;
 	}
 
-	public static void deleteAlreadyMarkedDownloadableFiles(File presFileDir, String presId) {
+	public static void deleteAllDownloadableMarksInPresentations(File presFileDir, String presId) {
 		String regexString = "\\.(" + String.join("|",
 				SupportedFileTypes.getSupportedFileTypes()) + ")\\.downloadable";
 		File[] filesWithDownloadMark = presFileDir.listFiles(new FilenameFilter() {
@@ -126,9 +126,11 @@ public final class Util {
 			}
 		});
 
-		for (File file: filesWithDownloadMark) {
-			if (file != null && file.exists()) {
-				file.delete();
+		// Iterate through all of downloadable marks to delete them. Pattern is:
+		// <presentationId>.<extension>.downloadable
+		for (File downloadableMark: filesWithDownloadMark) {
+			if (downloadableMark != null && downloadableMark.exists()) {
+				downloadableMark.delete();
 			}
 		}
 	}
@@ -141,7 +143,7 @@ public final class Util {
 	) throws IOException {
 		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId, downloadableExtension);
 		if (downloadable && downloadMarker != null && ! downloadMarker.exists()) {
-			Util.deleteAlreadyMarkedDownloadableFiles(presFileDir, presId);
+			Util.deleteAllDownloadableMarksInPresentations(presFileDir, presId);
 			downloadMarker.createNewFile();
 		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {
 			downloadMarker.delete();
