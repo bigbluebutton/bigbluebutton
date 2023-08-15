@@ -10,30 +10,28 @@ import * as uuid from 'uuid';
 
 const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
-const PluginsEngineContainer = (props: PluginsEngineContainerProps) => {
+const PluginsEngineContainer = () => {
   // If there is no plugin to load, the engine simply returns null
   if (!PLUGINS_CONFIG) return null;
 
-  const { onReady } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const [lastLoadedPlugin, setLastLoadedPlugin] = useState<HTMLScriptElement | undefined>();
   const loadedPlugins = useRef<number>(0);
 
-  const effectivePluginsConfig: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(() => PLUGINS_CONFIG.map((p: PluginConfig) => {
+  const effectivePluginsConfig: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(
+    () => PLUGINS_CONFIG.map((p: PluginConfig) => {
     return {
       ...p,
       uuid: uuid.v4(),
     } as EffectivePluginConfig
-  }), [ PLUGINS_CONFIG ]);
-
+  }), [
+    PLUGINS_CONFIG,
+  ]);
 
   const totalNumberOfPlugins = PLUGINS_CONFIG?.length;
   window.React = React;
 
   useEffect(() => {
-    if (loadedPlugins.current === totalNumberOfPlugins) {
-      if (onReady) onReady();
-    }
     logger.info(`${loadedPlugins.current}/${totalNumberOfPlugins} plugins loaded`);
   },
   [loadedPlugins.current, lastLoadedPlugin]);

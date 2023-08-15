@@ -22,10 +22,6 @@ export interface PluginLoaderContainerProps {
     pluginConfig: PluginConfig;
 }
 
-export interface PluginsEngineContainerProps {
-    onReady: () => void;
-}
-
 export interface EffectivePluginConfig extends PluginConfig {
     uuid: string;
 }
