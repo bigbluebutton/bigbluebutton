@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.common2.msgs.AnnotationVO
-import org.bigbluebutton.core.db.{PresPageDAO, PresPresentationDAO}
+import org.bigbluebutton.core.db.{ PresPageDAO, PresPresentationDAO }
 
 object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
@@ -35,7 +35,7 @@ case class PresentationPage(
 object PresentationInPod {
   def addPage(pres: PresentationInPod, page: PresentationPage): PresentationInPod = {
     val newPages = pres.pages + (page.id -> page)
-    pres.copy(pages = newPages)
+    pres.copy(pages = newPages, pagesUploaded = pres.pagesUploaded + 1)
   }
 
   def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
@@ -59,13 +59,16 @@ object PresentationInPod {
 }
 
 case class PresentationInPod(
-    id:           String,
-    name:         String,
-    current:      Boolean                                                  = false,
-    pages:        scala.collection.immutable.Map[String, PresentationPage],
-    downloadable: Boolean,
-    removable:    Boolean,
-    filenameConverted: String = "",
+    id:                String,
+    name:              String,
+    current:           Boolean                                                  = false,
+    pages:             scala.collection.immutable.Map[String, PresentationPage],
+    downloadable:      Boolean,
+    removable:         Boolean,
+    filenameConverted: String                                                   = "",
+    uploadCompleted:   Boolean,
+    numPages:          Int,
+    pagesUploaded:     Int
 )
 
 object PresentationPod {

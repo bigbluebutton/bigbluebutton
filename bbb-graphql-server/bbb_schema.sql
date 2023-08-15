@@ -820,7 +820,10 @@ CREATE TABLE "pres_presentation" (
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"current" boolean,
 	"downloadable" boolean,
-	"removable" boolean
+	"removable" boolean,
+    "uploadCompleted" boolean,
+    "numPages" integer,
+    "pagesUploaded" integer
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
@@ -830,7 +833,10 @@ SELECT pres_presentation."meetingId",
 	pres_presentation."presentationId",
 	pres_presentation."current",
 	pres_presentation."downloadable",
-	pres_presentation."removable"
+	pres_presentation."removable",
+    pres_presentation."uploadCompleted",
+    pres_presentation."numPages",
+    pres_presentation."pagesUploaded"
    FROM pres_presentation;
 
 CREATE TABLE "pres_page" (

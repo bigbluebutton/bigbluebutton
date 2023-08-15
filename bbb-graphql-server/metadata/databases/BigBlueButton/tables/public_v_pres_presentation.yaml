@@ -22,8 +22,11 @@ select_permissions:
       columns:
         - current
         - downloadable
+        - numPages
+        - pagesUploaded
         - presentationId
         - removable
+        - uploadCompleted
       filter:
         meetingId:
           _eq: X-Hasura-PresenterInMeeting
