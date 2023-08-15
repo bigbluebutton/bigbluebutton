@@ -16,7 +16,7 @@ import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
 import BBBStorage from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
-import { debounce } from 'radash';
+import { debounce } from '/imports/utils/debounce';
 import { partition } from '/imports/utils/array-utils';
 import {
   getSortingMethod,
@@ -1128,8 +1128,9 @@ export default {
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
   applyCameraProfile: debounce(
-    { delay: CAMERA_QUALITY_THR_DEBOUNCE }, 
-    videoService.applyCameraProfile.bind(videoService)
+    videoService.applyCameraProfile.bind(videoService),
+    CAMERA_QUALITY_THR_DEBOUNCE,
+    { leading: false, trailing: true },
   ),
   getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
   isPaginationEnabled: () => videoService.isPaginationEnabled(),

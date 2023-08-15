@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { defineMessages, injectIntl } from 'react-intl';
-import { debounce } from 'radash';
+import { debounce } from '/imports/utils/debounce';
 import VideoService from './service';
 import VideoListContainer from './video-list/container';
 import {
@@ -175,9 +175,11 @@ class VideoProvider extends Component {
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
     this.updateStreams = this.updateStreams.bind(this);
+    this.connectStreams = this.connectStreams.bind(this);
     this.debouncedConnectStreams = debounce(
-      { delay: VideoService.getPageChangeDebounceTime() },
-      this.connectStreams
+      this.connectStreams,
+      VideoService.getPageChangeDebounceTime(),
+      { leading: false, trailing: true },
     );
     this.startVirtualBackgroundByDrop = this.startVirtualBackgroundByDrop.bind(this);
   }

@@ -15,143 +15,91 @@ on:
       - '**/*.md'
 permissions:
   contents: read
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   build-bbb-apps-akka:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-apps-akka
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts_bbb-apps-akka.tar
-          path: |
-            artifacts.tar
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-apps-akka
+      cache-files-list: akka-bbb-apps bbb-common-message
   build-bbb-config:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-config
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts_bbb-config.tar
-          path: |
-            artifacts.tar
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-config
+      cache-files-list: bigbluebutton-config
+  build-bbb-export-annotations:
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-export-annotations
+      cache-files-list: bbb-export-annotations
+  build-bbb-learning-dashboard:
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-learning-dashboard
+      cache-files-list: bbb-learning-dashboard
+  build-bbb-playback-record:
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-playback-record
+      build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
   build-bbb-etherpad:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-etherpad
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts_bbb-etherpad.tar
-          path: |
-            artifacts.tar
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-etherpad
+      cache-files-list: bbb-etherpad.placeholder.sh build/packages-template/bbb-etherpad
+      cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
   build-bbb-bbb-web:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-web
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts_bbb-web.tar
-          path: |
-            artifacts.tar
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-web
+      cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
   build-bbb-fsesl-akka:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-fsesl-akka
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts_bbb-fsesl-akka.tar
-          path: |
-            artifacts.tar
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-fsesl-akka
+      cache-files-list: akka-bbb-fsesl bbb-common-message
   build-bbb-html5:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-html5-nodejs
-      - run: ./build/setup.sh bbb-html5
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts_bbb-html5.tar
-          path: |
-            artifacts.tar
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-html5
+      build-list: bbb-html5-nodejs bbb-html5
+      cache-files-list: bigbluebutton-html5
   build-bbb-freeswitch:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-freeswitch-core
-      - run: ./build/setup.sh bbb-freeswitch-sounds
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts_bbb-freeswitch.tar
-          path: |
-            artifacts.tar
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-freeswitch
+      build-list: bbb-freeswitch-core bbb-freeswitch-sounds
+      cache-files-list: freeswitch.placeholder.sh build/packages-template/bbb-freeswitch-core build/packages-template/bbb-freeswitch-sounds
+      cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
+  build-bbb-webrtc:
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: bbb-webrtc
+      build-list: bbb-webrtc-sfu bbb-webrtc-recorder
+      cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh build/packages-template/bbb-webrtc-sfu build/packages-template/bbb-webrtc-recorder
   build-others:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-export-annotations
-      - run: ./build/setup.sh bbb-learning-dashboard
-      - run: ./build/setup.sh bbb-libreoffice-docker
-      - run: ./build/setup.sh bbb-mkclean
-      - run: ./build/setup.sh bbb-pads
-      - run: ./build/setup.sh bbb-playback
-      - run: ./build/setup.sh bbb-playback-notes
-      - run: ./build/setup.sh bbb-playback-podcast
-      - run: ./build/setup.sh bbb-playback-presentation
-      - run: ./build/setup.sh bbb-playback-screenshare
-      - run: ./build/setup.sh bbb-playback-video
-      - run: ./build/setup.sh bbb-record-core
-      - run: ./build/setup.sh bbb-webrtc-sfu
-      - run: ./build/setup.sh bbb-webrtc-recorder
-      - run: ./build/setup.sh bbb-transcription-controller
-      - run: ./build/setup.sh bigbluebutton
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts.tar
-          path: |
-            artifacts.tar
-      # - name: Fake package build
-      #   run: |
-      #     sudo -i <<EOF
-      #     set -e
-      #     echo "Faking a package build (to speed up installation test)"
-      #     cd /
-      #     wget -nv "http://ci.bbb.imdt.dev/artifacts.tar"
-      #     tar xf artifacts.tar
-      #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
-      #     EOF
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    with:
+      build-name: others
+      build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton
   install-and-run-tests:
-    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
+    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-export-annotations, build-bbb-learning-dashboard, build-bbb-playback-record, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-bbb-webrtc, build-others]
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref || '' }}
+          fetch-depth: 0 # Fetch all history
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
+        if: github.event_name == 'pull_request'
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
       - run: ./build/get_external_dependencies.sh
       - name: Download artifacts_bbb-apps-akka
         uses: actions/download-artifact@v3
@@ -163,6 +111,21 @@ jobs:
         with:
           name: artifacts_bbb-config.tar
       - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-export-annotations
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-export-annotations.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-learning-dashboard
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-learning-dashboard.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-playback-record
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-playback-record.tar
+      - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
         uses: actions/download-artifact@v3
         with:
@@ -172,6 +135,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-freeswitch.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-webrtc
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-webrtc.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-web
         uses: actions/download-artifact@v3
@@ -191,13 +159,13 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: artifacts.tar
+          name: artifacts_others.tar
       - run: tar xf artifacts.tar
       - name: Extracting files .tar
         run: |
           set -e
           pwd
-          ls
+          echo "----ls artifacts/----"
           ls artifacts/
           echo "Done"
       - name: Generate CA

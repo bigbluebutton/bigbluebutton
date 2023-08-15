@@ -1,7 +1,7 @@
 import React from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { debounce } from 'radash';
+import { debounce } from '/imports/utils/debounce';
 import { Session } from 'meteor/session';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
@@ -72,8 +72,9 @@ class ScreenshareComponent extends React.Component {
     this.handleOnMuted = this.handleOnMuted.bind(this);
     this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
     this.debouncedDispatchScreenShareSize = debounce(
-      { delay: SCREEN_SIZE_DISPATCH_INTERVAL },
       this.dispatchScreenShareSize,
+      SCREEN_SIZE_DISPATCH_INTERVAL,
+      { leading: false, trailing: true },
     );
 
     const { locales, icon } = props;

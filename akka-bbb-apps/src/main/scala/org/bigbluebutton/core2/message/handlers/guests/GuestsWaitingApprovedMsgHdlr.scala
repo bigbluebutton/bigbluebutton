@@ -45,7 +45,9 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
                     dialInUser.color,
                     MeetingStatus2x.isMeetingMuted(liveMeeting.status),
                     false,
-                    "freeswitch"
+                    "freeswitch",
+                    false,
+                    "unused"
                   )
                   VoiceUsers.findWithIntId(
                     liveMeeting.voiceUsers,

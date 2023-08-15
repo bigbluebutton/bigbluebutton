@@ -41,6 +41,7 @@ trait SystemConfiguration {
   lazy val syncVoiceUsersStatusInterval = Try(config.getInt("voiceConf.syncUserStatusInterval")).getOrElse(43)
   lazy val ejectRogueVoiceUsers = Try(config.getBoolean("voiceConf.ejectRogueVoiceUsers")).getOrElse(true)
   lazy val dialInApprovalAudioPath = Try(config.getString("voiceConf.dialInApprovalAudioPath")).getOrElse("ivr/ivr-please_hold_while_party_contacted.wav")
+  lazy val toggleListenOnlyAfterMuteTimer = Try(config.getInt("voiceConf.toggleListenOnlyAfterMuteTimer")).getOrElse(4)
 
   lazy val recordingChapterBreakLengthInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(0)
 

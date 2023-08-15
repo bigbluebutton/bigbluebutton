@@ -28,7 +28,8 @@ async function generateSettingsData(page) {
       pollEnabled: settingsData.poll.enabled,
       pollChatMessage: settingsData.poll.chatMessage,
       // Presentation
-      presentationDownloadable: settingsData.presentation.allowDownloadable,
+      originalPresentationDownloadable: settingsData.presentation.allowDownloadOriginal,
+      presentationWithAnnotationsDownloadable: settingsData.presentation.allowDownloadWithAnnotations,
       externalVideoPlayer: settingsData.externalVideoPlayer.enabled,
       presentationHidden: settingsData.layout.hidePresentation,
       // Screensharing
