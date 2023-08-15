@@ -141,7 +141,7 @@ class PresentationToolbar extends PureComponent {
     return addWhiteboardGlobalAccess(whiteboardId);
   }
 
-  handleRenderToolbarPluginItems() {
+  renderToolbarPluginItems() {
     let pluginProvidedItems = [];
     if (this.props) {
       const {
@@ -340,7 +340,7 @@ class PresentationToolbar extends PureComponent {
       >
         {this.renderAriaDescs()}
         <Styled.QuickPollButtonWrapper>
-          {this.handleRenderToolbarPluginItems()}
+          {this.renderToolbarPluginItems()}
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{
