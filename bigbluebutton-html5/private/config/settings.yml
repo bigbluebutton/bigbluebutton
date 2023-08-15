@@ -275,6 +275,9 @@ public:
     # string will be returned.
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
+  # plugins:
+  #   - name: SamplePresentationToolbarPlugin
+  #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
   externalVideoPlayer:
     enabled: true
   kurento:

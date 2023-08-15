@@ -3,16 +3,20 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Button from '/imports/ui/components/common/button/component';
 import {
   HUNDRED_PERCENT,
   MAX_PERCENT,
   STEP,
 } from '/imports/utils/slideCalcUtils';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
+import Spinner from '/imports/ui/components/common/spinner/component';
+import Separator from '/imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -135,6 +139,50 @@ class PresentationToolbar extends PureComponent {
       return removeWhiteboardGlobalAccess(whiteboardId);
     }
     return addWhiteboardGlobalAccess(whiteboardId);
+  }
+
+  renderToolbarPluginItems() {
+    let pluginProvidedItems = [];
+    if (this.props) {
+      const {
+        pluginProvidedPresentationToolbarItems: ppb,
+      } = this.props;
+      pluginProvidedItems = ppb;
+    }
+
+    return pluginProvidedItems?.map((ppb) => {
+      let componentToReturn;
+      const ppbId = ppb.id;
+
+      switch (ppb.type) {
+        case PluginSdk.PresentationToolbarItemType.BUTTON:
+          componentToReturn = (
+            <Button
+              key={ppbId}
+              style={{ marginLeft: '2px' }}
+              label={ppb.label}
+              onClick={ppb.onClick}
+              tooltipLabel={ppb.tooltip}
+            />
+          );
+          break;
+        case PluginSdk.PresentationToolbarItemType.SPINNER:
+          componentToReturn = (
+            <Spinner
+              key={ppbId}
+            />
+          );
+          break;
+        case PluginSdk.PresentationToolbarItemType.SEPARATOR:
+          componentToReturn = (
+            <Separator />
+          );
+          break;
+        default:
+          componentToReturn = null;
+      }
+      return componentToReturn;
+    });
   }
 
   fullscreenToggleHandler() {
@@ -292,6 +340,7 @@ class PresentationToolbar extends PureComponent {
       >
         {this.renderAriaDescs()}
         <Styled.QuickPollButtonWrapper>
+          {this.renderToolbarPluginItems()}
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{

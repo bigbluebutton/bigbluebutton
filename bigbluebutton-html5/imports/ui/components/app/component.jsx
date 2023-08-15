@@ -38,6 +38,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
+import PluginsEngineContainer from '../plugins-engine/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
@@ -59,6 +60,7 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
+const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -576,9 +578,18 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
-    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen } = this.state;
+    const {
+      isAudioModalOpen,
+      isRandomUserSelectModalOpen,
+      isVideoPreviewModalOpen,
+      allPluginsLoaded,
+    } = this.state;
     return (
       <>
+        <PluginsEngineContainer onReady={() => {
+          this.setState({ allPluginsLoaded: true });
+        }}
+        />
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}
