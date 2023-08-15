@@ -1,7 +1,6 @@
-
 import { gql } from "@apollo/client";
 
-export const CURRENT_PRESENTATION_SUBSCRIPTION_FOR_PLUGIN_HOOK = gql`
+export const CURRENT_PRESENTATION_SUBSCRIPTION = gql`
 subscription presentationCurrentSubscription {
     pres_presentation (where: {current: {_eq: true}}) {
         presentationId
