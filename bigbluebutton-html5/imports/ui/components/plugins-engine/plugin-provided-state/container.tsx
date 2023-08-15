@@ -11,36 +11,47 @@ function setItemId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(item: T, 
 }
 
 const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) => {
-    const { 
-        uuid, 
-    } = props;
-    if (!pluginProvidedStateMap[uuid]) {
-        pluginProvidedStateMap[uuid] = {} as PluginProvidedState;
-    } 
-    const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
+  const {
+    uuid,
+  } = props;
+  if (!pluginProvidedStateMap[uuid]) {
+    pluginProvidedStateMap[uuid] = {} as PluginProvidedState;
+  }
+  const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
 
-    const [presentationToolbarItems, setPresentationToolbarItems] = useState<PluginSdk.PresentationToolbarItem[]>([]);
+  const [
+    presentationToolbarItems,
+    setPresentationToolbarItems,
+  ] = useState<PluginSdk.PresentationToolbarItem[]>([]);
 
-    const { setPluginProvidedState } = useContext(PluginsContext);
+  const {
+    pluginsProvidedAggregatedState,
+    setPluginsProvidedAggregatedState,
+  } = useContext(PluginsContext);
 
-    useEffect(() => {
-        // Change this plugin provided toolbar items
-        pluginProvidedStateMap[uuid].presentationToolbarItems = presentationToolbarItems;
+  useEffect(() => {
+    // Change this plugin provided toolbar items
+    pluginProvidedStateMap[uuid].presentationToolbarItems = presentationToolbarItems;
 
-        // Update context with computed aggregated list of all plugin provided toolbar items
-        const pluginsProvidedStateForContext: PluginProvidedState = {} as PluginProvidedState;
-        pluginsProvidedStateForContext.presentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
-            ...Object.values(pluginProvidedStateMap).map((pps: PluginProvidedState) => {
-                return pps.presentationToolbarItems}));
-        setPluginProvidedState( {...pluginsProvidedStateForContext} );
+    // Update context with computed aggregated list of all plugin provided toolbar items
+    const aggregatedPresentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
+      ...Object.values(pluginProvidedStateMap)
+        .map((pps: PluginProvidedState) => pps.presentationToolbarItems),
+    );
+    pluginsProvidedAggregatedState.presentationToolbarItems = aggregatedPresentationToolbarItems;
 
-    }, [presentationToolbarItems]);
+    setPluginsProvidedAggregatedState(
+      {
+        ...pluginsProvidedAggregatedState,
+      },
+    );
+  }, [presentationToolbarItems]);
 
-    pluginApi.setPresentationToolbarItems = (item) => {
-        const itemWithId = item.map(setItemId)
-        return setPresentationToolbarItems(itemWithId)
-    };
-    return null;
+  pluginApi.setPresentationToolbarItems = (item) => {
+    const itemWithId = item.map(setItemId);
+    return setPresentationToolbarItems(itemWithId);
+  };
+  return null;
 }
 
-export default PluginProvidedStateContainer
+export default PluginProvidedStateContainer;

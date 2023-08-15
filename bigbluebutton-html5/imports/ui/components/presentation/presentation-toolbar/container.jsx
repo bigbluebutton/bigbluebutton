@@ -15,9 +15,9 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 
 const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
-  const usingPluginsContext = useContext(PluginsContext);
+  const pluginsContext = useContext(PluginsContext);
   const { users } = usingUsersContext;
-  const { pluginProvidedState: contextProvidedPlugins } = usingPluginsContext;
+  const { pluginsProvidedAggregatedState } = pluginsContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
@@ -32,15 +32,8 @@ const PresentationToolbarContainer = (props) => {
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
-    let pluginProvidedPresentationToolbarItems = [];
-    if (contextProvidedPlugins) {
-      Object.keys(contextProvidedPlugins).forEach((plugin) => {
-        if (plugin === 'presentationToolbarItems') {
-          pluginProvidedPresentationToolbarItems = [...pluginProvidedPresentationToolbarItems,
-            ...contextProvidedPlugins.presentationToolbarItems];
-        }
-      });
-    }
+    const pluginProvidedPresentationToolbarItems = pluginsProvidedAggregatedState
+      ?.presentationToolbarItems;
 
     return (
       <PresentationToolbar
