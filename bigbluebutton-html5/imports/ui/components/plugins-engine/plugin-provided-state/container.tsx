@@ -5,9 +5,12 @@ import { PluginsContext } from '../../components-data/plugin-context/context';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
-function setItemId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(item: T, index: number) {
-    item.setItemId(`${index}`);
-    return item;
+function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
+  item: T, index: number,
+): T {
+  const itemWithId = { ...item };
+  itemWithId.setItemId(`${index}`);
+  return itemWithId;
 }
 
 const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) => {
@@ -38,20 +41,19 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
       ...Object.values(pluginProvidedStateMap)
         .map((pps: PluginProvidedState) => pps.presentationToolbarItems),
     );
-    pluginsProvidedAggregatedState.presentationToolbarItems = aggregatedPresentationToolbarItems;
-
     setPluginsProvidedAggregatedState(
       {
         ...pluginsProvidedAggregatedState,
+        presentationToolbarItems: aggregatedPresentationToolbarItems,
       },
     );
   }, [presentationToolbarItems]);
 
-  pluginApi.setPresentationToolbarItems = (item) => {
-    const itemWithId = item.map(setItemId);
-    return setPresentationToolbarItems(itemWithId);
+  pluginApi.setPresentationToolbarItems = (items) => {
+    const itemsWithId = items.map(generateItemWithId);
+    return setPresentationToolbarItems(itemsWithId);
   };
   return null;
-}
+};
 
 export default PluginProvidedStateContainer;
