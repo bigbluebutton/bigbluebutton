@@ -1158,7 +1158,7 @@
     "app.videoDock.webcamDisableLabel": "セルフィーモードを停止",
     "app.videoDock.webcamDisableLabelAllCams": "セルフィーモードを停止（全てのカメラ）",
     "app.videoDock.webcamEnableLabel": "セルフィーモードを開始",
-    "app.videoDock.webcamDisableDesc": "セルフィーモードが停止中です",
+    "app.videoDock.webcamDisableDesc": "セルフィーモード停止中",
     "app.videoDock.webcamPinLabel": "ピン止め",
     "app.videoDock.webcamPinDesc": "選択したウェブカメラをピン止めする",
     "app.videoDock.webcamFullscreenLabel": "ウェブカメラを全画面表示にする",
