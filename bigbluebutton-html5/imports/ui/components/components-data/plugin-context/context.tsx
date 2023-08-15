@@ -5,10 +5,10 @@ import React, {
 
 import { PluginProvidedState } from '/imports/ui/components/plugins-engine/types'
 
-import { PluginContextTypes } from './types';
+import { PluginsContextType } from './types';
 
 
-export const PluginsContext = createContext<PluginContextTypes>({} as PluginContextTypes);
+export const PluginsContext = createContext<PluginsContextType>({} as PluginsContextType);
 
 export const PluginsContextProvider = (props: any) => {
     const [pluginProvidedState, setPluginProvidedState] =  useState<PluginProvidedState>({} as PluginProvidedState);
