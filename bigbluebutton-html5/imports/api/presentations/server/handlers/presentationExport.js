@@ -21,7 +21,7 @@ export default async function handlePresentationExport({ body }, meetingId) {
   check(presId, String);
   check(typeOfExport, String);
 
-  if (typeOfExport.indexOf('Original') !== -1) {
+  if (typeOfExport === 'Original' || typeOfExport === 'Converted') {
     if (typeOfExport.indexOf('Converted') !== -1) {
       await setOriginalUriDownload(
         meetingId,

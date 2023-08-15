@@ -151,9 +151,9 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      val isOriginalPresentationType = m.body.typeOfExport.contains("Original")
+      val isPresentationOriginalOrConverted = m.body.typeOfExport == "Original" || m.body.typeOfExport == "Converted"
 
-      if (!isOriginalPresentationType) {
+      if (!isPresentationOriginalOrConverted) {
         // Send Export Job to Redis
         val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
         bus.outGW.send(job)
@@ -168,7 +168,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         val originalFileExt = originalFilename.split("\\.").last
         val convertedFileExt = if (convertedFileName != "") convertedFileName.split("\\.").last else ""
 
-        val downloadableExtension: String = if (m.body.typeOfExport.contains("Converted")) convertedFileExt
+        val downloadableExtension: String = if (m.body.typeOfExport == "Converted") convertedFileExt
         else originalFileExt
         PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD",
           "not-used", presId, true, originalFilename, downloadableExtension)

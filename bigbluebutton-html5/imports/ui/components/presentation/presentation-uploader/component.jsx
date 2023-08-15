@@ -712,7 +712,7 @@ class PresentationUploader extends Component {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
 
       if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
-        if (type.indexOf('Original') !== -1) {
+        if (type === 'Original' || type === 'Converted') {
           if (!item.isDownloadable) {
             notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.filename }), 'success');
           }
@@ -725,7 +725,7 @@ class PresentationUploader extends Component {
         EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING,
-      ].includes(exportation.status) && type.indexOf('Original') === -1) {
+      ].includes(exportation.status) && type === 'Annotated') {
         this.setState((prevState) => {
           prevState.presExporting.add(item.id);
           return {

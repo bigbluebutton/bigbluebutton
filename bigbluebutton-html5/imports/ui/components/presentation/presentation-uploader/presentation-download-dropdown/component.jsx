@@ -90,7 +90,11 @@ class PresentationDownloadDropdown extends PureComponent {
     const toggleDownloadOriginalPresentation = (enableDownload, isConverted) => {
       handleToggleDownloadable(item);
       if (enableDownload) {
-        handleDownloadingOfPresentation(`Original_${isConverted}`);
+        if (isConverted) {
+          handleDownloadingOfPresentation('Converted');
+        } else {
+          handleDownloadingOfPresentation('Original');
+        }
       }
       closeModal();
     };
@@ -103,7 +107,7 @@ class PresentationDownloadDropdown extends PureComponent {
           dataTest: 'disableOriginalPresentationDownload',
           label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
             { 0: originalFileExtension }),
-          onClick: () => toggleDownloadOriginalPresentation(false, 'Not-converted'),
+          onClick: () => toggleDownloadOriginalPresentation(false, false),
         });
       } else {
         this.menuItems.push({
@@ -111,7 +115,7 @@ class PresentationDownloadDropdown extends PureComponent {
           dataTest: 'enableOriginalPresentationDownload',
           label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
             { 0: originalFileExtension }),
-          onClick: () => toggleDownloadOriginalPresentation(true, 'Not-converted'),
+          onClick: () => toggleDownloadOriginalPresentation(true, false),
         });
       }
       if ((!!filenameConverted && filenameConverted !== '')
@@ -123,7 +127,7 @@ class PresentationDownloadDropdown extends PureComponent {
             dataTest: 'disableOriginalPresentationDownload',
             label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
               { 0: convertedFileExtension }),
-            onClick: () => toggleDownloadOriginalPresentation(false, 'Converted'),
+            onClick: () => toggleDownloadOriginalPresentation(false, true),
           });
         } else {
           this.menuItems.push({
@@ -131,7 +135,7 @@ class PresentationDownloadDropdown extends PureComponent {
             dataTest: 'enableOriginalPresentationDownload',
             label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
               { 0: convertedFileExtension }),
-            onClick: () => toggleDownloadOriginalPresentation(true, 'Converted'),
+            onClick: () => toggleDownloadOriginalPresentation(true, true),
           });
         }
       }
