@@ -4,14 +4,15 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 const PluginHooksHandlerContainer = () => {
 
-  const [countCurrentPresentationHookActive, setCountCurrentPresentationHookActive ] = useState(0)
+  const [numberOfActiveCurrentPresentationHookSubscriptions,
+    setNumberOfActiveCurrentPresentationHookSubscriptions] = useState(0)
 
   useEffect(() => {
     const subscribeHandler: EventListener = (
       (event: PluginSdk.CustomEventHookWrapper<void>) => {
         switch(event.detail.hook){
           case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
-            setCountCurrentPresentationHookActive((c) => c + 1)
+            setNumberOfActiveCurrentPresentationHookSubscriptions((c) => c + 1)
             break;
         }
       }) as EventListener;
@@ -19,7 +20,7 @@ const PluginHooksHandlerContainer = () => {
       (event: PluginSdk.CustomEventHookWrapper<void>) => {
         switch(event.detail.hook){
           case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
-            setCountCurrentPresentationHookActive((c) => c - 1)
+            setNumberOfActiveCurrentPresentationHookSubscriptions((c) => c - 1)
             break;
         }
       }) as EventListener;
@@ -34,7 +35,7 @@ const PluginHooksHandlerContainer = () => {
   
   return (
     <>
-      { countCurrentPresentationHookActive > 0 ?
+      { numberOfActiveCurrentPresentationHookSubscriptions > 0 ?
         <CurrentPresentationHookContainer /> : null }
     </>
   );

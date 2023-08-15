@@ -16,6 +16,7 @@ import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
 import Spinner from '/imports/ui/components/common/spinner/component';
+import Separator from '/imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -150,12 +151,12 @@ class PresentationToolbar extends PureComponent {
     }
 
     return pluginProvidedItems?.map((ppb) => {
-      let returnComponent;
+      let componentToReturn;
       const ppbId = ppb.id;
 
       switch (ppb.type) {
         case PluginSdk.PresentationToolbarItemType.BUTTON:
-          returnComponent = (
+          componentToReturn = (
             <Button
               key={ppbId}
               style={{ marginLeft: '2px' }}
@@ -166,16 +167,21 @@ class PresentationToolbar extends PureComponent {
           );
           break;
         case PluginSdk.PresentationToolbarItemType.SPINNER:
-          returnComponent = (
+          componentToReturn = (
             <Spinner
               key={ppbId}
             />
           );
           break;
+        case PluginSdk.PresentationToolbarItemType.SEPARATOR:
+          componentToReturn = (
+            <Separator />
+          );
+          break;
         default:
-          returnComponent = null;
+          componentToReturn = null;
       }
-      return returnComponent;
+      return componentToReturn;
     });
   }
 
