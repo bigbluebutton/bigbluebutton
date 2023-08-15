@@ -12,7 +12,7 @@ on:
       cache-urls-list:
         type: string
 jobs:
-  build-and-cache:
+  b:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
