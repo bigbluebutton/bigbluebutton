@@ -60,6 +60,8 @@ class RxJsonMsgHdlrActor(val fsApp: FreeswitchApplication) extends Actor with Ac
         routeCheckRunningAndRecordingToVoiceConfSysMsg(envelope, jsonNode)
       case GetUsersStatusToVoiceConfSysMsg.NAME =>
         routeGetUsersStatusToVoiceConfSysMsg(envelope, jsonNode)
+      case HoldChannelInVoiceConfSysMsg.NAME =>
+        routeHoldChannelInVoiceConfMsg(envelope, jsonNode)
       case _ => // do nothing
     }
   }

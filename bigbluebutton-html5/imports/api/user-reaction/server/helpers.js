@@ -16,7 +16,6 @@ const notifyExpiredReaction = (meetingId, userId) => {
     check(meetingId, String);
 
     const payload = {
-      emoji,
       userId,
     };
 
