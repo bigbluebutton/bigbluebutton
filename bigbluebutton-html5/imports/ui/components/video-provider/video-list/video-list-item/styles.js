@@ -91,7 +91,6 @@ const WebcamConnecting = styled.div`
   min-width: 100%;
   border-radius: 10px;
   background-color: ${webcamBackgroundColor};
-  scale: 1.5;
   z-index: 0;
 
   &::after {
