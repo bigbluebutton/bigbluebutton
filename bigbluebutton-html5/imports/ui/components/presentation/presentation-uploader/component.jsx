@@ -362,7 +362,7 @@ class PresentationUploader extends Component {
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
     this.getPresentationsToShow = this.getPresentationsToShow.bind(this);
-    this.handleToggleDownloadable = this.handleToggleDownloadable.bind(this);
+    this.handleDownloadableChange = this.handleDownloadableChange.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -670,12 +670,10 @@ class PresentationUploader extends Component {
     return null;
   }
 
-  handleToggleDownloadable(item) {
-    const { dispatchTogglePresentationDownloadable } = this.props;
+  handleDownloadableChange(item, typeOfExport, downloadable) {
+    const { dispatchChangePresentationDownloadable } = this.props;
 
-    const oldDownloadableState = item.isDownloadable;
-
-    dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
+    dispatchChangePresentationDownloadable(item, downloadable, typeOfExport);
   }
 
   handleDismiss() {
@@ -711,6 +709,7 @@ class PresentationUploader extends Component {
     const observer = (exportation, stopped) => {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
 
+      console.log("Vou descobrir se manda duas vezes por aqui ----> ", item, type, exportation.status)
       if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
         if (type === 'Original' || type === 'Converted') {
           if (!item.isDownloadable) {
@@ -759,6 +758,8 @@ class PresentationUploader extends Component {
         });
       }
     };
+    console.log("Vou descobrir se manda duas vezes por aqui ---(2)-> ", item, type)
+
 
     exportPresentation(item.id, observer, type);
   }
@@ -1089,7 +1090,7 @@ class PresentationUploader extends Component {
                 isDownloadable={isDownloadable}
                 allowDownloadOriginal={allowDownloadOriginal}
                 allowDownloadWithAnnotations={allowDownloadWithAnnotations}
-                handleToggleDownloadable={this.handleToggleDownloadable}
+                handleDownloadableChange={this.handleDownloadableChange}
                 item={item}
                 closeModal={() => Session.set('showUploadPresentationView', false)}
                 handleDownloadingOfPresentation={(type) => this

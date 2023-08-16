@@ -1,7 +1,6 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -9,8 +8,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import org.bigbluebutton.presentation.SupportedFileTypes;
 
 public final class Util {
 
@@ -116,21 +113,12 @@ public final class Util {
 		return null;
 	}
 
-	public static void deleteAllDownloadableMarksInPresentations(File presFileDir, String presId) {
-		String regexString = "\\.(" + String.join("|",
-				SupportedFileTypes.getSupportedFileTypes()) + ")\\.downloadable";
-		File[] filesWithDownloadMark = presFileDir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.matches(presId + regexString);
-			}
-		});
-
-		// Iterate through all of downloadable marks to delete them. Pattern is:
-		// <presentationId>.<extension>.downloadable
-		for (File downloadableMark: filesWithDownloadMark) {
-			if (downloadableMark != null && downloadableMark.exists()) {
-				downloadableMark.delete();
+	public static void deleteAllDownloadableMarksInPresentations(File presFileDir) {
+		// Delete files with .downloadable at the end of its filename
+		File[] presFiles = presFileDir.listFiles();
+		for (File presFile : presFiles) {
+			if (presFile.isFile() && presFile.getName().endsWith(".downloadable")) {
+				presFile.delete();
 			}
 		}
 	}
@@ -143,7 +131,7 @@ public final class Util {
 	) throws IOException {
 		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId, downloadableExtension);
 		if (downloadable && downloadMarker != null && ! downloadMarker.exists()) {
-			Util.deleteAllDownloadableMarksInPresentations(presFileDir, presId);
+			Util.deleteAllDownloadableMarksInPresentations(presFileDir);
 			downloadMarker.createNewFile();
 		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {
 			downloadMarker.delete();

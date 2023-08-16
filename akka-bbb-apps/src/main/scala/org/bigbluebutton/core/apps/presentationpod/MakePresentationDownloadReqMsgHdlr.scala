@@ -168,11 +168,6 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         val originalFileExt = originalFilename.split("\\.").last
         val convertedFileExt = if (convertedFileName != "") convertedFileName.split("\\.").last else ""
 
-        val downloadableExtension: String = if (m.body.typeOfExport == "Converted") convertedFileExt
-        else originalFileExt
-        PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD",
-          "not-used", presId, true, originalFilename, downloadableExtension)
-
         val convertedFileURI = if (convertedFileName != "") List("presentation", "download", meetingId,
           s"${presId}?presFilename=${presId}.${convertedFileExt}&filename=${convertedFileName}").mkString("", File.separator, "")
         else ""

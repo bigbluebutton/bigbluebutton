@@ -79,8 +79,8 @@ const getPresentations = () => Presentations
     };
   });
 
-const dispatchTogglePresentationDownloadable = (presentation, newState) => {
-  makeCall('setPresentationDownloadable', presentation.id, newState);
+const dispatchChangePresentationDownloadable = (presentation, newState, typeOfExport) => {
+  makeCall('setPresentationDownloadable', presentation.id, newState, typeOfExport);
 };
 
 const observePresentationConversion = (
@@ -487,7 +487,7 @@ export default {
   handleSavePresentation,
   getPresentations,
   persistPresentationChanges,
-  dispatchTogglePresentationDownloadable,
+  dispatchChangePresentationDownloadable,
   setPresentation,
   requestPresentationUploadToken,
   getExternalUploadData,

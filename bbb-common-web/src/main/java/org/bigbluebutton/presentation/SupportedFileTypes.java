@@ -63,10 +63,6 @@ public final class SupportedFileTypes {
 		}
 	});
 
-	public static List<String> getSupportedFileTypes() {
-		return SUPPORTED_FILE_LIST;
-	}
-
 	/*
 	 * Returns if the file with extension is supported.
 	 */
