@@ -371,8 +371,9 @@ const notifyShapeNumberExceeded = (intl, limit) => {
 };
 
 const toggleToolsAnimations = (activeAnim, anim, time) => {
-  const tdTools = document.querySelector("#TD-Tools");
-  const topToolbar = document.getElementById("TD-Styles")?.parentElement;
+  const tdTools = document.querySelector('#TD-Tools');
+  const topToolbar = document.getElementById('TD-Styles')?.parentElement;
+  const optionsDropdown = document.getElementById('WhiteboardOptionButton');
   if (tdTools && topToolbar) {
     tdTools.classList.remove(activeAnim);
     topToolbar.classList.remove(activeAnim);
@@ -380,6 +381,11 @@ const toggleToolsAnimations = (activeAnim, anim, time) => {
     tdTools.style.transition = `opacity ${time} ease-in-out`;
     tdTools?.classList?.add(anim);
     topToolbar?.classList?.add(anim);
+  }
+  if (optionsDropdown) {
+    optionsDropdown.classList.remove(activeAnim);
+    optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
+    optionsDropdown?.classList?.add(anim);
   }
 }
 
