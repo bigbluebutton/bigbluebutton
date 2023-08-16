@@ -13,7 +13,7 @@ on:
         type: string
 jobs:
   b:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
         uses: actions/checkout@v3
