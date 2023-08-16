@@ -43,7 +43,7 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
         {name.toLowerCase().slice(0, 2) || "  "}
       </Styled.ChatAvatar>
       <Styled.ChatHeaderText>
-        <Styled.ChatUserName>
+        <Styled.ChatUserName isOnline={isOnline}>
           {name}
         </Styled.ChatUserName>
         {

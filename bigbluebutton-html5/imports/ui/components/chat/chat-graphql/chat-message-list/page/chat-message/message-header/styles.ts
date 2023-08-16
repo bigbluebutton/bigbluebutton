@@ -13,13 +13,17 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 
+interface ChatUserNameProps {
+  isOnline: boolean;
+}
+
 export const HeaderContent = styled.div`
   display: flex;
   flex-flow: row;
   width: 100%;
 `;
 
-export const ChatUserName = styled.div`
+export const ChatUserName = styled.div<ChatUserNameProps>`
   display: flex;
   min-width: 0;
   font-weight: 600;
