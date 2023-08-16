@@ -129,6 +129,9 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationWithAnnotations")) {
       val reason = "Annotated presentation download disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadOriginalPresentation")) {
+      val reason = "Original presentation download disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
       val reason = "No permission to download presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
