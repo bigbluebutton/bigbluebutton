@@ -34,6 +34,7 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.PlaySoundCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.StopSoundCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUserToMeetingCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.HoldChannelCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 
 import org.slf4j.Logger;
@@ -157,6 +158,11 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     queueMessage(mpc);
   }
 
+  public void holdChannel(String voiceConfId, String uuid, Boolean hold) {
+    HoldChannelCommand hcc = new HoldChannelCommand(voiceConfId, uuid, hold, USER);
+    queueMessage(hcc);
+  }
+
   private Long genTimestamp() {
     return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
   }
@@ -220,6 +226,10 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
             manager.forceEjectUser((ForceEjectUserCommand) command);
           } else if (command instanceof GetUsersStatusCommand) {
             manager.getUsersStatus((GetUsersStatusCommand) command);
+          } else if (command instanceof HoldChannelCommand) {
+            manager.holdChannel((HoldChannelCommand) command);
+          } else {
+            log.warn("Unknown command: " + command.getCommand());
           }
         } catch (RuntimeException e) {
           log.warn(e.getMessage());

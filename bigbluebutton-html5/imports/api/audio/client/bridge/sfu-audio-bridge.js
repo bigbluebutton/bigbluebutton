@@ -8,6 +8,7 @@ import {
   getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import browserInfo from '/imports/utils/browserInfo';
 import {
   getAudioSessionNumber,
@@ -26,6 +27,8 @@ const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const RETRY_THROUGH_RELAY = MEDIA.audio.retryThroughRelay || false;
 const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
+const FULLAUDIO_OFFERING = MEDIA.fullAudioOffering;
+const TRANSPARENT_LISTEN_ONLY = MEDIA.transparentListenOnly;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const CONNECTION_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 const { audio: NETWORK_PRIORITY } = MEDIA.networkPriorities || {};
@@ -71,7 +74,18 @@ const getMediaServerAdapter = (listenOnly = false) => {
   );
 };
 
+const isTransparentListenOnlyEnabled = () => getFromUserSettings(
+  'bbb_transparent_listen_only',
+  TRANSPARENT_LISTEN_ONLY,
+);
+
 export default class SFUAudioBridge extends BaseAudioBridge {
+  static getOfferingRole(isListenOnly) {
+    return isListenOnly
+      ? LISTEN_ONLY_OFFERING
+      : (!isTransparentListenOnlyEnabled() && FULLAUDIO_OFFERING);
+  }
+
   constructor(userData) {
     super();
     this.userId = userData.userId;
@@ -266,6 +280,11 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           },
         }, 'SFU audio media play failed due to autoplay error');
         this.dispatchAutoplayHandlingEvent(mediaElement);
+        // For connection purposes, this worked - the autoplay thing is a client
+        // side soft issue to be handled at the UI/UX level, not WebRTC/negotiation
+        // So: clear the connection timer
+        this.clearConnectionTimeout();
+        this.reconnecting = false;
       } else {
         const normalizedError = {
           errorCode: 1004,
@@ -320,12 +339,13 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
           forceRelay: _forceRelay || shouldForceRelay(),
           stream: (inputStream && inputStream.active) ? inputStream : undefined,
-          offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
+          offering: SFUAudioBridge.getOfferingRole(this.isListenOnly),
           signalCandidates: SIGNAL_CANDIDATES,
           traceLogs: TRACE_LOGS,
           networkPriority: NETWORK_PRIORITY,
           mediaStreamFactory: this.mediaStreamFactory,
           gatheringTimeout: GATHERING_TIMEOUT,
+          transparentListenOnly: isTransparentListenOnlyEnabled(),
         };
 
         this.broker = new AudioBroker(

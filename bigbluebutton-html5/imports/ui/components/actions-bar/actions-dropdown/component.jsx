@@ -301,7 +301,12 @@ class ActionsDropdown extends PureComponent {
   }
 
   makePresentationItems() {
-    const { presentations, setPresentation, podIds } = this.props;
+    const {
+      presentations,
+      setPresentation,
+      podIds,
+      setPresentationFitToWidth,
+    } = this.props;
 
     if (!podIds || podIds.length < 1) return [];
 
@@ -314,18 +319,21 @@ class ActionsDropdown extends PureComponent {
       .map((p) => {
         const customStyles = { color: colorPrimary };
 
-        return {
-          customStyles: p.current ? customStyles : null,
-          icon: 'file',
-          iconRight: p.current ? 'check' : null,
-          selected: p.current ? true : false,
-          label: p.name,
-          description: 'uploaded presentation file',
-          key: `uploaded-presentation-${p.id}`,
-          onClick: () => {
-            setPresentation(p.id, podId);
-          },
-        };
+        return (
+          {
+            customStyles: p.current ? customStyles : null,
+            icon: "file",
+            iconRight: p.current ? 'check' : null,
+            selected: p.current ? true : false,
+            label: p.name,
+            description: "uploaded presentation file",
+            key: `uploaded-presentation-${p.id}`,
+            onClick: () => {
+              setPresentationFitToWidth(false);
+              setPresentation(p.id, podId);
+            },
+          }
+        );
       });
     return presentationItemElements;
   }

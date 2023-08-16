@@ -57,7 +57,7 @@ const FreeJoinLabel = styled.label`
   display: flex;
   align-items: center;
   font-size: ${fontSizeSmall};
-  margin-bottom: 0;
+  margin-bottom: 0.2rem;
 
   & > * {
     margin: 0 .5rem 0 0;
@@ -125,9 +125,9 @@ const RoomName = styled(BreakoutNameInput)`
 
 const BreakoutSettings = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; 
+  grid-template-columns: 1fr 1fr 2fr;
   grid-template-rows: 1fr;
-  grid-gap: 4rem;
+  grid-gap: 2rem;
 
   @media ${smallOnly} {
     grid-template-columns: 1fr ;
@@ -235,7 +235,6 @@ const AssignBtns = styled(Button)`
 `;
 
 const CheckBoxesContainer = styled(FlexRow)`
-  white-space: nowrap;
   display: flex;
   flex-flow: column;
   justify-content: flex-end; 

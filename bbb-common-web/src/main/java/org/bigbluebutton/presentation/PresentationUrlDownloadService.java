@@ -12,14 +12,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
@@ -197,6 +195,7 @@ public class PresentationUrlDownloadService {
             conn.setReadTimeout(60000);
             conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
             conn.addRequestProperty("User-Agent", "Mozilla");
+            conn.setInstanceFollowRedirects(false);
 
             // normally, 3xx is redirect
             int status = conn.getResponseCode();
@@ -287,10 +286,21 @@ public class PresentationUrlDownloadService {
         String finalUrl = followRedirect(meetingId, urlString, 0, urlString);
 
         if (finalUrl == null) return false;
+        if(!finalUrl.equals(urlString)) {
+            log.info("Redirected to Final URL [{}]", finalUrl);
+        }
 
         boolean success = false;
 
-        CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+        //Disable follow redirect since finalUrl already did it
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setRedirectsEnabled(false)
+                .build();
+
+        CloseableHttpAsyncClient httpclient = HttpAsyncClients.custom()
+                .setDefaultRequestConfig(requestConfig)
+                .build();
+
         try {
             httpclient.start();
             File download = new File(filename);

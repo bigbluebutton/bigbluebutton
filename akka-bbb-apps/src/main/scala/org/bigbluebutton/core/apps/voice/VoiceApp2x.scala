@@ -20,7 +20,9 @@ trait VoiceApp2x extends UserJoinedVoiceConfEvtMsgHdlr
   with SyncGetVoiceUsersMsgHdlr
   with AudioFloorChangedVoiceConfEvtMsgHdlr
   with VoiceConfCallStateEvtMsgHdlr
-  with UserStatusVoiceConfEvtMsgHdlr {
+  with UserStatusVoiceConfEvtMsgHdlr
+  with ChannelHoldChangedVoiceConfEvtMsgHdlr
+  with ListenOnlyModeToggledInSfuEvtMsgHdlr {
 
   this: MeetingActor =>
 }

@@ -16,6 +16,11 @@ class Draw extends Page {
     const shapes1 = await this.getOuterHtmlDrawn();
 
     const wbBox = await this.getElementBoundingBox(e.whiteboard);
+
+    await this.page.mouse.click(wbBox.x + 0.4 * wbBox.width, wbBox.y + 0.4 * wbBox.height, { button: 'right' });
+    const pasteLocator = this.page.locator(e.wbPaste);
+    await expect(pasteLocator).toBeVisible();
+
     await this.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.page.mouse.down();
     await this.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
