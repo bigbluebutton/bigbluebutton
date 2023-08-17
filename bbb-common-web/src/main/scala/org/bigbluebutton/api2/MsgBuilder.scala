@@ -6,6 +6,11 @@ import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPage
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
 
+import java.io.IOException
+import java.net.URL
+import javax.imageio.ImageIO
+import scala.xml.XML
+
 object MsgBuilder {
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
@@ -65,6 +70,19 @@ object MsgBuilder {
   }
 
   def generatePresentationPage(presId: String, numPages: Int, presBaseUrl: String, page: Int): PresentationPageConvertedVO = {
+    def parseDimension(value: String): Option[Int] = {
+      val pattern = """^(\d+)\s*(\w)$""".r
+      value match {
+        case pattern(number, unit) if number.matches("\\d+") =>
+          val numericValue = number.toInt
+          unit match {
+            case "" | "px" | "pt" => Some(numericValue)
+            case _                => None
+          }
+        case _ => None
+      }
+    }
+
     val id = presId + "/" + page
     val current = if (page == 1) true else false
     val thumbUrl = presBaseUrl + "/thumbnail/" + page
@@ -75,12 +93,35 @@ object MsgBuilder {
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
-    PresentationPageConvertedVO(
-      id = id,
-      num = page,
-      urls = urls,
-      current = current
-    )
+    println("***** ATTEMPTING TO DETERMINE PAGE DIMENSIONS  FOR " + svgUrl + "*****")
+    try {
+      val imgUrl = new URL(svgUrl)
+      val imgContent = XML.load(imgUrl)
+
+      val w = (imgContent \ "@width").text.replaceAll("[^\\d]", "")
+      val h = (imgContent \ "@height").text.replaceAll("[^\\d]", "")
+
+      val width = w.toInt
+      val height = h.toInt
+
+      PresentationPageConvertedVO(
+        id = id,
+        num = page,
+        urls = urls,
+        current = current,
+        width = width,
+        height = height
+      )
+    } catch {
+      case e: Exception =>
+        e.printStackTrace()
+        PresentationPageConvertedVO(
+          id = id,
+          num = page,
+          urls = urls,
+          current = current
+        )
+    }
   }
 
   def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {

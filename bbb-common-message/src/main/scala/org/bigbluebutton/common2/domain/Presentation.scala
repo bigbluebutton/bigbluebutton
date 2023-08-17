@@ -15,7 +15,9 @@ case class PresentationPageConvertedVO(
     id:      String,
     num:     Int,
     urls:    Map[String, String],
-    current: Boolean             = false
+    current: Boolean             = false,
+    width:   Double              = 1440D,
+    height:  Double              = 1080D
 )
 
 case class PresentationPageVO(
