@@ -20,72 +20,72 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-bbb-apps-akka:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-apps-akka
       cache-files-list: akka-bbb-apps bbb-common-message
   build-bbb-config:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-config
       cache-files-list: bigbluebutton-config
   build-bbb-export-annotations:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-export-annotations
       cache-files-list: bbb-export-annotations
   build-bbb-learning-dashboard:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-learning-dashboard
       cache-files-list: bbb-learning-dashboard
   build-bbb-playback-record:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-playback-record
       build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
   build-bbb-graphql-server:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-graphql-server
       build-list: bbb-graphql-server bbb-graphql-middleware
   build-bbb-etherpad:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-etherpad
       cache-files-list: bbb-etherpad.placeholder.sh build/packages-template/bbb-etherpad
       cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
   build-bbb-bbb-web:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-web
       cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
   build-bbb-fsesl-akka:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-fsesl-akka
       cache-files-list: akka-bbb-fsesl bbb-common-message
   build-bbb-html5:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-html5
       build-list: bbb-html5-nodejs bbb-html5
       cache-files-list: bigbluebutton-html5
   build-bbb-freeswitch:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-freeswitch
       build-list: bbb-freeswitch-core bbb-freeswitch-sounds
       cache-files-list: freeswitch.placeholder.sh build/packages-template/bbb-freeswitch-core build/packages-template/bbb-freeswitch-sounds
       cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
   build-bbb-webrtc:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: bbb-webrtc
       build-list: bbb-webrtc-sfu bbb-webrtc-recorder
       cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh build/packages-template/bbb-webrtc-sfu build/packages-template/bbb-webrtc-recorder
   build-others:
-    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
+    uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@develop
     with:
       build-name: others
       build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton
