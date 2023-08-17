@@ -14,6 +14,7 @@ object Dependencies {
 
     // Libraries
     val akkaVersion = "2.6.17"
+    val pekkoVersion = "1.0.1"
     val gson = "2.8.9"
     val jackson = "2.13.5"
     val sl4j = "1.7.32"
@@ -32,6 +33,7 @@ object Dependencies {
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
 
     val akkaActor = "com.typesafe.akka" % "akka-actor_2.13" % Versions.akkaVersion
+    val pekkoActor = "org.apache.pekko" %% "pekko-actor" % Versions.pekkoVersion
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
@@ -59,6 +61,7 @@ object Dependencies {
     Compile.scalaLibrary,
     Compile.scalaCompiler,
     Compile.akkaActor,
+    Compile.pekkoActor,
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.sl4jApi,
