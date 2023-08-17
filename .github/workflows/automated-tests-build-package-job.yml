@@ -29,7 +29,7 @@ jobs:
           git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
       - name: Set cache-key vars
         run: |
-          echo "CACHE_KEY_FILES=$(echo '${{ inputs.cache-files-list }} .gitlab-ci.yml' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
+          echo "CACHE_KEY_FILES=$(echo '${{ inputs.cache-files-list }} .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
           echo "CACHE_KEY_URLS=$(echo '${{ inputs.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
           cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
           echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
