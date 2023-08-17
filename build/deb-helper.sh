@@ -211,6 +211,8 @@ if [ -z "$IP" ]; then
   read -r IP _ <<< "$(hostname -I)"
 fi
 
+SERVLET_DIR=/usr/share/bbb-web # reused in various package scripts
+
 ##########################
 ### END DEB-HELPERS.SH ###
 ##########################
