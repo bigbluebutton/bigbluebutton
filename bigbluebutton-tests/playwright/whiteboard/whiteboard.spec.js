@@ -19,6 +19,7 @@ const { UndoDrawing } = require('./undoDraw');
 const { RedoDrawing } = require('./redoDraw');
 const { ChangeStyles } = require('./changeStyles');
 const { RealTimeText } = require('./realTimeText');
+const { ShapeOptions } = require('./shapeOptions');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
@@ -173,5 +174,28 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await realTimeText.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
     await realTimeText.initUserPage(true, context, { customParameter: hidePresentationToast });
     await realTimeText.realTimeTextTyping();
+  });
+
+  test.describe.parallel('Shape Options', () => {
+    test('Duplicate', async ({ browser, context, page }) => {
+      const shapeOptions = new ShapeOptions(browser, context);
+      await shapeOptions.initModPage(page, true);
+      await shapeOptions.initUserPage(true, context);
+      await shapeOptions.duplicate();
+    });
+  
+    test('Rotate', async ({ browser, context, page }) => {
+      const shapeOptions = new ShapeOptions(browser, context);
+      await shapeOptions.initModPage(page, true);
+      await shapeOptions.initUserPage(true, context);
+      await shapeOptions.rotate();
+    });
+
+    test('Move Shape Backward/Forward', async ({ browser, context, page }) => {
+      const shapeOptions = new ShapeOptions(browser, context);
+      await shapeOptions.initModPage(page, true);
+      await shapeOptions.initUserPage(true, context);
+      await shapeOptions.movingShape();
+    });
   });
 });
