@@ -13,7 +13,7 @@ on:
         type: string
 jobs:
   b:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
         uses: actions/checkout@v3
@@ -29,9 +29,10 @@ jobs:
           git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
       - name: Set cache-key vars
         run: |
-          echo "CACHE_KEY_FILES=$(echo '${{ inputs.cache-files-list }} .gitlab-ci.yml' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
+          echo "CACHE_KEY_FILES=$(echo '${{ inputs.cache-files-list }} .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
           echo "CACHE_KEY_URLS=$(echo '${{ inputs.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
           cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
+          echo "RUNNER_OS=$(lsb_release -d | cut -f2 | tr -d ' ')" >> $GITHUB_ENV
           echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
           echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
       - name: Handle cache
@@ -40,7 +41,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: artifacts.tar
-          key: ${{ runner.os }}-${{ inputs.build-name }}-${{ env.BIGBLUEBUTTON_RELEASE }}-commits-${{ env.CACHE_KEY_FILES }}-urls-${{ env.CACHE_KEY_URLS }}
+          key: ${{ env.RUNNER_OS }}-${{ inputs.build-name }}-${{ env.BIGBLUEBUTTON_RELEASE }}-commits-${{ env.CACHE_KEY_FILES }}-urls-${{ env.CACHE_KEY_URLS }}
       - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
         name: Generate artifacts
         run: |
