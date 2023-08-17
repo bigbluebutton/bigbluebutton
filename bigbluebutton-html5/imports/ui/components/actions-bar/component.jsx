@@ -75,6 +75,7 @@ class ActionsBar extends PureComponent {
       setMeetingLayout,
       showPushLayout,
       setPushLayout,
+      setPresentationFitToWidth,
     } = this.props;
 
     const { isCaptionsReaderMenuModalOpen } = this.state;
@@ -109,6 +110,7 @@ class ActionsBar extends PureComponent {
             presentationIsOpen,
             showPushLayout,
             hasCameraAsContent,
+            setPresentationFitToWidth,
           }}
           />
           {isCaptionsAvailable

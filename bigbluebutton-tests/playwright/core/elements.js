@@ -478,6 +478,7 @@ exports.wbRotate = 'span[id="TD-Tools-Rotate"]';
 exports.wbMoveBackward = 'span[id="TD-Tools-ArrowDown"]';
 exports.wbMoveForward = 'span[id="TD-Tools-ArrowUp"]';
 exports.wbMoveToFront = 'span[id="TD-Tools-PinTop"]';
+exports.wbPaste = 'button[id="TD-ContextMenu-Paste"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';

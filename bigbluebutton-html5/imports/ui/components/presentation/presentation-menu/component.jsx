@@ -336,7 +336,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Right id='WhiteboardOptionButton'>
+    <Styled.Left id='WhiteboardOptionButton'>
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
@@ -365,7 +365,7 @@ const PresentationMenu = (props) => {
         }}
         actions={options}
       />
-    </Styled.Right>
+    </Styled.Left>
   );
 };
 
