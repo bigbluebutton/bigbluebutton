@@ -670,10 +670,10 @@ class PresentationUploader extends Component {
     return null;
   }
 
-  handleDownloadableChange(item, typeOfExport, downloadable) {
+  handleDownloadableChange(item, fileStateType, downloadable) {
     const { dispatchChangePresentationDownloadable } = this.props;
 
-    dispatchChangePresentationDownloadable(item, downloadable, typeOfExport);
+    dispatchChangePresentationDownloadable(item, downloadable, fileStateType);
   }
 
   handleDismiss() {
@@ -700,7 +700,7 @@ class PresentationUploader extends Component {
     );
   }
 
-  handleDownloadingOfPresentation(item, type) {
+  handleDownloadingOfPresentation(item, fileStateType) {
     const {
       exportPresentation,
       intl,
@@ -709,9 +709,8 @@ class PresentationUploader extends Component {
     const observer = (exportation, stopped) => {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
 
-      console.log("Vou descobrir se manda duas vezes por aqui ----> ", item, type, exportation.status)
       if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
-        if (type === 'Original' || type === 'Converted') {
+        if (fileStateType === 'Original' || fileStateType === 'Converted') {
           if (!item.isDownloadable) {
             notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.filename }), 'success');
           }
@@ -724,7 +723,7 @@ class PresentationUploader extends Component {
         EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING,
-      ].includes(exportation.status) && type === 'Annotated') {
+      ].includes(exportation.status) && fileStateType === 'Annotated') {
         this.setState((prevState) => {
           prevState.presExporting.add(item.id);
           return {
@@ -758,10 +757,8 @@ class PresentationUploader extends Component {
         });
       }
     };
-    console.log("Vou descobrir se manda duas vezes por aqui ---(2)-> ", item, type)
 
-
-    exportPresentation(item.id, observer, type);
+    exportPresentation(item.id, observer, fileStateType);
   }
 
   getPresentationsToShow() {
@@ -1093,8 +1090,8 @@ class PresentationUploader extends Component {
                 handleDownloadableChange={this.handleDownloadableChange}
                 item={item}
                 closeModal={() => Session.set('showUploadPresentationView', false)}
-                handleDownloadingOfPresentation={(type) => this
-                  .handleDownloadingOfPresentation(item, type)}
+                handleDownloadingOfPresentation={(fileStateType) => this
+                  .handleDownloadingOfPresentation(item, fileStateType)}
               />
             ) : null}
             {isRemovable ? (

@@ -12,17 +12,17 @@ export default async function handlePresentationExport({ body }, meetingId) {
     originalFileURI,
     convertedFileURI,
     presId,
-    typeOfExport,
+    fileStateType,
   } = body;
 
   check(annotatedFileURI, String);
   check(originalFileURI, String);
   check(convertedFileURI, String);
   check(presId, String);
-  check(typeOfExport, String);
+  check(fileStateType, String);
 
-  if (typeOfExport === 'Original' || typeOfExport === 'Converted') {
-    if (typeOfExport === 'Converted') {
+  if (fileStateType === 'Original' || fileStateType === 'Converted') {
+    if (fileStateType === 'Converted') {
       await setOriginalUriDownload(
         meetingId,
         presId,
@@ -36,7 +36,7 @@ export default async function handlePresentationExport({ body }, meetingId) {
       );
     }
   } else {
-    await sendExportedPresentationChatMsg(meetingId, presId, annotatedFileURI, typeOfExport);
+    await sendExportedPresentationChatMsg(meetingId, presId, annotatedFileURI, fileStateType);
   }
   await setPresentationExporting(meetingId, presId, { status: 'EXPORTED' });
 }

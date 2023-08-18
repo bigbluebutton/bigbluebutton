@@ -87,16 +87,10 @@ class PresentationDownloadDropdown extends PureComponent {
     const { filenameConverted, filename, downloadableExtension } = item;
     const convertedFileExtension = filenameConverted?.split('.').slice(-1)[0];
     const originalFileExtension = filename?.split('.').slice(-1)[0];
-    const changeDownloadOriginalOrConvertedPresentation = (enableDownload, isConverted) => {
-      let typeOfExport;
-      if (isConverted) {
-        typeOfExport = 'Converted';
-      } else {
-        typeOfExport = 'Original';
-      }
-      handleDownloadableChange(item, typeOfExport, enableDownload);
+    const changeDownloadOriginalOrConvertedPresentation = (enableDownload, fileStateType) => {
+      handleDownloadableChange(item, fileStateType, enableDownload);
       if (enableDownload) {
-        handleDownloadingOfPresentation(typeOfExport);
+        handleDownloadingOfPresentation(fileStateType);
       }
       closeModal();
     };
@@ -109,7 +103,7 @@ class PresentationDownloadDropdown extends PureComponent {
           dataTest: 'disableOriginalPresentationDownload',
           label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
             { 0: originalFileExtension }),
-          onClick: () => changeDownloadOriginalOrConvertedPresentation(false, false),
+          onClick: () => changeDownloadOriginalOrConvertedPresentation(false, 'Original'),
         });
       } else {
         this.menuItems.push({
@@ -117,7 +111,7 @@ class PresentationDownloadDropdown extends PureComponent {
           dataTest: 'enableOriginalPresentationDownload',
           label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
             { 0: originalFileExtension }),
-          onClick: () => changeDownloadOriginalOrConvertedPresentation(true, false),
+          onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Original'),
         });
       }
       if ((!!filenameConverted && filenameConverted !== '')
@@ -129,7 +123,7 @@ class PresentationDownloadDropdown extends PureComponent {
             dataTest: 'disableOriginalPresentationDownload',
             label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
               { 0: convertedFileExtension }),
-            onClick: () => changeDownloadOriginalOrConvertedPresentation(false, true),
+            onClick: () => changeDownloadOriginalOrConvertedPresentation(false, 'Converted'),
           });
         } else {
           this.menuItems.push({
@@ -137,7 +131,7 @@ class PresentationDownloadDropdown extends PureComponent {
             dataTest: 'enableOriginalPresentationDownload',
             label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
               { 0: convertedFileExtension }),
-            onClick: () => changeDownloadOriginalOrConvertedPresentation(true, true),
+            onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Converted'),
           });
         }
       }

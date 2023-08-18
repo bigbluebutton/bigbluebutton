@@ -42,9 +42,9 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   }
 
   def buildNewPresFileAvailable(annotatedFileURI: String, originalFileURI: String, convertedFileURI: String,
-                                presId: String, typeOfExport: String): NewPresFileAvailableMsg = {
+                                presId: String, fileStateType: String): NewPresFileAvailableMsg = {
     val header = BbbClientMsgHeader(NewPresFileAvailableMsg.NAME, "not-used", "not-used")
-    val body = NewPresFileAvailableMsgBody(annotatedFileURI, originalFileURI, convertedFileURI, presId, typeOfExport)
+    val body = NewPresFileAvailableMsgBody(annotatedFileURI, originalFileURI, convertedFileURI, presId, fileStateType)
 
     NewPresFileAvailableMsg(header, body)
   }
@@ -57,7 +57,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       annotatedFileURI = newPresFileAvailableMsg.body.annotatedFileURI,
       originalFileURI = newPresFileAvailableMsg.body.originalFileURI,
       convertedFileURI = newPresFileAvailableMsg.body.convertedFileURI, presId = newPresFileAvailableMsg.body.presId,
-      typeOfExport = newPresFileAvailableMsg.body.typeOfExport
+      fileStateType = newPresFileAvailableMsg.body.fileStateType
     )
     val event = NewPresFileAvailableEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
@@ -151,7 +151,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      val isPresentationOriginalOrConverted = m.body.typeOfExport == "Original" || m.body.typeOfExport == "Converted"
+      val isPresentationOriginalOrConverted = m.body.fileStateType == "Original" || m.body.fileStateType == "Converted"
 
       if (!isPresentationOriginalOrConverted) {
         // Send Export Job to Redis
@@ -175,7 +175,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
           s"${presId}?presFilename=${presId}.${originalFileExt}&filename=${originalFilename}").mkString("", File.separator, "")
 
         val event = buildNewPresFileAvailable("", originalFileURI, convertedFileURI, presId,
-          m.body.typeOfExport)
+          m.body.fileStateType)
 
         handle(event, liveMeeting, bus)
       }

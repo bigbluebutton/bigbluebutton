@@ -79,8 +79,8 @@ const getPresentations = () => Presentations
     };
   });
 
-const dispatchChangePresentationDownloadable = (presentation, newState, typeOfExport) => {
-  makeCall('setPresentationDownloadable', presentation.id, newState, typeOfExport);
+const dispatchChangePresentationDownloadable = (presentation, newState, fileStateType) => {
+  makeCall('setPresentationDownloadable', presentation.id, newState, fileStateType);
 };
 
 const observePresentationConversion = (
@@ -382,7 +382,7 @@ const getExternalUploadData = () => {
   };
 };
 
-const exportPresentation = (presentationId, observer, type) => {
+const exportPresentation = (presentationId, observer, fileStateType) => {
   let lastStatus = {};
 
   Tracker.autorun((c) => {
@@ -411,7 +411,7 @@ const exportPresentation = (presentationId, observer, type) => {
     });
   });
 
-  makeCall('exportPresentation', presentationId, type);
+  makeCall('exportPresentation', presentationId, fileStateType);
 };
 
 function handleFiledrop(files, files2, that, intl, intlMessages) {
