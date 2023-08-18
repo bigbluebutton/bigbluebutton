@@ -47,6 +47,8 @@ export default async function addPresentation(meetingId, podId, presentation) {
         yOffset: Number,
         widthRatio: Number,
         heightRatio: Number,
+        width: Number,
+        height: Number,
       },
     ],
     downloadable: Boolean,
@@ -62,13 +64,14 @@ export default async function addPresentation(meetingId, podId, presentation) {
   };
 
   const modifier = {
-    $set: Object.assign({
+    $set: {
       meetingId,
       podId,
       'conversion.done': true,
       'conversion.error': false,
       'exportation.status': null,
-    }, flat(presentation, { safe: true })),
+      ...flat(presentation, { safe: true }),
+    },
   };
 
   try {
