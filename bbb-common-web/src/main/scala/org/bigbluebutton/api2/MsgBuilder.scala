@@ -70,19 +70,6 @@ object MsgBuilder {
   }
 
   def generatePresentationPage(presId: String, numPages: Int, presBaseUrl: String, page: Int): PresentationPageConvertedVO = {
-    def parseDimension(value: String): Option[Int] = {
-      val pattern = """^(\d+)\s*(\w)$""".r
-      value match {
-        case pattern(number, unit) if number.matches("\\d+") =>
-          val numericValue = number.toInt
-          unit match {
-            case "" | "px" | "pt" => Some(numericValue)
-            case _                => None
-          }
-        case _ => None
-      }
-    }
-
     val id = presId + "/" + page
     val current = if (page == 1) true else false
     val thumbUrl = presBaseUrl + "/thumbnail/" + page
