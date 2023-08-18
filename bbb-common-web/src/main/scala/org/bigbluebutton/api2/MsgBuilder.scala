@@ -79,8 +79,7 @@ object MsgBuilder {
     val pngUrl = presBaseUrl + "/png/" + page
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
-
-    println("***** ATTEMPTING TO DETERMINE PAGE DIMENSIONS  FOR " + svgUrl + "*****")
+    
     try {
       val imgUrl = new URL(svgUrl)
       val imgContent = XML.load(imgUrl)
