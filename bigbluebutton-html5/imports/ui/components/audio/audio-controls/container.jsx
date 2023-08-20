@@ -61,6 +61,8 @@ const {
   isTalking,
   toggleMuteMicrophone,
   joinListenOnly,
+  muteMic,
+  unmuteMic,
 } = Service;
 
 export default withUsersConsumer(
@@ -95,6 +97,8 @@ export default withUsersConsumer(
         inputStream: AudioManager.inputStream,
         isViewer,
         isPresenter,
+        muteMic,
+        unmuteMic,
       });
     })(AudioControlsContainer)),
   ),

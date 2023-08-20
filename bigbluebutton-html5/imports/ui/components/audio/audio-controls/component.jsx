@@ -46,8 +46,55 @@ const propTypes = {
 class AudioControls extends PureComponent {
   constructor(props) {
     super(props);
-    this.renderButtonsAndStreamSelector = this.renderButtonsAndStreamSelector.bind(this);
-    this.renderJoinLeaveButton = this.renderJoinLeaveButton.bind(this);
+
+    this.state = {
+      pttPressed: false,
+      isUnmuteTriggered: false
+    };
+    this.unmuteTimer = null;
+
+    this.handlePushToTalkDown = this.handlePushToTalk.bind(this, 'down');
+    this.handlePushToTalkUp = this.handlePushToTalk.bind(this, 'up');
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handlePushToTalkDown);
+    document.addEventListener('keyup', this.handlePushToTalkUp);
+  }
+
+  componentWillUnmount() {
+    if (this.unmuteTimer) {
+      clearTimeout(this.unmuteTimer);
+    }
+    document.removeEventListener('keydown', this.handlePushToTalkDown);
+    document.removeEventListener('keyup', this.handlePushToTalkUp);
+  }
+
+  handlePushToTalk(action, event) {
+    const { unmuteMic, muteMic } = this.props;
+    const { pttPressed, isUnmuteTriggered } = this.state;
+
+    if (event.key !== 'm') return;
+
+    if (action === 'down' && !pttPressed) {
+      this.setState({ pttPressed: true }, () => {
+        this.unmuteTimer = setTimeout(() => {
+          if (this.state.pttPressed) {
+            unmuteMic();
+            this.setState({ isUnmuteTriggered: true });
+          }
+        }, 300);
+      });
+    } else if (action === 'up' && pttPressed) {
+      this.setState({ pttPressed: false }, () => {
+        if (!this.state.isUnmuteTriggered) {
+          clearTimeout(this.unmuteTimer);
+        } else {
+          muteMic();
+          this.setState({ isUnmuteTriggered: false });
+        }
+      });
+    }
   }
 
   renderJoinButton() {

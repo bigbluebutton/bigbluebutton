@@ -114,8 +114,30 @@ const toggleMuteMicrophone = throttle(() => {
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
+const muteMic = () => {
+  const user = VoiceUsers.findOne({
+      meetingId: Auth.meetingID, intId: Auth.userID,
+  }, { fields: { muted: 1 } });
+
+  if (!user.muted) {
+      makeCall('toggleVoice');
+  }
+};
+
+const unmuteMic = () => {
+  const user = VoiceUsers.findOne({
+      meetingId: Auth.meetingID, intId: Auth.userID,
+  }, { fields: { muted: 1 } });
+
+  if (user.muted) {
+      makeCall('toggleVoice');
+  }
+};
+
 export default {
   init,
+  muteMic,
+  unmuteMic,
   exitAudio: () => AudioManager.exitAudio(),
   forceExitAudio: () => AudioManager.forceExitAudio(),
   transferCall: () => AudioManager.transferCall(),
