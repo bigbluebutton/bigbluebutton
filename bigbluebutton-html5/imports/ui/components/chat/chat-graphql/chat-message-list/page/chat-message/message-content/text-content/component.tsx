@@ -12,7 +12,7 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
 }) => {
   return (
     <Styled.ChatMessage emphasizedMessage={emphasizedMessage}>
-      <ReactMarkdown>
+      <ReactMarkdown linkTarget="_blank">
         {text}
       </ReactMarkdown>
     </Styled.ChatMessage>
