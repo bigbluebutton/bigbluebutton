@@ -8,7 +8,6 @@ export const ChatMessage = styled.div`
   flex-direction: column;
   color: ${colorText};
   word-break: break-word;
-  margin-left: 2.75rem;
   ${({ emphasizedMessage }) =>
     emphasizedMessage &&
     `
