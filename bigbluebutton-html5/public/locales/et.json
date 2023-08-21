@@ -641,6 +641,7 @@
     "app.actionsBar.reactions.reactionsButtonLabel": "Reaktsiooniriba",
     "app.actionsBar.reactions.raiseHand": "Tõsta käsi",
     "app.actionsBar.reactions.lowHand": "Langeta käsi",
+    "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Sulge reaktsiooniriba automaatselt",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Määra olek",
     "app.actionsBar.emojiMenu.awayLabel": "Eemal",
     "app.actionsBar.emojiMenu.awayDesc": "Määra oma olekuks Eemal",
