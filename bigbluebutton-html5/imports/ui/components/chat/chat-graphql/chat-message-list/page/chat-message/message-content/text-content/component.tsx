@@ -1,4 +1,5 @@
 import React from "react";
+import ReactMarkdown from 'react-markdown';
 import Styled from './styles';
 interface ChatMessageTextContentProps {
   text: string;
@@ -11,7 +12,9 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
 }) => {
   return (
     <Styled.ChatMessage emphasizedMessage={emphasizedMessage}>
-      {text}
+      <ReactMarkdown>
+        {text}
+      </ReactMarkdown>
     </Styled.ChatMessage>
   );
 };

@@ -4,7 +4,6 @@ import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
 import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';
-import { escapeHtml } from '/imports/utils/string-utils';
 import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
@@ -187,7 +186,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       return;
     }
 
-    handleSendMessage(escapeHtml(msg), chatId);
+    handleSendMessage(msg, chatId);
     setMessage('');
     updateUnreadMessages(chatId, '');
     setHasErrors(false);
