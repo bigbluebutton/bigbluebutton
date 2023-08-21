@@ -71,9 +71,10 @@ class AudioControls extends PureComponent {
   }
 
   handlePushToTalk(action, event) {
-    const { unmuteMic, muteMic } = this.props;
-    const { pttPressed, isUnmuteTriggered } = this.state;
+    const { unmuteMic, muteMic, pushToTalkEnabled } = this.props;
+    if (!pushToTalkEnabled || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName.toUpperCase())) return;
 
+    const { pttPressed, isUnmuteTriggered } = this.state;
     if (event.key !== 'm') return;
 
     if (action === 'down' && !pttPressed) {

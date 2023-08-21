@@ -177,6 +177,7 @@ public:
         guestWaitingPushAlerts: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        pushToTalkEnabled: false
         darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale

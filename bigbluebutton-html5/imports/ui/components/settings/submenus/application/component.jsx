@@ -77,6 +77,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.wbToolbarsAutoHideLabel',
     description: 'enable/disable auto hiding of whitebord toolbars',
   },
+  pushToTalkLabel: {
+    id: 'app.submenu.application.pushToTalkLabel',
+    description: 'enable/disable audio push-to-talk',
+  },
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
@@ -421,6 +425,30 @@ class ApplicationMenu extends BaseMenu {
           </Styled.Row>
 
           {this.renderAudioFilters()}
+
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.pushToTalkLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.pushToTalkEnabled)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.pushToTalkEnabled}
+                  onChange={() => this.handleToggle('pushToTalkEnabled')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.pushToTalkLabel)} - ${displaySettingsStatus(settings.pushToTalkEnabled, true)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+
           {this.renderPaginationToggle()}
           {this.renderDarkThemeToggle()}
 
