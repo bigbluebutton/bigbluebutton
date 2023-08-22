@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { generateActionsPermissions, isVoiceOnlyUser } from './service';
 import { useIntl, defineMessages } from 'react-intl';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
@@ -23,6 +24,7 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 interface UserActionsProps {
   user: User;
@@ -31,7 +33,19 @@ interface UserActionsProps {
   usersPolicies: UsersPolicies;
   isBreakout: boolean;
   children: React.ReactNode;
-};
+}
+
+interface DropdownItem {
+  key: string;
+  label: string | undefined;
+  icon: string | undefined;
+  tooltip: string | undefined;
+  allowed: boolean | undefined;
+  iconRight: string | undefined;
+  divider: boolean | undefined;
+  isComponentEmpty: boolean | undefined;
+  onClick: (() => void) | undefined;
+}
 
 const messages = defineMessages({
   statusTriggerLabel: {
@@ -125,6 +139,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
   const actionsnPermitions = generateActionsPermissions(
     user,
     currentUser,
@@ -342,6 +357,45 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
     },
+    ...pluginsProvidedAggregatedState.userListDropdownItemWrappers.filter(
+      (item: PluginSdk.UserListDropdownItemWrapper) => {
+        if (user?.userId === item?.userId) return true;
+        return false;
+      },
+    ).map((userListDropdownItemWrapper: PluginSdk.UserListDropdownItemWrapper) => {
+      const { userListDropdownItem } = userListDropdownItemWrapper;
+      const returnValue: DropdownItem = {
+        isComponentEmpty: false,
+        key: userListDropdownItem.id,
+        divider: undefined,
+        iconRight: undefined,
+        onClick: undefined,
+        label: undefined,
+        icon: undefined,
+        tooltip: undefined,
+        allowed: undefined,
+      };
+      switch (userListDropdownItem.type) {
+        case PluginSdk.UserListDropdownItemType.OPTION: {
+          const dropdownButton = userListDropdownItem as PluginSdk.UserListDropdownOption;
+          returnValue.label = dropdownButton.label;
+          returnValue.tooltip = dropdownButton.tooltip;
+          returnValue.icon = dropdownButton.icon;
+          returnValue.allowed = dropdownButton.allowed;
+          returnValue.onClick = dropdownButton.onClick;
+          break;
+        }
+        case PluginSdk.UserListDropdownItemType.SEPARATOR: {
+          returnValue.allowed = true;
+          returnValue.divider = true;
+          returnValue.isComponentEmpty = true;
+          break;
+        }
+        default:
+          break;
+      }
+      return returnValue;
+    }),
   ];
 
   const nestedOptions = [

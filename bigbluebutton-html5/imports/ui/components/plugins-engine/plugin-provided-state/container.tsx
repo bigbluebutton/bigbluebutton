@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
-import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+
+import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types.ts';
 import { PluginsContext } from '../../components-data/plugin-context/context';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
@@ -8,9 +9,8 @@ const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
   item: T, index: number,
 ): T {
-  const itemWithId = { ...item };
-  itemWithId.setItemId(`${index}`);
-  return itemWithId;
+  item.setItemId(`${index}`);
+  return item;
 }
 
 const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) => {
@@ -27,6 +27,11 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
     setPresentationToolbarItems,
   ] = useState<PluginSdk.PresentationToolbarItem[]>([]);
 
+  const [
+    userListDropdownItemWrappers,
+    setUserListDropdownItemWrappers,
+  ] = useState<PluginSdk.UserListDropdownItemWrapper[]>([]);
+
   const {
     pluginsProvidedAggregatedState,
     setPluginsProvidedAggregatedState,
@@ -35,23 +40,39 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
   useEffect(() => {
     // Change this plugin provided toolbar items
     pluginProvidedStateMap[uuid].presentationToolbarItems = presentationToolbarItems;
+    pluginProvidedStateMap[uuid].userListDropdownItemWrappers = userListDropdownItemWrappers;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedPresentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
       ...Object.values(pluginProvidedStateMap)
         .map((pps: PluginProvidedState) => pps.presentationToolbarItems),
     );
+    const aggregatedUserListDropdownItemWrappers = (
+      [] as PluginSdk.UserListDropdownItemWrapper[]).concat(
+      ...Object.values(pluginProvidedStateMap)
+        .map((pps: PluginProvidedState) => pps.userListDropdownItemWrappers),
+    );
     setPluginsProvidedAggregatedState(
       {
         ...pluginsProvidedAggregatedState,
         presentationToolbarItems: aggregatedPresentationToolbarItems,
+        userListDropdownItemWrappers: aggregatedUserListDropdownItemWrappers,
       },
     );
-  }, [presentationToolbarItems]);
+  }, [presentationToolbarItems, userListDropdownItemWrappers]);
 
-  pluginApi.setPresentationToolbarItems = (items) => {
+  pluginApi.setPresentationToolbarItems = (items: PluginSdk.PresentationToolbarItem[]) => {
     const itemsWithId = items.map(generateItemWithId);
     return setPresentationToolbarItems(itemsWithId);
+  };
+
+  pluginApi.setUserListDropdownItemWrappers = (items: PluginSdk.UserListDropdownItemWrapper[]) => {
+    const itemsWithId = items.map((item: PluginSdk.UserListDropdownItemWrapper, index: number) => ({
+      userId: item.userId,
+      userListDropdownItem: generateItemWithId(item.userListDropdownItem, index),
+    } as PluginSdk.UserListDropdownItemWrapper));
+
+    return setUserListDropdownItemWrappers(itemsWithId);
   };
   return null;
 };

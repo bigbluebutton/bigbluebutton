@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useSubscription } from '@apollo/client';
 import { AutoSizer } from 'react-virtualized';
 import Styled from './styles';
@@ -16,6 +16,7 @@ import { debounce } from 'radash';
 
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -121,6 +122,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
 
+  const { setInformationToLoadUserListData } = useContext(PluginsContext);
   const {
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
@@ -134,6 +136,12 @@ const UserListParticipantsContainer: React.FC = () => {
     } as Partial<User>;
   });
 
+  useEffect(() => {
+    setInformationToLoadUserListData({
+      offset,
+      limit,
+    });
+  }, [offset, limit]);
   return <>
     <UserListParticipants
       users={users}
