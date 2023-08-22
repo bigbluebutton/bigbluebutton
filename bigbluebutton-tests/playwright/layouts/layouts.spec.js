@@ -13,8 +13,8 @@ test.describe.serial("Layout management", () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await layouts.initModPage(page, true,  { customParameter: hidePresentationToast, customMeetingId: CUSTOM_MEETING_ID });
-    await layouts.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await layouts.initModPage(page, true,  { createParameter: hidePresentationToast, customMeetingId: CUSTOM_MEETING_ID });
+    await layouts.initUserPage(true, context, { createParameter: hidePresentationToast });
     await layouts.modPage.shareWebcam();
     await layouts.userPage.shareWebcam();
   });
