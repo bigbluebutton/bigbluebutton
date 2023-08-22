@@ -641,6 +641,7 @@
     "app.actionsBar.reactions.reactionsButtonLabel": "リアクションバー",
     "app.actionsBar.reactions.raiseHand": "手をあげる",
     "app.actionsBar.reactions.lowHand": "手をおろす",
+    "app.actionsBar.reactions.autoCloseReactionsBarLabel": "リアクションバーを自動で隠す",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "ステータス設定",
     "app.actionsBar.emojiMenu.awayLabel": "不在",
     "app.actionsBar.emojiMenu.awayDesc": "スタータスを「不在」にする",

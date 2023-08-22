@@ -6,6 +6,7 @@ import ReactionsButton from './component';
 import actionsBarService from '../service';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
+import SettingsService from '/imports/ui/services/settings';
 
 const ReactionsButtonContainer = ({ ...props }) => {
   const layoutContextDispatch = layoutDispatch();
@@ -32,6 +33,7 @@ export default injectIntl(withTracker(() => {
     emoji: currentUser.emoji,
     currentUserReaction: currentUserReaction.reaction,
     raiseHand: currentUser.raiseHand,
+    autoCloseReactionsBar: SettingsService?.application?.autoCloseReactionsBar,
   };
 })(ReactionsButtonContainer));
 
