@@ -26,7 +26,7 @@ function usePrevious(value) {
 }
 
 const WakeLockContainer = (props) => {
-  if (!Service.isSupported()) return null;
+  if (!Service.isMobile()) return null;
 
   const { areAudioModalsOpen, autoJoin } = props;
   const wereAudioModalsOpen = usePrevious(areAudioModalsOpen);
@@ -45,11 +45,10 @@ WakeLockContainer.propTypes = propTypes;
 WakeLockContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
-  const wakeLockSettings = Settings.application.wakeLock;
   return {
     request: Service.request,
     release: Service.release,
-    wakeLockSettings,
+    wakeLockSettings: Settings.application.wakeLock,
     areAudioModalsOpen: Session.get('audioModalIsOpen') || Session.get('inEchoTest'),
     autoJoin: getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin),
   };
