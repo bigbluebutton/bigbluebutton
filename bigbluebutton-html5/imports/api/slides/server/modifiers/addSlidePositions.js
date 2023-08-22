@@ -1,6 +1,4 @@
 import { SlidePositions } from '/imports/api/slides';
-import { Meteor } from 'meteor/meteor';
-import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import flat from 'flat';
@@ -12,10 +10,6 @@ export default async function addSlidePositions(
   slideId,
   slidePosition,
 ) {
-  const REDIS_CONFIG = Meteor.settings.private.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'AddSlidePositionsPubMsg';
-
   check(meetingId, String);
   check(podId, String);
   check(presentationId, String);
@@ -56,21 +50,6 @@ export default async function addSlidePositions(
     } else {
       Logger.info(`Upserted slide position id=${slideId} pod=${podId} presentation=${presentationId}`);
     }
-
-    const {
-      width, height, viewBoxWidth, viewBoxHeight,
-    } = slidePosition;
-
-    const payload = {
-      slideId,
-      width,
-      height,
-      viewBoxWidth,
-      viewBoxHeight,
-    };
-
-    Logger.info('Sending slide position data to backen');
-    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, '', payload);
   } catch (err) {
     Logger.error(`Adding slide position to collection: ${err}`);
   }
