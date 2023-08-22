@@ -74,19 +74,6 @@ object PresPageDAO {
       }
   }
 
-  def addSlidePosition(slideId: String, width: Double, height: Double,
-                       viewBoxWidth: Double, viewBoxHeight: Double) = {
-    DatabaseConnection.db.run(
-      TableQuery[PresPageDbTableDef]
-        .filter(_.pageId === slideId)
-        .map(p => (p.width, p.height, p.viewBoxWidth, p.viewBoxHeight))
-        .update((width, height, viewBoxWidth, viewBoxHeight))
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) added slide position on PresPage table")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating slide position on PresPage: $e")
-      }
-  }
-
   def updateSlidePosition(pageId: String, width: Double, height: Double, xOffset: Double, yOffset: Double,
                           widthRatio: Double, heightRatio: Double) = {
     DatabaseConnection.db.run(

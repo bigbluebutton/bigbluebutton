@@ -57,6 +57,8 @@ export default async function addSlide(meetingId, podId, presentationId, slide) 
     yOffset: Number,
     widthRatio: Number,
     heightRatio: Number,
+    width: Number,
+    height: Number,
     content: String,
   });
 
@@ -79,15 +81,15 @@ export default async function addSlide(meetingId, podId, presentationId, slide) 
   const imageUri = slide.svgUri || slide.pngUri;
 
   const modifier = {
-    $set: Object.assign(
-      { meetingId },
-      { podId },
-      { presentationId },
-      { id: slideId },
-      { imageUri },
-      flat(restSlide),
-      { safe: true },
-    ),
+    $set: {
+      meetingId,
+      podId,
+      presentationId,
+      id: slideId,
+      imageUri,
+      ...flat(restSlide),
+      safe: true,
+    },
   };
 
   const imageSizeUri = (loadSlidesFromHttpAlways ? imageUri.replace(/^https/i, 'http') : imageUri);

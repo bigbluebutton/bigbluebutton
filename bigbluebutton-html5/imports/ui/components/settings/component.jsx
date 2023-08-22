@@ -94,6 +94,7 @@ const propTypes = {
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
+  isReactionsEnabled: PropTypes.bool.isRequired,
 };
 
 class Settings extends Component {
@@ -173,6 +174,7 @@ class Settings extends Component {
       selectedLayout,
       isScreenSharingEnabled,
       isVideoEnabled,
+      isReactionsEnabled,
     } = this.props;
 
     const {
@@ -225,6 +227,7 @@ class Settings extends Component {
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
             isPresenter={isPresenter}
+            isReactionsEnabled={isReactionsEnabled}
           />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">

@@ -10,9 +10,10 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   emphasizedMessage,
 }) => {
   return (
-    <Styled.ChatMessage emphasizedMessage={emphasizedMessage}>
-      {text}
-    </Styled.ChatMessage>
+    <Styled.ChatMessage
+      emphasizedMessage={emphasizedMessage}
+      dangerouslySetInnerHTML={{ __html: text }}
+    />
   );
 };
 

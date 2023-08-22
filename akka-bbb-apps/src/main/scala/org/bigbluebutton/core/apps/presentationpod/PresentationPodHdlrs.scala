@@ -21,7 +21,6 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with PresentationUploadTokenReqMsgHdlr
   with MakePresentationDownloadReqMsgHdlr
   with ResizeAndMovePagePubMsgHdlr
-  with AddSlidePositionsPubMsgHdlr
   with SlideResizedPubMsgHdlr
   with SyncGetPresentationPodsMsgHdlr
   with RemovePresentationPodPubMsgHdlr

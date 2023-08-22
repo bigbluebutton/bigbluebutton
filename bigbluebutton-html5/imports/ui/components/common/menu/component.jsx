@@ -128,7 +128,7 @@ class BBBMenu extends React.Component {
             disableGutters={true}
             disabled={disabled}
             style={customStyles}
-            roundButtons={roundButtons}
+            $roundButtons={roundButtons}
             onClick={(event) => {
               onClick();
               const close = !keepOpen && !key?.includes('setstatus') && !key?.includes('back');
@@ -212,7 +212,7 @@ class BBBMenu extends React.Component {
           style={menuStyles}
           data-test={dataTest}
           onKeyDownCapture={this.handleKeyDown}
-          isHorizontal={isHorizontal}
+          $isHorizontal={isHorizontal}
           PaperProps={{
             style: hasRoundedCorners ? roundedCornersStyles : {},
             className: overrideMobileStyles ? 'override-mobile-styles' : 'MuiPaper-root-mobile',
