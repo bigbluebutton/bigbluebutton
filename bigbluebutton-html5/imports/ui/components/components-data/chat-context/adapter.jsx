@@ -19,7 +19,7 @@ const TIME_BETWEEN_FETCHS = CHAT_CONFIG.timeBetweenFetchs;
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
 const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-ready';
 
-const referenceIds = {};
+let referenceIds = {};
 
 const getMessagesBeforeJoinCounter = async () => {
   const counter = await makeCall('chatMessageBeforeJoinCounter');
@@ -108,6 +108,7 @@ const Adapter = () => {
     if (users[Auth.meetingID] && users[Auth.meetingID][Auth.userID]) {
       if (currentUserData?.role !== users[Auth.meetingID][Auth.userID]?.role) {
         prevUserData = currentUserData;
+        referenceIds = {};
       }
       currentUserData = users[Auth.meetingID][Auth.userID];
     }
