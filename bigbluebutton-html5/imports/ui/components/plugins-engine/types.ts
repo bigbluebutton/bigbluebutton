@@ -28,7 +28,7 @@ export interface EffectivePluginConfig extends PluginConfig {
 
 export interface PluginProvidedState {
     presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
-    userListDropdownItemWrappers: PluginSdk.UserListDropdownItemWrapper[];
+    userListDropdownItems: PluginSdk.UserListDropdownItem[];
 }
 
 /**

@@ -357,13 +357,12 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
     },
-    ...pluginsProvidedAggregatedState.userListDropdownItemWrappers.filter(
-      (item: PluginSdk.UserListDropdownItemWrapper) => {
+    ...pluginsProvidedAggregatedState.userListDropdownItems.filter(
+      (item: PluginSdk.UserListDropdownItem) => {
         if (user?.userId === item?.userId) return true;
         return false;
       },
-    ).map((userListDropdownItemWrapper: PluginSdk.UserListDropdownItemWrapper) => {
-      const { userListDropdownItem } = userListDropdownItemWrapper;
+    ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
       const returnValue: DropdownItem = {
         isComponentEmpty: false,
         key: userListDropdownItem.id,

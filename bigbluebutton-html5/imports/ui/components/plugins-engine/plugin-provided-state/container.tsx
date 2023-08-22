@@ -28,9 +28,9 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
   ] = useState<PluginSdk.PresentationToolbarItem[]>([]);
 
   const [
-    userListDropdownItemWrappers,
-    setUserListDropdownItemWrappers,
-  ] = useState<PluginSdk.UserListDropdownItemWrapper[]>([]);
+    userListDropdownItems,
+    setUserListDropdownItems,
+  ] = useState<PluginSdk.UserListDropdownItem[]>([]);
 
   const {
     pluginsProvidedAggregatedState,
@@ -40,39 +40,36 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
   useEffect(() => {
     // Change this plugin provided toolbar items
     pluginProvidedStateMap[uuid].presentationToolbarItems = presentationToolbarItems;
-    pluginProvidedStateMap[uuid].userListDropdownItemWrappers = userListDropdownItemWrappers;
+    pluginProvidedStateMap[uuid].userListDropdownItems = userListDropdownItems;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedPresentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
       ...Object.values(pluginProvidedStateMap)
         .map((pps: PluginProvidedState) => pps.presentationToolbarItems),
     );
-    const aggregatedUserListDropdownItemWrappers = (
-      [] as PluginSdk.UserListDropdownItemWrapper[]).concat(
+    const aggregatedUserListDropdownItems = (
+      [] as PluginSdk.UserListDropdownItem[]).concat(
       ...Object.values(pluginProvidedStateMap)
-        .map((pps: PluginProvidedState) => pps.userListDropdownItemWrappers),
+        .map((pps: PluginProvidedState) => pps.userListDropdownItems),
     );
     setPluginsProvidedAggregatedState(
       {
         ...pluginsProvidedAggregatedState,
         presentationToolbarItems: aggregatedPresentationToolbarItems,
-        userListDropdownItemWrappers: aggregatedUserListDropdownItemWrappers,
+        userListDropdownItems: aggregatedUserListDropdownItems,
       },
     );
-  }, [presentationToolbarItems, userListDropdownItemWrappers]);
+  }, [presentationToolbarItems, userListDropdownItems]);
 
   pluginApi.setPresentationToolbarItems = (items: PluginSdk.PresentationToolbarItem[]) => {
     const itemsWithId = items.map(generateItemWithId);
     return setPresentationToolbarItems(itemsWithId);
   };
 
-  pluginApi.setUserListDropdownItemWrappers = (items: PluginSdk.UserListDropdownItemWrapper[]) => {
-    const itemsWithId = items.map((item: PluginSdk.UserListDropdownItemWrapper, index: number) => ({
-      userId: item.userId,
-      userListDropdownItem: generateItemWithId(item.userListDropdownItem, index),
-    } as PluginSdk.UserListDropdownItemWrapper));
+  pluginApi.setUserListDropdownItems = (items: PluginSdk.UserListDropdownItem[]) => {
+    const itemsWithId = items.map(generateItemWithId);
 
-    return setUserListDropdownItemWrappers(itemsWithId);
+    return setUserListDropdownItems(itemsWithId);
   };
   return null;
 };
