@@ -130,6 +130,7 @@ export const sortVideoStreams = (streams, mode) => {
 
   return sorted.map(videoStream => ({
     stream: videoStream.stream,
+    isGridItem: videoStream?.isGridItem,
     userId: videoStream.userId,
     name: videoStream.name,
     sortName: videoStream.sortName,

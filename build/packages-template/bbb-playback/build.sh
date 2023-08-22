@@ -46,6 +46,6 @@ cp playback.nginx staging/usr/share/bigbluebutton/nginx
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh \
-    --description "BigBlueButton playback" \
+    --description "Player for BigBlueButton presentation format recordings" \
     $DIRECTORIES \
     $OPTS

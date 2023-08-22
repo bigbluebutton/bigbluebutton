@@ -2,6 +2,9 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VideoProvider from './component';
 import VideoService from './service';
+import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
+
+const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const VideoProviderContainer = ({ children, ...props }) => {
   const { streams, isGridEnabled } = props;
@@ -16,12 +19,20 @@ export default withTracker(({ swapLayout, ...rest }) => {
   // }
   const {
     streams,
+    gridUsers,
     totalNumberOfStreams,
   } = VideoService.getVideoStreams();
 
+  let usersVideo = streams;
+
+  if(gridUsers.length > 0) {
+    const items = usersVideo.concat(gridUsers);
+    usersVideo = sortVideoStreams(items, DEFAULT_SORTING);
+  }
+
   return {
     swapLayout,
-    streams,
+    streams: usersVideo,
     totalNumberOfStreams,
     isUserLocked: VideoService.isUserLocked(),
     currentVideoPageIndex: VideoService.getCurrentVideoPageIndex(),

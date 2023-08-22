@@ -472,6 +472,7 @@ exports.wbColorRed = 'button[id="TD-Styles-Color-Swatch-red"]';
 exports.wbFillDrawing = 'button[id="TD-Styles-Fill"]';
 exports.wbDashDotted = 'div[id="TD-Styles-Dash-dotted"]';
 exports.wbSizeLarge = 'div[id="TD-Styles-Dash-large"]';
+exports.wbPaste = 'button[id="TD-ContextMenu-Paste"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
