@@ -68,7 +68,6 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
 
   pluginApi.setUserListDropdownItems = (items: PluginSdk.UserListDropdownItem[]) => {
     const itemsWithId = items.map(generateItemWithId);
-
     return setUserListDropdownItems(itemsWithId);
   };
   return null;

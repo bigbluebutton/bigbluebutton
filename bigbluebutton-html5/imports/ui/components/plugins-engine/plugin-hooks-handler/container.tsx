@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CurrentPresentationHookContainer from './use-current-presentation/container'
-import LoadedUserListContainer from './use-loaded-user-list/container'
+import LoadedUserListHookContainer from './use-loaded-user-list/container'
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 const PluginHooksHandlerContainer = () => {
@@ -50,7 +50,7 @@ const PluginHooksHandlerContainer = () => {
       { numberOfActiveCurrentPresentationHookSubscriptions > 0 ?
         <CurrentPresentationHookContainer /> : null }
       { numberOfActiveLoadedUserListHookSubscriptions > 0 ?
-        <LoadedUserListContainer /> : null }
+        <LoadedUserListHookContainer /> : null }
     </>
   );
 };

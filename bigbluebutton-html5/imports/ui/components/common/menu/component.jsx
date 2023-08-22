@@ -118,7 +118,7 @@ class BBBMenu extends React.Component {
       }
       return [
         a.dividerTop && <Divider disabled />,
-        !a.isComponentEmpty ? (
+        !a.isOptionEmpty ? (
           <Styled.BBBMenuItem
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}

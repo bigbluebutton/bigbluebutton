@@ -43,7 +43,7 @@ interface DropdownItem {
   allowed: boolean | undefined;
   iconRight: string | undefined;
   divider: boolean | undefined;
-  isComponentEmpty: boolean | undefined;
+  isOptionEmpty: boolean | undefined;
   onClick: (() => void) | undefined;
 }
 
@@ -364,7 +364,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
     ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
       const returnValue: DropdownItem = {
-        isComponentEmpty: false,
+        isOptionEmpty: false,
         key: userListDropdownItem.id,
         divider: undefined,
         iconRight: undefined,
@@ -387,7 +387,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         case PluginSdk.UserListDropdownItemType.SEPARATOR: {
           returnValue.allowed = true;
           returnValue.divider = true;
-          returnValue.isComponentEmpty = true;
+          returnValue.isOptionEmpty = true;
           break;
         }
         default:

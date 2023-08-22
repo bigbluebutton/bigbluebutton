@@ -5,7 +5,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { USERS_SUBSCRIPTION } from
   '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/queries';
 
-const LoadedUserListContainer = () => {
+const LoadedUserListHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
   const { informationToLoadUserListData } = useContext(PluginsContext);
   const {
@@ -50,4 +50,4 @@ const LoadedUserListContainer = () => {
   return null;
 };
 
-export default LoadedUserListContainer;
+export default LoadedUserListHookContainer;
