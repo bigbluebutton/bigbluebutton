@@ -641,6 +641,7 @@
     "app.actionsBar.reactions.reactionsButtonLabel": "Erreakzioen barra",
     "app.actionsBar.reactions.raiseHand": "Altxatu eskua",
     "app.actionsBar.reactions.lowHand": "Jaitsi eskua",
+    "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Itxi automatikoki erreakzio-barra",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Ezarri egoera",
     "app.actionsBar.emojiMenu.awayLabel": "Kanpoan",
     "app.actionsBar.emojiMenu.awayDesc": "Aldatu zure egoera: kanpoan",
