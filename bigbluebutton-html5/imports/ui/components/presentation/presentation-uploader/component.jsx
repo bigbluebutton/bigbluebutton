@@ -29,7 +29,7 @@ const propTypes = {
   fileSizeMax: PropTypes.number.isRequired,
   filePagesMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
-  dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
+  dispatchChangePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.shape).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -609,7 +609,7 @@ class PresentationUploader extends Component {
       handleSave,
       selectedToBeNextCurrent,
       presentations: propPresentations,
-      dispatchTogglePresentationDownloadable,
+      dispatchChangePresentationDownloadable,
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
@@ -630,7 +630,7 @@ class PresentationUploader extends Component {
           (p) => p.id === item.id && p.isDownloadable !== item.isDownloadable,
         );
         if (didDownloadableStateChange) {
-          dispatchTogglePresentationDownloadable(item, item.isDownloadable);
+          dispatchChangePresentationDownloadable(item, item.isDownloadable);
         }
       }
     });
