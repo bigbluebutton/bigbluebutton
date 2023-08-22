@@ -43,7 +43,10 @@ case "$1" in
     touch /var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log
 
     yq e -i '.recordWebcams = true' $TARGET
-
+    # Set bbb-webrtc-recorder as the default recordingAdapter
+    yq e -i '.recordingAdapter = "bbb-webrtc-recorder"' $TARGET
+    # Do not configure any Kurento instances - BBB >= 2.8 doesn't provide Kurento by default
+    yq e -i '.kurento = []' $TARGET
 
     echo "Resetting mcs-address from localhost to 127.0.0.1"
     yq e -i '.mcs-address = "127.0.0.1"' $TARGET
