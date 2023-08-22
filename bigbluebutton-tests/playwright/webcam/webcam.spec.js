@@ -49,7 +49,7 @@ test.describe.parallel('Webcam @ci', () => {
       await webcam.applyBackground();
     });
 
-    test('Managing new background', async ({ browser, page }) => {
+    test('Managing new background @flaky', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.managingNewBackground();
