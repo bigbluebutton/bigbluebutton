@@ -16,9 +16,12 @@ class Pan extends MultiUsers {
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
+    const zoomResetBtn = this.modPage.getLocator(e.resetZoomButton);
 
     for(let i = 100; i < 200; i += 25) {
+      const currentZoomLabel = await zoomResetBtn.textContent();
       await this.modPage.waitAndClick(e.zoomInButton);
+      await expect(zoomResetBtn).not.toContainText(currentZoomLabel);
     }
 
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
