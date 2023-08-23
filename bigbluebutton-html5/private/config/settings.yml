@@ -594,8 +594,7 @@ public:
       frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
-    allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'li', 'ol', 'ul', 'p', 'strong']
-    replaceImageLinks: true
+    allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
   userReaction:
     enabled: true
     expire: 60
