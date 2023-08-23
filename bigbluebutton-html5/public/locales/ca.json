@@ -1184,7 +1184,7 @@
     "app.layout.modal.cancel": "Cancel·lar",
     "app.layout.modal.layoutLabel": "Selecciona el teu disseny",
     "app.layout.modal.keepPushingLayoutLabel": "Disseny push per a tots",
-    "app.layout.modal.pushLayoutLabel": "Push to everyone",
+    "app.layout.modal.pushLayoutLabel": "Empènyer a tots",
     "app.layout.modal.layoutToastLabel": "Canvis en la configuració del disseny",
     "app.layout.modal.layoutSingular": "Disseny",
     "app.layout.modal.layoutBtnDesc": "Estableix el disseny com a opció seleccionada",
