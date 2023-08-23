@@ -171,6 +171,13 @@ const UserActions: React.FC<UserActionsProps> = ({
     && lockSettings.hasActiveLockSetting
     && !user.isModerator;
 
+  let userListDropdownItems = [] as PluginSdk.UserListDropdownItem[];
+  if (pluginsProvidedAggregatedState.userListDropdownItems) {
+    userListDropdownItems = [
+      ...pluginsProvidedAggregatedState.userListDropdownItems,
+    ];
+  }
+
   const dropdownOptions = [
     {
       allowed: allowedToChangeStatus,
@@ -357,7 +364,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
     },
-    ...pluginsProvidedAggregatedState.userListDropdownItems.filter(
+    ...userListDropdownItems.filter(
       (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
     ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
       const returnValue: DropdownItem = {

@@ -42,3 +42,11 @@ export interface PluginProvidedState {
 export type PluginsProvidedStateMap = {
     [uuid: string]: PluginProvidedState;
 }
+
+export interface PluginProvidedStateChildrenProps {
+    uuid: string;
+    generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
+        item: T, index: number): T;
+    pluginProvidedStateMap: PluginsProvidedStateMap;
+    pluginApi: PluginSdk.PluginApi;
+}
