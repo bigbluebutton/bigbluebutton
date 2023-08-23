@@ -11,13 +11,14 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   emphasizedMessage,
 }) => {
   // @ts-ignore - temporary, while meteor exists in the project
-  const { allowedElements } = Meteor.settings.public.chat.allowedElements;
+  const { allowedElements } = Meteor.settings.public.chat;
 
   return (
     <Styled.ChatMessage emphasizedMessage={emphasizedMessage}>
       <ReactMarkdown
         linkTarget="_blank"
         allowedElements={allowedElements}
+        unwrapDisallowed={true}
       >
         {text}
       </ReactMarkdown>
