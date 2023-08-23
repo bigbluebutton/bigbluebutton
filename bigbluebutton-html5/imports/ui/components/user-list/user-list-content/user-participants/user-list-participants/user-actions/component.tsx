@@ -358,10 +358,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: 'video_off',
     },
     ...pluginsProvidedAggregatedState.userListDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownItem) => {
-        if (user?.userId === item?.userId) return true;
-        return false;
-      },
+      (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
     ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
       const returnValue: DropdownItem = {
         isOptionEmpty: false,

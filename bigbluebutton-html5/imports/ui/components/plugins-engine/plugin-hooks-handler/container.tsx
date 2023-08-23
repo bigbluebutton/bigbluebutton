@@ -47,12 +47,12 @@ const PluginHooksHandlerContainer = () => {
   }, []);
   return (
     <>
-      { numberOfActiveCurrentPresentationHookSubscriptions > 0 ?
-        <CurrentPresentationHookContainer /> : null }
-      { numberOfActiveLoadedUserListHookSubscriptions > 0 ?
-        <LoadedUserListHookContainer /> : null }
+      { numberOfActiveCurrentPresentationHookSubscriptions > 0
+        ? <CurrentPresentationHookContainer /> : null }
+      { numberOfActiveLoadedUserListHookSubscriptions > 0
+        ? <LoadedUserListHookContainer /> : null }
     </>
   );
 };
 
-export default PluginHooksHandlerContainer
+export default PluginHooksHandlerContainer;
