@@ -872,7 +872,7 @@
     "app.toast.meetingMuteOff.label": "Meeting mute turned off",
     "app.toast.wakeLock.acquireSuccess": "Wake lock active! You can turn it off under the settings menu.",
     "app.toast.wakeLock.acquireFailed": "Error acquiring wake lock",
-    "app.toast.wakeLock.notSupported": "Your Browser does not support wake locks",
+    "app.toast.wakeLock.notSupported": "Your browser does not support wake locks",
     "app.toast.wakeLock.disclaimer": "{0}. You will be dropped from the call after your screen turns off.",
     "app.toast.setEmoji.raiseHand": "You have raised your hand",
     "app.toast.setEmoji.lowerHand": "Your hand has been lowered",
