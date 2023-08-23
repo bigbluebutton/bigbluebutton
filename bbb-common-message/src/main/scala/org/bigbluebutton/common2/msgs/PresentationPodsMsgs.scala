@@ -33,7 +33,8 @@ case class RemovePresentationPubMsgBody(podId: String, presentationId: String)
 
 object SetPresentationDownloadablePubMsg { val NAME = "SetPresentationDownloadablePubMsg" }
 case class SetPresentationDownloadablePubMsg(header: BbbClientMsgHeader, body: SetPresentationDownloadablePubMsgBody) extends StandardMsg
-case class SetPresentationDownloadablePubMsgBody(podId: String, presentationId: String, downloadable: Boolean)
+case class SetPresentationDownloadablePubMsgBody(podId: String, presentationId: String, downloadable: Boolean,
+                                                 fileStateType: String)
 
 object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg" }
 case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
@@ -331,7 +332,8 @@ case class RemovePresentationEvtMsgBody(podId: String, presentationId: String)
 
 object SetPresentationDownloadableEvtMsg { val NAME = "SetPresentationDownloadableEvtMsg" }
 case class SetPresentationDownloadableEvtMsg(header: BbbClientMsgHeader, body: SetPresentationDownloadableEvtMsgBody) extends BbbCoreMsg
-case class SetPresentationDownloadableEvtMsgBody(podId: String, presentationId: String, downloadable: Boolean, presFilename: String)
+case class SetPresentationDownloadableEvtMsgBody(podId: String, presentationId: String, downloadable: Boolean,
+                                                 presFilename: String, downloadableExtension: String)
 
 object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg" }
 case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg

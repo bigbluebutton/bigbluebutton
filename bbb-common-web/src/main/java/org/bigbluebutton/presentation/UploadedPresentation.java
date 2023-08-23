@@ -227,14 +227,4 @@ public final class UploadedPresentation {
     String nameWithoutExtension = FilenameUtils.removeExtension(name);
     this.filenameConverted = nameWithoutExtension.concat("." + newExtension);
   }
-
-  public void deleteOriginalFile() {
-    String pathToFileWithoutExtension = FilenameUtils.removeExtension(uploadedFile.getPath());
-    String newExtension = FilenameUtils.getExtension(uploadedFile.getPath());
-    String originalExtension = FilenameUtils.getExtension(name);
-    if (!originalExtension.equals("pdf") && newExtension.equals("pdf")) {
-      File originalFile = new File(pathToFileWithoutExtension + "." + originalExtension);
-      originalFile.delete();
-    }
-  }
 }

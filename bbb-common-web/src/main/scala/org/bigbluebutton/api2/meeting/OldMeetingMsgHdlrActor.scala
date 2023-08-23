@@ -184,7 +184,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     val presId = msg.body.presentationId
     val downloadable = msg.body.downloadable
     val presFilename = msg.body.presFilename
-    val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable)
+    val downloadableExtension = msg.body.downloadableExtension;
+    val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable, downloadableExtension)
     olgMsgGW.handle(m)
   }
 
