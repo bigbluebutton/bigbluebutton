@@ -33,7 +33,6 @@ const UserListDropdownPluginStateContainer = (
       ...Object.values(pluginProvidedStateMap)
         .map((pps: PluginProvidedState) => pps.userListDropdownItems),
     );
-    console.log("Teste aquiii ----> ", aggregatedUserListDropdownItems)
     setPluginsProvidedAggregatedState(
       {
         ...pluginsProvidedAggregatedState,

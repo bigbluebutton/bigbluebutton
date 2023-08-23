@@ -28,7 +28,6 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
     pluginProvidedStateMap,
     pluginApi,
   };
-  console.log("Teste aqui ----> ", pluginProvidedStateChildrenProps)
   return (
     <>
       <PresentationToolbarPluginStateContainer
