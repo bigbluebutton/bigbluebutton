@@ -1,72 +1,98 @@
-name: 'Automated tests'
+name: "Automated tests"
 on:
   push:
     branches:
-      - 'develop'
-      - 'v2.[5-9].x-release'
-      - 'v[3-9].*.x-release'
+      - "develop"
+      - "v2.[5-9].x-release"
+      - "v[3-9].*.x-release"
     paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
+      - "docs/**"
+      - "**/*.md"
   pull_request:
     types: [opened, synchronize, reopened]
     paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
+      - "docs/**"
+      - "**/*.md"
+      - "bigbluebutton-html5/public/locales/*.json"
 permissions:
   contents: read
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+  save-pr-number:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save data to comment workflow
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          WORKFLOW_ID: ${{ github.run_id }}
+        run: |
+          mkdir -p ./pr-comment-data
+          echo $PR_NUMBER > ./pr-comment-data/pr_number
+          echo $WORKFLOW_ID > ./pr-comment-data/workflow_id
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pr-comment-data
+          path: pr-comment-data
   build-bbb-apps-akka:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-apps-akka
       cache-files-list: akka-bbb-apps bbb-common-message
   build-bbb-config:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-config
       cache-files-list: bigbluebutton-config
   build-bbb-export-annotations:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-export-annotations
       cache-files-list: bbb-export-annotations
   build-bbb-learning-dashboard:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-learning-dashboard
       cache-files-list: bbb-learning-dashboard
   build-bbb-playback-record:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-playback-record
       build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
   build-bbb-etherpad:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-etherpad
       cache-files-list: bbb-etherpad.placeholder.sh build/packages-template/bbb-etherpad
       cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
   build-bbb-bbb-web:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-web
       cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
   build-bbb-fsesl-akka:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-fsesl-akka
       cache-files-list: akka-bbb-fsesl bbb-common-message
   build-bbb-html5:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-html5
       build-list: bbb-html5-nodejs bbb-html5
       cache-files-list: bigbluebutton-html5
   build-bbb-freeswitch:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-freeswitch
@@ -74,18 +100,34 @@ jobs:
       cache-files-list: freeswitch.placeholder.sh build/packages-template/bbb-freeswitch-core build/packages-template/bbb-freeswitch-sounds
       cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
   build-bbb-webrtc:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-webrtc
       build-list: bbb-webrtc-sfu bbb-webrtc-recorder
       cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh build/packages-template/bbb-webrtc-sfu build/packages-template/bbb-webrtc-recorder
   build-others:
+    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: others
       build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton
   install-and-run-tests:
-    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-export-annotations, build-bbb-learning-dashboard, build-bbb-playback-record, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-bbb-webrtc, build-others]
+    needs:
+      [
+        build-bbb-apps-akka,
+        build-bbb-config,
+        build-bbb-export-annotations,
+        build-bbb-learning-dashboard,
+        build-bbb-playback-record,
+        build-bbb-etherpad,
+        build-bbb-bbb-web,
+        build-bbb-fsesl-akka,
+        build-bbb-html5,
+        build-bbb-freeswitch,
+        build-bbb-webrtc,
+        build-others,
+      ]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
@@ -160,6 +202,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifacts_others.tar
+      - uses: actions/download-artifact@v3
+        with:
+          name: pr-comment-data
       - run: tar xf artifacts.tar
       - name: Extracting files .tar
         run: |
@@ -216,36 +261,36 @@ jobs:
       - name: Setup local repository
         shell: bash
         run: |
-            sudo -i <<EOF
-            set -e
-            apt install -yq dpkg-dev
-            cd /root && wget -nv http://ci.bbb.imdt.dev/cache-3rd-part-packages.tar
-            cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
-            cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
-            cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-            echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
-            EOF
+          sudo -i <<EOF
+          set -e
+          apt install -yq dpkg-dev
+          cd /root && wget -nv http://ci.bbb.imdt.dev/cache-3rd-part-packages.tar
+          cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
+          cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
+          cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+          echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
+          EOF
       - name: Prepare for install
         run: |
-            sudo sh -c '
-            apt --purge -y remove apache2-bin
-            '
+          sudo sh -c '
+          apt --purge -y remove apache2-bin
+          '
       - name: Install BBB
         run: |
-            sudo -i <<EOF
-            set -e
-            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh -O bbb-install.sh
-            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-27-dev -s bbb-ci.test -j -d /certs/
-            bbb-conf --salt bbbci
-            echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
-            sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
-            bbb-conf --restart
-            EOF
+          sudo -i <<EOF
+          set -e
+          cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh -O bbb-install.sh
+          cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-27-dev -s bbb-ci.test -j -d /certs/
+          bbb-conf --salt bbbci
+          echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+          sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
+          bbb-conf --restart
+          EOF
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         run: |
           sh -c '
-          npm install
+          npm ci
           npx playwright install-deps
           npx playwright install
           '
@@ -259,8 +304,9 @@ jobs:
         run: npm run test-chromium-ci
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'test Firefox')
-                || contains(github.event.pull_request.labels.*.name, 'Test Firefox') }}
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'test Firefox') ||
+          contains(github.event.pull_request.labels.*.name, 'Test Firefox')
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
@@ -279,6 +325,11 @@ jobs:
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results
+      - if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pr-comment-data
+          path: ~/pr-comment-data
       - if: failure()
         name: Prepare artifacts (configs and logs)
         run: |
