@@ -58,7 +58,6 @@ class SharedNotes extends MultiUsers {
     await notesLocator.type(e.message);
 
     await notesLocator.press('Control+Z');
-    // await expect(notesLocator).toContainText(e.message);
     await expect(notesLocator).toContainText('');
     await notesLocator.press('Control+Y');
     await expect(notesLocator).toContainText(e.message);
