@@ -199,7 +199,7 @@ const FitToWidthButton = styled(Button)`
   box-shadow: none !important;
   border: 0;
 
-  ${({ fitToWidth }) => fitToWidth && `
+  ${({ $fitToWidth }) => $fitToWidth && `
     & > span {
       border: solid ${borderSizeLarge} ${colorGrayDark};
     }

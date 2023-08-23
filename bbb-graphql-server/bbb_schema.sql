@@ -468,17 +468,22 @@ CREATE TABLE "user_voice" (
 	"startTime" bigint
 );
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
-ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
-CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","hideTalkingIndicatorAt","startTime");
+ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
+GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
+
+CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","talking");
+CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("userId","hideTalkingIndicatorAt");
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
 	u."meetingId",
 	"user_voice" .*,
 	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt",
-	case when "hideTalkingIndicatorAt" > current_timestamp then true else false end "showTalkingIndicator"
+	user_talking."userId" IS NOT NULL "showTalkingIndicator"
 FROM "user" u
-JOIN "user_voice" ON u."userId" = "user_voice"."userId";
+JOIN "user_voice" ON "user_voice"."userId" = u."userId"
+LEFT JOIN "user_voice" user_talking ON (user_talking."userId" = u."userId" and user_talking."talking" IS TRUE)
+                                       OR (user_talking."userId" = u."userId" and user_talking."hideTalkingIndicatorAt" > now());
 
 CREATE TABLE "user_camera" (
 	"streamId" varchar(100) PRIMARY KEY,

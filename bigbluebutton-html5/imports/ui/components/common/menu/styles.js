@@ -14,7 +14,7 @@ const MenuWrapper = styled(Menu)`
     padding: .5rem 0;
   `}
 
-  ${({ isHorizontal, isMobile }) => (isHorizontal || isMobile) && `
+  ${({ $isHorizontal, isMobile }) => ($isHorizontal || isMobile) && `
     ul {
       display: flex;
     }
@@ -107,7 +107,7 @@ const BBBMenuItem = styled(MenuItem)`
       }
     }
   `}
-  ${({ roundButtons }) => roundButtons && `
+  ${({ $roundButtons }) => $roundButtons && `
     &:focus,
     &:hover {
       background-color: ${colorWhite} !important;
