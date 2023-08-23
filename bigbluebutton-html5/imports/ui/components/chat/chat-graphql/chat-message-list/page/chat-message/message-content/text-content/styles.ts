@@ -18,6 +18,10 @@ export const ChatMessage = styled.div`
     max-width: 100%;
     max-height: 100%;
   }
+
+  & p {
+    margin: 0;
+  }
 `;
 
 export default {
