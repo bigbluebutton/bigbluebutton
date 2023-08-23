@@ -37,8 +37,16 @@ export const parseMessage = (message) => {
 };
 
 export const textToMarkdown = (message) => {
+  const { replaceImageLinks } = Meteor.settings.public.chat;
+
   let parsedMessage = message || '';
   parsedMessage = parsedMessage.trim();
+
+  // replace image links with markdown image links
+  if (replaceImageLinks) {
+    const imageRegex = /(?<!\]\()https?:\/\/([\w-]+\.)+\w{1,6}([/?=&#.]?[\w-]+)*(.(png|jpg|jpeg|gif))/gm;
+    parsedMessage = parsedMessage.replace(imageRegex, '![]($&)');
+  }
 
   // replace url with markdown links
   const urlRegex = /(?<!\]\()https?:\/\/([\w-]+\.)+\w{1,6}([/?=&#.]?[\w-]+)*/gm;
