@@ -47,22 +47,22 @@ test.describe.parallel('Notifications', () => {
   test.describe.parallel('Recording', () => {
     test('Notification appearing when user is not in audio', async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
-      await recordingNotifications.init(true, true, { customParameter: c.recordMeeting });
+      await recordingNotifications.init(true, true, { createParameter: c.recordMeeting });
       await recordingNotifications.notificationNoAudio();
     });
     test('Notification appearing when user is in listen only', async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
-      await recordingNotifications.init(true, true, { customParameter: c.recordMeeting });
+      await recordingNotifications.init(true, true, { createParameter: c.recordMeeting });
       await recordingNotifications.notificationListenOnly();
     });
     test('No notification appearing when user is in audio', async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
-      await recordingNotifications.init(true, true, { customParameter: c.recordMeeting });
+      await recordingNotifications.init(true, true, { createParameter: c.recordMeeting });
       await recordingNotifications.noNotificationInAudio();
     });
     test('Modal appearing when user wants to start recording', async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
-      await recordingNotifications.init(true, true, { customParameter: c.recordMeeting });
+      await recordingNotifications.init(true, true, { createParameter: c.recordMeeting });
       await recordingNotifications.modalStartRecording();
     });
   });

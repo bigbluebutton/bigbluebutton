@@ -117,13 +117,15 @@ const UserActions = (props) => {
       });
     }
 
-    menuItems.push({
-      key: `${cameraId}-mirror`,
-      label: intl.formatMessage(intlMessages.mirrorLabel),
-      description: intl.formatMessage(intlMessages.mirrorDesc),
-      onClick: () => onHandleMirror(cameraId),
-      dataTest: 'mirrorWebcamBtn',
-    });
+    if (isStream) {
+      menuItems.push({
+        key: `${cameraId}-mirror`,
+        label: intl.formatMessage(intlMessages.mirrorLabel),
+        description: intl.formatMessage(intlMessages.mirrorDesc),
+        onClick: () => onHandleMirror(cameraId),
+        dataTest: 'mirrorWebcamBtn',
+      });
+    }
 
     if (numOfStreams > 2 && isStream) {
       menuItems.push({

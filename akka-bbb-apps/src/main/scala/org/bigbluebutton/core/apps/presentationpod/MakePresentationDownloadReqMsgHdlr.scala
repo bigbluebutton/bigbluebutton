@@ -41,9 +41,10 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildNewPresFileAvailable(fileURI: String, presId: String, typeOfExport: String): NewPresFileAvailableMsg = {
+  def buildNewPresFileAvailable(annotatedFileURI: String, originalFileURI: String, convertedFileURI: String,
+                                presId: String, fileStateType: String): NewPresFileAvailableMsg = {
     val header = BbbClientMsgHeader(NewPresFileAvailableMsg.NAME, "not-used", "not-used")
-    val body = NewPresFileAvailableMsgBody(fileURI, presId, typeOfExport)
+    val body = NewPresFileAvailableMsgBody(annotatedFileURI, originalFileURI, convertedFileURI, presId, fileStateType)
 
     NewPresFileAvailableMsg(header, body)
   }
@@ -52,8 +53,12 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
     val header = BbbClientMsgHeader(NewPresFileAvailableEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
-    val body = NewPresFileAvailableEvtMsgBody(fileURI = newPresFileAvailableMsg.body.fileURI, presId = newPresFileAvailableMsg.body.presId,
-      typeOfExport = newPresFileAvailableMsg.body.typeOfExport)
+    val body = NewPresFileAvailableEvtMsgBody(
+      annotatedFileURI = newPresFileAvailableMsg.body.annotatedFileURI,
+      originalFileURI = newPresFileAvailableMsg.body.originalFileURI,
+      convertedFileURI = newPresFileAvailableMsg.body.convertedFileURI, presId = newPresFileAvailableMsg.body.presId,
+      fileStateType = newPresFileAvailableMsg.body.fileStateType
+    )
     val event = NewPresFileAvailableEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -149,9 +154,9 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      val isOriginalPresentationType = m.body.typeOfExport == "Original"
+      val isPresentationOriginalOrConverted = m.body.fileStateType == "Original" || m.body.fileStateType == "Converted"
 
-      if (!isOriginalPresentationType) {
+      if (!isPresentationOriginalOrConverted) {
         // Send Export Job to Redis
         val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
         bus.outGW.send(job)
@@ -162,13 +167,18 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       } else {
         // Return existing uploaded file directly
         val convertedFileName = currentPres.get.filenameConverted
-        val filename = if (convertedFileName == "") currentPres.get.name else convertedFileName
-        val presFilenameExt = filename.split("\\.").last
+        val originalFilename = currentPres.get.name
+        val originalFileExt = originalFilename.split("\\.").last
+        val convertedFileExt = if (convertedFileName != "") convertedFileName.split("\\.").last else ""
 
-        PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD", "not-used", presId, true, filename)
+        val convertedFileURI = if (convertedFileName != "") List("presentation", "download", meetingId,
+          s"${presId}?presFilename=${presId}.${convertedFileExt}&filename=${convertedFileName}").mkString("", File.separator, "")
+        else ""
+        val originalFileURI = List("presentation", "download", meetingId,
+          s"${presId}?presFilename=${presId}.${originalFileExt}&filename=${originalFilename}").mkString("", File.separator, "")
 
-        val fileURI = List("presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}&filename=${filename}").mkString("", File.separator, "")
-        val event = buildNewPresFileAvailable(fileURI, presId, m.body.typeOfExport)
+        val event = buildNewPresFileAvailable("", originalFileURI, convertedFileURI, presId,
+          m.body.fileStateType)
 
         handle(event, liveMeeting, bus)
       }
@@ -227,7 +237,10 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   }
 
   def handle(m: NewPresFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    log.info("Received NewPresFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
+    log.info(
+      "Received NewPresFileAvailableMsg meetingId={} presId={}",
+      liveMeeting.props.meetingProp.intId, m.body.presId
+    )
     bus.outGW.send(buildBroadcastNewPresFileAvailable(m, liveMeeting))
   }
 

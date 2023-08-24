@@ -56,6 +56,8 @@ const getPresentations = () => Presentations
       id,
       name,
       exportation,
+      filenameConverted,
+      downloadableExtension,
     } = presentation;
 
     const uploadTimestamp = id.split('-').pop();
@@ -72,11 +74,13 @@ const getPresentations = () => Presentations
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
       exportation: exportation || { error: false },
+      filenameConverted,
+      downloadableExtension,
     };
   });
 
-const dispatchTogglePresentationDownloadable = (presentation, newState) => {
-  makeCall('setPresentationDownloadable', presentation.id, newState);
+const dispatchChangePresentationDownloadable = (presentation, newState, fileStateType) => {
+  makeCall('setPresentationDownloadable', presentation.id, newState, fileStateType);
 };
 
 const observePresentationConversion = (
@@ -378,7 +382,7 @@ const getExternalUploadData = () => {
   };
 };
 
-const exportPresentation = (presentationId, observer, type) => {
+const exportPresentation = (presentationId, observer, fileStateType) => {
   let lastStatus = {};
 
   Tracker.autorun((c) => {
@@ -407,7 +411,7 @@ const exportPresentation = (presentationId, observer, type) => {
     });
   });
 
-  makeCall('exportPresentation', presentationId, type);
+  makeCall('exportPresentation', presentationId, fileStateType);
 };
 
 function handleFiledrop(files, files2, that, intl, intlMessages) {
@@ -483,7 +487,7 @@ export default {
   handleSavePresentation,
   getPresentations,
   persistPresentationChanges,
-  dispatchTogglePresentationDownloadable,
+  dispatchChangePresentationDownloadable,
   setPresentation,
   requestPresentationUploadToken,
   getExternalUploadData,

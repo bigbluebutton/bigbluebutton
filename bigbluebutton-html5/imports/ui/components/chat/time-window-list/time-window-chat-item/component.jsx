@@ -480,7 +480,7 @@ class TimeWindowChatItem extends PureComponent {
               type="presentation"
               key={messages[0].id}
               text={getExportedPresentationString(extra.fileURI,
-                extra.filename, intl, extra.typeOfExport)}
+                extra.filename, intl, extra.fileStateType)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
