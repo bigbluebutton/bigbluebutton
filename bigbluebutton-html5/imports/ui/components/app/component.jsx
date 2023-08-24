@@ -131,8 +131,10 @@ class App extends Component {
     super(props);
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
+      presentationFitToWidth: false,
     };
 
+    this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
 
@@ -283,6 +285,10 @@ class App extends Component {
     ConnectionStatusService.stopRoundTripTime();
   }
 
+  setPresentationFitToWidth(presentationFitToWidth) {
+    this.setState({ presentationFitToWidth });
+  }
+
   handleWindowResize() {
     const { enableResize } = this.state;
     const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
@@ -403,6 +409,7 @@ class App extends Component {
           setMeetingLayout={setMeetingLayout}
           showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
           presentationIsOpen={presentationIsOpen}
+          setPresentationFitToWidth={this.setPresentationFitToWidth}
         />
       </Styled.ActionsBar>
     );
@@ -517,6 +524,8 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
+    const { presentationFitToWidth } = this.state;
+
     return (
       <>
         <Notifications />
@@ -540,7 +549,7 @@ class App extends Component {
           <NavBarContainer main="new" />
           <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
           <Styled.TextMeasure id="text-measure" />
-          {shouldShowPresentation ? <PresentationAreaContainer darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} /> : null}
+          {shouldShowPresentation ? <PresentationAreaContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo

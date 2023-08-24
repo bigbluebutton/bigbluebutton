@@ -21,6 +21,9 @@ const Notes = styled.div`
 
   @media ${smallOnly} {
     transform: none !important;
+    &.no-padding {
+      padding: 0;
+    }
   }
 `;
 

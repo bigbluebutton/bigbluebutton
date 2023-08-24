@@ -39,6 +39,7 @@ class ActionsBar extends PureComponent {
       setMeetingLayout,
       showPushLayout,
       setPushLayout,
+      setPresentationFitToWidth,
     } = this.props;
 
     const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation) 
@@ -67,6 +68,7 @@ class ActionsBar extends PureComponent {
             setPushLayout,
             presentationIsOpen,
             showPushLayout,
+            setPresentationFitToWidth,
           }}
           />
           {isCaptionsAvailable

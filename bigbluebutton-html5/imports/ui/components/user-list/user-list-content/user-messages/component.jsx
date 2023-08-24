@@ -47,13 +47,13 @@ class UserMessages extends PureComponent {
       this._msgsList.addEventListener(
         'keydown',
         this.rove,
+        true,
       );
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { selectedChat } = this.state;
-
     if (selectedChat && selectedChat !== prevState.selectedChat) {
       const { firstChild } = selectedChat;
       if (firstChild) firstChild.focus();
@@ -97,6 +97,7 @@ class UserMessages extends PureComponent {
     const { selectedChat } = this.state;
     const msgItemsRef = findDOMNode(this._msgItems);
     roving(event, this.changeState, msgItemsRef, selectedChat);
+    event.stopPropagation();
   }
 
   render() {
@@ -120,7 +121,7 @@ class UserMessages extends PureComponent {
         </Styled.Container>
         <Styled.ScrollableList
           role="tabpanel"
-          tabIndex={-1}
+          tabIndex={0}
           ref={(ref) => { this._msgsList = ref; }}
         >
           <Styled.List>

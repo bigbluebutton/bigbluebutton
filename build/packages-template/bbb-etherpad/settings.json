@@ -220,9 +220,10 @@
   */
 
   /*
-   * The default text of a pad
-   */
-  "defaultPadText" : "",
+  * The default text of a pad: A zero-width-space is used to work around an issue with Etherpad 1.9.1 where empty pads are not being created.
+  * See: https://github.com/ether/etherpad-lite/issues/5787
+  */
+   "defaultPadText" : "\u200b",
 
   /*
    * Default Pad behavior.

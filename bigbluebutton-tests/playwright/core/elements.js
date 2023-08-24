@@ -47,6 +47,8 @@ exports.wasTalking = 'button[data-test="wasTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
 exports.unmuteMicButton = 'button[data-test="unmuteMicButton"]';
 exports.muteMicButton = 'button[data-test="muteMicButton"]';
+exports.speechRecognition = 'select[id="speechSelect"]';
+exports.speechRecognitionUnsupported = 'div[data-test="speechRecognitionUnsupported"]';
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
@@ -153,7 +155,6 @@ exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"
 exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
-exports.liveTranscription = 'div[data-test="liveTranscription"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 exports.propagateLayout = 'li[data-test="propagateLayout"]';
 exports.layoutModal = 'li[data-test="layoutModal"]';
@@ -336,9 +337,9 @@ exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
 exports.copyStats = 'span[data-test="copyStats"]';
 exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
-exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
+exports.connectionStatusItemEmpty = 'li[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusTab2 = 'li[id="react-tabs-2"]';
-exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.connectionStatusItemUser = 'li[data-test="connectionStatusItemUser"]';
 exports.connectionStatusLinkToSettings = `${networkDataContainer} span[role="button"]`;
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
 exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
@@ -369,6 +370,8 @@ exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]'
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
 exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
+exports.unmuteUser = 'li[data-test="unmuteUser"]';
+exports.ejectCamera = 'li[data-test="ejectCamera"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';

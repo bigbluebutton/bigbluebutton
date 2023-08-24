@@ -13,9 +13,6 @@ class DrawEllipse extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbEllipseShape);
@@ -25,10 +22,10 @@ class DrawEllipse extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-ellipse.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-ellipse.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-ellipse.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-ellipse.png');
   }
 }
 

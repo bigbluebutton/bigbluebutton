@@ -13,23 +13,20 @@ class RealTimeText extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbTextShape);
     await this.modPage.page.mouse.click(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.modPage.press('A');
     
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(modWbLocator).toHaveScreenshot('moderator-realtime-text.png', screenshotOptions);
-    await expect(userWbLocator).toHaveScreenshot('viewer-realtime-text.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-realtime-text.png');
+    await expect(userWbLocator).toHaveScreenshot('viewer-realtime-text.png');
 
     await this.modPage.press('A');
     await this.modPage.page.mouse.click(wbBox.x + 0.6 * wbBox.width, wbBox.y + 0.6 * wbBox.height);
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-realtime-text-2.png', screenshotOptions);
-    await expect(userWbLocator).toHaveScreenshot('viewer-realtime-text-2.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-realtime-text-2.png');
+    await expect(userWbLocator).toHaveScreenshot('viewer-realtime-text-2.png');
     await expect(modWbLocator).toHaveText('AA');
   }
 }

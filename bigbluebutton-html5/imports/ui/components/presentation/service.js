@@ -5,6 +5,7 @@ import { safeMatch } from '/imports/utils/string-utils';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
 
 const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
@@ -91,8 +92,34 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const questionRegex = /^[\s\S]+\?\s*$/gm;
-  const question = safeMatch(questionRegex, content, '');
+  let lines = content.split('\n');
+  let questions = [];
+  let questionLines = [];
+
+  for (let line of lines) {
+    let startsWithCapital = /^[A-Z]/.test(line);
+    let isEndOfQuestion = /\?$/.test(line);
+
+    if (startsWithCapital) {
+      if (questionLines.length > 0) {
+        questions.push(questionLines.join(' '));
+      }
+      questionLines = [];
+    }
+
+    questionLines.push(line.trim());
+
+    if (isEndOfQuestion) {
+      questions.push(questionLines.join(' '));
+      questionLines = [];
+    }
+  }
+
+  if (questionLines.length > 0) {
+    questions.push(questionLines.join(' '));
+  }
+
+  const question = questions.filter(q => /^[A-Z].*\?$/.test(q?.trim()));
 
   if (question?.length > 0) {
     question[0] = question[0]?.replace(/\n/g, ' ');
@@ -120,7 +147,6 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
-      const MAX_CHAR_LIMIT = 30;
       const formattedOpt = opt.substring(0, MAX_CHAR_LIMIT);
       optionsWithLabels.push(formattedOpt);
       return `\r${opt[0]}.`;

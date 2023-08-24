@@ -93,7 +93,7 @@ public:
         # - de-DE
           - en-US
           - es-ES
-        # - fr-FR
+          - fr-FR
         # - hi-ID
         # - it-IT
         # - ja-JP
@@ -761,6 +761,7 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
     maxNumberOfAnnotations: 300

@@ -26,6 +26,7 @@ const SMALL_WIDTH = 800;
 const SMALLEST_DOCK_WIDTH = 710;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 32;
+const MOUNTED_RESIZE_DELAY = 1500;
 
 export default function Whiteboard(props) {
   const {
@@ -74,6 +75,9 @@ export default function Whiteboard(props) {
     sidebarNavigationWidth,
     animations,
     isToolbarVisible,
+    fullscreenRef,
+    fullscreenElementId,
+    layoutContextDispatch,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -432,16 +436,13 @@ export default function Whiteboard(props) {
     }
   }, [tldrawAPI?.getPageState()?.camera, presentationWidth, presentationHeight]);
 
-  // change tldraw page when presentation page changes
   React.useEffect(() => {
-    if (tldrawAPI && curPageId && slidePosition) {
-      tldrawAPI.changePage(curPageId);
-      const newZoom = prevSlidePosition
-        ? calculateZoom(prevSlidePosition.viewBoxWidth, prevSlidePosition.viewBoxHeight)
-        : calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
-      tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newZoom, 'zoomed_previous_page');
+    if (isPresenter && slidePosition && tldrawAPI) {
+      const camera = tldrawAPI?.getPageState()?.camera;
+      const newZoom = calculateZoom(slidePosition?.viewBoxWidth, slidePosition?.viewBoxHeight);
+      tldrawAPI?.setCamera([camera?.point[0], camera?.point[1]], newZoom);
     }
-  }, [curPageId]);
+  }, [slidePosition?.viewBoxWidth, slidePosition?.viewBoxHeight]);
 
   // change tldraw camera when slidePosition changes
   React.useEffect(() => {
@@ -527,9 +528,9 @@ export default function Whiteboard(props) {
   // Reset zoom to default when current presentation changes.
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
-      tldrawAPI.zoomTo(0);
+      tldrawAPI?.zoomTo(0);
       setHistory(null);
-      tldrawAPI.resetHistory();
+      tldrawAPI?.resetHistory();
     }
   }, [curPres?.id]);
 
@@ -543,11 +544,8 @@ export default function Whiteboard(props) {
 
   const fullscreenToggleHandler = () => {
     const {
-      fullscreenElementId,
       isFullscreen,
-      layoutContextDispatch,
       fullscreenAction,
-      fullscreenRef,
       handleToggleFullScreen,
     } = props;
 
@@ -611,15 +609,9 @@ export default function Whiteboard(props) {
     }
 
     if (menu) {
-      const MENU_OFFSET = '48px';
       menu.style.position = 'relative';
       menu.style.height = presentationMenuHeight;
       menu.setAttribute('id', 'TD-Styles-Parent');
-      if (isRTL) {
-        menu.style.left = MENU_OFFSET;
-      } else {
-        menu.style.right = MENU_OFFSET;
-      }
 
       [...menu.children]
         .sort((a, b) => (a?.id > b?.id ? -1 : 1))
@@ -665,11 +657,16 @@ export default function Whiteboard(props) {
       );
       setIsMounting(true);
     }
-      
+
+    // needed to ensure the correct calculations for cursors on mount.
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, MOUNTED_RESIZE_DELAY);
   };
 
   const onPatch = (e, t, reason) => {
     if (!e?.pageState || !reason) return;
+
     if (((isPanning || panSelected) && (reason === 'selected' || reason === 'set_hovered_id'))) {
       e.patchState(
         {
@@ -747,12 +744,16 @@ export default function Whiteboard(props) {
       if (camera.point[1] > 0 || tldrawAPI?.viewport.minY < 0) {
         camera.point[1] = 0;
       }
+
+      if (camera.point[0] === 0 && camera.point[1] === 0) {
+        const newZoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
+        e?.setCamera([camera.point[0], camera.point[1]], newZoom);
+      }
+
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
       if (camera.zoom < zoomFitSlide) {
         camera.zoom = zoomFitSlide;
       }
-
-      tldrawAPI?.setCamera([camera.point[0], camera.point[1]], camera.zoom);
 
       const zoomToolbar = Math.round(((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100) / 100;
       if (zoom !== zoomToolbar) {
