@@ -62,7 +62,7 @@ type DeviceListItemType = {
   iconRight?: string;
   onClick?: Function;
   disabled?: boolean;
-  divider?: true,
+  isSeparator?: boolean;
 };
 
 interface MuteToggleProps {
@@ -114,7 +114,10 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         iconRight: (deviceKind === 'audioinput') ? 'unmute' : 'volume_level_2',
         disabled: true,
         customStyles: Styled.DisabledLabel,
-        divider: true,
+      } as DeviceListItemType,
+      {
+        key: 'separator-01',
+        isSeparator: true,
       } as DeviceListItemType,
     ];
 
@@ -193,10 +196,14 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     key: 'leaveAudioOption',
     dataTest: 'leaveAudio',
     customStyles: Styled.DangerColor,
-    dividerTop: true,
     onClick: () => handleLeaveAudio(meetingIsBreakout),
   };
-  const dropdownListComplete = inputDeviceList.concat(outputDeviceList).concat(leaveAudioOption);
+  const dropdownListComplete = inputDeviceList.concat(outputDeviceList)
+    .concat({
+      key: 'separator-02',
+      isSeparator: true,
+    })
+    .concat(leaveAudioOption);
   const customStyles = { top: '-1rem' };
   const { isMobile } = deviceInfo;
   return (

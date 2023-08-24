@@ -186,6 +186,7 @@ class ActionsDropdown extends PureComponent {
       hasCameraAsContent,
       isCameraAsContentEnabled,
       isTimerFeatureEnabled,
+      presentations,
     } = this.props;
 
     const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
@@ -195,13 +196,18 @@ class ActionsDropdown extends PureComponent {
     const actions = [];
 
     if (amIPresenter && isPresentationEnabled()) {
+      if (presentations && presentations.length > 1) {
+        actions.push({
+          key: 'separator-01',
+          isSeparator: true,
+        });
+      }
       actions.push({
         icon: 'upload',
         dataTest: 'managePresentations',
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
-        dividerTop: this.props?.presentations?.length > 1 ? true : false,
       });
     }
 
