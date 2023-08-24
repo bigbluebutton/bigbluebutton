@@ -69,7 +69,7 @@
 #   2020-10-22 AGG  Removing Flash/Red5 related code (yay!)
 #   2021-07-16 JFS  Add defaultMeetingLayout information
 
-set -x
+#set -x
 #set -e
 
 PATH=$PATH:/sbin
