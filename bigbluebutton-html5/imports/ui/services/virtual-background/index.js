@@ -3,7 +3,6 @@
  * It is partially copied under the Apache Public License 2.0 (see https://www.apache.org/licenses/LICENSE-2.0).
  */
 
-import * as wasmcheck from 'wasm-check';
 import {
     CLEAR_TIMEOUT,
     TIMEOUT_TICK,
@@ -16,6 +15,8 @@ import {
   getVirtualBgImagePath,
 } from '/imports/ui/services/virtual-background/service'
 import logger from '/imports/startup/client/logger';
+
+import { simd } from 'wasm-feature-detect/dist/cjs/index';
 
 const blurValue = '25px';
 
@@ -367,8 +368,9 @@ class VirtualBackgroundService {
 export async function createVirtualBackgroundService(parameters = null) {
     let tflite;
     let modelResponse;
+    const simdSupported = await simd();
 
-    if (wasmcheck.feature.simd) {
+    if (simdSupported) {
         tflite = await window.createTFLiteSIMDModule();
         modelResponse = await fetch(BASE_PATH+MODELS.model144.path);
     } else {
@@ -401,7 +403,7 @@ export async function createVirtualBackgroundService(parameters = null) {
     tflite._loadModel(model.byteLength);
 
     const options = {
-        ...wasmcheck.feature.simd ? MODELS.model144.segmentationDimensions : MODELS.model96.segmentationDimensions,
+        ... simdSupported ? MODELS.model144.segmentationDimensions : MODELS.model96.segmentationDimensions,
         virtualBackground: parameters
     };
 
