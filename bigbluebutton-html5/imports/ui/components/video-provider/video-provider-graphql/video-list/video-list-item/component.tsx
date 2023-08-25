@@ -1,0 +1,443 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
+import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
+import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import { useSubscription } from '@apollo/client';
+import { PINNED_USER, STREAMS_COUNTER, StreamsCounter, assertionStreamsCounter } from './queries';
+import { defineMessages, useIntl } from 'react-intl';
+import Settings from '/imports/ui/services/settings';
+import Auth from '/imports/ui/services/auth';
+import { isStreamStateUnhealthy } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import { subscribeToStreamStateChange } from './service';
+import UserActionContainer from './user-action/component';
+import Styled from './styles';
+import { withDragAndDrop } from './drag-and-drop/component';
+import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
+import VideoService from '/imports/ui/components/video-provider/service';
+import UserAvatarVideo from './user-avatar/component';
+import UserStatus from './user-status/component';
+import ViewActions from './view-actions/component';
+import PinAreaContainer from './pin-area/component';
+import useSelfViewDisable from '/imports/ui/core/local-states/useSelfViewDisable';
+
+const VIDEO_CONTAINER_WIDTH_BOUND = 175;
+const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
+
+const intlMessages = defineMessages({
+  disableDesc: {
+    id: 'app.videoDock.webcamDisableDesc',
+  },
+});
+
+interface VideoListItemContainerProps {
+  cameraId: string;
+  onVideoItemMount: Function;
+  isStream: boolean;
+  focused: boolean;
+  name: string;
+  makeDragOperations: (userId: string) => ({
+    onDragOver: (event: DragEvent) => void,
+    onDragLeave: (event: DragEvent) => void,
+    onDrop:(event: DragEvent) => void,
+  });
+  userId: string;
+  dragging: boolean;
+  draggingOver: boolean,
+}
+
+interface VideoListItemProps extends VideoListItemContainerProps {
+  userId: string;
+  talking: boolean;
+  disabledCams: string[];
+  settingsSelfViewDisable: boolean;
+  voiceUser: boolean;
+  presenter: boolean;
+  clientType: string;
+  color: string;
+  avatar: string;
+  isModerator: boolean;
+  emoji: string;
+  numOfStreams: number;
+  listenOnly: boolean;
+  muted: boolean;
+  isFullscreenContext: boolean;
+  PinnedUserId: string;
+}
+
+const VideoListItem: React.FC<VideoListItemProps> = ({
+  cameraId,
+  userId,
+  talking,
+  onVideoItemMount,
+  disabledCams,
+  settingsSelfViewDisable,
+  name,
+  numOfStreams,
+  isStream,
+  focused,
+  isModerator,
+  voiceUser,
+  presenter,
+  clientType,
+  color,
+  avatar,
+  emoji,
+  listenOnly,
+  muted,
+  isFullscreenContext,
+  makeDragOperations,
+  dragging,
+  draggingOver,
+  PinnedUserId,
+}) => {
+  const intl = useIntl();
+  const [videoDataLoaded, setVideoDataLoaded] = useState(false);
+  const [isStreamHealthy, setIsStreamHealthy] = useState(false);
+  // TODO: need to be changed in near future to user from graphql localsettings
+  // when it will be ready and video provider will be migrated to graphql
+  const [isMirrored, setIsMirrored] = useState<boolean>(VideoService.mirrorOwnWebcam(userId));
+  const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
+  const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
+  const layoutContextDispatch = layoutDispatch();
+  const pinned = userId === PinnedUserId;
+
+  const resizeObserver = new ResizeObserver((entry) => {
+    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
+      return setIsVideoSqueezed(true);
+    }
+    return setIsVideoSqueezed(false);
+  });
+
+  const videoTag = useRef<HTMLVideoElement | null>(null);
+  const videoContainer = useRef<HTMLDivElement | null>(null);
+
+  const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
+
+  // @ts-ignore: Singleton with auto-generated Fields
+  const { animations } = Settings.application;
+
+  const onStreamStateChange = useCallback((e) => {
+    const { streamState } = e.detail;
+    const newHealthState = !isStreamStateUnhealthy(streamState);
+    e.stopPropagation();
+    setIsStreamHealthy(newHealthState);
+  }, []);
+
+  const onLoadedData = useCallback(() => {
+    setVideoDataLoaded(true);
+    window.dispatchEvent(new Event('resize'));
+
+    /* used when re-sharing cameras after leaving a breakout room.
+    it is needed in cases where the user has more than one active camera
+    so we only share the second camera after the first
+    has finished loading (can't share more than one at the same time) */
+
+    // ts-ignore: Meteor global variable, mantained until all code is migrated to typescript
+    Session.set('canConnect', true);
+  }, []);
+
+  useEffect(() => {
+    subscribeToStreamStateChange(cameraId, onStreamStateChange);
+    onVideoItemMount(videoTag.current);
+    if (videoContainer.current !== null) {
+      resizeObserver.observe(videoContainer.current);
+    }
+
+    if (videoTag.current !== null) {
+      videoTag?.current?.addEventListener('loadeddata', onLoadedData);
+    }
+
+    return () => {
+      videoTag?.current?.removeEventListener('loadeddata', onLoadedData);
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  // component will mount
+  useEffect(() => {
+    const playElement = (elem: HTMLVideoElement | null) => {
+      if (!elem) return;
+      if (elem.paused) {
+        elem.play().catch((error: DOMException) => {
+          // NotAllowedError equals autoplay issues, fire autoplay handling event
+          if (error.name === 'NotAllowedError') {
+            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaElement: elem } });
+            window.dispatchEvent(tagFailedEvent);
+          }
+        });
+      }
+    };
+    if (!isSelfViewDisabled && videoDataLoaded) {
+      playElement(videoTag.current);
+    }
+    if ((isSelfViewDisabled && userId === Auth.userID) || disabledCams?.includes(cameraId)) {
+      videoTag?.current?.pause();
+    }
+  }, [isSelfViewDisabled, videoDataLoaded]);
+
+  useEffect(() => {
+    setIsSelfViewDisabled(settingsSelfViewDisable);
+  }, [settingsSelfViewDisable]);
+
+  const renderSqueezedButton = () => (
+    <UserActionContainer
+      userId={userId}
+      pinned={pinned}
+      cameraId={cameraId}
+      isSelfViewDisabled={isSelfViewDisabled}
+      focused={focused}
+      isVideoSqueezed={isVideoSqueezed}
+      isStream={isStream}
+      videoContainer={videoContainer}
+      onHandleMirror={() => setIsMirrored((value) => !value)}
+      name={name}
+      numOfStreams={numOfStreams}
+      isModerator={isModerator}
+    />
+  );
+
+  const renderWebcamConnecting = () => (
+    <Styled.WebcamConnecting
+      data-test="webcamConnecting"
+      animations={animations}
+    >
+      <UserAvatarVideo
+        presenter={presenter}
+        clientType={clientType}
+        name={name}
+        color={color}
+        avatar={avatar}
+        isModerator={isModerator}
+        emoji={emoji}
+        unhealthyStream={videoDataLoaded && !isStreamHealthy}
+        squeezed={isVideoSqueezed}
+        talking={talking}
+      />
+      <Styled.BottomBar>
+        <UserActionContainer
+          userId={userId}
+          pinned={pinned}
+          cameraId={cameraId}
+          isSelfViewDisabled={isSelfViewDisabled}
+          focused={focused}
+          isVideoSqueezed={isVideoSqueezed}
+          isStream={isStream}
+          videoContainer={videoContainer}
+          onHandleMirror={() => setIsMirrored((value) => !value)}
+          name={name}
+          numOfStreams={numOfStreams}
+          isModerator={isModerator}
+        />
+        <UserStatus
+          listenOnly={listenOnly}
+          muted={muted}
+          joined={voiceUser}
+        />
+      </Styled.BottomBar>
+    </Styled.WebcamConnecting>
+  );
+
+  const renderWebcamConnectingSqueezed = () => (
+    <Styled.WebcamConnecting
+      data-test="webcamConnectingSqueezed"
+      animations={animations}
+    >
+      <UserAvatarVideo
+        presenter={presenter}
+        clientType={clientType}
+        name={name}
+        color={color}
+        avatar={avatar}
+        isModerator={isModerator}
+        emoji={emoji}
+        unhealthyStream={videoDataLoaded && !isStreamHealthy}
+        squeezed={isVideoSqueezed}
+        talking={talking}
+      />
+      {renderSqueezedButton()}
+    </Styled.WebcamConnecting>
+  );
+
+  const renderDefaultButtons = () => (
+    <>
+      <Styled.TopBar>
+        <PinAreaContainer
+          pinned={pinned}
+          userId={userId}
+          isModerator={isModerator}
+          isPinEnabled={PIN_WEBCAM}
+        />
+        <ViewActions
+          videoContainer={videoContainer}
+          name={name}
+          cameraId={cameraId}
+          isFullscreenContext={isFullscreenContext}
+          layoutContextDispatch={layoutContextDispatch}
+          isStream={isStream}
+        />
+      </Styled.TopBar>
+      <Styled.BottomBar>
+        <UserActionContainer
+          userId={userId}
+          pinned={pinned}
+          cameraId={cameraId}
+          isSelfViewDisabled={isSelfViewDisabled}
+          focused={focused}
+          isVideoSqueezed={isVideoSqueezed}
+          isStream={isStream}
+          videoContainer={videoContainer}
+          onHandleMirror={() => setIsMirrored((value) => !value)}
+          name={name}
+          numOfStreams={numOfStreams}
+          isModerator={isModerator}
+        />
+        <UserStatus
+          listenOnly={listenOnly}
+          muted={muted}
+          joined={voiceUser}
+        />
+      </Styled.BottomBar>
+    </>
+  );
+  const eventsHandlers = makeDragOperations(userId);
+  return (
+    <Styled.Content
+      ref={(ref) => { videoContainer.current = ref; }}
+      talking={talking}
+      fullscreen={isFullscreenContext}
+      data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
+      animations={animations}
+      isStream={isStream}
+      dragging={dragging}
+      draggingOver={draggingOver}
+      onDragOver={eventsHandlers.onDragOver}
+      onDragLeave={eventsHandlers.onDragLeave}
+      onDrop={eventsHandlers.onDrop}
+    >
+
+      <Styled.VideoContainer
+        $selfViewDisabled={(isSelfViewDisabled && userId === Auth.userID)
+          || disabledCams.includes(cameraId)}
+      >
+        <Styled.Video
+          mirrored={!!isMirrored}
+          unhealthyStream={!!(videoDataLoaded && !isStreamHealthy)}
+          data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
+          ref={(ref) => { videoTag.current = ref; }}
+          muted={muted}
+          autoPlay
+          playsInline
+        />
+      </Styled.VideoContainer>
+
+      {isStream && ((isSelfViewDisabled && userId === Auth.userID)
+      || disabledCams.includes(cameraId)) && (
+        <Styled.VideoDisabled>
+          {intl.formatMessage(intlMessages.disableDesc)}
+        </Styled.VideoDisabled>
+      )}
+
+      {/* eslint-disable-next-line no-nested-ternary */}
+
+      {(videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId))) && (
+        isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
+      )}
+      {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
+        isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
+      )}
+      {((isSelfViewDisabled && userId === Auth.userID) || disabledCams.includes(cameraId))
+      && renderWebcamConnecting()}
+    </Styled.Content>
+  );
+};
+
+const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
+  cameraId,
+  onVideoItemMount,
+  isStream,
+  focused,
+  name,
+  makeDragOperations,
+  userId,
+  dragging,
+  draggingOver,
+}) => {
+  const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
+  const focusedId = layoutSelectInput((i: Input) => i.cameraDock.focusedId);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const { element } = fullscreen;
+  const isFullscreenContext = (element === cameraId);
+
+  const currenUser = useCurrentUser((user) => ({
+    pinned: user.pinned,
+    userId: user.userId,
+    name: user.name,
+    avatar: user.avatar,
+    role: user.role,
+    color: user.color,
+    emoji: user.emoji,
+    presenter: user.presenter,
+    clientType: user.clientType,
+    isModerator: user.isModerator,
+    voice: user.voice,
+  }));
+
+  const [disabledCams] = useSelfViewDisable();
+
+  const streamsCounter = useSubscription<StreamsCounter>(STREAMS_COUNTER);
+  const pinnedUser = useSubscription(PINNED_USER);
+
+  if (streamsCounter.loading) return null;
+  if (streamsCounter.error) {
+    console.log('Error in streamsCounter subscription', streamsCounter.error);
+    return (<div>{JSON.stringify(streamsCounter.error)}</div>);
+  }
+
+  if (pinnedUser.loading) return null;
+  if (pinnedUser.error) {
+    console.log('Error in pinnedUser subscription', pinnedUser.error);
+    return (<div>{JSON.stringify(pinnedUser.error)}</div>);
+  }
+
+  assertionStreamsCounter(streamsCounter.data);
+  if (
+    streamsCounter.data
+    && streamsCounter.data.user_camera_aggregate.aggregate.count === 0
+  ) return null;
+
+  return (
+    <VideoListItem
+      cameraId={cameraId}
+      userId={userId}
+      talking={currenUser?.voice?.talking ?? false}
+      listenOnly={currenUser?.voice?.listenOnly ?? false}
+      muted={currenUser?.voice?.muted ?? false}
+      onVideoItemMount={onVideoItemMount}
+      disabledCams={disabledCams ?? []}
+      numOfStreams={streamsCounter?.data?.user_camera_aggregate.aggregate.count ?? 0}
+      isStream={isStream}
+      focused={focused}
+      name={name}
+      isModerator={currenUser?.isModerator ?? false}
+      voiceUser={!!currenUser?.voice ?? false}
+      presenter={currenUser?.presenter ?? false}
+      clientType={currenUser?.clientType ?? ''}
+      color={currenUser?.color ?? ''}
+      avatar={currenUser?.avatar ?? ''}
+      emoji={currenUser?.emoji ?? ''}
+      focusedId={focusedId}
+      isRTL={isRTL}
+      pinned={false}
+      isFullscreenContext={isFullscreenContext}
+      makeDragOperations={makeDragOperations}
+      PinnedUserId={pinnedUser?.data?.user[0]?.userId ?? ''}
+      dragging={dragging}
+      draggingOver={draggingOver}
+      // @ts-ignore: Singleton with auto-generated Fields
+      settingsSelfViewDisable={Settings.application.selfViewDisable}
+    />
+  );
+};
+
+export default withDragAndDrop(VideoListItemContainer);

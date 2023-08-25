@@ -4,7 +4,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
-import VideoListItemContainer from './video-list-item/container';
+// import VideoListItemContainer from './video-list-item/container';
+import VideoListItemContainer from '../video-provider-graphql/video-list/video-list-item/component';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -297,6 +298,7 @@ class VideoList extends Component {
       swapLayout,
       handleVideoFocus,
       focusedId,
+      makeDragOperations,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -316,20 +318,15 @@ class VideoList extends Component {
           data-test="webcamVideoItem"
         >
           <VideoListItemContainer
-            numOfStreams={numOfStreams}
             cameraId={stream}
-            userId={userId}
-            name={name}
-            focused={isFocused}
-            isStream={isStream}
-            onHandleVideoFocus={isStream ? handleVideoFocus : null}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
               if (isStream) onVideoItemMount(stream, videoRef);
             }}
-            onVideoItemUnmount={onVideoItemUnmount}
-            swapLayout={swapLayout}
-            onVirtualBgDrop={(type, name, data) => { return isStream ? onVirtualBgDrop(stream, type, name, data) : null; }}
+            isStream={isStream}
+            focused={isFocused}
+            name={name}
+            userId={userId}
           />
         </Styled.VideoListItem>
       );
