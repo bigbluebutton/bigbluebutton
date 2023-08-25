@@ -11,6 +11,7 @@ import Auth from '/imports/ui/services/auth';
 import {
   isDownloadPresentationWithAnnotationsEnabled,
   isDownloadPresentationOriginalFileEnabled,
+  isDownloadPresentationConvertedToPdfEnabled,
   isPresentationEnabled,
 } from '/imports/ui/services/features';
 import { hasAnnotations } from '/imports/ui/components/whiteboard/service';
@@ -49,6 +50,7 @@ export default withTracker(() => {
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
     allowDownloadOriginal: isDownloadPresentationOriginalFileEnabled(),
+    allowDownloadConverted: isDownloadPresentationConvertedToPdfEnabled(),
     allowDownloadWithAnnotations: isDownloadPresentationWithAnnotationsEnabled(),
     handleSave: Service.handleSavePresentation,
     handleDismissToast: PresUploaderToast.handleDismissToast,

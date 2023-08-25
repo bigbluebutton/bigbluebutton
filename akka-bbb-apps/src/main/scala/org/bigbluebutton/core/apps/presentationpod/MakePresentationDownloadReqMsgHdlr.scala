@@ -131,11 +131,17 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getPresentation(presId)).headOption
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationWithAnnotations")) {
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationWithAnnotations")
+      && m.body.fileStateType == "Annotated") {
       val reason = "Annotated presentation download disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadOriginalPresentation")) {
+    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationOriginalFile")
+      && m.body.fileStateType == "Original") {
       val reason = "Original presentation download disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationConvertedToPdf")
+      && m.body.fileStateType == "Converted") {
+      val reason = "Converted presentation download disabled for this meeting. (PDF format)"
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
       val reason = "No permission to download presentation."

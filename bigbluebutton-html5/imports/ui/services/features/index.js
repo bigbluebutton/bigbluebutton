@@ -64,6 +64,10 @@ export function isDownloadPresentationWithAnnotationsEnabled() {
   return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadWithAnnotations;
 }
 
+export function isDownloadPresentationConvertedToPdfEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationConvertedToPdf') === -1;
+}
+
 export function isDownloadPresentationOriginalFileEnabled() {
   return getDisabledFeatures().indexOf('downloadPresentationOriginalFile') === -1 && Meteor.settings.public.presentation.allowDownloadOriginal;
 }
