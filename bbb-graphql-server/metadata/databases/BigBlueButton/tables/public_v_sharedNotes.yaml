@@ -1,0 +1,21 @@
+table:
+  name: v_sharedNotes
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: sharedNotes
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - lastRev
+        - model
+        - name
+        - padId
+        - pinned
+        - sharedNotesExtId
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

@@ -1281,6 +1281,53 @@ JOIN "v_meeting_breakoutPolicies"vmbp using("meetingId")
 JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
 
+------------------------------------
+----sharedNotes
+
+create table "sharedNotes" (
+    "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "sharedNotesExtId" varchar(25),
+    "padId" varchar(25),
+    "model" varchar(25),
+    "name" varchar(25),
+    "pinned" boolean,
+    constraint "pk_sharedNotes" primary key ("meetingId", "sharedNotesExtId")
+);
+
+create table "sharedNotes_rev" (
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"sharedNotesExtId" varchar(25),
+	"rev" integer,
+	"userId" varchar(50) references "user"("userId") ON DELETE SET NULL,
+	"changeset" varchar(25),
+	"start" integer,
+	"end" integer,
+	"diff" TEXT,
+	"createdAt" timestamp with time zone,
+	constraint "pk_sharedNotes_rev" primary key ("meetingId", "sharedNotesExtId", "rev")
+);
+--create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
+
+create table "sharedNotes_session" (
+    "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "sharedNotesExtId" varchar(25),
+    "userId" varchar(50) references "user"("userId") ON DELETE CASCADE,
+    "sessionId" varchar(50),
+    constraint "pk_sharedNotes_session" primary key ("meetingId", "sharedNotesExtId", "userId")
+);
+create index "sharedNotes_session_userId" on "sharedNotes_session"("userId");
+
+create view "v_sharedNotes" as
+SELECT sn.*, max(snr.rev) "lastRev"
+FROM "sharedNotes" sn
+LEFT JOIN "sharedNotes_rev" snr ON snr."meetingId" = sn."meetingId" AND snr."sharedNotesExtId" = sn."sharedNotesExtId"
+GROUP BY sn."meetingId", sn."sharedNotesExtId";
+
+create view "v_sharedNotes_session" as
+SELECT sns.*, sn."padId"
+FROM "sharedNotes_session" sns
+JOIN "sharedNotes" sn ON sn."meetingId" = sns."meetingId" AND sn."sharedNotesExtId" = sn."sharedNotesExtId";
+
 ----------------------
 
 CREATE OR REPLACE VIEW "v_current_time" AS
