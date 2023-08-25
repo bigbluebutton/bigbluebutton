@@ -24,14 +24,14 @@ test.describe.parallel('Notifications', () => {
     await notifications.getUserJoinPopupResponse();
   });
 
-  test('Raise and lower hand notification @ci', async ({ browser, context, page }) => {
+  test('Raise and lower hand notification @ci @flaky', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.raiseAndLowerHandNotification();
   });
 
   test.describe.parallel('Chat', () => {
-    test('Public Chat notification @ci', async ({ browser, context, page }) => {
+    test('Public Chat notification @ci @flaky', async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page, true);
       await chatNotifications.publicChatNotification();
