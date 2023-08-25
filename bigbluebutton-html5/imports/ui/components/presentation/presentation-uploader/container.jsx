@@ -10,7 +10,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import Auth from '/imports/ui/services/auth';
 import {
   isDownloadPresentationWithAnnotationsEnabled,
-  isDownloadOriginalPresentationEnabled,
+  isDownloadPresentationOriginalFileEnabled,
   isPresentationEnabled,
 } from '/imports/ui/services/features';
 import { hasAnnotations } from '/imports/ui/components/whiteboard/service';
@@ -48,7 +48,7 @@ export default withTracker(() => {
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    allowDownloadOriginal: isDownloadOriginalPresentationEnabled(),
+    allowDownloadOriginal: isDownloadPresentationOriginalFileEnabled(),
     allowDownloadWithAnnotations: isDownloadPresentationWithAnnotationsEnabled(),
     handleSave: Service.handleSavePresentation,
     handleDismissToast: PresUploaderToast.handleDismissToast,
