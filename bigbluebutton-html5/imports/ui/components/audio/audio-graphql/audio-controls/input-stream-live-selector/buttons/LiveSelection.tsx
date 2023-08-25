@@ -62,8 +62,12 @@ type DeviceListItemType = {
   iconRight?: string;
   onClick?: Function;
   disabled?: boolean;
-  isSeparator?: boolean;
 };
+
+type SeparatorItemType = {
+  isSeparator?: boolean;
+  key?: string;
+}
 
 interface MuteToggleProps {
   talking: boolean;
@@ -118,7 +122,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
       {
         key: 'separator-01',
         isSeparator: true,
-      } as DeviceListItemType,
+      } as SeparatorItemType,
     ];
 
     let deviceList: DeviceListItemType[] = [];
