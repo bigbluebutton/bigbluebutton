@@ -1,23 +1,22 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Message } from '/imports/ui/Types/message';
+import ChatMessageHeader from './message-header/component';
+import ChatMessageTextContent from './message-content/text-content/component';
+import ChatPollContent from './message-content/poll-content/component';
+import ChatMessagePresentationContent from './message-content/presentation-content/component';
+import { defineMessages, useIntl } from 'react-intl';
 import {
   ChatWrapper,
   ChatContent,
   ChatAvatar,
-} from "./styles";
-import ChatMessageHeader from "./message-header/component";
-import ChatMessageTextContent from "./message-content/text-content/component";
-import ChatPollContent from "./message-content/poll-content/component";
-import ChatMessagePresentationContent from "./message-content/presentation-content/component";
-import { defineMessages, useIntl } from "react-intl";
-
+} from './styles';
 
 interface ChatMessageProps {
   message: Message;
   previousMessage?: Message;
   lastSenderPreviousPage?: string | null;
   scrollRef: React.RefObject<HTMLDivElement>;
-  markMessageAsSeen: Function;
+  markMessageAsSeen: (message: Message) => void;
 }
 
 const enum MessageType {
@@ -63,8 +62,9 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   markMessageAsSeen,
 }) => {
   const intl = useIntl();
-  const messageRef = useRef<HTMLDivElement>(null);
-  const markMessageAsSeenOnScrollEnd = useCallback((message, messageRef) => {
+  const messageRef = useRef<HTMLDivElement | null>(null);
+  const markMessageAsSeenOnScrollEnd = useCallback((message: Message,
+    messageRef: { current: HTMLDivElement | null; }) => {
     if (messageRef.current && isInViewport(messageRef.current)) {
       markMessageAsSeen(message);
     }
@@ -74,7 +74,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     // I use a function here to remove the event listener using the same reference 
     const callbackFunction = () => {
       markMessageAsSeenOnScrollEnd(message, messageRef);
-    }
+    };
     if (message && scrollRef.current && messageRef.current) {
       if (isInViewport(messageRef.current)) {
         markMessageAsSeen(message);
@@ -85,12 +85,13 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     return () => {
       scrollRef?.current
         ?.removeEventListener('scrollend', callbackFunction);
-    }
+    };
   }, [message, messageRef]);
 
   if (!message) return null;
 
-  const sameSender = (previousMessage?.user?.userId || lastSenderPreviousPage) === message?.user?.userId;
+  const sameSender = (previousMessage?.user?.userId
+    || lastSenderPreviousPage) === message?.user?.userId;
   const dateTime = new Date(message?.createdTime);
   const messageContent: {
     name: string,
@@ -124,7 +125,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isModerator: true,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage={true}
+              emphasizedMessage
               text={intl.formatMessage(intlMessages.chatClear)}
             />
           ),
@@ -141,35 +142,28 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               text={message.message}
             />
           ),
-        }
+        };
     }
   }, []);
   return (
-    <ChatWrapper
-      sameSender={sameSender}
-      ref={messageRef}
-    >
-      {(!message?.user || !sameSender)
-        && (
-          <ChatAvatar
-            avatar={message.user?.avatar}
-            color={messageContent.color}
-            moderator={messageContent.isModerator}
-          >
-            {messageContent.name.toLowerCase().slice(0, 2) || "  "}
-          </ChatAvatar>
-        )
-      }
+    <ChatWrapper sameSender={sameSender} ref={messageRef}>
+      {(!message?.user || !sameSender) && (
+        <ChatAvatar
+          avatar={message.user?.avatar}
+          color={messageContent.color}
+          moderator={messageContent.isModerator}
+        >
+          {messageContent.name.toLowerCase().slice(0, 2) || ' '}
+        </ChatAvatar>
+      )}
       <ChatContent sameSender={message?.user ? sameSender : false}>
-      <ChatMessageHeader
-        sameSender={message?.user ? sameSender : false}
-        name={messageContent.name}
-        isOnline={message.user?.isOnline ?? true}
-        dateTime={dateTime}
-      />
-        {
-          messageContent.component
-        }
+        <ChatMessageHeader
+          sameSender={message?.user ? sameSender : false}
+          name={messageContent.name}
+          isOnline={message.user?.isOnline ?? true}
+          dateTime={dateTime}
+        />
+        {messageContent.component}
       </ChatContent>
     </ChatWrapper>
   );
