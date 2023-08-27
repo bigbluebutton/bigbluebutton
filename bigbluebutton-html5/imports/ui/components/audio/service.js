@@ -94,7 +94,7 @@ const unmuteMicrophone = () => {
 
   if (user.muted) {
     logger.info({
-      logCode: 'audiomanager_mute_audio',
+      logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'User wants to join conference. Microphone unmuted');
     AudioManager.setSenderTrackEnabled(true);
