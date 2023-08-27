@@ -31,6 +31,8 @@ const intlMessages = defineMessages({
 const propTypes = {
   shortcuts: PropTypes.objectOf(PropTypes.string).isRequired,
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
+  handleMuteMicrophone: PropTypes.func.isRequired,
+  handleUnmuteMicrophone: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
   disable: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
@@ -75,7 +77,7 @@ class AudioControls extends PureComponent {
   }
 
   handlePushToTalk(action, event) {
-    const { unmuteMic, muteMic, pushToTalkEnabled } = this.props;
+    const { handleUnmuteMicrophone, handleMuteMicrophone, pushToTalkEnabled } = this.props;
     if (isAudioModalOpen || !pushToTalkEnabled || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName.toUpperCase())) return;
 
     const { pttPressed, isUnmuteTriggered } = this.state;
@@ -85,7 +87,7 @@ class AudioControls extends PureComponent {
       this.setState({ pttPressed: true }, () => {
         this.unmuteTimer = setTimeout(() => {
           if (this.state.pttPressed) {
-            unmuteMic();
+            handleUnmuteMicrophone();
             this.setState({ isUnmuteTriggered: true });
           }
         }, 300);
@@ -95,7 +97,7 @@ class AudioControls extends PureComponent {
         if (!this.state.isUnmuteTriggered) {
           clearTimeout(this.unmuteTimer);
         } else {
-          muteMic();
+          handleMuteMicrophone();
           this.setState({ isUnmuteTriggered: false });
         }
       });
