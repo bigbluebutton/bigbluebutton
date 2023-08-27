@@ -597,6 +597,11 @@ export default function Whiteboard(props) {
           tldrawAPI?.selectAll();
         }
         break;
+      case KEY_CODES.ARROW_DOWN:
+      case KEY_CODES.ARROW_UP:
+        event.preventDefault();
+        event.stopPropagation();
+        break;
       default:
     }
   };
