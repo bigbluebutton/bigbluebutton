@@ -30,6 +30,7 @@ class AudioBroker extends BaseBroker {
     // traceLogs
     // networkPriority
     // gatheringTimeout
+    // transparentListenOnly
     Object.assign(this, options);
   }
 
@@ -200,6 +201,7 @@ class AudioBroker extends BaseBroker {
       sdpOffer: offer,
       mediaServer: this.mediaServer,
       extension: this.extension,
+      transparentListenOnly: this.transparentListenOnly,
     };
 
     logger.debug({

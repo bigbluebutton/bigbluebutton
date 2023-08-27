@@ -2,27 +2,24 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { LAYOUT_TYPE, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SettingsService from '/imports/ui/components/settings/service';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Toggle from '/imports/ui/components/common/switch/component';
 import Button from '/imports/ui/components/common/button/component';
 import Styled from './styles';
 
 const LayoutModalComponent = (props) => {
   const {
     intl,
-    closeModal,
+    setIsOpen,
     isModerator,
     isPresenter,
-    showToggleLabel,
     application,
     updateSettings,
+    onRequestClose,
+    isOpen,
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
-  // eslint-disable-next-line react/prop-types
-  const [isKeepPushingLayout, setIsKeepPushingLayout] = useState(application.pushLayout);
 
   const BASE_NAME = Meteor.settings.public.app.basename;
 
@@ -34,13 +31,13 @@ const LayoutModalComponent = (props) => {
       id: 'app.layout.modal.title',
       description: 'Modal title',
     },
-    confirm: {
-      id: 'app.layout.modal.confirm',
+    update: {
+      id: 'app.layout.modal.update',
       description: 'Modal confirm button',
     },
-    cancel: {
-      id: 'app.layout.modal.cancel',
-      description: 'Modal cancel button',
+    updateAll: {
+      id: 'app.layout.modal.updateAll',
+      description: 'Modal updateAll button',
     },
     layoutLabel: {
       id: 'app.layout.modal.layoutLabel',
@@ -49,10 +46,6 @@ const LayoutModalComponent = (props) => {
     layoutToastLabel: {
       id: 'app.layout.modal.layoutToastLabel',
       description: 'Layout toast label',
-    },
-    keepPushingLayoutLabel: {
-      id: 'app.layout.modal.keepPushingLayoutLabel',
-      description: 'Keep push layout Label',
     },
     customLayout: {
       id: 'app.layout.style.custom',
@@ -84,17 +77,13 @@ const LayoutModalComponent = (props) => {
     setSelectedLayout(e);
   };
 
-  const handleKeepPushingLayout = () => {
-    setIsKeepPushingLayout((newValue) => !newValue);
-  };
-
-  const handleCloseModal = () => {
+  const handleUpdateLayout = (updateAll) => {
     const obj = {
       application:
-      { ...application, selectedLayout, pushLayout: isKeepPushingLayout },
+      { ...application, selectedLayout, pushLayout: updateAll },
     };
     updateSettings(obj, intlMessages.layoutToastLabel);
-    closeModal();
+    setIsOpen(false);
   };
 
   const renderPushLayoutsOptions = () => {
@@ -104,19 +93,12 @@ const LayoutModalComponent = (props) => {
 
     if (isKeepPushingLayoutEnabled) {
       return (
-        <Styled.PushContainer>
-          <Styled.LabelPushLayout>
-            {intl.formatMessage(intlMessages.keepPushingLayoutLabel)}
-          </Styled.LabelPushLayout>
-          <Toggle
-            id="TogglePush"
-            icons={false}
-            defaultChecked={isKeepPushingLayout}
-            onChange={handleKeepPushingLayout}
-            ariaLabel="push"
-            showToggleLabel={showToggleLabel}
-          />
-        </Styled.PushContainer>
+        <Styled.BottomButton
+          label={intl.formatMessage(intlMessages.updateAll)}
+          onClick={() => handleUpdateLayout(true)}
+          color="secondary"
+          data-test="updateEveryoneLayoutBtn"
+        />
       );
     }
     return null;
@@ -127,7 +109,6 @@ const LayoutModalComponent = (props) => {
       {Object.values(LAYOUT_TYPE)
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
-            <Styled.LabelLayoutNames aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
             <Styled.LayoutBtn
               label=""
               customIcon={(
@@ -146,6 +127,7 @@ const LayoutModalComponent = (props) => {
               aria-describedby="layout-btn-desc"
               data-test={`${layout}Layout`}
             />
+            <Styled.LabelLayoutNames aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
           </Styled.ButtonLayoutContainer>
         ))}
     </Styled.ButtonsContainer>
@@ -158,25 +140,25 @@ const LayoutModalComponent = (props) => {
       shouldCloseOnOverlayClick
       isPhone={deviceInfo.isPhone}
       data-test="layoutChangeModal"
-      onRequestClose={closeModal}
+      onRequestClose={() => setIsOpen(false)}
       title={intl.formatMessage(intlMessages.title)}
+      {...{
+        isOpen,
+        onRequestClose,
+      }}
     >
       <Styled.Content>
         <Styled.BodyContainer>
           {renderLayoutButtons()}
-          {renderPushLayoutsOptions()}
         </Styled.BodyContainer>
       </Styled.Content>
       <Styled.ButtonBottomContainer>
-        <Styled.BottomButton
-          label={intl.formatMessage(intlMessages.cancel)}
-          onClick={closeModal}
-          color="secondary"
-        />
+        {renderPushLayoutsOptions()}
         <Button
           color="primary"
-          label={intl.formatMessage(intlMessages.confirm)}
-          onClick={handleCloseModal}
+          label={intl.formatMessage(intlMessages.update)}
+          onClick={() => handleUpdateLayout(false)}
+          data-test="updateLayoutBtn"
         />
       </Styled.ButtonBottomContainer>
       <div style={{ display: 'none' }} id="layout-btn-desc">{intl.formatMessage(intlMessages.layoutBtnDesc)}</div>
@@ -188,7 +170,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  closeModal: PropTypes.func.isRequired,
   isModerator: PropTypes.bool.isRequired,
   isPresenter: PropTypes.bool.isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
@@ -200,4 +181,4 @@ const propTypes = {
 
 LayoutModalComponent.propTypes = propTypes;
 
-export default injectIntl(withModalMounter(LayoutModalComponent));
+export default injectIntl(LayoutModalComponent);

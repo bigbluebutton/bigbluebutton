@@ -9,10 +9,11 @@ case class UpdateTranscriptPubMsgBody(
     end:          Int,
     text:         String,
     transcript:   String,
-    locale:       String
+    locale:       String,
+    result:       Boolean,
 )
 
 // Out messages
 object TranscriptUpdatedEvtMsg { val NAME = "TranscriptUpdatedEvtMsg" }
 case class TranscriptUpdatedEvtMsg(header: BbbClientMsgHeader, body: TranscriptUpdatedEvtMsgBody) extends BbbCoreMsg
-case class TranscriptUpdatedEvtMsgBody(transcriptId: String, transcript: String, locale: String)
+case class TranscriptUpdatedEvtMsgBody(transcriptId: String, transcript: String, locale: String, result: Boolean)

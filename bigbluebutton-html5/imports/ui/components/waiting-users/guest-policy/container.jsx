@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import GuestPolicyComponent from './component';
 import Service from '../service';
 import Auth from '/imports/ui/services/auth';
@@ -17,8 +16,7 @@ const GuestPolicyContainer = (props) => {
   return amIModerator && <GuestPolicyComponent {...props} />;
 };
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
-  closeModal: () => mountModal(null),
+export default withTracker(( ) => ({
   guestPolicy: Service.getGuestPolicy(),
   changeGuestPolicy: Service.changeGuestPolicy,
-}))(GuestPolicyContainer));
+}))(GuestPolicyContainer);

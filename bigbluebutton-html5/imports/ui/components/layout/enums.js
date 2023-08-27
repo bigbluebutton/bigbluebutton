@@ -106,6 +106,7 @@ export const PANELS = {
   CAPTIONS: 'captions',
   BREAKOUT: 'breakoutroom',
   SHARED_NOTES: 'shared-notes',
+  TIMER: 'timer',
   WAITING_USERS: 'waiting-users',
   NONE: 'none',
 };

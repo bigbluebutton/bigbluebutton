@@ -1,6 +1,7 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { debounce, throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
+import { debounce } from '/imports/utils/debounce';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';

@@ -1,7 +1,6 @@
 import React from 'react';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import FallbackView from '../fallback-view/component';
 
 const intlMessages = defineMessages({
@@ -11,14 +10,17 @@ const intlMessages = defineMessages({
   },
 });
 
-const FallbackModal = ({ error, intl, mountModal }) => (
+const FallbackModal = ({ error, intl }) => {
+  return (
   <ModalSimple
     hideBorder
-    onRequestClose={() => mountModal(null)}
+    priority="medium"
+    shouldShowCloseButton={false}
     contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
+    isOpen={!!error}
   >
     <FallbackView {...{ error }} />
   </ModalSimple>
-);
+)};
 
-export default withModalMounter(injectIntl(FallbackModal));
+export default injectIntl(FallbackModal);

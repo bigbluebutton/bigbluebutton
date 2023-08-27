@@ -333,6 +333,11 @@ const logSelectedCandidate = async (peer, isIpv6) => {
   });
 };
 
+const forceDisableStereo = ({ sdp, type }) => ({
+  sdp: sdp.replace(/stereo=1/ig, 'stereo=0'),
+  type,
+});
+
 export {
   interop,
   isUnifiedPlan,
@@ -342,4 +347,5 @@ export {
   filterValidIceCandidates,
   analyzeSdp,
   logSelectedCandidate,
+  forceDisableStereo,
 };

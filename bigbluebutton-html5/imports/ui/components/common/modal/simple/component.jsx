@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import FocusTrap from 'focus-trap-react';
-import { withModalState } from '../base/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -110,9 +109,7 @@ class ModalSimple extends Component {
         className={className}
         onRequestClose={this.handleRequestClose}
         contentLabel={title || contentLabel}
-        data={{
-          test: dataTest ?? null,
-        }}
+        dataTest={dataTest}
         {...otherProps}
       >
         <FocusTrap active={modalisOpen} focusTrapOptions={{ initialFocus: false }}>
@@ -143,4 +140,4 @@ class ModalSimple extends Component {
 ModalSimple.propTypes = propTypes;
 ModalSimple.defaultProps = defaultProps;
 
-export default withModalState(injectIntl(ModalSimple));
+export default injectIntl(ModalSimple);

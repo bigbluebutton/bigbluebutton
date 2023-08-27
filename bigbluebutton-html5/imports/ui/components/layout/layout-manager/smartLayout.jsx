@@ -1,13 +1,10 @@
 import { useEffect, useRef } from 'react';
-import _ from 'lodash';
-import {
-  layoutDispatch,
-  layoutSelect,
-  layoutSelectInput,
-} from '/imports/ui/components/layout/context';
+import { throttle } from '/imports/utils/throttle';
+import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import { defaultsDeep } from '/imports/utils/array-utils';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
@@ -44,7 +41,7 @@ const SmartLayout = (props) => {
 
   const prevDeviceType = usePrevious(deviceType);
 
-  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(), 50, {
+  const throttledCalculatesLayout = throttle(() => calculatesLayout(), 50, {
     trailing: true,
     leading: true,
   });
@@ -62,7 +59,7 @@ const SmartLayout = (props) => {
   }, []);
 
   useEffect(() => {
-    if (deviceType === null) return;
+    if (deviceType === null) return () => null;
 
     if (deviceType !== prevDeviceType) {
       // reset layout if deviceType changed
@@ -79,7 +76,7 @@ const SmartLayout = (props) => {
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep(
+        value: defaultsDeep(
           {
             sidebarNavigation: {
               isOpen:
@@ -120,7 +117,7 @@ const SmartLayout = (props) => {
     } else {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep(
+        value: defaultsDeep(
           {
             sidebarNavigation: {
               isOpen:

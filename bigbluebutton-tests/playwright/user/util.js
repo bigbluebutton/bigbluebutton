@@ -32,9 +32,22 @@ async function checkMutedUsers(test) {
   await test.hasElement(e.unmuteMicButton);
 }
 
+async function drawArrow(test) {
+  const modWbLocator = test.getLocator(e.whiteboard);
+  const wbBox = await modWbLocator.boundingBox();
+    
+  await test.waitAndClick(e.wbArrowShape);
+
+  await test.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
+  await test.page.mouse.down();
+  await test.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+  await test.page.mouse.up();
+}
+
 exports.setStatus = setStatus;
 exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
 exports.checkAvatarIcon = checkAvatarIcon;
 exports.checkIsPresenter = checkIsPresenter;
 exports.checkMutedUsers = checkMutedUsers;
+exports.drawArrow = drawArrow;

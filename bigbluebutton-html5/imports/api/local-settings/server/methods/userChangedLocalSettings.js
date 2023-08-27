@@ -1,9 +1,9 @@
-import _ from 'lodash';
 import { check } from 'meteor/check';
 import LocalSettings from '/imports/api/local-settings';
 import setChangedLocalSettings from '../modifiers/setChangedLocalSettings';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
+import { isEqual } from 'radash';
 
 export default async function userChangedLocalSettings(settings) {
   try {
@@ -21,7 +21,7 @@ export default async function userChangedLocalSettings(settings) {
           fields: { settings: 1 },
         });
 
-    if (!userLocalSettings || !_.isEqual(userLocalSettings.settings, settings)) {
+    if (!userLocalSettings || !isEqual(userLocalSettings.settings, settings)) {
       await setChangedLocalSettings(meetingId, requesterUserId, settings);
     }
   } catch (err) {

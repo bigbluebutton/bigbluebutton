@@ -22,11 +22,10 @@ import { DEVICE_TYPE } from '../layout/enums';
 import MediaService from '../media/service';
 
 const PresentationContainer = ({
-  presentationIsOpen, presentationPodIds, mountPresentation, ...props
+  presentationIsOpen, presentationPodIds, mountPresentation, layoutType, ...props
 }) => {
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
-  const layoutType = layoutSelect((i) => i.layoutType);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
@@ -74,6 +73,7 @@ export default lockContextContainer(
     const numPages = PresentationService.getSlidesLength(podId);
     const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
+    const isViewersAnnotationsLocked = userLocks?.hideViewersAnnotation;
 
     let slidePosition;
     if (currentSlide) {
@@ -147,6 +147,7 @@ export default lockContextContainer(
       multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
       isViewersCursorLocked,
       setPresentationIsOpen: MediaService.setPresentationIsOpen,
+      isViewersAnnotationsLocked,
     };
   })(PresentationContainer),
 );

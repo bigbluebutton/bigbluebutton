@@ -18,7 +18,8 @@ async function connectMicrophone(testPage) {
     await testPage.waitForSelector(e.establishingAudioLabel);
     await testPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
   }
-  await testPage.hasElement(e.isTalking);
+  await testPage.wasRemoved(e.joinAudio);
+  await testPage.hasElement(e.audioDropdownMenu);
 }
 
 async function isAudioItemSelected(testPage, audioSelector) {

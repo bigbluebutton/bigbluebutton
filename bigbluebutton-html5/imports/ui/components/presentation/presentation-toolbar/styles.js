@@ -76,6 +76,11 @@ const QuickPollButton = styled(QuickPollDropdownContainer)`
   }
 `;
 
+const QuickPollButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const PresentationSlideControls = styled.div`
   justify-content: center;
   padding-left: ${whiteboardToolbarPadding};
@@ -194,7 +199,7 @@ const FitToWidthButton = styled(Button)`
   box-shadow: none !important;
   border: 0;
 
-  ${({ fitToWidth }) => fitToWidth && `
+  ${({ $fitToWidth }) => $fitToWidth && `
     & > span {
       border: solid ${borderSizeLarge} ${colorGrayDark};
     }
@@ -276,6 +281,7 @@ const WBAccessButton = styled(Button)`
 export default {
   PresentationToolbarWrapper,
   QuickPollButton,
+  QuickPollButtonWrapper,
   PresentationSlideControls,
   PrevSlideButton,
   NextSlideButton,

@@ -38,7 +38,7 @@ test.describe.parallel('Shared Notes', () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin notes onto whiteboard', async () => {
-    await sharedNotes.pinNotesOntoWhiteboard();
+  test('Pin and unpin notes onto whiteboard', async () => {
+    await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });

@@ -20,7 +20,6 @@ const Adapter = () => {
       },
     });
   }, []);
-  return null;
 };
 
 export default Adapter;

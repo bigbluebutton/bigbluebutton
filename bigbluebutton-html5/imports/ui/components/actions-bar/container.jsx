@@ -12,9 +12,10 @@ import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
+import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
-import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 
 import MediaService from '../media/service';
 
@@ -47,6 +48,14 @@ const ActionsBarContainer = (props) => {
 
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButton.enabled;
+const RAISE_HAND_BUTTON_CENTERED = Meteor.settings.public.app.raiseHandActionButton.centered;
+
+const isReactionsButtonEnabled = () => {
+  const USER_REACTIONS_ENABLED = Meteor.settings.public.userReaction.enabled;
+  const REACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.reactionsButton.enabled;
+
+  return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+};
 
 export default withTracker(() => ({
   amIModerator: Service.amIModerator(),
@@ -58,12 +67,17 @@ export default withTracker(() => ({
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
   isSharedNotesPinned: Service.isSharedNotesPinned(),
-  hasScreenshare: isVideoBroadcasting(),
+  hasScreenshare: isScreenBroadcasting(),
+  hasCameraAsContent: isCameraAsContentBroadcasting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
+  isTimerActive: TimerService.isActive(),
+  isTimerEnabled: TimerService.isEnabled(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
+  isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
+  isReactionsButtonEnabled: isReactionsButtonEnabled(),
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: isExternalVideoEnabled(),

@@ -3,7 +3,6 @@ import Styled from './styles';
 import PropTypes from 'prop-types';
 
 const propTypes = {
-  children: PropTypes.node.isRequired,
   hideBorder: PropTypes.bool,
   headerPosition: PropTypes.string,
   shouldShowCloseButton: PropTypes.bool,

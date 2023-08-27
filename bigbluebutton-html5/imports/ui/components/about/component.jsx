@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const intlMessages = defineMessages({
   title: {
@@ -38,7 +38,8 @@ const intlMessages = defineMessages({
   },
 });
 
-const AboutComponent = ({ intl, settings }) => {
+const AboutComponent = (props) => {
+  const { intl, settings, isOpen, onRequestClose, priority, } = props;
   const {
     html5ClientBuild,
     copyright,
@@ -54,12 +55,17 @@ const AboutComponent = ({ intl, settings }) => {
   );
 
   return (
-    <Modal
+    <ModalSimple
       data-test="aboutModalTitleLabel"
       title={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.dismissLabel),
         description: intl.formatMessage(intlMessages.dismissDesc),
+      }}
+      {...{
+        isOpen,
+        onRequestClose,
+        priority,
       }}
     >
       {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
@@ -67,7 +73,7 @@ const AboutComponent = ({ intl, settings }) => {
       {`${intl.formatMessage(intlMessages.version)} ${html5ClientBuild}`}
       {displayBbbServerVersion ? showLabelVersion() : null}
 
-    </Modal>
+    </ModalSimple>
   );
 };
 

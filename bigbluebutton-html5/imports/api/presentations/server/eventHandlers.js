@@ -18,5 +18,5 @@ RedisPubSub.on('PresentationConversionCompletedEvtMsg', handlePresentationAdded)
 RedisPubSub.on('RemovePresentationEvtMsg', handlePresentationRemove);
 RedisPubSub.on('SetCurrentPresentationEvtMsg', handlePresentationCurrentSet);
 RedisPubSub.on('SetPresentationDownloadableEvtMsg', handlePresentationDownloadableSet);
-RedisPubSub.on('NewPresAnnFileAvailableEvtMsg', handlePresentationExport);
+RedisPubSub.on('NewPresFileAvailableEvtMsg', handlePresentationExport);
 RedisPubSub.on('PresAnnStatusEvtMsg', handlePresentationExportToastUpdate);

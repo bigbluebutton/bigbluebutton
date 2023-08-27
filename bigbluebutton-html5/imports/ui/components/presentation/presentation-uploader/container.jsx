@@ -8,7 +8,12 @@ import PresUploaderToast from '/imports/ui/components/presentation/presentation-
 import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import { isDownloadPresentationWithAnnotationsEnabled, isPresentationEnabled } from '/imports/ui/services/features';
+import {
+  isDownloadPresentationWithAnnotationsEnabled,
+  isDownloadOriginalPresentationEnabled,
+  isPresentationEnabled,
+} from '/imports/ui/services/features';
+import { hasAnnotations } from '/imports/ui/components/whiteboard/service';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -19,7 +24,7 @@ const PresentationUploaderContainer = (props) => {
   const userIsPresenter = currentUser.presenter;
 
   return userIsPresenter && (
-    <ErrorBoundary Fallback={() => <FallbackModal />}>
+    <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader isPresenter={userIsPresenter} {...props} />
     </ErrorBoundary>
   );
@@ -31,8 +36,8 @@ export default withTracker(() => {
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchTogglePresentationDownloadable,
-    exportPresentationToChat,
+    dispatchChangePresentationDownloadable,
+    exportPresentation,
   } = Service;
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
@@ -43,18 +48,20 @@ export default withTracker(() => {
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    allowDownloadable: isDownloadPresentationWithAnnotationsEnabled(),
+    allowDownloadOriginal: isDownloadOriginalPresentationEnabled(),
+    allowDownloadWithAnnotations: isDownloadPresentationWithAnnotationsEnabled(),
     handleSave: Service.handleSavePresentation,
     handleDismissToast: PresUploaderToast.handleDismissToast,
     renderToastList: Service.renderToastList,
     renderPresentationItemStatus: PresUploaderToast.renderPresentationItemStatus,
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchTogglePresentationDownloadable,
-    exportPresentationToChat,
+    dispatchChangePresentationDownloadable,
+    exportPresentation,
     isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),
     handleFiledrop: Service.handleFiledrop,
+    hasAnnotations,
   };
 })(PresentationUploaderContainer);

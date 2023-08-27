@@ -7,6 +7,7 @@ import InputStreamLiveSelectorContainer from './input-stream-live-selector/conta
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
+import AudioModalContainer from '../audio-modal/container';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -30,7 +31,6 @@ const intlMessages = defineMessages({
 const propTypes = {
   shortcuts: PropTypes.objectOf(PropTypes.string).isRequired,
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
-  handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
   disable: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
@@ -49,10 +49,14 @@ class AudioControls extends PureComponent {
 
     this.state = {
       pttPressed: false,
-      isUnmuteTriggered: false
+      isUnmuteTriggered: false,
+      isAudioModalOpen: false
     };
     this.unmuteTimer = null;
 
+    this.renderButtonsAndStreamSelector = this.renderButtonsAndStreamSelector.bind(this);
+    this.renderJoinLeaveButton = this.renderJoinLeaveButton.bind(this);
+    this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.handlePushToTalkDown = this.handlePushToTalk.bind(this, 'down');
     this.handlePushToTalkUp = this.handlePushToTalk.bind(this, 'up');
   }
@@ -72,7 +76,7 @@ class AudioControls extends PureComponent {
 
   handlePushToTalk(action, event) {
     const { unmuteMic, muteMic, pushToTalkEnabled } = this.props;
-    if (!pushToTalkEnabled || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName.toUpperCase())) return;
+    if (isAudioModalOpen || !pushToTalkEnabled || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName.toUpperCase())) return;
 
     const { pttPressed, isUnmuteTriggered } = this.state;
     if (event.key !== 'm') return;
@@ -100,15 +104,16 @@ class AudioControls extends PureComponent {
 
   renderJoinButton() {
     const {
-      handleJoinAudio,
       disable,
       intl,
       shortcuts,
+      joinListenOnly,
+      isConnected
     } = this.props;
 
     return (
       <Button
-        onClick={handleJoinAudio}
+        onClick={() => this.handleJoinAudio(joinListenOnly, isConnected)}
         disabled={disable}
         hideLabel
         aria-label={intl.formatMessage(intlMessages.joinAudio)}
@@ -167,6 +172,16 @@ class AudioControls extends PureComponent {
     return this.renderJoinButton();
   }
 
+  handleJoinAudio(joinListenOnly, isConnected) {
+    (isConnected()
+    ? joinListenOnly()
+    : this.setAudioModalIsOpen(true)
+  )}
+
+  setAudioModalIsOpen(value) {
+    this.setState({ isAudioModalOpen: value })
+  }
+
   render() {
     const {
       showMute,
@@ -177,6 +192,8 @@ class AudioControls extends PureComponent {
       isViewer,
       isPresenter,
     } = this.props;
+
+    const { isAudioModalOpen } = this.state;
 
     const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
     const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
@@ -191,6 +208,15 @@ class AudioControls extends PureComponent {
         ) : null}
         {
           this.renderJoinLeaveButton()
+        }
+        {
+          isAudioModalOpen ? <AudioModalContainer 
+            {...{
+              priority: "low",
+              setIsOpen: this.setAudioModalIsOpen,
+              isOpen: isAudioModalOpen
+            }}
+          /> : null
         }
       </Styled.Container>
     );

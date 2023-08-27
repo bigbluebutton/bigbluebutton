@@ -239,27 +239,27 @@ class Auth {
           description: 'Authentication timeout',
         });
       }, CONNECTION_TIMEOUT);
+      Meteor.callAsync('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID)
+        .then((result) => {
+          const authenticationTokenValidation = result;
+          if (!authenticationTokenValidation) return;
 
-      Meteor.call('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID, (err, result) => {
-        const authenticationTokenValidation = result;
-        if (!authenticationTokenValidation) return;
-
-        switch (authenticationTokenValidation.validationStatus) {
-          case ValidationStates.INVALID:
-            reject({ error: 403, description: authenticationTokenValidation.reason });
-            break;
-          case ValidationStates.VALIDATED:
-            initCursorStreamListener();
-            initAnnotationsStreamListener();
-            clearTimeout(validationTimeout);
-            this.connectionID = authenticationTokenValidation.connectionId;
-            this.connectionAuthTime = new Date().getTime();
-            Session.set('userWillAuth', false);
-            setTimeout(() => resolve(true), 100);
-            break;
-          default:
-        }
-      });
+          switch (authenticationTokenValidation.validationStatus) {
+            case ValidationStates.INVALID:
+              reject({ error: 403, description: authenticationTokenValidation.reason });
+              break;
+            case ValidationStates.VALIDATED:
+              initCursorStreamListener();
+              initAnnotationsStreamListener();
+              clearTimeout(validationTimeout);
+              this.connectionID = authenticationTokenValidation.connectionId;
+              this.connectionAuthTime = new Date().getTime();
+              Session.set('userWillAuth', false);
+              setTimeout(() => resolve(true), 100);
+              break;
+            default:
+          }
+        });
     });
   }
 

@@ -22,6 +22,7 @@ const propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   clearAllEmojiStatus: PropTypes.func.isRequired,
+  clearAllReactions: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
 };
@@ -124,6 +125,7 @@ class UserParticipants extends Component {
     const {
       compact,
       setEmojiStatus,
+      setUserAway,
       users,
       requestUserInformation,
       currentUser,
@@ -152,6 +154,7 @@ class UserParticipants extends Component {
             {...{
               compact,
               setEmojiStatus,
+              setUserAway,
               requestUserInformation,
               currentUser,
               meetingIsBreakout,
@@ -194,6 +197,7 @@ class UserParticipants extends Component {
       users,
       compact,
       clearAllEmojiStatus,
+      clearAllReactions,
       currentUser,
       meetingIsBreakout,
       isMeetingMuteOnStart,
@@ -213,8 +217,8 @@ class UserParticipants extends Component {
                 {currentUser?.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
-                      users,
                       clearAllEmojiStatus,
+                      clearAllReactions,
                       meetingIsBreakout,
                       isMeetingMuteOnStart,
                     }}

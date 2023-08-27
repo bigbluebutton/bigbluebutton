@@ -1,11 +1,7 @@
-const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
-const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
-const util = require('./util');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
 class DisabledFeatures extends MultiUsers {
   constructor(browser, context) {
@@ -45,8 +41,7 @@ class DisabledFeatures extends MultiUsers {
 
   async layouts() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.wasRemoved(e.propagateLayout);
-    await this.modPage.wasRemoved(e.layoutModal);
+    await this.modPage.wasRemoved(e.manageLayoutBtn);
   }
 
   async learningDashboard() {
@@ -75,7 +70,8 @@ class DisabledFeatures extends MultiUsers {
   async downloadPresentationWithAnnotations() {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.wasRemoved(e.exportPresentationToPublicChat);
+    await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    await this.modPage.wasRemoved(e.sendPresentationInCurrentStateBtn);
   }
 
   async importPresentationWithAnnotationsFromBreakoutRooms() {
@@ -100,6 +96,20 @@ class DisabledFeatures extends MultiUsers {
     await this.modPage.waitAndClick (e.joinVideo);
     await this.modPage.waitForSelector(e.webcamSettingsModal);
     await this.modPage.wasRemoved(e.inputBackgroundButton);
+  }
+
+  async slideSnapshot() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.hasElement(e.presentationFullscreen);
+    await this.modPage.wasRemoved(e.presentationSnapshot);
+  }
+
+  async cameraAsContent() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.managePresentations);
+    await this.modPage.wasRemoved(e.shareCameraAsContent);
   }
 
   // Disabled Features Exclude
@@ -136,8 +146,7 @@ class DisabledFeatures extends MultiUsers {
 
   async layoutsExclude() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.hasElement(e.propagateLayout);
-    await this.modPage.hasElement(e.layoutModal);
+    await this.modPage.hasElement(e.manageLayoutBtn);
   }
 
   async learningDashboardExclude() {
@@ -164,9 +173,11 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async downloadPresentationWithAnnotationsExclude() {
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.hasElement(e.exportPresentationToPublicChat);
+    await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    await this.modPage.hasElement(e.sendPresentationInCurrentStateBtn);
   }
 
   async importPresentationWithAnnotationsFromBreakoutRoomsExclude() {
@@ -191,6 +202,18 @@ class DisabledFeatures extends MultiUsers {
     await this.modPage.waitAndClick (e.joinVideo);
     await this.modPage.waitForSelector(e.webcamSettingsModal);
     await this.modPage.hasElement(e.inputBackgroundButton);
+  }
+
+  async slideSnapshotExclude() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.hasElement(e.presentationSnapshot);
+  }
+
+  async cameraAsContentExclude() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.shareCameraAsContent);
   }
 }
 

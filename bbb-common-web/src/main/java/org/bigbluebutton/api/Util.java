@@ -105,22 +105,36 @@ public final class Util {
 		return path;
 	}
 
-	public static File getPresFileDownloadMarker(File presBaseDir, String presId) {
+	public static File getPresFileDownloadMarker(File presBaseDir, String presId, String downloadableExtension) {
 		if (presBaseDir != null) {
-			String downloadMarker = presId.concat(".downloadable");
+			String downloadMarker = presId.concat(".").concat(downloadableExtension).concat(".downloadable");
 			return new File(presBaseDir.getAbsolutePath() + File.separatorChar + downloadMarker);
 		}
 		return null;
 	}
 
+	public static void deleteAllDownloadableMarksInPresentations(File presFileDir) {
+		// Delete files with .downloadable at the end of its filename
+		File[] presFiles = presFileDir.listFiles();
+		for (File presFile : presFiles) {
+			if (presFile.isFile() && presFile.getName().endsWith(".downloadable")) {
+				presFile.delete();
+			}
+		}
+	}
+
 	public static void makePresentationDownloadable(
 		File presFileDir,
 		String presId,
-		boolean downloadable
+		boolean downloadable,
+		String downloadableExtension
 	) throws IOException {
-		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId);
+		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId, downloadableExtension);
 		if (downloadable && downloadMarker != null && ! downloadMarker.exists()) {
+			Util.deleteAllDownloadableMarksInPresentations(presFileDir);
 			downloadMarker.createNewFile();
+		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {
+			downloadMarker.delete();
 		}
 	}
 }

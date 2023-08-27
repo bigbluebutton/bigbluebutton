@@ -6,6 +6,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
 import VideoService from '/imports/ui/components/video-provider/service';
+import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 
@@ -81,6 +82,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.pushToTalkLabel',
     description: 'enable/disable audio push-to-talk',
   },
+  wakeLockEnabledLabel: {
+    id: 'app.submenu.application.wakeLockEnabledLabel',
+    description: 'enable/disable wake lock',
+  },
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
@@ -120,6 +125,12 @@ const intlMessages = defineMessages({
   customPushLayout: {
     id: 'app.layout.style.customPush',
     description: 'label for custom layout style (push to all)',
+  },
+  disableLabel: {
+    id: 'app.videoDock.webcamDisableLabelAllCams',
+  },
+  autoCloseReactionsBarLabel: {
+    id: 'app.actionsBar.reactions.autoCloseReactionsBarLabel',
   },
 });
 
@@ -370,9 +381,45 @@ class ApplicationMenu extends BaseMenu {
     );
   }
 
+  renderWakeLockToggle() {
+    if (!WakeLockService.isSupported()) return null;
+
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { settings } = this.state;
+
+    return (
+      <Styled.Row>
+        <Styled.Col>
+          <Styled.FormElement>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <Styled.Label>
+              {intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
+            </Styled.Label>
+          </Styled.FormElement>
+        </Styled.Col>
+        <Styled.Col>
+          <Styled.FormElementRight>
+            {displaySettingsStatus(settings.wakeLock)}
+            <Toggle
+              icons={false}
+              defaultChecked={settings.wakeLock}
+              onChange={() => this.handleToggle('wakeLock')}
+              ariaLabel={intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
+              showToggleLabel={showToggleLabel}
+            />
+          </Styled.FormElementRight>
+        </Styled.Col>
+      </Styled.Row>
+    );
+  }
+
   render() {
     const {
-      allLocales, intl, showToggleLabel, displaySettingsStatus,
+      allLocales,
+      intl,
+      showToggleLabel,
+      displaySettingsStatus,
+      isReactionsEnabled,
     } = this.props;
     const {
       isLargestFontSize, isSmallestFontSize, settings,
@@ -451,6 +498,7 @@ class ApplicationMenu extends BaseMenu {
 
           {this.renderPaginationToggle()}
           {this.renderDarkThemeToggle()}
+          {this.renderWakeLockToggle()}
 
           <Styled.Row>
             <Styled.Col aria-hidden="true">
@@ -474,6 +522,52 @@ class ApplicationMenu extends BaseMenu {
               </Styled.FormElementRight>
             </Styled.Col>
           </Styled.Row>
+
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.disableLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.selfViewDisable)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.selfViewDisable}
+                  onChange={() => this.handleToggle('selfViewDisable')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+
+          {isReactionsEnabled && (
+            <Styled.Row>
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {displaySettingsStatus(settings.autoCloseReactionsBar)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.autoCloseReactionsBar}
+                    onChange={() => this.handleToggle('autoCloseReactionsBar')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+          )}
 
           <Styled.Row>
             <Styled.Col>

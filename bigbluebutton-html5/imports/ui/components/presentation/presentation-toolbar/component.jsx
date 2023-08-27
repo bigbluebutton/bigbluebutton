@@ -93,6 +93,12 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.state = {
+      wasFTWActive: false,
+    };
+
+    this.setWasActive = this.setWasActive.bind(this);
+    this.handleFTWSlideChange = this.handleFTWSlideChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
@@ -108,18 +114,40 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { zoom, setIsPanning, fitToWidth } = this.props;
+    const { zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum } = this.props;
+    const { wasFTWActive } = this.state;
+
     if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom && !fitToWidth) setIsPanning();
+
+    if ((prevProps?.currentSlideNum !== currentSlideNum) && (!fitToWidth && wasFTWActive)) {
+      setTimeout(() => {
+        fitToWidthHandler();
+        this.setWasActive(false);
+      }, 150)
+    }
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
   }
 
+  setWasActive(wasFTWActive) {
+    this.setState({ wasFTWActive });
+  }
+
+  handleFTWSlideChange() {
+    const { fitToWidth, fitToWidthHandler } = this.props;
+    if (fitToWidth) {
+      fitToWidthHandler();
+      this.setWasActive(fitToWidth);
+    }
+  }
+
   handleSkipToSlideChange(event) {
     const { skipToSlide, podId } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
+    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum, podId);
   }
@@ -161,9 +189,10 @@ class PresentationToolbar extends PureComponent {
 
   nextSlideHandler(event) {
     const {
-      nextSlide, currentSlideNum, numberOfSlides, podId, endCurrentPoll,
+      nextSlide, currentSlideNum, numberOfSlides, podId, endCurrentPoll
     } = this.props;
 
+    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
     nextSlide(currentSlideNum, numberOfSlides, podId);
@@ -171,9 +200,10 @@ class PresentationToolbar extends PureComponent {
 
   previousSlideHandler(event) {
     const {
-      previousSlide, currentSlideNum, podId, endCurrentPoll,
+      previousSlide, currentSlideNum, podId, endCurrentPoll
     } = this.props;
 
+    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
     previousSlide(currentSlideNum, podId);
@@ -291,7 +321,7 @@ class PresentationToolbar extends PureComponent {
         id="presentationToolbarWrapper"
       >
         {this.renderAriaDescs()}
-        <div style={{ display: 'flex' }}>
+        <Styled.QuickPollButtonWrapper>
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{
@@ -306,7 +336,7 @@ class PresentationToolbar extends PureComponent {
           ) : null}
 
           <SmartMediaShareContainer {...{ intl, currentSlide }} />
-        </div>
+        </Styled.QuickPollButtonWrapper>
         <Styled.PresentationSlideControls>
           <Styled.PrevSlideButton
             role="button"
@@ -423,9 +453,7 @@ class PresentationToolbar extends PureComponent {
               ? intl.formatMessage(intlMessages.fitToPage)
               : intl.formatMessage(intlMessages.fitToWidth)}
             hideLabel
-            {...{
-              fitToWidth,
-            }}
+            $fitToWidth={fitToWidth}
           />
         </Styled.PresentationZoomControls>
       </Styled.PresentationToolbarWrapper>

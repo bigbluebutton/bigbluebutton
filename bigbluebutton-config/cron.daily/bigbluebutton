@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 
 test -x /var/bigbluebutton || exit 0
 
@@ -44,6 +44,7 @@ find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-[0-9]*" -mtime +$history -
 #
 kurento_dir=/var/kurento/
 mediasoup_dir=/var/mediasoup/
+bbb_webrtc_recorder_dir=/var/lib/bbb-webrtc-recorder/
 
 remove_stale_sfu_raw_files() {
   for app in recordings screenshare; do
@@ -57,6 +58,7 @@ remove_stale_sfu_raw_files() {
 
 remove_stale_sfu_raw_files "$kurento_dir"
 remove_stale_sfu_raw_files "$mediasoup_dir"
+remove_stale_sfu_raw_files "$bbb_webrtc_recorder_dir"
 
 #
 # Delete FreeSWITCH wav/opus recordings older than N days

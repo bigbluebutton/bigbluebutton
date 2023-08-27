@@ -14,6 +14,7 @@ export default async function changeLockSettings(meetingId, payload) {
     lockOnJoin: Boolean,
     lockOnJoinConfigurable: Boolean,
     hideViewersCursor: Boolean,
+    hideViewersAnnotation: Boolean,
     setBy: Match.Maybe(String),
   });
 
@@ -27,6 +28,7 @@ export default async function changeLockSettings(meetingId, payload) {
     lockOnJoin,
     lockOnJoinConfigurable,
     hideViewersCursor,
+    hideViewersAnnotation,
     setBy,
   } = payload;
 
@@ -46,14 +48,14 @@ export default async function changeLockSettings(meetingId, payload) {
         lockOnJoin,
         lockOnJoinConfigurable,
         hideViewersCursor,
+        hideViewersAnnotation,
         setBy,
       },
     },
   };
 
   try {
-    const { numberAffected } = Meetings.upsertAsync(selector, modifier);
-
+    const { numberAffected } = await Meetings.upsertAsync(selector, modifier);
     if (numberAffected) {
       Logger.info(`Changed meeting={${meetingId}} updated lock settings`);
     } else {

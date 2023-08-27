@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
@@ -10,10 +9,11 @@ import ConnectionStatusButton from '/imports/ui/components/connection-status/but
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import _ from "lodash";
 import { PANELS, ACTIONS } from '../layout/enums';
+import { isEqual } from 'radash';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -104,7 +104,7 @@ class NavBar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!_.isEqual(prevProps.activeChats, this.props.activeChats)) {
+    if (!isEqual(prevProps.activeChats, this.props.activeChats)) {
       this.setState({ acs: this.props.activeChats})
     }
   }
@@ -163,7 +163,6 @@ class NavBar extends Component {
       activeChats,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
-      mountModal,
       presentationTitle,
       amIModerator,
       style,
@@ -240,8 +239,6 @@ class NavBar extends Component {
               {presentationTitle}
             </Styled.PresentationTitle>
             <RecordingIndicator
-              mountModal={mountModal}
-              getModal={getModal}
               amIModerator={amIModerator}
               currentUserId={currentUserId}
             />
@@ -253,6 +250,7 @@ class NavBar extends Component {
         </Styled.Top>
         <Styled.Bottom>
           <TalkingIndicatorContainer amIModerator={amIModerator} />
+          <TimerIndicatorContainer />
         </Styled.Bottom>
       </Styled.Navbar>
     );
@@ -261,5 +259,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-export default withShortcutHelper(withModalMounter(injectIntl(NavBar)), 'toggleUserList');
-
+export default withShortcutHelper(injectIntl(NavBar), 'toggleUserList');

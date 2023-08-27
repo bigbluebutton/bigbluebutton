@@ -42,7 +42,7 @@ export default async function changeLayout(payload) {
       pushLayout: Boolean,
       presentationIsOpen: Boolean,
       isResizing: Boolean,
-      cameraPosition: String,
+      cameraPosition: Match.Maybe(String),
       focusedCamera: String,
       presentationVideoRate: Number,
     });

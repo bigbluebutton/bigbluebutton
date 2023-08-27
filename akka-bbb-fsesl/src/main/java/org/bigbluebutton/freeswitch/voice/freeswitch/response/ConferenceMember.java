@@ -62,6 +62,10 @@ public class ConferenceMember {
         return flags.getIsSpeaking();
     }
 
+    public boolean getHold() {
+        return flags.getHold();
+    }
+
     public void setFlags(ConferenceMemberFlags flags) {
         this.flags = flags;
     }

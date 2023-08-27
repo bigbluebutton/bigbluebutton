@@ -14,10 +14,7 @@ const UnreadMessages = styled(StyledContent.UnreadMessages)``;
 const UnreadMessagesText = styled(StyledContent.UnreadMessagesText)``;
 
 const ListItem = styled(StyledContent.ListItem)`
-  ${({ $disabled }) => $disabled && `
-    cursor: not-allowed;
-    border: none;
-  `}
+  i{ left: 4px; }
 `;
 
 const NotesTitle = styled.div`

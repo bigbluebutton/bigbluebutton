@@ -262,8 +262,29 @@ class Polling extends MultiUsers {
     const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle).last();
     await expect(wbDrawnRectangleLocator).toBeVisible({ timeout: ELEMENT_WAIT_TIME});
 
-    await this.modPage.waitAndClick(e.closePollingBtn);
-    await this.modPage.wasRemoved(e.closePollingBtn);
+    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const wbBox = await modWbLocator.boundingBox();
+
+    await wbDrawnRectangleLocator.click();
+    await this.modPage.page.mouse.down();
+    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+    await this.modPage.page.mouse.up();
+    await wbDrawnRectangleLocator.dblclick();
+    await this.modPage.page.keyboard.type('test');
+    await expect(wbDrawnRectangleLocator).toContainText('test');
+
+    // user turns to presenter to edit the poll results
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+
+    const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbDrawnRectangle).last();
+    await wbDrawnRectangleUserLocator.dblclick();
+    await this.userPage.page.keyboard.type('testUser');
+    await expect(wbDrawnRectangleUserLocator).toContainText('testUser');
+    
+    await this.modPage.waitAndClick(e.currentUser);
+    await this.modPage.waitAndClick(e.takePresenter);
+    await this.userPage.waitAndClick(e.hidePublicChat);
   }
 
   async pollResultsInDifferentPresentation() {

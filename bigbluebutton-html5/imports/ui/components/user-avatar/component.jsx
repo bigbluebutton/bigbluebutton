@@ -73,13 +73,14 @@ const UserAvatar = ({
         isChrome={isChrome}
         isFirefox={isFirefox}
         isEdge={isEdge}
+        className={className}
         style={{
           backgroundColor: color,
           color, // We need the same color on both for the border
         }}
       >
 
-        <Styled.Talking talking={talking && !muted && avatar.length === 0} animations={animations} />
+        <Styled.Talking talking={talking && !muted} animations={animations} />
 
         {avatar.length !== 0 && !emoji
           ? (

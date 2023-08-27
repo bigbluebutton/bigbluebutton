@@ -1,12 +1,10 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
+import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
 import org.bigbluebutton.presentation.*;
-import org.bigbluebutton.presentation.messages.DocPageConversionStarted;
-import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
-import org.bigbluebutton.presentation.messages.DocPageCountFailed;
-import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
+import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +66,15 @@ public class PresentationFileProcessor {
     private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {
         try {
             File presentationFileDir = pres.getUploadedFile().getParentFile();
-            Util.makePresentationDownloadable(presentationFileDir, pres.getId(), pres.isDownloadable());
+            if (!pres.getFilenameConverted().equals("")) {
+                String fileExtensionConverted = FilenameUtils.getExtension(pres.getFilenameConverted());
+                Util.makePresentationDownloadable(presentationFileDir, pres.getId(), pres.isDownloadable(),
+                        fileExtensionConverted);
+
+            }
+            String fileExtensionOriginal = FilenameUtils.getExtension(pres.getName());
+            Util.makePresentationDownloadable(presentationFileDir, pres.getId(), pres.isDownloadable(),
+                    fileExtensionOriginal);
         } catch (IOException e) {
             log.error("Failed to make presentation downloadable: {}", e);
         }
@@ -76,6 +82,7 @@ public class PresentationFileProcessor {
 
     private void processUploadedPresentation(UploadedPresentation pres) {
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
+            pres.generateFilenameConverted("pdf");
             determineNumberOfPages(pres);
             sendDocPageConversionStartedProgress(pres);
             PresentationConvertMessage msg = new PresentationConvertMessage(pres);

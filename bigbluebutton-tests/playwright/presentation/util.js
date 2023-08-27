@@ -1,7 +1,7 @@
 const { expect } = require('@playwright/test');
 const path = require('path');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
+const { UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 async function checkSvgIndex(test, element) {
   const check = await test.page.evaluate(([el, slideImg]) => {
@@ -32,6 +32,7 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_P
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);
+  await test.hasElement(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
   await test.page.waitForFunction(([selector, firstSlideSrc]) => {
     const currentSrc = document.querySelector(selector).src;
     return currentSrc != firstSlideSrc;
@@ -40,7 +41,7 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_P
   });
 }
 
-async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
+async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEMENT_WAIT_EXTRA_LONG_TIME) {
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.managePresentations);
   await test.waitForSelector(e.fileUpload);

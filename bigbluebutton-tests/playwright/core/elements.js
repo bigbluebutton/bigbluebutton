@@ -11,14 +11,17 @@ exports.modalDismissButton = 'button[data-test="modalDismissButton"]';
 exports.closeModal = 'button[data-test="closeModal"]';
 exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
-exports.raiseHandBtn = 'button[data-test="raiseHandLabel"]';
-exports.lowerHandBtn = 'button[data-test="lowerHandLabel"]';
+exports.reactionsButton = 'button[data-test="reactionsButton"]';
+exports.raiseHandBtn = 'div[data-test="raiseHandBtn"]';
+exports.lowerHandBtn = 'div[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';
 exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 exports.errorMessageLabel = 'span[id="error-message"]';
+exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
+
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';
 exports.userListButton = 'button[accesskey="U"]';
@@ -62,8 +65,7 @@ exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
 exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
 exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
 exports.durationTime = 'input[data-test="durationTime"]';
-exports.decreaseBreakoutTime = 'button[data-test="decreaseBreakoutTime"]';
-exports.increaseBreakoutTime = 'button[data-test="increaseBreakoutTime"]';
+exports.minimumDurationWarnBreakout = 'span[data-test="minimumDurationWarnBreakout"]';
 exports.selectNumberOfRooms = 'select[id="numberOfRooms"]';
 exports.roomGrid = 'div[data-test="roomGrid"] >> input';
 exports.breakoutBox0 = 'div[id="breakoutBox-0"]';
@@ -156,8 +158,6 @@ exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
-exports.propagateLayout = 'li[data-test="propagateLayout"]';
-exports.layoutModal = 'li[data-test="layoutModal"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -181,6 +181,7 @@ exports.exporthtml = 'span[id="exporthtml"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
+exports.closeToastBtn = 'i[data-test="closeToastBtn"]';
 const currentPresentationToast = 'div[data-test="currentPresentationToast"]';
 exports.currentPresentationToast = currentPresentationToast
 exports.notificationsTab = 'span[id="notificationTab"]';
@@ -274,8 +275,7 @@ exports.presentationToolbarWrapper = 'div[id="presentationToolbarWrapper"]';
 exports.nextSlide = 'button[data-test="nextSlide"]';
 exports.prevSlide = 'button[data-test="prevSlide"]';
 exports.skipSlide = 'select[data-test="skipSlide"]';
-exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
-exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
+exports.presentationOptionsDownloadBtn = 'button[data-test="presentationOptionsDownload"]';
 exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
 exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.presentationDownloadBtn = 'button[data-test="presentationDownload"]';
@@ -291,7 +291,9 @@ exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
 exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
 exports.presentationsList = 'div[id="upload-modal"] tbody';
-exports.exportPresentationToPublicChat = 'button[data-test="exportPresentationToPublicChat"]';
+exports.enableOriginalPresentationDownloadBtn = 'li[data-test="enableOriginalPresentationDownload"]';
+exports.disableOriginalPresentationDownloadBtn = 'li[data-test="disableOriginalPresentationDownload"]';
+exports.sendPresentationInCurrentStateBtn = 'li[data-test="sendCurrentStateDocument"]';
 exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
 exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
@@ -368,7 +370,8 @@ exports.error403removedLabel = 'You have been removed from the meeting';
 exports.removeUser = 'li[data-test="removeUser"]';
 exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]';
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
-exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
+exports.userBannedMessage1 = 'div[id="app"] >> div >> div:nth-child(1)';
+exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
@@ -384,6 +387,9 @@ exports.lockPublicChat = 'input[data-test="lockPublicChat"]';
 exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
 exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
+exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
+exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
+exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
 
 // Closed Captions
 exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
@@ -467,6 +473,7 @@ exports.wbColorRed = 'button[id="TD-Styles-Color-Swatch-red"]';
 exports.wbFillDrawing = 'button[id="TD-Styles-Fill"]';
 exports.wbDashDotted = 'div[id="TD-Styles-Dash-dotted"]';
 exports.wbSizeLarge = 'div[id="TD-Styles-Dash-large"]';
+exports.wbPaste = 'button[id="TD-ContextMenu-Paste"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
@@ -486,13 +493,13 @@ exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
 // Layout management
-exports.layoutSettingsModalButton = 'li[data-test="layoutModal"]';
+exports.manageLayoutBtn = 'li[data-test="manageLayoutBtn"]';
 exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
 exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
 exports.smartLayout = 'button[data-test="smartLayout"]';
 exports.customLayout = 'button[data-test="customLayout"]';
-exports.pushLayoutToggle = 'input#TogglePush';
-exports.confirmButton = 'button[aria-label="Confirm"]';
+exports.updateLayoutBtn = 'button[data-test="updateLayoutBtn"]';
+exports.updateEveryoneLayoutBtn = 'button[data-test="updateEveryoneLayoutBtn"]';
 exports.cameraDock = 'div#cameraDock';
 
 // Font size
