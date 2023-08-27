@@ -463,6 +463,20 @@ export default function Whiteboard(props) {
       const newZoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
       tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newZoom, 'zoomed');
     }
+
+    const camera = tldrawAPI?.getPageState()?.camera;
+    if (isPresenter && slidePosition && camera) {
+      const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
+      const zoomCamera = (zoomFitSlide * zoomValue) / HUNDRED_PERCENT;
+      let zoomToolbar = Math.round(
+        ((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100,
+      ) / 100;
+
+      if (zoom !== zoomToolbar) {
+        setZoom(zoomToolbar);
+        zoomChanger(zoomToolbar);
+      }
+    }
   }, [curPageId, slidePosition]);
 
   // update zoom according to toolbar
