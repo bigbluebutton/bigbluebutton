@@ -15,6 +15,7 @@ select_permissions:
         - name
         - padId
         - pinned
+        - readOnlyId
         - sharedNotesExtId
       filter:
         meetingId:

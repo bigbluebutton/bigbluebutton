@@ -37,7 +37,7 @@ case class PadCreateCmdMsgBody(groupId: String, name: String)
 // pads -> apps
 object PadCreatedEvtMsg { val NAME = "PadCreatedEvtMsg" }
 case class PadCreatedEvtMsg(header: BbbCoreHeaderWithMeetingId, body: PadCreatedEvtMsgBody) extends PadStandardMsg
-case class PadCreatedEvtMsgBody(groupId: String, padId: String, name: String)
+case class PadCreatedEvtMsgBody(groupId: String, padId: String, name: String, readOnlyId: String)
 
 // apps -> client
 object PadCreatedRespMsg { val NAME = "PadCreatedRespMsg" }

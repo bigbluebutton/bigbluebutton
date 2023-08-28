@@ -22,6 +22,7 @@ select_permissions:
     permission:
       columns:
         - padId
+        - readOnlyId
         - sessionId
         - sharedNotesExtId
       filter:

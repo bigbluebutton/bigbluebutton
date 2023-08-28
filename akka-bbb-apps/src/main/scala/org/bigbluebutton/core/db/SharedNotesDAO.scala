@@ -9,6 +9,7 @@ case class SharedNotesDbModel(
     meetingId:        String,
     sharedNotesExtId: String,
     padId:            String,
+    readOnlyId:       String,
     model:            String,
     name:             String,
     pinned:           Boolean
@@ -18,22 +19,24 @@ class SharedNotesDbTableDef(tag: Tag) extends Table[SharedNotesDbModel](tag, Non
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val sharedNotesExtId = column[String]("sharedNotesExtId", O.PrimaryKey)
   val padId = column[String]("padId")
+  val readOnlyId = column[String]("readOnlyId")
   val model = column[String]("model")
   val name = column[String]("name")
   val pinned = column[Boolean]("pinned")
   val * = (
-    meetingId, sharedNotesExtId, padId, model, name, pinned
+    meetingId, sharedNotesExtId, padId, readOnlyId, model, name, pinned
   ) <> (SharedNotesDbModel.tupled, SharedNotesDbModel.unapply)
 }
 
 object SharedNotesDAO {
-  def insert(meetingId: String, group: PadGroup, padId: String, name: String) = {
+  def insert(meetingId: String, group: PadGroup, padId: String, name: String, readOnlyId: String) = {
     DatabaseConnection.db.run(
       TableQuery[SharedNotesDbTableDef].insertOrUpdate(
         SharedNotesDbModel(
           meetingId = meetingId,
           sharedNotesExtId = group.externalId,
           padId = padId,
+          readOnlyId = readOnlyId,
           model = group.model,
           name = name,
           pinned = false

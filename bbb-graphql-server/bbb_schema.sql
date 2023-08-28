@@ -1288,6 +1288,7 @@ create table "sharedNotes" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),
     "padId" varchar(25),
+    "readOnlyId" varchar(50),
     "model" varchar(25),
     "name" varchar(25),
     "pinned" boolean,
@@ -1324,9 +1325,10 @@ LEFT JOIN "sharedNotes_rev" snr ON snr."meetingId" = sn."meetingId" AND snr."sha
 GROUP BY sn."meetingId", sn."sharedNotesExtId";
 
 create view "v_sharedNotes_session" as
-SELECT sns.*, sn."padId"
-FROM "sharedNotes_session" sns
-JOIN "sharedNotes" sn ON sn."meetingId" = sns."meetingId" AND sn."sharedNotesExtId" = sn."sharedNotesExtId";
+SELECT u."userId", u."meetingId", sn."sharedNotesExtId", sns."sessionId", sn."padId", sn."readOnlyId"
+FROM "user" u
+JOIN "sharedNotes" sn ON sn."meetingId" = u."meetingId"
+LEFT JOIN "sharedNotes_session" sns on sns."meetingId" = sn."meetingId" and sns."sharedNotesExtId" = sn."sharedNotesExtId";
 
 ----------------------
 
