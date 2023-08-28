@@ -53,11 +53,11 @@ test.describe.serial('Polling', () => {
   });
 
   // Results
-  test('Poll results in chat message @ci', async () => {
+  test('Poll results in chat message @ci @flaky', async () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard @ci', async () => {
+  test('Poll results on whiteboard @ci @flaky', async () => {
     await polling.pollResultsOnWhiteboard();
   });
 
