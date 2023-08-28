@@ -20,79 +20,54 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  save-pr-number:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Save data to comment workflow
-        env:
-          PR_NUMBER: ${{ github.event.number }}
-          WORKFLOW_ID: ${{ github.run_id }}
-        run: |
-          mkdir -p ./pr-comment-data
-          echo $PR_NUMBER > ./pr-comment-data/pr_number
-          echo $WORKFLOW_ID > ./pr-comment-data/workflow_id
-      - uses: actions/upload-artifact@v3
-        with:
-          name: pr-comment-data
-          path: pr-comment-data
   build-bbb-apps-akka:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-apps-akka
       cache-files-list: akka-bbb-apps bbb-common-message
   build-bbb-config:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-config
       cache-files-list: bigbluebutton-config
   build-bbb-export-annotations:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-export-annotations
       cache-files-list: bbb-export-annotations
   build-bbb-learning-dashboard:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-learning-dashboard
       cache-files-list: bbb-learning-dashboard
   build-bbb-playback-record:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-playback-record
       build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
   build-bbb-etherpad:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-etherpad
       cache-files-list: bbb-etherpad.placeholder.sh build/packages-template/bbb-etherpad
       cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
   build-bbb-bbb-web:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-web
       cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
   build-bbb-fsesl-akka:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-fsesl-akka
       cache-files-list: akka-bbb-fsesl bbb-common-message
   build-bbb-html5:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-html5
       build-list: bbb-html5-nodejs bbb-html5
       cache-files-list: bigbluebutton-html5
   build-bbb-freeswitch:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-freeswitch
@@ -100,14 +75,12 @@ jobs:
       cache-files-list: freeswitch.placeholder.sh build/packages-template/bbb-freeswitch-core build/packages-template/bbb-freeswitch-sounds
       cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
   build-bbb-webrtc:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: bbb-webrtc
       build-list: bbb-webrtc-sfu bbb-webrtc-recorder
       cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh build/packages-template/bbb-webrtc-sfu build/packages-template/bbb-webrtc-recorder
   build-others:
-    needs: save-pr-number
     uses: bigbluebutton/bigbluebutton/.github/workflows/automated-tests-build-package-job.yml@v2.7.x-release
     with:
       build-name: others
@@ -129,6 +102,10 @@ jobs:
         build-others,
       ]
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1/10, 2/10, 3/10, 4/10, 5/10, 6/10, 7/10, 8/10, 9/10, 10/10]
     steps:
       - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
         uses: actions/checkout@v3
@@ -301,7 +278,7 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/api
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci
+        run: npm run test-chromium-ci -- --shard ${{ matrix.shard }}
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
         if: |
@@ -316,20 +293,14 @@ jobs:
         run: |
           sh -c '
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
-          npm run test-firefox-ci
+          npm run test-firefox-ci -- --shard ${{ matrix.shard }}
           '
-      - if: always()
+      - if: always() && github.event_name == 'pull_request'
+        name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: tests-report
-          path: |
-            bigbluebutton-tests/playwright/playwright-report
-            bigbluebutton-tests/playwright/test-results
-      - if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: pr-comment-data
-          path: ~/pr-comment-data
+          name: all-blob-reports
+          path: bigbluebutton-tests/playwright/blob-report
       - if: failure()
         name: Prepare artifacts (configs and logs)
         run: |
@@ -365,3 +336,41 @@ jobs:
         with:
           name: bbb-logs
           path: ./bbb-logs.tar.gz
+  upload-report:
+    if: always()
+    needs: install-and-run-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        working-directory: ./bigbluebutton-tests/playwright
+        run: npm ci
+      - name: Download all blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: all-blob-reports
+          path: bigbluebutton-tests/playwright
+      - name: Merge into HTML Report
+        working-directory: ./bigbluebutton-tests/playwright
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+      - name: Upload HTML tests report
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests-report
+          path: |
+            bigbluebutton-tests/playwright/playwright-report
+            bigbluebutton-tests/playwright/test-results
+      - name: Write PR data for auto-comment
+        if: github.event_name == 'pull_request'
+        run: |
+          echo '${{ github.event.number }} > ./pr-comment-data/pr_number'
+          echo '${{ github.run_id }} > ./pr-comment-data/workflow_id'
+      - name: Upload PR data for auto-comment
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: pr-comment-data
+          path: pr-comment-data
