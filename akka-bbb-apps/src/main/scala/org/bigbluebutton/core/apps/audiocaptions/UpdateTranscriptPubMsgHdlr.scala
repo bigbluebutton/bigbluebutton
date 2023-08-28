@@ -6,6 +6,8 @@ import org.bigbluebutton.core.db.AudioCaptionDAO
 import org.bigbluebutton.core.models.AudioCaptions
 import org.bigbluebutton.core.running.LiveMeeting
 
+import java.sql.Timestamp
+
 trait UpdateTranscriptPubMsgHdlr {
   this: AudioCaptionsApp2x =>
 
@@ -13,8 +15,6 @@ trait UpdateTranscriptPubMsgHdlr {
     val meetingId = liveMeeting.props.meetingProp.intId
 
     def broadcastEvent(userId: String, transcriptId: String, transcript: String, locale: String, result: Boolean): Unit = {
-      AudioCaptionDAO.insertOrUpdateAudioCaption(transcriptId, meetingId, transcript)
-
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(TranscriptUpdatedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(TranscriptUpdatedEvtMsg.NAME, meetingId, userId)
@@ -65,6 +65,8 @@ trait UpdateTranscriptPubMsgHdlr {
       )
 
       val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
+
+      AudioCaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, new Timestamp(System.currentTimeMillis()))
 
       broadcastEvent(
         msg.header.userId,

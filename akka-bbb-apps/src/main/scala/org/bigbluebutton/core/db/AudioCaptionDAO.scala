@@ -8,25 +8,31 @@ import scala.util.{ Failure, Success }
 case class AudioCaptionDbModel(
     transcriptId: String,
     meetingId:    String,
-    transcript:   String
+    userId:       String,
+    transcript:   String,
+    createdAt:    java.sql.Timestamp
 )
 
 class AudioCaptionTableDef(tag: Tag) extends Table[AudioCaptionDbModel](tag, None, "audio_caption") {
   val transcriptId = column[String]("transcriptId", O.PrimaryKey)
   val meetingId = column[String]("meetingId")
+  val userId = column[String]("userId")
   val transcript = column[String]("transcript")
-  def * = (transcriptId, meetingId, transcript) <> (AudioCaptionDbModel.tupled, AudioCaptionDbModel.unapply)
+  val createdAt = column[java.sql.Timestamp]("createdAt")
+  def * = (transcriptId, meetingId, userId, transcript, createdAt) <> (AudioCaptionDbModel.tupled, AudioCaptionDbModel.unapply)
 }
 
 object AudioCaptionDAO {
 
-  def insertOrUpdateAudioCaption(transcriptId: String, meetingId: String, transcript: String) = {
+  def insertOrUpdateAudioCaption(transcriptId: String, meetingId: String, userId: String, transcript: String, createdAt: java.sql.Timestamp) = {
     DatabaseConnection.db.run(
       TableQuery[AudioCaptionTableDef].insertOrUpdate(
         AudioCaptionDbModel(
           transcriptId = transcriptId,
           meetingId = meetingId,
-          transcript = transcript
+          userId = userId,
+          transcript = transcript,
+          createdAt = createdAt
         )
       )
     ).onComplete {

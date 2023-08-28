@@ -1289,7 +1289,9 @@ SELECT
 CREATE TABLE "audio_caption" (
     "transcriptId" varchar(100) NOT NULL PRIMARY KEY,
     "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
-    "transcript" text
+    "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+    "transcript" text,
+    "createdAt" timestamp with time zone
 );
 
 CREATE VIEW "v_audio_caption" AS
