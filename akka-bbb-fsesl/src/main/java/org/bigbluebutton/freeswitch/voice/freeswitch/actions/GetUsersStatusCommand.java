@@ -106,7 +106,9 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
                       callerId, callerIdName,
                       member.getMuted(),
                       member.getSpeaking(),
-                      "none");
+                      "none",
+                      member.getHold(),
+                      member.getUUID());
               confMembers.add(confMember);
             }
           } else if ("recording_node".equals(member.getMemberType())) {

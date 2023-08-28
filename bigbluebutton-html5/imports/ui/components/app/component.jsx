@@ -38,6 +38,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
+import PluginsEngineContainer from '../plugins-engine/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
@@ -51,6 +52,7 @@ import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
 import TimerService from '/imports/ui/components/timer/service';
+import TimeSync from './app-graphql/time-sync/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -58,6 +60,7 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
+const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -447,6 +450,7 @@ class App extends Component {
           setMeetingLayout={setMeetingLayout}
           showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
           presentationIsOpen={presentationIsOpen}
+          setPresentationFitToWidth={this.setPresentationFitToWidth}
         />
       </Styled.ActionsBar>
     );
@@ -575,9 +579,20 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
-    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen } = this.state;
+    const {
+      isAudioModalOpen,
+      isRandomUserSelectModalOpen,
+      isVideoPreviewModalOpen,
+      presentationFitToWidth,
+      allPluginsLoaded,
+    } = this.state;
     return (
       <>
+        <PluginsEngineContainer onReady={() => {
+          this.setState({ allPluginsLoaded: true });
+        }}
+        />
+        <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}
         {selectedLayout ? <LayoutEngine layoutType={selectedLayout} /> : null}
@@ -599,7 +614,7 @@ class App extends Component {
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
-          {shouldShowPresentation ? <PresentationAreaContainer darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
+          {shouldShowPresentation ? <PresentationAreaContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo

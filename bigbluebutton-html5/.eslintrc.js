@@ -3,11 +3,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
   },
-  plugins: [
-    'react',
-    'jsx-a11y',
-    'import',
-  ],
+  plugins: ['react', 'jsx-a11y', 'import'],
   env: {
     es6: true,
     node: true,
@@ -29,4 +25,12 @@ module.exports = {
   globals: {
     browser: 'writable',
   },
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'airbnb'],
+      parser: '@typescript-eslint/parser',
+      plugins: ['@typescript-eslint'],
+    },
+  ],
 };

@@ -10,7 +10,7 @@ interface Props {
 }
 
 const GraphqlProvider = ({children}: Props): React.ReactNode => {
-  const [link, setLink] = React.useState<WebSocketLink | null>(null);
+  // const [link, setLink] = React.useState<WebSocketLink | null>(null);
   const [apolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   useEffect(() => {
     const wsLink = new WebSocketLink(
@@ -24,7 +24,7 @@ const GraphqlProvider = ({children}: Props): React.ReactNode => {
         }
       })
     );
-    setLink(wsLink);
+    // setLink(wsLink);
     const client = new ApolloClient({link: wsLink, cache: new InMemoryCache()});
     setApolloClient(client);
   }, []);

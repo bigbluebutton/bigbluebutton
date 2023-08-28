@@ -86,7 +86,7 @@ FROM (
 	(array_agg("startedBy" ORDER BY "startedAt" DESC))[1] as "startedBy",
 	(array_agg("stoppedAt" ORDER BY "startedAt" DESC))[1] as "stoppedAt",
 	(array_agg("stoppedBy" ORDER BY "startedAt" DESC))[1] as "stoppedBy",
-	sum("recordedTimeInSeconds") "previousRecordedTimeInSeconds"
+    coalesce(sum("recordedTimeInSeconds"),0) "previousRecordedTimeInSeconds"
 	from "meeting_recording"
 	GROUP BY "meetingId"
 ) r;
@@ -468,17 +468,22 @@ CREATE TABLE "user_voice" (
 	"startTime" bigint
 );
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
-ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
-CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","hideTalkingIndicatorAt","startTime");
+ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
+GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
+
+CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","talking");
+CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("userId","hideTalkingIndicatorAt");
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
 	u."meetingId",
 	"user_voice" .*,
 	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt",
-	case when "hideTalkingIndicatorAt" > current_timestamp then true else false end "showTalkingIndicator"
+	user_talking."userId" IS NOT NULL "showTalkingIndicator"
 FROM "user" u
-JOIN "user_voice" ON u."userId" = "user_voice"."userId";
+JOIN "user_voice" ON "user_voice"."userId" = u."userId"
+LEFT JOIN "user_voice" user_talking ON (user_talking."userId" = u."userId" and user_talking."talking" IS TRUE)
+                                       OR (user_talking."userId" = u."userId" and user_talking."hideTalkingIndicatorAt" > now());
 
 CREATE TABLE "user_camera" (
 	"streamId" varchar(100) PRIMARY KEY,
@@ -1275,6 +1280,53 @@ JOIN "meeting" m using("meetingId")
 JOIN "v_meeting_breakoutPolicies"vmbp using("meetingId")
 JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
+
+------------------------------------
+----sharedNotes
+
+create table "sharedNotes" (
+    "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "sharedNotesExtId" varchar(25),
+    "padId" varchar(25),
+    "model" varchar(25),
+    "name" varchar(25),
+    "pinned" boolean,
+    constraint "pk_sharedNotes" primary key ("meetingId", "sharedNotesExtId")
+);
+
+create table "sharedNotes_rev" (
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"sharedNotesExtId" varchar(25),
+	"rev" integer,
+	"userId" varchar(50) references "user"("userId") ON DELETE SET NULL,
+	"changeset" varchar(25),
+	"start" integer,
+	"end" integer,
+	"diff" TEXT,
+	"createdAt" timestamp with time zone,
+	constraint "pk_sharedNotes_rev" primary key ("meetingId", "sharedNotesExtId", "rev")
+);
+--create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
+
+create table "sharedNotes_session" (
+    "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "sharedNotesExtId" varchar(25),
+    "userId" varchar(50) references "user"("userId") ON DELETE CASCADE,
+    "sessionId" varchar(50),
+    constraint "pk_sharedNotes_session" primary key ("meetingId", "sharedNotesExtId", "userId")
+);
+create index "sharedNotes_session_userId" on "sharedNotes_session"("userId");
+
+create view "v_sharedNotes" as
+SELECT sn.*, max(snr.rev) "lastRev"
+FROM "sharedNotes" sn
+LEFT JOIN "sharedNotes_rev" snr ON snr."meetingId" = sn."meetingId" AND snr."sharedNotesExtId" = sn."sharedNotesExtId"
+GROUP BY sn."meetingId", sn."sharedNotesExtId";
+
+create view "v_sharedNotes_session" as
+SELECT sns.*, sn."padId"
+FROM "sharedNotes_session" sns
+JOIN "sharedNotes" sn ON sn."meetingId" = sns."meetingId" AND sn."sharedNotesExtId" = sn."sharedNotesExtId";
 
 ----------------------
 

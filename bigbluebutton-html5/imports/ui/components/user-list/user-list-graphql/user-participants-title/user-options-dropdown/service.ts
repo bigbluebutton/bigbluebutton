@@ -70,6 +70,7 @@ export const toggleStatus = (intl) => {
 };
 
 export const onSaveUserNames = (intl, meetingName) => {
+  // @ts-ignore - temporary while settings are still in .js
   const lang = Settings.application.locale;
   const date = new Date();
 

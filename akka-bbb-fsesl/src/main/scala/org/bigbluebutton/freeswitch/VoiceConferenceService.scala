@@ -90,7 +90,9 @@ class VoiceConferenceService(healthz: HealthzService,
         cm.muted,
         cm.speaking,
         cm.callingWith,
-        "freeswitch"
+        "freeswitch",
+        cm.hold,
+        cm.uuid
       )
     }
 
@@ -119,12 +121,16 @@ class VoiceConferenceService(healthz: HealthzService,
       callerIdNum:  String,
       muted:        java.lang.Boolean,
       talking:      java.lang.Boolean,
-      callingWith:  String
-  ) {
+      callingWith:  String,
+      hold:         java.lang.Boolean,
+      uuid:         String
+  ): Unit = {
 
     val header = BbbCoreVoiceConfHeader(UserJoinedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserJoinedVoiceConfEvtMsgBody(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum,
-      muted.booleanValue(), talking.booleanValue(), callingWith)
+      muted.booleanValue(), talking.booleanValue(), callingWith,
+      hold,
+      uuid);
     val envelope = BbbCoreEnvelope(UserJoinedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
     val msg = new UserJoinedVoiceConfEvtMsg(header, body)
@@ -242,6 +248,28 @@ class VoiceConferenceService(healthz: HealthzService,
     val envelope = BbbCoreEnvelope(VoiceConfCallStateEvtMsg.NAME, Map("voiceConf" -> conf))
 
     val msg = new VoiceConfCallStateEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+  }
+
+  def channelHoldChanged(
+      voiceConfId:  String,
+      voiceUserId:  String,
+      uuid:         String,
+      hold:         java.lang.Boolean
+  ): Unit = {
+    val header = BbbCoreVoiceConfHeader(ChannelHoldChangedVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = ChannelHoldChangedVoiceConfEvtMsgBody(
+      voiceConfId,
+      voiceUserId,
+      uuid,
+      hold
+    );
+    val envelope = BbbCoreEnvelope(ChannelHoldChangedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+
+    val msg = new ChannelHoldChangedVoiceConfEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
 
     val json = JsonUtil.toJson(msgEvent)

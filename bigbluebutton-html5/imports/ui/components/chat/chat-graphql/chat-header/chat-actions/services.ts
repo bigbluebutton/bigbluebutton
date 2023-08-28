@@ -14,8 +14,8 @@ export const generateExportedMessages = (messages: Array<Message>, welcomeSettin
   
   const text = messages.reduce((acc, message) => {
     const date = new Date(message.createdTime);
-    const hour = date.getHours().toString().padStart(2, 0);
-    const min = date.getMinutes().toString().padStart(2, 0);
+    const hour = date.getHours().toString().padStart(2, '0');
+    const min = date.getMinutes().toString().padStart(2, '0');
     const hourMin = `[${hour}:${min}]`;
     const userName = message.user.name;
     const messageText = htmlDecode(message.message);
@@ -25,10 +25,10 @@ export const generateExportedMessages = (messages: Array<Message>, welcomeSettin
 };
 
 export const getDateString = (date = new Date()) => {
-  const hours = date.getHours().toString().padStart(2, 0);
-  const minutes = date.getMinutes().toString().padStart(2, 0);
-  const month = (date.getMonth() + 1).toString().padStart(2, 0);
-  const dayOfMonth = date.getDate().toString().padStart(2, 0);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const dayOfMonth = date.getDate().toString().padStart(2, '0');
   const time = `${hours}-${minutes}`;
   const dateString = `${date.getFullYear()}-${month}-${dayOfMonth}_${time}`;
   return dateString;

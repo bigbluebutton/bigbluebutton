@@ -1,14 +1,10 @@
 import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { useSubscription } from '@apollo/client';
 import Styled from './styles';
 import { defineMessages, useIntl } from 'react-intl';
 import ChatListItem from './chat-list-item/component'
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
-import usePendingChats from '/imports/ui/core/local-states/usePendingChats';
-import { layoutDispatch } from '/imports/ui/components/layout/context';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
     messagesTitle: {

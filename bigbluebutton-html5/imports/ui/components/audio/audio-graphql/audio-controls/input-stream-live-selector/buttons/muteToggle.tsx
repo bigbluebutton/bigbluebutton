@@ -1,9 +1,10 @@
 import React from "react";
 import { defineMessages, useIntl } from "react-intl";
 import Styled from "../styles";
-import { useShortcutHelp } from "/imports/ui/core/hooks/useShortcutHelp";
+import { useShortcut } from "/imports/ui/core/hooks/useShortcut";
 import Settings from '/imports/ui/services/settings';
 
+// @ts-ignore - temporary while settings are still in .js
 const animations = Settings.application.animations;
 
 const intlMessages = defineMessages({
@@ -33,11 +34,11 @@ export const Mutetoggle: React.FC<MuteToggleProps> = ({
   toggleMuteMicrophone,
 }) => {
   const intl = useIntl();
-  const toggleMuteShourtcut = useShortcutHelp('toggleMute');
+  const toggleMuteShourtcut = useShortcut('toggleMute');
 
   const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
     : intl.formatMessage(intlMessages.muteAudio);
-  const onClickCallback = (e) => {
+  const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     toggleMuteMicrophone(muted);
   }

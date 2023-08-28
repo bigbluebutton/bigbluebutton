@@ -12,6 +12,10 @@ object VoiceUsers {
     users.toVector.find(u => u.intId == intId)
   }
 
+  def findWithIntIdAndUUID(users: VoiceUsers, intId: String, uuid: String): Option[VoiceUserState] = {
+    users.toVector.find(u => u.uuid == uuid && u.intId == intId)
+  }
+
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
 
   def findAllNonListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == false)
@@ -100,6 +104,17 @@ object VoiceUsers {
     }
   }
 
+  def holdStateChanged(users: VoiceUsers, intId: String, uuid: String, hold: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithIntIdAndUUID(users, intId, uuid)
+    } yield {
+      val vu = u.modify(_.hold).setTo(hold)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
+
   def setLastStatusUpdate(users: VoiceUsers, user: VoiceUserState): VoiceUserState = {
     val vu = user.copy(lastStatusUpdateOn = System.currentTimeMillis())
     users.save(vu)
@@ -174,7 +189,9 @@ case class VoiceUserVO2x(
     callingWith:   String,
     listenOnly:    Boolean,
     floor:         Boolean,
-    lastFloorTime: String
+    lastFloorTime: String,
+    hold:          Boolean,
+    uuid:          String
 )
 
 case class VoiceUserState(
@@ -190,5 +207,7 @@ case class VoiceUserState(
     calledInto:         String,
     lastStatusUpdateOn: Long,
     floor:              Boolean,
-    lastFloorTime:      String
+    lastFloorTime:      String,
+    hold:               Boolean,
+    uuid:               String
 )

@@ -3,7 +3,7 @@ import { User } from '/imports/ui/Types/user';
 import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import { Meeting } from '/imports/ui/Types/meeting';
-import { useShortcutHelp } from '/imports/ui/core/hooks/useShortcutHelp';
+import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
@@ -12,7 +12,6 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import { joinListenOnly } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
 
 const intlMessages = defineMessages({
@@ -50,7 +49,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   updateEchoTestRunning,
 }) => {
   const intl = useIntl();
-  const joinAudioShourtcut = useShortcutHelp('joinaudio');
+  const joinAudioShourtcut = useShortcut('joinaudio');
   const echoTestIntervalRef = React.useRef<number>();
 
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
@@ -127,9 +126,14 @@ export const AudioControlsContainer: React.FC = () => {
 
   // I access the internal variable to get the makevar reference, so we doesn't broke the client that uses the value directly
   // and I can use it to make my component reactive
+
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value) as boolean;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value) as boolean;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value) as boolean;
 
   if (!currentUser || !currentMeeting) return null;

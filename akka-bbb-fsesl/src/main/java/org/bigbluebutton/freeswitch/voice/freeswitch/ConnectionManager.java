@@ -94,6 +94,7 @@ public class ConnectionManager {
 					//c.addEventFilter(EVENT_NAME, "background_job");
 					c.addEventFilter(EVENT_NAME, "CHANNEL_EXECUTE");
 					c.addEventFilter(EVENT_NAME, "CHANNEL_STATE");
+					c.addEventFilter(EVENT_NAME, "CHANNEL_CALLSTATE");
 					subscribed = true;
 				} else {
 					// Let's check for status every minute.
@@ -236,6 +237,13 @@ public class ConnectionManager {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
 			c.sendAsyncApiCommand(tutmc.getCommand(), tutmc.getCommandArgs());
+		}
+	}
+
+	public void holdChannel(HoldChannelCommand hcc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(hcc.getCommand(), hcc.getCommandArgs());
 		}
 	}
 

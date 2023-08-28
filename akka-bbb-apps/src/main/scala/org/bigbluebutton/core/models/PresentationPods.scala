@@ -29,7 +29,9 @@ case class PresentationPage(
     xOffset:     Double              = 0,
     yOffset:     Double              = 0,
     widthRatio:  Double              = 100D,
-    heightRatio: Double              = 100D
+    heightRatio: Double              = 100D,
+    width:       Double              = 1440D,
+    height:      Double              = 1080D
 )
 
 object PresentationInPod {

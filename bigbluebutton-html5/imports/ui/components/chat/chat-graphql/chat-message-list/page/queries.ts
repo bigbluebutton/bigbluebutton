@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 import { Message } from '/imports/ui/Types/message';
-import { Chat } from '/imports/ui/Types/chat';
 
 export interface ChatMessagePublicSubscriptionResponse {
   chat_message_public: Array<Message>;

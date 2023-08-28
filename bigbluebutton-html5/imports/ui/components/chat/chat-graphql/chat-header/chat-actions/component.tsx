@@ -12,6 +12,7 @@ import { getDateString } from '/imports/utils/string-utils';
 import Events from '/imports/ui/core/events/events';
 import { isEmpty } from 'ramda';
 
+// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
 
@@ -57,7 +58,6 @@ export const ChatActions: React.FC = () => {
   const [
     getChatMessageHistory,
     {
-      loading: loadingHistory,
       error: errorHistory,
       data: dataHistory,
     }] = useLazyQuery<getChatMessageHistory>(GET_CHAT_MESSAGE_HISTORY, { fetchPolicy: 'no-cache' });
@@ -65,7 +65,6 @@ export const ChatActions: React.FC = () => {
   const [
     getPermissions,
     {
-      loading: loadingPermissions,
       error: errorPermissions,
       data: dataPermissions,
     }] = useLazyQuery<getPermissions>(GET_PERMISSIONS, { fetchPolicy: 'cache-and-network' });

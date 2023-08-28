@@ -14,7 +14,7 @@ rm -rf staging
 rm -rf ./build
 
 # Create directories for fpm to process
-DIRS="/usr/local/bin/bbb-graphql-middleware /etc/default/bbb-graphql-middleware /lib/systemd/system/ /usr/share/bigbluebutton/nginx"
+DIRS="/usr/local/bin /lib/systemd/system /etc/default /usr/share/bigbluebutton/nginx"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done

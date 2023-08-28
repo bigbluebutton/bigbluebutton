@@ -1,8 +1,8 @@
-import { createUseSubsciption } from "./createUseSubscription";
+import { createUseSubscription } from "./createUseSubscription";
 import { CHATS_SUBSCRIPTION } from "../graphql/queries/chatSubscription";
 import { Chat } from "../../Types/chat";
 
-const useChatSubscription = createUseSubsciption<Partial<Chat>>(CHATS_SUBSCRIPTION);
+const useChatSubscription = createUseSubscription<Partial<Chat>>(CHATS_SUBSCRIPTION);
 
 const useChat = (fn: (c: Partial<Chat>)=> Partial<Chat>, chatId?: string ): Array<Partial<Chat>> | Partial<Chat> | null =>{
   const chats = useChatSubscription(fn);

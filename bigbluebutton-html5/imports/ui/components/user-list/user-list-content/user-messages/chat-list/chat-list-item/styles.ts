@@ -150,7 +150,7 @@ const ChatNameMain = styled.span`
   `}
 `;
 
-const ChatListItem = styled.div`
+const ChatListItem = styled.button`
   display: flex;
   flex-flow: row;
   border-top-left-radius: 5px;
@@ -158,6 +158,7 @@ const ChatListItem = styled.div`
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   cursor: pointer;
+  border-color: transparent;
 
   [dir="rtl"] & {
     border-top-left-radius: 0;
