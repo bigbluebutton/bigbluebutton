@@ -23,6 +23,7 @@ jobs:
   build-package:
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         package:
           [
@@ -73,7 +74,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Merge branches
         uses: ./.github/actions/merge-branches
-      - run: |
+      - name: Set cache-key vars
+        run: |
           echo "CACHE_KEY_FILES=$(echo '${{ matrix.cache-files-list }} .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
           echo "CACHE_KEY_URLS=$(echo '${{ matrix.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
           cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
@@ -352,8 +354,9 @@ jobs:
             bigbluebutton-tests/playwright/test-results
       - name: Write PR data for auto-comment
         if: github.event_name == 'pull_request'
+        working-directory: ./
         run: |
-          cd
+          mkdir -p ./pr-comment-data
           echo '${{ github.event.number }} > ./pr-comment-data/pr_number'
           echo '${{ github.run_id }} > ./pr-comment-data/workflow_id'
       - name: Upload PR data for auto-comment
