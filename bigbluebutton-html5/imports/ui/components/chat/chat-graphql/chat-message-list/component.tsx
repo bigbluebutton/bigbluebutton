@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { Meteor } from "meteor/meteor";
 import { makeVar, useMutation } from "@apollo/client";
 import { LAST_SEEN_MUTATION } from "./queries";
@@ -113,7 +113,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedTime, setLastMessageCreatedTime] = useState<number>(0);
   const [followingTail, setFollowingTail] = React.useState(true);
-  const [userScrolledBack, setUserScrolledBack] = React.useState(false);
+
   useEffect(() => {
     setter({
       ...setter(),
@@ -175,8 +175,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
-  const renderUnreadNotification = () => {
-    if (totalUnread && userScrolledBack) {
+  const renderUnreadNotification = useMemo(() => {
+    if (totalUnread && !followingTail) {
       return (
         <UnreadButton
           aria-hidden="true"
@@ -191,14 +191,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       );
     }
     return null;
-  }
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const scrolledToBottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
-    if (scrolledToBottom) {
-      setUserScrolledBack(false);
-    }
-  }
+  }, [totalUnread, followingTail]);
 
   useEffect(() => {
     const setScrollToTailEventHandler = () => {
@@ -251,7 +244,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               if (isElement(contentRef.current) && followingTail) {
                 toggleFollowingTail(false)
               }
-              setUserScrolledBack(true);
             } else if (e.deltaY > 0) {
               setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
             }
@@ -262,7 +254,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           onTouchEnd={() => {
             setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
           }}
-          onScroll={handleScroll}
         >
           <span>
             {
@@ -306,7 +297,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           <div ref={messagesEndRef} />
         </MessageList>
       </MessageListWrapper >,
-      renderUnreadNotification(),
+      renderUnreadNotification,
     ]
   );
 }
