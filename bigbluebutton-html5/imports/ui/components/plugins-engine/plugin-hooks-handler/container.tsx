@@ -1,41 +1,34 @@
 import React, { useEffect, useState } from 'react';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import CurrentPresentationHookContainer from './use-current-presentation/container'
 import LoadedUserListHookContainer from './use-loaded-user-list/container'
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+
+const hooksMap:{
+  [key: string]: React.FunctionComponent
+} = {
+  [PluginSdk.Internal.BbbHooks.UseCurrentPresentation]: CurrentPresentationHookContainer,
+  [PluginSdk.Internal.BbbHooks.UseLoadedUserList]: LoadedUserListHookContainer,
+};
 
 const PluginHooksHandlerContainer = () => {
-  const [numberOfActiveCurrentPresentationHookSubscriptions,
-    setNumberOfActiveCurrentPresentationHookSubscriptions] = useState(0);
-
-  const [numberOfActiveLoadedUserListHookSubscriptions,
-    setNumberOfActiveLoadedUserListHookSubscriptions] = useState(0);
+  const [
+    hookUtilizationCount,
+    setHookUtilizationCount,
+  ] = useState(new Map<string, number>());
 
   useEffect(() => {
+    const updateHookUsage = (hookName: string, delta: number):void => {
+      hookUtilizationCount.set(hookName, (hookUtilizationCount.get(hookName) || 0) + delta);
+      setHookUtilizationCount(hookUtilizationCount);
+    };
+
     const subscribeHandler: EventListener = (
       (event: PluginSdk.CustomEventHookWrapper<void>) => {
-        switch (event.detail.hook) {
-          case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
-            setNumberOfActiveCurrentPresentationHookSubscriptions((c) => c + 1);
-            break;
-          case PluginSdk.Internal.BbbHooks.UseLoadedUserList:
-            setNumberOfActiveLoadedUserListHookSubscriptions((c) => c + 1);
-            break;
-          default:
-            break;
-        }
+        updateHookUsage(event.detail.hook, 1);
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
-      (event: PluginSdk.CustomEventHookWrapper<void>) => {
-        switch (event.detail.hook) {
-          case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
-            setNumberOfActiveCurrentPresentationHookSubscriptions((c) => c - 1);
-            break;
-          case PluginSdk.Internal.BbbHooks.UseLoadedUserList:
-            setNumberOfActiveLoadedUserListHookSubscriptions((c) => c - 1);
-            break;
-          default:
-            break;
-        }
+      (event: PluginSdk.CustomEventHookWrapper<void>) => {;
+        updateHookUsage(event.detail.hook, -1);
       }) as EventListener;
 
     window.addEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, subscribeHandler);
@@ -45,13 +38,14 @@ const PluginHooksHandlerContainer = () => {
       window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler);
     };
   }, []);
+
   return (
-    <>
-      { numberOfActiveCurrentPresentationHookSubscriptions > 0
-        ? <CurrentPresentationHookContainer /> : null }
-      { numberOfActiveLoadedUserListHookSubscriptions > 0
-        ? <LoadedUserListHookContainer /> : null }
-    </>
+    Object.keys(hooksMap)
+      .filter((hookName: string) => hookUtilizationCount.get(hookName))
+      .map((hookName: string) => {
+        const HookComponent = hooksMap[hookName];
+        return <HookComponent key={hookName}/>;
+      })
   );
 };
 
