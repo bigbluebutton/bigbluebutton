@@ -67,6 +67,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(toVoiceConfRedisChannel, json)
       case GetUsersStatusToVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
+      case HoldChannelInVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
 
       // Sent to SFU
       case EjectUserFromSfuSysMsg.NAME =>
@@ -74,6 +76,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case CamBroadcastStopSysMsg.NAME =>
         msgSender.send(toSfuRedisChannel, json)
       case CamStreamUnsubscribeSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case ToggleListenOnlyModeSysMsg.NAME =>
         msgSender.send(toSfuRedisChannel, json)
 
       //==================================================================

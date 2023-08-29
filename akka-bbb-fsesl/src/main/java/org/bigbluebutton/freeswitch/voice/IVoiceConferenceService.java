@@ -22,7 +22,9 @@ public interface IVoiceConferenceService {
                            String callerIdNum,
                            Boolean muted,
                            Boolean speaking,
-                           String avatarURL);
+                           String avatarURL,
+                           Boolean hold,
+                           String uuid);
 
   void voiceUsersStatus(String voiceConfId,
                         java.util.List<ConfMember> confMembers,
@@ -67,4 +69,9 @@ public interface IVoiceConferenceService {
                                   Long receivedResponseTimestamp);
 
   void freeswitchHeartbeatEvent(Map<String, String> heartbeat);
+
+  void channelHoldChanged(String voiceConfId,
+                          String userId,
+                          String uuid,
+                          Boolean hold);
 }

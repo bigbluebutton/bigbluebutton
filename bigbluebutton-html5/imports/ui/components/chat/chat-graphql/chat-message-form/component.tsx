@@ -3,8 +3,8 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
 import ClickOutside from '/imports/ui/components/click-outside/component';
+import TextareaAutosize from 'react-autosize-textarea';
 import Styled from './styles';
-import { escapeHtml } from '/imports/utils/string-utils';
 import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
@@ -19,7 +19,6 @@ import { Layout } from '../../../layout/layoutTypes';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import Events from '/imports/ui/core/events/events';
 import ChatOfflineIndicator from './chat-offline-indicator/component';
-import TextareaAutosize from 'react-autosize-textarea';
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -31,7 +30,9 @@ interface ChatMessageFormProps {
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
-  handleClickOutside: Function,
+  handleEmojiSelect: (emojiObject: () => void,
+   { native: string }) => void;
+  handleClickOutside: () => void,
 }
 
 const messages = defineMessages({
@@ -187,7 +188,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       return;
     }
 
-    handleSendMessage(escapeHtml(msg), chatId);
+    handleSendMessage(msg, chatId);
     setMessage('');
     updateUnreadMessages(chatId, '');
     setHasErrors(false);
@@ -195,11 +196,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     if (ENABLE_TYPING_INDICATOR) stopUserTyping();
     const sentMessageEvent = new CustomEvent(Events.SENT_MESSAGE);
     window.dispatchEvent(sentMessageEvent);
-  }
+  };
 
-  const handleEmojiSelect = (emojiObject: { native: string }) => {
+  const handleEmojiSelect = (emojiObject: { native: string }): void => {
     const txtArea = textAreaRef?.current?.textarea;
-    if(!txtArea) return;
+    if (!txtArea) return;
     const cursor = txtArea.selectionStart;
 
     setMessage(
@@ -212,7 +213,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setTimeout(() => txtArea.setSelectionRange(newCursor, newCursor), 10);
   }
 
-  const handleMessageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newMessage = null;
     let newError = null;
     if (AUTO_CONVERT_EMOJI) {
@@ -229,17 +230,17 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       newMessage = newMessage.substring(0, maxMessageLength);
     }
 
+    const handleUserTyping = (hasError?: boolean) => {
+      if (hasError || !ENABLE_TYPING_INDICATOR) return;
+      startUserTyping(chatId);
+    };
+
     setMessage(newMessage);
     setError(newError);
-    handleUserTyping(newError!=null)
-  }
+    handleUserTyping(newError != null);
+  };
 
-  const handleUserTyping = (hasError?: boolean) => {
-    if (hasError || !ENABLE_TYPING_INDICATOR) return;
-    startUserTyping(chatId);
-  }
-
-  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
@@ -251,10 +252,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       handleSubmit(event);
     }
-  }
+  };
 
   const renderForm = () => {
-    const formRef = useRef();
+    const formRef = useRef<HTMLFormElement | null >(null);
 
     return (
       <Styled.Form
@@ -362,16 +363,13 @@ const ChatMessageFormContainer: React.FC = ({
     ? intl.formatMessage(messages.titlePrivate, { 0: chat?.participant?.name })
     : intl.formatMessage(messages.titlePublic);
 
-
-  const meeting = useMeeting((m) => {
-    return {
-      lockSettings: {
-        hasActiveLockSetting: m?.lockSettings?.hasActiveLockSetting,
-        disablePublicChat: m?.lockSettings?.disablePublicChat,
-        disablePrivateChat: m?.lockSettings?.disablePrivateChat,
-      }
-    };
-  });
+  const meeting = useMeeting((m) => ({
+    lockSettings: {
+      hasActiveLockSetting: m?.lockSettings?.hasActiveLockSetting,
+      disablePublicChat: m?.lockSettings?.disablePublicChat,
+      disablePrivateChat: m?.lockSettings?.disablePrivateChat,
+    },
+  }));
 
   const locked = chat?.public
     ? meeting?.lockSettings?.disablePublicChat
@@ -387,7 +385,8 @@ const ChatMessageFormContainer: React.FC = ({
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
 
-  return <ChatMessageForm
+  return (
+    <ChatMessageForm
     {...{
       minMessageLength: CHAT_CONFIG.min_message_length,
       maxMessageLength: CHAT_CONFIG.max_message_length,
@@ -401,7 +400,8 @@ const ChatMessageFormContainer: React.FC = ({
       partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
       locked: locked ?? false,
     }}
-  />;
+  />
+);
 };
 
 export default ChatMessageFormContainer;

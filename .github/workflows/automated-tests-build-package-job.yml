@@ -1,0 +1,55 @@
+name: Build service and cache
+on:
+  workflow_call:
+    inputs:
+      build-name:
+        required: true
+        type: string
+      build-list: 
+        type: string
+      cache-files-list:
+        type: string
+      cache-urls-list:
+        type: string
+jobs:
+  b:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref || '' }}
+          fetch-depth: 0 # Fetch all history
+      - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
+        if: github.event_name == 'pull_request'
+        run: |
+          git config user.name "BBB Automated Tests"
+          git config user.email "tests@bigbluebutton.org"
+          git config pull.rebase false
+          git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}
+      - name: Set cache-key vars
+        run: |
+          echo "CACHE_KEY_FILES=$(echo '${{ inputs.cache-files-list }} .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
+          echo "CACHE_KEY_URLS=$(echo '${{ inputs.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
+          cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
+          echo "RUNNER_OS=$(lsb_release -d | cut -f2 | tr -d ' ')" >> $GITHUB_ENV
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        if: inputs.cache-files-list != ''
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ env.RUNNER_OS }}-${{ inputs.build-name }}-${{ env.BIGBLUEBUTTON_RELEASE }}-commits-${{ env.CACHE_KEY_FILES }}-urls-${{ env.CACHE_KEY_URLS }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          echo "${{ inputs.build-list || inputs.build-name }}" | xargs -n 1 ./build/setup.sh
+          tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_${{ inputs.build-name }}.tar
+          path: artifacts.tar

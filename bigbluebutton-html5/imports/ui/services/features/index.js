@@ -85,7 +85,10 @@ export function isPresentationEnabled() {
 }
 
 export function isReactionsEnabled() {
-  return getDisabledFeatures().indexOf('reactions') === -1;
+  const USER_REACTIONS_ENABLED = Meteor.settings.public.userReaction.enabled;
+  const REACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.reactionsButton.enabled;
+
+  return getDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
 }
 
 export function isTimerFeatureEnabled() {

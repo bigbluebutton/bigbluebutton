@@ -472,9 +472,7 @@ class PresentationToolbar extends PureComponent {
               ? intl.formatMessage(intlMessages.fitToPage)
               : intl.formatMessage(intlMessages.fitToWidth)}
             hideLabel
-            {...{
-              fitToWidth,
-            }}
+            $fitToWidth={fitToWidth}
           />
         </Styled.PresentationZoomControls>
       </Styled.PresentationToolbarWrapper>

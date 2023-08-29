@@ -1,8 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { defineMessages, injectIntl } from "react-intl";
-
-import Menu from "@mui/material/Menu";
 import { Divider } from "@mui/material";
 import Icon from "/imports/ui/components/common/icon/component";
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
@@ -48,22 +46,25 @@ class BBBMenu extends React.Component {
 
   handleKeyDown(event) {
     const { anchorEl } = this.state;
+    const { isHorizontal } = this.props;
     const isMenuOpen = Boolean(anchorEl);
 
+    const previousKey = isHorizontal ? KEY_CODES.ARROW_LEFT : KEY_CODES.ARROW_UP;
+    const nextKey = isHorizontal ? KEY_CODES.ARROW_RIGHT : KEY_CODES.ARROW_DOWN;
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.which)) {
       this.handleClose();
       return;
     }
 
-    if (isMenuOpen && [KEY_CODES.ARROW_UP, KEY_CODES.ARROW_DOWN].includes(event.which)) {
+    if (isMenuOpen && [previousKey, nextKey].includes(event.which)) {
       event.preventDefault();
       event.stopPropagation();
       const menuItems = Array.from(document.querySelectorAll('[data-key^="menuItem-"]'));
       if (menuItems.length === 0) return;
 
       const focusedIndex = menuItems.findIndex(item => item === document.activeElement);
-      const nextIndex = event.which === KEY_CODES.ARROW_UP ? focusedIndex - 1 : focusedIndex + 1;
+      const nextIndex = event.which === previousKey ? focusedIndex - 1 : focusedIndex + 1;
       let indexToFocus = 0;
       if (nextIndex < 0) {
         indexToFocus = menuItems.length - 1;
@@ -97,7 +98,7 @@ class BBBMenu extends React.Component {
   };
 
   makeMenuItems() {
-    const { actions, selectedEmoji, intl } = this.props;
+    const { actions, selectedEmoji, intl, isHorizontal, isMobile, roundButtons, keepOpen } = this.props;
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled, description, selected } = a;
@@ -127,16 +128,17 @@ class BBBMenu extends React.Component {
           disableGutters={true}
           disabled={disabled}
           style={customStyles}
+          $roundButtons={roundButtons}
           onClick={(event) => {
             onClick();
-            const close = !key?.includes('setstatus') && !key?.includes('back');
+            const close = !keepOpen && !key?.includes('setstatus') && !key?.includes('back');
             // prevent menu close for sub menu actions
             if (close) this.handleClose(event);
             event.stopPropagation();
           }}>
           <Styled.MenuItemWrapper>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-            <Styled.Option aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+            <Styled.Option isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
             {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
             {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
           </Styled.MenuItemWrapper>
@@ -160,6 +162,7 @@ class BBBMenu extends React.Component {
       customAnchorEl,
       hasRoundedCorners,
       overrideMobileStyles,
+      isHorizontal,
     } = this.props;
     const actionsItems = this.makeMenuItems();
 
@@ -168,6 +171,11 @@ class BBBMenu extends React.Component {
 
     if (customStyles) {
       menuStyles = { ...menuStyles, ...customStyles };
+    }
+
+    if (isHorizontal) {
+      const horizontalStyles = { display: 'flex' };
+      menuStyles = { ...menuStyles, ...horizontalStyles};
     }
 
     return (
@@ -194,7 +202,7 @@ class BBBMenu extends React.Component {
           {trigger}
         </div>
 
-        <Menu
+        <Styled.MenuWrapper
           {...opts}
           {...this.optsToMerge}
           anchorEl={customAnchorEl ? customAnchorEl : anchorEl}
@@ -203,6 +211,7 @@ class BBBMenu extends React.Component {
           style={menuStyles}
           data-test={dataTest}
           onKeyDownCapture={this.handleKeyDown}
+          $isHorizontal={isHorizontal}
           PaperProps={{
             style: hasRoundedCorners ? roundedCornersStyles : {},
             className: overrideMobileStyles ? 'override-mobile-styles' : 'MuiPaper-root-mobile',
@@ -218,7 +227,7 @@ class BBBMenu extends React.Component {
               onClick={this.handleClose}
             />
           }
-        </Menu>
+        </Styled.MenuWrapper>
       </>
     );
   }

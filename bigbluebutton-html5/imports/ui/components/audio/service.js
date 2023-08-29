@@ -1,7 +1,7 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { throttle } from '/imports/utils/throttle';
-import { debounce } from 'radash';
+import { debounce } from '/imports/utils/debounce';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
@@ -123,7 +123,7 @@ export default {
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
-  toggleMuteMicrophone: debounce({ delay: 500 }, toggleMuteMicrophone),
+  toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
   liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),

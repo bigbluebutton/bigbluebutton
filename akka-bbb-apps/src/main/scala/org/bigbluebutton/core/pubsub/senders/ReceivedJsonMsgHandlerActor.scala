@@ -223,6 +223,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGlobalAudioPermissionReqMsg](envelope, jsonNode)
       case GetMicrophonePermissionReqMsg.NAME =>
         routeGenericMsg[GetMicrophonePermissionReqMsg](envelope, jsonNode)
+      case ChannelHoldChangedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[ChannelHoldChangedVoiceConfEvtMsg](envelope, jsonNode)
+      case ListenOnlyModeToggledInSfuEvtMsg.NAME =>
+        routeVoiceMsg[ListenOnlyModeToggledInSfuEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -292,8 +296,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetCurrentPagePubMsg](envelope, jsonNode)
       case ResizeAndMovePagePubMsg.NAME =>
         routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
-      case AddSlidePositionsPubMsg.NAME =>
-        routeGenericMsg[AddSlidePositionsPubMsg](envelope, jsonNode)
       case SlideResizedPubMsg.NAME =>
         routeGenericMsg[SlideResizedPubMsg](envelope, jsonNode)
       case RemovePresentationPubMsg.NAME =>

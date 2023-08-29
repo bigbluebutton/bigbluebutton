@@ -38,6 +38,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --post-install before-install.sh \
     --after-install after-install.sh \
-    --description "BigBluebutton playback of presentation" \
+    --description "BigBlueButton video recording format" \
     $DIRECTORIES \
     $OPTS

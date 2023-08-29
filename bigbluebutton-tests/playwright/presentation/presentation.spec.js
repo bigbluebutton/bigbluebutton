@@ -27,7 +27,7 @@ test.describe.parallel('Presentation', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#fit-to-width-option
-  test('Presentation fit to width @ci', async ({ browser, context, page }) => {
+  test('Presentation fit to width @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, true, { customParameter: customStyleAvoidUploadingNotifications });
     await presentation.initUserPage(true, context);
@@ -90,7 +90,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
     
-    test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page }, testInfo) => {
+    test('Send presentation in the current state (with annotations) to chat for downloading @ci @flaky', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.sendPresentationToDownload(testInfo);
