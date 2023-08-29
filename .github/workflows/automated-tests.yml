@@ -357,8 +357,8 @@ jobs:
         working-directory: ./
         run: |
           mkdir -p ./pr-comment-data
-          echo '${{ github.event.number }} > ./pr-comment-data/pr_number'
-          echo '${{ github.run_id }} > ./pr-comment-data/workflow_id'
+          echo ${{ github.event.number }} > ./pr-comment-data/pr_number
+          echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
       - name: Upload PR data for auto-comment
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v3
