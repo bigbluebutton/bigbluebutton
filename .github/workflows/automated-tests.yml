@@ -341,7 +341,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: all-blob-reports
-          path: bigbluebutton-tests/playwright
+          path: bigbluebutton-tests/playwright/all-blob-reports
       - name: Merge into HTML Report
         working-directory: ./bigbluebutton-tests/playwright
         run: npx playwright merge-reports --reporter html ./all-blob-reports
