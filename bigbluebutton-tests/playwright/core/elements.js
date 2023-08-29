@@ -475,6 +475,12 @@ exports.wbColorRed = 'button[id="TD-Styles-Color-Swatch-red"]';
 exports.wbFillDrawing = 'button[id="TD-Styles-Fill"]';
 exports.wbDashDotted = 'div[id="TD-Styles-Dash-dotted"]';
 exports.wbSizeLarge = 'div[id="TD-Styles-Dash-large"]';
+exports.wbOptions = 'button[id="TD-Tools-Dots"]';
+exports.wbDuplicate = 'span[id="TD-Tools-Copy"]';
+exports.wbRotate = 'span[id="TD-Tools-Rotate"]';
+exports.wbMoveBackward = 'span[id="TD-Tools-ArrowDown"]';
+exports.wbMoveForward = 'span[id="TD-Tools-ArrowUp"]';
+exports.wbMoveToFront = 'span[id="TD-Tools-PinTop"]';
 exports.wbPaste = 'button[id="TD-ContextMenu-Paste"]';
 
 // About modal
@@ -483,7 +489,7 @@ exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
 
 // Help button
 exports.helpButton = 'li[data-test="helpButton"]';
-exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'
+exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton';
 
 // Dark mode
 exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
