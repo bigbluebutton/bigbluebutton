@@ -5,6 +5,7 @@ set -x
 # Check if `jq` is available
 if ! command -v jq &> /dev/null; then
     echo "Error: 'jq' is not installed. Please install 'jq' before using this script."
+    echo "sudo apt install jq -y"
     exit 1
 fi
 
