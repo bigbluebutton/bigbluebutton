@@ -79,6 +79,15 @@ object_relationships:
         remote_table:
           name: v_user_reaction
           schema: public
+  - name: sharedNotesSession
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_sharedNotes_session
+          schema: public
   - name: voice
     using:
       manual_configuration:
