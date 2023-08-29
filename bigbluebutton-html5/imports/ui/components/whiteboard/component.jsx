@@ -98,6 +98,7 @@ export default function Whiteboard(props) {
   const prevSlidePosition = usePrevious(slidePosition);
   const prevFitToWidth = usePrevious(fitToWidth);
   const prevSvgUri = usePrevious(svgUri);
+  const prevPageId = usePrevious(curPageId);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
   const [currentStyle, setCurrentStyle] = React.useState({});
@@ -471,8 +472,7 @@ export default function Whiteboard(props) {
       let zoomToolbar = Math.round(
         ((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100,
       ) / 100;
-
-      if (zoom !== zoomToolbar) {
+      if ((zoom !== zoomToolbar) && (curPageId && curPageId !== prevPageId)) {
         setZoom(zoomToolbar);
         zoomChanger(zoomToolbar);
       }
