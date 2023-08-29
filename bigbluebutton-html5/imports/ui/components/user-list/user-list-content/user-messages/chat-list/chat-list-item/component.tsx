@@ -120,7 +120,7 @@ const ChatListItem = (props: ChatListItemProps) => {
   aria-expanded={isCurrentChat}
   active={isCurrentChat}
   tabIndex={0}
-  accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined} {/* Change null to undefined */}
+  accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined}
   onClick={handleClickToggleChat}
   id="chat-toggle-button"
   aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic)
