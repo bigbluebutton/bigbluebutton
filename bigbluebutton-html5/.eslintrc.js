@@ -31,6 +31,13 @@ module.exports = {
       extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'airbnb'],
       parser: '@typescript-eslint/parser',
       plugins: ['@typescript-eslint'],
+      rules: {
+        'no-use-before-define': 'off',
+        'import/no-absolute-path': 0,
+        'import/no-unresolved': 0,
+        'import/extensions': [2, 'never'],
+        'react/jsx-filename-extension': ['error', { extensions: ['.tsx', '.jsx'] }],
+      },
     },
   ],
 };
