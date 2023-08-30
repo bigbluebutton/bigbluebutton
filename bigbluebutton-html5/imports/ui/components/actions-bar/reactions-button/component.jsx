@@ -5,6 +5,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import { Emoji } from 'emoji-mart';
+import { convertRemToPixels } from '/imports/utils/dom-utils';
 
 import Styled from './styles';
 
@@ -74,7 +75,7 @@ const ReactionsButton = (props) => {
 
   const emojiProps = {
     native: true,
-    size: '1.5rem',
+    size: convertRemToPixels(1.5),
     padding: '4px',
   };
 
