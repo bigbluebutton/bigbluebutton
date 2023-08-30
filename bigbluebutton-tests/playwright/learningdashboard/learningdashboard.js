@@ -126,7 +126,7 @@ class LearningDashboard extends MultiUsers {
     const timeContent = await (timeLocator).textContent();
     const array = timeContent.split(':').map(Number);
     const firstTime = array[1] * 3600 + array[2] * 60 + array[3];
-    await sleep(5000);
+    await sleep(10000);
     await this.dashboardPage.reloadPage();
     const timeContentGreater = await (timeLocator).textContent();
     const arrayGreater = timeContentGreater.split(':').map(Number);
