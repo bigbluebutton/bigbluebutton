@@ -37,7 +37,6 @@ export interface MeetingRecordingPolicies {
   stoppedBy: string;
 }
 
-
 export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
   allowModsToUnmuteUsers: boolean;
@@ -49,6 +48,7 @@ export interface UsersPolicies {
   meetingLayout: string;
   userCameraCap: number;
   webcamsOnlyForModerator: boolean;
+  guestLobbyMessage: string | null;
 }
 
 export interface VoiceSettings {
