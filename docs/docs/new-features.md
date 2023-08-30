@@ -182,6 +182,7 @@ Under the hood, BigBlueButton 2.6 installs on Ubuntu 20.04 64-bit, and the follo
 - Meteor 2.13
 - Grails 5.2.4
 - Spring 2.7.12
+- NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
 
 For full details on what is new in BigBlueButton 2.6, see the release notes.
 
