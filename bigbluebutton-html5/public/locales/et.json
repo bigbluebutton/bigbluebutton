@@ -295,7 +295,7 @@
     "app.presentationUploader.export.downloadButtonAvailable": "Esitluse {0} allalaadimisnupp on saadaval.",
     "app.presentationUploader.export.notAccessibleWarning": "ei tarvitse vastata ligipääsetavuse nõuetele",
     "app.presentationUploader.export.originalLabel": "Originaal",
-    "app.presentationUploader.export.inCurrentStateLabel": "Praeguses olekus",
+    "app.presentationUploader.export.withWhiteboardAnnotations": "Praeguses olekus",
     "app.presentationUploader.currentPresentationLabel": "Aktiivne esitlus",
     "app.presentationUploder.extraHint": "TÄHELEPANU: ükski fail ei tohi suuruselt ületada {0} MB ja {1} lehte.",
     "app.presentationUploder.uploadLabel": "Laadi üles",

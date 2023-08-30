@@ -295,7 +295,7 @@
     "app.presentationUploader.export.downloadButtonAvailable": "O botón de descarga para a presentación {0} está dispoñíbel",
     "app.presentationUploader.export.notAccessibleWarning": "é posíbel que non cumpra as normas de accesibilidade",
     "app.presentationUploader.export.originalLabel": "Orixinal",
-    "app.presentationUploader.export.inCurrentStateLabel": "No estado actual",
+    "app.presentationUploader.export.withWhiteboardAnnotations": "No estado actual",
     "app.presentationUploader.currentPresentationLabel": "Presentación actual",
     "app.presentationUploder.extraHint": "IMPORTANTE: cada ficheiro non pode exceder {0} MB e {1} páxinas.",
     "app.presentationUploder.uploadLabel": "Enviar",

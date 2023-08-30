@@ -295,7 +295,7 @@
     "app.presentationUploader.export.downloadButtonAvailable": "プレゼン {0}をダウンロードするためのボタンが利用できます。",
     "app.presentationUploader.export.notAccessibleWarning": "一部の視聴者には、ファイルが読み取りづらい可能性があります",
     "app.presentationUploader.export.originalLabel": "元ファイル",
-    "app.presentationUploader.export.inCurrentStateLabel": "書き込み付きファイル",
+    "app.presentationUploader.export.withWhiteboardAnnotations": "書き込み付きファイル",
     "app.presentationUploader.currentPresentationLabel": "プレゼンテーションファイル",
     "app.presentationUploder.extraHint": "重要：それぞれのファイルが{0}MB、{1}ページを超えないようにしてください。",
     "app.presentationUploder.uploadLabel": "アップロード",
