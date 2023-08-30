@@ -212,7 +212,7 @@ const getCurrentWhiteboardId = () => {
   return currentSlide && currentSlide.id;
 };
 
-const hasAnnotations = (presentationId) => {
+export const hasAnnotations = (presentationId) => {
   const ann = Annotations.findOne(
     { whiteboardId: { $regex: `^${presentationId}` } },
   );
@@ -276,7 +276,7 @@ const changeCurrentSlide = (s) => {
   makeCall('changeCurrentSlide', s);
 };
 
-const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
+export const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
   const unlockedSelector = { whiteboardId };
   const lockedSelector = {
     whiteboardId,
@@ -347,7 +347,7 @@ const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
   return result;
 };
 
-const getCurrentPres = () => {
+export const getCurrentPres = () => {
   const podId = 'DEFAULT_PRESENTATION_POD';
   return PresentationService.getCurrentPresentation(podId);
 };
@@ -395,9 +395,9 @@ const toggleToolsAnimations = (activeAnim, anim, time) => {
     tdTools?.classList?.add(anim);
     topToolbar?.classList?.add(anim);
   }
-}
+};
 
-export {
+const service = {
   initDefaultPages,
   Annotations,
   sendAnnotation,
@@ -421,3 +421,4 @@ export {
   hasAnnotations,
   toggleToolsAnimations,
 };
+export default service;
