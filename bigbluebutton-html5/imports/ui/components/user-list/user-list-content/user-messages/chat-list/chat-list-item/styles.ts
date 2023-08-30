@@ -159,6 +159,7 @@ const ChatListItem = styled.button`
   border-bottom-right-radius: 0;
   cursor: pointer;
   border-color: transparent;
+  border-width: 0;
 
   [dir="rtl"] & {
     border-top-left-radius: 0;

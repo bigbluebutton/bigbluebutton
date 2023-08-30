@@ -35,6 +35,7 @@
     "app.chat.two.typing": "{0} and {1} are typing",
     "app.chat.copySuccess": "Copied chat transcript",
     "app.chat.copyErr": "Copy chat transcript failed",
+    "app.chat.closePopup": "Close",
     "app.emojiPicker.search": "Search",
     "app.emojiPicker.notFound": "No Emoji Found",
     "app.emojiPicker.skintext": "Choose your default skin tone",
