@@ -61,6 +61,12 @@ Everyone sees the timer as it counts down.
 
 ![Everyone seeing 4 minutes timer](/img/27-timer-4mins.png)
 
+#### Wake lock
+
+When using BigBlueButton on a mobile device you can now enable Wake lock (if your mobile browser supports the API). When enabled, your device's screen will remain on -- i.e. will not dim -- and therefore your media connections will not be interrupted.
+
+![Enable Wake lock from the Settings modal](/img/27-enable-wake-lock.png)
+
 
 ### Engagement
 
