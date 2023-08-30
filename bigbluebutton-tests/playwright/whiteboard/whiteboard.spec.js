@@ -91,7 +91,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await drawStickyNote.test();
   });
 
-  test.only('Pan', async ({ browser, context, page }) => {
+  test('Pan', async ({ browser, context, page }) => {
     const pan = new Pan(browser, context);
     await pan.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await pan.initUserPage(true, context, { createParameter: hidePresentationToast });
@@ -105,7 +105,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await eraser.test();
   });
 
-  test.only('Draw arrow', async ({ browser, context, page }) => {
+  test('Draw arrow', async ({ browser, context, page }) => {
     const drawArrow = new DrawArrow(browser, context);
     await drawArrow.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await drawArrow.initUserPage(true, context, { createParameter: hidePresentationToast });
@@ -147,7 +147,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await fillDrawing.fillDrawing();
   });
 
-  test.only('Dash drawing', async ({ browser, context, page }) => {
+  test('Dash drawing', async ({ browser, context, page }) => {
     const dashDrawing = new ChangeStyles(browser, context);
     await dashDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await dashDrawing.initUserPage(true, context, { createParameter: hidePresentationToast });
