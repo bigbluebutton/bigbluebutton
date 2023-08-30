@@ -7,7 +7,7 @@ configuration:
   custom_name: audio_caption
   custom_root_fields: {}
 object_relationships:
-  - name: audio_caption_user_ref
+  - name: user
     using:
       manual_configuration:
         column_mapping:
