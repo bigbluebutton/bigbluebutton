@@ -39,7 +39,7 @@ You can re-enable viewing your own webcam at any point.
 
 #### Restore downloading of original presentation
 
-In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you are be able to do both!
+In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you are be able to do both! In fact, you could select between the presentation with the current state of the annotations, the original file that was uploaded, or in case BigBlueButton had to convert the presentation file to PDF, you could also select that intermediate PDF file to be downloaded.
 
 ![You can enable original presentation downloading from the upload dialog](/img/27-enable-download-orig-presentation.png)
 
