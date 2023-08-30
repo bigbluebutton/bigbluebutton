@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
-import { generateActionsPermissions, isVoiceOnlyUser } from './service';
 import { useIntl, defineMessages } from 'react-intl';
 import {
   isVideoPinEnabledForCurrentUser,
@@ -11,6 +10,8 @@ import {
   changeWhiteboardAccess,
   isMe,
   removeUser,
+  generateActionsPermissions,
+  isVoiceOnlyUser,
 } from './service';
 
 import { makeCall } from '/imports/ui/services/api';
