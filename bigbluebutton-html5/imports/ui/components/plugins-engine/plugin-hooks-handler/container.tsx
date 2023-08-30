@@ -27,7 +27,7 @@ const PluginHooksHandlerContainer = () => {
         updateHookUsage(event.detail.hook, 1);
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
-      (event: PluginSdk.CustomEventHookWrapper<void>) => {;
+      (event: PluginSdk.CustomEventHookWrapper<void>) => {
         updateHookUsage(event.detail.hook, -1);
       }) as EventListener;
 
