@@ -60,7 +60,7 @@ public:
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
     wakeLock: 
-      enabled: false
+      enabled: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
     dynamicGuestPolicy: true
@@ -188,9 +188,10 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
-        wakeLock: false
+        wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        autoCloseReactionsBar: true
         darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
@@ -275,6 +276,9 @@ public:
     # string will be returned.
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
+  # plugins:
+  #   - name: SamplePresentationToolbarPlugin
+  #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -479,6 +483,14 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
+      # grid size for DESKTOP endpoints
+      desktopGridSizes:
+        moderator: 48
+        viewer: 48
+      # grid size for MOBILE endpoints
+      mobileGridSizes:
+        moderator: 14
+        viewer: 14
     paginationThresholds:
       enabled: false
       thresholds:
@@ -583,6 +595,7 @@ public:
       frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
+    allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
   userReaction:
     enabled: true
     expire: 60
@@ -657,8 +670,13 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
-    # Experimental. True is the canonical behavior. Flip to false to reverse
-    # the negotiation flow for LO subscribers.
+    # Experimental: enables a new audio mechanism that has a server-side,
+    # transparent listen only mode. See issue #14021.
+    # bbb_userdata-transparent-listen-only supersedes this setting
+    transparentListenOnly: false
+    # Dev flag. Controls the WebRTC SDP negotiation role for SFU full audio.
+    fullAudioOffering: true
+    # Dev flag. Controls the WebRTC negotiation role for listen only.
     listenOnlyOffering: false
     #Timeout (ms) for gathering ICE candidates. When this timeout expires
     #the SDP is sent to the server with the candidates the browser gathered

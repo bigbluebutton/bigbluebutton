@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 
-import { extractCredentials, parseMessage } from '/imports/api/common/server/helpers';
+import { extractCredentials, textToMarkdown } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
 export default function sendGroupChatMsg(chatId, message) {
@@ -17,8 +17,7 @@ export default function sendGroupChatMsg(chatId, message) {
     check(requesterUserId, String);
     check(chatId, String);
     check(message, Object);
-    const parsedMessage = parseMessage(message.message);
-    message.message = parsedMessage;
+    message.message = textToMarkdown(message.message);
 
     const payload = {
       msg: message,

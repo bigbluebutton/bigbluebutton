@@ -3,6 +3,7 @@ import { Message } from '/imports/ui/Types/message';
 import {
   ChatWrapper,
   ChatContent,
+  ChatAvatar,
 } from "./styles";
 import ChatMessageHeader from "./message-header/component";
 import ChatMessageTextContent from "./message-content/text-content/component";
@@ -148,16 +149,24 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       sameSender={sameSender}
       ref={messageRef}
     >
+      {(!message?.user || !sameSender)
+        && (
+          <ChatAvatar
+            avatar={message.user?.avatar}
+            color={messageContent.color}
+            moderator={messageContent.isModerator}
+          >
+            {messageContent.name.toLowerCase().slice(0, 2) || "  "}
+          </ChatAvatar>
+        )
+      }
+      <ChatContent sameSender={message?.user ? sameSender : false}>
       <ChatMessageHeader
         sameSender={message?.user ? sameSender : false}
         name={messageContent.name}
-        color={messageContent.color}
-        isModerator={messageContent.isModerator}
         isOnline={message.user?.isOnline ?? true}
-        avatar={message.user?.avatar}
         dateTime={dateTime}
       />
-      <ChatContent>
         {
           messageContent.component
         }

@@ -24,7 +24,7 @@ import { makeCall } from '/imports/ui/services/api';
 import BBBStorage from '/imports/ui/services/storage';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
 const USER_WAS_EJECTED = 'userWasEjected';
 
 const HTML = document.getElementsByTagName('html')[0];

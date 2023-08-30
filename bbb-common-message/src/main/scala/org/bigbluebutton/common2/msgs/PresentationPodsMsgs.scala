@@ -45,11 +45,6 @@ case class SlideResizedPubMsg(header: BbbClientMsgHeader, body: SlideResizedPubM
 case class SlideResizedPubMsgBody(pageId: String, width: Double, height: Double,
                                        xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double)
 
-object AddSlidePositionsPubMsg { val NAME = "AddSlidePositionsPubMsg" }
-case class AddSlidePositionsPubMsg(header: BbbClientMsgHeader, body: AddSlidePositionsPubMsgBody) extends StandardMsg
-case class AddSlidePositionsPubMsgBody(slideId: String, width: Double,
-                                       height: Double, viewBoxWidth: Double, viewBoxHeight: Double)
-
 object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg" }
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
 case class SetCurrentPresentationPubMsgBody(podId: String, presentationId: String)

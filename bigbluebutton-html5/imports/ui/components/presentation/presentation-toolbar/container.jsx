@@ -11,10 +11,13 @@ import Auth from '/imports/ui/services/auth';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
 import { CurrentPoll } from '/imports/api/polls';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
+  const pluginsContext = useContext(PluginsContext);
   const { users } = usingUsersContext;
+  const { pluginsProvidedAggregatedState } = pluginsContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
@@ -29,12 +32,16 @@ const PresentationToolbarContainer = (props) => {
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
+    const pluginProvidedPresentationToolbarItems = pluginsProvidedAggregatedState
+      ?.presentationToolbarItems;
+
     return (
       <PresentationToolbar
         {...props}
         amIPresenter={userIsPresenter}
         endCurrentPoll={endCurrentPoll}
         {...{
+          pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,
         }}
       />

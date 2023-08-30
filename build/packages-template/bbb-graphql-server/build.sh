@@ -17,12 +17,12 @@ rm -rf staging
 # package
 
 # Create directories for fpm to process
-DIRS="/usr/local/bin /etc/default /usr/share/bbb-graphql-server /lib/systemd/system /usr/local/bin/hasura"
+DIRS="/usr/local/bin /etc/default /usr/share/bbb-graphql-server /lib/systemd/system"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
 
-git clone --branch v2.28.1 https://github.com/iMDT/hasura-graphql-engine.git
+git clone --branch v2.32.1 https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
@@ -36,7 +36,7 @@ cp ./bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.se
 mkdir -p hasura-cli
 cd hasura-cli
 npm install --save-dev hasura-cli
-cp -r node_modules/hasura-cli/* ../staging/usr/local/bin/hasura
+cp node_modules/hasura-cli/hasura ../staging/usr/local/bin/hasura
 cd ..
 rm -rf hasura-cli
 

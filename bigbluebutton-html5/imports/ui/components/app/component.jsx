@@ -38,6 +38,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
+import PluginsEngineContainer from '../plugins-engine/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
@@ -59,6 +60,7 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
+const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -448,6 +450,7 @@ class App extends Component {
           setMeetingLayout={setMeetingLayout}
           showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
           presentationIsOpen={presentationIsOpen}
+          setPresentationFitToWidth={this.setPresentationFitToWidth}
         />
       </Styled.ActionsBar>
     );
@@ -576,9 +579,19 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
-    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen } = this.state;
+    const {
+      isAudioModalOpen,
+      isRandomUserSelectModalOpen,
+      isVideoPreviewModalOpen,
+      presentationFitToWidth,
+      allPluginsLoaded,
+    } = this.state;
     return (
       <>
+        <PluginsEngineContainer onReady={() => {
+          this.setState({ allPluginsLoaded: true });
+        }}
+        />
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}
@@ -601,46 +614,40 @@ class App extends Component {
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
-          {shouldShowPresentation ? (
-            <PresentationAreaContainer
-              darkTheme={darkTheme}
-              presentationIsOpen={presentationIsOpen}
-              layoutType={selectedLayout}
-            />
-          ) : null}
-          {shouldShowScreenshare ? (
-            <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} />
-          ) : null}
-          {shouldShowExternalVideo ? (
-            <ExternalVideoContainer
-              isLayoutSwapped={!presentationIsOpen}
-              isPresenter={isPresenter}
-            />
-          ) : null}
-          {shouldShowSharedNotes ? (
-            <NotesContainer area="media" layoutType={selectedLayout} />
-          ) : null}
+          {shouldShowPresentation ? <PresentationAreaContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
+          {
+            shouldShowExternalVideo
+              ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
+              : null
+          }
+          {shouldShowSharedNotes
+            ? (
+              <NotesContainer
+                area="media"
+                layoutType={selectedLayout}
+              />
+            ) : null}
           {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
           <UploaderContainer />
           <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
-          <AudioContainer
-            {...{
-              isAudioModalOpen,
-              setAudioModalIsOpen: this.setAudioModalIsOpen,
-              isVideoPreviewModalOpen,
-              setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-            }}
-          />
+          <AudioContainer {...{
+            isAudioModalOpen,
+            setAudioModalIsOpen: this.setAudioModalIsOpen,
+            isVideoPreviewModalOpen,
+            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
+          }} />
           <ToastContainer rtl />
-          {(audioAlertEnabled || pushAlertEnabled) && (
-            <ChatAlertContainer
-              audioAlertEnabled={audioAlertEnabled}
-              pushAlertEnabled={pushAlertEnabled}
-            />
-          )}
+          {(audioAlertEnabled || pushAlertEnabled)
+            && (
+              <ChatAlertContainer
+                audioAlertEnabled={audioAlertEnabled}
+                pushAlertEnabled={pushAlertEnabled}
+              />
+            )}
           <RaiseHandNotifier />
           <ManyWebcamsNotifier />
           <PollingContainer />
@@ -648,23 +655,15 @@ class App extends Component {
           <WakeLockContainer />
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
-          {customStyle ? (
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`}
-            />
-          ) : null}
-          {isRandomUserSelectModalOpen ? (
-            <RandomUserSelectContainer
-              {...{
-                onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
-                priority: 'low',
-                setIsOpen: this.setRandomUserSelectModalIsOpen,
-                isOpen: isRandomUserSelectModalOpen,
-              }}
-            />
-          ) : null}
+          {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
+          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer
+            {...{
+              onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
+              priority: "low",
+              setIsOpen: this.setRandomUserSelectModalIsOpen,
+              isOpen: isRandomUserSelectModalOpen,
+            }}
+          /> : null}
         </Styled.Layout>
       </>
     );

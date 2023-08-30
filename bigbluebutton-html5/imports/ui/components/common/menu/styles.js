@@ -5,6 +5,26 @@ import MenuItem from "@mui/material/MenuItem";
 import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import Menu from "@mui/material/Menu";
+
+const MenuWrapper = styled(Menu)`
+  ${({ isMobile }) => isMobile && `
+    flex-direction: column;
+    align-items: center;
+    padding: .5rem 0;
+  `}
+
+  ${({ $isHorizontal, isMobile }) => ($isHorizontal || isMobile) && `
+    ul {
+      display: flex;
+    }
+
+    li:hover {
+      background-color: unset !important;
+    }
+
+  `}
+`;
 
 const MenuItemWrapper = styled.div`
   display: flex;
@@ -25,6 +45,11 @@ const Option = styled.div`
     margin-right: .5rem;
     margin-left: 1.65rem;
   }
+
+  ${({ isHorizontal, isMobile }) => (isHorizontal || isMobile) && `
+    margin-right: 0;
+    margin-left: 0;
+  `}
 `;
 
 const CloseButton = styled(Button)`
@@ -82,9 +107,20 @@ const BBBMenuItem = styled(MenuItem)`
       }
     }
   `}
+  ${({ $roundButtons }) => $roundButtons && `
+    &:focus,
+    &:hover {
+      background-color: ${colorWhite} !important;
+      div div div {
+        background-color: ${colorPrimary} !important;
+        border: 1px solid ${colorPrimary} !important;
+      }
+    }
+  `}
 `;
 
 export default {
+  MenuWrapper,
   MenuItemWrapper,
   Option,
   CloseButton,

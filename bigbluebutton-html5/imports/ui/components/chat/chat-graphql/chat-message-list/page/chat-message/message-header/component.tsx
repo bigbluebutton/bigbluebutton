@@ -13,9 +13,6 @@ const intlMessages = defineMessages({
 
 interface ChatMessageHeaderProps {
   name: string;
-  avatar: string;
-  color: string;
-  isModerator: boolean;
   isOnline: boolean;
   dateTime: Date;
   sameSender: boolean;
@@ -24,9 +21,6 @@ interface ChatMessageHeaderProps {
 const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
   sameSender,
   name,
-  color,
-  isModerator,
-  avatar,
   isOnline,
   dateTime,
 }) => {
@@ -35,15 +29,8 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
 
   return (
     <Styled.HeaderContent>
-      <Styled.ChatAvatar
-        avatar={avatar}
-        color={color}
-        moderator={isModerator}
-      >
-        {name.toLowerCase().slice(0, 2) || "  "}
-      </Styled.ChatAvatar>
       <Styled.ChatHeaderText>
-        <Styled.ChatUserName>
+        <Styled.ChatUserName isOnline={isOnline}>
           {name}
         </Styled.ChatUserName>
         {

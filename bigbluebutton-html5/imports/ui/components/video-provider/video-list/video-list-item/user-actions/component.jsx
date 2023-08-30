@@ -7,8 +7,6 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
-import { updateSettings } from '/imports/ui/components/settings/service';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -80,12 +78,13 @@ const UserActions = (props) => {
     const menuItems = [];
 
     const toggleDisableCam = () => {
-      const applicationValues = { ...Settings.application };
-      applicationValues.selfViewDisable = !Settings.application.selfViewDisable;
-      updateSettings({
-        ...Settings,
-        application: applicationValues,
-      });
+      const disabledCams = Session.get('disabledCams') || [];
+      const isDisabled = disabledCams && disabledCams?.includes(cameraId);
+      if (!isDisabled) {
+        Session.set('disabledCams', [...disabledCams, cameraId]);
+      } else {
+        Session.set('disabledCams', disabledCams.filter((cId) => cId !== cameraId));
+      }
     };
 
     if (isVideoSqueezed) {
@@ -108,7 +107,7 @@ const UserActions = (props) => {
         );
       }
     }
-    if (userId === Auth.userID && isStream) {
+    if (userId === Auth.userID && isStream && !isSelfViewDisabled) {
       menuItems.push({
         key: `${cameraId}-disable`,
         label: intl.formatMessage(intlMessages[`${enableSelfCamIntlKey}Label`]),
@@ -118,13 +117,15 @@ const UserActions = (props) => {
       });
     }
 
-    menuItems.push({
-      key: `${cameraId}-mirror`,
-      label: intl.formatMessage(intlMessages.mirrorLabel),
-      description: intl.formatMessage(intlMessages.mirrorDesc),
-      onClick: () => onHandleMirror(cameraId),
-      dataTest: 'mirrorWebcamBtn',
-    });
+    if (isStream) {
+      menuItems.push({
+        key: `${cameraId}-mirror`,
+        label: intl.formatMessage(intlMessages.mirrorLabel),
+        description: intl.formatMessage(intlMessages.mirrorDesc),
+        onClick: () => onHandleMirror(cameraId),
+        dataTest: 'mirrorWebcamBtn',
+      });
+    }
 
     if (numOfStreams > 2 && isStream) {
       menuItems.push({

@@ -9,6 +9,7 @@ case "$1" in
   sudo -u postgres psql -c "drop database if exists bbb_graphql"
   sudo -u postgres psql -c "create database bbb_graphql"
   sudo -u postgres psql -c "alter database bbb_graphql set timezone to 'UTC'"
+  sudo -u postgres psql -U postgres -d bbb_graphql -a -f /usr/share/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
 
   DATABASE_NAME="hasura_app"
   DB_EXISTS=$(sudo -u postgres psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DATABASE_NAME'")
@@ -20,10 +21,6 @@ case "$1" in
       echo "Database $DATABASE_NAME created"
   fi
 
-  sudo -u postgres psql -U postgres -d bbb_graphql -a -f /usr/share/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
-  sudo -u postgres psql -c "drop database if exists hasura_app"
-
-  sudo -u postgres psql -c "create database hasura_app"
   echo "Postgresql configured"
 
   if [ ! -f /.dockerenv ]; then
@@ -33,7 +30,7 @@ case "$1" in
 
     # Apply BBB metadata in Hasura
     cd /usr/share/bbb-graphql-server
-    /usr/local/bin/hasura/hasura metadata apply
+    /usr/local/bin/hasura metadata apply
     cd ..
     rm -rf /usr/share/bbb-graphql-server/metadata
   fi

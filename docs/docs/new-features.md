@@ -102,6 +102,24 @@ Issues found during testing should be reported on [BigBlueButton's issue tracker
 
 Reverting to the default recorder (Kurento) can be achieved by removing the `recordingAdapter` line from `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` and restarting `bbb-webrtc-sfu`.
 
+#### Transparent listen only mode
+
+We've added a new experimental audio mode called "transparent listen only".
+The goal is to pave the way for a better audio experience in BigBlueButton by
+removing the need for end users to pick between listen only and microphone modes while still
+providing a scalable audio solution.
+
+The motivation for this mode can be found in [issue 14021](https://github.com/bigbluebutton/bigbluebutton/issues/14021),
+while the implementation details are available in [pull request 18461](https://github.com/bigbluebutton/bigbluebutton/pull/18461).
+
+In version 2.7, we present the initial iteration of this audio mode, primarily focusing on the server side. 
+The primary objective is to assess the viability of the proposed approach and gather community feedback.
+
+The new mode is *turned off by default* and is considered *experimental*. To enable it:
+  - To enable on clients:
+    * Server wide: configure `public.media.transparentListenOnly: true` in `/etc/bigbluebutton/bbb-html5.yml`, then restart `bbb-html5` (`systemctl restart bbb-html5`)
+    * Per user: utilize `userdata-bbb_transparent_listen_only=true`
+
 ### Upgraded components
 
 Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
@@ -118,6 +136,7 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.1)
 - [2.7.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.3)
 - [2.7.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.2)
 - [2.7.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.1)
@@ -134,6 +153,10 @@ If you are using bbb-install to configure your servers, be aware that starting w
 #### Changing the default setting `guestPolicyExtraAllowOptions`
 
 Starting with BigBlueButton 2.7.0-beta.3 we are hiding by default a couple extra options in the guest approve panel. 'Allow all authenticated users' and 'Allow all guests' options will be hidden unless you override the option `app.public.guestPolicyExtraAllowOptions` in `bbb-html5` config file `settings.yml`. These extra options were not relevant to the vast majority of the use cases and when hidden, the interface becomes much simpler.
+
+#### Changing the default setting `wakeLock`
+
+Starting with BigBlueButton 2.7.0-beta.3 we are enabling wake lock feature by default. It can be disabled by overriding the option `public.app.wakeLock.enabled` in `bbb-html5` config file `settings.yml`.
 
 ### Development
 

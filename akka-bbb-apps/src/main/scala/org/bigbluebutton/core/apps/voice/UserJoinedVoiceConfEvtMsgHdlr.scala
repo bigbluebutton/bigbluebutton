@@ -93,7 +93,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         userColor,
         msg.body.muted,
         msg.body.talking,
-        "freeswitch"
+        "freeswitch",
+        msg.body.hold,
+        msg.body.uuid
       )
     }
 

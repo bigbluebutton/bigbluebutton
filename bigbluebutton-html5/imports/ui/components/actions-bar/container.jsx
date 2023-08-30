@@ -51,8 +51,10 @@ const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButt
 const RAISE_HAND_BUTTON_CENTERED = Meteor.settings.public.app.raiseHandActionButton.centered;
 
 const isReactionsButtonEnabled = () => {
+  const USER_REACTIONS_ENABLED = Meteor.settings.public.userReaction.enabled;
   const REACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.reactionsButton.enabled;
-  return getFromUserSettings('enable-reactions-button', REACTIONS_BUTTON_ENABLED);
+
+  return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
 };
 
 export default withTracker(() => ({
