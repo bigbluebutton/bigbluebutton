@@ -146,6 +146,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   }, []);
   return (
     <ChatWrapper
+      id="chatWrapper"
       sameSender={sameSender}
       ref={messageRef}
     >
