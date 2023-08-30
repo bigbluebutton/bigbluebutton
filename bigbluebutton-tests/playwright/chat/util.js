@@ -7,13 +7,13 @@ async function openPublicChat(testPage) {
   test.fail(!chatEnabled, 'Chat is disabled');
 
   await testPage.waitForSelector(e.chatBox);
-  await testPage.waitForSelector(e.chatMessages);
+  await testPage.waitForSelector('div[id="contentRef"]');
   try {
     await testPage.waitForSelector(e.chatWelcomeMessageText);
   } catch {
-    await testPage.waitAndClick(e.chatMessages);
+    await testPage.waitAndClick('div[id="contentRef"]');
     await testPage.down('Home');
-    await testPage.waitForSelector(e.chatWelcomeMessageText);
+    await testPage.waitForSelector('div[id="contentRef"] div');
     await testPage.down('End');
   }
 }

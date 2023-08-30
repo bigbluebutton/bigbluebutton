@@ -13,7 +13,7 @@ test.describe.serial('Chat', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
-  test('Send public message @ci @flaky', async () => {
+  test.only('Send public message @ci', async () => {
     await chat.sendPublicMessage();
   });
 
@@ -22,7 +22,7 @@ test.describe.serial('Chat', () => {
     await chat.sendPrivateMessage();
   });
 
-  test('Clear chat @ci @flaky', async () => {
+  test.only('Clear chat @ci', async () => {
     await chat.clearChat();
   });
 
@@ -30,7 +30,7 @@ test.describe.serial('Chat', () => {
     await chat.copyChat(context);
   });
 
-  test('Save chat @ci @flaky', async ({}, testInfo) => {
+  test.only('Save chat @ci', async ({}, testInfo) => {
     await chat.saveChat(testInfo);
   });
 
