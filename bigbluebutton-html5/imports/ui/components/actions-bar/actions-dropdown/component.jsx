@@ -280,7 +280,7 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
-    if (isCameraAsContentEnabled && amIPresenter && !isMobile) {
+    if (isCameraAsContentEnabled && amIPresenter) {
       actions.push({
         icon: hasCameraAsContent ? 'video_off' : 'video',
         label: hasCameraAsContent

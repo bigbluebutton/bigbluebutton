@@ -7,6 +7,7 @@ const helpers = require('./helpers');
 const e = require('./elements');
 const { env } = require('node:process');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
+const { recordMeeting } = require('../parameters/constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData, getSettings } = require('./settings');
 
@@ -27,7 +28,7 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, createParameter, joinParameter, customMeetingId } = initOptions || {};
+    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
@@ -43,6 +44,7 @@ class Page {
     await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
     this.settings = await generateSettingsData(this.page);
     const { autoJoinAudioModal } = this.settings;
+    if (isRecording && !isModerator) await this.closeRecordingModal();
     if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
   }
 
@@ -127,6 +129,11 @@ class Page {
   async closeAudioModal() {
     await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
     await this.waitAndClick(e.closeModal);
+  }
+
+  async closeRecordingModal() {
+    await this.waitForSelector(e.simpleModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitAndClick(e.confirmRecording);
   }
 
   async waitForSelector(selector, timeout = ELEMENT_WAIT_TIME) {

@@ -7,16 +7,36 @@ export default async function handlePresentationExport({ body }, meetingId) {
   check(body, Object);
   check(meetingId, String);
 
-  const { fileURI, presId, typeOfExport } = body;
+  const {
+    annotatedFileURI,
+    originalFileURI,
+    convertedFileURI,
+    presId,
+    fileStateType,
+  } = body;
 
-  check(fileURI, String);
+  check(annotatedFileURI, String);
+  check(originalFileURI, String);
+  check(convertedFileURI, String);
   check(presId, String);
-  check(typeOfExport, String);
+  check(fileStateType, String);
 
-  if (typeOfExport === 'Original') {
-    await setOriginalUriDownload(meetingId, presId, fileURI);
+  if (fileStateType === 'Original' || fileStateType === 'Converted') {
+    if (fileStateType === 'Converted') {
+      await setOriginalUriDownload(
+        meetingId,
+        presId,
+        convertedFileURI,
+      );
+    } else {
+      await setOriginalUriDownload(
+        meetingId,
+        presId,
+        originalFileURI,
+      );
+    }
   } else {
-    await sendExportedPresentationChatMsg(meetingId, presId, fileURI, typeOfExport);
+    await sendExportedPresentationChatMsg(meetingId, presId, annotatedFileURI, fileStateType);
   }
   await setPresentationExporting(meetingId, presId, { status: 'EXPORTED' });
 }

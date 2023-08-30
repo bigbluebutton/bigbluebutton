@@ -1,6 +1,5 @@
 
 const { test } = require('@playwright/test');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants.js');
 const e = require('../core/elements.js');
 const { getSettings } = require('../core/settings.js');
 
