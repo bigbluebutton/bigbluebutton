@@ -1,8 +1,8 @@
 package org.bigbluebutton.api2
 
 import scala.collection.JavaConverters._
-import akka.actor.ActorSystem
-import akka.event.Logging
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.event.Logging
 import org.bigbluebutton.api.domain.{BreakoutRoomsParams, Group, LockSettingsParams}
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._

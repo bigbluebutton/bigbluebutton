@@ -14,7 +14,9 @@ object Dependencies {
 
     // Libraries
     val akkaVersion = "2.6.17"
+    val pekkoVersion = "1.0.1"
     val akkaHttpVersion = "10.2.7"
+    val pekkoHttpVersion = "1.0.0"
     val gson = "2.8.9"
     val jackson = "2.13.5"
     val logback = "1.2.11"
@@ -46,6 +48,9 @@ object Dependencies {
     val akkaActor = "com.typesafe.akka" % "akka-actor_2.13" % Versions.akkaVersion
     val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.13" % Versions.akkaVersion
 
+    val pekkoActor = "org.apache.pekko" %% "pekko-actor" % Versions.pekkoVersion
+    val pekkoSlf4j = "org.apache.pekko" %% "pekko-slf4j" % Versions.pekkoVersion
+
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
     val quicklens = "com.softwaremill.quicklens" %% "quicklens" % Versions.quicklens
@@ -56,6 +61,10 @@ object Dependencies {
     val akkaStream = "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion
     val akkaHttp = "com.typesafe.akka" %% "akka-http" % Versions.akkaHttpVersion
     val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
+
+    val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekkoVersion
+    val pekkoHttp = "org.apache.pekko" %% "pekko-http" % Versions.pekkoHttpVersion
+    val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % Versions.pekkoHttpVersion
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
 
@@ -88,6 +97,9 @@ object Dependencies {
     Compile.akkaActor,
     Compile.akkaSl4fj,
     Compile.akkaStream,
+    Compile.pekkoActor,
+    Compile.pekkoSlf4j,
+    Compile.pekkoStream,
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.quicklens,
@@ -97,6 +109,8 @@ object Dependencies {
     Compile.apacheLang,
     Compile.akkaHttp,
     Compile.akkaHttpSprayJson,
+    Compile.pekkoHttp,
+    Compile.pekkoHttpSprayJson,
     Compile.bbbCommons,
     Compile.slick,
     Compile.slickHikaricp,

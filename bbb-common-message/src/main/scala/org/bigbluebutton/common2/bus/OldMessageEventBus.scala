@@ -1,7 +1,7 @@
 package org.bigbluebutton.common2.bus
 
-import akka.actor.ActorRef
-import akka.event.{ EventBus, LookupClassification }
+import org.apache.pekko.actor.ActorRef
+import org.apache.pekko.event.{ EventBus, LookupClassification }
 import akka.actor.actorRef2Scala
 
 case class OldReceivedJsonMessage(pattern: String, channel: String, msg: String)
