@@ -31,6 +31,7 @@ jobs:
             bbb-export-annotations,
             bbb-learning-dashboard,
             bbb-playback-record,
+            bbb-graphql-server,
             bbb-etherpad,
             bbb-web,
             bbb-fsesl-akka,
@@ -50,6 +51,9 @@ jobs:
             cache-files-list: bbb-learning-dashboard
           - package: bbb-playback-record
             build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
+          - package: bbb-graphql-server
+            build-name: bbb-graphql-server
+            build-list: bbb-graphql-server bbb-graphql-middleware
           - package: bbb-etherpad
             cache-files-list: bbb-etherpad.placeholder.sh build/packages-template/bbb-etherpad
             cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
@@ -101,7 +105,7 @@ jobs:
           path: artifacts.tar
   install-and-run-tests:
     needs: build-package
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -136,6 +140,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-playback-record.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-graphql-server
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-graphql-server.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
         uses: actions/download-artifact@v3
@@ -245,8 +254,8 @@ jobs:
         run: |
           sudo -i <<EOF
           set -e
-          cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh -O bbb-install.sh
-          cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-27-dev -s bbb-ci.test -j -d /certs/
+          cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.8.x-release/bbb-install.sh -O bbb-install.sh
+          cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-28-develop -s bbb-ci.test -j -d /certs/
           bbb-conf --salt bbbci
           echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
           sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
