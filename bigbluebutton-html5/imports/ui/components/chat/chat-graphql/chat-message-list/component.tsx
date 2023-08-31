@@ -266,9 +266,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                       }
                       setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
                     }
-                    }
-                    setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
-                  }
                   }
                 >
                   {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
