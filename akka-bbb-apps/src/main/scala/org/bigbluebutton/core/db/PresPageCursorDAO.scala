@@ -40,7 +40,7 @@ object PresPageCursorDAO {
         )
       )
     )).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on pres_page_cursor table!")
+      case Success(rowsAffected) => // DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on pres_page_cursor table!")
       case Failure(e) => DatabaseConnection.logger.error(s"Error inserting pres_page_cursor: $e")
     }
   }

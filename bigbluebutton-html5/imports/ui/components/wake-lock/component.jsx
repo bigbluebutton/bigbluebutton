@@ -89,8 +89,8 @@ class WakeLock extends Component {
       if (result && result.error) {
         Settings.application.wakeLock = false;
         Settings.save();
+        this.feedbackToast(result);
       }
-      this.feedbackToast(result);
     });
   }
 
