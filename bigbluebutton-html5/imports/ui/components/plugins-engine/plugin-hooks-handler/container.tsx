@@ -18,8 +18,11 @@ const PluginHooksHandlerContainer = () => {
 
   useEffect(() => {
     const updateHookUsage = (hookName: string, delta: number):void => {
-      hookUtilizationCount.set(hookName, (hookUtilizationCount.get(hookName) || 0) + delta);
-      setHookUtilizationCount(hookUtilizationCount);
+      setHookUtilizationCount((mapObj) => {
+        const newMap = new Map<string, number>(mapObj.entries());
+        newMap.set(hookName, (mapObj.get(hookName) || 0) + delta);
+        return newMap;
+      });
     };
 
     const subscribeHandler: EventListener = (
@@ -41,7 +44,8 @@ const PluginHooksHandlerContainer = () => {
 
   return (
     Object.keys(hooksMap)
-      .filter((hookName: string) => hookUtilizationCount.get(hookName))
+      .filter((hookName: string) => hookUtilizationCount.get(hookName)
+          && hookUtilizationCount.get(hookName)! > 0)
       .map((hookName: string) => {
         const HookComponent = hooksMap[hookName];
         return <HookComponent key={hookName}/>;

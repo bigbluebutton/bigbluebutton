@@ -5,7 +5,7 @@ import React, {
 
 import { PluginProvidedState } from '/imports/ui/components/plugins-engine/types'
 
-import { PluginsContextType, InformationToLoadUserListData } from './types';
+import { PluginsContextType, UserListGraphqlVariables } from './types';
 
 export const PluginsContext = createContext<PluginsContextType>({} as PluginsContextType);
 
@@ -14,9 +14,9 @@ export const PluginsContextProvider = (props: any) => {
     setPluginsProvidedAggregatedState] = useState<PluginProvidedState>(
       {} as PluginProvidedState,
     );
-  const [informationToLoadUserListData,
-    setInformationToLoadUserListData] = useState<InformationToLoadUserListData>(
-      {} as InformationToLoadUserListData,
+  const [userListGraphqlVariables,
+    setUserListGraphqlVariables] = useState<UserListGraphqlVariables>(
+      {} as UserListGraphqlVariables,
     );
   return (
     <PluginsContext.Provider value={
@@ -24,8 +24,8 @@ export const PluginsContextProvider = (props: any) => {
         ...props,
         setPluginsProvidedAggregatedState,
         pluginsProvidedAggregatedState,
-        informationToLoadUserListData,
-        setInformationToLoadUserListData,
+        userListGraphqlVariables,
+        setUserListGraphqlVariables,
       }
     }
     >

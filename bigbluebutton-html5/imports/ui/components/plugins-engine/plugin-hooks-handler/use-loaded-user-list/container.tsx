@@ -7,11 +7,11 @@ import { USERS_SUBSCRIPTION } from
 
 const LoadedUserListHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
-  const { informationToLoadUserListData } = useContext(PluginsContext);
+  const { userListGraphqlVariables } = useContext(PluginsContext);
   const {
     offset,
     limit,
-  } = informationToLoadUserListData;
+  } = userListGraphqlVariables;
 
   const { data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
     variables: {

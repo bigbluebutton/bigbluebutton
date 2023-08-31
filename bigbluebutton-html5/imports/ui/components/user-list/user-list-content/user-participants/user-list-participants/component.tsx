@@ -122,7 +122,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
 
-  const { setInformationToLoadUserListData } = useContext(PluginsContext);
+  const { setUserListGraphqlVariables } = useContext(PluginsContext);
   const {
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
@@ -137,7 +137,7 @@ const UserListParticipantsContainer: React.FC = () => {
   });
 
   useEffect(() => {
-    setInformationToLoadUserListData({
+    setUserListGraphqlVariables({
       offset,
       limit,
     });
