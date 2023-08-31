@@ -9,6 +9,20 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
+# Check if both the PR number is provided
+if [ ! $# > 0 ]; then
+    echo "Usage: $0 <PR_NUMBER>"
+    exit 1
+fi
+
+# Check if the PR number was provided as a number
+if [[ "$1" =~ ^[0-9]+$ ]]; then
+    echo "Argument is a valid number."
+else
+    echo "Argument is not a valid number."
+    exit 1
+fi
+
 # Check if the current directory is a Git repository
 if [ ! -d .git ]; then
     echo "This is not a Git repository."
@@ -25,12 +39,6 @@ if [ -n "$(git status --porcelain)" ]; then
         echo "Please commit or stash your changes before proceeding."
         exit 1
     fi
-fi
-
-# Check if both the PR number is provided
-if [ ! $# > 0 ]; then
-    echo "Usage: $0 <PR_NUMBER>"
-    exit 1
 fi
 
 PR_NUMBER=$1
