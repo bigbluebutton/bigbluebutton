@@ -1,6 +1,6 @@
 #!/bin/bash
-set -e
-set -x
+# set -e
+# set -x
 
 # Check if `jq` is available
 if ! command -v jq &> /dev/null; then
@@ -9,8 +9,26 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
+# Check if the current directory is a Git repository
+if [ ! -d .git ]; then
+    echo "This is not a Git repository."
+    exit 1
+fi
+
+# Check if there are any uncommitted changes
+if [ -n "$(git status --porcelain)" ]; then
+    echo "There are uncommitted changes in the repository."
+    if [ "$2" == "--stash" ]; then
+        git stash save "Temporary stash of local code while reviewing $1"
+        echo "Uncommitted changes stashed. You can retrieve them later."
+    else 
+        echo "Please commit or stash your changes before proceeding."
+        exit 1
+    fi
+fi
+
 # Check if both the PR number is provided
-if [ $# -ne 1 ]; then
+if [ ! $# > 0 ]; then
     echo "Usage: $0 <PR_NUMBER>"
     exit 1
 fi
