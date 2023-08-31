@@ -18,12 +18,7 @@ export const getNameInitials = (name: string) => {
   return nameInitials.replace(/^\w/, (c: string) => c.toUpperCase());
 };
 
-export const guestUsersCall = (guestsArray: GuestWaitingUser[], status: string) => {
-  console.log("🚀 -> guestUsersCall -> status:", status);
-  console.log("🚀 -> guestUsersCall -> guestsArray:", guestsArray);
-  
-  makeCall('allowPendingUsers', guestsArray, status);
-}
+export const guestUsersCall = (guestsArray: GuestWaitingUser[], status: string) => makeCall('allowPendingUsers', guestsArray, status);
 
 export const setGuestLobbyMessage = (message: string) => makeCall('setGuestLobbyMessage', message);
 

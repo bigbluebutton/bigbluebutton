@@ -369,7 +369,7 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
     return a;
   });
 
-  if (guestWaitingUsersLoading) {
+  if (guestWaitingUsersLoading || !currentMeeting) {
     return null;
   }
 
@@ -393,16 +393,12 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
       return acc;
     }, { authed: [], unauthed: [] }) ?? { authed: [], unauthed: [] };
 
-    const guestLobbyEnabled = currentMeeting?.usersPolicies?.guestPolicy ?
-    currentMeeting?.usersPolicies?.guestPolicy === 'ASK_MODERATOR'
-    : true;
-
   return (
     <GuestUsersManagementPanel
       authedGuestUsers={separateGuestUsersByAuthed.authed}
       unauthedGuestUsers={separateGuestUsersByAuthed.unauthed}
       guestLobbyMessage={currentMeeting?.usersPolicies?.guestLobbyMessage ?? null}
-      guestLobbyEnabled={guestLobbyEnabled}
+      guestLobbyEnabled={currentMeeting?.usersPolicies?.guestPolicy === 'ASK_MODERATOR'}
       layoutContextDispatch={layoutContextDispatch}
     />
   );
