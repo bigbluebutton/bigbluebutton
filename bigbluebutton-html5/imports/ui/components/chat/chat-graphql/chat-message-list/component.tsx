@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { Meteor } from "meteor/meteor";
 import { makeVar, useMutation } from "@apollo/client";
 import { LAST_SEEN_MUTATION } from "./queries";
@@ -6,6 +6,7 @@ import {
   ButtonLoadMore,
   MessageList,
   MessageListWrapper,
+  UnreadButton,
 } from "./styles";
 import { layoutSelect } from "../../../layout/context";
 import ChatListPage from "./page/component";
@@ -29,6 +30,10 @@ const intlMessages = defineMessages({
   loadMoreButtonLabel: {
     id: 'app.chat.loadMoreButtonLabel',
     description: 'Label for load more button',
+  },
+  moreMessages: {
+    id: 'app.chat.moreMessages',
+    description: 'Chat message when the user has unread messages below the scroll',
   },
 });
 
@@ -97,15 +102,18 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   chatId,
   setMessageAsSeenMutation,
   lastSeenAt,
+  totalUnread,
 }) => {
   const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement>();
   const contentRef = React.useRef<HTMLDivElement>();
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
+  const messagesEndRef = React.useRef<HTMLDivElement>();
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedTime, setLastMessageCreatedTime] = useState<number>(0);
   const [followingTail, setFollowingTail] = React.useState(true);
+
   useEffect(() => {
     setter({
       ...setter(),
@@ -167,6 +175,24 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
+  const renderUnreadNotification = useMemo(() => {
+    if (totalUnread && !followingTail) {
+      return (
+        <UnreadButton
+          aria-hidden="true"
+          color="primary"
+          size="sm"
+          key="unread-messages"
+          label={intl.formatMessage(intlMessages.moreMessages)}
+          onClick={() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+          }}
+        />
+      );
+    }
+    return null;
+  }, [totalUnread, followingTail]);
+
   useEffect(() => {
     const setScrollToTailEventHandler = () => {
       if (scrollObserver && contentRef.current) {
@@ -209,66 +235,70 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     ? userLoadedBackUntilPage : Math.max(totalPages - 2, 0);
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
   return (
-    <MessageListWrapper>
-      <MessageList
-        ref={messageListRef}
-        onWheel={(e) => {
-          if (e.deltaY < 0) {
-            if (isElement(contentRef.current) && followingTail) {
-              toggleFollowingTail(false)
+    [
+      <MessageListWrapper key="message-list-wrapper">
+        <MessageList
+          ref={messageListRef}
+          onWheel={(e) => {
+            if (e.deltaY < 0) {
+              if (isElement(contentRef.current) && followingTail) {
+                toggleFollowingTail(false)
+              }
+            } else if (e.deltaY > 0) {
+              setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
             }
-          } else if (e.deltaY > 0) {
+          }}
+          onMouseUp={() => {
             setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
-          }
-        }}
-        onMouseUp={() => {
-          setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
-        }}
-        onTouchEnd={() => {
-          setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
-        }}
-      >
-        <span>
-          {
-            (userLoadedBackUntilPage)
-              ? (
-                <ButtonLoadMore
-                  onClick={() => {
-                    if (followingTail) {
-                      toggleFollowingTail(false);
+          }}
+          onTouchEnd={() => {
+            setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
+          }}
+        >
+          <span>
+            {
+              (userLoadedBackUntilPage)
+                ? (
+                  <ButtonLoadMore
+                    onClick={() => {
+                      if (followingTail) {
+                        toggleFollowingTail(false);
+                      }
+                      setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
                     }
-                    setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
-                  }
-                  }
-                >
-                  {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
-                </ButtonLoadMore>
-              ) : null
-          }
-        </span>
-        <div id="contentRef" ref={contentRef}>
-          <ChatPopupContainer />
-          {
-            // @ts-ignore
-            Array.from({ length: pagesToLoad }, (v, k) => k + (firstPageToLoad)).map((page) => {
-              return (
-                <ChatListPage
-                  key={`page-${page}`}
-                  page={page}
-                  pageSize={PAGE_SIZE}
-                  setLastSender={setLastSender(lastSenderPerPage.current)}
-                  lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
-                  chatId={chatId}
-                  markMessageAsSeen={markMessageAsSeen}
-                  scrollRef={messageListRef}
-                  lastSeenAt={lastSeenAt}
-                />
-              )
-            })
-          }
-        </div>
-      </MessageList>
-    </MessageListWrapper >
+                    }
+                  >
+                    {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
+                  </ButtonLoadMore>
+                ) : null
+            }
+          </span>
+          <div id="contentRef" ref={contentRef}>
+            <ChatPopupContainer />
+            {
+              // @ts-ignore
+              Array.from({ length: pagesToLoad }, (v, k) => k + (firstPageToLoad)).map((page) => {
+                return (
+                  <ChatListPage
+                    key={`page-${page}`}
+                    page={page}
+                    pageSize={PAGE_SIZE}
+                    setLastSender={setLastSender(lastSenderPerPage.current)}
+                    lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
+                    chatId={chatId}
+                    markMessageAsSeen={markMessageAsSeen}
+                    scrollRef={messageListRef}
+                    lastSeenAt={lastSeenAt}
+                  />
+                )
+              })
+            }
+          </div>
+          <div ref={messagesEndRef} />
+        </MessageList>
+      </MessageListWrapper >,
+      renderUnreadNotification,
+    ]
   );
 }
 

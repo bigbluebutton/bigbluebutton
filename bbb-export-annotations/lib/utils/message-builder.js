@@ -70,9 +70,11 @@ class NewPresFileAvailableMsg {
           userId: '',
         },
         body: {
-          fileURI: link,
+          annotatedFileURI: link,
+          originalFileURI: '',
+          convertedFileURI: '',
           presId: exportJob.presId,
-          typeOfExport: "Annotated",
+          fileStateType: 'Annotated',
         },
       },
     };

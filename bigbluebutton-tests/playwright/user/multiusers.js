@@ -147,17 +147,18 @@ class MultiUsers {
     await this.initUserPage();
     await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.lowerHandBtn);
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
     await sleep(1000);
     await this.userPage.waitAndClick(e.lowerHandBtn);
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
 
   async raiseHandRejected() {
     const { reactionsButton } = getSettings();
     if (!reactionsButton) {
-      console.log('=== inside')
       await this.modPage.waitForSelector(e.whiteboard);
       await this.modPage.hasElement(e.joinAudio);
       await this.modPage.wasRemoved(e.reactionsButton);
@@ -168,6 +169,7 @@ class MultiUsers {
     await this.initUserPage();
     await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.lowerHandBtn);
     await this.userPage.press('Escape');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
@@ -349,16 +351,22 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
     await this.modPage.wasRemoved(e.userListItem);
 
-    //Will be modified when the issue is fixed and accept just one of both screens
-    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    // Will be modified when the issue is fixed and accept just one of both screens
+    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
     try {
       await this.modPage2.hasElement(e.errorScreenMessage);
-    } catch (err) {
+    } catch {
       await this.modPage2.hasElement(e.meetingEndedModalTitle);
     }
-    
-    await this.initModPage2(false, context, {meetingId: this.modPage.meetingId, customParameter: 'userID=Moderator2'})
-    await this.modPage2.hasText(e.userBannedMessage, /banned/);
+
+    await this.initModPage2(false, context, { meetingId: this.modPage.meetingId, joinParameter: 'userID=Moderator2' });
+
+    // Due to same reason above, sometimes it displays different messages
+    try {
+      await this.modPage2.hasText(e.userBannedMessage2, /banned/);
+    } catch {
+      await this.modPage2.hasText(e.userBannedMessage1, /removed/);
+    }
   }
 
   async writeClosedCaptions() {

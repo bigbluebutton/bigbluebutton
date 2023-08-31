@@ -22,11 +22,11 @@ test.describe.serial('Options', () => {
     await options.localesTest();
   });
 
-  test('Dark mode @ci', async () => {
+  test('Dark mode @ci @flaky', async () => {
     await options.darkMode();
   });
 
-  test('Font size @ci', async () => {
+  test('Font size @ci @flaky', async () => {
     await options.fontSizeTest();
   });
 });

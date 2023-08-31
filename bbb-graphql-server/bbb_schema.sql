@@ -245,7 +245,6 @@ CREATE TABLE "user" (
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
 
-
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
@@ -788,7 +787,7 @@ SELECT 	"user"."userId",
 		cu."visible",
 		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
-		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" > coalesce(cu."lastSeenAt",0) THEN 1 ELSE 0 end) "totalUnread",
+		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" > coalesce(NULLIF(cu."lastSeenAt",0),"user"."registeredOn") THEN 1 ELSE 0 end) "totalUnread",
 		cu."lastSeenAt",
 		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN true ELSE false end public
 FROM "user"
@@ -1281,9 +1280,70 @@ JOIN "v_meeting_breakoutPolicies"vmbp using("meetingId")
 JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
 
+------------------------------------
+----sharedNotes
+
+create table "sharedNotes" (
+    "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "sharedNotesExtId" varchar(25),
+    "padId" varchar(25),
+    "model" varchar(25),
+    "name" varchar(25),
+    "pinned" boolean,
+    constraint "pk_sharedNotes" primary key ("meetingId", "sharedNotesExtId")
+);
+
+create table "sharedNotes_rev" (
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"sharedNotesExtId" varchar(25),
+	"rev" integer,
+	"userId" varchar(50) references "user"("userId") ON DELETE SET NULL,
+	"changeset" varchar(25),
+	"start" integer,
+	"end" integer,
+	"diff" TEXT,
+	"createdAt" timestamp with time zone,
+	constraint "pk_sharedNotes_rev" primary key ("meetingId", "sharedNotesExtId", "rev")
+);
+--create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
+
+create table "sharedNotes_session" (
+    "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "sharedNotesExtId" varchar(25),
+    "userId" varchar(50) references "user"("userId") ON DELETE CASCADE,
+    "sessionId" varchar(50),
+    constraint "pk_sharedNotes_session" primary key ("meetingId", "sharedNotesExtId", "userId")
+);
+create index "sharedNotes_session_userId" on "sharedNotes_session"("userId");
+
+create view "v_sharedNotes" as
+SELECT sn.*, max(snr.rev) "lastRev"
+FROM "sharedNotes" sn
+LEFT JOIN "sharedNotes_rev" snr ON snr."meetingId" = sn."meetingId" AND snr."sharedNotesExtId" = sn."sharedNotesExtId"
+GROUP BY sn."meetingId", sn."sharedNotesExtId";
+
+create view "v_sharedNotes_session" as
+SELECT sns.*, sn."padId"
+FROM "sharedNotes_session" sns
+JOIN "sharedNotes" sn ON sn."meetingId" = sns."meetingId" AND sn."sharedNotesExtId" = sn."sharedNotesExtId";
+
 ----------------------
 
 CREATE OR REPLACE VIEW "v_current_time" AS
 SELECT
 	current_timestamp AS "currentTimestamp",
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
+
+------------------------------------
+----audioCaption
+
+CREATE TABLE "audio_caption" (
+    "transcriptId" varchar(100) NOT NULL PRIMARY KEY,
+    "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+    "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+    "transcript" text,
+    "createdAt" timestamp with time zone
+);
+
+CREATE VIEW "v_audio_caption" AS
+SELECT * FROM "audio_caption";
