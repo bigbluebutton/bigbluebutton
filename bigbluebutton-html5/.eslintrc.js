@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['plugin:@typescript-eslint/recommended', 'airbnb'],
+  extends: 'airbnb',
   parserOptions: {
     ecmaVersion: 2020,
   },
@@ -11,49 +11,43 @@ module.exports = {
     meteor: true,
     jasmine: true,
   },
-  settings: {
-    'import/resolver': {
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
-    },
-    rules: {
-      'no-underscore-dangle': 0,
-      'import/extensions': [
-        'error',
-        'ignorePackages',
-        {
-          js: 'never',
-          jsx: 'never',
-          ts: 'never',
-          tsx: 'never',
-        },
-      ],
-      'import/no-absolute-path': 0,
-      'import/no-unresolved': 0,
-      'import/no-extraneous-dependencies': 1,
-      'react/prop-types': 1,
-      'jsx-a11y/no-access-key': 0,
-      'react/jsx-props-no-spreading': 'off',
-      'max-classes-per-file': ['error', 2],
-      'no-use-before-define': 'off',
-      '@typescript-eslint/no-use-before-define': ['error'],
-      'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
-    },
-    globals: {
-      browser: 'writable',
-    },
-    overrides: [
-      {
-        files: ['*.ts', '*.tsx'],
-        extends: [
-          'eslint:recommended',
-          'plugin:@typescript-eslint/recommended',
-          'airbnb',
-        ],
-        parser: '@typescript-eslint/parser',
-        plugins: ['@typescript-eslint'],
-      },
-    ],
+  rules: {
+    'no-underscore-dangle': 0,
+    'import/extensions': [2, 'never'],
+    'import/no-absolute-path': 0,
+    'import/no-unresolved': 0,
+    'import/no-extraneous-dependencies': 1,
+    'react/prop-types': 1,
+    'jsx-a11y/no-access-key': 0,
+    'react/jsx-props-no-spreading': 'off',
+    'max-classes-per-file': ['error', 2],
   },
+  globals: {
+    browser: 'writable',
+  },
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'airbnb'],
+      parser: '@typescript-eslint/parser',
+      plugins: ['@typescript-eslint'],
+      rules: {
+        'no-use-before-define': 'off',
+        'import/no-absolute-path': 0,
+        'import/no-unresolved': 0,
+        'no-unused-vars': 0, // https://stackoverflow.com/a/63767419
+        'import/extensions': [2, 'never'],
+        'react/jsx-filename-extension': ['error', { extensions: ['.tsx', '.jsx'] }],
+        'max-len': [
+          'error',
+          {
+            code: 120, // Maximum line length (characters)
+            tabWidth: 2, // Number of spaces per tab
+            ignoreUrls: true, // Ignore long URLs
+            ignoreStrings: true, // Ignore long strings
+          },
+        ],
+      },
+    },
+  ],
 };

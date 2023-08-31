@@ -17,6 +17,7 @@ interface ChatMessageProps {
   lastSenderPreviousPage?: string | null;
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
+  type messageRef = {current: useRef<HTMLDivElement | null>(null)};
 }
 
 const enum MessageType {
@@ -62,9 +63,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   markMessageAsSeen,
 }) => {
   const intl = useIntl();
-  const messageRef = useRef<HTMLDivElement | null>(null);
   const markMessageAsSeenOnScrollEnd = useCallback((message: Message,
-    messageRef: { current: HTMLDivElement | null; }) => {
+    messageRef: { current }) => {
     if (messageRef.current && isInViewport(messageRef.current)) {
       markMessageAsSeen(message);
     }

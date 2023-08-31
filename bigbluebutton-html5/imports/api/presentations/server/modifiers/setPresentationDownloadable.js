@@ -3,11 +3,12 @@ import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
 
 export default async function setPresentationDownloadable(meetingId, podId,
-  presentationId, downloadable) {
+  presentationId, downloadable, extensionToBeDownloadable) {
   check(meetingId, String);
   check(presentationId, String);
   check(podId, String);
   check(downloadable, Boolean);
+  check(extensionToBeDownloadable, String);
 
   const selector = {
     meetingId,
@@ -15,9 +16,14 @@ export default async function setPresentationDownloadable(meetingId, podId,
     id: presentationId,
   };
 
+  let downloadableExtension = extensionToBeDownloadable;
+  if (!downloadable) {
+    downloadableExtension = '';
+  }
   const modifier = {
     $set: {
       downloadable,
+      downloadableExtension,
     },
   };
 

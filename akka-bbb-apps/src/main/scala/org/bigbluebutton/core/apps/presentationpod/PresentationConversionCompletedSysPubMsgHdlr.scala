@@ -34,6 +34,8 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         msg.body.code,
         presVO,
       )
+
+      val originalDownloadableExtension = pres.name.split("\\.").last
       PresentationSender.broadcastSetPresentationDownloadableEvtMsg(
         bus,
         meetingId,
@@ -41,7 +43,8 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         msg.header.userId,
         pres.id,
         pres.downloadable,
-        pres.name
+        pres.name,
+        originalDownloadableExtension
       )
 
       val presWithConvertedName = PresentationInPod(pres.id, pres.name, pres.current, pres.pages,

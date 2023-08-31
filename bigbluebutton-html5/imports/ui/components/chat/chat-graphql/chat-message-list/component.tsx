@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Meteor } from 'meteor/meteor';
-import { makeVar, useMutation } from '@apollo/client';
-import { defineMessages, useIntl } from 'react-intl';
-import { LAST_SEEN_MUTATION } from './queries';
+import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { Meteor } from "meteor/meteor";
+import { makeVar, useMutation } from "@apollo/client";
+import { LAST_SEEN_MUTATION } from "./queries";
 import {
   ButtonLoadMore,
   MessageList,
@@ -30,13 +29,18 @@ const intlMessages = defineMessages({
     id: 'app.chat.loadMoreButtonLabel',
     description: 'Label for load more button',
   },
+  moreMessages: {
+    id: 'app.chat.moreMessages',
+    description: 'Chat message when the user has unread messages below the scroll',
+  },
 });
 
 interface ChatListProps {
   totalPages: number;
   chatId: string;
   currentUserId: string;
-  setMessageAsSeenMutation: (variables: any) => void;
+  setMessageAsSeenMutation: (variables: {chatId: string,
+        lastSeenAt: number}) => void;
   totalUnread?: number;
   lastSeenAt: number;
 }
@@ -97,15 +101,18 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   chatId,
   setMessageAsSeenMutation,
   lastSeenAt,
+  totalUnread,
 }) => {
   const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
+  const messagesEndRef = React.useRef<HTMLDivElement>();
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedTime, setLastMessageCreatedTime] = useState<number>(0);
   const [followingTail, setFollowingTail] = React.useState(true);
+
   useEffect(() => {
     setter({
       ...setter(),
@@ -167,6 +174,24 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
+  const renderUnreadNotification = useMemo(() => {
+    if (totalUnread && !followingTail) {
+      return (
+        <UnreadButton
+          aria-hidden="true"
+          color="primary"
+          size="sm"
+          key="unread-messages"
+          label={intl.formatMessage(intlMessages.moreMessages)}
+          onClick={() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+          }}
+        />
+      );
+    }
+    return null;
+  }, [totalUnread, followingTail]);
+
   useEffect(() => {
     const setScrollToTailEventHandler = () => {
       if (scrollObserver && contentRef.current) {
@@ -209,33 +234,37 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     ? userLoadedBackUntilPage : Math.max(totalPages - 2, 0);
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
   return (
-    <MessageListWrapper>
-      <MessageList
-        ref={messageListRef}
-        onWheel={(e) => {
-          if (e.deltaY < 0) {
-            if (isElement(contentRef.current) && followingTail) {
-              toggleFollowingTail(false)
+    [
+      <MessageListWrapper>
+        <MessageList
+          ref={messageListRef}
+          onWheel={(e) => {
+            if (e.deltaY < 0) {
+              if (isElement(contentRef.current) && followingTail) {
+                toggleFollowingTail(false)
+              }
+            } else if (e.deltaY > 0) {
+              setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
             }
-          } else if (e.deltaY > 0) {
+          }}
+          onMouseUp={() => {
             setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
-          }
-        }}
-        onMouseUp={() => {
-          setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
-        }}
-        onTouchEnd={() => {
-          setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
-        }}
-      >
-        <span>
-          {
-            (userLoadedBackUntilPage)
-              ? (
-                <ButtonLoadMore
-                  onClick={() => {
-                    if (followingTail) {
-                      toggleFollowingTail(false);
+          }}
+          onTouchEnd={() => {
+            setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
+          }}
+        >
+          <span>
+            {
+              (userLoadedBackUntilPage)
+                ? (
+                  <ButtonLoadMore
+                    onClick={() => {
+                      if (followingTail) {
+                        toggleFollowingTail(false);
+                      }
+                      setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
+                    }
                     }
                     setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
                   }
@@ -250,7 +279,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           <ChatPopupContainer />
           {
             // @ts-ignore
-            Array.from({ length: pagesToLoad }, (_v, k) => k + firstPageToLoad).map((page) => {
+            Array.from({ length: pagesToLoad }, (v, k) => k + firstPageToLoad).map((page) => {
               return (
                 <ChatListPage
                   key={`page-${page}`}
@@ -266,7 +295,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               )
             })
           }
-        </div>
+        </di>
       </MessageList>
     </MessageListWrapper >
   );
