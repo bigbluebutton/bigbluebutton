@@ -102,6 +102,7 @@ jobs:
   install-and-run-tests:
     needs: build-package
     runs-on: ubuntu-20.04
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
