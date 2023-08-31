@@ -6,13 +6,13 @@ import ListItem from './list-item/component';
 import Skeleton from './list-item/skeleton/component';
 import UserActions from './user-actions/component';
 import {
-  USERS_SUBSCRIPTION,
   MEETING_PERMISSIONS_SUBSCRIPTION,
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
 } from './queries';
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
 import { debounce } from 'radash';
+import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users.ts';
 
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
@@ -108,7 +108,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
   const [limit, setLimit] = React.useState(0);
 
-  const { data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
+  const { data: usersData } = useSubscription(USER_LIST_SUBSCRIPTION, {
     variables: {
       offset,
       limit,

@@ -2,8 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { useSubscription } from '@apollo/client';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { USERS_SUBSCRIPTION } from
-  '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/queries';
+import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users.ts';
 
 const LoadedUserListHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
@@ -13,7 +12,7 @@ const LoadedUserListHookContainer = () => {
     limit,
   } = userListGraphqlVariables;
 
-  const { data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
+  const { data: usersData } = useSubscription(USER_LIST_SUBSCRIPTION, {
     variables: {
       offset,
       limit,
