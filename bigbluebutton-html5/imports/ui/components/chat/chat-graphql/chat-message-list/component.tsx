@@ -16,6 +16,7 @@ import { Message } from '/imports/ui/Types/message';
 import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import ChatPopupContainer from '../chat-popup/component';
+import { defineMessages, useIntl } from "react-intl";
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -266,9 +267,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                       setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
                     }
                     }
-                    setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
-                  }
-                  }
                 >
                   {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
                 </ButtonLoadMore>
@@ -295,7 +293,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               )
             })
           }
-        </di>
+        </div>
       </MessageList>
     </MessageListWrapper >
   );
