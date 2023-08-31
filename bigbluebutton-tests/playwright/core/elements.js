@@ -265,6 +265,8 @@ exports.answerE = 'div[data-test="numberOfVotes"]>>nth=4';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
+exports.presentationPPTX = 'BBB.pptx';
+exports.presentationTXT = 'helloWorld.txt';
 exports.presentationPlaceholderLabel = 'There is no currently active presentation';
 exports.noPresentationLabel = 'There is no currently active presentation';
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
@@ -370,7 +372,8 @@ exports.error403removedLabel = 'You have been removed from the meeting';
 exports.removeUser = 'li[data-test="removeUser"]';
 exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]';
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
-exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
+exports.userBannedMessage1 = 'div[id="app"] >> div >> div:nth-child(1)';
+exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
@@ -472,6 +475,12 @@ exports.wbColorRed = 'button[id="TD-Styles-Color-Swatch-red"]';
 exports.wbFillDrawing = 'button[id="TD-Styles-Fill"]';
 exports.wbDashDotted = 'div[id="TD-Styles-Dash-dotted"]';
 exports.wbSizeLarge = 'div[id="TD-Styles-Dash-large"]';
+exports.wbOptions = 'button[id="TD-Tools-Dots"]';
+exports.wbDuplicate = 'span[id="TD-Tools-Copy"]';
+exports.wbRotate = 'span[id="TD-Tools-Rotate"]';
+exports.wbMoveBackward = 'span[id="TD-Tools-ArrowDown"]';
+exports.wbMoveForward = 'span[id="TD-Tools-ArrowUp"]';
+exports.wbMoveToFront = 'span[id="TD-Tools-PinTop"]';
 exports.wbPaste = 'button[id="TD-ContextMenu-Paste"]';
 
 // About modal
@@ -480,7 +489,7 @@ exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
 
 // Help button
 exports.helpButton = 'li[data-test="helpButton"]';
-exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'
+exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton';
 
 // Dark mode
 exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';

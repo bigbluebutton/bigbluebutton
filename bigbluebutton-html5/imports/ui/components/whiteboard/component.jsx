@@ -448,9 +448,10 @@ export default function Whiteboard(props) {
   }, [tldrawAPI?.getPageState()?.camera, presentationWidth, presentationHeight]);
 
   React.useEffect(() => {
-    if (isPresenter && slidePosition) {
-      const currentZoom = calculateZoom(slidePosition?.viewBoxWidth, slidePosition?.viewBoxHeight);
-      tldrawAPI?.setCamera([slidePosition?.x, slidePosition?.y], currentZoom);
+    if (isPresenter && slidePosition && tldrawAPI) {
+      const camera = tldrawAPI?.getPageState()?.camera;
+      const newZoom = calculateZoom(slidePosition?.viewBoxWidth, slidePosition?.viewBoxHeight);
+      tldrawAPI?.setCamera([camera?.point[0], camera?.point[1]], newZoom);
     }
   }, [slidePosition?.viewBoxWidth, slidePosition?.viewBoxHeight]);
 
@@ -762,7 +763,7 @@ export default function Whiteboard(props) {
 
       if (camera.point[0] === 0 && camera.point[1] === 0) {
         const newZoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
-        e?.setCamera([slidePosition.x, slidePosition.y], newZoom);
+        e?.setCamera([camera.point[0], camera.point[1]], newZoom);
       }
 
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);

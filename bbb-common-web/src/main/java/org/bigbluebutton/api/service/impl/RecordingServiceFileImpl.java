@@ -78,7 +78,7 @@ public class RecordingServiceFileImpl implements RecordingService {
     public void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg) {
         try {
             File presDir = Util.getPresentationDir(presentationBaseDir, msg.meetingId, msg.presId);
-            Util.makePresentationDownloadable(presDir, msg.presId, msg.downloadable);
+            Util.makePresentationDownloadable(presDir, msg.presId, msg.downloadable, msg.downloadableExtension);
         } catch (IOException e) {
             log.error("Failed to make presentation downloadable: {}", e);
         }
@@ -96,7 +96,7 @@ public class RecordingServiceFileImpl implements RecordingService {
 
         String presFilenameExt = FilenameUtils.getExtension(presFilename);
         File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
-        File downloadMarker = Util.getPresFileDownloadMarker(presDir, presId);
+        File downloadMarker = Util.getPresFileDownloadMarker(presDir, presId, presFilenameExt);
         if (presDir != null && downloadMarker != null && downloadMarker.exists()) {
             String safePresFilename = presId.concat(".").concat(presFilenameExt);
             File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + safePresFilename);

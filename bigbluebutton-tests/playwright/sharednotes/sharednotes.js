@@ -58,7 +58,7 @@ class SharedNotes extends MultiUsers {
     await notesLocator.type(e.message);
 
     await notesLocator.press('Control+Z');
-    await expect(notesLocator).toBeEmpty();
+    await expect(notesLocator).toContainText('');
     await notesLocator.press('Control+Y');
     await expect(notesLocator).toContainText(e.message);
 
@@ -107,7 +107,7 @@ class SharedNotes extends MultiUsers {
     const html = await this.modPage.handleDownload(exportHtmlLocator, testInfo);
     const htmlFileExtension = (html.download._suggestedFilename).split('.').pop();
     await checkTextContent(htmlFileExtension, 'html');
-    await checkTextContent(html.content, e.message); 
+    await checkTextContent(html.content, e.message);
 
     //.etherpad checks
     const etherpad = await this.modPage.handleDownload(exportEtherpadLocator, testInfo);

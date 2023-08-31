@@ -80,14 +80,35 @@ const _trackStreamTermination = (stream, handler) => {
   if (typeof stream !== 'object' || typeof handler !== 'function') {
     throw new TypeError('Invalid trackStreamTermination arguments');
   }
+  let _handler = handler;
 
-  if (stream.oninactive === null) {
+  // Dirty, but effective way of checking whether the browser supports the 'inactive'
+  // event. If the oninactive interface is null, it can be overridden === supported.
+  // If undefined, it's not; so we fallback to the track 'ended' event.
+  // The track ended listener should probably be reviewed once we create
+  // thin wrapper classes for MediaStreamTracks as well, because we'll want a single
+  // media stream holding multiple tracks in the future
+  if (stream.oninactive !== undefined) {
+    if (typeof stream.oninactive === 'function') {
+      const oldHandler = stream.oninactive;
+      _handler = () => {
+        oldHandler();
+        handler();
+      };
+    }
     stream.addEventListener('inactive', handler, { once: true });
   } else {
     const track = MediaStreamUtils.getVideoTracks(stream)[0];
     if (track) {
       track.addEventListener('ended', handler, { once: true });
-      track.onended = handler;
+      if (typeof track.onended === 'function') {
+        const oldHandler = track.onended;
+        _handler = () => {
+          oldHandler();
+          handler();
+        };
+      }
+      track.onended = _handler;
     }
   }
 };

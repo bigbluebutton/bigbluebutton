@@ -43,7 +43,9 @@ test.describe.parallel('Webcam', () => {
   });
 
   test.describe('Webcam background', () => {
-    test('Select one of the default backgrounds @ci', async ({ browser, page }) => {
+    /* this test has the flaky tag because it is breaking due to a default video from chrome that
+    is overlapping the virtual background. */
+    test('Select one of the default backgrounds @ci @flaky', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.applyBackground();
