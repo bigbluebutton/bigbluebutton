@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { makeVar, useMutation } from '@apollo/client';
+import { makear, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { LAST_SEEN_MUTATION } from './queries';
 import {
@@ -36,7 +36,8 @@ interface ChatListProps {
   totalPages: number;
   chatId: string;
   currentUserId: string;
-  setMessageAsSeenMutation: (variables: any) => void;
+  setMessageAsSeenMutation: (variables: {chatId: string,
+        lastSeenAt: number}) => void;
   totalUnread?: number;
   lastSeenAt: number;
 }
@@ -250,7 +251,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           <ChatPopupContainer />
           {
             // @ts-ignore
-            Array.from({ length: pagesToLoad }, (_v, k) => k + firstPageToLoad).map((page) => {
+            Array.from({ length: pagesToLoad }, (v, k) => k + firstPageToLoad).map((page) => {
               return (
                 <ChatListPage
                   key={`page-${page}`}
@@ -266,7 +267,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               )
             })
           }
-        </div>
+        </di>
       </MessageList>
     </MessageListWrapper >
   );
