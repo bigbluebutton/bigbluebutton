@@ -16,6 +16,7 @@ import { Chat } from '/imports/ui/Types/chat';
 import { Message } from '/imports/ui/Types/message';
 import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
+import { Layout } from '/imports/ui/Types/layout';
 import ChatPopupContainer from '../chat-popup/component';
 
 // @ts-ignore - temporary, while meteor exists in the project
@@ -302,8 +303,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   );
 }
 
-const ChatMessageListContainer: React.FC = ({ }) => {
-  const idChatOpen = layoutSelect((i: { idChatOpen: any; }) => i.idChatOpen);
+const ChatMessageListContainer: React.FC<Layout> = ({ }) => {
+  const idChatOpen = layoutSelect((i: idChatOpen) => i.idChatOpen);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
   const currentChat = useChat((chat) => {
