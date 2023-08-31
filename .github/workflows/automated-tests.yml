@@ -106,7 +106,6 @@ jobs:
   install-and-run-tests:
     needs: build-package
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -251,6 +250,7 @@ jobs:
           apt --purge -y remove apache2-bin
           '
       - name: Install BBB
+        timeout-minutes: 15
         run: |
           sudo -i <<EOF
           set -e
