@@ -39,7 +39,7 @@ You can re-enable viewing your own webcam at any point.
 
 #### Restore downloading of original presentation
 
-In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you are be able to do both!
+In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you are be able to do both! In fact, you could select between the presentation with the current state of the annotations, the original file that was uploaded, or in case BigBlueButton had to convert the presentation file to PDF, you could also select that intermediate PDF file to be downloaded.
 
 ![You can enable original presentation downloading from the upload dialog](/img/27-enable-download-orig-presentation.png)
 
@@ -60,6 +60,12 @@ Setting up a timer for four minutes.
 Everyone sees the timer as it counts down.
 
 ![Everyone seeing 4 minutes timer](/img/27-timer-4mins.png)
+
+#### Wake lock
+
+When using BigBlueButton on a mobile device you can now enable Wake lock (if your mobile browser supports the API). When enabled, your device's screen will remain on -- i.e. will not dim -- and therefore your media connections will not be interrupted.
+
+![Enable Wake lock from the Settings modal](/img/27-enable-wake-lock.png)
 
 
 ### Engagement
@@ -136,6 +142,7 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.2)
 - [2.7.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.1)
 - [2.7.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.3)
 - [2.7.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.2)
