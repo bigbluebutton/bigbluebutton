@@ -257,6 +257,34 @@ In case you are overriding the file/filename, please pass `beans.presentationSer
 
 We introduced this configuration as a safeguard against people deliberately trying to deteriorate others' experience. In some cases the default limit could be reached in normal use of the whiteboard (small letter handwriting while zoomed in, etc). We have exposed this value in the configurations file for bbb-html5. You can find more info in the [customization presentation section](https://docs.bigbluebutton.org/administration/customize#change-the-limit-of-300-annotations-per-page) .
 
+#### NodeJS upgrade introduced in BigBlueButton 2.6.14 (backport from BBB 2.7)
+
+Up to BigBlueButton 2.6.12 we were using NodeJS v16 from the system (and were installing version v16 in bbb-install-26.sh). Given that NodeJS v16 will no longer be maintained starting September 11, 2023, we have backported support for NodeJS v18 and are modifying bbb-install-2.6.sh to install this newer version too. However, for existing BigBlueButton servers this was not sufficient to guarantee the use of version v18, so we also included this requirement in the packages of `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-pads`, `bbb-etherpad`, `bbb-webhooks`.
+Note that `bbb-html5` package uses a custom version of NodeJS included in BBB's packaging (version 14.21.x with extended support for ~8 more months provided by Meteor.js)
+
+At time of installing BigBlueButton 2.6.14 (over 2.6.12 or earlier), unless you have already handled the transition to NodeJS v18 you will see the following:
+
+```
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ bbb-export-annotations : Depends: nodejs (>= 18)
+E: Unable to correct problems, you have held broken packages.
+```
+
+In that case, please remove NodeJS v16 from the server and install NodeJS to v18. You can see what we do in bbb-install-2.6.sh: https://github.com/bigbluebutton/bbb-install/blob/c31e9ee34ed05fb2804d932d3aa291e3af7dc65c/bbb-install-2.6.sh#L294-L304
+
+Also check the official docs for managing NodeJS installations https://github.com/nodesource/distributions#installation-instructions
+
+#### Java upgrade introduced in BigBlueButton 2.6.14 (backport from BBB 2.7)
+
+Up to BigBlueButton 2.6.12 we were using Java 11 (and were installing version 16 in bbb-install-26.sh) for several of the core components. Given that the LTS premium support ends in September 2023, we have backported support for Java 17 LTS and are modifying bbb-install-2.6.sh to install this newer version too.
+Whether you upgrade to BigBlueButton 2.6.14+ via bbb-install-2.6.sh or just through packages, the upgrade should go smoothly. No extra steps are required.
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 2.6](/development/guide).
