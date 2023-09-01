@@ -93,7 +93,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
    const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser
 
-  return <Styled.UserItemContents>
+  return <Styled.UserItemContents id='user'>
   <Styled.Avatar
     moderator={user.role === ROLE_MODERATOR}
     presenter={user.presenter}
