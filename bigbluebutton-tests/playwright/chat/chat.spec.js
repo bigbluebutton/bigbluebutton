@@ -18,7 +18,7 @@ test.describe.serial('Chat', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#private-message-automated
-  test('Send private message @ci @flaky', async () => {
+  test.only('Send private message @ci', async () => {
     await chat.sendPrivateMessage();
   });
 
@@ -30,7 +30,7 @@ test.describe.serial('Chat', () => {
     await chat.copyChat(context);
   });
 
-  test.only('Save chat @ci', async ({}, testInfo) => {
+  test('Save chat @ci @flaky', async ({}, testInfo) => {
     await chat.saveChat(testInfo);
   });
 
@@ -39,7 +39,7 @@ test.describe.serial('Chat', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#sending-empty-chat-message-automated
-  test('Not able to send an empty message @ci @flaky', async () => {
+  test.only('Not able to send an empty message @ci', async () => {
     await chat.emptyMessage();
   });
 
@@ -57,7 +57,7 @@ test.describe.serial('Chat', () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat @ci @flaky', async () => {
+  test.only('Close private chat @ci', async () => {
     await chat.closePrivateChat();
   });
 
@@ -85,7 +85,7 @@ test.describe.serial('Chat', () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  test('Private chat disabled when user leaves meeting @ci @flaky', async () => {
+  test.only('Private chat disabled when user leaves meeting @ci', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

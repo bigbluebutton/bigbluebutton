@@ -15,11 +15,11 @@ class Chat extends MultiUsers {
 
   async sendPublicMessage() {
     await openPublicChat(this.modPage);
-    await this.modPage.checkElementCount("div[id='chatWrapper']", 0);
+    await this.modPage.checkElementCount(e.chatUserMessageText, 0);
 
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.checkElementCount("div[id='chatWrapper']", 1);
+    await this.modPage.checkElementCount(e.chatUserMessageText, 1);
   }
 
   async sendPrivateMessage() {
@@ -53,15 +53,15 @@ class Chat extends MultiUsers {
 
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.waitForSelector("div[id='chatWrapper']");
+    await this.modPage.waitForSelector(e.chatUserMessageText);
 
     // 1 message
-    await this.modPage.checkElementCount("div[id='chatWrapper']", userMessageTextCount + 1);
+    await this.modPage.checkElementCount(e.chatUserMessageText, userMessageTextCount + 1);
 
     // clear
     await this.modPage.waitAndClick(e.chatOptions);
     await this.modPage.waitAndClick(e.chatClear);
-    const clearMessage = this.modPage.getLocator("div[id='chatWrapper']>>nth=1");
+    const clearMessage = this.modPage.getLocator(e.chatClearMessageText);
     await expect(clearMessage).toBeVisible();
 
   }
@@ -92,7 +92,7 @@ class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.waitForSelector("div[id='chatWrapper']");
+    await this.modPage.waitForSelector(e.chatUserMessageText);
     await this.modPage.waitAndClick(e.chatOptions);
     const chatSaveLocator = this.modPage.getLocator(e.chatSave);
     const { content } = await this.modPage.handleDownload(chatSaveLocator, testInfo);
@@ -341,8 +341,8 @@ class Chat extends MultiUsers {
     await this.modPage.waitForSelector(e.sendButton);
     await this.userPage.waitAndClick(e.optionsButton);
     await this.userPage.waitAndClick(e.logout);
-    await this.modPage.hasElementDisabled(e.chatBox);
-    await this.modPage.hasElementDisabled(e.sendButton);
+    await this.modPage.hasElement(e.partnerDisconnectedMessage, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.sendButton);
   }  
 }
 
