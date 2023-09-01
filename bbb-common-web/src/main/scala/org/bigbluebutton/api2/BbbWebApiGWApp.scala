@@ -27,7 +27,7 @@ class BbbWebApiGWApp(
 
   implicit val system = ActorSystem("bbb-web-common")
 
-  implicit val timeout = akka.util.Timeout(3 seconds)
+  implicit val timeout = org.apache.pekko.util.Timeout(3 seconds)
 
   val log = Logging(system, getClass)
 
