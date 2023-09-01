@@ -18,6 +18,7 @@ export const GET_GUEST_WAITING_USERS_SUBSCRIPTION = gql`
       guestLobbyMessage
       isAllowed
       isDenied
+      userId
       user {
         authed
         userId
