@@ -22,7 +22,7 @@ object AppsRedisSubscriberActor {
       channelsToSubscribe,
       patternsToSubscribe,
       forwardMsgToChannel
-    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+    ).withDispatcher("pekko.redis-subscriber-worker-dispatcher")
 }
 
 class AppsRedisSubscriberActor(

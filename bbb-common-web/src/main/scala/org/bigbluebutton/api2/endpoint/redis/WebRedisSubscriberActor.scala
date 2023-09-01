@@ -32,7 +32,7 @@ object WebRedisSubscriberActor {
       patternsToSubscribe,
       forwardMsgToChannel,
       oldJsonChannel
-    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+    ).withDispatcher("pekko.redis-subscriber-worker-dispatcher")
 }
 
 class WebRedisSubscriberActor(
