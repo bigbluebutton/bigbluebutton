@@ -7,6 +7,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
+import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 
 export const MessageListWrapper = styled.div`
   height: 100%;
@@ -54,7 +55,16 @@ export const ButtonLoadMore = styled.button`
   border: 1px ridge ${colorGrayDark};
 `;
 
+export const UnreadButton = styled(ButtonElipsis)`
+  flex-shrink: 0;
+  width: 100%;
+  text-transform: uppercase;
+  margin-bottom: .25rem;
+  z-index: 3;
+`;
+
 export default {
   MessageListWrapper,
   MessageList,
+  UnreadButton,
 };

@@ -27,6 +27,7 @@ sudo -u postgres psql -U postgres -d bbb_graphql -a -f bbb_schema.sql --set ON_E
 if [ "$hasura_status" = "active" ]; then
   echo "Starting Hasura"
   sudo systemctl start bbb-graphql-server
+  sleep 2
 fi
 if [ "$akka_apps_status" = "active" ]; then
   echo "Starting Akka-apps"
@@ -34,4 +35,4 @@ if [ "$akka_apps_status" = "active" ]; then
 fi
 
 echo "Applying new metadata to Hasura"
-/usr/local/bin/hasura/hasura metadata apply
+hasura metadata apply

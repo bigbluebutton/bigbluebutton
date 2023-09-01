@@ -150,11 +150,13 @@ class App extends Component {
       isAudioModalOpen: false,
       isRandomUserSelectModalOpen: false,
       isVideoPreviewModalOpen: false,
+      presentationFitToWidth: false,
     };
 
     this.isTimerEnabled = TimerService.isEnabled();
     this.timeOffsetInterval = null;
 
+    this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
@@ -328,6 +330,10 @@ class App extends Component {
     if (this.timeOffsetInterval) {
       clearInterval(this.timeOffsetInterval);
     }
+  }
+
+  setPresentationFitToWidth(presentationFitToWidth) {
+    this.setState({ presentationFitToWidth });
   }
 
   handleWindowResize() {

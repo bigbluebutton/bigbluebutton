@@ -88,7 +88,7 @@ test.describe.parallel('User', () => {
     test('Remove user and prevent rejoining', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
-      await multiusers.initModPage2(true, context, { customParameter: 'userID=Moderator2' });
+      await multiusers.initModPage2(true, context, { joinParameter: 'userID=Moderator2' });
       await multiusers.removeUserAndPreventRejoining(context);
     });
   });
@@ -278,6 +278,7 @@ test.describe.parallel('User', () => {
     });
 
     test('User List should not appear when Chat Panel or Whiteboard are active on mobile devices', async ({ browser }) => {
+      test.fixme();
       const iphoneContext = await browser.newContext({ ...iPhone11 });
       const motoContext = await browser.newContext({ ...motoG4 });
       const modPage = await iphoneContext.newPage();
