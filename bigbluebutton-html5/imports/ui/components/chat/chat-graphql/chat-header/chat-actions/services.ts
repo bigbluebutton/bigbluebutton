@@ -1,25 +1,50 @@
 import { Message } from "/imports/ui/Types/message";
 import { makeCall } from "/imports/ui/services/api";
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
+import { defineMessages } from 'react-intl';
+
+const enum MessageType {
+  TEXT = 'default',
+  POLL = 'poll',
+  PRESENTATION = 'presentation',
+  CHAT_CLEAR = 'publicChatHistoryCleared'
+}
+
+const intlMessages = defineMessages({
+  chatClear: {
+    id: 'app.chat.clearPublicChatMessage',
+    description: 'message of when clear the public chat',
+  },
+});
 
 export const htmlDecode = (input: string) => {
   const replacedBRs = input.replaceAll('<br/>', '\n');
   return unescapeHtml(stripTags(replacedBRs));
 };
 
-export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: {welcomeMsg: string, welcomeMsgForModerators: string | null} ): string  => {
+export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: {welcomeMsg: string, welcomeMsgForModerators: string | null}, intl ): string  => {
   const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
   const modOnlyMessage = welcomeSettings.welcomeMsgForModerators && htmlDecode(welcomeSettings.welcomeMsgForModerators);
   const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}`: ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}`: ''}\n`
-  
+
   const text = messages.reduce((acc, message) => {
     const date = new Date(message.createdTime);
     const hour = date.getHours().toString().padStart(2, '0');
     const min = date.getMinutes().toString().padStart(2, '0');
     const hourMin = `[${hour}:${min}]`;
-    const userName = message.user.name;
-    const messageText = htmlDecode(message.message);
-    return `${acc}${hourMin} [${userName} : ${message.user.role}]: ${messageText}\n`;
+    const userName = message.user ? `[${message.user.name} : ${message.user.role}]: ` : '';
+    let messageText = '';
+
+    switch (message.messageType) {
+      case MessageType.CHAT_CLEAR:
+        messageText = intl.formatMessage(intlMessages.chatClear);
+        break;
+      case MessageType.TEXT:
+      default:
+        messageText = htmlDecode(message.message);
+        break;
+    }
+    return `${acc}${hourMin} ${userName}${messageText}\n`;
   },welcomeMessage? systemMessages : '');
   return text;
 };

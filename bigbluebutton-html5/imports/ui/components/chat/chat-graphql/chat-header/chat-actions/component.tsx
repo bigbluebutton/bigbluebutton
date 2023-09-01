@@ -74,6 +74,7 @@ export const ChatActions: React.FC = () => {
       const exportedString = generateExportedMessages(
         dataHistory.chat_message_public,
         dataHistory.user_welcomeMsgs[0],
+        intl,
       );
       if (downloadOrCopyRef.current === 'download') {
         const link = document.createElement('a');
