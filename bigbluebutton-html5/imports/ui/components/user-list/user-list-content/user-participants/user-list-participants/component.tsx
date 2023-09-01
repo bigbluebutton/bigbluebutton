@@ -16,6 +16,8 @@ import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users.t
 
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 interface UserListParticipantsProps {
@@ -34,12 +36,14 @@ interface RowRendererProps extends ListProps {
   offset: number;
 }
 
-const rowRenderer: React.FC<RowRendererProps> = (users, currentUser, offset, meeting, { index, key, style }) => {
+const rowRenderer: React.FC<RowRendererProps> = (users, currentUser, offset, meeting, isRTL, { index, key, style }) => {
   const user = users && users[index - offset];
+  const direction = isRTL ? 'rtl' : 'ltr';
+
   return <div
     key={key}
     index={index}
-    style={style}
+    style={{...style, direction}}
   >
     {
       (user && currentUser && meeting)
@@ -69,6 +73,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   meeting,
   count,
 }) => {
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [previousUsersData, setPreviousUsersData] = React.useState(users);
   useEffect(() => {
     if (users?.length) {
@@ -82,7 +87,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           {({ width, height }) => {
             return (
               <Styled.VirtualizedList
-                rowRenderer={rowRenderer.bind(null, (users || previousUsersData), currentUser, offset, meeting)}
+                rowRenderer={rowRenderer.bind(null, (users || previousUsersData), currentUser, offset, meeting, isRTL)}
                 noRowRenderer={() => <div>no users</div>}
                 rowCount={count}
                 height={height - 1}
