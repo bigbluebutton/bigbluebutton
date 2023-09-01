@@ -11,7 +11,7 @@ import { clearPublicChatHistory, generateExportedMessages } from './services'
 import { getDateString } from '/imports/utils/string-utils';
 
 import { isEmpty } from 'ramda';
-import { ChatCommands, Commands } from '/imports/ui/core/enums/chat';
+import { ChatCommands } from '/imports/ui/core/enums/chat';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
