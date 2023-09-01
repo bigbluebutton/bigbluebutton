@@ -16,6 +16,8 @@ import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
 
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -33,7 +35,6 @@ interface RowRendererProps extends ListProps {
   offset: number;
   index: number;
 }
-
 const rowRenderer: React.FC<RowRendererProps> = ({
   index, key, style, users, currentUser, offset, meeting,
 }) => {
@@ -70,6 +71,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const validCurrentUser: Partial<User> | undefined = currentUser && currentUser.userId
     ? currentUser
     : undefined;
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [previousUsersData, setPreviousUsersData] = React.useState(users);
   useEffect(() => {
     if (users?.length) {

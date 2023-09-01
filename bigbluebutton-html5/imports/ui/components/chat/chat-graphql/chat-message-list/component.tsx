@@ -236,7 +236,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
   return (
     [
-      <MessageListWrapper>
+      <MessageListWrapper key="message-list-wrapper">
         <MessageList
           ref={messageListRef}
           onWheel={(e) => {

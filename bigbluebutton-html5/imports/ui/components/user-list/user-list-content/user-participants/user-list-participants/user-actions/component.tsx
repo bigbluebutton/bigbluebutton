@@ -24,6 +24,7 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
+import Styled from './styles';
 
 interface UserActionsProps {
   user: User;
@@ -376,7 +377,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     <BBBMenu
       trigger={
         (
-          <div
+          <Styled.UserActionsTrigger
             isActionsOpen={selected}
             selected={selected === true}
             tabIndex={-1}
@@ -389,7 +390,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             role="button"
           >
             {children}
-          </div>
+          </Styled.UserActionsTrigger>
         )
       }
       actions={actions}
