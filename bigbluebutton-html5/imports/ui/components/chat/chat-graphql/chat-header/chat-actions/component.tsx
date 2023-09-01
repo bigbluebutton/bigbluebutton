@@ -9,8 +9,9 @@ import { uid } from 'radash';
 import Button from '/imports/ui/components/common/button/component';
 import { clearPublicChatHistory, generateExportedMessages } from './services'
 import { getDateString } from '/imports/utils/string-utils';
-import Events from '/imports/ui/core/events/events';
+
 import { isEmpty } from 'ramda';
+import { ChatCommands, Commands } from '/imports/ui/core/enums/chat';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -144,7 +145,7 @@ export const ChatActions: React.FC = () => {
         dataTest: 'restoreWelcomeMessages',
         label: intl.formatMessage(intlMessages.showWelcomeMessage),
         onClick: () => {
-          const restoreWelcomeMessagesEvent = new CustomEvent(Events.RESTORE_WELCOME_MESSAGES);
+          const restoreWelcomeMessagesEvent = new CustomEvent(ChatCommands.RESTORE_WELCOME_MESSAGES);
           window.dispatchEvent(restoreWelcomeMessagesEvent);
         },
       },
