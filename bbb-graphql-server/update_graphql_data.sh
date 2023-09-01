@@ -35,4 +35,4 @@ if [ "$akka_apps_status" = "active" ]; then
 fi
 
 echo "Applying new metadata to Hasura"
-/usr/local/bin/hasura/hasura metadata apply
+hasura metadata apply
