@@ -2,13 +2,7 @@ import { Message } from "/imports/ui/Types/message";
 import { makeCall } from "/imports/ui/services/api";
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { defineMessages } from 'react-intl';
-
-const enum MessageType {
-  TEXT = 'default',
-  POLL = 'poll',
-  PRESENTATION = 'presentation',
-  CHAT_CLEAR = 'publicChatHistoryCleared'
-}
+import { ChatMessageType } from '/imports/ui/core/enums/chat';
 
 const intlMessages = defineMessages({
   chatClear: {
@@ -22,10 +16,10 @@ export const htmlDecode = (input: string) => {
   return unescapeHtml(stripTags(replacedBRs));
 };
 
-export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: {welcomeMsg: string, welcomeMsgForModerators: string | null}, intl ): string  => {
+export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: { welcomeMsg: string, welcomeMsgForModerators: string | null }, intl): string => {
   const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
   const modOnlyMessage = welcomeSettings.welcomeMsgForModerators && htmlDecode(welcomeSettings.welcomeMsgForModerators);
-  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}`: ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}`: ''}\n`
+  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}` : ''}\n`
 
   const text = messages.reduce((acc, message) => {
     const date = new Date(message.createdTime);
@@ -36,16 +30,16 @@ export const generateExportedMessages = (messages: Array<Message>, welcomeSettin
     let messageText = '';
 
     switch (message.messageType) {
-      case MessageType.CHAT_CLEAR:
+      case ChatMessageType.CHAT_CLEAR:
         messageText = intl.formatMessage(intlMessages.chatClear);
         break;
-      case MessageType.TEXT:
+      case ChatMessageType.TEXT:
       default:
         messageText = htmlDecode(message.message);
         break;
     }
     return `${acc}${hourMin} ${userName}${messageText}\n`;
-  },welcomeMessage? systemMessages : '');
+  }, welcomeMessage ? systemMessages : '');
   return text;
 };
 
@@ -59,7 +53,5 @@ export const getDateString = (date = new Date()) => {
   return dateString;
 };
 
-
 // TODO: Make action using mutations
 export const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
-
