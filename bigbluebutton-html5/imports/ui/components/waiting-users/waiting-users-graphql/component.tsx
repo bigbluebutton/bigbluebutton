@@ -398,7 +398,8 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
       authedGuestUsers={separateGuestUsersByAuthed.authed}
       unauthedGuestUsers={separateGuestUsersByAuthed.unauthed}
       guestLobbyMessage={currentMeeting?.usersPolicies?.guestLobbyMessage ?? null}
-      guestLobbyEnabled={currentMeeting?.usersPolicies?.guestPolicy === 'ASK_MODERATOR'}
+      guestLobbyEnabled={(currentMeeting?.usersPolicies?.guestPolicy === 'ASK_MODERATOR')
+      || !!(guestWaitingUsersData?.user_guest?.length)}
       layoutContextDispatch={layoutContextDispatch}
     />
   );
