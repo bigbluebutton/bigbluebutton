@@ -11,13 +11,13 @@ import {
 import { layoutSelect } from "../../../layout/context";
 import ChatListPage from "./page/component";
 import { defineMessages, useIntl } from "react-intl";
-import Events from "/imports/ui/core/events/events";
 import useChat from "/imports/ui/core/hooks/useChat";
 import { Chat } from "/imports/ui/Types/chat";
 import { Message } from "/imports/ui/Types/message";
 import { useCurrentUser } from "/imports/ui/core/hooks/useCurrentUser";
 import { User } from "/imports/ui/Types/user";
 import ChatPopupContainer from "../chat-popup/component";
+import { ChatEvents } from "/imports/ui/core/enums/chat";
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -204,10 +204,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       }
 
     };
-    window.addEventListener(Events.SENT_MESSAGE, setScrollToTailEventHandler);
+    window.addEventListener(ChatEvents.SENT_MESSAGE, setScrollToTailEventHandler);
 
     return () => {
-      window.removeEventListener(Events.SENT_MESSAGE, setScrollToTailEventHandler);
+      window.removeEventListener(ChatEvents.SENT_MESSAGE, setScrollToTailEventHandler);
     }
   }, [contentRef.current]);
 
