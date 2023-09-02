@@ -603,7 +603,7 @@
     "app.settings.dataSavingTab.screenShare": "Activar o uso compartido do escritorio doutros participantes",
     "app.settings.dataSavingTab.description": "Para aforrar largo de banda axuste o que se se está a amosar",
     "app.settings.save-notification.label": "Gardáronse os axustes",
-    "app.statusNotifier.lowerHands": "Mans baixadas",
+    "app.statusNotifier.lowerHands": "Baixar as mans",
     "app.statusNotifier.lowerHandDescOneUser": "Baixar a man de {0}",
     "app.statusNotifier.raisedHandsTitle": "Mans ergueitas",
     "app.statusNotifier.raisedHandDesc": "{0} ergueron as mans",
