@@ -44,5 +44,5 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --description "BigBlueButton Export Annotations" \
     $DIRECTORIES \
     $OPTS \
-    -d 'nodejs (>= 18)' -d 'yq (<< 20)'
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'
 
