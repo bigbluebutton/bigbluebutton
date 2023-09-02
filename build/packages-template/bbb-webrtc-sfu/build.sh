@@ -65,4 +65,4 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     $DIRECTORIES                                    \
     $OPTS                                           \
     -d 'yq (>= 3)' -d 'yq (<< 4)' \
-    -d 'nodejs (>= 18)' -d 'yq (<< 20)'
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'
