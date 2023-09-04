@@ -43,8 +43,7 @@ interface DropdownItem {
   tooltip: string | undefined;
   allowed: boolean | undefined;
   iconRight: string | undefined;
-  divider: boolean | undefined;
-  isOptionEmpty: boolean | undefined;
+  isSeparator: boolean | undefined;
   onClick: (() => void) | undefined;
 }
 
@@ -369,9 +368,8 @@ const UserActions: React.FC<UserActionsProps> = ({
       (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
     ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
       const returnValue: DropdownItem = {
-        isOptionEmpty: false,
+        isSeparator: false,
         key: userListDropdownItem.id,
-        divider: undefined,
         iconRight: undefined,
         onClick: undefined,
         label: undefined,
@@ -391,8 +389,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         }
         case PluginSdk.UserListDropdownItemType.SEPARATOR: {
           returnValue.allowed = true;
-          returnValue.divider = true;
-          returnValue.isOptionEmpty = true;
+          returnValue.isSeparator = true;
           break;
         }
         default:
