@@ -30,7 +30,7 @@ test.describe.serial('Chat', () => {
     await chat.copyChat(context);
   });
 
-  test('Save chat @ci @flaky', async ({}, testInfo) => {
+  test.only('Save chat @ci', async ({}, testInfo) => {
     await chat.saveChat(testInfo);
   });
 

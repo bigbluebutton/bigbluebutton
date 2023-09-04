@@ -49,7 +49,7 @@ class Chat extends MultiUsers {
   async clearChat() {
     await openPublicChat(this.modPage);
 
-    const userMessageTextCount = await this.modPage.getSelectorCount("div[id='chatWrapper']");
+    const userMessageTextCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
 
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
@@ -61,9 +61,7 @@ class Chat extends MultiUsers {
     // clear
     await this.modPage.waitAndClick(e.chatOptions);
     await this.modPage.waitAndClick(e.chatClear);
-    const clearMessage = this.modPage.getLocator(e.chatClearMessageText);
-    await expect(clearMessage).toBeVisible();
-
+    await this.modPage.hasText(e.chatUserMessageText, 'The public chat history was cleared by a moderator');
   }
 
   async copyChat(context) {
