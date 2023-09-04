@@ -221,7 +221,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
         onClick={changePolicy(rememberChoice, policy, action, message)}
         data-test={dataTest}
       />
-  ), []);
+  ), [rememberChoice]);
 
   useEffect(() => {
     if (!guestLobbyEnabled) {
