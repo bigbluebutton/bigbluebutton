@@ -20,6 +20,7 @@ query getChatMessageHistory {
   chat_message_public(order_by: {createdTime: asc}) {
     message
     messageId
+    messageType
     createdTime
     user {
       userId

@@ -108,23 +108,37 @@ const CaptionsButton = ({
 
   const shouldRenderChevron = isSupported && isVoiceUser;
 
-  const getAvailableLocales = () => (
-    availableVoices.map((availableVoice) => (
-      {
-        icon: '',
-        label: intl.formatMessage(intlMessages[availableVoice]),
-        key: availableVoice,
-        iconRight: selectedLocale.current === availableVoice ? 'check' : null,
-        customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
-        disabled: isTranscriptionDisabled(),
-        dividerTop: availableVoice === availableVoices[0],
-        onClick: () => {
-          selectedLocale.current = availableVoice;
-          SpeechService.setSpeechLocale(selectedLocale.current);
-        },
+  const getAvailableLocales = () => {
+    let indexToInsertSeparator = -1;
+    const availableVoicesObjectToMenu = availableVoices.map((availableVoice, index) => {
+      if (availableVoice === availableVoices[0]) {
+        indexToInsertSeparator = index;
       }
-    ))
-  );
+      return (
+        {
+          icon: '',
+          label: intl.formatMessage(intlMessages[availableVoice]),
+          key: availableVoice,
+          iconRight: selectedLocale.current === availableVoice ? 'check' : null,
+          customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
+          disabled: isTranscriptionDisabled(),
+          onClick: () => {
+            selectedLocale.current = availableVoice;
+            SpeechService.setSpeechLocale(selectedLocale.current);
+          },
+        }
+      );
+    });
+    if (indexToInsertSeparator >= 0) {
+      availableVoicesObjectToMenu.splice(indexToInsertSeparator, 0, {
+        key: 'separator-01',
+        isSeparator: true,
+      });
+    }
+    return [
+      ...availableVoicesObjectToMenu,
+    ];
+  };
 
   const toggleTranscription = () => {
     SpeechService.setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED);
@@ -136,7 +150,6 @@ const CaptionsButton = ({
       label: intl.formatMessage(intlMessages.language),
       customStyles: Styled.TitleLabel,
       disabled: true,
-      dividerTop: false,
     },
     ...getAvailableLocales(),
     {
@@ -144,7 +157,12 @@ const CaptionsButton = ({
       label: intl.formatMessage(intlMessages.transcription),
       customStyles: Styled.TitleLabel,
       disabled: true,
-    }, {
+    },
+    {
+      key: 'separator-02',
+      isSeparator: true,
+    },
+    {
       key: 'transcriptionStatus',
       label: intl.formatMessage(
         isTranscriptionDisabled()
@@ -154,7 +172,6 @@ const CaptionsButton = ({
       customStyles: isTranscriptionDisabled()
         ? Styled.EnableTrascription : Styled.DisableTrascription,
       disabled: false,
-      dividerTop: true,
       onClick: toggleTranscription,
     }]
   );

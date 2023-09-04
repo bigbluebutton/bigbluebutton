@@ -117,8 +117,7 @@ class BBBMenu extends React.Component {
         customStyles = { ...customStyles, ...a.customStyles };
       }
       return [
-        a.dividerTop && <Divider disabled />,
-        !a.isOptionEmpty ? (
+        !a.isSeparator && (
           <Styled.BBBMenuItem
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
@@ -143,8 +142,8 @@ class BBBMenu extends React.Component {
               {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuItem>
-        ) : null,
-        a.divider && <Divider disabled />
+        ),
+        a.isSeparator && <Divider disabled />
       ];
     }) ?? [];
   }
