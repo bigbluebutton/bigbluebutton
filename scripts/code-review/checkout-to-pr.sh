@@ -10,7 +10,7 @@ if ! command -v jq &> /dev/null; then
 fi
 
 # Check if both the PR number is provided
-if [ ! $# -gt 0 ]; then
+if [  $# -le 0 ]; then
     echo "Usage: $0 <PR_NUMBER>"
     exit 1
 fi
