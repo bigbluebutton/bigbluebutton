@@ -116,7 +116,6 @@ class BBBMenu extends React.Component {
       if (a.customStyles) {
         customStyles = { ...customStyles, ...a.customStyles };
       }
-
       return [
         !a.isSeparator && (
           <Styled.BBBMenuItem
