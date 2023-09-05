@@ -28,6 +28,7 @@ export interface EffectivePluginConfig extends PluginConfig {
 
 export interface PluginProvidedState {
     presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
+    userListDropdownItems: PluginSdk.UserListDropdownItem[];
 }
 
 /**
@@ -40,4 +41,12 @@ export interface PluginProvidedState {
  */
 export type PluginsProvidedStateMap = {
     [uuid: string]: PluginProvidedState;
+}
+
+export interface PluginProvidedStateChildrenProps {
+    uuid: string;
+    generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
+        item: T, index: number): T;
+    pluginProvidedStateMap: PluginsProvidedStateMap;
+    pluginApi: PluginSdk.PluginApi;
 }
