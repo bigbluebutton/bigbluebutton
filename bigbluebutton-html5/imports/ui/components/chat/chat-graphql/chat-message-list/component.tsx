@@ -17,6 +17,7 @@ import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import ChatPopupContainer from '../chat-popup/component';
 import { defineMessages, useIntl } from "react-intl";
+import { ChatEvents } from "/imports/ui/core/enums/chat";
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -204,10 +205,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       }
 
     };
-    window.addEventListener(Events.SENT_MESSAGE, setScrollToTailEventHandler);
+    window.addEventListener(ChatEvents.SENT_MESSAGE, setScrollToTailEventHandler);
 
     return () => {
-      window.removeEventListener(Events.SENT_MESSAGE, setScrollToTailEventHandler);
+      window.removeEventListener(ChatEvents.SENT_MESSAGE, setScrollToTailEventHandler);
     }
   }, [contentRef.current]);
 
@@ -236,7 +237,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
   return (
     [
-      <MessageListWrapper>
+      <MessageListWrapper key="message-list-wrapper">
         <MessageList
           ref={messageListRef}
           onWheel={(e) => {

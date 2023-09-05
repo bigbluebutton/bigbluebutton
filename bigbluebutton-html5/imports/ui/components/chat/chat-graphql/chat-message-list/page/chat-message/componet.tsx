@@ -9,7 +9,8 @@ import {
   ChatWrapper,
   ChatContent,
   ChatAvatar,
-} from './styles';
+} from "./styles";
+import { ChatMessageType } from '/imports/ui/core/enums/chat';
 
 interface ChatMessageProps {
   message: Message;
@@ -20,12 +21,6 @@ interface ChatMessageProps {
   type messageRef = {current: useRef<HTMLDivElement | null>(null)};
 }
 
-const enum MessageType {
-  TEXT = 'default',
-  POLL = 'poll',
-  PRESENTATION = 'presentation',
-  CHAT_CLEAR = 'publicChatHistoryCleared'
-}
 
 const intlMessages = defineMessages({
   pollResult: {
@@ -100,7 +95,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     component: React.ReactElement,
   } = useMemo(() => {
     switch (message.messageType) {
-      case MessageType.POLL:
+      case ChatMessageType.POLL:
         return {
           name: intl.formatMessage(intlMessages.pollResult),
           color: '#3B48A9',
@@ -109,7 +104,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             <ChatPollContent metadata={message.messageMetadata} />
           ),
         };
-      case MessageType.PRESENTATION:
+      case ChatMessageType.PRESENTATION:
         return {
           name: intl.formatMessage(intlMessages.presentationLabel),
           color: '#0F70D7',
@@ -118,7 +113,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             <ChatMessagePresentationContent metadata={message.messageMetadata} />
           ),
         };
-      case MessageType.CHAT_CLEAR:
+      case ChatMessageType.CHAT_CLEAR:
         return {
           name: intl.formatMessage(intlMessages.systemLabel),
           color: '#0F70D7',
@@ -130,7 +125,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             />
           ),
         };
-      case MessageType.TEXT:
+      case ChatMessageType.TEXT:
       default:
         return {
           name: message.user?.name,

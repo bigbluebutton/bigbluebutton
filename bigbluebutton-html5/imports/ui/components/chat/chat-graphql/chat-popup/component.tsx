@@ -3,9 +3,9 @@ import { PopupContainer, PopupContents } from './styles';
 import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
 import { useQuery } from '@apollo/client';
 import PopupContent from './popup-content/component';
-import Events from '/imports/ui/core/events/events';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
+import { ChatCommands } from '/imports/ui/core/enums/chat';
 
 interface ChatPopupProps {
   welcomeMessage?: string | null;
@@ -55,10 +55,10 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
         setWelcomeMsgsOnSession(WELCOME_MSG_FOR_MODERATORS_KEY, true);
       }
     };
-    window.addEventListener(Events.RESTORE_WELCOME_MESSAGES, eventCallback);
+    window.addEventListener(ChatCommands.RESTORE_WELCOME_MESSAGES, eventCallback);
 
     return () => {
-      removeEventListener(Events.RESTORE_WELCOME_MESSAGES, eventCallback);
+      removeEventListener(ChatCommands.RESTORE_WELCOME_MESSAGES, eventCallback);
     }
   }, []);
   if (!showWelcomeMessage && !showWelcomeMessageForModerators) return null;
