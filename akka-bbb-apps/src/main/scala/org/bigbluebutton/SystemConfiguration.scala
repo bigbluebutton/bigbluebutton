@@ -5,13 +5,12 @@ import com.typesafe.config.ConfigFactory
 import org.yaml.snakeyaml.{ LoaderOptions, Yaml }
 
 import java.io.{ File, FileInputStream }
-import java.util
-import scala.annotation.tailrec
-import scala.jdk.CollectionConverters.MapHasAsScala
-import java.util.LinkedHashMap
+import org.bigbluebutton.common2
 
 trait SystemConfiguration {
   val config = ConfigFactory.load()
+  private val options = new LoaderOptions()
+  private val yaml = new Yaml(options)
 
   lazy val bbbWebHost = Try(config.getString("services.bbbWebHost")).getOrElse("localhost")
   lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
@@ -85,47 +84,23 @@ trait SystemConfiguration {
   lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
 
   // Client configuration
-  lazy val clientConfigurationPath = Try(config.getBoolean("client.clientConfigurationPath")).getOrElse(
+  lazy val clientConfigurationPath = Try(config.getBoolean("client.clientConfigurationFilePath")).getOrElse(
     "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml"
   ).asInstanceOf[String]
-  lazy val clientConfigurationPathOverride = Try(config.getBoolean("client.clientConfigurationOverridePath")).getOrElse(
+  lazy val clientConfigurationPathOverride = Try(config.getBoolean("client.clientConfigurationOverrideFilePath")).getOrElse(
     "/etc/bigbluebutton/bbb-html5.yml"
   ).asInstanceOf[String]
 
-  private val options = new LoaderOptions()
-  private val yaml = new Yaml(options)
-
-  private val inputFileStream = new FileInputStream(new File(clientConfigurationPath))
-  private val inputFileStreamOverrideConfig = new FileInputStream(new File(clientConfigurationPathOverride))
-  val clientConfiguration: java.util.LinkedHashMap[String, Object] = yaml.load(inputFileStream)
-  val clientConfigOverride: java.util.LinkedHashMap[String, Object] = yaml.load(inputFileStreamOverrideConfig)
-
-  def mergeMaps(target: util.LinkedHashMap[String, Object], source: util.LinkedHashMap[String, Object]): Unit = {
-    val sourceIterator = source.entrySet().iterator()
-    while (sourceIterator.hasNext) {
-      val entry = sourceIterator.next()
-      val key = entry.getKey
-      val sourceValue = entry.getValue
-
-      if (target.containsKey(key)) {
-        val targetValue = target.get(key)
-
-        if (sourceValue.isInstanceOf[util.LinkedHashMap[_, _]] && targetValue.isInstanceOf[util.LinkedHashMap[_, _]]) {
-          // If both source and target values are LinkedHashMaps, recursively merge them.
-          mergeMaps(targetValue.asInstanceOf[util.LinkedHashMap[String, Object]], sourceValue.asInstanceOf[util.LinkedHashMap[String, Object]])
-        } else {
-          // If not, replace the target value with the source value.
-          target.put(key, sourceValue)
-        }
-      }
-    }
-  }
-
-  mergeMaps(
-    clientConfiguration, clientConfigOverride
-  )
+  private val inputFileStreamClientConfigFile = new FileInputStream(new File(clientConfigurationPath))
+  private val inputFileStreamClientConfigOverrideFile = new FileInputStream(new File(clientConfigurationPathOverride))
+  val clientConfigurationFromFile: java.util.LinkedHashMap[String, Object] = yaml.load(inputFileStreamClientConfigFile)
+  private val clientConfigurationFromOverrideFile: java.util.LinkedHashMap[String, Object] =
+    yaml.load(inputFileStreamClientConfigOverrideFile)
 
   // Overriding client configs:
+  common2.util.YamlUtil.mergeLinkedHashMap(
+    clientConfigurationFromFile, clientConfigurationFromOverrideFile
+  )
 
   // Grab the "interface" parameter from the http config
   val httpHost = config.getString("http.interface")
