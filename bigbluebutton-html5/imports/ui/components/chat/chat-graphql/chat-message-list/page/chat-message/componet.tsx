@@ -14,13 +14,11 @@ import { ChatMessageType } from '/imports/ui/core/enums/chat';
 
 interface ChatMessageProps {
   message: Message;
-  previousMessage?: Message;
-  lastSenderPreviousPage?: string | null;
+  previousMessage: Message;
+  lastSenderPreviousPage: string | null;
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
-  type messageRef = {current: useRef<HTMLDivElement | null>(null)};
 }
-
 
 const intlMessages = defineMessages({
   pollResult: {
@@ -45,30 +43,31 @@ function isInViewport(el: HTMLDivElement) {
   const rect = el.getBoundingClientRect();
 
   return (
-    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.bottom >= 0
+    rect.top <= (window.innerHeight || document.documentElement.clientHeight) && rect.bottom >= 0
   );
 }
 
+const messageRef = React.createRef<HTMLDivElement | null>();
+
 const ChatMesssage: React.FC<ChatMessageProps> = ({
-  message,
   previousMessage,
   lastSenderPreviousPage,
   scrollRef,
+  message,
   markMessageAsSeen,
 }) => {
   const intl = useIntl();
-  const markMessageAsSeenOnScrollEnd = useCallback((message: Message,
-    messageRef: { current }) => {
+  const markMessageAsSeenOnScrollEnd = useCallback(() => {
     if (messageRef.current && isInViewport(messageRef.current)) {
       markMessageAsSeen(message);
     }
-  }, []);
+  }, [message, messageRef]);
 
   useEffect(() => {
-    // I use a function here to remove the event listener using the same reference 
     const callbackFunction = () => {
-      markMessageAsSeenOnScrollEnd(message, messageRef);
+      if (messageRef.current && isInViewport(messageRef.current)) {
+        markMessageAsSeen(message); // Pass the 'message' argument here
+      }
     };
     if (message && scrollRef.current && messageRef.current) {
       if (isInViewport(messageRef.current)) {
@@ -78,10 +77,9 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       }
     }
     return () => {
-      scrollRef?.current
-        ?.removeEventListener('scrollend', callbackFunction);
+      scrollRef?.current?.removeEventListener('scrollend', callbackFunction);
     };
-  }, [message, messageRef]);
+  }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
 
   if (!message) return null;
 
