@@ -69,6 +69,8 @@ class Options extends MultiUsers {
       maxDiffPixels: 1000,
     };
 
+    await this.modPage.closeAllToastNotifications();
+
     await expect(modPageLocator).toHaveScreenshot('moderator-page-dark-mode.png', screenshotOptions);
     
     await openSettings(this.modPage);
@@ -86,6 +88,8 @@ class Options extends MultiUsers {
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
+
+    await this.modPage.closeAllToastNotifications();
 
     await expect(modPageLocator).toHaveScreenshot('moderator-page-font-size.png', screenshotOptions);
   }
