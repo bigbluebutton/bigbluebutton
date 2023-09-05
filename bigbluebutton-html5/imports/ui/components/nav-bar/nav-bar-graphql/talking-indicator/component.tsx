@@ -65,7 +65,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     const {
       talking,
       muted,
-      user: { color, speechLocale, userId } = {} as User,
+      user: { color, speechLocale, userId } = {} as Partial<User>,
     } = talkingUser;
 
     const name = talkingUser.user?.name;
