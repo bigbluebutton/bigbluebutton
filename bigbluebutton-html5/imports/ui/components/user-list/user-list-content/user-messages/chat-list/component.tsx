@@ -9,97 +9,96 @@ import Service from '/imports/ui/components/user-list/service';
 import { findDOMNode } from 'react-dom';
 
 const intlMessages = defineMessages({
-    messagesTitle: {
-        id: 'app.userList.messagesTitle',
-        description: 'Title for the messages list',
-    },
+  messagesTitle: {
+    id: 'app.userList.messagesTitle',
+    description: 'Title for the messages list',
+  },
 });
 
 interface ChatListProps {
-    chats: Partial<Chat>[],
+  chats: Partial<Chat>[],
 }
 
 const getActiveChats = (chats: Partial<Chat>[]) => {
-    return chats.map((chat) => (
-        <CSSTransition
-            classNames={"transition"}
-            appear
-            enter
-            exit={false}
-            timeout={0}
-            component="div"
-            key={chat.chatId}
-        >
-            <Styled.ListTransition >
-                <ChatListItem
-                    chat={chat}
-                />
-            </Styled.ListTransition>
-        </CSSTransition>
-    ));
+  return chats.map((chat) => (
+    <CSSTransition
+      classNames={"transition"}
+      appear
+      enter
+      exit={false}
+      timeout={0}
+      component="div"
+      key={chat.chatId}
+    >
+      <Styled.ListTransition >
+        <ChatListItem
+          chat={chat}
+        />
+      </Styled.ListTransition>
+    </CSSTransition>
+  ));
 }
 
 const ChatList: React.FC<ChatListProps> = ({ chats }) => {
-    const messageListRef = React.useRef<HTMLDivElement>();
-    const messageItemsRef = React.useRef<HTMLDivElement>();
-    const [selectedChat, setSelectedChat] = React.useState(null);
-    const { roving } = Service;
+  const messageListRef = React.useRef<HTMLDivElement>();
+  const messageItemsRef = React.useRef<HTMLDivElement>();
+  const [selectedChat, setSelectedChat] = React.useState(null);
+  const { roving } = Service;
 
-    React.useEffect(() => {
-        messageListRef.current?.addEventListener(
-            'keydown',
-            rove,
-            true,
-        );
+  React.useEffect(() => {
+    messageListRef.current?.addEventListener(
+      'keydown',
+      rove,
+      true,
+    );
 
-        return () => {
-            messageListRef.current?.removeEventListener(
-                'keydown',
-                rove,
-                true,
-            );
-        };
-    }, [messageListRef]);
+    return () => {
+      messageListRef.current?.removeEventListener(
+        'keydown',
+        rove,
+        true,
+      );
+    };
+  }, [messageListRef]);
 
-    React.useEffect(() => {
-        const firstChild = selectedChat?.firstChild;
-        if (firstChild) firstChild.focus();
-    }, [selectedChat]);
+  React.useEffect(() => {
+    const firstChild = selectedChat?.firstChild;
+    if (firstChild) firstChild.focus();
+  }, [selectedChat]);
 
-    const rove = (event: KeyboardEvent) => {
-        const msgItemsRef = findDOMNode(messageItemsRef.current);
-        roving(event, setSelectedChat, msgItemsRef, selectedChat);
-        event.stopPropagation();
-    }
+  const rove = (event: KeyboardEvent) => {
+    const msgItemsRef = findDOMNode(messageItemsRef.current);
+    roving(event, setSelectedChat, msgItemsRef, selectedChat);
+    event.stopPropagation();
+  }
 
-    const intl = useIntl();
-    return (
-        <Styled.Messages>
-            <Styled.Container>
-                <Styled.MessagesTitle data-test="messageTitle">
-                    {intl.formatMessage(intlMessages.messagesTitle)}
-                </Styled.MessagesTitle>
-            </Styled.Container>
-            <Styled.ScrollableList
-                role="tabpanel"
-                tabIndex={0}
-                ref={messageListRef}
-            >
-                <Styled.List>
-                    <TransitionGroup ref={messageItemsRef}>
-                        {getActiveChats(chats) ?? null}
-                    </TransitionGroup>
-                </Styled.List>
-            </Styled.ScrollableList>
-        </Styled.Messages>)
+  const intl = useIntl();
+  return (
+    <Styled.Messages>
+      <Styled.Container>
+        <Styled.MessagesTitle data-test="messageTitle">
+          {intl.formatMessage(intlMessages.messagesTitle)}
+        </Styled.MessagesTitle>
+      </Styled.Container>
+      <Styled.ScrollableList
+        role="tabpanel"
+        tabIndex={0}
+        ref={messageListRef}
+      >
+        <Styled.List>
+          <TransitionGroup ref={messageItemsRef}>
+            {getActiveChats(chats) ?? null}
+          </TransitionGroup>
+        </Styled.List>
+      </Styled.ScrollableList>
+    </Styled.Messages>)
 };
 
 const ChatListContainer: React.FC = () => {
-    const chats = useChat((chat) => { return chat; }) as Partial<Chat>[];
-    return (
-        <ChatList chats={chats} />
-    );
+  const chats = useChat((chat) => { return chat; }) as Partial<Chat>[];
+  return (
+    <ChatList chats={chats} />
+  );
 };
 
 export default ChatListContainer;
-
