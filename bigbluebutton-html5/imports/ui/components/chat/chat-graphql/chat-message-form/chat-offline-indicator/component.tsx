@@ -19,7 +19,7 @@ const ChatOfflineIndicator: React.FC<ChatOfflineIndicatorProps> = ({
   const intl = useIntl();
   return (
     <Styled.ChatOfflineIndicator>
-      <span id="partnerDisconnected">
+      <span data-test="partnerDisconnected">
         {intl.formatMessage(intlMessages.partnerDisconnected, { 0: participantName })}
       </span>
     </Styled.ChatOfflineIndicator>
