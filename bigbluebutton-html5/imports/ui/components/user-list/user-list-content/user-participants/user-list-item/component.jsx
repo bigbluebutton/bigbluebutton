@@ -363,7 +363,11 @@ class UserListItem extends PureComponent {
         label: intl.formatMessage(messages.backTriggerLabel),
         onClick: () => this.setState({ showNestedOptions: false }),
         icon: 'left_arrow',
-        divider: true,
+      },
+      {
+        allowed: showNestedOptions && isMeteorConnected && allowedToChangeStatus,
+        key: 'separator-01',
+        isSeparator: true,
       },
       {
         allowed: isSharingWebcam

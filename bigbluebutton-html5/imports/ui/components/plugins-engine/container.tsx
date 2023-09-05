@@ -3,7 +3,7 @@ import logger from '/imports/startup/client/logger';
 
 import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
 import PluginsEngineComponent from './component';
-import { PluginConfig, PluginsEngineContainerProps, EffectivePluginConfig } from './types';
+import { PluginConfig, EffectivePluginConfig } from './types';
 import PluginLoaderContainer from './plugin-loader/container';
 import PluginProvidedStateContainer from './plugin-provided-state/container';
 import * as uuid from 'uuid';

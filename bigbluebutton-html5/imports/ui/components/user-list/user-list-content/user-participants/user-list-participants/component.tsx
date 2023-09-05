@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useSubscription } from '@apollo/client';
 import { AutoSizer } from 'react-virtualized';
 import Styled from './styles';
@@ -6,16 +6,19 @@ import ListItem from './list-item/component';
 import Skeleton from './list-item/skeleton/component';
 import UserActions from './user-actions/component';
 import {
-  USERS_SUBSCRIPTION,
   MEETING_PERMISSIONS_SUBSCRIPTION,
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
 } from './queries';
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
 import { debounce } from 'radash';
+import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users.ts';
 
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -33,12 +36,14 @@ interface RowRendererProps extends ListProps {
   offset: number;
 }
 
-const rowRenderer: React.FC<RowRendererProps> = (users, currentUser, offset, meeting, { index, key, style }) => {
+const rowRenderer: React.FC<RowRendererProps> = (users, currentUser, offset, meeting, isRTL, { index, key, style }) => {
   const user = users && users[index - offset];
+  const direction = isRTL ? 'rtl' : 'ltr';
+
   return <div
     key={key}
     index={index}
-    style={style}
+    style={{...style, direction}}
   >
     {
       (user && currentUser && meeting)
@@ -68,6 +73,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   meeting,
   count,
 }) => {
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [previousUsersData, setPreviousUsersData] = React.useState(users);
   useEffect(() => {
     if (users?.length) {
@@ -81,7 +87,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           {({ width, height }) => {
             return (
               <Styled.VirtualizedList
-                rowRenderer={rowRenderer.bind(null, (users || previousUsersData), currentUser, offset, meeting)}
+                rowRenderer={rowRenderer.bind(null, (users || previousUsersData), currentUser, offset, meeting, isRTL)}
                 noRowRenderer={() => <div>no users</div>}
                 rowCount={count}
                 height={height - 1}
@@ -107,7 +113,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
   const [limit, setLimit] = React.useState(0);
 
-  const { data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
+  const { data: usersData } = useSubscription(USER_LIST_SUBSCRIPTION, {
     variables: {
       offset,
       limit,
@@ -121,6 +127,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
 
+  const { setUserListGraphqlVariables } = useContext(PluginsContext);
   const {
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
@@ -134,6 +141,12 @@ const UserListParticipantsContainer: React.FC = () => {
     } as Partial<User>;
   });
 
+  useEffect(() => {
+    setUserListGraphqlVariables({
+      offset,
+      limit,
+    });
+  }, [offset, limit]);
   return <>
     <UserListParticipants
       users={users}

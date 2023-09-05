@@ -7,7 +7,7 @@ import Presentations from '/imports/api/presentations';
 
 const EXPORTING_THRESHOLD_PER_SLIDE = 2500;
 
-export default async function exportPresentation(presentationId, type) {
+export default async function exportPresentation(presentationId, fileStateType) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'MakePresentationDownloadReqMsg';
@@ -22,7 +22,7 @@ export default async function exportPresentation(presentationId, type) {
     const payload = {
       presId: presentationId,
       allPages: true,
-      typeOfExport: type,
+      fileStateType,
       pages: [],
     };
 

@@ -9,8 +9,9 @@ import { uid } from 'radash';
 import Button from '/imports/ui/components/common/button/component';
 import { clearPublicChatHistory, generateExportedMessages } from './services'
 import { getDateString } from '/imports/utils/string-utils';
-import Events from '/imports/ui/core/events/events';
+
 import { isEmpty } from 'ramda';
+import { ChatCommands } from '/imports/ui/core/enums/chat';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -74,6 +75,7 @@ export const ChatActions: React.FC = () => {
       const exportedString = generateExportedMessages(
         dataHistory.chat_message_public,
         dataHistory.user_welcomeMsgs[0],
+        intl,
       );
       if (downloadOrCopyRef.current === 'download') {
         const link = document.createElement('a');
@@ -144,7 +146,7 @@ export const ChatActions: React.FC = () => {
         dataTest: 'restoreWelcomeMessages',
         label: intl.formatMessage(intlMessages.showWelcomeMessage),
         onClick: () => {
-          const restoreWelcomeMessagesEvent = new CustomEvent(Events.RESTORE_WELCOME_MESSAGES);
+          const restoreWelcomeMessagesEvent = new CustomEvent(ChatCommands.RESTORE_WELCOME_MESSAGES);
           window.dispatchEvent(restoreWelcomeMessagesEvent);
         },
       },
@@ -173,7 +175,7 @@ export const ChatActions: React.FC = () => {
         keepMounted: true,
         transitionDuration: 0,
         elevation: 3,
-        getContentAnchorEl: null,
+        getcontentanchorel: null,
         fullwidth: 'true',
         anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
         transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
