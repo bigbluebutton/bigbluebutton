@@ -11,4 +11,7 @@ const muteUser = debounce(
   },
 );
 
-export default muteUser;
+export default {
+  muteUser,
+};
+
