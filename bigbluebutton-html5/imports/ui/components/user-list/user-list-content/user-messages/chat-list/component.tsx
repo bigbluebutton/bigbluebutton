@@ -49,7 +49,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
             </Styled.Container>
             <Styled.ScrollableList
                 role="tabpanel"
-                tabIndex={-1}
+                tabIndex={0}
             >
                 <Styled.List>
                     <TransitionGroup >
