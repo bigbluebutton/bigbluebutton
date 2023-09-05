@@ -215,7 +215,11 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         description: intl.formatMessage(intlMessages.clearAllDesc),
         onClick: toggleStatus.bind(null, intl),
         icon: 'clear_status',
-        divider: true,
+      },
+      {
+        key: 'separator-01',
+        isSeparator: true,
+        allow: true,
       },
       {
         allow: canCreateBreakout,
@@ -236,6 +240,11 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'writeClosedCaptions',
       },
       {
+        key: 'separator-02',
+        isSeparator: true,
+        allow: true,
+      },
+      {
         allow: isLearningDashboardEnabled(),
         icon: 'multi_whiteboard',
         iconRight: 'popout_window',
@@ -243,7 +252,6 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         description: `${intl.formatMessage(intlMessages.learningDashboardDesc)} ${intl.formatMessage(intlMessages.newTab)}`,
         key: uuids.current[8],
         onClick: () => { openLearningDashboardUrl(locale); },
-        dividerTop: true,
         dataTest: 'learningDashboard'
       },
     ].filter(({ allow }) => allow);
