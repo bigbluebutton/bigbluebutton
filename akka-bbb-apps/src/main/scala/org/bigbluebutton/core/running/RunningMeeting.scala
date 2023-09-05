@@ -7,15 +7,16 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core2.MeetingStatus2x
+import java.util
 
 object RunningMeeting {
   def apply(props: DefaultProps, outGW: OutMessageGateway,
-            eventBus: InternalEventBus)(implicit context: ActorContext) =
-    new RunningMeeting(props, outGW, eventBus)(context)
+            eventBus: InternalEventBus, clientConfiguration: util.LinkedHashMap[String, Object])(implicit context: ActorContext) =
+    new RunningMeeting(props, outGW, eventBus, clientConfiguration)(context)
 }
 
 class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
-                     eventBus: InternalEventBus)(implicit val context: ActorContext) {
+                     eventBus: InternalEventBus, clientConfiguration: util.LinkedHashMap[String, Object])(implicit val context: ActorContext) {
 
   private val externalVideoModel = new ExternalVideoModel()
   private val chatModel = new ChatModel()
@@ -41,7 +42,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
     chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel, captionModel,
-    webcams, voiceUsers, users2x, guestsWaiting)
+    webcams, voiceUsers, users2x, guestsWaiting, clientConfiguration)
 
   GuestsWaiting.setGuestPolicy(
     liveMeeting.props.meetingProp.intId,

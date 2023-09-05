@@ -20,6 +20,8 @@ import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
 
+import java.util
+
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
       system:         ActorSystem,
@@ -114,7 +116,10 @@ class BigBlueButtonActor(
       case None =>
         log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
 
-        val m = RunningMeeting(msg.body.props, outGW, eventBus)
+        log.info("\n\n\n\n\n ----> teste aquii ---> {}", clientConfiguration.get("public")
+          .asInstanceOf[util.LinkedHashMap[String, Object]].get("app")
+          .asInstanceOf[util.LinkedHashMap[String, Object]].get("audioCaptions"))
+        val m = RunningMeeting(msg.body.props, outGW, eventBus, clientConfiguration)
 
         // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)

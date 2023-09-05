@@ -5,6 +5,8 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
+import java.util
+
 trait PresentationConversionUpdatePubMsgHdlr {
   this: PresentationPodHdlrs =>
 
@@ -22,6 +24,9 @@ trait PresentationConversionUpdatePubMsgHdlr {
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 
+      log.info("\n\n\n\n\n ----> teste aquii ---> {}", liveMeeting.clientConfiguration.get("public")
+        .asInstanceOf[util.LinkedHashMap[String, Object]].get("app")
+        .asInstanceOf[util.LinkedHashMap[String, Object]].get("audioCaptions"))
       val body = PresentationConversionUpdateEvtMsgBody(
         msg.body.podId,
         msg.body.messageKey,

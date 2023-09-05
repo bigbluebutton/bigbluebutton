@@ -36,6 +36,7 @@ retrieveManaged := true
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
+libraryDependencies += "org.yaml" % "snakeyaml" % "2.0"
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
 
