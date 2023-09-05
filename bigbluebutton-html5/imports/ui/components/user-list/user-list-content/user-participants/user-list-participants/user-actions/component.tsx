@@ -353,7 +353,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.backTriggerLabel),
       onClick: () => setShowNestedOptions(false),
       icon: 'left_arrow',
-      divider: true,
+    },
+    {
+      allowed: showNestedOptions,
+      key: 'separator-01',
+      isSeparator: true,
     },
     ...Object.keys(EMOJI_STATUSES).map((key) => ({
       allowed: showNestedOptions,

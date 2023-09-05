@@ -228,7 +228,11 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         description: intl.formatMessage(intlMessages.clearAllDesc),
         onClick: toggleStatus.bind(null, intl),
         icon: 'clear_status',
-        divider: true,
+      },
+      {
+        key: 'separator-01',
+        isSeparator: true,
+        allow: true,
       },
       {
         allow: canCreateBreakout,
@@ -247,6 +251,11 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[7],
         onClick: () => setIsWriterMenuModalOpen(true),
         dataTest: 'writeClosedCaptions',
+      },
+      {
+        key: 'separator-02',
+        isSeparator: true,
+        allow: true,
       },
       {
         allow: isLearningDashboardEnabled(),
