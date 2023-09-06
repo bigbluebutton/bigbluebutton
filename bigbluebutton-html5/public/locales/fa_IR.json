@@ -412,7 +412,7 @@
     "app.poll.removePollOpt": "گزینهٔ {0} نظرسنجی حذف شد",
     "app.poll.emptyPollOpt": "خالی",
     "app.polling.pollingTitle": "گزینه‌های نظرسنجی",
-    "app.polling.pollQuestionTitle": "سوال نظرسنجی",
+    "app.polling.pollQuestionTitle": "پرسش نظرسنجی",
     "app.polling.submitLabel": "ارسال",
     "app.polling.submitAriaLabel": "ارسال پاسخ نظرسنجی",
     "app.polling.responsePlaceholder": "واردکردن پاسخ",
