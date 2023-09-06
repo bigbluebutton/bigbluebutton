@@ -450,7 +450,7 @@
     "app.navBar.toggleUserList.ariaLabel": "تغییر وضعیت نمایش کاربران و پیام‌ها",
     "app.navBar.toggleUserList.newMessages": "با آگاه‌سازی پیام جدید",
     "app.navBar.toggleUserList.newMsgAria": "پیام جدید از {0}",
-    "app.navBar.recording": "جلسه درحال ضبط شدن است",
+    "app.navBar.recording": "جلسه درحال ضبط‌شدن است",
     "app.navBar.recording.on": "درحال ضبط",
     "app.navBar.recording.off": "ضبط نمی‌شود",
     "app.navBar.emptyAudioBrdige": "بدون میکروفون فعال. برای افزودن صدا به این ضبط، میکروفن خود را هم‌رسانی کنید.",
