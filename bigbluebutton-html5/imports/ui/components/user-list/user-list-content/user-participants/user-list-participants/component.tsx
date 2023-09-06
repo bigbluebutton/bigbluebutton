@@ -72,14 +72,13 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const validCurrentUser: Partial<User> | undefined = currentUser && currentUser.userId
     ? currentUser
     : undefined;
-//  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [previousUsersData, setPreviousUsersData] = React.useState(users);
   useEffect(() => {
     if (users?.length) {
       setPreviousUsersData(users);
     }
   }, [users]);
-  console.log('r',{users})
   return (
     <Styled.UserListColumn>
       <AutoSizer>
@@ -145,7 +144,6 @@ const UserListParticipantsContainer: React.FC = () => {
       limit,
     });
   }, [offset, limit]);
-  console.log('q', {users, currentUser})
   return <>
     <UserListParticipants
       users={users}

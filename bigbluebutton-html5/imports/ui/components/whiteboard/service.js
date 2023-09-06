@@ -212,7 +212,7 @@ const getCurrentWhiteboardId = () => {
   return currentSlide && currentSlide.id;
 };
 
-export const hasAnnotations = (presentationId) => {
+const hasAnnotations = (presentationId) => {
   const ann = Annotations.findOne(
     { whiteboardId: { $regex: `^${presentationId}` } },
   );
@@ -276,7 +276,7 @@ const changeCurrentSlide = (s) => {
   makeCall('changeCurrentSlide', s);
 };
 
-export const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
+const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
   const unlockedSelector = { whiteboardId };
   const lockedSelector = {
     whiteboardId,
@@ -347,7 +347,7 @@ export const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
   return result;
 };
 
-export const getCurrentPres = () => {
+const getCurrentPres = () => {
   const podId = 'DEFAULT_PRESENTATION_POD';
   return PresentationService.getCurrentPresentation(podId);
 };
@@ -396,15 +396,14 @@ const toggleToolsAnimations = (activeAnim, anim, time) => {
     tdTools?.classList?.add(anim);
     topToolbar?.classList?.add(anim);
   }
-
   if (optionsDropdown) {
     optionsDropdown.classList.remove(activeAnim);
     optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
     optionsDropdown?.classList?.add(anim);
   }
-};
+}
 
-const service = {
+export {
   initDefaultPages,
   Annotations,
   sendAnnotation,
@@ -428,4 +427,3 @@ const service = {
   hasAnnotations,
   toggleToolsAnimations,
 };
-export default service;
