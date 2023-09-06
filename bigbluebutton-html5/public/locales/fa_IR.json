@@ -299,7 +299,7 @@
     "app.presentationUploader.currentPresentationLabel": "ارائهٔ کنونی",
     "app.presentationUploder.extraHint": "«مهم»: هر پرونده نباید از {0} مگابایت و {1} صفحه تجاوز کند. ",
     "app.presentationUploder.uploadLabel": "بارگذاری",
-    "app.presentationUploder.confirmLabel": "تایید",
+    "app.presentationUploder.confirmLabel": "تأیید",
     "app.presentationUploder.confirmDesc": "تغییرات خود را ذخیره کنید و ارائه را شروع کنید",
     "app.presentationUploder.dismissLabel": "لغو",
     "app.presentationUploder.dismissDesc": "پنجره را ببندید و تغییرات خود را نادیده بگیرید",
