@@ -276,7 +276,7 @@ The following packages have unmet dependencies:
 E: Unable to correct problems, you have held broken packages.
 ```
 
-In that case, please remove NodeJS v16 from the server and install NodeJS to v18. You can see what we do in bbb-install-2.6.sh: https://github.com/bigbluebutton/bbb-install/blob/c31e9ee34ed05fb2804d932d3aa291e3af7dc65c/bbb-install-2.6.sh#L294-L304
+In that case, please upgrade to v18. You can see what we do in bbb-install-2.6.sh: https://github.com/bigbluebutton/bbb-install/blob/ec26f92f10442387c15a3b7fd8de5b76c0b3bf72/bbb-install-2.6.sh#L294-L304
 
 Also check the official docs for managing NodeJS installations https://github.com/nodesource/distributions#installation-instructions
 
