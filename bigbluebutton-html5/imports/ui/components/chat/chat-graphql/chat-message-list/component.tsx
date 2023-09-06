@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState, useMemo } from "react";
-import { Meteor } from "meteor/meteor";
-import { makeVar, useMutation } from "@apollo/client";
-import { LAST_SEEN_MUTATION } from "./queries";
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { Meteor } from 'meteor/meteor';
+import { makeVar, useMutation } from '@apollo/client';
+import { defineMessages, useIntl } from 'react-intl';
+import { LAST_SEEN_MUTATION } from './queries';
 import {
   ButtonLoadMore,
   MessageList,
@@ -17,6 +18,8 @@ import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import ChatPopupContainer from '../chat-popup/component';
 import { defineMessages, useIntl } from "react-intl";
+import { Layout } from '/imports/ui/Types/layout';
+import ChatPopupContainer from '../chat-popup/component';
 import { ChatEvents } from "/imports/ui/core/enums/chat";
 
 // @ts-ignore - temporary, while meteor exists in the project
@@ -43,8 +46,6 @@ interface ChatListProps {
   currentUserId: string;
   setMessageAsSeenMutation: (variables: {chatId: string,
         lastSeenAt: number}) => void;
-  totalUnread?: number;
-  lastSeenAt: number;
 }
 const isElement = (el: any): el is HTMLElement => {
   return el instanceof HTMLElement;

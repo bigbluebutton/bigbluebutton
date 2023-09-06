@@ -1,7 +1,9 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.BreakoutModel
+import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.domain.BreakoutRoom2x
+import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
 
 import scala.util.{Failure, Success}
@@ -46,7 +48,7 @@ class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, N
 
 object BreakoutRoomDAO {
 
-  def insert(breakout: BreakoutModel) = {
+  def insert(breakout: BreakoutModel, liveMeeting: LiveMeeting) = {
     DatabaseConnection.db.run(DBIO.sequence(
       for {
         (_, room) <- breakout.rooms
@@ -63,8 +65,9 @@ object BreakoutRoomDAO {
             for {
               (_, room) <- breakout.rooms
               userId <- room.assignedUsers
+              (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
             } yield {
-              BreakoutRoomUserDAO.prepareInsert(room.id, userId)
+              BreakoutRoomUserDAO.prepareInsert(room.id, userId, redirectToHtml5JoinURL)
             }
           ).transactionally)
             .onComplete {

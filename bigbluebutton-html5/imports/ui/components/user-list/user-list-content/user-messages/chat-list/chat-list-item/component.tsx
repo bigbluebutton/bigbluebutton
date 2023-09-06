@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-access-key */
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
@@ -24,7 +25,7 @@ const intlMessages = defineMessages({
 });
 
 interface ChatListItemProps {
-  chat: Partial<Chat>,
+  chat: Chat,
 }
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -43,7 +44,7 @@ const ChatListItem = (props: ChatListItemProps) => {
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  const TOGGLE_CHAT_PUB_AK: string = useShortcut("togglePublicChat");
+  const TOGGLE_CHAT_PUB_AK: string = useShortcut('togglePublicChat');
   const {
     chat,
   } = props;
@@ -114,43 +115,44 @@ const ChatListItem = (props: ChatListItemProps) => {
 
   return (
     <Styled.ChatListItem
-      data-test="chatButton"
-      role="button"
-      aria-expanded={isCurrentChat}
-      active={isCurrentChat}
-      tabIndex={0}
-      accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-      onClick={handleClickToggleChat}
-      id="chat-toggle-button"
-      aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.participant.name}
-      onKeyDown={(e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      }}
-    >
+  data-test="chatButton"
+  role="button"
+  aria-expanded={isCurrentChat}
+  active={isCurrentChat}
+  tabIndex={0}
+  accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined}
+  onClick={handleClickToggleChat}
+  id="chat-toggle-button"
+  aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic)
+    : chat.participant?.name}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
+>
       <Styled.ChatListItemLink>
         <Styled.ChatIcon>
           {isPublicGroupChat(chat)
             ? (
               <Styled.ChatThumbnail>
-                <Icon iconName={"group_chat"} />
+                <Icon iconName="group_chat" className={undefined} prependIconName={undefined} rotate={undefined} />
               </Styled.ChatThumbnail>
             ) : (
               <Styled.UserAvatar
-                moderator={chat.participant.role === ROLE_MODERATOR}
-                avatar={chat.participant.avatar}
-                color={chat.participant.color}
+                moderator={chat.participant?.role === ROLE_MODERATOR}
+                avatar={chat.participant!.avatar}
+                color={chat.participant!.color}
               >
-                {chat.participant.name.toLowerCase().slice(0, 2)}
+                {chat.participant?.name.toLowerCase().slice(0, 2)}
               </Styled.UserAvatar>
             )}
         </Styled.ChatIcon>
         <Styled.ChatName>
-          <Styled.ChatNameMain>
+          <Styled.ChatNameMain active>
             {isPublicGroupChat(chat)
-              ? intl.formatMessage(intlMessages.titlePublic) : chat.participant.name}
+              ? intl.formatMessage(intlMessages.titlePublic) : chat.participant?.name}
           </Styled.ChatNameMain>
         </Styled.ChatName>
         {(countUnreadMessages > 0)

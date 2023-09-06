@@ -252,11 +252,14 @@ COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds 
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
+
 --Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
 ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS ("clientType" = 'dial-in-user') STORED;
 ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestStatus" = 'WAIT') STORED;
 ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestStatus" = 'ALLOW') STORED;
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
+
+ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp(("registeredOn" + 6000) / 1000)) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
@@ -322,6 +325,7 @@ AS SELECT "user"."userId",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
+    "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
@@ -372,6 +376,7 @@ AS SELECT "user"."userId",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
+    "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
@@ -418,6 +423,7 @@ AS SELECT "user"."userId",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
+    "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
@@ -1248,37 +1254,73 @@ CREATE INDEX "idx_breakoutRoom_parentMeetingId" ON "breakoutRoom"("parentMeeting
 CREATE TABLE "breakoutRoom_user" (
 	"breakoutRoomId" varchar(100) NOT NULL REFERENCES "breakoutRoom"("breakoutRoomId") ON DELETE CASCADE,
 	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE,
+	"joinURL" text,
 	"assignedAt" timestamp with time zone,
+	"joinedAt" timestamp with time zone,
+	"inviteDismissedAt" timestamp with time zone,
 	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "userId")
 );
 
 CREATE OR REPLACE VIEW "v_breakoutRoom" AS
-SELECT u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
-        b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
-CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
-bu."assignedAt", ub."isOnline" AS "currentIsOnline", ub."registeredOn" AS "currentRegisteredOn", ub."joined" AS "currentJoined"
-FROM "user" u
-JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
-LEFT JOIN "breakoutRoom_user" bu ON bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
-LEFT JOIN "meeting" mb ON mb."extId" = b."externalId"
-LEFT JOIN "v_user" ub ON ub."meetingId" = mb."meetingId" and ub."extId" = u."extId" || '-' || b."sequence"
-WHERE (bu."assignedAt" IS NOT NULL
-		OR b."freeJoin" IS TRUE
-		OR u."role" = 'MODERATOR')
-AND b."endedAt" IS NULL;
+SELECT *,
+    --showInvitation flag
+    case WHEN 1=1
+    	--this is not the last room the user joined
+    	-- AND "lastRoomJoinedId" != "breakoutRoomId" --the next condition turn this one useless
+    	--user didn't joined some room after assigned
+    	AND ("lastRoomJoinedAt" IS NULL OR "lastRoomJoinedAt" < "assignedAt")
+    	--user didn't close the invitation already
+    	and ("inviteDismissedAt" is NULL OR "assignedAt" > "inviteDismissedAt")
+    	--user is not online in other room
+    	AND "lastRoomIsOnline" IS FALSE
+    	--this is this the last assignment?
+    	AND "currentRoomPriority" = 1
+    	--user is not moderator or sendInviteToMod flag is true
+    	AND ("isModerator" is false OR "sendInvitationToModerators")
+    	THEN TRUE ELSE FALSE END "showInvitation"
+from (
+    SELECT u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
+            b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
+                bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
+                --CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
+                ub."isOnline" AS "currentRoomIsOnline",
+                ub."registeredAt" AS "currentRoomRegisteredAt",
+                ub."joined" AS "currentRoomJoined",
+                rank() OVER (partition BY u."userId" order by "assignedAt" desc nulls last) as "currentRoomPriority",
+                max(bu."joinedAt") OVER (partition BY u."userId") AS "lastRoomJoinedAt",
+                max(bu."breakoutRoomId") OVER (partition BY u."userId" ORDER BY bu."joinedAt") AS "lastRoomJoinedId",
+                sum(CASE WHEN ub."isOnline" THEN 1 ELSE 0 END) OVER (partition BY u."userId") > 0 as "lastRoomIsOnline"
+    FROM "user" u
+    JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
+    LEFT JOIN "breakoutRoom_user" bu ON bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
+    LEFT JOIN "meeting" mb ON mb."extId" = b."externalId"
+    LEFT JOIN "v_user" ub ON ub."meetingId" = mb."meetingId" and ub."extId" = u."extId" || '-' || b."sequence"
+    WHERE (bu."assignedAt" IS NOT NULL
+            OR b."freeJoin" IS TRUE
+            OR u."role" = 'MODERATOR')
+    AND b."endedAt" IS NULL
+) a;
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
 SELECT "parentMeetingId", "breakoutRoomId", "userId"
 FROM "v_breakoutRoom"
 WHERE "assignedAt" IS NOT NULL;
 
+--TODO improve performance (and handle two users with same extId)
 CREATE OR REPLACE VIEW "v_breakoutRoom_participant" AS
-SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."userId"
-FROM v_user "user"
-JOIN "meeting" m using("meetingId")
-JOIN "v_meeting_breakoutPolicies"vmbp using("meetingId")
-JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
+SELECT DISTINCT "parentMeetingId", "breakoutRoomId", "userId"
+FROM "v_breakoutRoom"
+WHERE "currentRoomIsOnline" IS TRUE;
+--SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."userId"
+--FROM v_user "user"
+--JOIN "meeting" m using("meetingId")
+--JOIN "v_meeting_breakoutPolicies" vmbp using("meetingId")
+--JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
+--User to update "inviteDismissedAt" via Mutation
+CREATE VIEW "v_breakoutRoom_user" AS
+SELECT *
+FROM "breakoutRoom_user";
 
 ------------------------------------
 ----sharedNotes
