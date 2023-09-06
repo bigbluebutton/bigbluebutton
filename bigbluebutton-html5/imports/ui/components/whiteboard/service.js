@@ -397,13 +397,12 @@ const toggleToolsAnimations = (activeAnim, anim, time) => {
     topToolbar?.classList?.add(anim);
   }
 
-};
   if (optionsDropdown) {
     optionsDropdown.classList.remove(activeAnim);
     optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
     optionsDropdown?.classList?.add(anim);
   }
-}
+};
 
 const service = {
   initDefaultPages,
