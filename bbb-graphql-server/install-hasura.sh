@@ -39,7 +39,7 @@ systemctl restart nginx
 #chmod +x /usr/local/bin/hasura-graphql-engine
 
 #Hasura 2.29+ requires Ubuntu 22
-git clone --branch v2.28.2 https://github.com/iMDT/hasura-graphql-engine.git
+git clone --branch v2.32.1 https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
@@ -58,7 +58,7 @@ systemctl start bbb-graphql-server
 curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
 
 # Apply BBB metadata in Hasura
-/usr/local/bin/hasura metadata apply
+hasura metadata apply
 
 echo ""
 echo ""

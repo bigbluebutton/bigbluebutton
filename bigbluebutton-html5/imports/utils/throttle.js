@@ -1,35 +1,41 @@
 export function throttle(func, delay, options = {}) {
-  let lastInvocation = 0;
-  let isWaiting = false;
   let timeoutId;
+  let lastExecTime = 0;
+  let leadingExec = true;
 
-  const leading = options.leading !== undefined ? options.leading : true;
-  const trailing = options.trailing !== undefined ? options.trailing : true;
+  const { leading = true, trailing = true } = options;
 
-  return function throttled(...args) {
-    const invokeFunction = () => {
-      lastInvocation = Date.now();
-      isWaiting = false;
-      func.apply(this, args);
-    };
+  let cancelPendingExecution = false; // Flag to track cancellation
 
-    if (!isWaiting) {
-      if (leading) {
-        invokeFunction();
-      } else {
-        isWaiting = true;
-      }
+  const throttledFunction = function () {
+    const context = this;
+    const args = arguments;
+    const elapsed = Date.now() - lastExecTime;
 
-      const currentTime = Date.now();
-      const timeSinceLastInvocation = currentTime - lastInvocation;
-
-      if (timeSinceLastInvocation >= delay) {
-        clearTimeout(timeoutId);
-        invokeFunction();
-      } else if (trailing) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(invokeFunction, delay - timeSinceLastInvocation);
+    function execute() {
+      if (!cancelPendingExecution) { // Only execute if not cancelled
+        func.apply(context, args);
+        lastExecTime = Date.now();
       }
     }
+
+    if (leadingExec && leading) {
+      execute();
+      leadingExec = false;
+    } else if (!timeoutId && trailing) {
+      timeoutId = setTimeout(function () {
+        execute();
+        timeoutId = null;
+      }, delay - elapsed);
+    }
   };
+
+  // Add a cancel method to the throttled function
+  throttledFunction.cancel = function () {
+    cancelPendingExecution = true;
+    clearTimeout(timeoutId);
+    timeoutId = null;
+  };
+
+  return throttledFunction;
 }

@@ -264,7 +264,10 @@ class InputStreamLiveSelector extends Component {
         iconRight: (deviceKind === 'audioinput') ? 'unmute' : 'volume_level_2',
         disabled: true,
         customStyles: Styled.DisabledLabel,
-        divider: true,
+      },
+      {
+        key: 'separator-01',
+        isSeparator: true,
       },
     ];
 
@@ -416,11 +419,15 @@ class InputStreamLiveSelector extends Component {
       key: 'leaveAudioOption',
       dataTest: 'leaveAudio',
       customStyles: Styled.DangerColor,
-      dividerTop: true,
       onClick: () => handleLeaveAudio(),
     };
 
-    const dropdownListComplete = inputDeviceList.concat(outputDeviceList).concat(leaveAudioOption);
+    const dropdownListComplete = inputDeviceList.concat(outputDeviceList)
+      .concat({
+        key: 'separator-02',
+        isSeparator: true,
+      })
+      .concat(leaveAudioOption);
     const customStyles = { top: '-1rem' };
 
     return (

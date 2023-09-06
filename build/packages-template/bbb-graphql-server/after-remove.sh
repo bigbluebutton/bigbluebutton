@@ -5,7 +5,7 @@ case "$1" in
 
    ;;
    purge)
-     rm -rf /usr/local/bin/hasura
+     rm  /usr/local/bin/hasura
      rm -rf /usr/local/bin/hasura-graphql-engine
      rm -rf /usr/share/bbb-graphql-server
    ;;

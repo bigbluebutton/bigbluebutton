@@ -73,14 +73,14 @@ const UserActions = (props) => {
     const userId = user?.userId;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
-    const enableSelfCamIntlKey = !isSelfViewDisabled ? 'disable' : 'enable';
+    const disabledCams = Session.get('disabledCams') || [];
+    const isCameraDisabled = disabledCams && disabledCams?.includes(cameraId);
+    const enableSelfCamIntlKey = !isCameraDisabled ? 'disable' : 'enable';
 
     const menuItems = [];
 
     const toggleDisableCam = () => {
-      const disabledCams = Session.get('disabledCams') || [];
-      const isDisabled = disabledCams && disabledCams?.includes(cameraId);
-      if (!isDisabled) {
+      if (!isCameraDisabled) {
         Session.set('disabledCams', [...disabledCams, cameraId]);
       } else {
         Session.set('disabledCams', disabledCams.filter((cId) => cId !== cameraId));

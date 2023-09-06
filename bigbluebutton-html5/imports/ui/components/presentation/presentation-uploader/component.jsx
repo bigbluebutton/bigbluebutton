@@ -29,7 +29,7 @@ const propTypes = {
   fileSizeMax: PropTypes.number.isRequired,
   filePagesMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
-  dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
+  dispatchChangePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.shape).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -362,7 +362,7 @@ class PresentationUploader extends Component {
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
     this.getPresentationsToShow = this.getPresentationsToShow.bind(this);
-    this.handleToggleDownloadable = this.handleToggleDownloadable.bind(this);
+    this.handleDownloadableChange = this.handleDownloadableChange.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -415,6 +415,16 @@ class PresentationUploader extends Component {
 
       if (currentPropPres?.isDownloadable !== prevPropPres?.isDownloadable) {
         presentation.isDownloadable = currentPropPres.isDownloadable;
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres?.downloadableExtension !== prevPropPres?.downloadableExtension) {
+        presentation.downloadableExtension = currentPropPres.downloadableExtension;
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres?.filenameConverted !== prevPropPres?.filenameConverted) {
+        presentation.filenameConverted = currentPropPres.filenameConverted;
         shouldUpdateState = true;
       }
 
@@ -599,7 +609,7 @@ class PresentationUploader extends Component {
       handleSave,
       selectedToBeNextCurrent,
       presentations: propPresentations,
-      dispatchTogglePresentationDownloadable,
+      dispatchChangePresentationDownloadable,
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
@@ -620,7 +630,7 @@ class PresentationUploader extends Component {
           (p) => p.id === item.id && p.isDownloadable !== item.isDownloadable,
         );
         if (didDownloadableStateChange) {
-          dispatchTogglePresentationDownloadable(item, item.isDownloadable);
+          dispatchChangePresentationDownloadable(item, item.isDownloadable);
         }
       }
     });
@@ -660,12 +670,10 @@ class PresentationUploader extends Component {
     return null;
   }
 
-  handleToggleDownloadable(item) {
-    const { dispatchTogglePresentationDownloadable } = this.props;
+  handleDownloadableChange(item, fileStateType, downloadable) {
+    const { dispatchChangePresentationDownloadable } = this.props;
 
-    const oldDownloadableState = item.isDownloadable;
-
-    dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
+    dispatchChangePresentationDownloadable(item, downloadable, fileStateType);
   }
 
   handleDismiss() {
@@ -692,7 +700,7 @@ class PresentationUploader extends Component {
     );
   }
 
-  handleDownloadingOfPresentation(item, type) {
+  handleDownloadingOfPresentation(item, fileStateType) {
     const {
       exportPresentation,
       intl,
@@ -702,7 +710,7 @@ class PresentationUploader extends Component {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
 
       if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
-        if (type === 'Original') {
+        if (fileStateType === 'Original' || fileStateType === 'Converted') {
           if (!item.isDownloadable) {
             notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.filename }), 'success');
           }
@@ -715,7 +723,7 @@ class PresentationUploader extends Component {
         EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING,
-      ].includes(exportation.status) && type !== 'Original') {
+      ].includes(exportation.status) && fileStateType === 'Annotated') {
         this.setState((prevState) => {
           prevState.presExporting.add(item.id);
           return {
@@ -750,7 +758,7 @@ class PresentationUploader extends Component {
       }
     };
 
-    exportPresentation(item.id, observer, type);
+    exportPresentation(item.id, observer, fileStateType);
   }
 
   getPresentationsToShow() {
@@ -1079,11 +1087,11 @@ class PresentationUploader extends Component {
                 isDownloadable={isDownloadable}
                 allowDownloadOriginal={allowDownloadOriginal}
                 allowDownloadWithAnnotations={allowDownloadWithAnnotations}
-                handleToggleDownloadable={this.handleToggleDownloadable}
+                handleDownloadableChange={this.handleDownloadableChange}
                 item={item}
                 closeModal={() => Session.set('showUploadPresentationView', false)}
-                handleDownloadingOfPresentation={(type) => this
-                  .handleDownloadingOfPresentation(item, type)}
+                handleDownloadingOfPresentation={(fileStateType) => this
+                  .handleDownloadingOfPresentation(item, fileStateType)}
               />
             ) : null}
             {isRemovable ? (

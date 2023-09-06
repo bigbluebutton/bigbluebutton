@@ -17,8 +17,9 @@ import {
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
-import Events from '/imports/ui/core/events/events';
+
 import ChatOfflineIndicator from './chat-offline-indicator/component';
+import { ChatEvents } from '/imports/ui/core/enums/chat';
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -194,7 +195,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setHasErrors(false);
     setShowEmojiPicker(false);
     if (ENABLE_TYPING_INDICATOR) stopUserTyping();
-    const sentMessageEvent = new CustomEvent(Events.SENT_MESSAGE);
+    const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
     window.dispatchEvent(sentMessageEvent);
   };
 
