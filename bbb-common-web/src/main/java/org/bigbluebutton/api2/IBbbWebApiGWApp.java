@@ -46,7 +46,8 @@ public interface IBbbWebApiGWApp {
                      ArrayList<String> disabledFeatures,
                      Boolean notifyRecordingIsOn,
                      String presentationUploadExternalDescription,
-                     String presentationUploadExternalUrl);
+                     String presentationUploadExternalUrl,
+                     String overrideClientConfigs);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String sessionToken, String avatarURL,

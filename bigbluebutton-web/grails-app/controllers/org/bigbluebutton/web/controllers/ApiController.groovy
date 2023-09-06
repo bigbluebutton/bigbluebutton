@@ -148,13 +148,21 @@ class ApiController {
 
     params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
-    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
+    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params, overrideClientConfig)
+
+    String requestBody = request.inputStream == null ? null : request.inputStream.text
+    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
+
+    // The client configs are going to be parsed to the LinkedHashMap in akka
+    String overrideClientConfigs = overrideClientConfigs(requestBody)
+
+    paramsProcessorUtil.processCreateBody(params, overrideClientConfigs)
 
     ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(newMeeting, false);  //
+      uploadDocuments(requestBody, newMeeting, false);  //
       respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
@@ -1107,7 +1115,9 @@ class ApiController {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null){
-      if (uploadDocuments(meeting, true)) {
+      String requestBody = request.inputStream == null ? null : request.inputStream.text;
+      requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+      if (uploadDocuments(requestBody, meeting, true)) {
         withFormat {
           xml {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
@@ -1345,7 +1355,7 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(conf, isFromInsertAPI) {
+  def uploadDocuments(requestBody, conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains("presentation")) {
       log.warn("Presentation feature is disabled.")
       return false
@@ -1365,8 +1375,6 @@ class ApiController {
     }
 
     Boolean isDefaultPresentationUsed = false;
-    String requestBody = request.inputStream == null ? null : request.inputStream.text;
-    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
     Boolean isDefaultPresentationCurrent = false;
     def listOfPresentation = []
     def presentationListHasCurrent = false
@@ -1468,6 +1476,28 @@ class ApiController {
       }
     }
     return true
+  }
+
+  def String overrideClientConfigs(requestBody) {
+    log.debug("ApiController#overrideClientConfigs");
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
+    if (requestBody == null) {
+      log.warn("No payload, ignoring")
+    } else {
+      def xml = new XmlSlurper().parseText(requestBody);
+      xml.children().each { module ->
+        log.debug("module config found: [${module.@name}]")
+        if ("client".equals(module.@name.toString())) {
+          for (document in module.children()) {
+            return document
+          }
+        }
+      }
+    }
   }
 
   def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,

@@ -153,7 +153,8 @@ class BbbWebApiGWApp(
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
                     presentationUploadExternalDescription:  String,
-                    presentationUploadExternalUrl:          String): Unit = {
+                    presentationUploadExternalUrl:          String,
+                    overrideClientConfigs:                  String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -167,7 +168,8 @@ class BbbWebApiGWApp(
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
       presentationUploadExternalDescription,
-      presentationUploadExternalUrl
+      presentationUploadExternalUrl,
+      overrideClientConfigs
     )
 
     val durationProps = DurationProps(

@@ -118,6 +118,8 @@ public class Meeting {
 
 	private Integer html5InstanceId;
 
+	private String overrideClientConfigs;
+
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
@@ -1131,4 +1133,12 @@ public class Meeting {
     		return new Meeting(this);
     	}
     }
+
+	public String getOverrideClientConfigs() {
+		return overrideClientConfigs;
+	}
+
+	public void setOverrideClientConfigs(String overrideClientConfigs) {
+		this.overrideClientConfigs = overrideClientConfigs;
+	}
 }

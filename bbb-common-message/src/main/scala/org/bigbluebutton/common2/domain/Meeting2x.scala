@@ -17,7 +17,10 @@ case class MeetingProp(
     notifyRecordingIsOn:                    Boolean,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
+    overrideClientConfigs:                  String,
 )
+
+
 
 case class BreakoutProps(
     parentId:           String,
@@ -119,3 +122,5 @@ case class UserVO(id: String, externalId: String, name: String, role: String,
 case class VoiceUserVO(userId: String, webUserId: String, callerName: String,
                        callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
                        talking: Boolean, avatarURL: String, listenOnly: Boolean)
+
+
