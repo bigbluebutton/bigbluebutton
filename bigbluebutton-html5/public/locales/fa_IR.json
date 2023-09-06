@@ -214,7 +214,7 @@
     "app.screenshare.viewerLoadingLabel": "اشتراک صفحهٔ ارائه‌دهنده درحال بارگیری است",
     "app.screenshare.presenterSharingLabel": "اکنون شما درحال هم‌رسانی صفحهٔ نمایش‌تان هستید",
     "app.screenshare.screenshareFinalError": "کد {0}: هم‌رسانی صفحهٔ نمایش امکان‌پذیر نیست.",
-    "app.screenshare.screenshareRetryError": "کد {0}: دوباره سعی کنید صفحهٔ نمایش را به اشتراک بگذارید. ",
+    "app.screenshare.screenshareRetryError": "کد {0}: دوباره سعی کنید صفحهٔ نمایش را هم‌رسانی کنید.",
     "app.screenshare.screenshareRetryOtherEnvError": "کد {0}: هم‌رسانی صفحهٔ نمایش امکان‌پذیر نیست. با مرورگر یا وسیله دیگری امتحان کنید.",
     "app.screenshare.screenshareUnsupportedEnv": "کد {0}: مرورگر پشتیبانی نمی‌شود. با مرورگر یا وسیلهٔ دیگری امتحان کنید.",
     "app.screenshare.screensharePermissionError": "کد {0}: باید اجازهٔ گرفتن تصویر از صفحه داده شود.",
