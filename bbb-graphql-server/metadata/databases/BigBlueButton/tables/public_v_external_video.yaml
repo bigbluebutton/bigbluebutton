@@ -12,13 +12,12 @@ select_permissions:
       columns:
         - externalVideoId
         - externalVideoUrl
-        - lastEventAt
-        - lastEventDesc
-        - playerRate
-        - playerState
-        - playerTime
-        - startedAt
-        - stoppedAt
+        - playerPlaybackRate
+        - playerPlaying
+        - playerCurrentTime
+        - startedSharingAt
+        - stoppedSharingAt
+        - updatedAt
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
