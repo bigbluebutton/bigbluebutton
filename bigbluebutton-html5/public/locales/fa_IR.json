@@ -447,7 +447,7 @@
     "app.navBar.settingsDropdown.endMeetingDesc": "جلسهٔ کنونی را پایان می‌دهد",
     "app.navBar.settingsDropdown.endMeetingLabel": "اتمام جلسه",
     "app.navBar.userListToggleBtnLabel": "تغییر وضعیت نمایش فهرست کاربران",
-    "app.navBar.toggleUserList.ariaLabel": "تغییر وضعیت نمایش کاربران و پیام ها",
+    "app.navBar.toggleUserList.ariaLabel": "تغییر وضعیت نمایش کاربران و پیام‌ها",
     "app.navBar.toggleUserList.newMessages": "با آگاه‌سازی پیام جدید",
     "app.navBar.toggleUserList.newMsgAria": "پیام جدید از {0}",
     "app.navBar.recording": "جلسه درحال ضبط شدن است",
