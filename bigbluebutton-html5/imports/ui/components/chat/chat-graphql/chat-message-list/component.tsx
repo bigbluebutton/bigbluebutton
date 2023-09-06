@@ -16,6 +16,8 @@ import { Chat } from '/imports/ui/Types/chat';
 import { Message } from '/imports/ui/Types/message';
 import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
+import ChatPopupContainer from '../chat-popup/component';
+import { defineMessages, useIntl } from "react-intl";
 import { Layout } from '/imports/ui/Types/layout';
 import ChatPopupContainer from '../chat-popup/component';
 import { ChatEvents } from "/imports/ui/core/enums/chat";
@@ -42,9 +44,8 @@ interface ChatListProps {
   totalPages: number;
   chatId: string;
   currentUserId: string;
-  setMessageAsSeenMutation: (variables: any) => void;
-  totalUnread?: number;
-  lastSeenAt: number;
+  setMessageAsSeenMutation: (variables: {chatId: string,
+        lastSeenAt: number}) => void;
 }
 const isElement = (el: any): el is HTMLElement => {
   return el instanceof HTMLElement;
@@ -267,7 +268,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                       }
                       setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
                     }
-                  }
+                    }
                 >
                   {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
                 </ButtonLoadMore>
@@ -278,7 +279,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           <ChatPopupContainer />
           {
             // @ts-ignore
-            Array.from({ length: pagesToLoad }, (_v, k) => k + firstPageToLoad).map((page) => {
+            Array.from({ length: pagesToLoad }, (v, k) => k + firstPageToLoad).map((page) => {
               return (
                 <ChatListPage
                   key={`page-${page}`}
@@ -297,12 +298,11 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         </div>
       </MessageList>
     </MessageListWrapper >
-
   );
 }
 
-const ChatMessageListContainer: React.FC<Layout> = ({ }) => {
-  const idChatOpen = layoutSelect((i: idChatOpen) => i.idChatOpen);
+const ChatMessageListContainer: React.FC = ({ }) => {
+  const idChatOpen = layoutSelect((i: { idChatOpen: any; }) => i.idChatOpen);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
   const currentChat = useChat((chat) => {

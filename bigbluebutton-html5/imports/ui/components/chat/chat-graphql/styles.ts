@@ -3,7 +3,11 @@ import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-compone
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 
-export const Chat = styled.div`
+interface ChatProps {
+  isChrome: boolean;
+}
+
+export const Chat = styled.div<ChatProps>`
   background-color: ${colorWhite};
   padding: ${mdPaddingX};
   padding-bottom: 0;
@@ -43,9 +47,7 @@ export const Chat = styled.div`
     text-decoration-line: none;
   }
 
-  ${({ isChrome }) =>
-    isChrome &&
-    `
+  ${({ isChrome }) => isChrome && `
     transform: translateZ(0);
   `}
 
