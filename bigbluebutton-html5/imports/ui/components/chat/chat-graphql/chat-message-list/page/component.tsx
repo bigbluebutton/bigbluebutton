@@ -18,6 +18,7 @@ interface ChatListPageContainerProps {
   pageSize: number;
   setLastSender: Function;
   lastSenderPreviousPage: string | undefined;
+  lastSeenAt: number,
   chatId: string;
   markMessageAsSeen: Function;
   scrollRef: React.RefObject<HTMLDivElement>;

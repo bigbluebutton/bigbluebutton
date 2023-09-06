@@ -4,7 +4,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.models.{ Users2x, Roles }
+import org.bigbluebutton.core.db.BreakoutRoomUserDAO
+import org.bigbluebutton.core.models.{ Roles, Users2x }
 
 trait RequestBreakoutJoinURLReqMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -23,6 +24,9 @@ trait RequestBreakoutJoinURLReqMsgHdlr extends RightsManagementTrait {
         requesterUser <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
       } yield {
         if (requesterUser.role == Roles.MODERATOR_ROLE || room.freeJoin) {
+
+          BreakoutRoomUserDAO.insertBreakoutRoom(requesterUser.intId, room, liveMeeting)
+
           BreakoutHdlrHelpers.sendJoinURL(
             liveMeeting,
             outGW,
