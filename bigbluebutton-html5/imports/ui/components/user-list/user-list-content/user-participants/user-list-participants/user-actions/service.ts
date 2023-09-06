@@ -1,6 +1,8 @@
-
 import { User } from '/imports/ui/Types/user';
-import {LockSettings, UsersPolicies} from '/imports/ui/Types/meeting';
+import {
+  LockSettings,
+  UsersPolicies,
+} from '/imports/ui/Types/meeting';
 import Auth from '/imports/ui/services/auth';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
@@ -12,7 +14,7 @@ import { throttle } from 'radash';
 // @ts-ignore - temporary, while meteor exists in the project
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
 
-export const isVoiceOnlyUser = (userId:string) => userId.toString().startsWith('v_');
+export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
 export const isMe = (userId: string) => userId === Auth.userID;
 
@@ -22,8 +24,7 @@ export const generateActionsPermissions = (
   lockSettings: LockSettings,
   usersPolicies: UsersPolicies,
   isBreakout: boolean,
-  ) => {
-
+) => {
   const subjectUserVoice = subjectUser.voice;
 
   const amIModerator = currentUser.isModerator;
@@ -33,74 +34,73 @@ export const generateActionsPermissions = (
   const isSubjectUserGuest = subjectUser.guest;
   const hasAuthority = currentUser.isModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
-  
   const allowedToMuteAudio = hasAuthority
     && subjectUserVoice?.joined
     && !subjectUserVoice?.muted
     && !subjectUserVoice?.listenOnly;
 
-    const allowedToUnmuteAudio = hasAuthority
+  const allowedToUnmuteAudio = hasAuthority
     && subjectUserVoice?.joined
     && !subjectUserVoice.listenOnly
     && subjectUserVoice.muted
-    && (amISubjectUser || usersPolicies.allowModsToUnmuteUsers);  
+    && (amISubjectUser || usersPolicies.allowModsToUnmuteUsers);
 
-    const allowedToResetStatus = hasAuthority
+  const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
     && !isDialInUser;
 
-    // if currentUser is a moderator, allow removing other users
-    const allowedToRemove = amIModerator
+  // if currentUser is a moderator, allow removing other users
+  const allowedToRemove = amIModerator
     && !amISubjectUser
     && !isBreakout;
 
-    const allowedToPromote = amIModerator
+  const allowedToPromote = amIModerator
     && !amISubjectUser
     && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
     && !(isSubjectUserGuest && usersPolicies.authenticatedGuest);
 
-    const allowedToDemote = amIModerator
+  const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
     && !(isSubjectUserGuest && usersPolicies.authenticatedGuest);
 
-    const allowedToChangeStatus = amISubjectUser;
+  const allowedToChangeStatus = amISubjectUser;
 
-    const allowedToChangeUserLockStatus = amIModerator
+  const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
     && lockSettings.hasActiveLockSetting;
 
-    const allowedToChangeWhiteboardAccess = currentUser.presenter
+  const allowedToChangeWhiteboardAccess = currentUser.presenter
     && !amISubjectUser;
 
-    const allowedToEjectCameras = amIModerator
+  const allowedToEjectCameras = amIModerator
     && !amISubjectUser
     && usersPolicies.allowModsToEjectCameras;
 
-    const allowedToSetPresenter = amIModerator
+  const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
-    // @ts-ignore - temporary, while meteor exists in the project
-    const allowUserLookup = Meteor.settings.public.app.allowUserLookup;
-    return {
-      allowedToChatPrivately,
-      allowedToMuteAudio,
-      allowedToUnmuteAudio,
-      allowedToResetStatus,
-      allowedToRemove,
-      allowedToSetPresenter,
-      allowedToPromote,
-      allowedToDemote,
-      allowedToChangeStatus,
-      allowedToChangeUserLockStatus,
-      allowedToChangeWhiteboardAccess,
-      allowedToEjectCameras,
-      allowUserLookup,
-    };
+  // @ts-ignore - temporary, while meteor exists in the project
+  const { allowUserLookup } = Meteor.settings.public.app;
+  return {
+    allowedToChatPrivately,
+    allowedToMuteAudio,
+    allowedToUnmuteAudio,
+    allowedToResetStatus,
+    allowedToRemove,
+    allowedToSetPresenter,
+    allowedToPromote,
+    allowedToDemote,
+    allowedToChangeStatus,
+    allowedToChangeUserLockStatus,
+    allowedToChangeWhiteboardAccess,
+    allowedToEjectCameras,
+    allowUserLookup,
+  };
 };
 
 export const isVideoPinEnabledForCurrentUser = (
@@ -113,8 +113,7 @@ export const isVideoPinEnabledForCurrentUser = (
   return !!(isModerator
     && isPinEnabled
     && !isBreakout);
-}
-
+};
 
 // actions
 // disclaimer: For the first version of the userlist using graphql
@@ -145,7 +144,7 @@ export const toggleVoice = (userId: string) => {
   }
 };
 
-export const changeWhiteboardAccess = (userId:string, whiteboardAccess:boolean) => {
+export const changeWhiteboardAccess = (userId: string, whiteboardAccess: boolean) => {
   WhiteboardService.changeWhiteboardAccess(userId, !whiteboardAccess);
 };
 
@@ -156,5 +155,3 @@ export const removeUser = (userId: string, banUser: boolean) => {
     makeCall('removeUser', userId, banUser);
   }
 };
-
-

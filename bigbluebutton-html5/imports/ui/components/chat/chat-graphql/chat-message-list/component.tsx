@@ -1,22 +1,25 @@
-import React, { useCallback, useEffect, useState, useMemo } from "react";
-import { Meteor } from "meteor/meteor";
-import { makeVar, useMutation } from "@apollo/client";
-import { LAST_SEEN_MUTATION } from "./queries";
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { Meteor } from 'meteor/meteor';
+import { makeVar, useMutation } from '@apollo/client';
+import { defineMessages, useIntl } from 'react-intl';
+import { LAST_SEEN_MUTATION } from './queries';
 import {
   ButtonLoadMore,
   MessageList,
   MessageListWrapper,
-  UnreadButton,
-} from "./styles";
-import { layoutSelect } from "../../../layout/context";
-import ChatListPage from "./page/component";
+} from './styles';
+import { layoutSelect } from '../../../layout/context';
+import ChatListPage from './page/component';
+import Events from '/imports/ui/core/events/events';
+import useChat from '/imports/ui/core/hooks/useChat';
+import { Chat } from '/imports/ui/Types/chat';
+import { Message } from '/imports/ui/Types/message';
+import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import { User } from '/imports/ui/Types/user';
+import ChatPopupContainer from '../chat-popup/component';
 import { defineMessages, useIntl } from "react-intl";
-import useChat from "/imports/ui/core/hooks/useChat";
-import { Chat } from "/imports/ui/Types/chat";
-import { Message } from "/imports/ui/Types/message";
-import { useCurrentUser } from "/imports/ui/core/hooks/useCurrentUser";
-import { User } from "/imports/ui/Types/user";
-import ChatPopupContainer from "../chat-popup/component";
+import { Layout } from '/imports/ui/Types/layout';
+import ChatPopupContainer from '../chat-popup/component';
 import { ChatEvents } from "/imports/ui/core/enums/chat";
 
 // @ts-ignore - temporary, while meteor exists in the project
@@ -41,9 +44,8 @@ interface ChatListProps {
   totalPages: number;
   chatId: string;
   currentUserId: string;
-  setMessageAsSeenMutation: Function;
-  totalUnread?: number;
-  lastSeenAt: number;
+  setMessageAsSeenMutation: (variables: {chatId: string,
+        lastSeenAt: number}) => void;
 }
 const isElement = (el: any): el is HTMLElement => {
   return el instanceof HTMLElement;
@@ -105,8 +107,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   totalUnread,
 }) => {
   const intl = useIntl();
-  const messageListRef = React.useRef<HTMLDivElement>();
-  const contentRef = React.useRef<HTMLDivElement>();
+  const messageListRef = React.useRef<HTMLDivElement | null>(null);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
   const messagesEndRef = React.useRef<HTMLDivElement>();
@@ -267,43 +269,40 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                       setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
                     }
                     }
-                  >
-                    {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
-                  </ButtonLoadMore>
-                ) : null
-            }
-          </span>
-          <div id="contentRef" ref={contentRef} data-test="contentRef">
-            <ChatPopupContainer />
-            {
-              // @ts-ignore
-              Array.from({ length: pagesToLoad }, (v, k) => k + (firstPageToLoad)).map((page) => {
-                return (
-                  <ChatListPage
-                    key={`page-${page}`}
-                    page={page}
-                    pageSize={PAGE_SIZE}
-                    setLastSender={setLastSender(lastSenderPerPage.current)}
-                    lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
-                    chatId={chatId}
-                    markMessageAsSeen={markMessageAsSeen}
-                    scrollRef={messageListRef}
-                    lastSeenAt={lastSeenAt}
-                  />
-                )
-              })
-            }
-          </div>
-          <div ref={messagesEndRef} />
-        </MessageList>
-      </MessageListWrapper >,
-      renderUnreadNotification,
-    ]
+                >
+                  {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
+                </ButtonLoadMore>
+              ) : null
+          }
+        </span>
+        <div id='contentRef' ref={contentRef}  data-test="contentRef">
+          <ChatPopupContainer />
+          {
+            // @ts-ignore
+            Array.from({ length: pagesToLoad }, (v, k) => k + firstPageToLoad).map((page) => {
+              return (
+                <ChatListPage
+                  key={`page-${page}`}
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  setLastSender={setLastSender(lastSenderPerPage.current)}
+                  lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
+                  chatId={chatId}
+                  markMessageAsSeen={markMessageAsSeen}
+                  scrollRef={messageListRef}
+                  lastSeenAt={lastSeenAt}
+                />
+              )
+            })
+          }
+        </div>
+      </MessageList>
+    </MessageListWrapper >
   );
 }
 
 const ChatMessageListContainer: React.FC = ({ }) => {
-  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const idChatOpen = layoutSelect((i: { idChatOpen: any; }) => i.idChatOpen);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
   const currentChat = useChat((chat) => {

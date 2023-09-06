@@ -103,8 +103,7 @@ const TalkingIndicatorButton = styled(Button)`
     }
   `}
 
-  ${({ $muted }) => $muted
-    && `
+  ${({ $muted }) => $muted && `
     cursor: default;
 
     i {
@@ -126,13 +125,12 @@ const CCIcon = styled(Icon)`
   opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`) || '1;'};
 `;
 
-const TalkingIndicatorWrapper = styled.div<{ muted: boolean; talking: boolean; }>`
+const TalkingIndicatorWrapper = styled.div<{ muted?: boolean; talking?: boolean; }>`
   border-radius: ${talkerBorderRadius} ${talkerBorderRadius};
   display: flex;
   margin: 0 ${borderRadius};
   opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`) || '1;'};
-  background: ${({ talking }) =>
-    talking ? `${colorSuccess}` : `${colorBackground};`};
+  background: ${({ talking }) => (talking ? `${colorSuccess}` : `${colorBackground};`)};
 `;
 
 const Hidden = styled.div`

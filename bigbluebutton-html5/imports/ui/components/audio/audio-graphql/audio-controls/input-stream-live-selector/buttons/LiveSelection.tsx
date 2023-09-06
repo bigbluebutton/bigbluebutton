@@ -3,6 +3,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { defineMessages, useIntl } from "react-intl";
 import { useShortcut } from "/imports/ui/core/hooks/useShortcut";
 import BBBMenu from '/imports/ui/components/common/menu/component';
+import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes'
 import Styled from '../styles';
 import {
   handleLeaveAudio,
@@ -54,17 +55,6 @@ const intlMessages = defineMessages({
   },
 });
 
-type DeviceListItemType = {
-  key?: string;
-  dataTest?: string;
-  label?: string;
-  customStyles?: object;
-  iconRight?: string;
-  onClick?: Function;
-  disabled?: boolean;
-  divider?: true,
-};
-
 interface MuteToggleProps {
   talking: boolean;
   muted: boolean;
@@ -114,11 +104,14 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         iconRight: (deviceKind === 'audioinput') ? 'unmute' : 'volume_level_2',
         disabled: true,
         customStyles: Styled.DisabledLabel,
-        divider: true,
-      } as DeviceListItemType,
+      } as MenuOptionItemType,
+      {
+        key: 'separator-01',
+        isSeparator: true,
+      } as MenuSeparatorItemType,
     ];
 
-    let deviceList: DeviceListItemType[] = [];
+    let deviceList: MenuOptionItemType[] = [];
 
     if (listLength > 0) {
       deviceList = list.map((device, index) => (
@@ -129,7 +122,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           customStyles: (device.deviceId === currentDeviceId) ? Styled.SelectedLabel : null,
           iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
           onClick: () => onDeviceListClick(device.deviceId, deviceKind, callback),
-        } as DeviceListItemType
+        } as MenuOptionItemType
       ));
     } else if (deviceKind === AUDIO_OUTPUT && !SET_SINK_ID_SUPPORTED && listLength === 0) {
       // If the browser doesn't support setSinkId, show the chosen output device
@@ -141,7 +134,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           customStyles: Styled.SelectedLabel,
           iconRight: 'check',
           disabled: true,
-        } as DeviceListItemType
+        } as MenuOptionItemType,
       ];
     } else {
       deviceList = [
@@ -150,7 +143,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           label: listLength < 0
             ? intl.formatMessage(intlMessages.loading)
             : intl.formatMessage(intlMessages.noDeviceFound),
-        } as DeviceListItemType,
+        } as MenuOptionItemType,
       ];
     }
 
@@ -193,10 +186,14 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     key: 'leaveAudioOption',
     dataTest: 'leaveAudio',
     customStyles: Styled.DangerColor,
-    dividerTop: true,
     onClick: () => handleLeaveAudio(meetingIsBreakout),
   };
-  const dropdownListComplete = inputDeviceList.concat(outputDeviceList).concat(leaveAudioOption);
+  const dropdownListComplete = inputDeviceList.concat(outputDeviceList)
+    .concat({
+      key: 'separator-02',
+      isSeparator: true,
+    })
+    .concat(leaveAudioOption);
   const customStyles = { top: '-1rem' };
   const { isMobile } = deviceInfo;
   return (
