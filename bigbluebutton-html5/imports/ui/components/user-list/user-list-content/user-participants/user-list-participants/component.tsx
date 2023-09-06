@@ -37,12 +37,14 @@ interface RowRendererProps extends ListProps {
   index: number;
 }
 const rowRenderer: React.FC<RowRendererProps> = ({
-  index, key, style, users, validCurrentUser, offset, meeting,
+  index, key, style, users, validCurrentUser, offset, meeting, isRTL,
 }) => {
   const userIndex = index - offset;
   const user = users && users[userIndex];
+  const direction = isRTL ? 'rtl' : 'ltr';
+
   return (
-    <div key={key} style={style}>
+    <div key={key} style={{...style, direction}}>
       {user && validCurrentUser && meeting ? (
         <UserActions
           user={user}
@@ -86,7 +88,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           <Styled.VirtualizedList
             rowRenderer={
               (props: RowRendererProps) => rowRenderer(
-                { ...props, users: users || previousUsersData, validCurrentUser, offset, meeting }
+                { ...props, users: users || previousUsersData, validCurrentUser, offset, meeting, isRTL }
               )
             }
             noRowRenderer={() => <div>no users</div>}
