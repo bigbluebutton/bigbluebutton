@@ -1236,7 +1236,7 @@
     "app.externalVideo.subtitlesOn": "خاموش‌کردن",
     "app.externalVideo.subtitlesOff": "روشن‌کردن (در صورت وجود)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "هم‌رسانی یک ویدیوی خارجی",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "توقف اشتراک‌گذاری ویدیوی خارجی",
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "توقف هم‌رسانی ویدیوی خارجی",
     "app.legacy.unsupportedBrowser": "به نظر می‌رسد شما از مرورگری استفاده می‌کنید که پشتیبانی نمی‌شود. لطفا برای پشتیبانی کامل از {0} یا {1} استفاده کنید.",
     "app.legacy.upgradeBrowser": "به نظر می‌رسد شما از نگارشِ قدیمی یک مرورگر پشتیبانی‌شده استفاده می‌کنید. لطفا برای پشتیبانی کامل مرورگر خود را به‌روزرسانی کنید.",
     "app.legacy.criosBrowser": "در iOS برای پشتیبانی کامل لطفا از سافاری استفاده کنید.",
