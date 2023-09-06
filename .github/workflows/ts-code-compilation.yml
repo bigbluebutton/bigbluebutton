@@ -15,7 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetch all history
+          fetch-depth: 1
+      - name: Merge branches
+        uses: ./.github/actions/merge-branches
       - name: install meteor
         run: curl https://install.meteor.com/ | sh
       - name: run meteor npm install
