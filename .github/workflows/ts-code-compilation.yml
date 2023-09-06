@@ -1,14 +1,20 @@
 name: Typescript - compile code
 on:
   push:
-  pull_request_target:
-    types:
-      - opened
-      - synchronize
-
+    branches:
+      - "develop"
+      - "v2.[5-9].x-release"
+      - "v[3-9].*.x-release"
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
 permissions:
   contents: read
-
 jobs:
   ts-code-compilation:
     runs-on: ubuntu-22.04
