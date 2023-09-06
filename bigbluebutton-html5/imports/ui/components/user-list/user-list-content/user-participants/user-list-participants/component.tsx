@@ -31,22 +31,22 @@ interface UserListParticipantsProps {
 }
 interface RowRendererProps extends ListProps {
   users: Array<User>;
-  currentUser: User;
+  validCurrentUser: User;
   meeting: Meeting;
   offset: number;
   index: number;
 }
 const rowRenderer: React.FC<RowRendererProps> = ({
-  index, key, style, users, currentUser, offset, meeting,
+  index, key, style, users, validCurrentUser, offset, meeting,
 }) => {
   const userIndex = index - offset;
   const user = users && users[userIndex];
   return (
     <div key={key} style={style}>
-      {user && currentUser && meeting ? (
+      {user && validCurrentUser && meeting ? (
         <UserActions
           user={user}
-          currentUser={currentUser}
+          currentUser={validCurrentUser}
           lockSettings={meeting.lockSettings}
           usersPolicies={meeting.usersPolicies}
           isBreakout={meeting.isBreakout}
@@ -72,13 +72,14 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const validCurrentUser: Partial<User> | undefined = currentUser && currentUser.userId
     ? currentUser
     : undefined;
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+//  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [previousUsersData, setPreviousUsersData] = React.useState(users);
   useEffect(() => {
     if (users?.length) {
       setPreviousUsersData(users);
     }
   }, [users]);
+  console.log('r',{users})
   return (
     <Styled.UserListColumn>
       <AutoSizer>
@@ -144,6 +145,7 @@ const UserListParticipantsContainer: React.FC = () => {
       limit,
     });
   }, [offset, limit]);
+  console.log('q', {users, currentUser})
   return <>
     <UserListParticipants
       users={users}

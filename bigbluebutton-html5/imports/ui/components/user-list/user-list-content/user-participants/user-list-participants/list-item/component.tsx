@@ -104,16 +104,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     none: 'none',
   } as const;
   const emojiKey = user.emoji;
-  const emojiIcon = emojiKey !== 'none' ? EMOJI_STATUSES[emojiKey as EmojiStatus] : user.name.toLowerCase().slice(0, 2);
-
-  const iconUser = (
-    <Icon
-      iconName={emojiIcon}
-      className={undefined}
-      prependIconName={undefined}
-      rotate={undefined}
-    />
-  );
+  const iconUser = emojiKey !== 'none' ? EMOJI_STATUSES[emojiKey as EmojiStatus] : user.name.toLowerCase().slice(0, 2);
 
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser
 
