@@ -184,7 +184,6 @@ Under the hood, BigBlueButton 2.6 installs on Ubuntu 20.04 64-bit, and the follo
 - Spring 2.7.12
 - NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
 - Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
-- Grails 5.3.2
 - GORM 7.3.1
 - Groovy 3.0.11
 
@@ -192,6 +191,7 @@ For full details on what is new in BigBlueButton 2.6, see the release notes.
 
 ### Recent releases:
 
+- [2.6.14](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.14)
 - [2.6.12](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.12)
 - [2.6.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.11)
 - [2.6.10](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.10)
