@@ -22,28 +22,28 @@ import {
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-
 interface AvatarProps {
-  moderator: string;
-  presenter: string;
-  talking: boolean;
-  muted: boolean;
-  listenOnly: boolean;
-  voice: boolean;
-  noVoice: boolean;
-  color: string;
-  whiteboardAccess: boolean;
-  animations: boolean;
-  emoji: string;
-  avatar: string;
-  isChrome: boolean;
-  isFirefox: boolean;
-  isEdge: boolean;
+    moderator?: boolean;
+    presenter?: boolean;
+    talking?: boolean;
+    muted?: boolean;
+    listenOnly?: boolean;
+    voice?: boolean;
+    noVoice?: boolean;
+    color?: string;
+    whiteboardAccess?: boolean;
+    animations?: boolean;
+    emoji?: boolean;
+    avatar?: string;
+    isChrome?: boolean;
+    isFirefox?: boolean;
+    isEdge?: boolean;
+    isSkeleton?: boolean;
 }
 
 interface UserItemContentsProps {
-  selected: boolean;
-  isActionsOpen: boolean;
+  selected?: boolean;
+  isActionsOpen?: boolean;
 }
 
 const UserItemContents = styled.div<UserItemContentsProps>`
@@ -407,4 +407,4 @@ export default {
   UserNameContainer,
   UserNameSub,
   UserName,
-}
+};

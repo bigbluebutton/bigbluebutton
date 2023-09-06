@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.BreakoutRoomUsersUpdateInternalMsg
-import org.bigbluebutton.core.db.UserBreakoutRoomDAO
+import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, UserBreakoutRoomDAO }
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
@@ -53,8 +53,8 @@ trait BreakoutRoomUsersUpdateMsgHdlr {
         breakoutRoomUser <- updatedRoom.users
         u <- RegisteredUsers.findWithBreakoutRoomId(breakoutRoomUser.id, liveMeeting.registeredUsers)
       } yield u.id
-
       UserBreakoutRoomDAO.updateLastBreakoutRoom(usersInRoom, updatedRoom)
+      BreakoutRoomUserDAO.updateUserJoined(usersInRoom, updatedRoom)
       model.update(updatedRoom)
     }
 
