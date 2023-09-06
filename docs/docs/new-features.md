@@ -3,8 +3,6 @@
 
 ## Overview
 
-#### Note: this document is a draft. BigBlueButton 2.7 is still under development.
-
 BigBlueButton 2.7 offers users improved usability, increased engagement, and more performance.
 
 - **Usability** - making common functions (such as raise hand) easier
@@ -142,6 +140,7 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0)
 - [2.7.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.2)
 - [2.7.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.1)
 - [2.7.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.3)

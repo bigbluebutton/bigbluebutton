@@ -24,7 +24,7 @@ for branch in "${BRANCHES[@]}"; do
   if [ -f docusaurus.config.js ]; then
     version=${branch:1:3}
     if [ version == "2.7" ]; then
-      version="2.7-dev"
+      version="2.7"
     fi
     echo "Adding documentation for $version"
     yarn docusaurus docs:version "${version}"
