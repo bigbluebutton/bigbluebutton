@@ -133,7 +133,7 @@ vi ~/.profile
 Add the following line at the end of the file
 
 ```bash
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ```
 
 Reload your profile (this will happen automatically when you next login, but we'll do it explicitly here to load the new environment variable).
@@ -146,7 +146,7 @@ Do a quick test to ensure JAVA_HOME is set.
 
 ```bash
 $ echo $JAVA_HOME
-/usr/lib/jvm/java-11-openjdk-amd64
+/usr/lib/jvm/java-17-openjdk-amd64
 ```
 
 In the next step, you need to install a number of tools using sdkman.
@@ -156,7 +156,7 @@ curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 sdk install gradle 7.3.1
-sdk install grails 5.0.1
+sdk install grails 5.3.2
 sdk install sbt 1.6.2
 sdk install maven 3.5.0
 ```

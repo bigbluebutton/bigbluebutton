@@ -179,14 +179,20 @@ Allows for quicker, more efficient search and retrieval of recording data.
 ### Upgraded components
 
 Under the hood, BigBlueButton 2.6 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
-- Meteor 2.12
-- Grails 5.2.4
+- Meteor 2.13
+- Grails 5.3.2
 - Spring 2.7.12
+- NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
+- Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
+- GORM 7.3.1
+- Groovy 3.0.11
 
 For full details on what is new in BigBlueButton 2.6, see the release notes.
 
 ### Recent releases:
 
+- [2.6.14](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.14)
+- [2.6.12](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.12)
 - [2.6.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.11)
 - [2.6.10](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.10)
 - [2.6.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.9)
@@ -250,6 +256,34 @@ In case you are overriding the file/filename, please pass `beans.presentationSer
 #### Limiting the whiteboard annotations to 300 per slide (configurable)
 
 We introduced this configuration as a safeguard against people deliberately trying to deteriorate others' experience. In some cases the default limit could be reached in normal use of the whiteboard (small letter handwriting while zoomed in, etc). We have exposed this value in the configurations file for bbb-html5. You can find more info in the [customization presentation section](https://docs.bigbluebutton.org/administration/customize#change-the-limit-of-300-annotations-per-page) .
+
+#### NodeJS upgrade introduced in BigBlueButton 2.6.14 (backport from BBB 2.7)
+
+Up to BigBlueButton 2.6.12 we were using NodeJS v16 from the system (and were installing version v16 in bbb-install-26.sh). Given that NodeJS v16 will no longer be maintained starting September 11, 2023, we have backported support for NodeJS v18 and are modifying bbb-install-2.6.sh to install this newer version too. However, for existing BigBlueButton servers this was not sufficient to guarantee the use of version v18, so we also included this requirement in the packages of `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-pads`, `bbb-etherpad`, `bbb-webhooks`.
+Note that `bbb-html5` package uses a custom version of NodeJS included in BBB's packaging (version 14.21.x with extended support for ~8 more months provided by Meteor.js)
+
+At time of installing BigBlueButton 2.6.14 (over 2.6.12 or earlier), unless you have already handled the transition to NodeJS v18 you will see the following:
+
+```
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ bbb-export-annotations : Depends: nodejs (>= 18)
+E: Unable to correct problems, you have held broken packages.
+```
+
+In that case, please upgrade to v18. You can see what we do in bbb-install-2.6.sh: https://github.com/bigbluebutton/bbb-install/blob/ec26f92f10442387c15a3b7fd8de5b76c0b3bf72/bbb-install-2.6.sh#L294-L304
+
+Also check the official docs for managing NodeJS installations https://github.com/nodesource/distributions#installation-instructions
+
+#### Java upgrade introduced in BigBlueButton 2.6.14 (backport from BBB 2.7)
+
+Up to BigBlueButton 2.6.12 we were using Java 11 (and were installing version 16 in bbb-install-26.sh) for several of the core components. Given that the LTS premium support ends in September 2023, we have backported support for Java 17 LTS and are modifying bbb-install-2.6.sh to install this newer version too.
+Whether you upgrade to BigBlueButton 2.6.14+ via bbb-install-2.6.sh or just through packages, the upgrade should go smoothly. No extra steps are required.
 
 ### Development
 
