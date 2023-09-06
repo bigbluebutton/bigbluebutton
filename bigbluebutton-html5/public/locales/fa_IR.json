@@ -297,7 +297,7 @@
     "app.presentationUploader.export.originalLabel": "اصلی",
     "app.presentationUploader.export.inCurrentStateLabel": "در وضعیت کنونی",
     "app.presentationUploader.currentPresentationLabel": "ارائهٔ کنونی",
-    "app.presentationUploder.extraHint": "*مهم*: هر فایل نباید از {0} مگابایت و {1} صفحه تجاوز کند. ",
+    "app.presentationUploder.extraHint": "«مهم»: هر پرونده نباید از {0} مگابایت و {1} صفحه تجاوز کند. ",
     "app.presentationUploder.uploadLabel": "بارگذاری",
     "app.presentationUploder.confirmLabel": "تایید",
     "app.presentationUploder.confirmDesc": "تغییرات خود را ذخیره کنید و ارائه را شروع کنید",
