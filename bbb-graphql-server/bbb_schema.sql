@@ -1167,23 +1167,22 @@ WHERE poll."type" != 'R-';
 --------------------------------
 ----External video
 
-create table "external_video"(
+create table "externalVideo"(
 "externalVideoId" varchar(100) primary key,
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "externalVideoUrl" varchar(500),
-"startedAt" timestamp with time zone,
-"stoppedAt" timestamp with time zone,
-"lastEventAt" timestamp with time zone,
-"lastEventDesc" varchar(50),
-"playerRate" numeric,
-"playerTime" numeric,
-"playerState" integer
+"startedSharingAt" timestamp with time zone,
+"stoppedSharingAt" timestamp with time zone,
+"updatedAt" timestamp with time zone,
+"playerPlaybackRate" numeric,
+"playerCurrentTime" numeric,
+"playerPlaying" boolean
 );
-create index "external_video_meetingId_current" on "external_video"("meetingId") WHERE "stoppedAt" IS NULL;
+create index "externalVideo_meetingId_current" on "externalVideo"("meetingId") WHERE "stoppedSharingAt" IS NULL;
 
-CREATE VIEW "v_external_video" AS
-SELECT * FROM "external_video"
-WHERE "stoppedAt" IS NULL;
+CREATE VIEW "v_externalVideo" AS
+SELECT * FROM "externalVideo"
+WHERE "stoppedSharingAt" IS NULL;
 
 --------------------------------
 ----Screenshare

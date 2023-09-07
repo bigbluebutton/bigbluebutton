@@ -8,7 +8,7 @@
 - "!include public_v_chat_message_public.yaml"
 - "!include public_v_chat_user.yaml"
 - "!include public_v_current_time.yaml"
-- "!include public_v_external_video.yaml"
+- "!include public_v_externalVideo.yaml"
 - "!include public_v_meeting.yaml"
 - "!include public_v_meeting_breakoutPolicies.yaml"
 - "!include public_v_meeting_group.yaml"
