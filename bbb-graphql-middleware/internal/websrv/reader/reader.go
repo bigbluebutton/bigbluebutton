@@ -26,7 +26,7 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 		time.Sleep(100 * time.Millisecond)
 	}()
 
-	defer log.Infof("finished")
+	defer log.Debugf("finished")
 
 	for {
 		ctx, cancel := context.WithCancel(ctx)

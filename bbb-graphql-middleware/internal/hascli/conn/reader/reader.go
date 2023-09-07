@@ -16,7 +16,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
 
-	defer log.Info("finished")
+	defer log.Debugf("finished")
 
 	for {
 		// Read a message from hasura
@@ -50,7 +50,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 					hc.Browserconn.ActiveSubscriptionsMutex.Lock()
 					delete(hc.Browserconn.ActiveSubscriptions, queryId)
 					hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
-					log.Infof("Subscription with Id %s finished by Hasura.", queryId)
+					log.Debugf("Subscription with Id %s finished by Hasura.", queryId)
 				}
 
 				//Apply msg patch when it supports it
