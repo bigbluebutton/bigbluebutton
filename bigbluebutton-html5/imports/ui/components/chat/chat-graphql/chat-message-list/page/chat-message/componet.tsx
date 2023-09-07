@@ -1,30 +1,23 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Message } from '/imports/ui/Types/message';
+import ChatMessageHeader from './message-header/component';
+import ChatMessageTextContent from './message-content/text-content/component';
+import ChatPollContent from './message-content/poll-content/component';
+import ChatMessagePresentationContent from './message-content/presentation-content/component';
+import { defineMessages, useIntl } from 'react-intl';
 import {
   ChatWrapper,
   ChatContent,
   ChatAvatar,
 } from "./styles";
-import ChatMessageHeader from "./message-header/component";
-import ChatMessageTextContent from "./message-content/text-content/component";
-import ChatPollContent from "./message-content/poll-content/component";
-import ChatMessagePresentationContent from "./message-content/presentation-content/component";
-import { defineMessages, useIntl } from "react-intl";
-
+import { ChatMessageType } from '/imports/ui/core/enums/chat';
 
 interface ChatMessageProps {
   message: Message;
-  previousMessage?: Message;
-  lastSenderPreviousPage?: string | null;
+  previousMessage: Message;
+  lastSenderPreviousPage: string | null;
   scrollRef: React.RefObject<HTMLDivElement>;
-  markMessageAsSeen: Function;
-}
-
-const enum MessageType {
-  TEXT = 'default',
-  POLL = 'poll',
-  PRESENTATION = 'presentation',
-  CHAT_CLEAR = 'publicChatHistoryCleared'
+  markMessageAsSeen: (message: Message) => void;
 }
 
 const intlMessages = defineMessages({
@@ -50,31 +43,32 @@ function isInViewport(el: HTMLDivElement) {
   const rect = el.getBoundingClientRect();
 
   return (
-    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.bottom >= 0
+    rect.top <= (window.innerHeight || document.documentElement.clientHeight) && rect.bottom >= 0
   );
 }
 
+const messageRef = React.createRef<HTMLDivElement | null>();
+
 const ChatMesssage: React.FC<ChatMessageProps> = ({
-  message,
   previousMessage,
   lastSenderPreviousPage,
   scrollRef,
+  message,
   markMessageAsSeen,
 }) => {
   const intl = useIntl();
-  const messageRef = useRef<HTMLDivElement>(null);
-  const markMessageAsSeenOnScrollEnd = useCallback((message, messageRef) => {
+  const markMessageAsSeenOnScrollEnd = useCallback(() => {
     if (messageRef.current && isInViewport(messageRef.current)) {
       markMessageAsSeen(message);
     }
-  }, []);
+  }, [message, messageRef]);
 
   useEffect(() => {
-    // I use a function here to remove the event listener using the same reference 
     const callbackFunction = () => {
-      markMessageAsSeenOnScrollEnd(message, messageRef);
-    }
+      if (messageRef.current && isInViewport(messageRef.current)) {
+        markMessageAsSeen(message); // Pass the 'message' argument here
+      }
+    };
     if (message && scrollRef.current && messageRef.current) {
       if (isInViewport(messageRef.current)) {
         markMessageAsSeen(message);
@@ -83,14 +77,14 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       }
     }
     return () => {
-      scrollRef?.current
-        ?.removeEventListener('scrollend', callbackFunction);
-    }
-  }, [message, messageRef]);
+      scrollRef?.current?.removeEventListener('scrollend', callbackFunction);
+    };
+  }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
 
   if (!message) return null;
 
-  const sameSender = (previousMessage?.user?.userId || lastSenderPreviousPage) === message?.user?.userId;
+  const sameSender = (previousMessage?.user?.userId
+    || lastSenderPreviousPage) === message?.user?.userId;
   const dateTime = new Date(message?.createdTime);
   const messageContent: {
     name: string,
@@ -99,7 +93,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     component: React.ReactElement,
   } = useMemo(() => {
     switch (message.messageType) {
-      case MessageType.POLL:
+      case ChatMessageType.POLL:
         return {
           name: intl.formatMessage(intlMessages.pollResult),
           color: '#3B48A9',
@@ -108,7 +102,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             <ChatPollContent metadata={message.messageMetadata} />
           ),
         };
-      case MessageType.PRESENTATION:
+      case ChatMessageType.PRESENTATION:
         return {
           name: intl.formatMessage(intlMessages.presentationLabel),
           color: '#0F70D7',
@@ -117,19 +111,19 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             <ChatMessagePresentationContent metadata={message.messageMetadata} />
           ),
         };
-      case MessageType.CHAT_CLEAR:
+      case ChatMessageType.CHAT_CLEAR:
         return {
           name: intl.formatMessage(intlMessages.systemLabel),
           color: '#0F70D7',
           isModerator: true,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage={true}
+              emphasizedMessage
               text={intl.formatMessage(intlMessages.chatClear)}
             />
           ),
         };
-      case MessageType.TEXT:
+      case ChatMessageType.TEXT:
       default:
         return {
           name: message.user?.name,
@@ -141,35 +135,28 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               text={message.message}
             />
           ),
-        }
+        };
     }
   }, []);
   return (
-    <ChatWrapper
-      sameSender={sameSender}
-      ref={messageRef}
-    >
-      {(!message?.user || !sameSender)
-        && (
-          <ChatAvatar
-            avatar={message.user?.avatar}
-            color={messageContent.color}
-            moderator={messageContent.isModerator}
-          >
-            {messageContent.name.toLowerCase().slice(0, 2) || "  "}
-          </ChatAvatar>
-        )
-      }
+    <ChatWrapper sameSender={sameSender} ref={messageRef}>
+      {(!message?.user || !sameSender) && (
+        <ChatAvatar
+          avatar={message.user?.avatar}
+          color={messageContent.color}
+          moderator={messageContent.isModerator}
+        >
+          {messageContent.name.toLowerCase().slice(0, 2) || ' '}
+        </ChatAvatar>
+      )}
       <ChatContent sameSender={message?.user ? sameSender : false}>
-      <ChatMessageHeader
-        sameSender={message?.user ? sameSender : false}
-        name={messageContent.name}
-        isOnline={message.user?.isOnline ?? true}
-        dateTime={dateTime}
-      />
-        {
-          messageContent.component
-        }
+        <ChatMessageHeader
+          sameSender={message?.user ? sameSender : false}
+          name={messageContent.name}
+          isOnline={message.user?.isOnline ?? true}
+          dateTime={dateTime}
+        />
+        {messageContent.component}
       </ChatContent>
     </ChatWrapper>
   );

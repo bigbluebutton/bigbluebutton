@@ -23,7 +23,7 @@ object_relationships:
           meetingId: meetingId
         insertion_order: null
         remote_table:
-          name: v_external_video
+          name: v_externalVideo
           schema: public
   - name: lockSettings
     using:

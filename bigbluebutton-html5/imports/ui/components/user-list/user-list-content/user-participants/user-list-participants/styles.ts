@@ -17,7 +17,25 @@ import {
   VirtualizedScrollboxVertical,
 } from '/imports/ui/stylesheets/styled-components/scrollable';
 
-const Avatar = styled.div`
+interface AvatarProps {
+  color: string;
+  animations?: boolean;
+  moderator?: boolean;
+  presenter?: boolean;
+  isChrome?: boolean;
+  isFirefox?: boolean;
+  isEdge?: boolean;
+  whiteboardAccess?: boolean;
+  voice?: boolean;
+  muted?: boolean;
+  listenOnly?: boolean;
+  noVoice?: boolean;
+  avatar: string;
+  emoji: string;
+  talking?: boolean;
+}
+
+const Avatar = styled.div<AvatarProps>`
   position: relative;
   height: 2.25rem;
   width: 2.25rem;
@@ -231,7 +249,7 @@ const UserListColumn = styled.div`
   flex-grow: 1;
 `;
 
-const pulse = (color: String) => keyframes`
+const pulse = (color: string) => keyframes`
     0% {
       box-shadow: 0 0 0 0 ${color}80;
     }
@@ -256,4 +274,4 @@ export default {
   Skeleton,
   UserListColumn,
   VirtualizedList,
-}
+};

@@ -366,7 +366,7 @@ test.describe.parallel('Custom Parameters', () => {
 
   test('Display Branding Area', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { joinParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
+    await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
     await customParam.displayBrandingArea();
   });
 
@@ -506,7 +506,7 @@ test.describe.parallel('Custom Parameters', () => {
     test('Multi Users Pen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.multiUserPenOnly });
-      await customParam.initUserPage(true, context, { useModMeetingId: true, customParameter: c.multiUserPenOnly });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, createParameter: c.multiUserPenOnly });
       await customParam.multiUserPenOnly();
     });
 

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
-import { generateActionsPermissions, isVoiceOnlyUser } from './service';
 import { useIntl, defineMessages } from 'react-intl';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
@@ -11,6 +11,8 @@ import {
   changeWhiteboardAccess,
   isMe,
   removeUser,
+  generateActionsPermissions,
+  isVoiceOnlyUser,
 } from './service';
 
 import { makeCall } from '/imports/ui/services/api';
@@ -23,6 +25,8 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import Styled from './styles';
 
 interface UserActionsProps {
   user: User;
@@ -31,7 +35,18 @@ interface UserActionsProps {
   usersPolicies: UsersPolicies;
   isBreakout: boolean;
   children: React.ReactNode;
-};
+}
+
+interface DropdownItem {
+  key: string;
+  label: string | undefined;
+  icon: string | undefined;
+  tooltip: string | undefined;
+  allowed: boolean | undefined;
+  iconRight: string | undefined;
+  isSeparator: boolean | undefined;
+  onClick: (() => void) | undefined;
+}
 
 const messages = defineMessages({
   statusTriggerLabel: {
@@ -125,6 +140,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
   const actionsnPermitions = generateActionsPermissions(
     user,
     currentUser,
@@ -155,6 +171,13 @@ const UserActions: React.FC<UserActionsProps> = ({
   const userLocked = user.locked
     && lockSettings.hasActiveLockSetting
     && !user.isModerator;
+
+  let userListDropdownItems = [] as PluginSdk.UserListDropdownItem[];
+  if (pluginsProvidedAggregatedState.userListDropdownItems) {
+    userListDropdownItems = [
+      ...pluginsProvidedAggregatedState.userListDropdownItems,
+    ];
+  }
 
   const dropdownOptions = [
     {
@@ -342,6 +365,39 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
     },
+    ...userListDropdownItems.filter(
+      (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
+    ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
+      const returnValue: DropdownItem = {
+        isSeparator: false,
+        key: userListDropdownItem.id,
+        iconRight: undefined,
+        onClick: undefined,
+        label: undefined,
+        icon: undefined,
+        tooltip: undefined,
+        allowed: undefined,
+      };
+      switch (userListDropdownItem.type) {
+        case PluginSdk.UserListDropdownItemType.OPTION: {
+          const dropdownButton = userListDropdownItem as PluginSdk.UserListDropdownOption;
+          returnValue.label = dropdownButton.label;
+          returnValue.tooltip = dropdownButton.tooltip;
+          returnValue.icon = dropdownButton.icon;
+          returnValue.allowed = dropdownButton.allowed;
+          returnValue.onClick = dropdownButton.onClick;
+          break;
+        }
+        case PluginSdk.UserListDropdownItemType.SEPARATOR: {
+          returnValue.allowed = true;
+          returnValue.isSeparator = true;
+          break;
+        }
+        default:
+          break;
+      }
+      return returnValue;
+    }),
   ];
 
   const nestedOptions = [
@@ -351,7 +407,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.backTriggerLabel),
       onClick: () => setShowNestedOptions(false),
       icon: 'left_arrow',
-      divider: true,
+    },
+    {
+      allowed: showNestedOptions,
+      key: 'separator-01',
+      isSeparator: true,
     },
     ...Object.keys(EMOJI_STATUSES).map((key) => ({
       allowed: showNestedOptions,
@@ -375,7 +435,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     <BBBMenu
       trigger={
         (
-          <div
+          <Styled.UserActionsTrigger
             isActionsOpen={selected}
             selected={selected === true}
             tabIndex={-1}
@@ -388,7 +448,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             role="button"
           >
             {children}
-          </div>
+          </Styled.UserActionsTrigger>
         )
       }
       actions={actions}

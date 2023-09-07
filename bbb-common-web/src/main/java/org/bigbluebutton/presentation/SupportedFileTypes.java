@@ -62,7 +62,7 @@ public final class SupportedFileTypes {
 			add(JPEG); add(JPG); add(PNG);
 		}
 	});
-	
+
 	/*
 	 * Returns if the file with extension is supported.
 	 */

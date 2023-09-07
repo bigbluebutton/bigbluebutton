@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import logger from '/imports/startup/client/logger';
-
+import * as uuid from 'uuid';
 import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
 import PluginsEngineComponent from './component';
-import { PluginConfig, PluginsEngineContainerProps, EffectivePluginConfig } from './types';
+import { PluginConfig, EffectivePluginConfig } from './types';
 import PluginLoaderContainer from './plugin-loader/container';
 import PluginProvidedStateContainer from './plugin-provided-state/container';
-import * as uuid from 'uuid';
 
+// @ts-ignore - temporary, while meteor exists in the project
 const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
 const PluginsEngineContainer = () => {
@@ -19,14 +19,13 @@ const PluginsEngineContainer = () => {
   const loadedPlugins = useRef<number>(0);
 
   const effectivePluginsConfig: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(
-    () => PLUGINS_CONFIG.map((p: PluginConfig) => {
-    return {
+    () => PLUGINS_CONFIG.map((p: PluginConfig) => ({
       ...p,
       uuid: uuid.v4(),
-    } as EffectivePluginConfig
-  }), [
-    PLUGINS_CONFIG,
-  ]);
+    } as EffectivePluginConfig)), [
+      PLUGINS_CONFIG,
+    ],
+  );
 
   const totalNumberOfPlugins = PLUGINS_CONFIG?.length;
   window.React = React;
@@ -40,7 +39,7 @@ const PluginsEngineContainer = () => {
     <>
       <PluginsEngineComponent 
         {...{
-          containerRef
+          containerRef,
         }}
       />
       {
@@ -48,13 +47,13 @@ const PluginsEngineContainer = () => {
           const uuid = effectivePluginConfig.uuid;
           return (
             <div key={uuid}>
-              <PluginLoaderContainer 
+              <PluginLoaderContainer
                 {...{
                   uuid,
-                  containerRef, 
-                  loadedPlugins, 
+                  containerRef,
+                  loadedPlugins,
                   setLastLoadedPlugin,
-                  pluginConfig: effectivePluginConfig
+                  pluginConfig: effectivePluginConfig,
                 }}
               />
               <PluginProvidedStateContainer 

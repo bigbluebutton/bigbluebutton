@@ -1,16 +1,17 @@
-import { useEffect, useState, useContext } from 'react';
-import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types';
+import * as React from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { PluginsContext } from '../../components-data/plugin-context/context';
+
+import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types.ts';
+import PresentationToolbarPluginStateContainer from './presentation-toolbar/container';
+import UserListDropdownPluginStateContainer from './user-list-dropdown/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
   item: T, index: number,
 ): T {
-  const itemWithId = { ...item };
-  itemWithId.setItemId(`${index}`);
-  return itemWithId;
+  item.setItemId(`${index}`);
+  return item;
 }
 
 const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) => {
@@ -21,39 +22,22 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
     pluginProvidedStateMap[uuid] = {} as PluginProvidedState;
   }
   const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
-
-  const [
-    presentationToolbarItems,
-    setPresentationToolbarItems,
-  ] = useState<PluginSdk.PresentationToolbarItem[]>([]);
-
-  const {
-    pluginsProvidedAggregatedState,
-    setPluginsProvidedAggregatedState,
-  } = useContext(PluginsContext);
-
-  useEffect(() => {
-    // Change this plugin provided toolbar items
-    pluginProvidedStateMap[uuid].presentationToolbarItems = presentationToolbarItems;
-
-    // Update context with computed aggregated list of all plugin provided toolbar items
-    const aggregatedPresentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
-      ...Object.values(pluginProvidedStateMap)
-        .map((pps: PluginProvidedState) => pps.presentationToolbarItems),
-    );
-    setPluginsProvidedAggregatedState(
-      {
-        ...pluginsProvidedAggregatedState,
-        presentationToolbarItems: aggregatedPresentationToolbarItems,
-      },
-    );
-  }, [presentationToolbarItems]);
-
-  pluginApi.setPresentationToolbarItems = (items) => {
-    const itemsWithId = items.map(generateItemWithId);
-    return setPresentationToolbarItems(itemsWithId);
+  const pluginProvidedStateChildrenProps = {
+    uuid,
+    generateItemWithId,
+    pluginProvidedStateMap,
+    pluginApi,
   };
-  return null;
+  return (
+    <>
+      <PresentationToolbarPluginStateContainer
+        { ...pluginProvidedStateChildrenProps}
+      />
+      <UserListDropdownPluginStateContainer
+        { ...pluginProvidedStateChildrenProps}
+      />
+    </>
+  );
 };
 
 export default PluginProvidedStateContainer;

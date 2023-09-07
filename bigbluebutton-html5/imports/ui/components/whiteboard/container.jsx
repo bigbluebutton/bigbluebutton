@@ -3,19 +3,7 @@ import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
 import { ColorStyle, DashStyle, SizeStyle, TDShapeType } from '@tldraw/tldraw';
 import SettingsService from '/imports/ui/services/settings';
-import {
-  getShapes,
-  getCurrentPres,
-  initDefaultPages,
-  persistShape,
-  removeShapes,
-  isMultiUserActive,
-  hasMultiUserAccess,
-  changeCurrentSlide,
-  notifyNotAllowedChange,
-  notifyShapeNumberExceeded,
-  toggleToolsAnimations,
-} from './service';
+import service, { getShapes, getCurrentPres } from './service';
 import Whiteboard from './component';
 import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
@@ -44,10 +32,8 @@ const WhiteboardContainer = (props) => {
   const isModerator = currentUser.role === ROLE_MODERATOR;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
-  const handleToggleFullScreen = (ref) =>
-    FullscreenService.toggleFullScreen(ref);
+  const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const layoutContextDispatch = layoutDispatch();
-
   const { shapes } = props;
   const hasShapeAccess = (id) => {
     const owner = shapes[id]?.userId;
@@ -136,15 +122,15 @@ export default withTracker(
     };
 
     return {
-      initDefaultPages,
-      persistShape,
-      isMultiUserActive,
-      hasMultiUserAccess,
-      changeCurrentSlide,
+      initDefaultPages: service.initDefaultPages,
+      persistShape: service.persistShape,
+      isMultiUserActive: service.isMultiUserActive,
+      hasMultiUserAccess: service.hasMultiUserAccess,
+      changeCurrentSlide: service.changeCurrentSlide,
       shapes,
       assets,
       curPres,
-      removeShapes,
+      removeShapes: service.removeShapes,
       zoomSlide: PresentationToolbarService.zoomSlide,
       skipToSlide: PresentationToolbarService.skipToSlide,
       nextSlide: PresentationToolbarService.nextSlide,
@@ -153,13 +139,13 @@ export default withTracker(
         podId,
         presentationId
       ),
-      notifyNotAllowedChange,
-      notifyShapeNumberExceeded,
+      notifyNotAllowedChange: service.notifyNotAllowedChange,
+      notifyShapeNumberExceeded: service.notifyShapeNumberExceeded,
       darkTheme,
       whiteboardToolbarAutoHide:
         SettingsService?.application?.whiteboardToolbarAutoHide,
       animations: SettingsService?.application?.animations,
-      toggleToolsAnimations,
+      toggleToolsAnimations: service.toggleToolsAnimations,
       isIphone,
     };
   }
