@@ -64,16 +64,16 @@ const config = {
                 fromExtensions: ['html', 'htm'],
                 redirects: [
                     {
-                        to: "/new-features",
+                        to: "/2.6/new-features",
                         from: "/2.6/new"
                     },
                     {
-                        to: "/new-features",
+                        to: "/2.6/new-features",
                         from: "/2.6/new.html"
                     },
                     {
                         to: "/new-features",
-                        from: "/2.6/new-features"
+                        from: "/2.7/new-features"
                     },
                     {
                         to: "/development/api",
@@ -90,9 +90,9 @@ const config = {
                     // TODO: remove default route to /
                     const redirect_list = [];
 
-                    // Create redirect paths for all routes except 2.5 ones
-                    if ( !path.startsWith("/2.5") ){
-                        redirect_list.push("/2.6" + path);
+                    // Create redirect paths for all routes except 2.5 or 2.6 ones
+                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6"))){
+                        redirect_list.push("/2.7" + path);
                     }
 
                     if ( path.includes("/testing/release-testing") ){
