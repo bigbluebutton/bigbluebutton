@@ -237,7 +237,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     ? userLoadedBackUntilPage : Math.max(totalPages - 2, 0);
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
   return (
-    [
       <MessageListWrapper key="message-list-wrapper">
         <MessageList
           ref={messageListRef}
