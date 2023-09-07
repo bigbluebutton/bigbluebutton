@@ -19,7 +19,7 @@ case class ExternalVideoDbModel(
     playerPlaying:      Boolean
 )
 
-class ExternalVideoDbTableDef(tag: Tag) extends Table[ExternalVideoDbModel](tag, "external_video") {
+class ExternalVideoDbTableDef(tag: Tag) extends Table[ExternalVideoDbModel](tag, "externalVideo") {
   val externalVideoId = column[String]("externalVideoId", O.PrimaryKey)
   val meetingId = column[String]("meetingId")
   val externalVideoUrl = column[String]("externalVideoUrl")

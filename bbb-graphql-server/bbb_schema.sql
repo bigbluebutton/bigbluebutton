@@ -1167,7 +1167,7 @@ WHERE poll."type" != 'R-';
 --------------------------------
 ----External video
 
-create table "external_video"(
+create table "externalVideo"(
 "externalVideoId" varchar(100) primary key,
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "externalVideoUrl" varchar(500),
@@ -1178,10 +1178,10 @@ create table "external_video"(
 "playerCurrentTime" numeric,
 "playerPlaying" boolean
 );
-create index "external_video_meetingId_current" on "external_video"("meetingId") WHERE "stoppedSharingAt" IS NULL;
+create index "externalVideo_meetingId_current" on "externalVideo"("meetingId") WHERE "stoppedSharingAt" IS NULL;
 
-CREATE VIEW "v_external_video" AS
-SELECT * FROM "external_video"
+CREATE VIEW "v_externalVideo" AS
+SELECT * FROM "externalVideo"
 WHERE "stoppedSharingAt" IS NULL;
 
 --------------------------------
