@@ -20,8 +20,6 @@ import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
 
-import java.util
-
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
       system:         ActorSystem,
