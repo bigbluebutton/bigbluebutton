@@ -31,22 +31,24 @@ interface UserListParticipantsProps {
 }
 interface RowRendererProps extends ListProps {
   users: Array<User>;
-  currentUser: User;
+  validCurrentUser: User;
   meeting: Meeting;
   offset: number;
   index: number;
 }
 const rowRenderer: React.FC<RowRendererProps> = ({
-  index, key, style, users, currentUser, offset, meeting,
+  index, key, style, users, validCurrentUser, offset, meeting, isRTL,
 }) => {
   const userIndex = index - offset;
   const user = users && users[userIndex];
+  const direction = isRTL ? 'rtl' : 'ltr';
+
   return (
-    <div key={key} style={style}>
-      {user && currentUser && meeting ? (
+    <div key={key} style={{...style, direction}}>
+      {user && validCurrentUser && meeting ? (
         <UserActions
           user={user}
-          currentUser={currentUser}
+          currentUser={validCurrentUser}
           lockSettings={meeting.lockSettings}
           usersPolicies={meeting.usersPolicies}
           isBreakout={meeting.isBreakout}
@@ -86,7 +88,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           <Styled.VirtualizedList
             rowRenderer={
               (props: RowRendererProps) => rowRenderer(
-                { ...props, users: users || previousUsersData, validCurrentUser, offset, meeting }
+                { ...props, users: users || previousUsersData, validCurrentUser, offset, meeting, isRTL }
               )
             }
             noRowRenderer={() => <div>no users</div>}

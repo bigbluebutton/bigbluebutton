@@ -21,7 +21,7 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserChannel chan
 
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
-	defer log.Infof("finished")
+	defer log.Debugf("finished")
 
 RangeLoop:
 	for {
