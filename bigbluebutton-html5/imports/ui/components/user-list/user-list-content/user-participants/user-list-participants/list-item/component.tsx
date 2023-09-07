@@ -8,7 +8,8 @@ import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
-import _ from 'lodash';
+import { uniqueId } from '/imports/utils/string-utils';
+
 const messages = defineMessages({
   moderator: {
     id: 'app.userList.moderator',
@@ -61,14 +62,14 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     (user.mobile && LABEL.mobile) && intl.formatMessage(messages.mobile),
     (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) 
     && (
-      <span key={_.uniqueId('lock-')}>
+      <span key={uniqueId('lock-')}>
           <Icon iconName="lock" />
           &nbsp;
           {intl.formatMessage(messages.locked)}
         </span>
     ),
     user.lastBreakoutRoom?.currentlyInRoom && (
-      <span key={_.uniqueId('breakout-')}>
+      <span key={uniqueId('breakout-')}>
           <Icon iconName="rooms" />
           &nbsp;
           {user.lastBreakoutRoom?.shortName
@@ -77,7 +78,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         </span>
     ),
     (user.cameras.length > 0 && LABEL.sharingWebcam) && (
-      <span key={_.uniqueId('breakout-')}>
+      <span key={uniqueId('breakout-')}>
           { user.pinned === true
             ? <Icon iconName="pin-video_on" />
             : <Icon iconName="video" /> }
