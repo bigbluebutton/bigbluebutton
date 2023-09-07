@@ -64,4 +64,5 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     --description "BigBlueButton WebRTC SFU"        \
     $DIRECTORIES                                    \
     $OPTS                                           \
-    -d 'yq (>= 3)' -d 'yq (<< 4)'
+    -d 'yq (>= 3)' -d 'yq (<< 4)' \
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'

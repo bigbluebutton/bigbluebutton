@@ -131,6 +131,7 @@ Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the follo
 - React 18
 - NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
 - Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
+- Meteor 2.13
 - Grails 5.3.2
 - GORM 7.3.1
 - Groovy 3.0.11
