@@ -792,7 +792,7 @@
     "app.meeting-ended.rating.legendLabel": "رتبه‌بندی بازخورد",
     "app.meeting-ended.rating.starLabel": "ستاره",
     "app.modal.close": "بستن",
-    "app.modal.close.description": "تغییر را نادیده می‌گیرد و پنجره را می‌بندد",
+    "app.modal.close.description": "تغییرات را نادیده می‌گیرد و پنجره را می‌بندد",
     "app.modal.confirm": "انجام شد",
     "app.modal.newTab": "(زبانهٔ جدید باز می‌کند)",
     "app.modal.confirm.description": "تغییرات را ذخیره می‌کند و پنجره را می‌بندد",
