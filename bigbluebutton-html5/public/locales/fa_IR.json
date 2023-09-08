@@ -1376,6 +1376,6 @@
     "mobileApp.portals.addPortalPopup.confirm.button.label": "ذخیره",
     "mobileApp.portals.drawerNavigation.button.label": "درگاه‌ها",
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "زمینه‌های مورد نیاز",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "نام درحال حاضر استفاده شده است",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "نام از قبل استفاده شده است",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "خطا در تلاش برای بارگیری صفحه - آدرس و اتصال شبکه را بررسی کنید"
 }
