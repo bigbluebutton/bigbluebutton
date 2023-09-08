@@ -105,9 +105,10 @@ object PresPresentationDAO {
 
   def updateErrorMsgKey(presentationId: String, errorMsgKey: String) = {
     DatabaseConnection.db.run(
-      sqlu"""UPDATE pres_presentation SET
-            "errorMsgKey" = $errorMsgKey
-            WHERE "presentationId" = $presentationId"""
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => p.errorMsgKey)
+        .update(errorMsgKey)
     ).onComplete {
         case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated errorMsgKey on PresPresentation table")
         case Failure(e)           => DatabaseConnection.logger.error(s"Error updating errorMsgKey on PresPresentation: $e")
