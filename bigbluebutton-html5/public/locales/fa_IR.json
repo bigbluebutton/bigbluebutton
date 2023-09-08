@@ -1201,7 +1201,7 @@
     "app.createBreakoutRoom.freeJoin": "اجازهٔ انتخاب اتاق جانبی به کاربران برای پیوستن",
     "app.createBreakoutRoom.manageRoomsLabel": "مدیریت اتاق‌ها",
     "app.createBreakoutRoom.captureNotes": "ذخیرهٔ یادداشت‌های هم‌رسانده",
-    "app.createBreakoutRoom.captureSlides": "ثبت تخته‌سفید پس از پایان اتاق‌های جانبی",
+    "app.createBreakoutRoom.captureSlides": "ذخیرهٔ تخته‌سفید",
     "app.createBreakoutRoom.sendInvitationToMods": "ارسال دعوت‌نامه به مدیرهای تعیین‌شده",
     "app.createBreakoutRoom.leastOneWarnBreakout": "شما باید حداقل یک کاربر را در هر اتاق جانبی قرار دهید.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "حداقل مدت زمان اتاق جانبی {0} دقیقه است.",
