@@ -680,7 +680,7 @@
     "app.audioNotification.audioFailedError1011": "زمان در اتصال پایان یافت (خطای ICE ۱۰۱۱)",
     "app.audioNotification.audioFailedError1012": "اتصال بسته شد (خطای ICE ۱۰۱۲)",
     "app.audioNotification.audioFailedMessage": "اتصال صدای شما با خطا موجه شد",
-    "app.audioNotification.mediaFailedMessage": "متد getUserMicMedia به دلیل اینکه اتصال تنها از طریق لینک امن امکان پذیر است، با خطا مواجه شد",
+    "app.audioNotification.mediaFailedMessage": "خطا در getUserMicMedia زیرا فقط منابع امن مجاز هستند",
     "app.audioNotification.deviceChangeFailed": "تغییر دستگاه صوتی انجام نشد. بررسی کنید که آیا دستگاه انتخاب‌شده به درستی تنظیم شده و در دسترس باشد",
     "app.audioNotification.closeLabel": "بستن",
     "app.audioNotificaion.reconnectingAsListenOnly": "میکروفن برای کاربران قفل شده است، شما به عنوان شنونده به جلسه متصل خواهید شد ",
