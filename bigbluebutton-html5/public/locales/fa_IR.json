@@ -1372,7 +1372,7 @@
     "mobileApp.portals.list.add.button.label": "افزودن درگاه",
     "mobileApp.portals.fields.name.label": "نام درگاه",
     "mobileApp.portals.fields.name.placeholder": "نسخهٔ آزمایشی بیگ‌بلو‌باتن",
-    "mobileApp.portals.fields.url.label": "آدرس سرور",
+    "mobileApp.portals.fields.url.label": "نشانی اینترنتی سرور",
     "mobileApp.portals.addPortalPopup.confirm.button.label": "ذخیره",
     "mobileApp.portals.drawerNavigation.button.label": "درگاه‌ها",
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "زمینه‌های مورد نیاز",
