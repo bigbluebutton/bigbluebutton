@@ -1057,7 +1057,7 @@
     "app.video.genericError": "خطای ناشناخته‌ای در دستگاه رخ داده است (خطا {0})",
     "app.video.inactiveError": "دوربین شما به طور غیرمنتظره‌ای متوقف شد. لطفا مجوزهای مرورگر خود را بررسی کنید",
     "app.video.mediaTimedOutError": "جریان دوربین شما قطع شد. تلاش کنید دوباره آن را هم‌رسانی کنید",
-    "app.video.mediaFlowTimeout1020": "رسانه نتوانست به سرور برسد (خطای 1020)",
+    "app.video.mediaFlowTimeout1020": "رسانه نتوانست به سرور برسد (خطای ۱۰۲۰)",
     "app.video.suggestWebcamLock": "آیا تنظیمات قفل برای دوربین‌های کاربران اعمال شود؟",
     "app.video.suggestWebcamLockReason": "(این مورد باعث بهبود پایداری جلسه خواهد شد)",
     "app.video.enable": "فعال",
