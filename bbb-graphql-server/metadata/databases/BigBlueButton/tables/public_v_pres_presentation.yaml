@@ -20,8 +20,10 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - converting
         - current
         - downloadable
+        - errorMsgKey
         - numPages
         - pagesUploaded
         - presentationId
