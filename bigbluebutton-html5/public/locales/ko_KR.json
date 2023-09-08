@@ -230,6 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "슬라이드 생성중",
     "app.presentationUploder.conversion.generatingSvg": "SVG 이미지 생성중",
     "app.presentationUploder.conversion.pageCountExceeded": "페이지 수가 최대 {0}개를 초과했습니다.",
+    "app.presentationUploder.conversion.conversionTimeout": "슬라이드 {0}이 {1}번 내에 처리될 수 없었습니다.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Office 문서 처리 실패. PDF 파일로 업로드 하세요.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Office 문서 처리 실패. PDF 파일로 업로드 하세요.",
     "app.presentationUploder.conversion.pdfHasBigPage": "PDF 파일을 변환 할 수 없습니다. 최대 페이지 크기 {0}로 변경하여 최적화 해보십시오. ",
@@ -270,7 +271,7 @@
     "app.poll.clickHereToSelect": "선택하려면 클릭하세요 ",
     "app.poll.question.label" : "질문을 작성하세요",
     "app.poll.optionalQuestion.label" : "질문을 작성하세요(선택사항)...",
-    "app.poll.userResponse.label" : "사용자 응답",
+    "app.poll.userResponse.label" : "입력된 응답",
     "app.poll.responseTypes.label" : "응답 유형",
     "app.poll.optionDelete.label" : "삭제",
     "app.poll.responseChoices.label" : "응답 선택",
@@ -598,8 +599,11 @@
     "app.error.403": "미팅에서 퇴장되셨습니다 ",
     "app.error.404": "없음",
     "app.error.408": "인증 실패",
+    "app.error.409": "충돌",
     "app.error.410": "미팅 종료 ",
     "app.error.500": "어머나 ! 뭔가 잘못 되었어요 ",
+    "app.error.503": "연결이 끊겼습니다",
+    "app.error.disconnected.rejoin": "다시 참여하기 위해 이 페이지를 새로고침할 수 있습니다. ",
     "app.error.userLoggedOut": "로그 아웃으로 인해 사용자에게 잘못된 sessionToken이 있습니다.",
     "app.error.ejectedUser": "사용자에게 제거로 인해 잘못된 sessionToken이 있습니다.",
     "app.error.joinedAnotherWindow": "이 세션이 다른 브라우저 창에 열려 있는 것 같습니다.",
@@ -649,6 +653,8 @@
     "app.toast.chat.public": "새로운 공개 채팅 메시지",
     "app.toast.chat.private": "새로운 비공개 채팅 메시지",
     "app.toast.chat.system": "시스템",
+    "app.toast.chat.poll": "투표 결과",
+    "app.toast.chat.pollClick": "투표 결과가 공개되었습니다. 보려면 여기를 클릭하십시오.",
     "app.toast.clearedEmoji.label": "이모지 상태 정리 ",
     "app.toast.setEmoji.label": "이모지 상태를 {0} 로 설정",
     "app.toast.meetingMuteOn.label": "모든 사용자가 음소거 되었습니다 ",
@@ -1062,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "필수 입력 사항",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "이름이 이미 사용 중임",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "페이지를 로드하는 동안 오류가 발생했습니다. URL 및 네트워크 연결을 확인하십시오."
-
 }
-
