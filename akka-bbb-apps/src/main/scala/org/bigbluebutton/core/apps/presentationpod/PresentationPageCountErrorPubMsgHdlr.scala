@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -29,6 +30,8 @@ trait PresentationPageCountErrorPubMsgHdlr {
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
+
+    PresPresentationDAO.updateErrorMsgKey(msg.body.presentationId, msg.body.messageKey)
 
     broadcastEvent(msg)
     state

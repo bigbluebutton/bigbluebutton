@@ -826,9 +826,11 @@ CREATE TABLE "pres_presentation" (
 	"current" boolean,
 	"downloadable" boolean,
 	"removable" boolean,
+    "converting" boolean,
     "uploadCompleted" boolean,
     "numPages" integer,
-    "pagesUploaded" integer
+    "pagesUploaded" integer,
+    "errorMsgKey" varchar(100)
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
@@ -839,9 +841,11 @@ SELECT pres_presentation."meetingId",
 	pres_presentation."current",
 	pres_presentation."downloadable",
 	pres_presentation."removable",
+    pres_presentation."converting",
     pres_presentation."uploadCompleted",
     pres_presentation."numPages",
-    pres_presentation."pagesUploaded"
+    pres_presentation."pagesUploaded",
+    pres_presentation."errorMsgKey"
    FROM pres_presentation;
 
 CREATE TABLE "pres_page" (

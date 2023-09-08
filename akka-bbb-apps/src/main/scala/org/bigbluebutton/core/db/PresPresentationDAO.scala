@@ -7,7 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 import spray.json._
 
-case class PresPresentationDbModel(presentationId: String, meetingId: String, current: Boolean, downloadable: Boolean, removable: Boolean, uploadCompleted: Boolean, numPages: Int, pagesUploaded: Int)
+case class PresPresentationDbModel(presentationId: String, meetingId: String, current: Boolean, downloadable: Boolean, removable: Boolean, converting: Boolean, uploadCompleted: Boolean, numPages: Int, pagesUploaded: Int, errorMsgKey: String)
 
 class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel](tag, None, "pres_presentation") {
   val presentationId = column[String]("presentationId", O.PrimaryKey)
@@ -15,12 +15,14 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
   val current = column[Boolean]("current")
   val downloadable = column[Boolean]("downloadable")
   val removable = column[Boolean]("removable")
+  val converting = column[Boolean]("converting")
   val uploadCompleted = column[Boolean]("uploadCompleted")
   val numPages = column[Int]("numPages")
   val pagesUploaded = column[Int]("pagesUploaded")
+  val errorMsgKey = column[String]("errorMsgKey")
   //  val meeting = foreignKey("meeting_fk", meetingId, Meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
 
-  def * = (presentationId, meetingId, current, downloadable, removable, uploadCompleted, numPages, pagesUploaded) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
+  def * = (presentationId, meetingId, current, downloadable, removable, converting, uploadCompleted, numPages, pagesUploaded, errorMsgKey) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
 }
 
 object PresPresentationDAO {
@@ -39,9 +41,11 @@ object PresPresentationDAO {
           current = false, //Set after pages were inserted
           downloadable = presentation.downloadable,
           removable = presentation.removable,
+          converting = presentation.converting,
           uploadCompleted = presentation.uploadCompleted,
           numPages = presentation.numPages,
-          pagesUploaded = presentation.pagesUploaded
+          pagesUploaded = presentation.pagesUploaded,
+          errorMsgKey = presentation.errorMsgKey
         )
       )
     ).onComplete {
@@ -96,6 +100,17 @@ object PresPresentationDAO {
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPresentation table")
         case Failure(e)            => DatabaseConnection.logger.error(s"Error updating current on PresPresentation: $e")
+      }
+  }
+
+  def updateErrorMsgKey(presentationId: String, errorMsgKey: String) = {
+    DatabaseConnection.db.run(
+      sqlu"""UPDATE pres_presentation SET
+            "errorMsgKey" = $errorMsgKey
+            WHERE "presentationId" = $presentationId"""
+    ).onComplete {
+        case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated errorMsgKey on PresPresentation table")
+        case Failure(e)           => DatabaseConnection.logger.error(s"Error updating errorMsgKey on PresPresentation: $e")
       }
   }
 

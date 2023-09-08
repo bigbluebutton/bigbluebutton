@@ -68,9 +68,11 @@ case class PresentationInPod(
     downloadable:      Boolean,
     removable:         Boolean,
     filenameConverted: String                                                   = "",
+    converting:        Boolean,
     uploadCompleted:   Boolean,
     numPages:          Int,
-    pagesUploaded:     Int
+    pagesUploaded:     Int,
+    errorMsgKey:       String                                                   = ""
 )
 
 object PresentationPod {
