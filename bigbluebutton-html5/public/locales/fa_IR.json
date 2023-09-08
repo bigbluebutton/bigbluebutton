@@ -1135,7 +1135,7 @@
     "app.whiteboard.toolbar.color.violet": "بنفش",
     "app.whiteboard.toolbar.color.magenta": "سرخابی",
     "app.whiteboard.toolbar.color.silver": "نقره‌ای",
-    "app.whiteboard.toolbar.undo": "پاک‌کردن آخرین نوشته",
+    "app.whiteboard.toolbar.undo": "پاک‌کردن آخرین حاشیه‌نویسی",
     "app.whiteboard.toolbar.clear": "پاک‌کردن همهٔ حاشیه‌نویسی‌ها",
     "app.whiteboard.toolbar.clearConfirmation": "آیا مطمئن هستید که می‌خواهید همهٔ حاشیه‌نویسی‌ها را پاک کنید؟",
     "app.whiteboard.toolbar.multiUserOn": "فعال‌سازی حالت چندکاربرهٔ تخته‌سفید",
