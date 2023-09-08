@@ -1227,7 +1227,7 @@
     "app.externalVideo.title": "هم‌رسانی یک ویدیوی خارجی",
     "app.externalVideo.input": "نشانی اینترنتی ویدیوی خارجی",
     "app.externalVideo.urlInput": "افزودن نشانی اینترنتی ویدیو",
-    "app.externalVideo.urlError": "این آدرس ویدیو پشتیبانی نمی‌شود",
+    "app.externalVideo.urlError": "این نشانی اینترنتی ویدیو پشتیبانی نمی‌شود",
     "app.externalVideo.close": "بستن",
     "app.externalVideo.autoPlayWarning": "برای فعال‌سازی به‌هنگام‌سازی، ویدیو را پخش کنید",
     "app.externalVideo.refreshLabel": "تازه‌سازی پخش‌کنندهٔ ویدیو",
