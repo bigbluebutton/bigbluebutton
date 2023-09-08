@@ -1205,7 +1205,7 @@
     "app.createBreakoutRoom.sendInvitationToMods": "ارسال دعوت‌نامه به مدیرهای تعیین‌شده",
     "app.createBreakoutRoom.leastOneWarnBreakout": "شما باید حداقل یک کاربر را در هر اتاق جانبی قرار دهید.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "حداقل مدت زمان اتاق جانبی {0} دقیقه است.",
-    "app.createBreakoutRoom.modalDesc": "نکته: می‌توانید نام یک کاربر را بکشید و رها کنید تا به آن‌ها اتاقی را اختصاص دهید. ",
+    "app.createBreakoutRoom.modalDesc": "مراحل زیر را برای ایجاد اتاق‌های جانبی در جلسهٔ خود انجام دهید. برای افزودن شرکت‌کنندگان به یک اتاق، به سادگی نام آن‌ها را به اتاق مورد نظر بکشد.",
     "app.createBreakoutRoom.roomTime": "{0} دقیقه",
     "app.createBreakoutRoom.numberOfRoomsError": "تعداد اتاق‌ها نامعتبر است.",
     "app.createBreakoutRoom.duplicatedRoomNameError": "نام اتاق نمی‌تواند تکراری باشد.",
