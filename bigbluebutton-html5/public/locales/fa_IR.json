@@ -1232,7 +1232,7 @@
     "app.externalVideo.autoPlayWarning": "برای فعال‌سازی همگام‌سازی رسانه، ویدیو را پخش کنید",
     "app.externalVideo.refreshLabel": "تازه‌سازی پخش‌کنندهٔ ویدیو",
     "app.externalVideo.fullscreenLabel": "پخش‌کنندهٔ ویدیو",
-    "app.externalVideo.noteLabel": "نکته: ویدیوهای خارجی هم‌رسانی‌شده در ضبط نمایان نمی‌شوند. نشانی‌های وب YouTube، Vimeo، Instructure Media، Twitch، Dailymotion و پرونده‌های رسانه‌ای (به عنوان مثال https://example.com/xy.mp4) پشتیبانی می‌شوند.",
+    "app.externalVideo.noteLabel": "نکته: ویدیوهای خارجی هم‌رسانی‌شده در ضبط نمایان نمی‌شوند. نشانی‌های اینترنتی YouTube، Vimeo، Instructure Media، Twitch، Dailymotion و پرونده‌های رسانه‌ای (به عنوان مثال https://example.com/xy.mp4) پشتیبانی می‌شوند.",
     "app.externalVideo.subtitlesOn": "خاموش‌کردن",
     "app.externalVideo.subtitlesOff": "روشن‌کردن (در صورت وجود)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "هم‌رسانی یک ویدیوی خارجی",
