@@ -8,11 +8,15 @@ on:
     paths:
       - "bigbluebutton-html5/**.ts"
       - "bigbluebutton-html5/**.tsx"
+      - "bigbluebutton-html5/package.json"
+      - "bigbluebutton-html5/package-lock.json"
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
       - "bigbluebutton-html5/**.ts"
       - "bigbluebutton-html5/**.tsx"
+      - "bigbluebutton-html5/package.json"
+      - "bigbluebutton-html5/package-lock.json"
 permissions:
   contents: read
 jobs:
