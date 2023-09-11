@@ -225,7 +225,6 @@ export default function Whiteboard(props) {
       tldrawAPI?.completeSession?.();
     }
   };
-  
   const handleWheelEvent = (event) => {
     if ((zoomValueRef.current >= MAX_PERCENT && event.deltaY < 0)
       || (zoomValueRef.current <= HUNDRED_PERCENT && event.deltaY > 0))
