@@ -57,7 +57,8 @@ trait PresentationPageConvertedSysMsgHdlr {
       msg.body.page.urls,
       msg.body.page.current,
       width = msg.body.page.width,
-      height = msg.body.page.height
+      height = msg.body.page.height,
+      converted = true
     )
 
     val newState = for {

@@ -44,8 +44,8 @@ trait PresentationPageConversionStartedSysMsgHdlr {
     val presentationId = msg.body.presentationId
     val podId = msg.body.podId
 
-    val pres = new PresentationInPod(presentationId, msg.body.presName, msg.body.current, Map.empty, downloadable, removable, converting = true, uploadCompleted = false, numPages = msg.body.numPages, pagesUploaded = 0)
-    PresPresentationDAO.insert(msg.header.meetingId, pres)
+    val pres = new PresentationInPod(presentationId, msg.body.presName, msg.body.current, Map.empty, downloadable, removable, uploadCompleted = false, numPages = msg.body.numPages)
+    //PresPresentationDAO.insert(msg.header.meetingId, pres)
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)

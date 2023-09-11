@@ -829,24 +829,10 @@ CREATE TABLE "pres_presentation" (
     "converting" boolean,
     "uploadCompleted" boolean,
     "numPages" integer,
-    "pagesUploaded" integer,
     "errorMsgKey" varchar(100)
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
-
-CREATE OR REPLACE VIEW public.v_pres_presentation AS
-SELECT pres_presentation."meetingId",
-	pres_presentation."presentationId",
-	pres_presentation."current",
-	pres_presentation."downloadable",
-	pres_presentation."removable",
-    pres_presentation."converting",
-    pres_presentation."uploadCompleted",
-    pres_presentation."numPages",
-    pres_presentation."pagesUploaded",
-    pres_presentation."errorMsgKey"
-   FROM pres_presentation;
 
 CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
@@ -864,10 +850,24 @@ CREATE TABLE "pres_page" (
     "viewBoxWidth" NUMERIC,
     "viewBoxHeight" NUMERIC,
     "maxImageWidth" integer,
-    "maxImageHeight" integer
+    "maxImageHeight" integer,
+    "converted" boolean
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
+
+CREATE OR REPLACE VIEW public.v_pres_presentation AS
+SELECT pres_presentation."meetingId",
+	pres_presentation."presentationId",
+	pres_presentation."current",
+	pres_presentation."downloadable",
+	pres_presentation."removable",
+    pres_presentation."converting",
+    pres_presentation."uploadCompleted",
+    pres_presentation."numPages",
+    pres_presentation."errorMsgKey",
+    (SELECT count(*) FROM pres_page WHERE pres_page."presentationId" = pres_presentation."presentationId" AND "converted" is true) as "pagesUploaded"
+   FROM pres_presentation;
 
 CREATE OR REPLACE VIEW public.v_pres_page AS
 SELECT pres_presentation."meetingId",
@@ -888,7 +888,8 @@ SELECT pres_presentation."meetingId",
     (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledWidth",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
-    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight"
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
+    pres_page."converted"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 

@@ -31,13 +31,14 @@ case class PresentationPage(
     widthRatio:  Double              = 100D,
     heightRatio: Double              = 100D,
     width:       Double              = 1440D,
-    height:      Double              = 1080D
+    height:      Double              = 1080D,
+    converted:   Boolean             = false
 )
 
 object PresentationInPod {
   def addPage(pres: PresentationInPod, page: PresentationPage): PresentationInPod = {
     val newPages = pres.pages + (page.id -> page)
-    pres.copy(pages = newPages, pagesUploaded = pres.pagesUploaded + 1)
+    pres.copy(pages = newPages)
   }
 
   def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
@@ -68,10 +69,8 @@ case class PresentationInPod(
     downloadable:      Boolean,
     removable:         Boolean,
     filenameConverted: String                                                   = "",
-    converting:        Boolean,
     uploadCompleted:   Boolean,
     numPages:          Int,
-    pagesUploaded:     Int,
     errorMsgKey:       String                                                   = ""
 )
 
