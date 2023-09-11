@@ -1248,7 +1248,7 @@
     "app.debugWindow.form.chatLoggerLabel": "Test der Chatprotokollierungsstufen",
     "app.debugWindow.form.button.apply": "Anwenden",
     "app.layout.modal.title": "Layouts",
-    "app.layout.modal.update": "Update",
+    "app.layout.modal.update": "Aktualisieren",
     "app.layout.modal.updateAll": "Alle aktualisieren",
     "app.layout.modal.layoutLabel": "Layout auswählen",
     "app.layout.modal.pushLayoutLabel": "An alle verteilen",
