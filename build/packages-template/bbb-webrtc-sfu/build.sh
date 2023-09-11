@@ -50,6 +50,8 @@ cp webrtc-sfu.nginx staging/usr/share/bigbluebutton/nginx
 
 cp bbb-webrtc-sfu.service staging/usr/lib/systemd/system
 cp bbb-webrtc-sfu.logrotate staging/etc/logrotate.d
+cp bbb-restart-kms staging/etc/cron.hourly
+cp kurento-media-server.service staging/usr/lib/systemd/system
 rm -rf staging/usr/local/bigbluebutton/bbb-webrtc-sfu/.git
 
 . ./opts-$DISTRO.sh
@@ -61,4 +63,6 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     --before-remove before-remove.sh                \
     --description "BigBlueButton WebRTC SFU"        \
     $DIRECTORIES                                    \
-    $OPTS
+    $OPTS                                           \
+    -d 'yq (>= 3)' -d 'yq (<< 4)' \
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'

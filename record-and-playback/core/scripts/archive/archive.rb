@@ -139,6 +139,11 @@ def remux_and_archive(source_dir, dest_dir)
       format,
       output_basename
     )
+  rescue StandardError => e
+    BigBlueButton.logger.warn("Failed to remux #{file}, archiving anyways: #{e}")
+    # Archive the file anyways - later steps (eg sanity) might strip it out
+    # if invalid or fix it if necessary
+    FileUtils.cp(file, "#{output_basename}#{ext}")
   end
 end
 
