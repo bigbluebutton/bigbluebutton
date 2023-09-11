@@ -14,7 +14,7 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   const { allowedElements } = Meteor.settings.public.chat;
 
   return (
-    <Styled.ChatMessage emphasizedMessage={emphasizedMessage}>
+    <Styled.ChatMessage emphasizedMessage={emphasizedMessage} data-test="messageContent">
       <ReactMarkdown
         linkTarget="_blank"
         allowedElements={allowedElements}
