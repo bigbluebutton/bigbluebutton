@@ -29,6 +29,11 @@ interface ChatNameMainProps {
   active: boolean;
 }
 
+interface ChatListItemProps {
+  active: boolean;
+}
+
+
 const ChatListItemLink = styled.div`
   display: flex;
   flex-grow: 1;
@@ -150,7 +155,7 @@ const ChatNameMain = styled.span`
   `}
 `;
 
-const ChatListItem = styled.button`
+const ChatListItem = styled.button<ChatListItemProps>`
   display: flex;
   flex-flow: row;
   border-top-left-radius: 5px;

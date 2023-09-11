@@ -13,7 +13,7 @@ import {
 } from './queries';
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
-import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users.ts';
+import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -31,7 +31,7 @@ interface UserListParticipantsProps {
 }
 interface RowRendererProps extends ListProps {
   users: Array<User>;
-  validCurrentUser: User;
+  validCurrentUser: Partial<User>;
   meeting: Meeting;
   offset: number;
   index: number;
@@ -48,7 +48,7 @@ const rowRenderer: React.FC<RowRendererProps> = ({
       {user && validCurrentUser && meeting ? (
         <UserActions
           user={user}
-          currentUser={validCurrentUser}
+          currentUser={validCurrentUser as User}
           lockSettings={meeting.lockSettings}
           usersPolicies={meeting.usersPolicies}
           isBreakout={meeting.isBreakout}
@@ -71,9 +71,10 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   meeting,
   count,
 }) => {
-  const validCurrentUser: Partial<User> | undefined = currentUser && currentUser.userId
+  const validCurrentUser: Partial<User> = currentUser && currentUser.userId
     ? currentUser
-    : undefined;
+    : { userId: '', isModerator: false, presenter: false };
+
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [previousUsersData, setPreviousUsersData] = React.useState(users);
   useEffect(() => {
@@ -114,7 +115,10 @@ const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
   const [limit, setLimit] = React.useState(0);
 
-  const { data: usersData } = useSubscription(USER_LIST_SUBSCRIPTION, {
+  const {
+    data: usersData,
+    loading: usersLoading,
+  } = useSubscription(USER_LIST_SUBSCRIPTION, {
     variables: {
       offset,
       limit,
@@ -124,6 +128,7 @@ const UserListParticipantsContainer: React.FC = () => {
 
   const {
     data: meetingData,
+    loading: meetingLoading,
   } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION)
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
@@ -131,6 +136,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const { setUserListGraphqlVariables } = useContext(PluginsContext);
   const {
     data: countData,
+    loading: countLoading,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
@@ -138,7 +144,7 @@ const UserListParticipantsContainer: React.FC = () => {
     isModerator: c.isModerator,
     userId: c.userId,
     presenter: c.presenter,
-  } as Partial<User>));
+  }));
 
   useEffect(() => {
     setUserListGraphqlVariables({
@@ -146,17 +152,21 @@ const UserListParticipantsContainer: React.FC = () => {
       limit,
     });
   }, [offset, limit]);
-  return <>
-    <UserListParticipants
-      users={users}
-      offset={offset}
-      setOffset={setOffset}
-      setLimit={setLimit}
-      meeting={meeting}
-      currentUser={currentUser}
-      count={count}
-    />
-  </>
+
+  if (usersLoading || meetingLoading || countLoading || !currentUser) return null;
+  return (
+    <>
+      <UserListParticipants
+        users={users}
+        offset={offset}
+        setOffset={setOffset}
+        setLimit={setLimit}
+        meeting={meeting}
+        currentUser={currentUser}
+        count={count}
+      />
+    </>
+  );
 };
 
 export default UserListParticipantsContainer;

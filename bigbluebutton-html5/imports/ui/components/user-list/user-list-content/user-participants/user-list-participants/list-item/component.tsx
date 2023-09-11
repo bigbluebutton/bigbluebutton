@@ -2,7 +2,7 @@ import React from 'react';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { User } from '/imports/ui/Types/user';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -89,44 +89,50 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   ].filter(Boolean);
 
   const iconUser = user.emoji !== 'none'
-    ? (<Icon iconName={user.emoji in EMOJI_STATUSES ? EMOJI_STATUSES[user.emoji] : user.emoji}  />)
+    ? (
+      <Icon
+        iconName={user.emoji in EMOJI_STATUSES ? (EMOJI_STATUSES as Record<string, string>)[user.emoji] : user.emoji}
+      />
+    )
     : user.name.toLowerCase().slice(0, 2);
 
    const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser
 
-  return <Styled.UserItemContents data-test='user'>
-  <Styled.Avatar
-    moderator={user.role === ROLE_MODERATOR}
-    presenter={user.presenter}
-    talking={voiceUser?.talking}
-    muted={voiceUser?.muted}
-    listenOnly={voiceUser?.listenOnly}
-    voice={voiceUser?.joined}
-    noVoice={!voiceUser?.joined}
-    color={user.color}
-    whiteboardAccess={user?.presPagesWritable?.length > 0}
-    animations={true} 
-    emoji={user.emoji !== 'none'}
-    avatar={user.avatar || ''}
-    isChrome={isChrome}
-    isFirefox={isFirefox}
-    isEdge={isEdge}
-  >
-    {avatarContent}
-  </Styled.Avatar>
-  <Styled.UserNameContainer>
-    <Styled.UserName>
-      <TooltipContainer title={user.name}>
-        <span>{user.name}</span>
-      </TooltipContainer>
-      &nbsp;
-      {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
-    </Styled.UserName>
-    <Styled.UserNameSub>
-      {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
-    </Styled.UserNameSub>
-  </Styled.UserNameContainer>
-  </Styled.UserItemContents>;
+  return (
+    <Styled.UserItemContents data-test='user'>
+      <Styled.Avatar
+        moderator={user.role === ROLE_MODERATOR}
+        presenter={user.presenter}
+        talking={voiceUser?.talking}
+        muted={voiceUser?.muted}
+        listenOnly={voiceUser?.listenOnly}
+        voice={voiceUser?.joined}
+        noVoice={!voiceUser?.joined}
+        color={user.color}
+        whiteboardAccess={user?.presPagesWritable?.length > 0}
+        animations
+        emoji={user.emoji !== 'none'}
+        avatar={user.avatar || ''}
+        isChrome={isChrome}
+        isFirefox={isFirefox}
+        isEdge={isEdge}
+      >
+        {avatarContent}
+      </Styled.Avatar>
+      <Styled.UserNameContainer>
+        <Styled.UserName>
+          <TooltipContainer title={user.name}>
+            <span>{user.name}</span>
+          </TooltipContainer>
+          &nbsp;
+          {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
+        </Styled.UserName>
+        <Styled.UserNameSub>
+          {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
+        </Styled.UserNameSub>
+      </Styled.UserNameContainer>
+    </Styled.UserItemContents>
+  );
 };
 
 export default UserListItem;

@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-import { PluginProvidedStateChildrenProps, PluginProvidedState } from '../../types.ts';
+import { PluginProvidedStateChildrenProps, PluginProvidedState } from '../../types';
 import { PluginsContext } from '../../../components-data/plugin-context/context';
 
 const UserListDropdownPluginStateContainer = (
@@ -42,7 +42,7 @@ const UserListDropdownPluginStateContainer = (
   }, [userListDropdownItems]);
 
   pluginApi.setUserListDropdownItems = (items: PluginSdk.UserListDropdownItem[]) => {
-    const itemsWithId = items.map(generateItemWithId);
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.UserListDropdownItem[];
     return setUserListDropdownItems(itemsWithId);
   };
   return null;

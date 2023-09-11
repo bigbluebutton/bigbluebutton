@@ -6,13 +6,27 @@ import { setTimeSync } from '/imports/ui/core/local-states/useTimeSync';
 const TimeSync: React.FC = () => {
   const [
     loadGetServerTime,
-    { called, loading, data, error },
+    {
+      called,
+      loading,
+      data,
+      error,
+    },
   ] = useLazyQuery<GetServerTimeResponse>(GET_SERVER_TIME);
   useEffect(() => {
     if (!called) {
       loadGetServerTime();
     }
   }, []);
+
+  if (error) {
+    console.log('error', error);
+    return (
+      <div>
+        {JSON.stringify(error)}
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (!loading && data) {

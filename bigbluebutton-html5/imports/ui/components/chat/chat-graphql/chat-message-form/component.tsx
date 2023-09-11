@@ -1,9 +1,9 @@
-import React, { ChangeEvent, useEffect, useRef } from 'react';
+import React, { ChangeEvent, RefObject, useEffect, useRef } from 'react';
+import TextareaAutosize from 'react-autosize-textarea';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
 import ClickOutside from '/imports/ui/components/click-outside/component';
-import TextareaAutosize from 'react-autosize-textarea';
 import Styled from './styles';
 import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -21,6 +21,7 @@ import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 
+
 interface ChatMessageFormProps {
   minMessageLength: number,
   maxMessageLength: number,
@@ -31,8 +32,6 @@ interface ChatMessageFormProps {
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
-  handleEmojiSelect: (emojiObject: () => void,
-   { native: string }) => void;
   handleClickOutside: () => void,
 }
 
@@ -113,7 +112,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
-  const textAreaRef = useRef<TextareaAutosize>();
+  const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
   const messageRef = useRef<string>('');
@@ -212,7 +211,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const newCursor = cursor + emojiObject.native.length;
     setTimeout(() => txtArea.setSelectionRange(newCursor, newCursor), 10);
-  }
+  };
 
   const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newMessage = null;
@@ -266,7 +265,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper>
             <Styled.EmojiPicker
-              onEmojiSelect={(emojiObject) => handleEmojiSelect(emojiObject)}
+              onEmojiSelect={(emojiObject: { native: string }) => handleEmojiSelect(emojiObject)}
               showPreview={false}
               showSkinTones={false}
             />
@@ -344,32 +343,18 @@ const ChatMessageFormContainer: React.FC = ({
   const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
-  const chat = useChat((c: Partial<Chat>) => {
-    const participant = c?.participant ? {
-      participant: {
-        name: c?.participant?.name,
-        isModerator: c?.participant?.isModerator,
-        isOnline: c?.participant?.isOnline,
-      }
-    } : {};
-
-    return {
-      ...participant,
-      chatId: c?.chatId,
-      public: c?.public,
-    };
-  }, idChatOpen) as Partial<Chat>;
+  const chat = useChat((c: Partial<Chat>) => ({
+    participant: c?.participant,
+    chatId: c?.chatId,
+    public: c?.public,
+  }), idChatOpen) as Partial<Chat>;
 
   const title = chat?.participant?.name
     ? intl.formatMessage(messages.titlePrivate, { 0: chat?.participant?.name })
     : intl.formatMessage(messages.titlePublic);
 
   const meeting = useMeeting((m) => ({
-    lockSettings: {
-      hasActiveLockSetting: m?.lockSettings?.hasActiveLockSetting,
-      disablePublicChat: m?.lockSettings?.disablePublicChat,
-      disablePrivateChat: m?.lockSettings?.disablePrivateChat,
-    },
+    lockSettings: m?.lockSettings,
   }));
 
   const locked = chat?.public

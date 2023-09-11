@@ -8,7 +8,7 @@ import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import * as WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { throttle } from 'radash';
 
 // @ts-ignore - temporary, while meteor exists in the project

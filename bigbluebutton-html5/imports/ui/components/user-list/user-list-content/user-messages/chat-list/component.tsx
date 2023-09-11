@@ -14,28 +14,26 @@ const intlMessages = defineMessages({
 });
 
 interface ChatListProps {
-    chats: Partial<Chat>[],
+    chats: Chat[],
 }
 
-const getActiveChats = (chats: Partial<Chat>[]) => {
-    return chats.map((chat) => (
-        <CSSTransition
-            classNames={"transition"}
-            appear
-            enter
-            exit={false}
-            timeout={0}
-            component="div"
-            key={chat.chatId}
-        >
-            <Styled.ListTransition >
-                <ChatListItem
-                    chat={chat}
-                />
-            </Styled.ListTransition>
-        </CSSTransition>
-    ));
-}
+const getActiveChats = (chats: Chat[]) => chats.map((chat) => (
+  <CSSTransition
+    classNames="transition"
+    appear
+    enter
+    exit={false}
+    timeout={0}
+    component="div"
+    key={chat.chatId}
+  >
+    <Styled.ListTransition>
+      <ChatListItem
+        chat={chat}
+      />
+    </Styled.ListTransition>
+  </CSSTransition>
+));
 
 const ChatList: React.FC<ChatListProps> = ({ chats }) => {
 
@@ -61,10 +59,10 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
 };
 
 const ChatListContainer: React.FC = () => {
-    const chats = useChat((chat) => { return chat; }) as Partial<Chat>[];
-    return (
-        <ChatList chats={chats} />
-    );
+  const chats = useChat((chat) => chat) as Chat[];
+  return (
+    <ChatList chats={chats} />
+  );
 };
 
 export default ChatListContainer;

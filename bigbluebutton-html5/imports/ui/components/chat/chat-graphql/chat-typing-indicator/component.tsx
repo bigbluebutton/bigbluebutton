@@ -114,17 +114,10 @@ const TypingIndicatorContainer: React.FC = () => {
     }
   });
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:currentUser', currentUser);
-  const chat = useChat((c: Partial<Chat>) => {
-    const participant = c?.participant ? {
-      participant: {
-        name: c?.participant?.name,
-        isModerator: c?.participant?.isModerator,
-        isOnline: c?.participant?.isOnline,
-      }
-    } : {};
-
+  
+  const chat = useChat((c) => {
     return {
-      ...participant,
+      participant: c?.participant,
       chatId: c?.chatId,
       public: c?.public,
     };

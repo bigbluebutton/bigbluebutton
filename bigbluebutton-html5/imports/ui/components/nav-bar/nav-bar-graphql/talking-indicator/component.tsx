@@ -93,7 +93,10 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           $muted={muted || undefined}
           $isViewer={!isModerator || undefined}
           key={uniqueId(`${name}-`)}
-          onClick={() => muteUser(userId, muted, isBreakout, isModerator)}
+          onClick={() => {
+            // @ts-ignore - call signature is misse due the function being wrapped
+            muteUser(userId, muted, isBreakout, isModerator);
+          }}
           label={name}
           tooltipLabel={!muted && isModerator
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${name}`
