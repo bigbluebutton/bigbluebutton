@@ -56,7 +56,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
   const pollData = JSON.parse(string) as unknown;
   assertAsMetadata(pollData);
   return (
-    <div>
+    <div data-test="chatPollMessageText">
       <Styled.pollText>
         {pollData.questionText}
       </Styled.pollText>
