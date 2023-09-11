@@ -18,17 +18,18 @@ for branch in "${BRANCHES[@]}"; do
 
   if [ "$branch" != "$current_branch" ]; then
     git fetch "$REMOTE" "$branch":"$branch"
-    git checkout "$branch"
-    if [ -f docusaurus.config.js ]; then
-      version=${branch:1:3}
-      if [ version == "2.7" ]; then
-        version="2.7-dev"
-      fi
-      echo "Adding documentation for ${version}"
-      yarn docusaurus docs:version "${version}"
-    else
-      echo "Warning: branch $(branch) does not contain a docusaurus.config.js!"
+  fi
+
+  git checkout "$branch"
+  if [ -f docusaurus.config.js ]; then
+    version=${branch:1:3}
+    if [ version == "2.7" ]; then
+      version="2.7"
     fi
+    echo "Adding documentation for $version"
+    yarn docusaurus docs:version "${version}"
+  else
+    echo "Warning: branch $(branch) does not contain a docusaurus.config.js!"
   fi
 
 done
