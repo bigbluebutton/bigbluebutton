@@ -5,14 +5,14 @@ on:
       - "develop"
       - "v2.[5-9].x-release"
       - "v[3-9].*.x-release"
-    paths-ignore:
-      - "docs/**"
-      - "**/*.md"
+    paths:
+      - "bigbluebutton-html5/**.ts"
+      - "bigbluebutton-html5/**.tsx"
   pull_request:
     types: [opened, synchronize, reopened]
-    paths-ignore:
-      - "docs/**"
-      - "**/*.md"
+    paths:
+      - "bigbluebutton-html5/**.ts"
+      - "bigbluebutton-html5/**.tsx"
 permissions:
   contents: read
 jobs:
