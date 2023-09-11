@@ -92,7 +92,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const [isRecordingNotifyModalOpen, setIsRecordingNotifyModalOpen] = useState(false);
   const [shouldNotify, setShouldNotify] = useState(true);
   const [time, setTime] = useState(0);
-  const setIntervalRef = React.useRef<number | undefined>();
+  const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   const recordingToggle = useCallback((hasMicUser: boolean, isRecording: boolean) => {
     if (!hasMicUser && !isRecording) {

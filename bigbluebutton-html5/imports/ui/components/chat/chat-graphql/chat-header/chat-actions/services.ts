@@ -1,7 +1,7 @@
 import { Message } from "/imports/ui/Types/message";
 import { makeCall } from "/imports/ui/services/api";
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
-import { defineMessages } from 'react-intl';
+import { IntlShape, defineMessages } from 'react-intl';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 
 const intlMessages = defineMessages({
@@ -16,7 +16,11 @@ export const htmlDecode = (input: string) => {
   return unescapeHtml(stripTags(replacedBRs));
 };
 
-export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: { welcomeMsg: string, welcomeMsgForModerators: string | null }, intl): string => {
+export const generateExportedMessages = (
+  messages: Array<Message>,
+  welcomeSettings: { welcomeMsg: string, welcomeMsgForModerators: string | null },
+  intl: IntlShape,
+): string => {
   const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
   const modOnlyMessage = welcomeSettings.welcomeMsgForModerators && htmlDecode(welcomeSettings.welcomeMsgForModerators);
   const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}` : ''}\n`

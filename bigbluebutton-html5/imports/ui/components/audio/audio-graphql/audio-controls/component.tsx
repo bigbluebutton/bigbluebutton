@@ -50,17 +50,17 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 }) => {
   const intl = useIntl();
   const joinAudioShourtcut = useShortcut('joinaudio');
-  const echoTestIntervalRef = React.useRef<number>();
+  const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
 
-  const handleJoinAudio = useCallback((isConnected: boolean) => {
-    if (isConnected) {
+  const handleJoinAudio = useCallback((connected: boolean) => {
+    if (connected) {
       joinListenOnly();
     } else {
       setIsAudioModalOpen(true);
     }
-  }, [])
+  }, []);
 
   const joinButton = useMemo(() => {
     return (

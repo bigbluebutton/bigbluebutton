@@ -422,7 +422,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
         setShowNestedOptions(false);
       },
-      icon: EMOJI_STATUSES[key],
+      icon: (EMOJI_STATUSES as Record<string, string>)[key],
       dataTest: key,
     })),
   ];
@@ -430,51 +430,60 @@ const UserActions: React.FC<UserActionsProps> = ({
   const actions = showNestedOptions
     ? nestedOptions.filter(key => key.allowed)
     : dropdownOptions.filter(key => key.allowed);
-  if (!actions.length) return children;
-  return <div>
-    <BBBMenu
-      trigger={
-        (
-          <Styled.UserActionsTrigger
-            isActionsOpen={selected}
-            selected={selected === true}
-            tabIndex={-1}
-            onClick={() => setSelected(true)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                setSelected(true);
-              }
-            }}
-            role="button"
-          >
-            {children}
-          </Styled.UserActionsTrigger>
-        )
-      }
-      actions={actions}
-      selectedEmoji={user.emoji}
-      onCloseCallback={() => {
-        setSelected(false);
-        setShowNestedOptions(false);
-      }}
-      open={selected}
-    />
-    {isConfirmationModalOpen ? <ConfirmationModal
-      intl={intl}
-      titleMessageId="app.userList.menu.removeConfirmation.label"
-      titleMessageExtra={user.name}
-      checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
-      confirmParam={user.userId}
-      onConfirm={removeUser}
-      confirmButtonDataTest="removeUserConfirmation"
-      {...{
-        onRequestClose: () => setIsConfirmationModalOpen(false),
-        priority: "low",
-        setIsOpen: setIsConfirmationModalOpen,
-        isOpen: isConfirmationModalOpen
-      }}
-    /> : null}
-  </div>;
+  if (!actions.length) {
+    return (
+      <span>
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <div>
+      <BBBMenu
+        trigger={
+          (
+            <Styled.UserActionsTrigger
+              isActionsOpen={selected}
+              selected={selected === true}
+              tabIndex={-1}
+              onClick={() => setSelected(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setSelected(true);
+                }
+              }}
+              role="button"
+            >
+              {children}
+            </Styled.UserActionsTrigger>
+          )
+        }
+        actions={actions}
+        selectedEmoji={user.emoji}
+        onCloseCallback={() => {
+          setSelected(false);
+          setShowNestedOptions(false);
+        }}
+        open={selected}
+      />
+      {isConfirmationModalOpen ? <ConfirmationModal
+        intl={intl}
+        titleMessageId="app.userList.menu.removeConfirmation.label"
+        titleMessageExtra={user.name}
+        checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+        confirmParam={user.userId}
+        onConfirm={removeUser}
+        confirmButtonDataTest="removeUserConfirmation"
+        {...{
+          onRequestClose: () => setIsConfirmationModalOpen(false),
+          priority: "low",
+          setIsOpen: setIsConfirmationModalOpen,
+          isOpen: isConfirmationModalOpen
+        }}
+      /> : null}
+    </div>
+  );
 };
 
 export default UserActions;
