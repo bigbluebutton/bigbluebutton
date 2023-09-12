@@ -10,15 +10,17 @@ import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import { CircularProgress } from "@mui/material";
 import usePendingChat from '/imports/ui/core/local-states/usePendingChat';
 import useChat from '/imports/ui/core/hooks/useChat';
-import { Chat } from '/imports/ui/Types/chat';
+import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
+import browserInfo from '/imports/utils/browserInfo';
 interface ChatProps {
 
 }
 
 const Chat: React.FC<ChatProps> = () => {
+  const { isChrome } = browserInfo;
   return (
-    <Styled.Chat>
+    <Styled.Chat isChrome={isChrome}>
       <ChatHeader />
       <ChatMessageListContainer />
       <ChatMessageFormContainer />
@@ -28,9 +30,12 @@ const Chat: React.FC<ChatProps> = () => {
 };
 
 const ChatLoading: React.FC = () => {
-  return <Styled.Chat >
-    <CircularProgress style={{ alignSelf: 'center' }} />
-  </Styled.Chat>;
+  const { isChrome } = browserInfo;
+  return (
+    <Styled.Chat isChrome={isChrome}>
+      <CircularProgress style={{ alignSelf: 'center' }} />
+    </Styled.Chat>
+  );
 };
 
 const ChatContainer: React.FC = () => {
@@ -42,7 +47,7 @@ const ChatContainer: React.FC = () => {
       chatId: chat.chatId,
       participant: chat.participant,
     };
-  }) as Partial<Chat>[];
+  }) as Partial<ChatType>[];
 
   const [pendingChat, setPendingChat] = usePendingChat();
 

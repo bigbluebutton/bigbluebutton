@@ -8,11 +8,13 @@ const propTypes = {
   iconName: PropTypes.string.isRequired,
   prependIconName: PropTypes.string,
   rotate: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 const defaultProps = {
   prependIconName: 'icon-bbb-',
   rotate: false,
+  className: '',
 };
 
 const Icon = ({

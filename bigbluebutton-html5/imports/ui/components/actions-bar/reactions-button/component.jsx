@@ -124,9 +124,18 @@ const ReactionsButton = (props) => {
     customStyles: {...actionCustomStyles, width: 'auto'},
   });
 
-  const icon = currentUserReaction === 'none' ? 'hand' : null;
+  const icon = !raiseHand && currentUserReaction === 'none' ? 'hand' : null;
   const currentUserReactionEmoji = reactions.find(({ native }) => native === currentUserReaction);
-  const customIcon = !icon ? <Emoji key={currentUserReactionEmoji?.id} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} /> : null;
+
+  let customIcon = null;
+
+  if (raiseHand) {
+    customIcon = <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />;
+  } else {
+    if (!icon) {
+      customIcon = <Emoji key={currentUserReactionEmoji?.id} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
+    }
+  }
 
   return (
     <BBBMenu

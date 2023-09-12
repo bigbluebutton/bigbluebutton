@@ -61,7 +61,6 @@
     "html-to-image": "^1.9.0",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
-    "lodash": "^4.17.21",
     "makeup-screenreader-trap": "0.0.5",
     "meteor-node-stubs": "^1.2.1",
     "mobx": "6.4.2",
@@ -109,9 +108,8 @@
     "yaml": "^2.2.2"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.197",
-    "@types/react-virtualized": "^9.21.22",
     "@types/meteor": "^2.9.3",
+    "@types/react-virtualized": "^9.21.22",
     "@types/styled-components": "^5.1.26",
     "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^6.4.0",

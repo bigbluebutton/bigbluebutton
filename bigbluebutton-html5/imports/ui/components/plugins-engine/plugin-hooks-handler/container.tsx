@@ -10,7 +10,7 @@ const hooksMap:{
   [PluginSdk.Internal.BbbHooks.UseLoadedUserList]: LoadedUserListHookContainer,
 };
 
-const PluginHooksHandlerContainer = () => {
+const PluginHooksHandlerContainer: React.FC = () => {
   const [
     hookUtilizationCount,
     setHookUtilizationCount,
@@ -43,13 +43,17 @@ const PluginHooksHandlerContainer = () => {
   }, []);
 
   return (
-    Object.keys(hooksMap)
-      .filter((hookName: string) => hookUtilizationCount.get(hookName)
-          && hookUtilizationCount.get(hookName)! > 0)
-      .map((hookName: string) => {
-        const HookComponent = hooksMap[hookName];
-        return <HookComponent key={hookName}/>;
-      })
+    <>
+      {
+        Object.keys(hooksMap)
+          .filter((hookName: string) => hookUtilizationCount.get(hookName)
+            && hookUtilizationCount.get(hookName)! > 0)
+          .map((hookName: string) => {
+            const HookComponent = hooksMap[hookName];
+            return <HookComponent key={hookName} />;
+          })
+      }
+    </>
   );
 };
 

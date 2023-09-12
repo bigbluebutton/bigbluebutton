@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TldrawApp, Tldraw } from '@tldraw/tldraw';
-import SlideCalcUtil, { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
+import SlideCalcUtil, { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Utils } from '@tldraw/core';
 import Cursors from './cursors/container';
@@ -93,11 +93,13 @@ export default function Whiteboard(props) {
   const [history, setHistory] = React.useState(null);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [tldrawZoom, setTldrawZoom] = React.useState(1);
+  const zoomValueRef = React.useRef(zoomValue);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevFitToWidth = usePrevious(fitToWidth);
   const prevSvgUri = usePrevious(svgUri);
+  const prevPageId = usePrevious(curPageId);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
   const [currentStyle, setCurrentStyle] = React.useState({});
@@ -114,6 +116,10 @@ export default function Whiteboard(props) {
       isMountedRef.current = false;
     };
   }, []);
+
+  React.useEffect(() => {
+    zoomValueRef.current = zoomValue;
+  }, [zoomValue]);
 
   const setSafeTLDrawAPI = (api) => {
     if (isMountedRef.current) {
@@ -219,8 +225,15 @@ export default function Whiteboard(props) {
       tldrawAPI?.completeSession?.();
     }
   };
-
   const handleWheelEvent = (event) => {
+    if ((zoomValueRef.current >= MAX_PERCENT && event.deltaY < 0)
+      || (zoomValueRef.current <= HUNDRED_PERCENT && event.deltaY > 0))
+    {
+      event.stopPropagation();
+      event.preventDefault();
+      return window.dispatchEvent(new Event('resize'));
+    }
+
     if (!event.ctrlKey) {
       // Prevent the event from reaching the tldraw library
       event.stopPropagation();
@@ -461,6 +474,19 @@ export default function Whiteboard(props) {
       const newZoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
       tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newZoom, 'zoomed');
     }
+
+    const camera = tldrawAPI?.getPageState()?.camera;
+    if (isPresenter && slidePosition && camera) {
+      const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
+      const zoomCamera = (zoomFitSlide * zoomValue) / HUNDRED_PERCENT;
+      let zoomToolbar = Math.round(
+        ((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100,
+      ) / 100;
+      if ((zoom !== zoomToolbar) && (curPageId && curPageId !== prevPageId)) {
+        setZoom(zoomToolbar);
+        zoomChanger(zoomToolbar);
+      }
+    }
   }, [curPageId, slidePosition]);
 
   // update zoom according to toolbar
@@ -612,6 +638,11 @@ export default function Whiteboard(props) {
           tldrawAPI?.selectAll();
         }
         break;
+      case KEY_CODES.ARROW_DOWN:
+      case KEY_CODES.ARROW_UP:
+        event.preventDefault();
+        event.stopPropagation();
+        break;
       default:
     }
   };
@@ -759,11 +790,6 @@ export default function Whiteboard(props) {
       }
       if (camera.point[1] > 0 || tldrawAPI?.viewport.minY < 0) {
         camera.point[1] = 0;
-      }
-
-      if (camera.point[0] === 0 && camera.point[1] === 0) {
-        const newZoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
-        e?.setCamera([camera.point[0], camera.point[1]], newZoom);
       }
 
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);

@@ -9,7 +9,7 @@ interface ChatOfflineIndicatorProps {
 const intlMessages = defineMessages({
   partnerDisconnected: {
     id: 'app.chat.partnerDisconnected',
-    description: 'System chat message when the private chat partnet disconnect from the meeting',
+    description: 'System chat message when the private chat partner disconnect from the meeting',
   },
 });
 
@@ -19,7 +19,7 @@ const ChatOfflineIndicator: React.FC<ChatOfflineIndicatorProps> = ({
   const intl = useIntl();
   return (
     <Styled.ChatOfflineIndicator>
-      <span>
+      <span data-test="partnerDisconnected">
         {intl.formatMessage(intlMessages.partnerDisconnected, { 0: participantName })}
       </span>
     </Styled.ChatOfflineIndicator>

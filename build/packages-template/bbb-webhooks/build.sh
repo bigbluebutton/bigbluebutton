@@ -45,4 +45,6 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     --before-remove before-remove.sh                \
     --description "BigBlueButton Webhooks"          \
     $DIRECTORIES                                    \
-    $OPTS
+    $OPTS                                           \
+    -d 'yq (>= 3)' -d 'yq (<< 4)' \
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'

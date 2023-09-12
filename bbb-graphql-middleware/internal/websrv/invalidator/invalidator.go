@@ -48,15 +48,15 @@ func BrowserConnectionInvalidator() {
 			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
 			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
-			log.Infof("Received invalidate request for sessionToken %v", sessionTokenToInvalidate)
+			log.Debugf("Received invalidate request for sessionToken %v", sessionTokenToInvalidate)
 
 			websrv.BrowserConnectionsMutex.RLock()
 			for _, browserConnection := range websrv.BrowserConnections {
 				if browserConnection.SessionToken == sessionTokenToInvalidate {
 					if browserConnection.HasuraConnection != nil {
-						log.Infof("Processing invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
+						log.Debugf("Processing invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
 						browserConnection.HasuraConnection.ContextCancelFunc()
-						log.Infof("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
+						log.Debugf("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
 					}
 				}
 			}

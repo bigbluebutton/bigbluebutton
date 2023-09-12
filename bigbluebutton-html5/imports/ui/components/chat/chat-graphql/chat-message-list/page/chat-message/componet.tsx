@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
@@ -9,13 +9,13 @@ import {
   ChatWrapper,
   ChatContent,
   ChatAvatar,
-} from "./styles";
+} from './styles';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 
 interface ChatMessageProps {
   message: Message;
   previousMessage: Message;
-  lastSenderPreviousPage: string | null;
+  lastSenderPreviousPage: string | null | undefined;
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
 }
@@ -47,7 +47,7 @@ function isInViewport(el: HTMLDivElement) {
   );
 }
 
-const messageRef = React.createRef<HTMLDivElement | null>();
+const messageRef = React.createRef<HTMLDivElement>();
 
 const ChatMesssage: React.FC<ChatMessageProps> = ({
   previousMessage,

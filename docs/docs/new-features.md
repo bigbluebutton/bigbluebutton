@@ -3,8 +3,6 @@
 
 ## Overview
 
-#### Note: this document is a draft. BigBlueButton 2.7 is still under development.
-
 BigBlueButton 2.7 offers users improved usability, increased engagement, and more performance.
 
 - **Usability** - making common functions (such as raise hand) easier
@@ -133,6 +131,7 @@ Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the follo
 - React 18
 - NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
 - Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
+- Meteor 2.13
 - Grails 5.3.2
 - GORM 7.3.1
 - Groovy 3.0.11
@@ -142,6 +141,7 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0)
 - [2.7.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.2)
 - [2.7.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.1)
 - [2.7.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.3)

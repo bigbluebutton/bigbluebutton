@@ -150,7 +150,7 @@ const ChatListItem = (props: ChatListItemProps) => {
             )}
         </Styled.ChatIcon>
         <Styled.ChatName>
-          <Styled.ChatNameMain active>
+          <Styled.ChatNameMain active={false}>
             {isPublicGroupChat(chat)
               ? intl.formatMessage(intlMessages.titlePublic) : chat.participant?.name}
           </Styled.ChatNameMain>
