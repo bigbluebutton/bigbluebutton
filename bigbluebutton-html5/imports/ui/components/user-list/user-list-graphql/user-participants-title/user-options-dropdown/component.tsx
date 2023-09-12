@@ -217,7 +217,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         allow: isModerator,
         key: uuids.current[4],
         label: intl.formatMessage(intlMessages.saveUserNames),
-        onClick: onSaveUserNames.bind(null, intl, meetingName),
+        onClick: onSaveUserNames.bind(null, intl, meetingName ?? ''),
         icon: 'download',
         dataTest: 'downloadUserNamesList',
       },

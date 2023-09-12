@@ -307,7 +307,7 @@ const Avatar = styled.div<AvatarProps>`
   `}
 
   // ================ talking animation ================
-  ${({ talking, animations, color }) => talking && animations && css`
+  ${({ talking, animations, color }) => talking && animations && color && css`
     animation: ${pulse(color)} 1s infinite ease-in;
   `}
   // ================ talking animation ================

@@ -115,23 +115,23 @@ const ChatListItem = (props: ChatListItemProps) => {
 
   return (
     <Styled.ChatListItem
-  data-test="chatButton"
-  role="button"
-  aria-expanded={isCurrentChat}
-  active={isCurrentChat}
-  tabIndex={0}
-  accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined}
-  onClick={handleClickToggleChat}
-  id="chat-toggle-button"
-  aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic)
-    : chat.participant?.name}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
->
+      data-test="chatButton"
+      role="button"
+      aria-expanded={isCurrentChat}
+      active={isCurrentChat}
+      tabIndex={0}
+      accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined}
+      onClick={handleClickToggleChat}
+      id="chat-toggle-button"
+      aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic)
+        : chat.participant?.name}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
+    >
       <Styled.ChatListItemLink>
         <Styled.ChatIcon>
           {isPublicGroupChat(chat)

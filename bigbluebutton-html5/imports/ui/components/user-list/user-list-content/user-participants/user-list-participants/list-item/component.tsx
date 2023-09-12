@@ -2,13 +2,14 @@ import React from 'react';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { User } from '/imports/ui/Types/user';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
-import _ from 'lodash';
+import { uniqueId } from '/imports/utils/string-utils';
+
 const messages = defineMessages({
   moderator: {
     id: 'app.userList.moderator',
@@ -61,14 +62,14 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     (user.mobile && LABEL.mobile) && intl.formatMessage(messages.mobile),
     (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) 
     && (
-      <span key={_.uniqueId('lock-')}>
+      <span key={uniqueId('lock-')}>
           <Icon iconName="lock" />
           &nbsp;
           {intl.formatMessage(messages.locked)}
         </span>
     ),
     user.lastBreakoutRoom?.currentlyInRoom && (
-      <span key={_.uniqueId('breakout-')}>
+      <span key={uniqueId('breakout-')}>
           <Icon iconName="rooms" />
           &nbsp;
           {user.lastBreakoutRoom?.shortName
@@ -77,7 +78,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         </span>
     ),
     (user.cameras.length > 0 && LABEL.sharingWebcam) && (
-      <span key={_.uniqueId('breakout-')}>
+      <span key={uniqueId('breakout-')}>
           { user.pinned === true
             ? <Icon iconName="pin-video_on" />
             : <Icon iconName="video" /> }
@@ -88,44 +89,50 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   ].filter(Boolean);
 
   const iconUser = user.emoji !== 'none'
-    ? (<Icon iconName={user.emoji in EMOJI_STATUSES ? EMOJI_STATUSES[user.emoji] : user.emoji}  />)
+    ? (
+      <Icon
+        iconName={user.emoji in EMOJI_STATUSES ? (EMOJI_STATUSES as Record<string, string>)[user.emoji] : user.emoji}
+      />
+    )
     : user.name.toLowerCase().slice(0, 2);
 
    const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser
 
-  return <Styled.UserItemContents data-test='user'>
-  <Styled.Avatar
-    moderator={user.role === ROLE_MODERATOR}
-    presenter={user.presenter}
-    talking={voiceUser?.talking}
-    muted={voiceUser?.muted}
-    listenOnly={voiceUser?.listenOnly}
-    voice={voiceUser?.joined}
-    noVoice={!voiceUser?.joined}
-    color={user.color}
-    whiteboardAccess={user?.presPagesWritable?.length > 0}
-    animations={true} 
-    emoji={user.emoji !== 'none'}
-    avatar={user.avatar || ''}
-    isChrome={isChrome}
-    isFirefox={isFirefox}
-    isEdge={isEdge}
-  >
-    {avatarContent}
-  </Styled.Avatar>
-  <Styled.UserNameContainer>
-    <Styled.UserName>
-      <TooltipContainer title={user.name}>
-        <span>{user.name}</span>
-      </TooltipContainer>
-      &nbsp;
-      {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
-    </Styled.UserName>
-    <Styled.UserNameSub>
-      {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
-    </Styled.UserNameSub>
-  </Styled.UserNameContainer>
-  </Styled.UserItemContents>;
+  return (
+    <Styled.UserItemContents data-test='user'>
+      <Styled.Avatar
+        moderator={user.role === ROLE_MODERATOR}
+        presenter={user.presenter}
+        talking={voiceUser?.talking}
+        muted={voiceUser?.muted}
+        listenOnly={voiceUser?.listenOnly}
+        voice={voiceUser?.joined}
+        noVoice={!voiceUser?.joined}
+        color={user.color}
+        whiteboardAccess={user?.presPagesWritable?.length > 0}
+        animations
+        emoji={user.emoji !== 'none'}
+        avatar={user.avatar || ''}
+        isChrome={isChrome}
+        isFirefox={isFirefox}
+        isEdge={isEdge}
+      >
+        {avatarContent}
+      </Styled.Avatar>
+      <Styled.UserNameContainer>
+        <Styled.UserName>
+          <TooltipContainer title={user.name}>
+            <span>{user.name}</span>
+          </TooltipContainer>
+          &nbsp;
+          {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
+        </Styled.UserName>
+        <Styled.UserNameSub>
+          {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
+        </Styled.UserNameSub>
+      </Styled.UserNameContainer>
+    </Styled.UserItemContents>
+  );
 };
 
 export default UserListItem;

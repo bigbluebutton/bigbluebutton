@@ -21,7 +21,7 @@ interface ChatListPageContainerProps {
   // eslint-disable-next-line react/no-unused-prop-types
   lastSeenAt: number,
   chatId: string;
-  markMessageAsSeen: () => void;
+  markMessageAsSeen: (message: Message) => void;
   scrollRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -29,7 +29,7 @@ interface ChatListPageProps {
   messages: Array<Message>;
   lastSenderPreviousPage: string | undefined;
   page: number;
-  markMessageAsSeen: ()=> void;
+  markMessageAsSeen: (message: Message)=> void;
   scrollRef: React.RefObject<HTMLDivElement>;
 }
 
