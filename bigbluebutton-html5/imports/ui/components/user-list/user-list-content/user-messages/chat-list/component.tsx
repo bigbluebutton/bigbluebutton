@@ -38,9 +38,9 @@ const getActiveChats = (chats: Chat[]) => chats.map((chat) => (
 ));
 
 const ChatList: React.FC<ChatListProps> = ({ chats }) => {
-  const messageListRef = React.useRef<HTMLDivElement>();
-  const messageItemsRef = React.useRef<HTMLDivElement>();
-  const [selectedChat, setSelectedChat] = React.useState(null);
+  const messageListRef = React.useRef<HTMLDivElement | null >(null);
+  const messageItemsRef = React.useRef<HTMLDivElement | null >(null);
+  const [selectedChat, setSelectedChat] = React.useState<HTMLElement>();
   const { roving } = Service;
 
   React.useEffect(() => {
@@ -60,13 +60,14 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   }, [messageListRef]);
 
   React.useEffect(() => {
-    const firstChild = selectedChat?.firstChild;
-    if (firstChild) firstChild.focus();
+    const firstChild = (selectedChat as HTMLElement)?.firstChild;
+    if (firstChild && firstChild instanceof HTMLElement) firstChild.focus();
   }, [selectedChat]);
 
   const rove = (event: KeyboardEvent) => {
     const msgItemsRef = findDOMNode(messageItemsRef.current);
-    roving(event, setSelectedChat, msgItemsRef, selectedChat);
+    const msgItemsRefChild = msgItemsRef?.firstChild;
+    roving(event, setSelectedChat, msgItemsRefChild, selectedChat);
     event.stopPropagation();
   }
 
@@ -83,8 +84,8 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
         tabIndex={0}
         ref={messageListRef}
       >
-        <Styled.List>
-          <TransitionGroup ref={messageItemsRef}>
+        <Styled.List ref={messageItemsRef}>
+          <TransitionGroup >
             {getActiveChats(chats) ?? null}
           </TransitionGroup>
         </Styled.List>
