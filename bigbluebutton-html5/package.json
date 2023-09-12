@@ -109,6 +109,7 @@
   },
   "devDependencies": {
     "@types/meteor": "^2.9.3",
+    "@types/react-dom": "^18.2.7",
     "@types/react-virtualized": "^9.21.22",
     "@types/styled-components": "^5.1.26",
     "@types/uuid": "^9.0.2",

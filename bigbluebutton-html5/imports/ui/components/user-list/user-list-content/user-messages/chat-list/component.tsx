@@ -5,12 +5,14 @@ import { defineMessages, useIntl } from 'react-intl';
 import ChatListItem from './chat-list-item/component'
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
+import Service from '/imports/ui/components/user-list/service';
+import { findDOMNode } from 'react-dom';
 
 const intlMessages = defineMessages({
-    messagesTitle: {
-        id: 'app.userList.messagesTitle',
-        description: 'Title for the messages list',
-    },
+  messagesTitle: {
+    id: 'app.userList.messagesTitle',
+    description: 'Title for the messages list',
+  },
 });
 
 interface ChatListProps {
@@ -36,26 +38,59 @@ const getActiveChats = (chats: Chat[]) => chats.map((chat) => (
 ));
 
 const ChatList: React.FC<ChatListProps> = ({ chats }) => {
+  const messageListRef = React.useRef<HTMLDivElement | null >(null);
+  const messageItemsRef = React.useRef<HTMLDivElement | null >(null);
+  const [selectedChat, setSelectedChat] = React.useState<HTMLElement>();
+  const { roving } = Service;
 
-    const intl = useIntl();
-    return (
-        <Styled.Messages>
-            <Styled.Container>
-                <Styled.MessagesTitle data-test="messageTitle">
-                    {intl.formatMessage(intlMessages.messagesTitle)}
-                </Styled.MessagesTitle>
-            </Styled.Container>
-            <Styled.ScrollableList
-                role="tabpanel"
-                tabIndex={-1}
-            >
-                <Styled.List>
-                    <TransitionGroup >
-                        {getActiveChats(chats) ?? null}
-                    </TransitionGroup>
-                </Styled.List>
-            </Styled.ScrollableList>
-        </Styled.Messages>)
+  React.useEffect(() => {
+    messageListRef.current?.addEventListener(
+      'keydown',
+      rove,
+      true,
+    );
+
+    return () => {
+      messageListRef.current?.removeEventListener(
+        'keydown',
+        rove,
+        true,
+      );
+    };
+  }, [messageListRef]);
+
+  React.useEffect(() => {
+    const firstChild = (selectedChat as HTMLElement)?.firstChild;
+    if (firstChild && firstChild instanceof HTMLElement) firstChild.focus();
+  }, [selectedChat]);
+
+  const rove = (event: KeyboardEvent) => {
+    const msgItemsRef = findDOMNode(messageItemsRef.current);
+    const msgItemsRefChild = msgItemsRef?.firstChild;
+    roving(event, setSelectedChat, msgItemsRefChild, selectedChat);
+    event.stopPropagation();
+  }
+
+  const intl = useIntl();
+  return (
+    <Styled.Messages>
+      <Styled.Container>
+        <Styled.MessagesTitle data-test="messageTitle">
+          {intl.formatMessage(intlMessages.messagesTitle)}
+        </Styled.MessagesTitle>
+      </Styled.Container>
+      <Styled.ScrollableList
+        role="tabpanel"
+        tabIndex={0}
+        ref={messageListRef}
+      >
+        <Styled.List ref={messageItemsRef}>
+          <TransitionGroup >
+            {getActiveChats(chats) ?? null}
+          </TransitionGroup>
+        </Styled.List>
+      </Styled.ScrollableList>
+    </Styled.Messages>)
 };
 
 const ChatListContainer: React.FC = () => {
@@ -66,4 +101,3 @@ const ChatListContainer: React.FC = () => {
 };
 
 export default ChatListContainer;
-
