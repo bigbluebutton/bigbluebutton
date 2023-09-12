@@ -37,7 +37,7 @@ const defaultProps = {
 };
 
 const { animations } = Settings.application;
-const { isChrome, isFirefox, isEdge } = browserInfo;
+const { isSafari } = browserInfo;
 
 const UserAvatar = ({
   children,
@@ -70,9 +70,7 @@ const UserAvatar = ({
         listenOnly={listenOnly}
         voice={voice}
         noVoice={noVoice && !listenOnly}
-        isChrome={isChrome}
-        isFirefox={isFirefox}
-        isEdge={isEdge}
+        isSafari={isSafari}
         style={{
           backgroundColor: color,
           color, // We need the same color on both for the border

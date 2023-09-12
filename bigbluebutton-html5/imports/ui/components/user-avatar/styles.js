@@ -113,7 +113,7 @@ const Avatar = styled.div`
     width: 0;
     height: 0;
     padding-top: .5rem;
-    padding-right: 0;
+    padding-right: ${({ isSafari }) => isSafari ? '.6rem' : '0'};
     padding-left: 0;
     padding-bottom: 0;
     color: inherit;
@@ -153,7 +153,6 @@ const Avatar = styled.div`
   ${({ presenter }) => presenter && `
     &:before {
       content: "\\00a0\\e90b\\00a0";
-      padding: ${mdPaddingY} !important;
       opacity: 1;
       top: ${userIndicatorsOffset};
       left: ${userIndicatorsOffset};
@@ -161,6 +160,8 @@ const Avatar = styled.div`
       right: auto;
       border-radius: 5px;
       background-color: ${colorPrimary};
+      height: 1.2rem;
+      width: 1.2rem;
 
       [dir="rtl"] & {
         left: auto;
@@ -170,18 +171,9 @@ const Avatar = styled.div`
     }
   `}
 
-  ${({
-    presenter, isChrome, isFirefox, isEdge,
-  }) => presenter && (isChrome || isFirefox || isEdge) && `
-    &:before {
-      padding: ${indicatorPadding} !important;
-    }
-  `}
-
   ${({ whiteboardAccess }) => whiteboardAccess && `
     &:before {
       content: "\\00a0\\e925\\00a0";
-      padding: ${mdPaddingY} !important;
       border-radius: 50% !important;
       opacity: 1;
       top: ${userIndicatorsOffset};
@@ -190,6 +182,8 @@ const Avatar = styled.div`
       right: auto;
       border-radius: 5px;
       background-color: ${colorPrimary};
+      height: 1.2rem;
+      width: 1.2rem;
 
       [dir="rtl"] & {
         left: auto;
@@ -197,14 +191,6 @@ const Avatar = styled.div`
         letter-spacing: -.33rem;
         transform: scale(-1, 1);
       }
-    }
-  `}
-
-  ${({
-    whiteboardAccess, isChrome, isFirefox, isEdge,
-  }) => whiteboardAccess && (isChrome || isFirefox || isEdge) && `
-    &:before {
-      padding: ${indicatorPadding};
     }
   `}
 
