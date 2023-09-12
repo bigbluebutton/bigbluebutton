@@ -5,6 +5,7 @@ import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>
@@ -58,5 +59,16 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
     outGW.send(msgEvent)
+
+    val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+      fromUserId,
+      liveMeeting.props.meetingProp.intId,
+      "info",
+      "user",
+      "app.layoutUpdate.label",
+      "Notification to when the presenter changes dize of cams",
+      Vector()
+    )
+    outGW.send(notifyEvent)
   }
 }
