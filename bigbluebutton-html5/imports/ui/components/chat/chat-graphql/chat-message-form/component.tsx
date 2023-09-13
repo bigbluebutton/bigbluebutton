@@ -1,4 +1,10 @@
-import React, { ChangeEvent, RefObject, useEffect, useRef } from 'react';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import React, {
+  ChangeEvent,
+  RefObject,
+  useEffect,
+  useRef,
+} from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
@@ -21,10 +27,11 @@ import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 
-
 interface ChatMessageFormProps {
   minMessageLength: number,
   maxMessageLength: number,
+  // Lint disable here because this variable can be undefined
+  // eslint-disable-next-line react/no-unused-prop-types
   idChatOpen: string,
   chatId: string,
   connected: boolean,
@@ -122,7 +129,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const unsentMessages = JSON.parse(storedData);
     unsentMessages[chatId] = message;
     localStorage.setItem('unsentMessages', JSON.stringify(unsentMessages));
-  }
+  };
 
   useEffect(() => {
     setMessageHint();
@@ -133,7 +140,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     return () => {
       const unsentMessage = messageRef.current;
       updateUnreadMessages(chatId, unsentMessage);
-    }
+    };
   }, []);
 
   useEffect(() => {
@@ -173,12 +180,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     setHasErrors(disabled);
     setError(chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null);
-  }
+  };
 
   const handleSubmit = (e:React.FormEvent<HTMLFormElement>|React.KeyboardEvent<HTMLInputElement>|Event) => {
     e.preventDefault();
 
-    let msg = message.trim();
+    const msg = message.trim();
 
     if (msg.length < minMessageLength) return;
 
@@ -206,7 +213,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setMessage(
       message.slice(0, cursor)
       + emojiObject.native
-      + message.slice(cursor)
+      + message.slice(cursor),
     );
 
     const newCursor = cursor + emojiObject.native.length;
@@ -326,7 +333,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       </Styled.Form>
     );
-  }
+  };
 
   return ENABLE_EMOJI_PICKER ? (
     <ClickOutside
@@ -337,6 +344,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   ) : renderForm();
 };
 
+// eslint-disable-next-line no-empty-pattern
 const ChatMessageFormContainer: React.FC = ({
   // connected, move to network status
 }) => {
@@ -373,21 +381,21 @@ const ChatMessageFormContainer: React.FC = ({
 
   return (
     <ChatMessageForm
-    {...{
-      minMessageLength: CHAT_CONFIG.min_message_length,
-      maxMessageLength: CHAT_CONFIG.max_message_length,
-      idChatOpen,
-      handleClickOutside,
-      chatId: idChatOpen,
-      connected: true, //TODO: monitoring network status
-      disabled: locked ?? false,
-      title,
-      // if participant is not defined, it means that the chat is public
-      partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
-      locked: locked ?? false,
-    }}
-  />
-);
+      {...{
+        minMessageLength: CHAT_CONFIG.min_message_length,
+        maxMessageLength: CHAT_CONFIG.max_message_length,
+        idChatOpen,
+        handleClickOutside,
+        chatId: idChatOpen,
+        connected: true, // TODO: monitoring network status
+        disabled: locked ?? false,
+        title,
+        // if participant is not defined, it means that the chat is public
+        partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
+        locked: locked ?? false,
+      }}
+    />
+  );
 };
 
 export default ChatMessageFormContainer;

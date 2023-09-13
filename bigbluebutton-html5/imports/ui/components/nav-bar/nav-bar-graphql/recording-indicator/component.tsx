@@ -67,6 +67,7 @@ const intlMessages = defineMessages({
 
 interface RecordingIndicatorProps {
   allowStartStopRecording: boolean;
+  // eslint-disable-next-line react/no-unused-prop-types
   autoStartRecording: boolean;
   record: boolean;
   recording: boolean;
@@ -105,8 +106,6 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
 
   useEffect(() => {
     if (recording) {
-      console.log('serverTime', serverTime);
-
       setTime(serverTime);
       clearInterval(setIntervalRef.current);
       setIntervalRef.current = setInterval(() => {
@@ -232,14 +231,14 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
             title={`${intl.formatMessage(
               recording
                 ? intlMessages.notificationRecordingStart
-                : intlMessages.notificationRecordingStop
+                : intlMessages.notificationRecordingStop,
             )}`}
           >
             <Styled.RecordingStatusViewOnly
               aria-label={`${intl.formatMessage(
                 recording
                   ? intlMessages.notificationRecordingStart
-                  : intlMessages.notificationRecordingStop
+                  : intlMessages.notificationRecordingStop,
               )}`}
               recording={recording}
             >
@@ -317,8 +316,8 @@ const RecordingIndicatorContainer: React.FC = () => {
   if (meetingRecordingPoliciesError || meetingRecordingError) {
     return (
       <div>
-        {JSON.stringify(meetingRecordingPoliciesError) ||
-          JSON.stringify(meetingRecordingData)}
+        {JSON.stringify(meetingRecordingPoliciesError)
+        || JSON.stringify(meetingRecordingData)}
       </div>
     );
   }
@@ -338,8 +337,7 @@ const RecordingIndicatorContainer: React.FC = () => {
   const startedAt: Date = new Date(meetingRecording?.startedAt ?? '');
   const adjustedCurrent: Date = new Date(currentDate.getTime() + timeSync);
   const timeDifferenceMs: number = adjustedCurrent.getTime() - startedAt.getTime();
-  const totalPassedTime: number =
-    timeDifferenceMs / 1000 + (meetingRecording?.previousRecordedTimeInSeconds ?? 0);
+  const totalPassedTime: number = timeDifferenceMs / 1000 + (meetingRecording?.previousRecordedTimeInSeconds ?? 0);
   const passedTime = Math.floor(totalPassedTime);
 
   return (
@@ -351,9 +349,9 @@ const RecordingIndicatorContainer: React.FC = () => {
       micUser={(currentUser?.voice && !currentUser?.voice.listenOnly) ?? false}
       isPhone={isMobile}
       recordingNotificationEnabled={
-        (meetingRecording?.startedBy !== currentUser?.userId &&
-          currentMeeting?.notifyRecordingIsOn) ??
-        false
+        (meetingRecording?.startedBy !== currentUser?.userId
+          && currentMeeting?.notifyRecordingIsOn)
+          ?? false
       }
       serverTime={passedTime > 0 ? passedTime : 0}
       isModerator={currentUser?.isModerator ?? false}
