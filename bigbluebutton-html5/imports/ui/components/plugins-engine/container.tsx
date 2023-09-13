@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, {
+  useEffect, useRef, useState, useMemo,
+} from 'react';
 import logger from '/imports/startup/client/logger';
 import * as uuid from 'uuid';
 import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
@@ -7,6 +9,7 @@ import { PluginConfig, EffectivePluginConfig } from './types';
 import PluginLoaderContainer from './plugin-loader/container';
 import PluginProvidedStateContainer from './plugin-provided-state/container';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
@@ -37,14 +40,14 @@ const PluginsEngineContainer = () => {
 
   return (
     <>
-      <PluginsEngineComponent 
+      <PluginsEngineComponent
         {...{
           containerRef,
         }}
       />
       {
         effectivePluginsConfig.map((effectivePluginConfig: EffectivePluginConfig) => {
-          const uuid = effectivePluginConfig.uuid;
+          const { uuid } = effectivePluginConfig.uuid;
           return (
             <div key={uuid}>
               <PluginLoaderContainer
@@ -56,13 +59,13 @@ const PluginsEngineContainer = () => {
                   pluginConfig: effectivePluginConfig,
                 }}
               />
-              <PluginProvidedStateContainer 
+              <PluginProvidedStateContainer
                 {...{
                   uuid,
                 }}
               />
             </div>
-          )
+          );
         })
       }
       <PluginHooksHandlerContainer />

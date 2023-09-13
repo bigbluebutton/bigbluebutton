@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
@@ -54,37 +55,36 @@ interface UserListItemProps {
 }
 
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
-  const intl = useIntl()
+  const intl = useIntl();
   const voiceUser = user.voice;
-  const subs = [   
+  const subs = [
     (user.role === ROLE_MODERATOR && LABEL.moderator) && intl.formatMessage(messages.moderator),
     (user.guest && LABEL.guest) && intl.formatMessage(messages.guest),
     (user.mobile && LABEL.mobile) && intl.formatMessage(messages.mobile),
-    (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) 
-    && (
+    (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) && (
       <span key={uniqueId('lock-')}>
-          <Icon iconName="lock" />
-          &nbsp;
-          {intl.formatMessage(messages.locked)}
-        </span>
+        <Icon iconName="lock" />
+        &nbsp;
+        {intl.formatMessage(messages.locked)}
+      </span>
     ),
     user.lastBreakoutRoom?.currentlyInRoom && (
       <span key={uniqueId('breakout-')}>
-          <Icon iconName="rooms" />
-          &nbsp;
-          {user.lastBreakoutRoom?.shortName
-            ? intl.formatMessage(messages.breakoutRoom, { 0: user.lastBreakoutRoom?.sequence })
-            : user.lastBreakoutRoom?.shortName}
-        </span>
+        <Icon iconName="rooms" />
+        &nbsp;
+        {user.lastBreakoutRoom?.shortName
+          ? intl.formatMessage(messages.breakoutRoom, { 0: user.lastBreakoutRoom?.sequence })
+          : user.lastBreakoutRoom?.shortName}
+      </span>
     ),
     (user.cameras.length > 0 && LABEL.sharingWebcam) && (
       <span key={uniqueId('breakout-')}>
-          { user.pinned === true
-            ? <Icon iconName="pin-video_on" />
-            : <Icon iconName="video" /> }
-          &nbsp;
-          {intl.formatMessage(messages.sharingWebcam)}
-        </span>
+        {user.pinned === true
+          ? <Icon iconName="pin-video_on" />
+          : <Icon iconName="video" />}
+        &nbsp;
+        {intl.formatMessage(messages.sharingWebcam)}
+      </span>
     ),
   ].filter(Boolean);
 
@@ -96,10 +96,10 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     )
     : user.name.toLowerCase().slice(0, 2);
 
-   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser
+  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser;
 
   return (
-    <Styled.UserItemContents data-test='user'>
+    <Styled.UserItemContents data-test="user">
       <Styled.Avatar
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}

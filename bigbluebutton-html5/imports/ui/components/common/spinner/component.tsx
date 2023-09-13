@@ -4,7 +4,7 @@ import * as Styled from './styles';
 const Spinner = () => {
   return (
     <Styled.LoadingSpinnerWrapper>
-        <Styled.LoadingSpinner />
+      <Styled.LoadingSpinner />
     </Styled.LoadingSpinnerWrapper>
   );
 };

@@ -9,7 +9,6 @@ const PluginsEngine = styled.div`
   zIndex: -1,
 `;
 
-
-export {
+export default {
   PluginsEngine,
 };
