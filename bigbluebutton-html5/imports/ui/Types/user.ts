@@ -64,4 +64,5 @@ export interface User {
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
   size: number;
+  away: boolean;
 }
