@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { useSubscription } from '@apollo/client';
 import {
@@ -15,7 +15,7 @@ import {
   meetingRecordingAssertion,
   meetingRecordingPoliciesAssertion,
 } from './queries';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import { notify } from '/imports/ui/services/notification';

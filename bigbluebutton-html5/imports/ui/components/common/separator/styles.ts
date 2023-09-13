@@ -5,6 +5,4 @@ const Separator = styled.div`
   height: 100%;
 `;
 
-export default {
-  Separator,
-};
+export default Separator;

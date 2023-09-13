@@ -15,7 +15,7 @@ import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
 import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 
-import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
+import useCurrentUser from '../../../../../core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';

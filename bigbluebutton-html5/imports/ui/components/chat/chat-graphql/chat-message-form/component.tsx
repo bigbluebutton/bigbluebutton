@@ -22,7 +22,7 @@ import {
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';

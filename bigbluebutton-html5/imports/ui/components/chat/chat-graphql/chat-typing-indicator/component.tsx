@@ -7,7 +7,7 @@ import {
 import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
 import useChat from '/imports/ui/core/hooks/useChat';

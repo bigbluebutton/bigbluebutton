@@ -4,14 +4,14 @@ import { useReactiveVar } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
 import AudioManager from '/imports/ui/services/audio-manager';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import { defineMessages, useIntl } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
 import {
   handleLeaveAudio, liveChangeInputDevice, liveChangeOutputDevice, notify, toggleMuteMicrophone,
 } from './service';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Meeting } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';

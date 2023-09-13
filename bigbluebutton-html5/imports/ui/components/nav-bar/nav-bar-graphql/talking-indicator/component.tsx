@@ -11,7 +11,7 @@ import { UserVoice } from '/imports/ui/Types/userVoice';
 import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import muteUser from './service';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

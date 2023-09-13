@@ -8,7 +8,7 @@ import React, {
 import { Meteor } from 'meteor/meteor';
 import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import { LAST_SEEN_MUTATION } from './queries';
+import LAST_SEEN_MUTATION from './queries';
 import {
   ButtonLoadMore,
   MessageList,

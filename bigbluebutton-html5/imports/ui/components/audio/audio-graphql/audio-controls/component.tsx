@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { User } from '/imports/ui/Types/user';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Meeting } from '/imports/ui/Types/meeting';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useMutation, useReactiveVar } from '@apollo/client';
