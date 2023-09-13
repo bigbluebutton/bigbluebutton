@@ -32,23 +32,24 @@ trait PresentationPageCountErrorPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    val pod = PresentationPodsApp.getPresentationPod(state, msg.body.podId)
-    pod match {
-      case Some(pod) =>
-        val pres = pod.getPresentation(msg.body.presentationId)
-        pres match {
-          case Some(pres) =>
-            val presWithError = PresentationInPod(pres.id, pres.name, pres.current, pres.pages, pres.downloadable, pres.removable, pres.filenameConverted, pres.uploadCompleted, msg.body.numberOfPages, msg.body.messageKey)
-            PresPresentationDAO.insert(msg.header.meetingId, presWithError)
-          case None =>
-            println(s"Presentation with ID ${msg.body.presentationId} not found")
-            PresPresentationDAO.updateErrorMsgKey(msg.body.presentationId, msg.body.messageKey)
-        }
-      case None =>
-        println(s"Pod with ID ${msg.body.podId} not found")
+    val newState = for {
+      pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
+      pres <- pod.getPresentation(msg.body.presentationId)
+    } yield {
+      val presWithError = PresentationInPod(pres.id, pres.name, pres.current, pres.pages, pres.downloadable, pres.removable, pres.filenameConverted, pres.uploadCompleted, msg.body.numberOfPages, msg.body.messageKey)
+      var pods = state.presentationPodManager.addPod(pod)
+      pods = pods.addPresentationToPod(pod.id, presWithError)
+      PresPresentationDAO.insert(msg.header.meetingId, presWithError)
+      state.update(pods)
     }
 
     broadcastEvent(msg)
-    state
+
+    newState match {
+      case Some(ns) => ns
+      case None =>
+        PresPresentationDAO.updateErrorMsgKey(msg.body.presentationId, msg.body.messageKey)
+        state
+    }
   }
 }
