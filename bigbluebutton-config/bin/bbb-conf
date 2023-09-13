@@ -371,9 +371,10 @@ start_bigbluebutton () {
     systemctl mask bbb-rap-caption-inbox
 
     set +x
+    sudo systemctl status bigbluebutton.target
     systemctl restart bigbluebutton.target
 
-    nginx -t
+    sudo nginx -t
 
     for i in {0..100}
     do
