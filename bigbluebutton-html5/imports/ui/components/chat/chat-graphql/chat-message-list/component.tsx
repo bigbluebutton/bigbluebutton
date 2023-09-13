@@ -278,7 +278,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     ) : null
                 }
               </span>
-              <div id="contentRef" ref={contentRef}>
+              <div data-test="contentRef" ref={contentRef}>
                 <ChatPopupContainer />
                 {
                   // @ts-ignore

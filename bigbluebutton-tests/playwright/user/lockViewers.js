@@ -112,6 +112,9 @@ class LockViewers extends MultiUsers {
     await this.initUserPage2(true);
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+
+    await this.modPage.waitAndClick(`${e.userListItem}>>nth=0`);
+    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     
     await this.userPage2.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.userPage2.waitAndClick(`${e.startPrivateChat}>>nth=1`);
