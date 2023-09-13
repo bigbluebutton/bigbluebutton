@@ -1,16 +1,28 @@
 package org.bigbluebutton
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+
 import scala.util.Try
 import com.typesafe.config.ConfigFactory
 import org.yaml.snakeyaml.{ LoaderOptions, Yaml }
 
-import java.io.{ File, FileInputStream }
-import org.bigbluebutton.common2
+import java.io.{ File, FileInputStream, InputStreamReader }
+import com.fasterxml.jackson.module.scala.{ DefaultScalaModule, JavaTypeable, ScalaObjectMapper }
+
+import scala.reflect.ClassTag
 
 trait SystemConfiguration {
   val config = ConfigFactory.load()
-  private val options = new LoaderOptions()
-  private val yaml = new Yaml(options)
+  val yaml = new Yaml(new LoaderOptions())
+  val mapper = new ObjectMapper(new YAMLFactory()) with ScalaObjectMapper
+  mapper.registerModule(DefaultScalaModule)
+
+  def toMap[V](json: String)(implicit m: Manifest[V]): Map[String, V] = fromJson[Map[String, V]](json)
+
+  def fromJson[T](json: String)(implicit m: Manifest[T]): T = {
+    mapper.readValue[T](json)
+  }
 
   lazy val bbbWebHost = Try(config.getString("services.bbbWebHost")).getOrElse("localhost")
   lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
@@ -91,6 +103,11 @@ trait SystemConfiguration {
     "/etc/bigbluebutton/bbb-html5.yml"
   ).asInstanceOf[String]
 
+  //  val listType = mapper.getTypeFactory.constructMapType(classOf[Map[_, _]], classOf[String], classOf[Object])
+  //  val teste2 = mapper.readValue(new File(clientConfigurationPath), listType)
+  val teste = scala.io.Source.fromFile(clientConfigurationPathOverride)
+  val teste2 = toMap[Object](teste.mkString)
+  println("\n\n\n\n ---> teste pra printar o yaml como json ", teste2)
   private val inputFileStreamClientConfigFile = new FileInputStream(new File(clientConfigurationPath))
   private val inputFileStreamClientConfigOverrideFile = new FileInputStream(new File(clientConfigurationPathOverride))
   val clientConfigurationFromFile: java.util.LinkedHashMap[String, Object] = yaml.load(inputFileStreamClientConfigFile)

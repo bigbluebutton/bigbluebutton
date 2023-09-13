@@ -37,6 +37,7 @@ object Dependencies {
     val scalaTest = "3.2.11"
     val mockito = "2.23.0"
     val akkaTestKit = "2.6.0"
+    val jacksonDataFormat = "2.13.5"
   }
 
   object Compile {
@@ -65,6 +66,8 @@ object Dependencies {
     val slickHikaricp = "com.typesafe.slick" %% "slick-hikaricp" % Versions.slick
     val slickPg = "com.github.tminglei" %% "slick-pg" % Versions.slickPg
     val postgresql = "org.postgresql" % "postgresql" % Versions.postgresql
+    val jacksonDataFormat = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jacksonDataFormat
+    val snakeYaml = "org.yaml" % "snakeyaml"
   }
 
   object Test {
@@ -101,5 +104,6 @@ object Dependencies {
     Compile.slick,
     Compile.slickHikaricp,
     Compile.slickPg,
-    Compile.postgresql) ++ testing
+    Compile.postgresql,
+    Compile.jacksonDataFormat) ++ testing
 }
