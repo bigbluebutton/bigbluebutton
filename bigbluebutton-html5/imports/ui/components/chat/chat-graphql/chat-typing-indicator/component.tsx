@@ -80,7 +80,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
     {`${name}`}
     &nbsp;
   </Styled.CoupleTyper>,
-          1: 
+          1:
   <Styled.CoupleTyper>
     &nbsp;
     {`${name2}`}
@@ -100,8 +100,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   }
 
   return (
-    <Styled.TypingIndicatorWrapper
-    >
+    <Styled.TypingIndicatorWrapper>
       <Styled.TypingIndicator data-test="typingIndicator">{element}</Styled.TypingIndicator>
     </Styled.TypingIndicatorWrapper>
   );

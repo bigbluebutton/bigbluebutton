@@ -125,7 +125,7 @@ export const AudioControlsContainer: React.FC = () => {
   const currentMeeting: Partial<Meeting> = useMeeting((m: Partial<Meeting>) => {
     return {
       lockSettings: m.lockSettings,
-    }
+    };
   });
   const [updateEchoTestRunning] = useMutation(UPDATE_ECHO_TEST_RUNNING);
 

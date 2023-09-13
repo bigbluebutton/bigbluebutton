@@ -105,6 +105,7 @@ const intlMessages = defineMessages({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const { dynamicGuestPolicy } = Meteor.settings.public.app;
 

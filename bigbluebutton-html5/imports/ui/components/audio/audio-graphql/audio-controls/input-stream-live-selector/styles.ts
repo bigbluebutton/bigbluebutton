@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import styled, { css, keyframes } from 'styled-components';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import Button from '/imports/ui/components/common/button/component';
@@ -24,9 +25,7 @@ const pulse = keyframes`
 // @ts-ignore - as button comes from JS, we can't provide its props
 export const MuteToggleButton = styled(Button)`
   margin-right: 0.5rem;
-  ${({ ghost }) =>
-    ghost &&
-    `
+  ${({ ghost }) => ghost && `
     span {
       box-shadow: none;
       background-color: transparent !important;
@@ -34,23 +33,15 @@ export const MuteToggleButton = styled(Button)`
     }
   `}
 
-  ${({ $talking }) =>
-    $talking &&
-    `
+  ${({ $talking }) => $talking && `
     border-radius: 50%;
   `}
 
-  ${({ $talking, animations }) =>
-    $talking &&
-    animations &&
-    css`
+  ${({ $talking, animations }) => $talking && animations && css`
       animation: ${pulse} 1s infinite ease-in;
     `}
 
-  ${({ $talking, animations }) =>
-    $talking &&
-    !animations &&
-    css`
+  ${({ $talking, animations }) => $talking && !animations && css`
       & span {
         content: '';
         outline: none !important;
