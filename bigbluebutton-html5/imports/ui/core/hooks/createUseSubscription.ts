@@ -14,6 +14,7 @@ function createUseSubscription<T>(
     const oldProjectionOfDataRef = useRef<Array<T>>([]);
 
     if (usePatchedSubscription) {
+      // eslint-disable-next-line no-alert
       alert('Not implemented');
     }
 
