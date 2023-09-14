@@ -1,3 +1,10 @@
+--unaccent will be used to create nameSortable
+CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
+				RETURNS text AS $$
+				SELECT lower(unaccent('unaccent', $1))
+				$$ LANGUAGE SQL IMMUTABLE;
+
 -- ========== Meeting tables
 
 create table "meeting" (
@@ -261,6 +268,9 @@ ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStat
 
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp(("registeredOn" + 6000) / 1000)) STORED;
 
+--User for the userlist
+ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
+
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
 --ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
@@ -304,6 +314,7 @@ AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -344,17 +355,17 @@ CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
                 AND "user"."expired" IS FALSE
                 and "user"."joined" IS TRUE;
 
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","name","userId") 
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","raiseHandTime","awayTime","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","nameSortable","userId")
                 where "user"."loggedOut" IS FALSE
                 AND "user"."expired" IS FALSE
                 and "user"."joined" IS TRUE;
-
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -405,6 +416,7 @@ AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
