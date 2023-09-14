@@ -19,8 +19,12 @@ import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
+import org.bigbluebutton.common2
+import org.bigbluebutton.common2.util.YamlUtil
 
+import scala.jdk.CollectionConverters._
 import java.util
+import scala.util.{ Failure, Success }
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
@@ -116,7 +120,9 @@ class BigBlueButtonActor(
       case None =>
         log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
 
-        val m = RunningMeeting(msg.body.props, outGW, eventBus, clientConfigurationFromFile)
+        val clientConfigForMeeting: Map[String, Object] = clientConfigurationFromFile
+
+        val m = RunningMeeting(msg.body.props, outGW, eventBus, clientConfigForMeeting)
 
         // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
