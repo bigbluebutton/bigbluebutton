@@ -103,11 +103,11 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
     if (user.raiseHand === true) {
       return reactionsEnabled
-        ? <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />
+        ? <Emoji key="hand" emoji={'hand'} {...emojiProps} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
     } if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji={{ id: 'clock7' }} {...emojiProps} />
+        ? <Emoji key="away" emoji={'clock7'} {...emojiProps} />
         : <Icon iconName={normalizeEmojiName('away')} />;
     } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
