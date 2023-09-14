@@ -1388,3 +1388,21 @@ CREATE TABLE "audio_caption" (
 
 CREATE VIEW "v_audio_caption" AS
 SELECT * FROM "audio_caption";
+
+------------------------------------
+----
+
+CREATE TABLE "layout" (
+	"meetingId" 			varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"currentLayoutType"     varchar(100),
+	"presentationMinimized" boolean,
+	"cameraDockIsResizing"	boolean,
+	"cameraDockPlacement" 	varchar(100),
+	"cameraDockAspectRatio" numeric,
+	"cameraWithFocus" 		varchar(100),
+	"propagateLayout" 		boolean,
+	"updatedAt" 			timestamp with time zone
+);
+
+CREATE VIEW "v_layout" AS
+SELECT * FROM "layout";
