@@ -268,7 +268,7 @@ ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStat
 
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp(("registeredOn" + 6000) / 1000)) STORED;
 
---User for the userlist
+--Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
