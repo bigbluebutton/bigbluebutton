@@ -31,6 +31,7 @@ select_permissions:
         - loggedOut
         - mobile
         - name
+        - nameSortable
         - pinned
         - presenter
         - raiseHand
