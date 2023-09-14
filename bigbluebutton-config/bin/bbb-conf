@@ -374,15 +374,15 @@ start_bigbluebutton () {
     sudo systemctl status bigbluebutton.target
     systemctl restart bigbluebutton.target
 
-    sudo nginx -t
+    # sudo nginx -t
 
-    for i in {0..100}
-    do
-        display_bigbluebutton_status
-        sudo systemctl status bigbluebutton.target
-        echo '--------------------'
-        sleep 10 000
-    done
+    # for i in {0..100}
+    # do
+    #     display_bigbluebutton_status
+    #     sudo systemctl status bigbluebutton.target
+    #     echo '--------------------'
+    #     sleep 10 000
+    # done
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         echo 'trying to start bbb-html5'
