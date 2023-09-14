@@ -4,11 +4,14 @@ import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { User } from '/imports/ui/Types/user';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
 import { uniqueId } from '/imports/utils/string-utils';
+import { Emoji } from 'emoji-mart';
+import { normalizeEmojiName } from './service';
+import { convertRemToPixels } from '/imports/utils/dom-utils';
+import { isReactionsEnabled } from '/imports/ui/services/features';
 
 const messages = defineMessages({
   moderator: {
@@ -88,17 +91,36 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     ),
   ].filter(Boolean);
 
-  const iconUser = user.emoji !== 'none'
-    ? (
-      <Icon
-        iconName={user.emoji in EMOJI_STATUSES ? (EMOJI_STATUSES as Record<string, string>)[user.emoji] : user.emoji}
-      />
-    )
-    : user.name.toLowerCase().slice(0, 2);
+  const reactionsEnabled = isReactionsEnabled();
+
+  let userAvatarFiltered = user.avatar;
+
+  const getIconUser = () => {
+    const emojiProps = {
+      native: true,
+      size: convertRemToPixels(1.3),
+    };
+
+    if (user.raiseHand === true) {
+      return reactionsEnabled
+        ? <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />
+        : <Icon iconName={normalizeEmojiName('raiseHand')} />;
+    } if (user.away === true) {
+      return reactionsEnabled
+        ? <Emoji key="away" emoji={{ id: 'clock7' }} {...emojiProps} />
+        : <Icon iconName={normalizeEmojiName('away')} />;
+    } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
+      return <Icon iconName={normalizeEmojiName(user.emoji)} />;
+    } if (user.name) {
+      return user.name.toLowerCase().slice(0, 2);
+    } return '??';
+  };
+
+  const iconUser = getIconUser();
 
    const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser
 
-  return (
+   return (
     <Styled.UserItemContents data-test='user'>
       <Styled.Avatar
         moderator={user.role === ROLE_MODERATOR}
@@ -112,7 +134,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         whiteboardAccess={user?.presPagesWritable?.length > 0}
         animations
         emoji={user.emoji !== 'none'}
-        avatar={user.avatar || ''}
+        avatar={userAvatarFiltered}
         isChrome={isChrome}
         isFirefox={isFirefox}
         isEdge={isEdge}

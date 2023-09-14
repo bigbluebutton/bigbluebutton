@@ -65,4 +65,5 @@ export interface User {
   speechLocale: string;
   size: number;
   away: boolean;
+  raiseHand: boolean;
 }
