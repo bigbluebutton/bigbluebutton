@@ -7,16 +7,15 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core2.MeetingStatus2x
-import java.util
 
 object RunningMeeting {
   def apply(props: DefaultProps, outGW: OutMessageGateway,
-            eventBus: InternalEventBus, clientConfiguration: util.LinkedHashMap[String, Object])(implicit context: ActorContext) =
+            eventBus: InternalEventBus, clientConfiguration: Map[String, Object])(implicit context: ActorContext) =
     new RunningMeeting(props, outGW, eventBus, clientConfiguration)(context)
 }
 
 class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
-                     eventBus: InternalEventBus, clientConfiguration: util.LinkedHashMap[String, Object])(implicit val context: ActorContext) {
+                     eventBus: InternalEventBus, clientConfiguration: Map[String, Object])(implicit val context: ActorContext) {
 
   private val externalVideoModel = new ExternalVideoModel()
   private val chatModel = new ChatModel()

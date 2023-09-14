@@ -1,16 +1,10 @@
 package org.bigbluebutton
 
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 import com.typesafe.config.ConfigFactory
-import org.yaml.snakeyaml.{ LoaderOptions, Yaml }
-
-import java.io.{ File, FileInputStream }
-import org.bigbluebutton.common2
 
 trait SystemConfiguration {
   val config = ConfigFactory.load()
-  private val options = new LoaderOptions()
-  private val yaml = new Yaml(options)
 
   lazy val bbbWebHost = Try(config.getString("services.bbbWebHost")).getOrElse("localhost")
   lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
@@ -91,15 +85,21 @@ trait SystemConfiguration {
     "/etc/bigbluebutton/bbb-html5.yml"
   ).asInstanceOf[String]
 
-  private val inputFileStreamClientConfigFile = new FileInputStream(new File(clientConfigurationPath))
-  private val inputFileStreamClientConfigOverrideFile = new FileInputStream(new File(clientConfigurationPathOverride))
-  val clientConfigurationFromFile: java.util.LinkedHashMap[String, Object] = yaml.load(inputFileStreamClientConfigFile)
-  private val clientConfigurationFromOverrideFile: java.util.LinkedHashMap[String, Object] =
-    yaml.load(inputFileStreamClientConfigOverrideFile)
-
-  // Overriding client configs:
-  common2.util.YamlUtil.mergeLinkedHashMap(
-    clientConfigurationFromFile, clientConfigurationFromOverrideFile
+  private val clientConfigurationFile = scala.io.Source.fromFile(clientConfigurationPath)
+  private val clientConfigurationFileOverride = scala.io.Source.fromFile(clientConfigurationPathOverride)
+  val clientConfigurationFromFile: Map[String, Object] = common2.util.YamlUtil.mergeImmutableMaps(
+    common2.util.YamlUtil.toMap[Object](clientConfigurationFile.mkString) match {
+      case Success(value) => value
+      case Failure(exception) =>
+        println("Error while fetching client configuration: ", exception)
+        Map[String, Object]()
+    },
+    common2.util.YamlUtil.toMap[Object](clientConfigurationFileOverride.mkString) match {
+      case Success(value) => value
+      case Failure(exception) =>
+        println("Error while fetching client override configuration: ", exception)
+        Map[String, Object]()
+    }
   )
 
   // Grab the "interface" parameter from the http config
