@@ -170,6 +170,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowUserLookup,
     allowedToRemove,
     allowedToEjectCameras,
+    allowedToSetAway,
   } = actionsnPermitions;
 
   const {
