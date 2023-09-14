@@ -30,7 +30,7 @@ object PresPresentationDAO {
     }
   }
 
-  def insert(meetingId: String, presentation: PresentationInPod) = {
+  def insertOrUpdate(meetingId: String, presentation: PresentationInPod) = {
     DatabaseConnection.db.run(
       TableQuery[PresPresentationDbTableDef].insertOrUpdate(
         PresPresentationDbModel(

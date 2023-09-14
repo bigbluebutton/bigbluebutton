@@ -39,7 +39,7 @@ trait PdfConversionInvalidErrorSysPubMsgHdlr {
       val presWithError = PresentationInPod(pres.id, pres.name, pres.current, pres.pages, pres.downloadable, pres.removable, pres.filenameConverted, pres.uploadCompleted, pres.numPages, msg.body.messageKey)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithError)
-      PresPresentationDAO.insert(msg.header.meetingId, presWithError)
+      PresPresentationDAO.insertOrUpdate(msg.header.meetingId, presWithError)
       state.update(pods)
     }
 

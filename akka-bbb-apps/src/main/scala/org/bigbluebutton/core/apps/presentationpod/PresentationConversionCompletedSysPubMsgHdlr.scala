@@ -49,7 +49,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
 
-      PresPresentationDAO.insert(meetingId, presWithConvertedName)
+      PresPresentationDAO.insertOrUpdate(meetingId, presWithConvertedName)
 
       state.update(pods)
     }
