@@ -27,6 +27,7 @@ case "$1" in
     systemctl enable bbb-graphql-server.service
     systemctl daemon-reload
     startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
+    sleep 2 #Avoid applying metadata before Hasura is ready
 
     # Apply BBB metadata in Hasura
     cd /usr/share/bbb-graphql-server
