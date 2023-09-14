@@ -10,7 +10,7 @@ import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
 import { uniqueId } from '/imports/utils/string-utils';
 import { Emoji } from 'emoji-mart';
-import { normalizeEmojiName } from './service';
+import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { isReactionsEnabled } from '/imports/ui/services/features';
 
@@ -93,21 +93,18 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const reactionsEnabled = isReactionsEnabled();
 
-  let userAvatarFiltered = user.avatar;
+  const userAvatarFiltered = user.avatar;
 
   const getIconUser = () => {
-    const emojiProps = {
-      native: true,
-      size: convertRemToPixels(1.3),
-    };
+    const emojiSize = convertRemToPixels(1.3);
 
     if (user.raiseHand === true) {
       return reactionsEnabled
-        ? <Emoji key="hand" emoji={'hand'} {...emojiProps} />
+        ? <Emoji key="hand" emoji="hand" native size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
     } if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji={'clock7'} {...emojiProps} />
+        ? <Emoji key="away" emoji="clock7" native size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('away')} />;
     } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
@@ -120,8 +117,8 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser;
 
-   return (
-    <Styled.UserItemContents data-test='user'>
+  return (
+    <Styled.UserItemContents data-test="user">
       <Styled.Avatar
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}

@@ -383,7 +383,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'time',
-    },    
+    },
     ...userListDropdownItems.filter(
       (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
     ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
