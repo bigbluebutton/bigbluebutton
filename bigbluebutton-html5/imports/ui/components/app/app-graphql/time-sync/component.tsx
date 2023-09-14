@@ -29,7 +29,7 @@ const TimeSync: React.FC = () => {
 
   useEffect(() => {
     if (!loading && data) {
-      const time = new Date(data.currentTime[0].currentTimestamp);
+      const time = new Date(data.current_time[0].currentTimestamp);
       setTimeSync(time.getTime() - new Date().getTime());
     }
   }, [data, loading]);

@@ -47,7 +47,7 @@ const PluginsEngineContainer = () => {
       />
       {
         effectivePluginsConfig.map((effectivePluginConfig: EffectivePluginConfig) => {
-          const { uuid } = effectivePluginConfig.uuid;
+          const { uuid } = effectivePluginConfig;
           return (
             <div key={uuid}>
               <PluginLoaderContainer

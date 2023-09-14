@@ -89,7 +89,7 @@ const setLastSender = (lastSenderPerPage: Map<number, string>) => {
 };
 
 const lastSeenQueue = makeVar<{ [key: string]: Set<number> }>({});
-const setter = makeVar<{ [key: string]:() => void }>({});
+const setter = makeVar<{ [key: string]:(lastSeenTime: number) => void }>({});
 const lastSeenAtVar = makeVar<{ [key: string]: number }>({});
 const chatIdVar = makeVar<string>('');
 

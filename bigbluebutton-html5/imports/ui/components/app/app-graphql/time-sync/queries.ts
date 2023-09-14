@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client';
 
 export interface GetServerTimeResponse {
-  currentTime: Array<{ currentTimestamp: Date }>;
+  // eslint-disable-next-line camelcase
+  current_time: Array<{ currentTimestamp: Date }>;
 }
 
 export const GET_SERVER_TIME = gql`
