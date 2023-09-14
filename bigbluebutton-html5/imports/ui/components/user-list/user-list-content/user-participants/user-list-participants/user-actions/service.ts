@@ -13,6 +13,8 @@ import { throttle } from 'radash';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
+// @ts-ignore - temporary, while meteor exists in the project
+const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
@@ -68,7 +70,7 @@ export const generateActionsPermissions = (
     && !isBreakout
     && !(isSubjectUserGuest && usersPolicies.authenticatedGuest);
 
-  const allowedToChangeStatus = amISubjectUser;
+  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
@@ -86,6 +88,9 @@ export const generateActionsPermissions = (
     && !isDialInUser;
   // @ts-ignore - temporary, while meteor exists in the project
   const { allowUserLookup } = Meteor.settings.public.app;
+
+  const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -100,6 +105,7 @@ export const generateActionsPermissions = (
     allowedToChangeWhiteboardAccess,
     allowedToEjectCameras,
     allowUserLookup,
+    allowedToSetAway,
   };
 };
 

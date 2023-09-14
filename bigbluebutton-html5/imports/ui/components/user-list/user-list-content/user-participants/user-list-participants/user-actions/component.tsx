@@ -125,6 +125,14 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
+  awayLabel: {
+    id: 'app.userList.menu.away',
+    description: 'Text for identifying away user',
+  },
+  notAwayLabel: {
+    id: 'app.userList.menu.notAway',
+    description: 'Text for identifying not away user',
+  },
 });
 
 const UserActions: React.FC<UserActionsProps> = ({
@@ -162,6 +170,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowUserLookup,
     allowedToRemove,
     allowedToEjectCameras,
+    allowedToSetAway,
   } = actionsnPermitions
 
   const {
@@ -365,6 +374,16 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
     },
+    {
+      allowed: allowedToSetAway,
+      key: 'setAway',
+      label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
+      onClick: () => {
+        makeCall('changeAway', !user.away);
+        setSelected(false);
+      },
+      icon: 'time',
+    },    
     ...userListDropdownItems.filter(
       (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
     ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
