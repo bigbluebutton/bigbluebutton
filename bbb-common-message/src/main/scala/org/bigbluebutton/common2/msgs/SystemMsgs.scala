@@ -8,7 +8,7 @@ case class CreateMeetingReqMsg(
     header: BbbCoreBaseHeader,
     body:   CreateMeetingReqMsgBody
 ) extends BbbCoreMsg
-case class CreateMeetingReqMsgBody(props: DefaultProps)
+case class CreateMeetingReqMsgBody(props: DefaultProps, overrideClientConfigs: String)
 
 /**
  * Sent by bbb-web

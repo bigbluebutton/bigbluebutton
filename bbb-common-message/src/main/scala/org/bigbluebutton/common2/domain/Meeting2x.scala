@@ -17,7 +17,6 @@ case class MeetingProp(
     notifyRecordingIsOn:                    Boolean,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
-    overrideClientConfigs:                  String,
 )
 
 

@@ -1156,6 +1156,14 @@ public class ParamsProcessorUtil {
 		return true;
 	}
 
+    public void processCreateBody(Meeting newMeeting, String overrideClientConfig){
+        if (overrideClientConfig != null) {
+            newMeeting.setOverrideClientConfigs(overrideClientConfig);
+        } else {
+            newMeeting.setOverrideClientConfigs("");
+        }
+    }
+
 	/*************************************************
 	 * Setters
 	 ************************************************/

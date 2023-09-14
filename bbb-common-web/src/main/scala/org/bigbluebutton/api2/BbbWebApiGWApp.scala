@@ -168,8 +168,7 @@ class BbbWebApiGWApp(
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
       presentationUploadExternalDescription,
-      presentationUploadExternalUrl,
-      overrideClientConfigs
+      presentationUploadExternalUrl
     )
 
     val durationProps = DurationProps(
@@ -253,7 +252,7 @@ class BbbWebApiGWApp(
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
 
-    val event = MsgBuilder.buildCreateMeetingRequestToAkkaApps(defaultProps)
+    val event = MsgBuilder.buildCreateMeetingRequestToAkkaApps(defaultProps, overrideClientConfigs)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 
   }

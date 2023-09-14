@@ -30,11 +30,11 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildCreateMeetingRequestToAkkaApps(props: DefaultProps): BbbCommonEnvCoreMsg = {
+  def buildCreateMeetingRequestToAkkaApps(props: DefaultProps, overrideClientConfigs: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(CreateMeetingReqMsg.NAME, routing)
     val header = BbbCoreBaseHeader(CreateMeetingReqMsg.NAME)
-    val body = CreateMeetingReqMsgBody(props)
+    val body = CreateMeetingReqMsgBody(props, overrideClientConfigs)
     val req = CreateMeetingReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }

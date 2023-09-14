@@ -148,7 +148,7 @@ class ApiController {
 
     params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
-    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params, overrideClientConfig)
+    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
     String requestBody = request.inputStream == null ? null : request.inputStream.text
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
@@ -156,7 +156,7 @@ class ApiController {
     // The client configs are going to be parsed to the LinkedHashMap in akka
     String overrideClientConfigs = overrideClientConfigs(requestBody)
 
-    paramsProcessorUtil.processCreateBody(params, overrideClientConfigs)
+    paramsProcessorUtil.processCreateBody(newMeeting, overrideClientConfigs)
 
     ApiErrors errors = new ApiErrors()
 
