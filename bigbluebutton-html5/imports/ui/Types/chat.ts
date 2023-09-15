@@ -8,5 +8,5 @@ export interface Chat {
   totalUnread: number;
   userId: string;
   participant?: User;
-  lastSeenAt: number;
+  lastSeenAt: string;
 }

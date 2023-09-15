@@ -26,7 +26,7 @@ export const generateExportedMessages = (
   const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}` : ''}\n`
 
   const text = messages.reduce((acc, message) => {
-    const date = new Date(message.createdTime);
+    const date = new Date(message.createdAt);
     const hour = date.getHours().toString().padStart(2, '0');
     const min = date.getMinutes().toString().padStart(2, '0');
     const hourMin = `[${hour}:${min}]`;
