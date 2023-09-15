@@ -27,7 +27,13 @@ sudo -u postgres psql -U postgres -d bbb_graphql -a -f bbb_schema.sql --set ON_E
 if [ "$hasura_status" = "active" ]; then
   echo "Starting Hasura"
   sudo systemctl start bbb-graphql-server
-  sleep 2
+
+  #Check if Hasura is ready before applying metadata
+  HASURA_PORT=8080
+  while ! netstat -tuln | grep ":$HASURA_PORT " > /dev/null; do
+      echo "Waiting for Hasura's port ($HASURA_PORT) to be ready..."
+      sleep 1
+  done
 fi
 if [ "$akka_apps_status" = "active" ]; then
   echo "Starting Akka-apps"
