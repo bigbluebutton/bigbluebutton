@@ -7,7 +7,7 @@ import {
 } from '../../types';
 import { PluginsContext } from '../../../components-data/plugin-context/context';
 
-const PresentationToolbarPluginStateContainer = ((
+const ActionButtonDropdownPluginStateContainer = ((
   props: PluginProvidedStateContainerChildProps,
 ) => {
   const {
@@ -17,9 +17,9 @@ const PresentationToolbarPluginStateContainer = ((
     pluginApi,
   } = props;
   const [
-    presentationToolbarItems,
-    setPresentationToolbarItems,
-  ] = useState<PluginSdk.PresentationToolbarItem[]>([]);
+    actionButtonDropdownItems,
+    setActionButtonDropdownItems,
+  ] = useState<PluginSdk.ActionButtonDropdownItem[]>([]);
 
   const {
     pluginsProvidedAggregatedState,
@@ -28,27 +28,27 @@ const PresentationToolbarPluginStateContainer = ((
 
   useEffect(() => {
     // Change this plugin provided toolbar items
-    pluginProvidedStateMap[uuid].presentationToolbarItems = presentationToolbarItems;
+    pluginProvidedStateMap[uuid].actionButtonDropdownItems = actionButtonDropdownItems;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
-    const aggregatedPresentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
+    const aggregatedActionButtonDropdownItems = (
+      [] as PluginSdk.ActionButtonDropdownItem[]).concat(
       ...Object.values(pluginProvidedStateMap)
-        .map((pps: PluginProvidedState) => pps.presentationToolbarItems),
+        .map((pps: PluginProvidedState) => pps.actionButtonDropdownItems),
     );
-
     setPluginsProvidedAggregatedState(
       {
         ...pluginsProvidedAggregatedState,
-        presentationToolbarItems: aggregatedPresentationToolbarItems,
+        actionButtonDropdownItems: aggregatedActionButtonDropdownItems,
       },
     );
-  }, [presentationToolbarItems]);
+  }, [actionButtonDropdownItems]);
 
-  pluginApi.setPresentationToolbarItems = (items: PluginSdk.PresentationToolbarItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.PresentationToolbarItem[];
-    return setPresentationToolbarItems(itemsWithId);
+  pluginApi.setActionButtonDropdownItems = (items: PluginSdk.ActionButtonDropdownItem[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionButtonDropdownItem[];
+    return setActionButtonDropdownItems(itemsWithId);
   };
   return null;
 }) as PluginProvidedStateContainerChild;
 
-export default PresentationToolbarPluginStateContainer;
+export default ActionButtonDropdownPluginStateContainer;
