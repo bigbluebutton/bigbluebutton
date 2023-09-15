@@ -295,7 +295,7 @@
     "app.presentationUploader.export.downloadButtonAvailable": "{0} aurkezpenerako deskargatzeko botoia eskuragarri dago.",
     "app.presentationUploader.export.notAccessibleWarning": "baliteke irisgarria ez izatea",
     "app.presentationUploader.export.originalLabel": "Jatorrizkoa",
-    "app.presentationUploader.export.inCurrentStateLabel": "Une honetako egoeran",
+    "app.presentationUploader.export.withWhiteboardAnnotations": "Une honetako egoeran",
     "app.presentationUploader.currentPresentationLabel": "Uneko aurkezpena",
     "app.presentationUploder.extraHint": "GARRANTZITSUA: fitxategi bakoitzak ezin ditu {0} MB eta {1} orrialde baino gehiago izan.",
     "app.presentationUploder.uploadLabel": "Kargatu",
