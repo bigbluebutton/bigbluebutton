@@ -59,7 +59,7 @@
     "app.timer.title": "Hora",
     "app.timer.stopwatch.title": "Contador",
     "app.timer.timer.title": "Temporizador",
-    "app.timer.hideTimerLabel": "Ocultar hora",
+    "app.timer.hideTimerLabel": "Ocultar tiempo",
     "app.timer.button.stopwatch": "Temporizador",
     "app.timer.button.timer": "Temporizador",
     "app.timer.button.start": "Iniciar",
