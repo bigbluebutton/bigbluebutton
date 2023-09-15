@@ -34,6 +34,8 @@
     "app.chat.two.typing": "{0} and {1} are typing",
     "app.chat.copySuccess": "Copied chat transcript",
     "app.chat.copyErr": "Copy chat transcript failed",
+    "app.timer.toolTipTimerStopped": "The timer has stopped, it reads {0}",
+    "app.timer.toolTipTimerRunning": "The timer is running, it reads {0}",
     "app.emojiPicker.search": "Search",
     "app.emojiPicker.notFound": "No Emoji Found",
     "app.emojiPicker.skintext": "Choose your default skin tone",

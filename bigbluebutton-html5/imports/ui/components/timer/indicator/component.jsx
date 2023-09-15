@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import TimerService from '/imports/ui/components/timer/service';
 import logger from '/imports/startup/client/logger';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 
@@ -27,6 +29,15 @@ const propTypes = {
   isModerator: PropTypes.bool.isRequired,
   currentTrack: PropTypes.bool.isRequired,
 };
+
+const intlMessages = defineMessages({
+  toolTipTimerStopped: {
+    id: 'app.timer.toolTipTimerStopped',
+  },
+  toolTipTimerRunning: {
+    id: 'app.timer.toolTipTimerRunning',
+  },
+});
 
 class Indicator extends Component {
   constructor(props) {
@@ -356,6 +367,7 @@ class Indicator extends Component {
       sidebarNavigationIsOpen,
       sidebarContentIsOpen,
       currentTrack,
+      intl,
     } = this.props;
     const { running } = timer;
     const trackChanged = this.music?.track !== currentTrack;
@@ -367,28 +379,33 @@ class Indicator extends Component {
     this.updateTabTitleTimer(false, time);
     return (
       <Styled.TimerWrapper>
-        <Styled.Timer>
-          <Styled.TimerButton
-            running={running}
-            disabled={!isModerator}
-            hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
-            role="button"
-            tabIndex={0}
-            onClick={isModerator ? onClick : null}
-          >
-            <Styled.TimerContent>
-              <Styled.TimerIcon>
-                <Icon iconName="time" />
-              </Styled.TimerIcon>
-              <Styled.TimerTime
-                aria-hidden
-                ref={this.timeRef}
-              >
-                {time}
-              </Styled.TimerTime>
-            </Styled.TimerContent>
-          </Styled.TimerButton>
-        </Styled.Timer>
+        <Tooltip
+          title={!running ? intl.formatMessage(intlMessages.toolTipTimerStopped, { 0: time })
+            : intl.formatMessage(intlMessages.toolTipTimerRunning, { 0: time })}
+        >
+          <Styled.Timer>
+            <Styled.TimerButton
+              running={running}
+              disabled={!isModerator}
+              hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+              role="button"
+              tabIndex={0}
+              onClick={isModerator ? onClick : null}
+            >
+              <Styled.TimerContent>
+                <Styled.TimerIcon>
+                  <Icon iconName="time" />
+                </Styled.TimerIcon>
+                <Styled.TimerTime
+                  aria-hidden
+                  ref={this.timeRef}
+                >
+                  {time}
+                </Styled.TimerTime>
+              </Styled.TimerContent>
+            </Styled.TimerButton>
+          </Styled.Timer>
+        </Tooltip>
       </Styled.TimerWrapper>
     );
   }
@@ -396,4 +413,4 @@ class Indicator extends Component {
 
 Indicator.propTypes = propTypes;
 
-export default Indicator;
+export default injectIntl(Indicator);
