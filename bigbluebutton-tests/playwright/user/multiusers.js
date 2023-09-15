@@ -97,8 +97,9 @@ class MultiUsers {
     await this.userPage.hasElement(e.presentationToolbarWrapper);
     await this.userPage.hasElement(e.wbToolbar);
     await this.userPage.hasElement(e.actions);
+    await this.userPage.hasElement(e.userListItem);
     const isPresenter = await checkIsPresenter(this.userPage);
-    expect(isPresenter).toBeTruthy();
+    await expect(isPresenter).toBeTruthy();
   }
 
   async takePresenter() {
@@ -109,8 +110,9 @@ class MultiUsers {
     await this.modPage2.hasElement(e.startScreenSharing);
     await this.modPage2.hasElement(e.wbToolbar);
     await this.modPage2.hasElement(e.presentationToolbarWrapper);
+    await this.modPage2.hasElement(e.userListItem);
     const isPresenter = await checkIsPresenter(this.modPage2);
-    expect(isPresenter).toBeTruthy();
+    await expect(isPresenter).toBeTruthy();
     await this.modPage2.waitAndClick(e.actions);
     await this.modPage2.hasElement(e.managePresentations);
     await this.modPage2.hasElement(e.polling);

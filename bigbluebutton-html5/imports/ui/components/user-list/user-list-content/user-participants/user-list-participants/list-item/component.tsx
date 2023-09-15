@@ -125,7 +125,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
       <Styled.Avatar
         data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
-        data-test='userAvatar'
+        data-test-avatar='userAvatar'
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}
         talking={voiceUser?.talking}
@@ -152,7 +152,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           &nbsp;
           {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
         </Styled.UserName>
-        <Styled.UserNameSub>
+        <Styled.UserNameSub data-test={user.mobile ? 'mobileUser' : undefined}>
           {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>

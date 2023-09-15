@@ -98,7 +98,7 @@ exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
 exports.chatButton = 'button[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
 exports.chatPollMessageText = 'p[data-test="chatPollMessageText"]';
-exports.chatMessages = 'div[data-test="contentRef"]';
+exports.chatMessages = 'div[data-test="chatMessages"]';
 exports.chatOptions = 'button[data-test="chatOptionsMenu"]';
 exports.chatClear = 'li[data-test="chatClear"]';
 exports.chatSave = 'li[data-test="chatSave"]';
@@ -114,7 +114,7 @@ exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.errorTypingIndicator = 'div[data-test="errorTypingIndicator"]';
 exports.chatUserMessageText = 'div[data-test="messageContent"] p';
 exports.secondChatUserMessageText = 'p[data-test="chatUserMessageText"]>>nth=1';
-exports.chatWelcomeMessageText = 'div[data-test="contentRef"]';
+exports.chatWelcomeMessageText = 'button[data-test="closePopup"]';
 exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
 exports.sendLobbyMessage = 'div[data-test="lobbyMessage"] >> button';
 exports.lobbyMessage = 'div[data-test="lobbyMessage"] >> p';
@@ -320,7 +320,7 @@ exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
 
 // User
-const userAvatar = 'div[data-test="userAvatar"]';
+const userAvatar = 'div[data-test-avatar="userAvatar"]';
 const networkDataContainer = 'div[data-test="networkDataContainer"]';
 exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';

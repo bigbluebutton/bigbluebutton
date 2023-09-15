@@ -30,7 +30,7 @@ const PopupContent: React.FC<PopupContentProps> = ({ message, closePopup }) => {
             setShowPopup(false);
             if (closePopup) closePopup();
           }}
-          data-test="chatOptionsMenu"
+          data-test="closePopup"
         />
       </PopupContentHeader>
       <PopupContentBody dangerouslySetInnerHTML={{__html: message}} />
