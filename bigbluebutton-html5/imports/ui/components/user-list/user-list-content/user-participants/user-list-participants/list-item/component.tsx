@@ -125,7 +125,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
       <Styled.Avatar
         data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
-        data-test-avatar = 'avatar'
+        data-test='userAvatar'
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}
         talking={voiceUser?.talking}
