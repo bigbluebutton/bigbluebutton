@@ -16,12 +16,11 @@ rm -rf staging
 
 mkdir -p staging/usr/local/bigbluebutton/bbb-transcription-controller
 
-find -maxdepth 1 ! -path . ! -name staging $(printf "! -name %s " $(cat .build-files)) -exec cp -r {} staging/usr/local/bigbluebutton/bbb-transcription-controller/ \;
+find -maxdepth 1 ! -path . ! -name staging ! -name .git $(printf "! -name %s " $(cat .build-files)) -exec cp -r {} staging/usr/local/bigbluebutton/bbb-transcription-controller/ \;
 
 pushd .
 cd staging/usr/local/bigbluebutton/bbb-transcription-controller/
 npm install --production
-rm -r .git
 popd
 
 mkdir -p staging/usr/lib/systemd/system
