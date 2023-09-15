@@ -320,7 +320,7 @@ exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
 
 // User
-const userAvatar = 'div[data-test-avatar="avatar"]';
+const userAvatar = 'div[data-test="userAvatar"]';
 const networkDataContainer = 'div[data-test="networkDataContainer"]';
 exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
