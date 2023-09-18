@@ -366,9 +366,9 @@ start_bigbluebutton () {
 
     echo "Starting BigBlueButton"
 
-    systemctl mask bbb-rap-resque-worker
-    systemctl mask bbb-rap-starter
-    systemctl mask bbb-rap-caption-inbox
+    #systemctl mask bbb-rap-resque-worker
+    #systemctl mask bbb-rap-starter
+    #systemctl mask bbb-rap-caption-inbox
 
     set +x
     sudo systemctl status bigbluebutton.target
