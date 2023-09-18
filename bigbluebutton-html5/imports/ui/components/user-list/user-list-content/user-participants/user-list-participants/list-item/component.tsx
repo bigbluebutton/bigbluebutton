@@ -118,8 +118,11 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser;
 
   return (
-    <Styled.UserItemContents data-test="user">
+    <Styled.UserItemContents data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
+        data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
+        data-test-presenter={user.presenter ? '' : undefined}
+        data-test-avatar='userAvatar'
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}
         talking={voiceUser?.talking}
@@ -146,7 +149,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           &nbsp;
           {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
         </Styled.UserName>
-        <Styled.UserNameSub>
+        <Styled.UserNameSub data-test={user.mobile ? 'mobileUser' : undefined}>
           {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
