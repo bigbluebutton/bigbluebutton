@@ -373,8 +373,9 @@ start_bigbluebutton () {
 
     set +x
     sudo systemctl status bigbluebutton.target
+    date
     systemctl restart bigbluebutton.target
-
+    date
     # sudo nginx -t
 
     # for i in {0..100}
