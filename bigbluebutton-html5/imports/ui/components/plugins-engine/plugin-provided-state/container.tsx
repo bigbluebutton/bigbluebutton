@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types.ts';
+import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types';
 import PresentationToolbarPluginStateContainer from './presentation-toolbar/container';
 import UserListDropdownPluginStateContainer from './user-list-dropdown/container';
 
@@ -31,10 +31,16 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
   return (
     <>
       <PresentationToolbarPluginStateContainer
-        { ...pluginProvidedStateChildrenProps}
+        uuid={pluginProvidedStateChildrenProps.uuid}
+        generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
+        pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}
+        pluginApi={pluginProvidedStateChildrenProps.pluginApi}
       />
       <UserListDropdownPluginStateContainer
-        { ...pluginProvidedStateChildrenProps}
+        uuid={pluginProvidedStateChildrenProps.uuid}
+        generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
+        pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}
+        pluginApi={pluginProvidedStateChildrenProps.pluginApi}
       />
     </>
   );

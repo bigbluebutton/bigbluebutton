@@ -9,13 +9,13 @@ import { defineMessages, useIntl } from 'react-intl';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { uid } from 'radash';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Meeting } from '/imports/ui/Types/meeting';
 import {
   onSaveUserNames, openLearningDashboardUrl, toggleMuteAllUsers, toggleMuteAllUsersExceptPresenter, toggleStatus,
 } from './service';
 import { User } from '/imports/ui/Types/user';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled, isCaptionsEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
@@ -105,6 +105,7 @@ const intlMessages = defineMessages({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const { dynamicGuestPolicy } = Meteor.settings.public.app;
 
@@ -217,7 +218,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         allow: isModerator,
         key: uuids.current[4],
         label: intl.formatMessage(intlMessages.saveUserNames),
-        onClick: onSaveUserNames.bind(null, intl, meetingName),
+        onClick: onSaveUserNames.bind(null, intl, meetingName ?? ''),
         icon: 'download',
         dataTest: 'downloadUserNamesList',
       },

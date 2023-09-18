@@ -1,7 +1,9 @@
+/* eslint-disable no-undef */
+// Rule applied because EvenetListener is no undefined at all times.
 import React, { useEffect, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import CurrentPresentationHookContainer from './use-current-presentation/container'
-import LoadedUserListHookContainer from './use-loaded-user-list/container'
+import CurrentPresentationHookContainer from './use-current-presentation/container';
+import LoadedUserListHookContainer from './use-loaded-user-list/container';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent
@@ -10,7 +12,7 @@ const hooksMap:{
   [PluginSdk.Internal.BbbHooks.UseLoadedUserList]: LoadedUserListHookContainer,
 };
 
-const PluginHooksHandlerContainer = () => {
+const PluginHooksHandlerContainer: React.FC = () => {
   const [
     hookUtilizationCount,
     setHookUtilizationCount,
@@ -43,13 +45,17 @@ const PluginHooksHandlerContainer = () => {
   }, []);
 
   return (
-    Object.keys(hooksMap)
-      .filter((hookName: string) => hookUtilizationCount.get(hookName)
-          && hookUtilizationCount.get(hookName)! > 0)
-      .map((hookName: string) => {
-        const HookComponent = hooksMap[hookName];
-        return <HookComponent key={hookName}/>;
-      })
+    <>
+      {
+        Object.keys(hooksMap)
+          .filter((hookName: string) => hookUtilizationCount.get(hookName)
+            && hookUtilizationCount.get(hookName)! > 0)
+          .map((hookName: string) => {
+            const HookComponent = hooksMap[hookName];
+            return <HookComponent key={hookName} />;
+          })
+      }
+    </>
   );
 };
 

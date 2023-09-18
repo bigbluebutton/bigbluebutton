@@ -1,9 +1,15 @@
-import React, { ChangeEvent, useEffect, useRef } from 'react';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import React, {
+  ChangeEvent,
+  RefObject,
+  useEffect,
+  useRef,
+} from 'react';
+import TextareaAutosize from 'react-autosize-textarea';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
 import ClickOutside from '/imports/ui/components/click-outside/component';
-import TextareaAutosize from 'react-autosize-textarea';
 import Styled from './styles';
 import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -16,7 +22,7 @@ import {
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
@@ -24,6 +30,8 @@ import { ChatEvents } from '/imports/ui/core/enums/chat';
 interface ChatMessageFormProps {
   minMessageLength: number,
   maxMessageLength: number,
+  // Lint disable here because this variable can be undefined
+  // eslint-disable-next-line react/no-unused-prop-types
   idChatOpen: string,
   chatId: string,
   connected: boolean,
@@ -31,8 +39,6 @@ interface ChatMessageFormProps {
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
-  handleEmojiSelect: (emojiObject: () => void,
-   { native: string }) => void;
   handleClickOutside: () => void,
 }
 
@@ -113,7 +119,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
-  const textAreaRef = useRef<TextareaAutosize>();
+  const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
   const messageRef = useRef<string>('');
@@ -123,7 +129,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const unsentMessages = JSON.parse(storedData);
     unsentMessages[chatId] = message;
     localStorage.setItem('unsentMessages', JSON.stringify(unsentMessages));
-  }
+  };
 
   useEffect(() => {
     setMessageHint();
@@ -134,7 +140,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     return () => {
       const unsentMessage = messageRef.current;
       updateUnreadMessages(chatId, unsentMessage);
-    }
+    };
   }, []);
 
   useEffect(() => {
@@ -174,12 +180,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     setHasErrors(disabled);
     setError(chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null);
-  }
+  };
 
   const handleSubmit = (e:React.FormEvent<HTMLFormElement>|React.KeyboardEvent<HTMLInputElement>|Event) => {
     e.preventDefault();
 
-    let msg = message.trim();
+    const msg = message.trim();
 
     if (msg.length < minMessageLength) return;
 
@@ -207,12 +213,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setMessage(
       message.slice(0, cursor)
       + emojiObject.native
-      + message.slice(cursor)
+      + message.slice(cursor),
     );
 
     const newCursor = cursor + emojiObject.native.length;
     setTimeout(() => txtArea.setSelectionRange(newCursor, newCursor), 10);
-  }
+  };
 
   const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newMessage = null;
@@ -266,7 +272,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper>
             <Styled.EmojiPicker
-              onEmojiSelect={(emojiObject) => handleEmojiSelect(emojiObject)}
+              onEmojiSelect={(emojiObject: { native: string }) => handleEmojiSelect(emojiObject)}
               showPreview={false}
               showSkinTones={false}
             />
@@ -327,7 +333,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       </Styled.Form>
     );
-  }
+  };
 
   return ENABLE_EMOJI_PICKER ? (
     <ClickOutside
@@ -338,38 +344,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   ) : renderForm();
 };
 
+// eslint-disable-next-line no-empty-pattern
 const ChatMessageFormContainer: React.FC = ({
   // connected, move to network status
 }) => {
   const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
-  const chat = useChat((c: Partial<Chat>) => {
-    const participant = c?.participant ? {
-      participant: {
-        name: c?.participant?.name,
-        isModerator: c?.participant?.isModerator,
-        isOnline: c?.participant?.isOnline,
-      }
-    } : {};
-
-    return {
-      ...participant,
-      chatId: c?.chatId,
-      public: c?.public,
-    };
-  }, idChatOpen) as Partial<Chat>;
+  const chat = useChat((c: Partial<Chat>) => ({
+    participant: c?.participant,
+    chatId: c?.chatId,
+    public: c?.public,
+  }), idChatOpen) as Partial<Chat>;
 
   const title = chat?.participant?.name
     ? intl.formatMessage(messages.titlePrivate, { 0: chat?.participant?.name })
     : intl.formatMessage(messages.titlePublic);
 
   const meeting = useMeeting((m) => ({
-    lockSettings: {
-      hasActiveLockSetting: m?.lockSettings?.hasActiveLockSetting,
-      disablePublicChat: m?.lockSettings?.disablePublicChat,
-      disablePrivateChat: m?.lockSettings?.disablePrivateChat,
-    },
+    lockSettings: m?.lockSettings,
   }));
 
   const locked = chat?.public
@@ -388,21 +381,21 @@ const ChatMessageFormContainer: React.FC = ({
 
   return (
     <ChatMessageForm
-    {...{
-      minMessageLength: CHAT_CONFIG.min_message_length,
-      maxMessageLength: CHAT_CONFIG.max_message_length,
-      idChatOpen,
-      handleClickOutside,
-      chatId: idChatOpen,
-      connected: true, //TODO: monitoring network status
-      disabled: locked ?? false,
-      title,
-      // if participant is not defined, it means that the chat is public
-      partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
-      locked: locked ?? false,
-    }}
-  />
-);
+      {...{
+        minMessageLength: CHAT_CONFIG.min_message_length,
+        maxMessageLength: CHAT_CONFIG.max_message_length,
+        idChatOpen,
+        handleClickOutside,
+        chatId: idChatOpen,
+        connected: true, // TODO: monitoring network status
+        disabled: locked ?? false,
+        title,
+        // if participant is not defined, it means that the chat is public
+        partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
+        locked: locked ?? false,
+      }}
+    />
+  );
 };
 
 export default ChatMessageFormContainer;

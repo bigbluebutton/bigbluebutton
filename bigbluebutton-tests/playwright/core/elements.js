@@ -114,7 +114,7 @@ exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.errorTypingIndicator = 'div[data-test="errorTypingIndicator"]';
 exports.chatUserMessageText = 'div[data-test="messageContent"] p';
 exports.secondChatUserMessageText = 'p[data-test="chatUserMessageText"]>>nth=1';
-exports.chatWelcomeMessageText = 'div[data-test="contentRef"] div';
+exports.chatWelcomeMessageText = 'button[data-test="closePopup"]';
 exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
 exports.sendLobbyMessage = 'div[data-test="lobbyMessage"] >> button';
 exports.lobbyMessage = 'div[data-test="lobbyMessage"] >> p';
@@ -320,7 +320,7 @@ exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
 
 // User
-const userAvatar = 'div[data-test="userAvatar"]';
+const userAvatar = 'div[data-test-avatar="userAvatar"]';
 const networkDataContainer = 'div[data-test="networkDataContainer"]';
 exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
@@ -330,8 +330,8 @@ exports.awayIcon = `${userAvatar} > div > i[class="icon-bbb-time"]`;
 exports.setStatus = 'li[data-test="setStatus"]';
 exports.away = 'li[data-test="away"]';
 exports.applaud = 'li[data-test="applause"]';
-exports.userListItem = 'div[data-test="user"]>>nth=1';
-exports.currentUser = 'div[data-test="user"]';
+exports.userListItem = 'div[data-test="userListItem"]';
+exports.currentUser = 'div[data-test="userListItemCurrent"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';

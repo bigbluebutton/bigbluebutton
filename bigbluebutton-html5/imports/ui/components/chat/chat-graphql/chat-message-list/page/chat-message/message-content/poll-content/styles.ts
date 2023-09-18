@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colorText } from '/imports/ui/stylesheets/styled-components/palette';
 
-export const pollText = styled.div`
+export const PollText = styled.div`
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
@@ -12,5 +12,5 @@ export const pollText = styled.div`
 `;
 
 export default {
-  pollText,
+  PollText,
 };

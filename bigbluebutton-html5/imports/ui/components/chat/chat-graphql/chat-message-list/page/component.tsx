@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
 import { useSubscription } from '@apollo/client';
 import {
@@ -21,7 +22,7 @@ interface ChatListPageContainerProps {
   // eslint-disable-next-line react/no-unused-prop-types
   lastSeenAt: number,
   chatId: string;
-  markMessageAsSeen: () => void;
+  markMessageAsSeen: (message: Message) => void;
   scrollRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -29,7 +30,7 @@ interface ChatListPageProps {
   messages: Array<Message>;
   lastSenderPreviousPage: string | undefined;
   page: number;
-  markMessageAsSeen: ()=> void;
+  markMessageAsSeen: (message: Message)=> void;
   scrollRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -38,7 +39,7 @@ const verifyIfIsPublicChat = (message: unknown):
 message is ChatMessagePublicSubscriptionResponse => (message as ChatMessagePublicSubscriptionResponse).chat_message_public !== undefined;
 
 // eslint-disable-next-line max-len
-const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined
+const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined;
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,

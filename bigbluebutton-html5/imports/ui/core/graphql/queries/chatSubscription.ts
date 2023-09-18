@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const CHATS_SUBSCRIPTION = gql`
+const CHATS_SUBSCRIPTION = gql`
   subscription {
     chat(
       order_by: [
@@ -27,3 +27,5 @@ export const CHATS_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export default CHATS_SUBSCRIPTION;

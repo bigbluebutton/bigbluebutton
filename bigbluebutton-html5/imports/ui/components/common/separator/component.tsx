@@ -1,5 +1,5 @@
 import React from 'react';
-import * as Styled from './styles';
+import Styled from './styles';
 
 const Separator = () => (
   <Styled.Separator />

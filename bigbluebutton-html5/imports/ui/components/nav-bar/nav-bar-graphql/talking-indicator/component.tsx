@@ -11,9 +11,10 @@ import { UserVoice } from '/imports/ui/Types/userVoice';
 import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import muteUser from './service';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
@@ -93,7 +94,11 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           $muted={muted || undefined}
           $isViewer={!isModerator || undefined}
           key={uniqueId(`${name}-`)}
-          onClick={() => muteUser(userId, muted, isBreakout, isModerator)}
+          onClick={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore - call signature is misse due the function being wrapped
+            muteUser(userId, muted, isBreakout, isModerator);
+          }}
           label={name}
           tooltipLabel={!muted && isModerator
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${name}`

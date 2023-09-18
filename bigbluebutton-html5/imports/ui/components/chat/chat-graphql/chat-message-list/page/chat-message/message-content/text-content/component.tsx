@@ -6,17 +6,11 @@ interface ChatMessageTextContentProps {
   text: string;
   emphasizedMessage: boolean;
 }
-
 const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   text,
   emphasizedMessage,
-}) => (
-  <Styled.ChatMessage
-    emphasizedMessage={emphasizedMessage}
-    dangerouslySetInnerHTML={{ __html: text }}
-  />
-);
-() => {
+}) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary, while meteor exists in the project
   const { allowedElements } = Meteor.settings.public.chat;
 
@@ -27,10 +21,9 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
         allowedElements={allowedElements}
         unwrapDisallowed
       >
-        {Text}
+        {text}
       </ReactMarkdown>
     </Styled.ChatMessage>
   );
 };
-
 export default ChatMessageTextContent;

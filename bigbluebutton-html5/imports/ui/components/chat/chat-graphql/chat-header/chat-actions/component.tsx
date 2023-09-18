@@ -1,13 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useLazyQuery } from '@apollo/client';
-import { GET_CHAT_MESSAGE_HISTORY, GET_PERMISSIONS, getChatMessageHistory, getPermissions } from './queries';
+import {
+  GET_CHAT_MESSAGE_HISTORY, GET_PERMISSIONS, getChatMessageHistory, getPermissions,
+} from './queries';
 import { uid } from 'radash';
 import Button from '/imports/ui/components/common/button/component';
-import { clearPublicChatHistory, generateExportedMessages } from './services'
+import { clearPublicChatHistory, generateExportedMessages } from './services';
 import { getDateString } from '/imports/utils/string-utils';
 
 import { isEmpty } from 'ramda';
@@ -48,7 +53,7 @@ const intlMessages = defineMessages({
   },
 });
 
-export const ChatActions: React.FC = () => {
+const ChatActions: React.FC = () => {
   const intl = useIntl();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const uniqueIdsRef = useRef<string[]>([uid(1), uid(2), uid(3), uid(4)]);
@@ -99,8 +104,8 @@ export const ChatActions: React.FC = () => {
     if (dataPermissions) {
       setUserIsmoderator(dataPermissions.user_current[0].isModerator);
       setMeetingIsBreakout(dataPermissions.meeting[0].isBreakout);
-      if (!isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsg || '') ||
-          !isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsgForModerators || '')) {
+      if (!isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsg || '')
+        || !isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsgForModerators || '')) {
         setShowShowWelcomeMessages(true);
       }
     }
@@ -153,11 +158,26 @@ export const ChatActions: React.FC = () => {
     ];
     return dropdownActions.filter((action) => action.enable);
   }, [userIsModerator, meetingIsBreakout, showShowWelcomeMessages]);
-  if (errorHistory) return <p>Error loading chat history: {JSON.stringify(errorHistory)}</p>;
-  if (errorPermissions) return <p>Error loading permissions: {JSON.stringify(errorPermissions)}</p>;
+  if (errorHistory) {
+    return (
+      <p>
+        Error loading chat history:
+        {JSON.stringify(errorHistory)}
+      </p>
+    );
+  }
+  if (errorPermissions) {
+    return (
+      <p>
+        Error loading permissions:
+        {' '}
+        {JSON.stringify(errorPermissions)}
+      </p>
+    );
+  }
   return (
     <BBBMenu
-      trigger={
+      trigger={(
         <Button
           label={intl.formatMessage(intlMessages.options)}
           aria-label={intl.formatMessage(intlMessages.options)}
@@ -169,7 +189,7 @@ export const ChatActions: React.FC = () => {
           }}
           data-test="chatOptionsMenu"
         />
-      }
+      )}
       opts={{
         id: 'chat-options-dropdown-menu',
         keepMounted: true,
@@ -183,4 +203,6 @@ export const ChatActions: React.FC = () => {
       actions={actions}
     />
   );
-}
+};
+
+export default ChatActions;

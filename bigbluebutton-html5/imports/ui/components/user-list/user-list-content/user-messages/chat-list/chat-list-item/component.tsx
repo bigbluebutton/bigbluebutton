@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable jsx-a11y/no-access-key */
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
@@ -6,7 +7,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
-import { useShortcut } from '../../../../../../core/hooks/useShortcut'
+import { useShortcut } from '../../../../../../core/hooks/useShortcut';
 import { Chat } from '/imports/ui/Types/chat';
 
 const intlMessages = defineMessages({
@@ -115,23 +116,23 @@ const ChatListItem = (props: ChatListItemProps) => {
 
   return (
     <Styled.ChatListItem
-  data-test="chatButton"
-  role="button"
-  aria-expanded={isCurrentChat}
-  active={isCurrentChat}
-  tabIndex={0}
-  accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined}
-  onClick={handleClickToggleChat}
-  id="chat-toggle-button"
-  aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic)
-    : chat.participant?.name}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
->
+      data-test="chatButton"
+      role="button"
+      aria-expanded={isCurrentChat}
+      active={isCurrentChat}
+      tabIndex={-1}
+      accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined}
+      onClick={handleClickToggleChat}
+      id="chat-toggle-button"
+      aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic)
+        : chat.participant?.name}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
+    >
       <Styled.ChatListItemLink>
         <Styled.ChatIcon>
           {isPublicGroupChat(chat)
