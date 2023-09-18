@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { defineMessages } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import { findDOMNode } from 'react-dom';
@@ -11,7 +11,6 @@ import {
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
 import Settings from '/imports/ui/services/settings';
-import { injectIntl } from 'react-intl';
 
 const propTypes = {
   compact: PropTypes.bool,
@@ -96,7 +95,7 @@ class UserParticipants extends Component {
     this.selectEl(el?.firstChild);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
     const { selectedUser } = this.state;
 
     if (selectedUser) {
@@ -135,7 +134,7 @@ class UserParticipants extends Component {
     } = this.props;
     const { scrollArea } = this.state;
     const user = users[index];
-    const isRTL = Settings.application.isRTL;
+    const { isRTL } = Settings.application;
 
     return (
       <CellMeasurer
@@ -174,7 +173,7 @@ class UserParticipants extends Component {
   handleClickSelectedUser(event) {
     let selectedUser = null;
     if (event.path) {
-      selectedUser = event.path.find(p => p.id && p.id.includes('user-'));
+      selectedUser = event.path.find((p) => p.id && p.id.includes('user-'));
     }
     this.setState({ selectedUser });
   }

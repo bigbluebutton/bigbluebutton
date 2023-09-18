@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
@@ -21,7 +23,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
 
   const skipOnFistJoin = getFromUserSettings(
     'bbb_skip_check_audio_on_first_join',
-    APP_CONFIG.skipCheckOnJoin
+    APP_CONFIG.skipCheckOnJoin,
   );
   if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
     Storage.setItem('getEchoTest', true);
@@ -33,7 +35,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
       logCode: 'audiocontrols_leave_audio',
       extraInfo: { logType: 'user_action' },
     },
-    'audio connection closed by user'
+    'audio connection closed by user',
   );
 };
 
@@ -46,7 +48,7 @@ export const toggleMuteMicrophone = (muted: boolean) => {
         logCode: 'audiomanager_unmute_audio',
         extraInfo: { logType: 'user_action' },
       },
-      'microphone unmuted by user'
+      'microphone unmuted by user',
     );
     makeCall('toggleVoice');
   } else {
@@ -55,7 +57,7 @@ export const toggleMuteMicrophone = (muted: boolean) => {
         logCode: 'audiomanager_mute_audio',
         extraInfo: { logType: 'user_action' },
       },
-      'microphone muted by user'
+      'microphone muted by user',
     );
     makeCall('toggleVoice');
   }
@@ -72,11 +74,10 @@ export const notify = (message: string, error: boolean, icon?: string) => {
   AudioManager.notify(message, error, icon);
 };
 
-export const liveChangeInputDevice = (inputDeviceId: string) =>
-  AudioManager.liveChangeInputDevice(inputDeviceId);
+export const liveChangeInputDevice = (inputDeviceId: string) => AudioManager.liveChangeInputDevice(inputDeviceId);
 
-export const liveChangeOutputDevice = (inputDeviceId: string, isLive: boolean) =>
-  AudioManager.changeOutputDevice(inputDeviceId, isLive);
+export const liveChangeOutputDevice = (inputDeviceId: string, isLive: boolean) => AudioManager
+  .changeOutputDevice(inputDeviceId, isLive);
 
 export default {
   handleLeaveAudio,

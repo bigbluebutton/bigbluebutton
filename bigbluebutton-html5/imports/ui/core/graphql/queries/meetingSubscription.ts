@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
-export const MEETING_SUBSCRIPTION = gql`
+const MEETING_SUBSCRIPTION = gql`
   subscription MeetingSubscription {
       meeting {
         createdTime
@@ -76,3 +76,4 @@ export const MEETING_SUBSCRIPTION = gql`
       }
   }
 `;
+export default MEETING_SUBSCRIPTION;
