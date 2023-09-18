@@ -140,7 +140,7 @@ const ReactionsButton = (props) => {
   return (
     <BBBMenu
       trigger={(
-        <Styled.ReactionsDropdown>
+        <Styled.ReactionsDropdown id="interactionsButton">
           <Styled.RaiseHandButton
             data-test="reactionsButton"
             icon={icon}
