@@ -15,7 +15,7 @@ import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
 import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 
-import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
+import useCurrentUser from '../../../../../core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -44,7 +44,7 @@ const rowRenderer: React.FC<RowRendererProps> = ({
   const direction = isRTL ? 'rtl' : 'ltr';
 
   return (
-    <div key={key} style={{...style, direction}}>
+    <div key={key} style={{ ...style, direction }}>
       {user && validCurrentUser && meeting ? (
         <UserActions
           user={user}
@@ -89,7 +89,9 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           <Styled.VirtualizedList
             rowRenderer={
               (props: RowRendererProps) => rowRenderer(
-                { ...props, users: users || previousUsersData, validCurrentUser, offset, meeting, isRTL }
+                {
+                  ...props, users: users || previousUsersData, validCurrentUser, offset, meeting, isRTL,
+                },
               )
             }
             noRowRenderer={() => <div>no users</div>}
@@ -129,7 +131,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const {
     data: meetingData,
     loading: meetingLoading,
-  } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION)
+  } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION);
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
 

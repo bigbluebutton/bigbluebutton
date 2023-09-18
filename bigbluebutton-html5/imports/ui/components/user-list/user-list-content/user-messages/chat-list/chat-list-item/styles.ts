@@ -33,7 +33,6 @@ interface ChatListItemProps {
   active: boolean;
 }
 
-
 const ChatListItemLink = styled.div`
   display: flex;
   flex-grow: 1;

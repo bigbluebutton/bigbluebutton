@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { gql } from '@apollo/client';
 import { MeetingRecording, MeetingRecordingPolicies } from '/imports/ui/Types/meeting';
 
@@ -10,7 +11,7 @@ export interface getMeetingRecordingData {
 }
 
 export function meetingRecordingAssertion(
-  meetingRecording: unknown
+  meetingRecording: unknown,
 ): asserts meetingRecording is MeetingRecording {
   if (!meetingRecording) {
     throw new Error('meetingRecording is undefined');
@@ -33,7 +34,7 @@ export function meetingRecordingAssertion(
 }
 
 export function meetingRecordingPoliciesAssertion(
-  meetingRecordingPolicies: unknown
+  meetingRecordingPolicies: unknown,
 ): asserts meetingRecordingPolicies is MeetingRecordingPolicies {
   if (!meetingRecordingPolicies) {
     throw new Error('meetingRecordingPolicies is undefined');
@@ -42,8 +43,8 @@ export function meetingRecordingPoliciesAssertion(
     throw new Error('meetingRecordingPolicies is not an object');
   }
   if (
-    typeof (meetingRecordingPolicies as MeetingRecordingPolicies).allowStartStopRecording !==
-    'boolean'
+    typeof (meetingRecordingPolicies as MeetingRecordingPolicies).allowStartStopRecording
+    !== 'boolean'
   ) {
     throw new Error('meetingRecordingPolicies.allowStartStopRecording is not a boolean');
   }

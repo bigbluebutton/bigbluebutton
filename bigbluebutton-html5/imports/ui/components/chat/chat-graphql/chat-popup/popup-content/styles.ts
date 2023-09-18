@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 import {
   borderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -34,10 +34,9 @@ export const PopupContentBody = styled.div`
   word-break: break-word;
 `;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - as button comes from JS, we can't provide its props
 export const CloseButton = styled(Button)`
   background-color: transparent;
   padding: 0;
 `;
-
-

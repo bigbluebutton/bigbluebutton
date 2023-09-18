@@ -20,7 +20,6 @@ const TimeSync: React.FC = () => {
   }, []);
 
   if (error) {
-    console.log('error', error);
     return (
       <div>
         {JSON.stringify(error)}

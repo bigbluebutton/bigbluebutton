@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable jsx-a11y/no-access-key */
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
@@ -6,7 +7,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
-import { useShortcut } from '../../../../../../core/hooks/useShortcut'
+import { useShortcut } from '../../../../../../core/hooks/useShortcut';
 import { Chat } from '/imports/ui/Types/chat';
 
 const intlMessages = defineMessages({

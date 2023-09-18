@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
@@ -9,7 +10,7 @@ import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
 import { uniqueId } from '/imports/utils/string-utils';
 import { Emoji } from 'emoji-mart';
-import { normalizeEmojiName } from './service';
+import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { isReactionsEnabled } from '/imports/ui/services/features';
 
@@ -57,57 +58,53 @@ interface UserListItemProps {
 }
 
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
-  const intl = useIntl()
+  const intl = useIntl();
   const voiceUser = user.voice;
-  const subs = [   
+  const subs = [
     (user.role === ROLE_MODERATOR && LABEL.moderator) && intl.formatMessage(messages.moderator),
     (user.guest && LABEL.guest) && intl.formatMessage(messages.guest),
     (user.mobile && LABEL.mobile) && intl.formatMessage(messages.mobile),
-    (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) 
-    && (
+    (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) && (
       <span key={uniqueId('lock-')}>
-          <Icon iconName="lock" />
-          &nbsp;
-          {intl.formatMessage(messages.locked)}
-        </span>
+        <Icon iconName="lock" />
+        &nbsp;
+        {intl.formatMessage(messages.locked)}
+      </span>
     ),
     user.lastBreakoutRoom?.currentlyInRoom && (
       <span key={uniqueId('breakout-')}>
-          <Icon iconName="rooms" />
-          &nbsp;
-          {user.lastBreakoutRoom?.shortName
-            ? intl.formatMessage(messages.breakoutRoom, { 0: user.lastBreakoutRoom?.sequence })
-            : user.lastBreakoutRoom?.shortName}
-        </span>
+        <Icon iconName="rooms" />
+        &nbsp;
+        {user.lastBreakoutRoom?.shortName
+          ? intl.formatMessage(messages.breakoutRoom, { 0: user.lastBreakoutRoom?.sequence })
+          : user.lastBreakoutRoom?.shortName}
+      </span>
     ),
     (user.cameras.length > 0 && LABEL.sharingWebcam) && (
       <span key={uniqueId('breakout-')}>
-          { user.pinned === true
-            ? <Icon iconName="pin-video_on" />
-            : <Icon iconName="video" /> }
-          &nbsp;
-          {intl.formatMessage(messages.sharingWebcam)}
-        </span>
+        {user.pinned === true
+          ? <Icon iconName="pin-video_on" />
+          : <Icon iconName="video" />}
+        &nbsp;
+        {intl.formatMessage(messages.sharingWebcam)}
+      </span>
     ),
   ].filter(Boolean);
 
   const reactionsEnabled = isReactionsEnabled();
 
-  let userAvatarFiltered = user.avatar;
+  const userAvatarFiltered = user.avatar;
 
   const getIconUser = () => {
-    const emojiProps = {
-      native: true,
-      size: convertRemToPixels(1.3),
-    };
+    const emojiSize = convertRemToPixels(1.3);
 
     if (user.raiseHand === true) {
       return reactionsEnabled
-        ? <Emoji key="hand" emoji={'hand'} {...emojiProps} />
+        ? <Emoji key="hand" emoji="hand" native size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
     } if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji={'clock7'} {...emojiProps} />
+        ? <Emoji key="away" emoji="clock7" native size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('away')} />;
     } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
@@ -118,10 +115,10 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const iconUser = getIconUser();
 
-   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser
+  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser;
 
-   return (
-    <Styled.UserItemContents data-test='user'>
+  return (
+    <Styled.UserItemContents data-test="user">
       <Styled.Avatar
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}

@@ -10,6 +10,7 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   text,
   emphasizedMessage,
 }) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary, while meteor exists in the project
   const { allowedElements } = Meteor.settings.public.chat;
 

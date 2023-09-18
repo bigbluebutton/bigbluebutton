@@ -31,10 +31,16 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
   return (
     <>
       <PresentationToolbarPluginStateContainer
-        { ...pluginProvidedStateChildrenProps}
+        uuid={pluginProvidedStateChildrenProps.uuid}
+        generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
+        pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}
+        pluginApi={pluginProvidedStateChildrenProps.pluginApi}
       />
       <UserListDropdownPluginStateContainer
-        { ...pluginProvidedStateChildrenProps}
+        uuid={pluginProvidedStateChildrenProps.uuid}
+        generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
+        pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}
+        pluginApi={pluginProvidedStateChildrenProps.pluginApi}
       />
     </>
   );
