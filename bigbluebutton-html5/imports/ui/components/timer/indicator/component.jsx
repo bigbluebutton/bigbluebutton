@@ -37,6 +37,24 @@ const intlMessages = defineMessages({
   toolTipTimerRunning: {
     id: 'app.timer.toolTipTimerRunning',
   },
+  toolTipStopwatchStopped: {
+    id: 'app.timer.toolTipStopwatchStopped',
+  },
+  toolTipStopwatchRunning: {
+    id: 'app.timer.toolTipStopwatchRunning',
+  },
+  toolTipTimerStoppedMod: {
+    id: 'app.timer.toolTipTimerStoppedMod',
+  },
+  toolTipTimerRunningMod: {
+    id: 'app.timer.toolTipTimerRunningMod',
+  },
+  toolTipStopwatchStoppedMod: {
+    id: 'app.timer.toolTipStopwatchStoppedMod',
+  },
+  toolTipStopwatchRunningMod: {
+    id: 'app.timer.toolTipStopwatchRunningMod',
+  },
 });
 
 class Indicator extends Component {
@@ -369,7 +387,7 @@ class Indicator extends Component {
       currentTrack,
       intl,
     } = this.props;
-    const { running } = timer;
+    const { stopwatch, running } = timer;
     const trackChanged = this.music?.track !== currentTrack;
     if (trackChanged) {
       this.setUpMusic();
@@ -377,11 +395,37 @@ class Indicator extends Component {
 
     const onClick = running ? TimerService.stopTimer : TimerService.startTimer;
     this.updateTabTitleTimer(false, time);
+
+    const title = () => {
+      if (isModerator) {
+        if (stopwatch && !running) {
+          return intl.formatMessage(intlMessages.toolTipStopwatchStoppedMod);
+        } if (stopwatch && running) {
+          return intl.formatMessage(intlMessages.toolTipStopwatchRunningMod);
+        } if (!stopwatch) {
+          if (running) {
+            return intl.formatMessage(intlMessages.toolTipTimerRunningMod);
+          } if (!running) {
+            return intl.formatMessage(intlMessages.toolTipTimerStoppedMod);
+          }
+        }
+      }
+      if (stopwatch && !running) {
+        return intl.formatMessage(intlMessages.toolTipStopwatchStopped);
+      } if (stopwatch && running) {
+        return intl.formatMessage(intlMessages.toolTipStopwatchRunning);
+      } if (!stopwatch) {
+        if (running) {
+          return intl.formatMessage(intlMessages.toolTipTimerRunning);
+        } if (!running) {
+          return intl.formatMessage(intlMessages.toolTipTimerStopped);
+        }
+      }
+    };
     return (
       <Styled.TimerWrapper>
         <Tooltip
-          title={!running ? intl.formatMessage(intlMessages.toolTipTimerStopped, { 0: time })
-            : intl.formatMessage(intlMessages.toolTipTimerRunning, { 0: time })}
+          title={title}
         >
           <Styled.Timer>
             <Styled.TimerButton
