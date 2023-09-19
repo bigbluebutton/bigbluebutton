@@ -366,28 +366,9 @@ start_bigbluebutton () {
 
     echo "Starting BigBlueButton"
 
-    #systemctl mask bbb-rap-resque-worker
-    #systemctl mask bbb-rap-starter
-    #systemctl mask bbb-rap-caption-inbox
-    sudo systemctl list-jobs
-
-    set +x
-    sudo systemctl status bigbluebutton.target
-    date
     systemctl restart bigbluebutton.target
-    date
-    # sudo nginx -t
-
-    # for i in {0..100}
-    # do
-    #     display_bigbluebutton_status
-    #     sudo systemctl status bigbluebutton.target
-    #     echo '--------------------'
-    #     sleep 10 000
-    # done
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        echo 'trying to start bbb-html5'
         systemctl start mongod
         sleep 3
         systemctl start bbb-html5
