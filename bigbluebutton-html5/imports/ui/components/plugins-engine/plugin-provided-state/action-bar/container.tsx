@@ -16,7 +16,7 @@ const ActionBarPluginStateContainer = (
   const [
     actionBarItems,
     setActionBarItems,
-  ] = useState<PluginSdk.ActionBarItem[]>([]);
+  ] = useState<PluginSdk.ActionsBarItem[]>([]);
 
   const {
     pluginsProvidedAggregatedState,
@@ -25,24 +25,24 @@ const ActionBarPluginStateContainer = (
 
   useEffect(() => {
     // Change this plugin provided toolbar items
-    pluginProvidedStateMap[uuid].actionBarItems = actionBarItems;
+    pluginProvidedStateMap[uuid].actionsBarItems = actionBarItems;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedActionBarItems = (
-      [] as PluginSdk.ActionBarItem[]).concat(
+      [] as PluginSdk.ActionsBarItem[]).concat(
       ...Object.values(pluginProvidedStateMap)
-        .map((pps: PluginProvidedState) => pps.actionBarItems),
+        .map((pps: PluginProvidedState) => pps.actionsBarItems),
     );
     setPluginsProvidedAggregatedState(
       {
         ...pluginsProvidedAggregatedState,
-        actionBarItems: aggregatedActionBarItems,
+        actionsBarItems: aggregatedActionBarItems,
       },
     );
   }, [actionBarItems]);
 
-  pluginApi.setActionBarItems = (items: PluginSdk.ActionBarItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionBarItem[];
+  pluginApi.setActionsBarItems = (items: PluginSdk.ActionsBarItem[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionsBarItem[];
     return setActionBarItems(itemsWithId);
   };
   return null;

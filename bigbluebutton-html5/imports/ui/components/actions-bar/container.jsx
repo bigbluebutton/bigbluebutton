@@ -29,9 +29,9 @@ const ActionsBarContainer = (props) => {
     pluginsProvidedAggregatedState,
   } = useContext(PluginsContext);
   let actionBarItems = [];
-  if (pluginsProvidedAggregatedState.actionBarItems) {
+  if (pluginsProvidedAggregatedState.actionsBarItems) {
     actionBarItems = [
-      ...pluginsProvidedAggregatedState.actionBarItems,
+      ...pluginsProvidedAggregatedState.actionsBarItems,
     ];
   }
 

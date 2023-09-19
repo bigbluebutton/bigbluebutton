@@ -38,12 +38,13 @@ class ActionsBar extends PureComponent {
     return (
       <>
         {
-          actionBarItems.filter((plugin) => plugin.position === position).map((plugin) => {
+          actionBarItems.filter((plugin) => plugin.position === position).map((plugin, index) => {
             let actionBarItemToReturn;
             switch (plugin.type) {
-              case PluginSdk.ActionBarItemType.BUTTON:
+              case PluginSdk.ActionsBarItemType.BUTTON:
                 actionBarItemToReturn = (
                   <Button
+                    key={`${plugin.type}-${plugin.id}`}
                     onClick={plugin.onClick}
                     hideLabel
                     color="primary"
@@ -54,9 +55,11 @@ class ActionsBar extends PureComponent {
                   />
                 );
                 break;
-              case PluginSdk.ActionBarItemType.SEPARATOR:
+              case PluginSdk.ActionsBarItemType.SEPARATOR:
                 actionBarItemToReturn = (
-                  <Styled.Separator />
+                  <Styled.Separator
+                    key={`${plugin.type}-${plugin.id}`}
+                  />
                 );
                 break;
               default:
@@ -178,7 +181,7 @@ class ActionsBar extends PureComponent {
             : null }
         </Styled.Left>
         <Styled.Center>
-          {this.renderPluginsActionBarItems(PluginSdk.ActionBarPosition.LEFT)}
+          {this.renderPluginsActionBarItems(PluginSdk.ActionsBarPosition.LEFT)}
           <AudioControlsContainer />
           {enableVideo
             ? (
@@ -191,7 +194,7 @@ class ActionsBar extends PureComponent {
           }}
           />
           {isRaiseHandButtonCentered && this.renderRaiseHand()}
-          {this.renderPluginsActionBarItems(PluginSdk.ActionBarPosition.RIGHT)}
+          {this.renderPluginsActionBarItems(PluginSdk.ActionsBarPosition.RIGHT)}
         </Styled.Center>
         <Styled.Right>
           { shouldShowOptionsButton ?
