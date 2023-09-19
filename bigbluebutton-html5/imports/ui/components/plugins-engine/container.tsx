@@ -9,6 +9,7 @@ import { PluginConfig, EffectivePluginConfig } from './types';
 import PluginLoaderContainer from './plugin-loader/container';
 import PluginProvidedStateContainer from './plugin-provided-state/container';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 

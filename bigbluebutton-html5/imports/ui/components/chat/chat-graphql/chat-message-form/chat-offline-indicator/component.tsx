@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
-import { defineMessages, useIntl } from "react-intl";
 
 interface ChatOfflineIndicatorProps {
   participantName: string;

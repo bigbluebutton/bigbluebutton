@@ -97,8 +97,9 @@ class MultiUsers {
     await this.userPage.hasElement(e.presentationToolbarWrapper);
     await this.userPage.hasElement(e.wbToolbar);
     await this.userPage.hasElement(e.actions);
+    await this.userPage.hasElement(e.userListItem);
     const isPresenter = await checkIsPresenter(this.userPage);
-    expect(isPresenter).toBeTruthy();
+    await expect(isPresenter).toBeTruthy();
   }
 
   async takePresenter() {
@@ -109,8 +110,9 @@ class MultiUsers {
     await this.modPage2.hasElement(e.startScreenSharing);
     await this.modPage2.hasElement(e.wbToolbar);
     await this.modPage2.hasElement(e.presentationToolbarWrapper);
+    await this.modPage2.hasElement(e.userListItem);
     const isPresenter = await checkIsPresenter(this.modPage2);
-    expect(isPresenter).toBeTruthy();
+    await expect(isPresenter).toBeTruthy();
     await this.modPage2.waitAndClick(e.actions);
     await this.modPage2.hasElement(e.managePresentations);
     await this.modPage2.hasElement(e.polling);
@@ -149,7 +151,7 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.lowerHandBtn);
-    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem}`);
     await sleep(1000);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.waitAndClick(e.reactionsButton);
@@ -172,7 +174,7 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.lowerHandBtn);
     await this.userPage.press('Escape');
-    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem}`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
     await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.raiseHandBtn);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -18,9 +19,7 @@ const pulse = keyframes`
 
 // @ts-ignore - as button comes from JS, we can't provide its props
 const LeaveButtonWithoutLiveStreamSelector = styled(Button)`
-  ${({ ghost }) =>
-    ghost &&
-    `
+  ${({ ghost }) => ghost && `
     span {
       background-color: transparent !important;
       border-color: ${colorWhite} !important;
@@ -46,32 +45,22 @@ const MuteToggleButton = styled(Button)`
     }
   }
 
-  ${({ ghost }) =>
-    ghost &&
-    `
+  ${({ ghost }) => ghost && `
     span {
       background-color: transparent !important;
       border-color: ${colorWhite} !important;
     }
   `}
 
-  ${({ talking }) =>
-    talking &&
-    `
+  ${({ talking }) => talking && `
     border-radius: 50%;
   `}
     
-  ${({ talking, animations }) =>
-    talking &&
-    animations &&
-    css`
+  ${({ talking, animations }) => talking && animations && css`
       animation: ${pulse} 1s infinite ease-in;
     `}
 
-  ${({ talking, animations }) =>
-    talking &&
-    !animations &&
-    css`
+  ${({ talking, animations }) => talking && !animations && css`
       & span {
         content: '';
         outline: none !important;
