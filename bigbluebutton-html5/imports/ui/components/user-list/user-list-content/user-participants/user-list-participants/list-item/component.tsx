@@ -108,9 +108,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         : <Icon iconName={normalizeEmojiName('away')} />;
     } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
-    } if (user.name) {
+    } if (user.name && userAvatarFiltered.length === 0) {
       return user.name.toLowerCase().slice(0, 2);
-    } return '??';
+    } return '';
   };
 
   const iconUser = getIconUser();
@@ -122,7 +122,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
       <Styled.Avatar
         data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
-        data-test-avatar='userAvatar'
+        data-test-avatar="userAvatar"
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}
         talking={voiceUser?.talking}
