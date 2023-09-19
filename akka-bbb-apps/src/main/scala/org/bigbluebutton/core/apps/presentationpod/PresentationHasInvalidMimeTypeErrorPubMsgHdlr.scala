@@ -34,28 +34,10 @@ trait PresentationHasInvalidMimeTypeErrorPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    //    val newState = for {
-    //      pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
-    //      pres <- pod.getPresentation(msg.body.presentationId)
-    //    } yield {
-    //      val presWithError = PresentationInPod(pres.id, pres.name, pres.current, pres.pages, pres.downloadable, pres.removable, pres.filenameConverted, pres.uploadCompleted, pres.numPages, msg.body.messageKey)
-    //      var pods = state.presentationPodManager.addPod(pod)
-    //      pods = pods.addPresentationToPod(pod.id, presWithError)
-    //      PresPresentationDAO.insertOrUpdate(msg.header.meetingId, presWithError)
-    //      state.update(pods)
-    //    }
-
     val pres = new PresentationInPod(msg.body.presentationId, msg.body.presentationName, false, Map.empty, false, false, uploadCompleted = false, numPages = -1, errorMsgKey = msg.body.messageKey)
     PresPresentationDAO.insertOrUpdate(msg.header.meetingId, pres)
 
     broadcastEvent(msg)
     state
-
-    //    newState match {
-    //      case Some(ns) => ns
-    //      case None =>
-    //        PresPresentationDAO.updateErrorMsgKey(msg.body.presentationId, msg.body.messageKey)
-    //        state
-    //    }
   }
 }
