@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { defineMessages, useIntl } from 'react-intl';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from '../styles';
 import {
   handleLeaveAudio,
@@ -15,6 +16,7 @@ import {
 } from '../service';
 import Mutetoggle from './muteToggle';
 import ListenOnly from './listenOnly';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
@@ -88,6 +90,16 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   const intl = useIntl();
 
   const leaveAudioShourtcut = useShortcut('leaveAudio');
+
+  const {
+    pluginsProvidedAggregatedState,
+  } = useContext(PluginsContext);
+  let microphoneDropdownItems = [] as PluginSdk.MicrophoneDropdownItem[];
+  if (pluginsProvidedAggregatedState.microphoneDropdownItems) {
+    microphoneDropdownItems = [
+      ...pluginsProvidedAggregatedState.microphoneDropdownItems,
+    ];
+  }
 
   const renderDeviceList = useCallback((
     deviceKind: string,
@@ -194,6 +206,34 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
       isSeparator: true,
     })
     .concat(leaveAudioOption);
+
+  microphoneDropdownItems.forEach((microphoneDropdownItem:
+    PluginSdk.MicrophoneDropdownItem) => {
+    switch (microphoneDropdownItem.type) {
+      case PluginSdk.MicrophoneDropdownItemType.OPTION: {
+        const microphoneDropdownOption = microphoneDropdownItem as PluginSdk.MicrophoneDropdownOption;
+        dropdownListComplete.push({
+          label: microphoneDropdownOption.label,
+          iconRight: microphoneDropdownOption.icon,
+          disabled: !microphoneDropdownOption.allowed,
+          onClick: microphoneDropdownOption.onClick,
+          key: microphoneDropdownOption.id,
+        });
+        break;
+      }
+      case PluginSdk.MicrophoneDropdownItemType.SEPARATOR: {
+        const microphoneDropdownSeparator = microphoneDropdownItem as PluginSdk.MicrophoneDropdownOption;
+        dropdownListComplete.push({
+          isSeparator: true,
+          key: microphoneDropdownSeparator.id,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  });
+
   const customStyles = { top: '-1rem' };
   const { isMobile } = deviceInfo;
   return (
