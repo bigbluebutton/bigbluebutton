@@ -817,7 +817,7 @@
     "app.error.disconnected.rejoin": "شما می‌توانید صفحه را برای پیوستن مجدد تازه‌سازی کنید.",
     "app.error.userLoggedOut": "کاربر به خاطر خروج از سیستم، sessionToken نامعتبر دارد",
     "app.error.ejectedUser": "کاربر به خاطر اخراج، sessionToken نامعتبر دارد",
-    "app.error.joinedAnotherWindow": "به نظر می‌رسد که این جلسه در پنجره مرورگر دیگری باز شده است. ",
+    "app.error.joinedAnotherWindow": "به نظر می‌رسد که این جلسه در پنجرهٔ مرورگر دیگری باز شده است. ",
     "app.error.userBanned": "کاربر مسدود شده است",
     "app.error.leaveLabel": "دوباره وارد شوید",
     "app.error.fallback.presentation.title": "خطایی رخ داد",
