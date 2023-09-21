@@ -324,7 +324,14 @@ jobs:
           mv configs /home/runner/work/bigbluebutton/bigbluebutton/configs
           chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
           bbb-conf --zip
+          journalctl > all_logs.txt
+          systemctl list-unit-files | grep enabled > enabled.log
+          systemctl list-unit-files > all.log
+          systemctl list-unit-files | grep waiting > waiting.log
+          systemctl list-unit-files | grep failed > failed.log
+          systemctl list-dependencies bigbluebutton.target > target_state.log
           ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
+          systemctl list-dependencies bigbluebutton.target
           EOF
       - if: failure()
         uses: actions/upload-artifact@v3
