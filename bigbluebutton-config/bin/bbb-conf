@@ -367,14 +367,15 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
 
     systemctl list-dependencies bigbluebutton.target
-    systemctl restart bigbluebutton.target
-    systemctl list-dependencies bigbluebutton.target
+    free -m
 
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        systemctl start mongod
-        sleep 3
-        systemctl start bbb-html5
-    fi
+    systemctl stop bigbluebutton.target
+
+    free -m
+
+    systemctl start bigbluebutton.target
+    
+    systemctl list-dependencies bigbluebutton.target
 }
 
 display_bigbluebutton_status () {
