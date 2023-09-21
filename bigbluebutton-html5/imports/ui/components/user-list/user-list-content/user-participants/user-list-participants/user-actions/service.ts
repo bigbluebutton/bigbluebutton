@@ -11,8 +11,12 @@ import logger from '/imports/startup/client/logger';
 import * as WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { throttle } from 'radash';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - temporary, while meteor exists in the project
+const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
@@ -68,7 +72,7 @@ export const generateActionsPermissions = (
     && !isBreakout
     && !(isSubjectUserGuest && usersPolicies.authenticatedGuest);
 
-  const allowedToChangeStatus = amISubjectUser;
+  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
@@ -84,8 +88,12 @@ export const generateActionsPermissions = (
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary, while meteor exists in the project
   const { allowUserLookup } = Meteor.settings.public.app;
+
+  const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -100,6 +108,7 @@ export const generateActionsPermissions = (
     allowedToChangeWhiteboardAccess,
     allowedToEjectCameras,
     allowUserLookup,
+    allowedToSetAway,
   };
 };
 

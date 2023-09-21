@@ -1,11 +1,12 @@
-import React from "react";
-import { defineMessages, useIntl } from "react-intl";
-import Styled from "../styles";
-import { useShortcut } from "/imports/ui/core/hooks/useShortcut";
+import React from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import Styled from '../styles';
+import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import Settings from '/imports/ui/services/settings';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary while settings are still in .js
-const animations = Settings.application.animations;
+const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
   muteAudio: {
@@ -41,23 +42,26 @@ export const Mutetoggle: React.FC<MuteToggleProps> = ({
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     toggleMuteMicrophone(muted);
-  }
-  return (<Styled.MuteToggleButton
-    onClick={onClickCallback}
-    disabled={disabled || isAudioLocked}
-    hideLabel
-    label={label}
-    aria-label={label}
-    color={!muted ? 'primary' : 'default'}
-    ghost={muted}
-    icon={muted ? 'mute' : 'unmute'}
-    size="lg"
-    circle
-    accessKey={toggleMuteShourtcut}
-    $talking={talking || undefined}
-    animations={animations}
-    data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
-  />)
+  };
+  return (
+    // eslint-disable-next-line jsx-a11y/no-access-key
+    <Styled.MuteToggleButton
+      onClick={onClickCallback}
+      disabled={disabled || isAudioLocked}
+      hideLabel
+      label={label}
+      aria-label={label}
+      color={!muted ? 'primary' : 'default'}
+      ghost={muted}
+      icon={muted ? 'mute' : 'unmute'}
+      size="lg"
+      circle
+      accessKey={toggleMuteShourtcut}
+      $talking={talking || undefined}
+      animations={animations}
+      data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
+    />
+  );
 };
 
 export default Mutetoggle;

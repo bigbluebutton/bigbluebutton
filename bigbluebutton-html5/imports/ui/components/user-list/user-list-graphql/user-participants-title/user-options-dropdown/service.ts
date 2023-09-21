@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import UserListService, { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
@@ -31,7 +32,7 @@ const meetingMuteDisabledLog = () => logger.info(
     logCode: 'useroptions_unmute_all',
     extraInfo: { logType: 'moderator_action' },
   },
-  'moderator disabled meeting mute'
+  'moderator disabled meeting mute',
 );
 
 export const toggleMuteAllUsers = (isMeetingMuteOnStart: boolean) => {
@@ -44,7 +45,7 @@ export const toggleMuteAllUsers = (isMeetingMuteOnStart: boolean) => {
       logCode: 'useroptions_mute_all',
       extraInfo: { logType: 'moderator_action' },
     },
-    'moderator enabled meeting mute, all users muted'
+    'moderator enabled meeting mute, all users muted',
   );
 };
 export const toggleMuteAllUsersExceptPresenter = (isMeetingMuteOnStart: boolean) => {
@@ -57,7 +58,7 @@ export const toggleMuteAllUsersExceptPresenter = (isMeetingMuteOnStart: boolean)
       logCode: 'useroptions_mute_all_except_presenter',
       extraInfo: { logType: 'moderator_action' },
     },
-    'moderator enabled meeting mute, all users muted except presenter'
+    'moderator enabled meeting mute, all users muted except presenter',
   );
 };
 
@@ -81,7 +82,7 @@ export const onSaveUserNames = (intl: IntlShape, meetingName: string) => {
       1: `${dateString}:${timeString}`,
     }),
     intl.formatMessage(intlMessages.sortedFirstNameHeading),
-    intl.formatMessage(intlMessages.sortedLastNameHeading)
+    intl.formatMessage(intlMessages.sortedLastNameHeading),
   ).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
 };
 

@@ -58,5 +58,4 @@ subscription userCurrentSubscription {
   }
 }
 `;
-
 export default CURRENT_USER_SUBSCRIPTION;

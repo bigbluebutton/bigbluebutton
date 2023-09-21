@@ -5,6 +5,7 @@ import listItemStyles from '../styles';
 import Settings from '/imports/ui/services/settings';
 
 const SkeletonUserListItem: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary while settings are still in .js
   const { isRTL } = Settings.application;
 

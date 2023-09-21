@@ -9,7 +9,7 @@ export const USER_LIST_SUBSCRIPTION = gql`subscription Users($offset: Int!, $lim
                   {emojiTime: asc_nulls_last},
                   {isDialIn: desc},
                   {hasDrawPermissionOnCurrentPage: desc},
-                  {name: asc},
+                  {nameSortable: asc},
                   {userId: asc}
                 ]) {
     userId

@@ -1,7 +1,9 @@
+/* eslint-disable no-undef */
+// Rule applied because EvenetListener is no undefined at all times.
 import React, { useEffect, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import CurrentPresentationHookContainer from './use-current-presentation/container'
-import LoadedUserListHookContainer from './use-loaded-user-list/container'
+import CurrentPresentationHookContainer from './use-current-presentation/container';
+import LoadedUserListHookContainer from './use-loaded-user-list/container';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent

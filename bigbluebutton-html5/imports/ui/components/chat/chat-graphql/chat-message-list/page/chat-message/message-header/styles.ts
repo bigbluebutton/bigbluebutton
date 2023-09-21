@@ -29,15 +29,11 @@ export const ChatUserName = styled.div<ChatUserNameProps>`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${({ isOnline }) =>
-    isOnline &&
-    `
+  ${({ isOnline }) => isOnline && `
     color: ${colorHeading};
   `}
 
-  ${({ isOnline }) =>
-    !isOnline &&
-    `
+  ${({ isOnline }) => !isOnline && `
     text-transform: capitalize;
     font-style: italic;
 

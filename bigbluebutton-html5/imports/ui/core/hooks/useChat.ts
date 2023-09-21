@@ -1,14 +1,15 @@
-import { createUseSubscription } from "./createUseSubscription";
-import { CHATS_SUBSCRIPTION } from "../graphql/queries/chatSubscription";
-import { Chat } from "../../Types/chat";
+import createUseSubscription from './createUseSubscription';
+import CHATS_SUBSCRIPTION from '../graphql/queries/chatSubscription';
+import { Chat } from '../../Types/chat';
 
 const useChatSubscription = createUseSubscription<Partial<Chat>>(CHATS_SUBSCRIPTION);
 
-const useChat = (fn: (c: Partial<Chat>)=> Partial<Chat>, chatId?: string ): Array<Partial<Chat>> | Partial<Chat> | null =>{
+const useChat = (fn: (c: Partial<Chat>)=> Partial<Chat>, chatId?: string): Array<Partial<Chat>> | Partial<Chat>
+| null => {
   const chats = useChatSubscription(fn);
   if (chatId) {
     return chats.find((c) => {
-      return c.chatId === chatId
+      return c.chatId === chatId;
     }) ?? null;
   }
   return chats;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
 import { useSubscription } from '@apollo/client';
 import {
@@ -38,7 +39,7 @@ const verifyIfIsPublicChat = (message: unknown):
 message is ChatMessagePublicSubscriptionResponse => (message as ChatMessagePublicSubscriptionResponse).chat_message_public !== undefined;
 
 // eslint-disable-next-line max-len
-const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined
+const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined;
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
