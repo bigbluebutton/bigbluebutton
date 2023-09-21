@@ -36,7 +36,7 @@ interface ChatMessageFormProps {
   idChatOpen: string,
   chatId: string,
   connected: boolean,
-  disabled: boolean;
+  disabled: boolean,
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
