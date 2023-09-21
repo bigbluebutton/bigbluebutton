@@ -32,20 +32,26 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
     pluginProvidedStateMap[uuid] = {} as PluginProvidedState;
   }
   const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
-  return pluginProvidedStateContainers.map(
-    (PluginProvidedStateContainerChildComponent: PluginProvidedStateContainerChild, index: number) => (
-      <PluginProvidedStateContainerChildComponent
-        {
-          ...{
-            key: `${uuid}-${index}`,
-            uuid,
-            generateItemWithId,
-            pluginProvidedStateMap,
-            pluginApi,
-          }
-        }
-      />
-    ),
+  return (
+    <>
+      {
+        pluginProvidedStateContainers.map(
+          (PluginProvidedStateContainerChildComponent: PluginProvidedStateContainerChild, index: number) => (
+            <PluginProvidedStateContainerChildComponent
+              {
+                ...{
+                  key: `${uuid}-${index}`,
+                  uuid,
+                  generateItemWithId,
+                  pluginProvidedStateMap,
+                  pluginApi,
+                }
+              }
+            />
+          ),
+        )
+      }
+    </>
   );
 };
 
