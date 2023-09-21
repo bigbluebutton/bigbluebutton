@@ -4,6 +4,7 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types';
 import PresentationToolbarPluginStateContainer from './presentation-toolbar/container';
 import UserListDropdownPluginStateContainer from './user-list-dropdown/container';
+import NavBarPluginStateContainer from './nav-bar/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
@@ -37,6 +38,12 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
         pluginApi={pluginProvidedStateChildrenProps.pluginApi}
       />
       <UserListDropdownPluginStateContainer
+        uuid={pluginProvidedStateChildrenProps.uuid}
+        generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
+        pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}
+        pluginApi={pluginProvidedStateChildrenProps.pluginApi}
+      />
+      <NavBarPluginStateContainer
         uuid={pluginProvidedStateChildrenProps.uuid}
         generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
         pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}

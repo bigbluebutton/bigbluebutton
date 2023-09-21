@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
@@ -13,6 +14,7 @@ import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/cont
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
+import Button from '/imports/ui/components/common/button/component';
 import { isEqual } from 'radash';
 
 const intlMessages = defineMessages({
@@ -45,6 +47,9 @@ const propTypes = {
   breakoutNum: PropTypes.number,
   breakoutName: PropTypes.string,
   meetingName: PropTypes.string,
+  pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+  })).isRequired,
 };
 
 const defaultProps = {
@@ -53,6 +58,67 @@ const defaultProps = {
   shortcuts: '',
 };
 
+const renderPluginItems = (pluginItems) => (
+  <>
+    {
+      pluginItems.map((pluginItem) => {
+        let returnComponent;
+        switch (pluginItem.type) {
+          case PluginSdk.NavBarItemType.BUTTON:
+            returnComponent = (
+              <Styled.PluginComponentWrapper>
+                <Button
+                  icon={pluginItem.icon}
+                  key={pluginItem.id}
+                  label={pluginItem.label}
+                  aria-label={pluginItem.tooltip}
+                  color="primary"
+                  onClick={pluginItem.onClick}
+                />
+              </Styled.PluginComponentWrapper>
+            );
+            break;
+          case PluginSdk.NavBarItemType.INFO:
+            returnComponent = (
+              <Styled.PluginComponentWrapper>
+                <Styled.PluginInfoComponent
+                  key={pluginItem.id}
+                >
+                  {pluginItem.label}
+                </Styled.PluginInfoComponent>
+              </Styled.PluginComponentWrapper>
+            );
+            break;
+          default:
+            returnComponent = null;
+            break;
+        }
+
+        if (pluginItem.hasSeparator) {
+          switch (pluginItem.position) {
+            case PluginSdk.NavBarItemPosition.RIGHT:
+              returnComponent = (
+                <>
+                  {returnComponent}
+                  <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                </>
+              );
+              break;
+            default:
+              returnComponent = (
+                <>
+                  <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                  {returnComponent}
+                </>
+              );
+              break;
+          }
+        }
+        return returnComponent;
+      })
+    }
+  </>
+);
 class NavBar extends Component {
   constructor(props) {
     super(props);
@@ -62,6 +128,7 @@ class NavBar extends Component {
     }
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
+    this.splitPluginItems = this.splitPluginItems.bind(this);
   }
 
   componentDidMount() {
@@ -156,6 +223,31 @@ class NavBar extends Component {
     }
   }
 
+  splitPluginItems() {
+    const { pluginNavBarItems } = this.props;
+
+    return pluginNavBarItems.reduce((result, item) => {
+      switch (item.position) {
+        case PluginSdk.NavBarItemPosition.LEFT:
+          result.leftPluginItems.push(item);
+          break;
+        case PluginSdk.NavBarItemPosition.CENTER:
+          result.centerPluginItems.push(item);
+          break;
+        case PluginSdk.NavBarItemPosition.RIGHT:
+          result.rightPluginItems.push(item);
+          break;
+        default:
+          break;
+      }
+      return result;
+    }, {
+      leftPluginItems: [],
+      centerPluginItems: [],
+      rightPluginItems: [],
+    });
+  }
+
   render() {
     const {
       hasUnreadMessages,
@@ -188,6 +280,8 @@ class NavBar extends Component {
         addNewAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`);
       }
     });
+
+    const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
 
     return (
       <Styled.Navbar
@@ -233,6 +327,7 @@ class NavBar extends Component {
               && <Styled.ArrowRight iconName="right_arrow" />}
             {isExpanded && document.dir === 'rtl'
               && <Styled.ArrowRight iconName="right_arrow" />}
+            {renderPluginItems(leftPluginItems)}
           </Styled.Left>
           <Styled.Center>
             <Styled.PresentationTitle data-test="presentationTitle">
@@ -242,8 +337,10 @@ class NavBar extends Component {
               amIModerator={amIModerator}
               currentUserId={currentUserId}
             />
+            {renderPluginItems(centerPluginItems)}
           </Styled.Center>
           <Styled.Right>
+            {renderPluginItems(rightPluginItems)}
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </Styled.Right>
