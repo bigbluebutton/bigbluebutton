@@ -34,7 +34,13 @@ trait PresentationHasInvalidMimeTypeErrorPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    val pres = new PresentationInPod(msg.body.presentationId, msg.body.presentationName, false, Map.empty, false, false, uploadCompleted = false, numPages = -1, errorMsgKey = msg.body.messageKey)
+    val errorDetails = scala.collection.immutable.Map(
+      "fileMime" -> msg.body.fileMime,
+      "fileExtension" -> msg.body.fileExtension
+    )
+
+    val pres = new PresentationInPod(msg.body.presentationId, msg.body.presentationName, false, Map.empty, false,
+      false, uploadCompleted = false, numPages = -1, errorMsgKey = msg.body.messageKey, errorDetails = errorDetails)
     PresPresentationDAO.insertOrUpdate(msg.header.meetingId, pres)
 
     broadcastEvent(msg)

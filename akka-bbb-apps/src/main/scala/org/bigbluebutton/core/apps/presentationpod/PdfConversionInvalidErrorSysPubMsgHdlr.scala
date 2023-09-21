@@ -32,11 +32,17 @@ trait PdfConversionInvalidErrorSysPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
+    val errorDetails = scala.collection.immutable.Map(
+      "bigPageNumber" -> msg.body.bigPageNumber.toString,
+      "bigPageSize" -> msg.body.bigPageSize.toString
+    )
+
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
       pres <- pod.getPresentation(msg.body.presentationId)
     } yield {
-      val presWithError = PresentationInPod(pres.id, pres.name, pres.current, pres.pages, pres.downloadable, pres.removable, pres.filenameConverted, pres.uploadCompleted, pres.numPages, msg.body.messageKey)
+      val presWithError = PresentationInPod(pres.id, pres.name, pres.current, pres.pages, pres.downloadable, pres.removable,
+        pres.filenameConverted, pres.uploadCompleted, pres.numPages, msg.body.messageKey, errorDetails)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithError)
       PresPresentationDAO.insertOrUpdate(msg.header.meetingId, presWithError)
@@ -48,7 +54,7 @@ trait PdfConversionInvalidErrorSysPubMsgHdlr {
     newState match {
       case Some(ns) => ns
       case None =>
-        PresPresentationDAO.updateErrorMsgKey(msg.body.presentationId, msg.body.messageKey)
+        PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
         state
     }
   }

@@ -829,7 +829,8 @@ CREATE TABLE "pres_presentation" (
     "converting" boolean,
     "uploadCompleted" boolean,
     "numPages" integer,
-    "errorMsgKey" varchar(100)
+    "errorMsgKey" varchar(100),
+    "errorDetails" TEXT
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
@@ -866,6 +867,7 @@ SELECT pres_presentation."meetingId",
     pres_presentation."uploadCompleted",
     pres_presentation."numPages",
     pres_presentation."errorMsgKey",
+    pres_presentation."errorDetails",
     (SELECT count(*) FROM pres_page WHERE pres_page."presentationId" = pres_presentation."presentationId" AND "converted" is true) as "pagesUploaded"
    FROM pres_presentation;
 

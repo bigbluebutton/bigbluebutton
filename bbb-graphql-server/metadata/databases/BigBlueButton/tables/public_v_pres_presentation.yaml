@@ -23,6 +23,7 @@ select_permissions:
         - converting
         - current
         - downloadable
+        - errorDetails
         - errorMsgKey
         - numPages
         - pagesUploaded

@@ -71,7 +71,8 @@ case class PresentationInPod(
     filenameConverted: String                                                   = "",
     uploadCompleted:   Boolean,
     numPages:          Int,
-    errorMsgKey:       String                                                   = ""
+    errorMsgKey:       String                                                   = "",
+    errorDetails:      scala.collection.immutable.Map[String, String]
 )
 
 object PresentationPod {
