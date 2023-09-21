@@ -107,7 +107,7 @@ jobs:
           path: artifacts.tar
   install-and-run-tests:
     needs: build-package
-    runs-on: ubuntu-22.04-4core
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -301,7 +301,7 @@ jobs:
         with:
           name: all-blob-reports
           path: bigbluebutton-tests/playwright/blob-report
-      - if: failure()
+      - if: always() && github.event_name == 'pull_request'
         name: Prepare artifacts (configs and logs)
         run: |
           sudo -i <<EOF
