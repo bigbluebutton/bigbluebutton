@@ -43,7 +43,7 @@ const intlMessages = defineMessages({
     defaultMessage: 'Minimize',
   },
   optionsLabel: {
-    id: 'app.navBar.settingsDropdown.optionsLabel',
+    id: 'app.navBar.optionsDropdown.optionsLabel',
     description: 'Options button label',
     defaultMessage: 'Options',
   },
