@@ -329,12 +329,12 @@ jobs:
       - if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: bbb-configs
+          name: bbb-configs-${{ matrix.shard }}
           path: configs
       - if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: bbb-logs
+          name: bbb-logs-${{ matrix.shard }}
           path: ./bbb-logs.tar.gz
   upload-report:
     if: always()
