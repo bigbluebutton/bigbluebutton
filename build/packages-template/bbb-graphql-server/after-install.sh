@@ -6,10 +6,10 @@ case "$1" in
   fc-cache -f
 
   sudo -u postgres psql -c "alter user postgres password 'bbb_graphql'"
-  sudo -u postgres psql -c "drop database if exists bbb_graphql"
+  sudo -u postgres psql -c "drop database if exists bbb_graphql with (force)"
   sudo -u postgres psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
   sudo -u postgres psql -c "alter database bbb_graphql set timezone to 'UTC'"
-  sudo -u postgres psql -U postgres -d bbb_graphql -a -f /usr/share/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
+  sudo -u postgres psql -U postgres -d bbb_graphql -q -f /usr/share/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
 
   DATABASE_NAME="hasura_app"
   DB_EXISTS=$(sudo -u postgres psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DATABASE_NAME'")
