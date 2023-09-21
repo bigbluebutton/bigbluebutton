@@ -360,6 +360,7 @@ const ChatMessageFormContainer: React.FC = ({
 
   const currentUser = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
+    locked: c?.locked,
   }));
 
   const title = chat?.participant?.name
@@ -372,6 +373,7 @@ const ChatMessageFormContainer: React.FC = ({
 
   const isModerator = currentUser?.isModerator;
   const isPublicChat = chat?.public;
+  const isLocked = currentUser?.locked;
   const disablePublicChat = meeting?.lockSettings?.disablePublicChat;
   const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
 
@@ -379,9 +381,9 @@ const ChatMessageFormContainer: React.FC = ({
 
   if (!isModerator) {
     if (isPublicChat) {
-      locked = disablePublicChat || false;
+      locked = (isLocked && disablePublicChat) || false;
     } else {
-      locked = disablePrivateChat || false;
+      locked = (isLocked && disablePrivateChat) || false;
     }
   }
 
