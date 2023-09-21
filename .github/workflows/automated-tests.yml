@@ -325,16 +325,17 @@ jobs:
           chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
           bbb-conf --zip
           ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
+          echo "MATRIX_SHARD=$(echo ${{ matrix.shard }} | tr '/' '_')" >> $GITHUB_ENV
           EOF
       - if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: bbb-configs
+          name: bbb-configs-${{ env.MATRIX_SHARD }}
           path: configs
       - if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: bbb-logs
+          name: bbb-logs-${{ env.MATRIX_SHARD }}
           path: ./bbb-logs.tar.gz
   upload-report:
     if: always()
