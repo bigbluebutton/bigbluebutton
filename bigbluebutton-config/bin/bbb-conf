@@ -375,7 +375,42 @@ start_bigbluebutton () {
         echo "'systemctl restart bigbluebutton.target' timed out. Attempt $i/$RETRIES."
         if [[ $i -eq $RETRIES ]]; then
             echo "Max retries reached."
-            exit 1
+            systemctl status nginx
+            systemctl restart nginx
+            systemctl status freeswitch
+            systemctl restart freeswitch
+            systemctl status redis-server
+            systemctl restart redis-server
+            systemctl status bbb-apps-akka
+            systemctl restart bbb-apps-akka
+            systemctl status bbb-fsesl-akka
+            systemctl restart bbb-fsesl-akka
+            systemctl status bbb-graphql-middleware
+            systemctl restart bbb-graphql-middleware
+            systemctl status bbb-graphql-server
+            systemctl restart bbb-graphql-server
+            systemctl status bbb-webrtc-sfu
+            systemctl restart bbb-webrtc-sfu
+            systemctl status bbb-webrtc-recorder
+            systemctl restart bbb-webrtc-recorder
+            systemctl status etherpad
+            systemctl restart etherpad
+            systemctl status bbb-web
+            systemctl restart bbb-web
+            systemctl status bbb-pads
+            systemctl restart bbb-pads
+            systemctl status bbb-export-annotations
+            systemctl restart bbb-export-annotations
+            systemctl status bbb-rap-caption-inbox
+            systemctl restart bbb-rap-caption-inbox
+            systemctl status bbb-rap-resque-worker
+            systemctl restart bbb-rap-resque-worker
+            systemctl status bbb-rap-starter
+            systemctl restart bbb-rap-starter
+            systemctl status mongod
+            systemctl status bbb-html5
+            systemctl restart mongod
+            break
         fi
     done
 
