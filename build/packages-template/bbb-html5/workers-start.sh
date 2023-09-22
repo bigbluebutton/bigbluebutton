@@ -12,8 +12,17 @@ done;
 
 echo "Mongo started";
 
-echo "Initializing replicaset"
-mongosh 127.0.1.1 --eval 'rs.initiate({ _id: "rs0", members: [ {_id: 0, host: "127.0.1.1"} ]})'
+#echo "Initializing replicaset"
+#mongosh 127.0.1.1 --eval 'rs.initiate({ _id: "rs0", members: [ {_id: 0, host: "127.0.1.1"} ]})'
+
+# checking if there's a replicaset already
+HAS_REPLICASET=$(mongosh 127.0.1.1 --eval 'db.adminCommand({replSetGetStatus: 1})' | grep myState | sed 's|.*:\ ||' | sed 's|,||')
+if [ "$HAS_REPLICASET" = 1 ]; then
+  echo "There already was a replicaset initiated"
+else
+  echo "Initializing replicaset"
+  mongosh 127.0.1.1 --eval 'rs.initiate({ _id: "rs0", members: [ {_id: 0, host: "127.0.1.1"} ]})'
+fi
 
 echo "Waiting to become a master"
 IS_MASTER="XX"
