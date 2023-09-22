@@ -367,7 +367,7 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
     echo "Tweaked version"
 
-    RETRIES=3
+    RETRIES=2
     DURATION=60s
 
     for (( i=1; i<=RETRIES; i++ )); do
@@ -409,7 +409,6 @@ start_bigbluebutton () {
             systemctl restart bbb-rap-starter
             systemctl status mongod
             systemctl status bbb-html5
-            systemctl restart mongod
             break
         fi
     done
@@ -423,6 +422,9 @@ start_bigbluebutton () {
         echo "Starting BigBlueButton 3 checkpoint"
         systemctl start bbb-html5
     fi
+
+    systemctl status mongod
+    systemctl status bbb-html5
 
     echo "Starting BigBlueButton 4 checkpoint"
 }

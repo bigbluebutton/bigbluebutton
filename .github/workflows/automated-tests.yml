@@ -252,7 +252,7 @@ jobs:
           apt --purge -y remove apache2-bin
           '
       - name: Install BBB
-        timeout-minutes: 20
+        timeout-minutes: 30
         run: |
           sudo -i <<EOF
           set -e
