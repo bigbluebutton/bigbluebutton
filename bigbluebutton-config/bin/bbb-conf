@@ -367,8 +367,8 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
     echo "Tweaked version"
 
-    RETRIES=5
-    DURATION=70s
+    RETRIES=3
+    DURATION=60s
 
     for (( i=1; i<=RETRIES; i++ )); do
         timeout $DURATION systemctl restart bigbluebutton.target && break
