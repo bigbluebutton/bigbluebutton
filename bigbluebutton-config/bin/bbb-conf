@@ -416,11 +416,19 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton 1 checkpoint"
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        echo "Starting BigBlueButton 2 checkpoint"
+
+        systemctl status redis-server.service
+        systemctl status mongod.service
+        systemctl status disable-transparent-huge-pages.service
+        systemctl status bbb-pads.service
+        systemctl status syslog.target
+        systemctl status network.target
+
+        echo "Starting BigBlueButton 2 checkpoint (start mongod)"
         systemctl start mongod
         sleep 6
         systemctl status mongod
-        echo "Starting BigBlueButton 3 checkpoint"
+        echo "Starting BigBlueButton 3 checkpoint (start bbb-htmlt)"
         timeout 60s systemctl start bbb-html5 && echo "bbb-html5 started"
         echo "Starting BigBlueButton 3.1 checkpoint"
     fi
