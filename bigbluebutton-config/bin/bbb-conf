@@ -367,7 +367,6 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
 
     systemctl list-dependencies bigbluebutton.target
-    systemctl stop bigbluebutton.target
     systemctl start bigbluebutton.target
     
     systemctl list-dependencies bigbluebutton.target
