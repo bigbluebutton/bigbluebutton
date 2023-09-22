@@ -430,6 +430,15 @@ start_bigbluebutton () {
         systemctl status mongod
         echo "Starting BigBlueButton 3 checkpoint (start bbb-htmlt)"
         timeout 60s systemctl start bbb-html5 && echo "bbb-html5 started"
+
+        echo "-------------------------------- journalctl -u bbb-html5 # BEGIN"
+        sudo journalctl -u bbb-html5 | tail -n 50
+        echo "-------------------------------- journalctl -u bbb-html5 # END"
+
+    echo "-------------------------------- journalctl -u mongod # BEGIN"
+        sudo journalctl -u mongod | tail -n 50
+        echo "-------------------------------- journalctl -u mongod # END"
+
         echo "Starting BigBlueButton 3.1 checkpoint"
     fi
 
@@ -440,6 +449,7 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
+    echo "-------------------display_bigbluebutton_status"
     units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
@@ -514,6 +524,8 @@ display_bigbluebutton_status () {
 
     line='—————————————————————————————►'
     for unit in $units; do
+        echo "testing::::::::::: $unit"
+        systemctl is-active "$unit"
         status=$(systemctl is-active "$unit")
         if [ "$status" = "active" ]; then
             printf "%s %s [✔ - $status]\n" $unit "${line:${#unit}}"
