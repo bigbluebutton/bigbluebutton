@@ -15,6 +15,7 @@ import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import useChat from '/imports/ui/core/hooks/useChat';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   handleSendMessage,
   startUserTyping,
@@ -357,6 +358,11 @@ const ChatMessageFormContainer: React.FC = ({
     public: c?.public,
   }), idChatOpen) as Partial<Chat>;
 
+  const currentUser = useCurrentUser((c) => ({
+    isModerator: c?.isModerator,
+    locked: c?.locked,
+  }));
+
   const title = chat?.participant?.name
     ? intl.formatMessage(messages.titlePrivate, { 0: chat?.participant?.name })
     : intl.formatMessage(messages.titlePublic);
@@ -365,9 +371,21 @@ const ChatMessageFormContainer: React.FC = ({
     lockSettings: m?.lockSettings,
   }));
 
-  const locked = chat?.public
-    ? meeting?.lockSettings?.disablePublicChat
-    : meeting?.lockSettings?.disablePrivateChat;
+  const isModerator = currentUser?.isModerator;
+  const isPublicChat = chat?.public;
+  const isLocked = currentUser?.locked;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat;
+  const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
+
+  let locked = false;
+
+  if (!isModerator) {
+    if (isPublicChat) {
+      locked = (isLocked && disablePublicChat) || false;
+    } else {
+      locked = (isLocked && disablePrivateChat) || false;
+    }
+  }
 
   const handleClickOutside = () => {
     if (showEmojiPicker) {
