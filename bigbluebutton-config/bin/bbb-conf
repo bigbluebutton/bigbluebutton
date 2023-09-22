@@ -365,14 +365,31 @@ start_bigbluebutton () {
     systemctl reload nginx
 
     echo "Starting BigBlueButton"
+    echo "Tweaked version"
 
-    systemctl restart bigbluebutton.target
+    RETRIES=5
+    DURATION=70s
+
+    for (( i=1; i<=RETRIES; i++ )); do
+        timeout $DURATION systemctl restart bigbluebutton.target && break
+        echo "'systemctl restart bigbluebutton.target' timed out. Attempt $i/$RETRIES."
+        if [[ $i -eq $RETRIES ]]; then
+            echo "Max retries reached."
+            exit 1
+        fi
+    done
+
+    echo "Starting BigBlueButton 1 checkpoint"
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+        echo "Starting BigBlueButton 2 checkpoint"
         systemctl start mongod
-        sleep 3
+        sleep 6
+        echo "Starting BigBlueButton 3 checkpoint"
         systemctl start bbb-html5
     fi
+
+    echo "Starting BigBlueButton 4 checkpoint"
 }
 
 display_bigbluebutton_status () {
