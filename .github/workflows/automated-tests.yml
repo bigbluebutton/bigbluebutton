@@ -301,7 +301,7 @@ jobs:
         with:
           name: all-blob-reports
           path: bigbluebutton-tests/playwright/blob-report
-      - if: failure()
+      - if: always()
         name: Prepare artifacts (configs and logs)
         run: |
           sudo -i <<EOF

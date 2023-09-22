@@ -426,7 +426,7 @@ start_bigbluebutton () {
 
         echo "Starting BigBlueButton 2 checkpoint (start mongod)"
         systemctl start mongod
-        sleep 6
+        sleep 10
         systemctl status mongod
         echo "Starting BigBlueButton 3 checkpoint (start bbb-htmlt)"
         timeout 60s systemctl start bbb-html5 && echo "bbb-html5 started"

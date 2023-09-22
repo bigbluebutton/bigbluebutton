@@ -3,14 +3,21 @@
 echo "Starting mongoDB"
 
 #wait for mongo startup
-MONGO_OK=0
+# MONGO_OK=0
 
-while [ "$MONGO_OK" = "0" ]; do
-    MONGO_OK=$(ss -lan | grep 127.0.1.1 | grep 27017 &> /dev/null && echo 1 || echo 0)
-    sleep 1;
-done;
+# while [ "$MONGO_OK" = "0" ]; do
+#     MONGO_OK=$(ss -lan | grep 127.0.1.1 | grep 27017 &> /dev/null && echo 1 || echo 0)
+#     sleep 1;
+# done;
 
-echo "Mongo started";
+#Check if Mongo is ready
+MONGO_PORT=27017
+while ! netstat -tuln | grep ":$MONGO_PORT " > /dev/null; do
+    echo "Waiting for Mongo's port ($MONGO_PORT) to be ready..."
+    sleep 1
+done
+
+echo "Mongo started 1";
 
 echo "Initializing replicaset"
 mongosh 127.0.1.1 --eval 'rs.initiate({ _id: "rs0", members: [ {_id: 0, host: "127.0.1.1"} ]})'
