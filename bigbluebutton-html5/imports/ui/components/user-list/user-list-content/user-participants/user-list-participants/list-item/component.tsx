@@ -115,7 +115,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const iconUser = getIconUser();
 
-  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0 ? user.lastBreakoutRoom?.sequence : iconUser;
+  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
+    ? user.lastBreakoutRoom?.sequence
+    : iconUser;
 
   return (
     <Styled.UserItemContents data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
