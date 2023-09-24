@@ -35,7 +35,7 @@
     "app.chat.copySuccess": "رونوشت از ترانوشت گپ انجام شد",
     "app.chat.copyErr": "رونوشت از ترانوشت گپ با خطا مواجه شد",
     "app.timer.toolTipTimerStopped": "شمارش معکوس متوقف شده است",
-    "app.timer.toolTipTimerRunning": "شمارش معکوس درحال انجام است.",
+    "app.timer.toolTipTimerRunning": "شمارش معکوس درحال اجراست.",
     "app.timer.toolTipStopwatchStopped": "زمان‌سنج متوقف شده است",
     "app.timer.toolTipStopwatchRunning": "زمان‌سنج درحال اجراست.",
     "app.timer.toolTipTimerStoppedMod": "برای ادامهٔ شمارش معکوس فشار دهید.",
