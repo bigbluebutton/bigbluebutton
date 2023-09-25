@@ -95,6 +95,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    await this.userPage2.hasElementEnabled(e.chatBox, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage2.type(e.chatBox, e.message);
     await this.userPage2.waitAndClick(e.sendButton);
     await this.userPage.waitForSelector(e.chatUserMessageText);
@@ -114,16 +115,17 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=0`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=0`);
     
     await this.userPage2.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.userPage2.waitAndClick(`${e.startPrivateChat}>>nth=1`);
     await this.userPage2.type(e.chatBox, 'Test');
     await this.userPage2.waitAndClick(e.sendButton);
     
+    await this.userPage.waitAndClick(e.closePrivateChat);
     await this.userPage.waitAndClick(`${e.chatButton}>>nth=1`);
-    await this.userPage.hasElementDisabled(e.chatBox);
-    await this.userPage.hasElementDisabled(e.sendButton);
+    await this.userPage.hasElementEnabled(e.chatBox);
+    await this.userPage.hasElementEnabled(e.sendButton);
   }
 
   async lockEditSharedNotes() {

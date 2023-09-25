@@ -31,7 +31,7 @@ test.describe.parallel('User', () => {
 
   test.describe.parallel('List', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
-    test('Change user status @ci @flaky', async ({ browser, page }) => {
+    test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
       await status.init(true, true);
       await status.changeUserStatus();

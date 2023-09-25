@@ -136,7 +136,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async chatExclude() {
-    await this.modPage.hasElement(e.publicChat);
+    await this.modPage.hasElement(e.chatButton);
   }
 
   async externalVideosExclude() {
