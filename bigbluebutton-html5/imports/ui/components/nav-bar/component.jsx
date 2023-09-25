@@ -66,10 +66,11 @@ const renderPluginItems = (pluginItems) => (
         switch (pluginItem.type) {
           case PluginSdk.NavBarItemType.BUTTON:
             returnComponent = (
-              <Styled.PluginComponentWrapper>
+              <Styled.PluginComponentWrapper
+                key={pluginItem.id}
+              >
                 <Button
                   icon={pluginItem.icon}
-                  key={pluginItem.id}
                   label={pluginItem.label}
                   aria-label={pluginItem.tooltip}
                   color="primary"
@@ -80,10 +81,10 @@ const renderPluginItems = (pluginItems) => (
             break;
           case PluginSdk.NavBarItemType.INFO:
             returnComponent = (
-              <Styled.PluginComponentWrapper>
-                <Styled.PluginInfoComponent
-                  key={pluginItem.id}
-                >
+              <Styled.PluginComponentWrapper
+                key={pluginItem.id}
+              >
+                <Styled.PluginInfoComponent>
                   {pluginItem.label}
                 </Styled.PluginInfoComponent>
               </Styled.PluginComponentWrapper>
