@@ -11,7 +11,7 @@ import {
   GET_CHAT_MESSAGE_HISTORY, GET_PERMISSIONS, getChatMessageHistory, getPermissions,
 } from './queries';
 import { uid } from 'radash';
-import Button from '/imports/ui/components/common/button/component';
+import Trigger from '/imports/ui/components/common/control-header/right/component';
 import { clearPublicChatHistory, generateExportedMessages } from './services';
 import { getDateString } from '/imports/utils/string-utils';
 
@@ -178,11 +178,10 @@ const ChatActions: React.FC = () => {
   return (
     <BBBMenu
       trigger={(
-        <Button
+        <Trigger
           label={intl.formatMessage(intlMessages.options)}
           aria-label={intl.formatMessage(intlMessages.options)}
           hideLabel
-          size="sm"
           icon="more"
           onClick={() => {
             getPermissions();
