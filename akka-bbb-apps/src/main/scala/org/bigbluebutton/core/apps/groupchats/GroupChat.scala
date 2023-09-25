@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
+import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessageType, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
 import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
@@ -32,9 +32,9 @@ object GroupChatApp {
   }
 
   def addGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats,
-                          msg: GroupChatMessage): GroupChats = {
+                          msg: GroupChatMessage, messageType: String = GroupChatMessageType.DEFAULT): GroupChats = {
     if (msg.sender.id == SystemUser.ID) {
-      ChatMessageDAO.insertSystemMsg(meetingId, chat.id, msg.message, "default", Map(), msg.sender.name)
+      ChatMessageDAO.insertSystemMsg(meetingId, chat.id, msg.message, messageType, Map(), msg.sender.name)
     } else {
       ChatMessageDAO.insert(meetingId, chat.id, msg)
     }
