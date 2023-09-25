@@ -32,6 +32,7 @@ export interface PluginProvidedState {
     actionButtonDropdownItems: PluginSdk.ActionButtonDropdownItem[];
     audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownItem[];
     actionsBarItems: PluginSdk.ActionsBarItem[];
+    presentationDropdownItems: PluginSdk.PresentationDropdownItem[];
 }
 
 /**

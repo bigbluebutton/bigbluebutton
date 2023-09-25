@@ -10,6 +10,7 @@ import UserListDropdownPluginStateContainer from './user-list-dropdown/container
 import ActionButtonDropdownPluginStateContainer from './action-button-dropdown/container';
 import AudioSettingsDropdownPluginStateContainer from './audio-settings-dropdown/container';
 import ActionBarPluginStateContainer from './action-bar/container';
+import PresentationDropdownPluginStateContainer from './presentation-dropdown/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
@@ -19,6 +20,7 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   ActionButtonDropdownPluginStateContainer,
   AudioSettingsDropdownPluginStateContainer,
   ActionBarPluginStateContainer,
+  PresentationDropdownPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
