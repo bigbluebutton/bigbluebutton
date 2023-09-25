@@ -51,7 +51,7 @@ class ActionsBar extends PureComponent {
                     icon={plugin.icon}
                     size="lg"
                     circle
-                    tooltip={plugin.tooltip}
+                    label={plugin.tooltip}
                   />
                 );
                 break;
