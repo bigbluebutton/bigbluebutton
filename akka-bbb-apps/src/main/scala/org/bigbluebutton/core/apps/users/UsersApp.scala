@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
-import akka.actor.ActorContext
-import akka.event.Logging
+import org.apache.pekko.actor.ActorContext
+import org.apache.pekko.event.Logging
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ExternalVideoModel
 import org.bigbluebutton.core.bus.InternalEventBus
