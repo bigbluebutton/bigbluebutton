@@ -4,12 +4,14 @@ import React, { useEffect, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import CurrentPresentationHookContainer from './use-current-presentation/container';
 import LoadedUserListHookContainer from './use-loaded-user-list/container';
+import CurrentUserHookContainer from './use-current-user/container';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent
 } = {
   [PluginSdk.Internal.BbbHooks.UseCurrentPresentation]: CurrentPresentationHookContainer,
   [PluginSdk.Internal.BbbHooks.UseLoadedUserList]: LoadedUserListHookContainer,
+  [PluginSdk.Internal.BbbHooks.UseCurrentUser]: CurrentUserHookContainer,
 };
 
 const PluginHooksHandlerContainer: React.FC = () => {

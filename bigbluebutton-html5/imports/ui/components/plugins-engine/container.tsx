@@ -2,7 +2,7 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import logger from '/imports/startup/client/logger';
-import * as uuid from 'uuid';
+import * as uuidLib from 'uuid';
 import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
 import PluginsEngineComponent from './component';
 import { PluginConfig, EffectivePluginConfig } from './types';
@@ -24,7 +24,7 @@ const PluginsEngineContainer = () => {
   const effectivePluginsConfig: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(
     () => PLUGINS_CONFIG.map((p: PluginConfig) => ({
       ...p,
-      uuid: uuid.v4(),
+      uuid: uuidLib.v4(),
     } as EffectivePluginConfig)), [
       PLUGINS_CONFIG,
     ],

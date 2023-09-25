@@ -24,7 +24,6 @@ const pulse = keyframes`
 
 // @ts-ignore - as button comes from JS, we can't provide its props
 export const MuteToggleButton = styled(Button)`
-  margin-right: 0.5rem;
   ${({ ghost }) => ghost && `
     span {
       box-shadow: none;

@@ -29,6 +29,9 @@ export interface EffectivePluginConfig extends PluginConfig {
 export interface PluginProvidedState {
     presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
     userListDropdownItems: PluginSdk.UserListDropdownItem[];
+    actionButtonDropdownItems: PluginSdk.ActionButtonDropdownItem[];
+    audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownItem[];
+    actionsBarItems: PluginSdk.ActionsBarItem[];
     presentationDropdownItems: PluginSdk.PresentationDropdownItem[];
 }
 
@@ -44,10 +47,12 @@ export type PluginsProvidedStateMap = {
     [uuid: string]: PluginProvidedState;
 }
 
-export interface PluginProvidedStateChildrenProps {
+export interface PluginProvidedStateContainerChildProps {
     uuid: string;
     generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
         item: T, index: number): T;
     pluginProvidedStateMap: PluginsProvidedStateMap;
     pluginApi: PluginSdk.PluginApi;
 }
+
+export type PluginProvidedStateContainerChild = React.FC<PluginProvidedStateContainerChildProps>;

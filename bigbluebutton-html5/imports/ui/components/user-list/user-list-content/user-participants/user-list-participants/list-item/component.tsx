@@ -108,21 +108,23 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         : <Icon iconName={normalizeEmojiName('away')} />;
     } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
-    } if (user.name) {
+    } if (user.name && userAvatarFiltered.length === 0) {
       return user.name.toLowerCase().slice(0, 2);
-    } return '??';
+    } return '';
   };
 
   const iconUser = getIconUser();
 
-  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom ? user.lastBreakoutRoom?.sequence : iconUser;
+  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
+    ? user.lastBreakoutRoom?.sequence
+    : iconUser;
 
   return (
     <Styled.UserItemContents data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
         data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
-        data-test-avatar='userAvatar'
+        data-test-avatar="userAvatar"
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}
         talking={voiceUser?.talking}

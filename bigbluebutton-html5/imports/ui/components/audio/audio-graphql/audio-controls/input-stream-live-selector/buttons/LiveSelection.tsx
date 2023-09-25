@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { defineMessages, useIntl } from 'react-intl';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from '../styles';
 import {
   handleLeaveAudio,
@@ -15,6 +16,7 @@ import {
 } from '../service';
 import Mutetoggle from './muteToggle';
 import ListenOnly from './listenOnly';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
@@ -88,6 +90,16 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   const intl = useIntl();
 
   const leaveAudioShourtcut = useShortcut('leaveAudio');
+
+  const {
+    pluginsProvidedAggregatedState,
+  } = useContext(PluginsContext);
+  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownItem[];
+  if (pluginsProvidedAggregatedState.audioSettingsDropdownItems) {
+    audioSettingsDropdownItems = [
+      ...pluginsProvidedAggregatedState.audioSettingsDropdownItems,
+    ];
+  }
 
   const renderDeviceList = useCallback((
     deviceKind: string,
@@ -194,6 +206,33 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
       isSeparator: true,
     })
     .concat(leaveAudioOption);
+
+  audioSettingsDropdownItems.forEach((audioSettingsDropdownItem:
+    PluginSdk.AudioSettingsDropdownItem) => {
+    switch (audioSettingsDropdownItem.type) {
+      case PluginSdk.AudioSettingsDropdownItemType.OPTION: {
+        const audioSettingsDropdownOption = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
+        dropdownListComplete.push({
+          label: audioSettingsDropdownOption.label,
+          iconRight: audioSettingsDropdownOption.icon,
+          onClick: audioSettingsDropdownOption.onClick,
+          key: audioSettingsDropdownOption.id,
+        });
+        break;
+      }
+      case PluginSdk.AudioSettingsDropdownItemType.SEPARATOR: {
+        const audioSettingsDropdownSeparator = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
+        dropdownListComplete.push({
+          isSeparator: true,
+          key: audioSettingsDropdownSeparator.id,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  });
+
   const customStyles = { top: '-1rem' };
   const { isMobile } = deviceInfo;
   return (
