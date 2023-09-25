@@ -287,6 +287,15 @@ class Page {
   async selectSlide(slideOption, timeout = ELEMENT_WAIT_TIME) {
     await this.page.locator(e.skipSlide).selectOption({ label: slideOption }, { timeout });
   }
+
+  async closeAllToastNotifications() {
+    await this.page.waitForSelector(e.whiteboard);
+      const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
+      while (await closeToastBtnLocator.count() > 0) {
+        await this.page.click(e.closeToastBtn);
+        await helpers.sleep(1000);  // expected time to toast notification disappear
+      }
+  }
 }
 
 module.exports = exports = Page;
