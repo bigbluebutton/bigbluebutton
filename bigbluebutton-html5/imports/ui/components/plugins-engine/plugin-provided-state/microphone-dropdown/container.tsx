@@ -1,11 +1,13 @@
 import { useEffect, useState, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-
-import { PluginProvidedStateChildrenProps, PluginProvidedState } from '../../types';
+import {
+  PluginProvidedStateContainerChildProps, PluginProvidedState,
+  PluginProvidedStateContainerChild,
+} from '../../types';
 import { PluginsContext } from '../../../components-data/plugin-context/context';
 
-const MicrophoneDropdownPluginStateContainer = (
-  props: PluginProvidedStateChildrenProps,
+const MicrophoneDropdownPluginStateContainer = ((
+  props: PluginProvidedStateContainerChildProps,
 ) => {
   const {
     uuid,
@@ -46,6 +48,6 @@ const MicrophoneDropdownPluginStateContainer = (
     return setMicrophoneDropdownItems(itemsWithId);
   };
   return null;
-};
+}) as PluginProvidedStateContainerChild;
 
 export default MicrophoneDropdownPluginStateContainer;
