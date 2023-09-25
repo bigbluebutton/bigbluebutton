@@ -74,6 +74,7 @@ const renderPluginItems = (pluginItems) => (
                   label={pluginItem.label}
                   aria-label={pluginItem.tooltip}
                   color="primary"
+                  tooltip={pluginItem.tooltip}
                   onClick={pluginItem.onClick}
                 />
               </Styled.PluginComponentWrapper>
@@ -83,6 +84,7 @@ const renderPluginItems = (pluginItems) => (
             returnComponent = (
               <Styled.PluginComponentWrapper
                 key={pluginItem.id}
+                tooltip={pluginItem.tooltip}
               >
                 <Styled.PluginInfoComponent>
                   {pluginItem.label}
