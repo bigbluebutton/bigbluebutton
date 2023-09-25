@@ -310,9 +310,7 @@ const PresentationMenu = (props) => {
           menuItems.push({
             key: `${item.id}-${index}`,
             label: item.label,
-            tooltip: item.tooltip,
             icon: item.icon,
-            allowed: item.allowed,
             onClick: item.onClick,
           });
           break;
@@ -320,7 +318,6 @@ const PresentationMenu = (props) => {
           menuItems.push({
             key: `${item.id}-${index}`,
             isSeparator: true,
-            allowed: true,
           });
           break;
         default:
