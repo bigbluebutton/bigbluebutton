@@ -11,6 +11,7 @@ import ActionButtonDropdownPluginStateContainer from './action-button-dropdown/c
 import AudioSettingsDropdownPluginStateContainer from './audio-settings-dropdown/container';
 import ActionBarPluginStateContainer from './action-bar/container';
 import PresentationDropdownPluginStateContainer from './presentation-dropdown/container';
+import NavBarPluginStateContainer from './nav-bar/container';
 import OptionsDropdownPluginStateContainer from './options-dropdown/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
@@ -22,6 +23,7 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   AudioSettingsDropdownPluginStateContainer,
   ActionBarPluginStateContainer,
   PresentationDropdownPluginStateContainer,
+  NavBarPluginStateContainer,
   OptionsDropdownPluginStateContainer,
 ];
 
