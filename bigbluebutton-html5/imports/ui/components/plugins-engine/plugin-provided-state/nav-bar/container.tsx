@@ -1,11 +1,14 @@
 import { useEffect, useState, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-import { PluginProvidedStateChildrenProps, PluginProvidedState } from '../../types';
+import {
+  PluginProvidedStateContainerChildProps, PluginProvidedState,
+  PluginProvidedStateContainerChild,
+} from '../../types';
 import { PluginsContext } from '../../../components-data/plugin-context/context';
 
-const NavBarPluginStateContainer = (
-  props: PluginProvidedStateChildrenProps,
+const NavBarPluginStateContainer = ((
+  props: PluginProvidedStateContainerChildProps,
 ) => {
   const {
     uuid,
@@ -46,6 +49,6 @@ const NavBarPluginStateContainer = (
     return setNavBarItems(itemsWithId);
   };
   return null;
-};
+}) as PluginProvidedStateContainerChild;
 
 export default NavBarPluginStateContainer;

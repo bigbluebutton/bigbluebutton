@@ -146,7 +146,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           color={messageContent.color}
           moderator={messageContent.isModerator}
         >
-          {messageContent.name.toLowerCase().slice(0, 2) || ' '}
+          {message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) || '' : ''}
         </ChatAvatar>
       )}
       <ChatContent sameSender={message?.user ? sameSender : false}>
