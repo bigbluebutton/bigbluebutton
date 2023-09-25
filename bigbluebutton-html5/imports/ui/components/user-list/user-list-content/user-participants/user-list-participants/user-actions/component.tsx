@@ -374,7 +374,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'video_off',
-      dataTest: 'ejectCamera'
+      dataTest: 'ejectCamera',
     },
     {
       allowed: allowedToSetAway,
