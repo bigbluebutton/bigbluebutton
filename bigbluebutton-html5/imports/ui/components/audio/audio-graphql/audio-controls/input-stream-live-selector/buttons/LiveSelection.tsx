@@ -215,7 +215,6 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         dropdownListComplete.push({
           label: audioSettingsDropdownOption.label,
           iconRight: audioSettingsDropdownOption.icon,
-          disabled: !audioSettingsDropdownOption.allowed,
           onClick: audioSettingsDropdownOption.onClick,
           key: audioSettingsDropdownOption.id,
         });
