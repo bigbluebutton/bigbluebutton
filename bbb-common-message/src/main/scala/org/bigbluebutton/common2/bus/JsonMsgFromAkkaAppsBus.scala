@@ -1,7 +1,7 @@
 package org.bigbluebutton.common2.bus
 
-import akka.actor.ActorRef
-import akka.event.{ EventBus, LookupClassification }
+import org.apache.pekko.actor.ActorRef
+import org.apache.pekko.event.{ EventBus, LookupClassification }
 
 case class JsonMsgFromAkkaApps(name: String, data: String)
 case class JsonMsgFromAkkaAppsEvent(val topic: String, val payload: JsonMsgFromAkkaApps)

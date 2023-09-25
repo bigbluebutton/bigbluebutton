@@ -1,19 +1,21 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from 'react';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import WriterMenuContainer from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
-import { defineMessages, useIntl } from "react-intl";
-import { layoutSelect } from "/imports/ui/components/layout/context";
-import { Layout } from "/imports/ui/components/layout/layoutTypes";
-import { uid } from "radash";
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import { defineMessages, useIntl } from 'react-intl';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { uid } from 'radash';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Meeting } from '/imports/ui/Types/meeting';
-import { onSaveUserNames, openLearningDashboardUrl, toggleMuteAllUsers, toggleMuteAllUsersExceptPresenter, toggleStatus } from "./service";
-import { User } from "/imports/ui/Types/user";
-import { useCurrentUser } from "/imports/ui/core/hooks/useCurrentUser";
+import {
+  onSaveUserNames, openLearningDashboardUrl, toggleMuteAllUsers, toggleMuteAllUsersExceptPresenter, toggleStatus,
+} from './service';
+import { User } from '/imports/ui/Types/user';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled, isCaptionsEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
@@ -100,45 +102,57 @@ const intlMessages = defineMessages({
   newTab: {
     id: 'app.modal.newTab',
     description: 'label used in aria description',
-  }
+  },
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const { dynamicGuestPolicy } = Meteor.settings.public.app;
 
-const renderModal: React.FC = (
-  isOpen: boolean,
-  setIsOpen: Function,
-  priority: string,
-  Component: React.JSXElementConstructor<any>,
-  otherOptions: object) => {
-  return isOpen ? <Component
-    {...{
-      ...otherOptions,
-      onRequestClose: () => setIsOpen(false),
-      priority,
-      setIsOpen,
-      isOpen
-    }}
-  /> : null
-};
+interface RenderModalProps {
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpen: boolean;
+  priority: string;
+  /* Use 'any' if you don't have specific props;
+   As this props varies in types usage of any is most apropriate */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Component: React.ComponentType<any>;
+  otherOptions: object;
+}
 
+const renderModal: React.FC<RenderModalProps> = ({
+  isOpen, setIsOpen, priority, Component, otherOptions,
+}) => {
+  if (isOpen) {
+    return (
+      <Component
+        onRequestClose={() => setIsOpen(false)}
+        priority={priority}
+        setIsOpen={setIsOpen}
+        isOpen={isOpen}
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...otherOptions}
+      />
+    );
+  }
+  return null;
+};
 interface UserTitleOptionsProps {
   isRTL: boolean;
-  isMeetingMuted: boolean;
-  isBreakout: boolean;
+  isMeetingMuted: boolean | undefined;
+  isBreakout: boolean | undefined;
   isModerator: boolean;
-  hasBreakoutRooms: boolean;
-  meetingName: string;
+  hasBreakoutRooms: boolean | undefined;
+  meetingName: string | undefined;
 }
 
 const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   isRTL,
-  isMeetingMuted,
+  isMeetingMuted = false,
   isBreakout,
   isModerator,
   hasBreakoutRooms,
-  meetingName
+  meetingName,
 }) => {
   const intl = useIntl();
   const { locale } = intl;
@@ -204,7 +218,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         allow: isModerator,
         key: uuids.current[4],
         label: intl.formatMessage(intlMessages.saveUserNames),
-        onClick: onSaveUserNames.bind(null, intl, meetingName),
+        onClick: onSaveUserNames.bind(null, intl, meetingName ?? ''),
         icon: 'download',
         dataTest: 'downloadUserNamesList',
       },
@@ -215,7 +229,11 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         description: intl.formatMessage(intlMessages.clearAllDesc),
         onClick: toggleStatus.bind(null, intl),
         icon: 'clear_status',
-        divider: true,
+      },
+      {
+        key: 'separator-01',
+        isSeparator: true,
+        allow: true,
       },
       {
         allow: canCreateBreakout,
@@ -236,20 +254,26 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'writeClosedCaptions',
       },
       {
+        key: 'separator-02',
+        isSeparator: true,
+        allow: true,
+      },
+      {
         allow: isLearningDashboardEnabled(),
         icon: 'multi_whiteboard',
         iconRight: 'popout_window',
         label: intl.formatMessage(intlMessages.learningDashboardLabel),
-        description: `${intl.formatMessage(intlMessages.learningDashboardDesc)} ${intl.formatMessage(intlMessages.newTab)}`,
+        description: `${intl.formatMessage(intlMessages.learningDashboardDesc)}
+        ${intl.formatMessage(intlMessages.newTab)}`,
         key: uuids.current[8],
         onClick: () => { openLearningDashboardUrl(locale); },
         dividerTop: true,
-        dataTest: 'learningDashboard'
+        dataTest: 'learningDashboard',
       },
     ].filter(({ allow }) => allow);
-
   }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale]);
 
+  const newLocal = 'true';
   return (
     <>
       <BBBMenu
@@ -267,45 +291,65 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         )}
         actions={actions}
         opts={{
-          id: "user-options-dropdown-menu",
+          id: 'user-options-dropdown-menu',
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
           getcontentanchorel: null,
-          fullwidth: "true",
+          fullwidth: newLocal,
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
         }}
       />
-      {renderModal(isCreateBreakoutRoomModalOpen, setCreateBreakoutRoomModalIsOpen, "medium",
-        CreateBreakoutRoomContainer)}
-      {renderModal(isGuestPolicyModalOpen, setGuestPolicyModalIsOpen, "low",
-        GuestPolicyContainer)}
-      {renderModal(isWriterMenuModalOpen, setIsWriterMenuModalOpen, "low",
-        WriterMenuContainer)}
-      {renderModal(isLockViewersModalOpen, setLockViewersModalIsOpen, "low",
-        LockViewersContainer)}
+      {renderModal({
+        isOpen: isCreateBreakoutRoomModalOpen,
+        setIsOpen: setCreateBreakoutRoomModalIsOpen,
+        priority: 'medium',
+        Component: CreateBreakoutRoomContainer,
+        otherOptions: {},
+      })}
+
+      {renderModal({
+        isOpen: isGuestPolicyModalOpen,
+        setIsOpen: setGuestPolicyModalIsOpen,
+        priority: 'low',
+        Component: GuestPolicyContainer,
+        otherOptions: {},
+      })}
+
+      {renderModal({
+        isOpen: isWriterMenuModalOpen,
+        setIsOpen: setIsWriterMenuModalOpen,
+        priority: 'low',
+        Component: WriterMenuContainer,
+        otherOptions: {},
+      })}
+
+      {renderModal({
+        isOpen: isLockViewersModalOpen,
+        setIsOpen: setLockViewersModalIsOpen,
+        priority: 'low',
+        Component: LockViewersContainer,
+        otherOptions: {},
+      })}
+
     </>
   );
 };
 
 const UserTitleOptionsContainer: React.FC = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const meetingInfo = useMeeting((meeting: Partial<Meeting>) => {
-    return {
-      voiceSettings: meeting?.voiceSettings,
-      isBreakout: meeting?.isBreakout,
-      breakoutPolicies: meeting?.breakoutPolicies,
-      name: meeting?.name,
-    }
-  });
+  const meetingInfo = useMeeting((meeting: Partial<Meeting>) => ({
+    voiceSettings: meeting?.voiceSettings,
+    isBreakout: meeting?.isBreakout,
+    breakoutPolicies: meeting?.breakoutPolicies,
+    name: meeting?.name,
+  }));
 
-  const currentUser = useCurrentUser((user: Partial<User>) => {
-    return {
-      userId: user?.userId,
-      isModerator: user?.isModerator,
-    }
-  });
+  const currentUser = useCurrentUser((user: Partial<User>) => ({
+    userId: user?.userId,
+    isModerator: user?.isModerator,
+  }));
   // in case of current user isn't load yet
   if (!currentUser?.isModerator ?? true) return null;
 
@@ -315,10 +359,11 @@ const UserTitleOptionsContainer: React.FC = () => {
       isMeetingMuted={meetingInfo?.voiceSettings?.muteOnStart}
       isBreakout={meetingInfo?.isBreakout}
       isModerator={currentUser?.isModerator ?? false}
-      hasBreakoutRooms={meetingInfo?.breakoutPolicies?.breakoutRooms?.length > 0}
+      hasBreakoutRooms={meetingInfo?.breakoutPolicies?.breakoutRooms !== undefined
+        && meetingInfo.breakoutPolicies.breakoutRooms.length > 0}
       meetingName={meetingInfo?.name}
     />
-  )
+  );
 };
 
 export default UserTitleOptionsContainer;

@@ -3,8 +3,6 @@
 
 ## Overview
 
-#### Note: this document is a draft. BigBlueButton 2.7 is still under development.
-
 BigBlueButton 2.7 offers users improved usability, increased engagement, and more performance.
 
 - **Usability** - making common functions (such as raise hand) easier
@@ -39,7 +37,7 @@ You can re-enable viewing your own webcam at any point.
 
 #### Restore downloading of original presentation
 
-In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you are be able to do both!
+In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you are be able to do both! In fact, you could select between the presentation with the current state of the annotations, the original file that was uploaded, or in case BigBlueButton had to convert the presentation file to PDF, you could also select that intermediate PDF file to be downloaded.
 
 ![You can enable original presentation downloading from the upload dialog](/img/27-enable-download-orig-presentation.png)
 
@@ -60,6 +58,12 @@ Setting up a timer for four minutes.
 Everyone sees the timer as it counts down.
 
 ![Everyone seeing 4 minutes timer](/img/27-timer-4mins.png)
+
+#### Wake lock
+
+When using BigBlueButton on a mobile device you can now enable Wake lock (if your mobile browser supports the API). When enabled, your device's screen will remain on -- i.e. will not dim -- and therefore your media connections will not be interrupted.
+
+![Enable Wake lock from the Settings modal](/img/27-enable-wake-lock.png)
 
 
 ### Engagement
@@ -127,6 +131,7 @@ Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the follo
 - React 18
 - NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
 - Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
+- Meteor 2.13
 - Grails 5.3.2
 - GORM 7.3.1
 - Groovy 3.0.11
@@ -136,6 +141,8 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0)
+- [2.7.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.2)
 - [2.7.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.1)
 - [2.7.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.3)
 - [2.7.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.2)

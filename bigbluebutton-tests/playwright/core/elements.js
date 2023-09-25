@@ -94,7 +94,8 @@ exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
-exports.chatButton = 'div[data-test="chatButton"]';
+exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
+exports.chatButton = 'button[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
 exports.chatPollMessageText = 'p[data-test="chatPollMessageText"]';
 exports.chatMessages = 'div[data-test="chatMessages"]';
@@ -105,15 +106,15 @@ exports.chatCopy = 'li[data-test="chatCopy"]';
 exports.chatTitle = 'header[data-test="chatTitle"]';
 exports.startPrivateChat = 'li[data-test="startPrivateChat"]';
 exports.publicChat = 'div[data-test="publicChat"]';
-exports.privateChat = 'div[data-test="privateChat"]';
+exports.privateChat = 'div[data-test="messageContent"] p>>nth=1';
 exports.hidePublicChat = 'button[data-test="hidePublicChat"]';
 exports.hidePrivateChat = 'button[data-test="hidePrivateChat"]';
 exports.closePrivateChat = 'button[data-test="closePrivateChat"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
-exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
+exports.errorTypingIndicator = 'div[data-test="errorTypingIndicator"]';
+exports.chatUserMessageText = 'div[data-test="messageContent"] p';
 exports.secondChatUserMessageText = 'p[data-test="chatUserMessageText"]>>nth=1';
-exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
-exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
+exports.chatWelcomeMessageText = 'button[data-test="closePopup"]';
 exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
 exports.sendLobbyMessage = 'div[data-test="lobbyMessage"] >> button';
 exports.lobbyMessage = 'div[data-test="lobbyMessage"] >> p';
@@ -265,6 +266,8 @@ exports.answerE = 'div[data-test="numberOfVotes"]>>nth=4';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
+exports.presentationPPTX = 'BBB.pptx';
+exports.presentationTXT = 'helloWorld.txt';
 exports.presentationPlaceholderLabel = 'There is no currently active presentation';
 exports.noPresentationLabel = 'There is no currently active presentation';
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
@@ -317,7 +320,7 @@ exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
 
 // User
-const userAvatar = 'div[data-test="userAvatar"]';
+const userAvatar = 'div[data-test-avatar="userAvatar"]';
 const networkDataContainer = 'div[data-test="networkDataContainer"]';
 exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
@@ -370,7 +373,8 @@ exports.error403removedLabel = 'You have been removed from the meeting';
 exports.removeUser = 'li[data-test="removeUser"]';
 exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]';
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
-exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
+exports.userBannedMessage1 = 'div[id="app"] >> div >> div:nth-child(1)';
+exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
@@ -472,6 +476,12 @@ exports.wbColorRed = 'button[id="TD-Styles-Color-Swatch-red"]';
 exports.wbFillDrawing = 'button[id="TD-Styles-Fill"]';
 exports.wbDashDotted = 'div[id="TD-Styles-Dash-dotted"]';
 exports.wbSizeLarge = 'div[id="TD-Styles-Dash-large"]';
+exports.wbOptions = 'button[id="TD-Tools-Dots"]';
+exports.wbDuplicate = 'span[id="TD-Tools-Copy"]';
+exports.wbRotate = 'span[id="TD-Tools-Rotate"]';
+exports.wbMoveBackward = 'span[id="TD-Tools-ArrowDown"]';
+exports.wbMoveForward = 'span[id="TD-Tools-ArrowUp"]';
+exports.wbMoveToFront = 'span[id="TD-Tools-PinTop"]';
 exports.wbPaste = 'button[id="TD-ContextMenu-Paste"]';
 
 // About modal
@@ -480,7 +490,7 @@ exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
 
 // Help button
 exports.helpButton = 'li[data-test="helpButton"]';
-exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'
+exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton';
 
 // Dark mode
 exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';

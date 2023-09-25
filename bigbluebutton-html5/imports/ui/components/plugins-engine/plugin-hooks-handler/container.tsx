@@ -1,44 +1,64 @@
+/* eslint-disable no-undef */
+// Rule applied because EvenetListener is no undefined at all times.
 import React, { useEffect, useState } from 'react';
-import CurrentPresentationHookContainer from './use-current-presentation/container'
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import CurrentPresentationHookContainer from './use-current-presentation/container';
+import LoadedUserListHookContainer from './use-loaded-user-list/container';
+import CurrentUserHookContainer from './use-current-user/container';
 
-const PluginHooksHandlerContainer = () => {
+const hooksMap:{
+  [key: string]: React.FunctionComponent
+} = {
+  [PluginSdk.Internal.BbbHooks.UseCurrentPresentation]: CurrentPresentationHookContainer,
+  [PluginSdk.Internal.BbbHooks.UseLoadedUserList]: LoadedUserListHookContainer,
+  [PluginSdk.Internal.BbbHooks.UseCurrentUser]: CurrentUserHookContainer,
+};
 
-  const [numberOfActiveCurrentPresentationHookSubscriptions,
-    setNumberOfActiveCurrentPresentationHookSubscriptions] = useState(0)
+const PluginHooksHandlerContainer: React.FC = () => {
+  const [
+    hookUtilizationCount,
+    setHookUtilizationCount,
+  ] = useState(new Map<string, number>());
 
   useEffect(() => {
+    const updateHookUsage = (hookName: string, delta: number):void => {
+      setHookUtilizationCount((mapObj) => {
+        const newMap = new Map<string, number>(mapObj.entries());
+        newMap.set(hookName, (mapObj.get(hookName) || 0) + delta);
+        return newMap;
+      });
+    };
+
     const subscribeHandler: EventListener = (
       (event: PluginSdk.CustomEventHookWrapper<void>) => {
-        switch(event.detail.hook){
-          case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
-            setNumberOfActiveCurrentPresentationHookSubscriptions((c) => c + 1)
-            break;
-        }
+        updateHookUsage(event.detail.hook, 1);
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
       (event: PluginSdk.CustomEventHookWrapper<void>) => {
-        switch(event.detail.hook){
-          case PluginSdk.Internal.BbbHooks.UseCurrentPresentation:
-            setNumberOfActiveCurrentPresentationHookSubscriptions((c) => c - 1)
-            break;
-        }
+        updateHookUsage(event.detail.hook, -1);
       }) as EventListener;
 
     window.addEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, subscribeHandler);
-    window.addEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler );
+    window.addEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler);
     return () => {
       window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, subscribeHandler);
       window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler);
-    }
-  }, [])
-  
+    };
+  }, []);
+
   return (
     <>
-      { numberOfActiveCurrentPresentationHookSubscriptions > 0 ?
-        <CurrentPresentationHookContainer /> : null }
+      {
+        Object.keys(hooksMap)
+          .filter((hookName: string) => hookUtilizationCount.get(hookName)
+            && hookUtilizationCount.get(hookName)! > 0)
+          .map((hookName: string) => {
+            const HookComponent = hooksMap[hookName];
+            return <HookComponent key={hookName} />;
+          })
+      }
     </>
   );
 };
 
-export default PluginHooksHandlerContainer
+export default PluginHooksHandlerContainer;

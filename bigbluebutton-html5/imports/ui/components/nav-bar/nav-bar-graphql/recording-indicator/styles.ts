@@ -13,21 +13,31 @@ import {
   colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const RecordingIndicatorIcon = styled.span`
+interface RecordingIndicatorIconProps {
+  titleMargin: boolean;
+}
+
+interface RecordingIndicatorProps {
+  recording: boolean;
+}
+
+interface RecordingStatusViewOnlyProps {
+  recording: boolean;
+}
+
+const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
   width: ${fontSizeLarge};
   height: ${fontSizeLarge};
   font-size: ${fontSizeBase};
 
-  ${({ titleMargin }) =>
-    titleMargin &&
-    `
+  ${({ titleMargin }) => titleMargin && `
     [dir="ltr"] & {
       margin-right: ${smPaddingX};
     }
   `}
 `;
 
-const RecordingControl = styled.div`
+const RecordingControl = styled.div<RecordingIndicatorProps>`
   display: flex;
   align-items: center;
 
@@ -48,9 +58,7 @@ const RecordingControl = styled.div`
     box-shadow: 0 0 0 ${borderSize} ${colorPrimary};
   }
 
-  ${({ recording }) =>
-    recording &&
-    `
+  ${({ recording }) => recording && `
     padding: 5px;
     background-color: ${colorDangerDark};
     border: ${borderSizeLarge} solid ${colorDangerDark};
@@ -62,9 +70,7 @@ const RecordingControl = styled.div`
     }
   `}
 
-  ${({ recording }) =>
-    !recording &&
-    `
+  ${({ recording }) => !recording && `
     padding: 7px;
     border: ${borderSizeSmall} solid ${colorWhite};
     border-radius: 2em 2em;
@@ -138,12 +144,10 @@ const RecordingIndicator = styled.div`
   }
 `;
 
-const RecordingStatusViewOnly = styled.div`
+const RecordingStatusViewOnly = styled.div<RecordingStatusViewOnlyProps>`
   display: flex;
 
-  ${({ recording }) =>
-    recording &&
-    `
+  ${({ recording }) => recording && `
     padding: 5px;
     background-color: ${colorDangerDark};
     border: ${borderSizeLarge} solid ${colorDangerDark};

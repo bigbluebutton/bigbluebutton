@@ -34,6 +34,8 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         msg.body.code,
         presVO,
       )
+
+      val originalDownloadableExtension = pres.name.split("\\.").last
       PresentationSender.broadcastSetPresentationDownloadableEvtMsg(
         bus,
         meetingId,
@@ -41,15 +43,16 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         msg.header.userId,
         pres.id,
         pres.downloadable,
-        pres.name
+        pres.name,
+        originalDownloadableExtension
       )
 
       val presWithConvertedName = PresentationInPod(pres.id, pres.name, pres.current, pres.pages,
-        pres.downloadable, pres.removable, msg.body.presentation.filenameConverted)
+        pres.downloadable, pres.removable, msg.body.presentation.filenameConverted, uploadCompleted = true, numPages = pres.numPages, errorDetails = Map.empty)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
 
-      PresPresentationDAO.insert(meetingId, pres)
+      PresPresentationDAO.insertOrUpdate(meetingId, presWithConvertedName)
 
       state.update(pods)
     }

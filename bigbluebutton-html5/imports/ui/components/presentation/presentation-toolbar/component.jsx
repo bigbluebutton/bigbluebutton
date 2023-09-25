@@ -97,6 +97,12 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.state = {
+      wasFTWActive: false,
+    };
+
+    this.setWasActive = this.setWasActive.bind(this);
+    this.handleFTWSlideChange = this.handleFTWSlideChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
@@ -112,18 +118,40 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { zoom, setIsPanning, fitToWidth } = this.props;
+    const { zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum } = this.props;
+    const { wasFTWActive } = this.state;
+
     if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom && !fitToWidth) setIsPanning();
+
+    if ((prevProps?.currentSlideNum !== currentSlideNum) && (!fitToWidth && wasFTWActive)) {
+      setTimeout(() => {
+        fitToWidthHandler();
+        this.setWasActive(false);
+      }, 150)
+    }
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
   }
 
+  setWasActive(wasFTWActive) {
+    this.setState({ wasFTWActive });
+  }
+
+  handleFTWSlideChange() {
+    const { fitToWidth, fitToWidthHandler } = this.props;
+    if (fitToWidth) {
+      fitToWidthHandler();
+      this.setWasActive(fitToWidth);
+    }
+  }
+
   handleSkipToSlideChange(event) {
     const { skipToSlide, podId } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
+    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum, podId);
   }
@@ -141,13 +169,84 @@ class PresentationToolbar extends PureComponent {
     return addWhiteboardGlobalAccess(whiteboardId);
   }
 
+  fullscreenToggleHandler() {
+    const {
+      fullscreenElementId,
+      isFullscreen,
+      layoutContextDispatch,
+      fullscreenAction,
+      fullscreenRef,
+      handleToggleFullScreen,
+    } = this.props;
+
+    handleToggleFullScreen(fullscreenRef);
+    const newElement = isFullscreen ? '' : fullscreenElementId;
+
+    layoutContextDispatch({
+      type: fullscreenAction,
+      value: {
+        element: newElement,
+        group: '',
+      },
+    });
+  }
+
+  nextSlideHandler(event) {
+    const {
+      nextSlide, currentSlideNum, numberOfSlides, podId, endCurrentPoll
+    } = this.props;
+
+    this.handleFTWSlideChange();
+    if (event) event.currentTarget.blur();
+    endCurrentPoll();
+    nextSlide(currentSlideNum, numberOfSlides, podId);
+  }
+
+  previousSlideHandler(event) {
+    const {
+      previousSlide, currentSlideNum, podId, endCurrentPoll
+    } = this.props;
+
+    this.handleFTWSlideChange();
+    if (event) event.currentTarget.blur();
+    endCurrentPoll();
+    previousSlide(currentSlideNum, podId);
+  }
+
+  switchSlide(event) {
+    const { target, which } = event;
+    const isBody = target.nodeName === 'BODY';
+
+    if (isBody) {
+      switch (which) {
+        case KEY_CODES.ARROW_LEFT:
+        case KEY_CODES.PAGE_UP:
+          this.previousSlideHandler();
+          break;
+        case KEY_CODES.ARROW_RIGHT:
+        case KEY_CODES.PAGE_DOWN:
+          this.nextSlideHandler();
+          break;
+        case KEY_CODES.ENTER:
+          this.fullscreenToggleHandler();
+          break;
+        default:
+      }
+    }
+  }
+
+  change(value) {
+    const { zoomChanger } = this.props;
+    zoomChanger(value);
+  }
+
   renderToolbarPluginItems() {
     let pluginProvidedItems = [];
     if (this.props) {
       const {
-        pluginProvidedPresentationToolbarItems: ppb,
+        pluginProvidedPresentationToolbarItems,
       } = this.props;
-      pluginProvidedItems = ppb;
+      pluginProvidedItems = pluginProvidedPresentationToolbarItems;
     }
 
     return pluginProvidedItems?.map((ppb) => {
@@ -183,75 +282,6 @@ class PresentationToolbar extends PureComponent {
       }
       return componentToReturn;
     });
-  }
-
-  fullscreenToggleHandler() {
-    const {
-      fullscreenElementId,
-      isFullscreen,
-      layoutContextDispatch,
-      fullscreenAction,
-      fullscreenRef,
-      handleToggleFullScreen,
-    } = this.props;
-
-    handleToggleFullScreen(fullscreenRef);
-    const newElement = isFullscreen ? '' : fullscreenElementId;
-
-    layoutContextDispatch({
-      type: fullscreenAction,
-      value: {
-        element: newElement,
-        group: '',
-      },
-    });
-  }
-
-  nextSlideHandler(event) {
-    const {
-      nextSlide, currentSlideNum, numberOfSlides, podId, endCurrentPoll,
-    } = this.props;
-
-    if (event) event.currentTarget.blur();
-    endCurrentPoll();
-    nextSlide(currentSlideNum, numberOfSlides, podId);
-  }
-
-  previousSlideHandler(event) {
-    const {
-      previousSlide, currentSlideNum, podId, endCurrentPoll,
-    } = this.props;
-
-    if (event) event.currentTarget.blur();
-    endCurrentPoll();
-    previousSlide(currentSlideNum, podId);
-  }
-
-  switchSlide(event) {
-    const { target, which } = event;
-    const isBody = target.nodeName === 'BODY';
-
-    if (isBody) {
-      switch (which) {
-        case KEY_CODES.ARROW_LEFT:
-        case KEY_CODES.PAGE_UP:
-          this.previousSlideHandler();
-          break;
-        case KEY_CODES.ARROW_RIGHT:
-        case KEY_CODES.PAGE_DOWN:
-          this.nextSlideHandler();
-          break;
-        case KEY_CODES.ENTER:
-          this.fullscreenToggleHandler();
-          break;
-        default:
-      }
-    }
-  }
-
-  change(value) {
-    const { zoomChanger } = this.props;
-    zoomChanger(value);
   }
 
   renderAriaDescs() {

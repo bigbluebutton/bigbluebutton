@@ -1,7 +1,7 @@
 export interface Cameras {
   streamId: string;
   meetingId: string;
-  userId: string;  
+  userId: string;
 }
 
 export interface PresPagesWritable {
@@ -64,4 +64,7 @@ export interface User {
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
   clientType: string;
+  size: number;
+  away: boolean;
+  raiseHand: boolean;
 }

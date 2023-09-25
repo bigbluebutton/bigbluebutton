@@ -317,7 +317,10 @@ class SettingsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.hotkeysLabel),
         description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => this.setShortcutHelpModalIsOpen(true),
-        divider: true,
+      },
+      {
+        key: 'separator-01',
+        isSeparator: true,
       },
     );
 

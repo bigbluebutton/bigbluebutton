@@ -36,7 +36,7 @@ export default withTracker(() => {
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchTogglePresentationDownloadable,
+    dispatchChangePresentationDownloadable,
     exportPresentation,
   } = Service;
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
@@ -56,7 +56,7 @@ export default withTracker(() => {
     renderPresentationItemStatus: PresUploaderToast.renderPresentationItemStatus,
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchTogglePresentationDownloadable,
+    dispatchChangePresentationDownloadable,
     exportPresentation,
     isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,

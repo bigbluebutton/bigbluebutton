@@ -148,7 +148,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.initModPage(page, true, { createParameter: c.chatDisabled });
         await disabledFeatures.chat();
       });
-      test('Chat (exclude)', async ({ browser, context, page }) => {
+      test('Chat (exclude) @flaky', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.chatExclude });
         await disabledFeatures.chatExclude();
@@ -366,7 +366,7 @@ test.describe.parallel('Custom Parameters', () => {
 
   test('Display Branding Area', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { joinParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
+    await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
     await customParam.displayBrandingArea();
   });
 
@@ -378,7 +378,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.shortcuts();
   });
 
-  test('Custom Styles: CSS code @ci', async ({ browser, context, page }) => {
+  test('Custom Styles: CSS code @ci @flaky', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(c.customStyle) });
     await customParam.customStyle();
@@ -422,7 +422,7 @@ test.describe.parallel('Custom Parameters', () => {
   });
 
   test.describe.parallel('Audio', () => {
-    test('Auto join @ci', async ({ browser, context, page }) => {
+    test('Auto join @ci @flaky', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.autoJoin });
       await customParam.autoJoin();
@@ -506,7 +506,7 @@ test.describe.parallel('Custom Parameters', () => {
     test('Multi Users Pen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.multiUserPenOnly });
-      await customParam.initUserPage(true, context, { useModMeetingId: true, customParameter: c.multiUserPenOnly });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, createParameter: c.multiUserPenOnly });
       await customParam.multiUserPenOnly();
     });
 

@@ -296,9 +296,10 @@ class VideoPlayer extends Component {
     const { playing } = this.state;
 
     const curTime = this.getCurrentTime();
+    const rate = this.getCurrentPlaybackRate();
 
     if (isPresenter && !playing) {
-      this.sendSyncMessage('play', { time: curTime });
+      this.sendSyncMessage('play', { rate, time: curTime });
     }
     this.setState({ playing: true });
 
@@ -314,9 +315,10 @@ class VideoPlayer extends Component {
     const { playing } = this.state;
 
     const curTime = this.getCurrentTime();
+    const rate = this.getCurrentPlaybackRate();
 
     if (isPresenter && playing) {
-      this.sendSyncMessage('stop', { time: curTime });
+      this.sendSyncMessage('stop', { rate, time: curTime });
     }
     this.setState({ playing: false });
 

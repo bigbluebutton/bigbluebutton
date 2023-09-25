@@ -1,29 +1,29 @@
-import React, {
-    createContext,
-    useState,
-} from 'react';
-
-import { PluginProvidedState } from '/imports/ui/components/plugins-engine/types'
-
-import { PluginsContextType } from './types';
+import React, { createContext, useState } from 'react';
+import { PluginProvidedState } from '/imports/ui/components/plugins-engine/types';
+import { PluginsContextType, UserListGraphqlVariables } from './types';
 
 export const PluginsContext = createContext<PluginsContextType>({} as PluginsContextType);
 
-export const PluginsContextProvider = (props: any) => {
-  const [pluginsProvidedAggregatedState,
-    setPluginsProvidedAggregatedState] = useState<PluginProvidedState>(
-      {} as PluginProvidedState,
-    );
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const PluginsContextProvider = ({ children, ...props }: any) => {
+  const [pluginsProvidedAggregatedState, setPluginsProvidedAggregatedState] = useState<PluginProvidedState>(
+    {} as PluginProvidedState,
+  );
+  const [userListGraphqlVariables, setUserListGraphqlVariables] = useState<UserListGraphqlVariables>(
+    {} as UserListGraphqlVariables,
+  );
+
   return (
-    <PluginsContext.Provider value={
-            {
-                ...props,
-                setPluginsProvidedAggregatedState,
-                pluginsProvidedAggregatedState,
-            }
-        }
+    <PluginsContext.Provider
+      value={{
+        ...props,
+        setPluginsProvidedAggregatedState,
+        pluginsProvidedAggregatedState,
+        userListGraphqlVariables,
+        setUserListGraphqlVariables,
+      }}
     >
-      {props.children}
+      {children}
     </PluginsContext.Provider>
   );
 };

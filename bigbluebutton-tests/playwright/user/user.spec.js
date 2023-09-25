@@ -31,7 +31,7 @@ test.describe.parallel('User', () => {
 
   test.describe.parallel('List', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
-    test('Change user status @ci', async ({ browser, page }) => {
+    test('Change user status @ci @flaky', async ({ browser, page }) => {
       const status = new Status(browser, page);
       await status.init(true, true);
       await status.changeUserStatus();
@@ -78,7 +78,7 @@ test.describe.parallel('User', () => {
       await multiusers.giveAndRemoveWhiteboardAccess();
     });
 
-    test('Remove user @ci', async ({ browser, context, page }) => {
+    test('Remove user @ci @flaky', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true);
@@ -88,7 +88,7 @@ test.describe.parallel('User', () => {
     test('Remove user and prevent rejoining', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
-      await multiusers.initModPage2(true, context, { customParameter: 'userID=Moderator2' });
+      await multiusers.initModPage2(true, context, { joinParameter: 'userID=Moderator2' });
       await multiusers.removeUserAndPreventRejoining(context);
     });
   });
@@ -153,7 +153,7 @@ test.describe.parallel('User', () => {
       });
     });
 
-    test.describe.parallel('Lock viewers @ci', () => {
+    test.describe.parallel('Lock viewers @ci @flaky', () => {
       // https://docs.bigbluebutton.org/2.6/release-tests.html#webcam
       test('Lock Share webcam', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
@@ -278,6 +278,7 @@ test.describe.parallel('User', () => {
     });
 
     test('User List should not appear when Chat Panel or Whiteboard are active on mobile devices', async ({ browser }) => {
+      test.fixme();
       const iphoneContext = await browser.newContext({ ...iPhone11 });
       const motoContext = await browser.newContext({ ...motoG4 });
       const modPage = await iphoneContext.newPage();

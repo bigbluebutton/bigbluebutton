@@ -1,10 +1,10 @@
 package org.bigbluebutton.core
 
 import java.io.{ PrintWriter, StringWriter }
-import akka.actor._
-import akka.actor.ActorLogging
-import akka.actor.SupervisorStrategy.Resume
-import akka.util.Timeout
+import org.apache.pekko.actor._
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.SupervisorStrategy.Resume
+import org.apache.pekko.util.Timeout
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.bus._
@@ -13,7 +13,7 @@ import org.bigbluebutton.SystemConfiguration
 
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.db.{ MeetingDAO, UserDAO }
+import org.bigbluebutton.core.db.{ DatabaseConnection, MeetingDAO }
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
@@ -56,6 +56,7 @@ class BigBlueButtonActor(
 
   override def preStart() {
     bbbMsgBus.subscribe(self, meetingManagerChannel)
+    DatabaseConnection.initialize()
   }
 
   override def postStop() {

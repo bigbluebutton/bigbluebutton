@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import { indexOf, without } from '/imports/utils/array-utils';
-import { throttle } from '/imports/utils/throttle';;
+import { throttle } from '/imports/utils/throttle';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -51,7 +52,7 @@ export const startUserTyping = throttle(
     makeCall('startUserTyping', chatId);
   },
   START_TYPING_THROTTLE_INTERVAL,
-  { leading: true, trailing: false }
+  { leading: true, trailing: false },
 );
 export const stopUserTyping = () => makeCall('stopUserTyping');
 

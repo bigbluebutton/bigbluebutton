@@ -20,7 +20,7 @@ trait StopExternalVideoPubMsgHdlr extends RightsManagementTrait {
     } else {
       ExternalVideoModel.clear(liveMeeting.externalVideoModel)
 
-      ExternalVideoDAO.updateStopped(liveMeeting.props.meetingProp.intId)
+      ExternalVideoDAO.updateStoppedSharing(liveMeeting.props.meetingProp.intId)
 
       //broadcastEvent
       val msgEvent = MsgBuilder.buildStopExternalVideoEvtMsg(liveMeeting.props.meetingProp.intId, msg.header.userId)

@@ -1,4 +1,4 @@
-name: Publish Test Results
+name: Automated tests - publish results
 on:
   workflow_run:
     workflows:

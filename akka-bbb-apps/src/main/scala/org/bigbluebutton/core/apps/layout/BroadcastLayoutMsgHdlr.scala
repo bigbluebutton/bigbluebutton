@@ -5,6 +5,7 @@ import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.LayoutDAO
 
 trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>
@@ -34,6 +35,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         Layouts.setPresentationVideoRate(liveMeeting.layouts, msg.body.presentationVideoRate)
         Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
+        LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
         sendBroadcastLayoutEvtMsg(msg.header.userId)
       }
     }

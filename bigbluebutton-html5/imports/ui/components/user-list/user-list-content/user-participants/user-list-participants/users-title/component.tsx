@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -21,7 +20,7 @@ const UsersTitle: React.FC<UsersTitleProps> = ({ count }) => {
     <Styled.Container>
       <Styled.SmallTitle>
         {intl.formatMessage(messages.usersTitle)}
-        {` (${count.toLocaleString("en-US", { notation: "standard" })})`}
+        {` (${count.toLocaleString('en-US', { notation: 'standard' })})`}
       </Styled.SmallTitle>
     </Styled.Container>
   );
