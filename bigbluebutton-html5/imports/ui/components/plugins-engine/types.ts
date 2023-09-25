@@ -30,6 +30,7 @@ export interface PluginProvidedState {
     presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
     userListDropdownItems: PluginSdk.UserListDropdownItem[];
     actionButtonDropdownItems: PluginSdk.ActionButtonDropdownItem[];
+    actionsBarItems: PluginSdk.ActionsBarItem[];
 }
 
 /**
