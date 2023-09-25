@@ -336,16 +336,13 @@ class OptionsDropdown extends PureComponent {
             key: item.id,
             icon: item.icon,
             onClick: item.onClick,
-            tooltip: item.tooltip,
             label: item.label,
-            allowed: item.allowed,
           });
           break;
         case PluginSdk.OptionsDropdownItemType.SEPARATOR:
           this.menuItems.push({
             key: item.id,
             isSeparator: true,
-            allowed: true,
           });
           break;
         default:
