@@ -154,7 +154,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     currentUser,
     lockSettings,
     usersPolicies,
-    isBreakout
+    isBreakout,
   );
   const {
     allowedToChangeStatus,
@@ -171,7 +171,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowedToRemove,
     allowedToEjectCameras,
     allowedToSetAway,
-  } = actionsnPermitions
+  } = actionsnPermitions;
 
   const {
     disablePrivateChat,
@@ -288,7 +288,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        changeWhiteboardAccess(user.userId, user.presPagesWritable.length > 0)
+        changeWhiteboardAccess(user.userId, user.presPagesWritable.length > 0);
         setSelected(false);
       },
       icon: 'pen_tool',
@@ -356,11 +356,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'remove',
       label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
       onClick: () => {
-        setIsConfirmationModalOpen(true)
+        setIsConfirmationModalOpen(true);
         setSelected(false);
       },
       icon: 'circle_close',
-      dataTest: 'removeUser'
+      dataTest: 'removeUser',
     },
     {
       allowed: allowedToEjectCameras
@@ -383,7 +383,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'time',
-    },    
+    },
     ...userListDropdownItems.filter(
       (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
     ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
@@ -434,7 +434,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     ...Object.keys(EMOJI_STATUSES).map((key) => ({
       allowed: showNestedOptions,
-      key: key,
+      key,
       label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${key}Label` }),
       onClick: () => {
         setEmojiStatus(user.userId, key);
@@ -447,8 +447,8 @@ const UserActions: React.FC<UserActionsProps> = ({
   ];
 
   const actions = showNestedOptions
-    ? nestedOptions.filter(key => key.allowed)
-    : dropdownOptions.filter(key => key.allowed);
+    ? nestedOptions.filter((key) => key.allowed)
+    : dropdownOptions.filter((key) => key.allowed);
   if (!actions.length) {
     return (
       <span>
@@ -486,21 +486,23 @@ const UserActions: React.FC<UserActionsProps> = ({
         }}
         open={selected}
       />
-      {isConfirmationModalOpen ? <ConfirmationModal
-        intl={intl}
-        titleMessageId="app.userList.menu.removeConfirmation.label"
-        titleMessageExtra={user.name}
-        checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
-        confirmParam={user.userId}
-        onConfirm={removeUser}
-        confirmButtonDataTest="removeUserConfirmation"
-        {...{
-          onRequestClose: () => setIsConfirmationModalOpen(false),
-          priority: "low",
-          setIsOpen: setIsConfirmationModalOpen,
-          isOpen: isConfirmationModalOpen
-        }}
-      /> : null}
+      {isConfirmationModalOpen ? (
+        <ConfirmationModal
+          intl={intl}
+          titleMessageId="app.userList.menu.removeConfirmation.label"
+          titleMessageExtra={user.name}
+          checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+          confirmParam={user.userId}
+          onConfirm={removeUser}
+          confirmButtonDataTest="removeUserConfirmation"
+          {...{
+            onRequestClose: () => setIsConfirmationModalOpen(false),
+            priority: 'low',
+            setIsOpen: setIsConfirmationModalOpen,
+            isOpen: isConfirmationModalOpen,
+          }}
+        />
+      ) : null}
     </div>
   );
 };

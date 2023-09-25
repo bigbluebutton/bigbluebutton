@@ -43,9 +43,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     margin: ${borderSize} 0 0 ${borderSize};
     margin-top: calc(${lineHeightComputed} / 3);
   `}
-  ${({ sameSender }) =>
-    !sameSender &&
-    `
+  ${({ sameSender }) => !sameSender && `
     padding-top:${lineHeightComputed};
   `}
   [dir="rtl"] & {
@@ -63,7 +61,6 @@ export const ChatContent = styled.div<ChatContentProps>`
     margin-left: 2.6rem;
   `}
 `;
-
 
 export const ChatAvatar = styled.div<ChatAvatarProps>`
   flex: 0 0 2.25rem;
@@ -123,10 +120,11 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   `}
 
   // ================ image ================
-  ${({ avatar, emoji }) => avatar?.length !== 0 && !emoji && css`
+  ${({ avatar, emoji, color }) => avatar?.length !== 0 && !emoji && css`
       background-image: url(${avatar});
       background-repeat: no-repeat;
       background-size: contain;
+      border: 2px solid ${color};
     `}
   // ================ image ================
 

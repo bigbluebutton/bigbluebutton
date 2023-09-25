@@ -1,7 +1,7 @@
 package org.bigbluebutton.common2.redis
 
-import akka.actor.ActorSystem
-import akka.event.Logging
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.event.Logging
 
 class RedisPublisher(
     system:      ActorSystem,

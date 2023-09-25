@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import styled from 'styled-components';
 import {
   colorBlueLight,
@@ -122,7 +123,6 @@ const EmojiPickerWrapper = styled.div`
     }
   }
 `;
-
 
 const Error = styled.div`
   color: ${colorDanger};

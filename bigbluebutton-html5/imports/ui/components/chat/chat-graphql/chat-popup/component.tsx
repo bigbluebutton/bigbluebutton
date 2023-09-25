@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useEffect } from 'react';
 import { PopupContainer, PopupContents } from './styles';
 import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
@@ -8,8 +9,8 @@ import { Layout } from '../../../layout/layoutTypes';
 import { ChatCommands } from '/imports/ui/core/enums/chat';
 
 interface ChatPopupProps {
-  welcomeMessage?: string | null;
-  welcomeMsgForModerators?: string | null;
+  welcomeMessage: string | null;
+  welcomeMsgForModerators: string | null;
 }
 
 const WELCOME_MSG_KEY = 'welcomeMsg';
@@ -18,31 +19,29 @@ const WELCOME_MSG_FOR_MODERATORS_KEY = 'welcomeMsgForModerators';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
-
 const setWelcomeMsgsOnSession = (key: string, value: boolean) => {
   sessionStorage.setItem(key, String(value));
 };
 
-const isBoolean = (v: any): boolean => {
+const isBoolean = (v: unknown): boolean => {
   if (v === 'true') {
     return true;
-  } else if (v === 'false') {
+  } if (v === 'false') {
     return false;
   }
   // if v is not difined it shouldn't be considered on comparation, so it returns true
   return true;
-}
+};
 
 const ChatPopup: React.FC<ChatPopupProps> = ({
   welcomeMessage,
   welcomeMsgForModerators,
 }) => {
-
   const [showWelcomeMessage, setShowWelcomeMessage] = React.useState(
-    welcomeMessage && isBoolean(sessionStorage.getItem(WELCOME_MSG_KEY))
+    welcomeMessage && isBoolean(sessionStorage.getItem(WELCOME_MSG_KEY)),
   );
   const [showWelcomeMessageForModerators, setShowWelcomeMessageForModerators] = React.useState(
-    welcomeMsgForModerators && isBoolean(sessionStorage.getItem(WELCOME_MSG_FOR_MODERATORS_KEY))
+    welcomeMsgForModerators && isBoolean(sessionStorage.getItem(WELCOME_MSG_FOR_MODERATORS_KEY)),
   );
   useEffect(() => {
     const eventCallback = () => {
@@ -58,8 +57,9 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
     window.addEventListener(ChatCommands.RESTORE_WELCOME_MESSAGES, eventCallback);
 
     return () => {
+      // eslint-disable-next-line no-restricted-globals
       removeEventListener(ChatCommands.RESTORE_WELCOME_MESSAGES, eventCallback);
-    }
+    };
   }, []);
   if (!showWelcomeMessage && !showWelcomeMessageForModerators) return null;
   return (

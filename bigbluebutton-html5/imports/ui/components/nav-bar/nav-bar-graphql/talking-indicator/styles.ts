@@ -27,6 +27,7 @@ import { phoneLandscape } from '/imports/ui/stylesheets/styled-components/breakp
 import Button from '/imports/ui/components/common/button/component';
 import Icon from '/imports/ui/components/common/icon/component';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - as button comes from JS, we can't provide its props
 const TalkingIndicatorButton = styled(Button)`
   display: flex;
