@@ -8,7 +8,7 @@ import {
   ChatMessagePublicSubscriptionResponse,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
-import ChatMessage from './chat-message/componet';
+import ChatMessage from './chat-message/component';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
