@@ -10,6 +10,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Settings from '/imports/ui/services/settings';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
@@ -60,6 +61,10 @@ const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
+  cameraSettingsDropdownItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    type: PropTypes.string,
+  })).isRequired,
 };
 
 const JoinVideoButton = ({
@@ -68,6 +73,7 @@ const JoinVideoButton = ({
   status,
   disableReason,
   updateSettings,
+  cameraSettingsDropdownItems,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -163,6 +169,27 @@ const JoinVideoButton = ({
     if (actions.length === 0) return null;
     const customStyles = { top: '-3.6rem' };
 
+    cameraSettingsDropdownItems.forEach((plugin) => {
+      switch (plugin.type) {
+        case PluginSdk.CameraSettingsDropdownItemType.OPTION:
+          actions.push({
+            key: plugin.id,
+            label: plugin.label,
+            onClick: plugin.onClick,
+            icon: plugin.icon,
+            allowed: plugin.allowed,
+          });
+          break;
+        case PluginSdk.CameraSettingsDropdownItemType.SEPARATOR:
+          actions.push({
+            key: plugin.id,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
     return (
       <BBBMenu
         customStyles={!isMobile ? customStyles : null}
