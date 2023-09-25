@@ -7,9 +7,9 @@ import org.bigbluebutton.freeswitch.{ RxJsonMsgHdlrActor, VoiceConferenceService
 import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
 import org.bigbluebutton.freeswitch.voice.freeswitch.{ ConnectionManager, ESLEventListener, FreeswitchApplication }
 import org.freeswitch.esl.client.manager.DefaultManagerConnection
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.Http
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.Http
 import org.bigbluebutton.service.HealthzService
 
 import scala.concurrent.ExecutionContext
