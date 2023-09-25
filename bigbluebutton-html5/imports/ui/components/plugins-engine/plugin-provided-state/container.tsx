@@ -8,6 +8,7 @@ import {
 import PresentationToolbarPluginStateContainer from './presentation-toolbar/container';
 import UserListDropdownPluginStateContainer from './user-list-dropdown/container';
 import ActionButtonDropdownPluginStateContainer from './action-button-dropdown/container';
+import UserCameraDropdownPluginStateContainer from './user-camera-dropdown/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
@@ -15,6 +16,7 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   PresentationToolbarPluginStateContainer,
   UserListDropdownPluginStateContainer,
   ActionButtonDropdownPluginStateContainer,
+  UserCameraDropdownPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(

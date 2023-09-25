@@ -1,12 +1,15 @@
 import React from 'react';
+import { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import VideoService from '/imports/ui/components/video-provider/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -69,6 +72,16 @@ const UserActions = (props) => {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
     isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
   } = props;
+
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+
+  let userCameraDropdownItems = [];
+  if (pluginsProvidedAggregatedState.userCameraDropdownItems) {
+    userCameraDropdownItems = [
+      ...pluginsProvidedAggregatedState.userCameraDropdownItems,
+    ];
+  }
+  console.log("Teste aqui ----> ", pluginsProvidedAggregatedState.userCameraDropdownItems)
 
   const intl = useIntl();
   const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -153,6 +166,28 @@ const UserActions = (props) => {
         dataTest: 'pinWebcamBtn',
       });
     }
+
+    userCameraDropdownItems.forEach((pluginItem) => {
+      switch (pluginItem.type) {
+        case PluginSdk.UserCameraDropdownItemType.OPTION:
+          menuItems.push({
+            key: pluginItem.id,
+            label: pluginItem.label,
+            onclick: pluginItem.onClick,
+            icon: pluginItem.icon,
+            allowed: pluginItem.allowed,
+          });
+          break;
+        case PluginSdk.UserCameraDropdownItemType.SEPARATOR:
+          menuItems.push({
+            key: pluginItem.id,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
 
     return menuItems;
   };
