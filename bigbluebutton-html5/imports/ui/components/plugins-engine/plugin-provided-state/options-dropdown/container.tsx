@@ -1,11 +1,14 @@
 import { useEffect, useState, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-import { PluginProvidedStateChildrenProps, PluginProvidedState } from '../../types';
+import {
+  PluginProvidedStateContainerChildProps, PluginProvidedState,
+  PluginProvidedStateContainerChild,
+} from '../../types';
 import { PluginsContext } from '../../../components-data/plugin-context/context';
 
-const OptionsDropdownPluginStateContainer = (
-  props: PluginProvidedStateChildrenProps,
+const OptionsDropdownPluginStateContainer = ((
+  props: PluginProvidedStateContainerChildProps,
 ) => {
   const {
     uuid,
@@ -46,6 +49,6 @@ const OptionsDropdownPluginStateContainer = (
     return setOptionsDropdownItems(itemsWithId);
   };
   return null;
-};
+}) as PluginProvidedStateContainerChild;
 
 export default OptionsDropdownPluginStateContainer;

@@ -1,12 +1,23 @@
 import * as React from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-import { PluginProvidedStateContainerProps, PluginsProvidedStateMap, PluginProvidedState } from '../types';
+import {
+  PluginProvidedStateContainerProps, PluginsProvidedStateMap,
+  PluginProvidedState, PluginProvidedStateContainerChild,
+} from '../types';
 import PresentationToolbarPluginStateContainer from './presentation-toolbar/container';
 import UserListDropdownPluginStateContainer from './user-list-dropdown/container';
+import ActionButtonDropdownPluginStateContainer from './action-button-dropdown/container';
 import OptionsDropdownPluginStateContainer from './options-dropdown/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
+
+const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
+  PresentationToolbarPluginStateContainer,
+  UserListDropdownPluginStateContainer,
+  ActionButtonDropdownPluginStateContainer,
+  OptionsDropdownPluginStateContainer,
+];
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
   item: T, index: number,
@@ -23,32 +34,25 @@ const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) 
     pluginProvidedStateMap[uuid] = {} as PluginProvidedState;
   }
   const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
-  const pluginProvidedStateChildrenProps = {
-    uuid,
-    generateItemWithId,
-    pluginProvidedStateMap,
-    pluginApi,
-  };
   return (
     <>
-      <PresentationToolbarPluginStateContainer
-        uuid={pluginProvidedStateChildrenProps.uuid}
-        generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
-        pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}
-        pluginApi={pluginProvidedStateChildrenProps.pluginApi}
-      />
-      <UserListDropdownPluginStateContainer
-        uuid={pluginProvidedStateChildrenProps.uuid}
-        generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
-        pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}
-        pluginApi={pluginProvidedStateChildrenProps.pluginApi}
-      />
-      <OptionsDropdownPluginStateContainer
-        uuid={pluginProvidedStateChildrenProps.uuid}
-        generateItemWithId={pluginProvidedStateChildrenProps.generateItemWithId}
-        pluginProvidedStateMap={pluginProvidedStateChildrenProps.pluginProvidedStateMap}
-        pluginApi={pluginProvidedStateChildrenProps.pluginApi}
-      />
+      {
+        pluginProvidedStateContainers.map(
+          (PluginProvidedStateContainerChildComponent: PluginProvidedStateContainerChild, index: number) => (
+            <PluginProvidedStateContainerChildComponent
+              {
+                ...{
+                  key: `${uuid}-${index}`,
+                  uuid,
+                  generateItemWithId,
+                  pluginProvidedStateMap,
+                  pluginApi,
+                }
+              }
+            />
+          ),
+        )
+      }
     </>
   );
 };

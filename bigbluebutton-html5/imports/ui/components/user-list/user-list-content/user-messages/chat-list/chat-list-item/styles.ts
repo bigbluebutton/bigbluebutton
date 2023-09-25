@@ -100,10 +100,11 @@ const UserAvatar = styled.div<UserAvatarProps>`
     border-radius: 5px;
   `}
   // ================ image ================
-  ${({ avatar, emoji }: UserAvatarProps) => avatar?.length !== 0 && !emoji && `
+  ${({ avatar, emoji, color }: UserAvatarProps) => avatar?.length !== 0 && !emoji && `
     background-image: url(${avatar});
     background-repeat: no-repeat;
     background-size: contain;
+    border: 2px solid ${color};
   `}
   // ================ image ================
   // ================ content ================
