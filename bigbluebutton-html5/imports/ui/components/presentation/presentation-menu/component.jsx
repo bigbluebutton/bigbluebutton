@@ -10,6 +10,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -88,6 +89,10 @@ const propTypes = {
     getShapes: PropTypes.func.isRequired,
     currentPageId: PropTypes.string.isRequired,
   }),
+  presentationDropdownItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    type: PropTypes.string,
+  })).isRequired,
 };
 
 const defaultProps = {
@@ -124,6 +129,7 @@ const PresentationMenu = (props) => {
     isToolbarVisible,
     setIsToolbarVisible,
     allowSnapshotOfCurrentSlide,
+    presentationDropdownItems,
   } = props;
 
   const [state, setState] = useState({
@@ -297,6 +303,27 @@ const PresentationMenu = (props) => {
         },
       );
     }
+
+    presentationDropdownItems.forEach((item, index) => {
+      switch (item.type) {
+        case PluginSdk.PresentationDropdownItemType.OPTION:
+          menuItems.push({
+            key: `${item.id}-${index}`,
+            label: item.label,
+            icon: item.icon,
+            onClick: item.onClick,
+          });
+          break;
+        case PluginSdk.PresentationDropdownItemType.SEPARATOR:
+          menuItems.push({
+            key: `${item.id}-${index}`,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
 
     return menuItems;
   }
