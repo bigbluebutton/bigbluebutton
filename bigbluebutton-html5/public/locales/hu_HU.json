@@ -652,7 +652,7 @@
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Reakciók sávjának automatikus zárása",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Hangulatom kifejezése",
     "app.actionsBar.emojiMenu.awayLabel": "Nem vagyok a gépnél",
-    "app.actionsBar.emojiMenu.awayDesc": "Hangulatjeled 'Nem vagyok a gépnél'-re módosítod",
+    "app.actionsBar.emojiMenu.awayDesc": "Hangulatjeled 'Távol vagyok'-re módosítod",
     "app.actionsBar.emojiMenu.raiseHandLabel": "Jelentkezés",
     "app.actionsBar.emojiMenu.lowerHandLabel": "Mégsem jelentkezem",
     "app.actionsBar.emojiMenu.raiseHandDesc": "Jelentkezz, hogy kérdezhess",
