@@ -8,6 +8,7 @@ import {
 import PresentationToolbarPluginStateContainer from './presentation-toolbar/container';
 import UserListDropdownPluginStateContainer from './user-list-dropdown/container';
 import ActionButtonDropdownPluginStateContainer from './action-button-dropdown/container';
+import AudioSettingsDropdownPluginStateContainer from './audio-settings-dropdown/container';
 import ActionBarPluginStateContainer from './action-bar/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
@@ -16,6 +17,7 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   PresentationToolbarPluginStateContainer,
   UserListDropdownPluginStateContainer,
   ActionButtonDropdownPluginStateContainer,
+  AudioSettingsDropdownPluginStateContainer,
   ActionBarPluginStateContainer,
 ];
 
