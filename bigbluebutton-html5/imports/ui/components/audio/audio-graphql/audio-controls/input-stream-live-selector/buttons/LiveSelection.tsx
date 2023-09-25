@@ -94,10 +94,10 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   const {
     pluginsProvidedAggregatedState,
   } = useContext(PluginsContext);
-  let microphoneDropdownItems = [] as PluginSdk.MicrophoneDropdownItem[];
-  if (pluginsProvidedAggregatedState.microphoneDropdownItems) {
-    microphoneDropdownItems = [
-      ...pluginsProvidedAggregatedState.microphoneDropdownItems,
+  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownItem[];
+  if (pluginsProvidedAggregatedState.audioSettingsDropdownItems) {
+    audioSettingsDropdownItems = [
+      ...pluginsProvidedAggregatedState.audioSettingsDropdownItems,
     ];
   }
 
@@ -207,25 +207,25 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     })
     .concat(leaveAudioOption);
 
-  microphoneDropdownItems.forEach((microphoneDropdownItem:
-    PluginSdk.MicrophoneDropdownItem) => {
-    switch (microphoneDropdownItem.type) {
-      case PluginSdk.MicrophoneDropdownItemType.OPTION: {
-        const microphoneDropdownOption = microphoneDropdownItem as PluginSdk.MicrophoneDropdownOption;
+  audioSettingsDropdownItems.forEach((audioSettingsDropdownItem:
+    PluginSdk.AudioSettingsDropdownItem) => {
+    switch (audioSettingsDropdownItem.type) {
+      case PluginSdk.AudioSettingsDropdownItemType.OPTION: {
+        const audioSettingsDropdownOption = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
         dropdownListComplete.push({
-          label: microphoneDropdownOption.label,
-          iconRight: microphoneDropdownOption.icon,
-          disabled: !microphoneDropdownOption.allowed,
-          onClick: microphoneDropdownOption.onClick,
-          key: microphoneDropdownOption.id,
+          label: audioSettingsDropdownOption.label,
+          iconRight: audioSettingsDropdownOption.icon,
+          disabled: !audioSettingsDropdownOption.allowed,
+          onClick: audioSettingsDropdownOption.onClick,
+          key: audioSettingsDropdownOption.id,
         });
         break;
       }
-      case PluginSdk.MicrophoneDropdownItemType.SEPARATOR: {
-        const microphoneDropdownSeparator = microphoneDropdownItem as PluginSdk.MicrophoneDropdownOption;
+      case PluginSdk.AudioSettingsDropdownItemType.SEPARATOR: {
+        const audioSettingsDropdownSeparator = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
         dropdownListComplete.push({
           isSeparator: true,
-          key: microphoneDropdownSeparator.id,
+          key: audioSettingsDropdownSeparator.id,
         });
         break;
       }

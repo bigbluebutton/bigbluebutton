@@ -30,7 +30,7 @@ export interface PluginProvidedState {
     presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
     userListDropdownItems: PluginSdk.UserListDropdownItem[];
     actionButtonDropdownItems: PluginSdk.ActionButtonDropdownItem[];
-    microphoneDropdownItems: PluginSdk.MicrophoneDropdownItem[];
+    audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownItem[];
 }
 
 /**

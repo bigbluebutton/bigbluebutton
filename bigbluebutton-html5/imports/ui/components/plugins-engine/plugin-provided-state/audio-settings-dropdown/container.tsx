@@ -6,7 +6,7 @@ import {
 } from '../../types';
 import { PluginsContext } from '../../../components-data/plugin-context/context';
 
-const MicrophoneDropdownPluginStateContainer = ((
+const AudioSettingsDropdownPluginStateContainer = ((
   props: PluginProvidedStateContainerChildProps,
 ) => {
   const {
@@ -16,9 +16,9 @@ const MicrophoneDropdownPluginStateContainer = ((
     pluginApi,
   } = props;
   const [
-    microphoneDropdownItems,
-    setMicrophoneDropdownItems,
-  ] = useState<PluginSdk.MicrophoneDropdownItem[]>([]);
+    audioSettingsDropdownItems,
+    setAudioSettingsDropdownItems,
+  ] = useState<PluginSdk.AudioSettingsDropdownItem[]>([]);
 
   const {
     pluginsProvidedAggregatedState,
@@ -27,27 +27,27 @@ const MicrophoneDropdownPluginStateContainer = ((
 
   useEffect(() => {
     // Change this plugin provided toolbar items
-    pluginProvidedStateMap[uuid].microphoneDropdownItems = microphoneDropdownItems;
+    pluginProvidedStateMap[uuid].audioSettingsDropdownItems = audioSettingsDropdownItems;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
-    const aggregatedMicrophoneDropdownItems = ([] as PluginSdk.MicrophoneDropdownItem[]).concat(
+    const aggregatedAudioSettingsDropdownItems = ([] as PluginSdk.AudioSettingsDropdownItem[]).concat(
       ...Object.values(pluginProvidedStateMap)
-        .map((pps: PluginProvidedState) => pps.microphoneDropdownItems),
+        .map((pps: PluginProvidedState) => pps.audioSettingsDropdownItems),
     );
 
     setPluginsProvidedAggregatedState(
       {
         ...pluginsProvidedAggregatedState,
-        microphoneDropdownItems: aggregatedMicrophoneDropdownItems,
+        audioSettingsDropdownItems: aggregatedAudioSettingsDropdownItems,
       },
     );
-  }, [microphoneDropdownItems]);
+  }, [audioSettingsDropdownItems]);
 
-  pluginApi.setMicrophoneDropdownItems = (items: PluginSdk.MicrophoneDropdownItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.MicrophoneDropdownItem[];
-    return setMicrophoneDropdownItems(itemsWithId);
+  pluginApi.setAudioSettingsDropdownItems = (items: PluginSdk.AudioSettingsDropdownItem[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.AudioSettingsDropdownItem[];
+    return setAudioSettingsDropdownItems(itemsWithId);
   };
   return null;
 }) as PluginProvidedStateContainerChild;
 
-export default MicrophoneDropdownPluginStateContainer;
+export default AudioSettingsDropdownPluginStateContainer;

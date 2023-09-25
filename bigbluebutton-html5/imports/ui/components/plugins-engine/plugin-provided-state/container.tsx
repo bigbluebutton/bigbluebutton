@@ -8,7 +8,7 @@ import {
 import PresentationToolbarPluginStateContainer from './presentation-toolbar/container';
 import UserListDropdownPluginStateContainer from './user-list-dropdown/container';
 import ActionButtonDropdownPluginStateContainer from './action-button-dropdown/container';
-import MicrophoneDropdownPluginStateContainer from './microphone-dropdown/container';
+import AudioSettingsDropdownPluginStateContainer from './audio-settings-dropdown/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
@@ -16,7 +16,7 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   PresentationToolbarPluginStateContainer,
   UserListDropdownPluginStateContainer,
   ActionButtonDropdownPluginStateContainer,
-  MicrophoneDropdownPluginStateContainer,
+  AudioSettingsDropdownPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
