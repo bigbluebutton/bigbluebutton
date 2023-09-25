@@ -42,7 +42,7 @@ export const CloseButton = styled(Button)`
   grid-area: 1 / 1 / 2 / 2;
   justify-self: end;
   border-radius: 50%;
-  padding: 1rem;
+  padding: 0.5rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 
