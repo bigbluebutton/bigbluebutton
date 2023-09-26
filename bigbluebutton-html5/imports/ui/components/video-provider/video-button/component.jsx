@@ -177,7 +177,6 @@ const JoinVideoButton = ({
             label: plugin.label,
             onClick: plugin.onClick,
             icon: plugin.icon,
-            allowed: plugin.allowed,
           });
           break;
         case PluginSdk.CameraSettingsDropdownItemType.SEPARATOR:
