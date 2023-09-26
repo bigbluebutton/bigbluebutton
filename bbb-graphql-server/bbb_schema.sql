@@ -726,7 +726,7 @@ CREATE TABLE "chat_user" (
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
 	"userId" varchar(50),
-	"lastSeenAt" bigint,
+	"lastSeenAt" timestamp with time zone,
 	"typingAt"   timestamp with time zone,
 	"visible" boolean,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
@@ -772,7 +772,6 @@ CREATE TABLE "chat_message" (
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
 	"correlationId" varchar(100),
-	"createdTime" bigint,
 	"chatEmphasizedText" boolean,
 	"message" text,
 	"messageType" varchar(50),
@@ -780,6 +779,7 @@ CREATE TABLE "chat_message" (
     "senderId" varchar(100),
     "senderName" varchar(255),
 	"senderRole" varchar(20),
+	"createdAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
@@ -805,7 +805,9 @@ SELECT 	"user"."userId",
 		cu."visible",
 		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
-		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" > coalesce(NULLIF(cu."lastSeenAt",0),"user"."registeredOn") THEN 1 ELSE 0 end) "totalUnread",
+		sum(CASE WHEN cm."senderId" != "user"."userId"
+		    and cm."createdAt" < current_timestamp - '2 seconds'::interval --set a delay while user send lastSeenAt
+		    and cm."createdAt" > coalesce(cu."lastSeenAt","user"."registeredAt") THEN 1 ELSE 0 end) "totalUnread",
 		cu."lastSeenAt",
 		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN true ELSE false end public
 FROM "user"
@@ -819,15 +821,13 @@ WHERE cu."visible" is true
 GROUP BY "user"."userId", chat."meetingId", chat."chatId", cu."visible", cu."lastSeenAt", chat_with."userId";
 
 CREATE OR REPLACE VIEW "v_chat_message_public" AS
-SELECT cm.*,
-        to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
+SELECT cm.*
 FROM chat_message cm
 WHERE cm."chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 
 CREATE OR REPLACE VIEW "v_chat_message_private" AS
 SELECT cu."userId",
-        cm.*,
-        to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
+        cm.*
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
