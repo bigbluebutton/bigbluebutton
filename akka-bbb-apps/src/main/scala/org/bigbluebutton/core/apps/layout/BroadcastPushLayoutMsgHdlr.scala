@@ -1,9 +1,10 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ Layouts }
+import org.bigbluebutton.core.models.Layouts
 import org.bigbluebutton.core.running.OutMsgRouter
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.db.LayoutDAO
 
 trait BroadcastPushLayoutMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>
@@ -20,6 +21,7 @@ trait BroadcastPushLayoutMsgHdlr extends RightsManagementTrait {
       Layouts.setPushLayout(liveMeeting.layouts, msg.body.pushLayout)
       Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
+      LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
       sendBroadcastPushLayoutEvtMsg(msg.header.userId)
     }
   }

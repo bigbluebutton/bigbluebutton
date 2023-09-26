@@ -9,14 +9,14 @@ import {
   colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-export const Container = styled.div`
+const Container = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: ${lgPaddingY};
   margin-top: ${smPaddingX};
 `;
 
-export const SmallTitle = styled.h2`
+const SmallTitle = styled.h2`
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -25,3 +25,8 @@ export const SmallTitle = styled.h2`
   flex: 1;
   margin: 0;
 `;
+
+export default {
+  Container,
+  SmallTitle,
+};

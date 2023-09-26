@@ -5,7 +5,7 @@ interface Chat {
     totalUnread: number,
     totalMessages: number,
     public: boolean,
-};
+}
 
 interface Participant {
     name: string,
@@ -13,6 +13,6 @@ interface Participant {
     color: string,
     loggedOut: boolean,
     avatar: string,
-};
+}
 
-export { Chat };
+export default Chat;

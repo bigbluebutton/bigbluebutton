@@ -116,34 +116,34 @@ class BBBMenu extends React.Component {
       if (a.customStyles) {
         customStyles = { ...customStyles, ...a.customStyles };
       }
-
       return [
-        a.dividerTop && <Divider disabled />,
-        <Styled.BBBMenuItem
-          emoji={emojiSelected ? 'yes' : 'no'}
-          key={label}
-          data-test={dataTest}
-          data-key={`menuItem-${dataTest}`}
-          disableRipple={true}
-          disableGutters={true}
-          disabled={disabled}
-          style={customStyles}
-          $roundButtons={roundButtons}
-          onClick={(event) => {
-            onClick();
-            const close = !keepOpen && !key?.includes('setstatus') && !key?.includes('back');
-            // prevent menu close for sub menu actions
-            if (close) this.handleClose(event);
-            event.stopPropagation();
-          }}>
-          <Styled.MenuItemWrapper>
-            {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-            <Styled.Option isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
-            {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
-            {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
-          </Styled.MenuItemWrapper>
-        </Styled.BBBMenuItem>,
-        a.divider && <Divider disabled />
+        !a.isSeparator && (
+          <Styled.BBBMenuItem
+            emoji={emojiSelected ? 'yes' : 'no'}
+            key={label}
+            data-test={dataTest}
+            data-key={`menuItem-${dataTest}`}
+            disableRipple={true}
+            disableGutters={true}
+            disabled={disabled}
+            style={customStyles}
+            $roundButtons={roundButtons}
+            onClick={(event) => {
+              onClick();
+              const close = !keepOpen && !key?.includes('setstatus') && !key?.includes('back');
+              // prevent menu close for sub menu actions
+              if (close) this.handleClose(event);
+              event.stopPropagation();
+            }}>
+            <Styled.MenuItemWrapper>
+              {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
+              <Styled.Option isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+              {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
+              {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
+            </Styled.MenuItemWrapper>
+          </Styled.BBBMenuItem>
+        ),
+        a.isSeparator && <Divider disabled />
       ];
     }) ?? [];
   }

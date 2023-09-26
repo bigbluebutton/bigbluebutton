@@ -22,28 +22,28 @@ import {
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-
 interface AvatarProps {
-  moderator: string;
-  presenter: string;
-  talking: boolean;
-  muted: boolean;
-  listenOnly: boolean;
-  voice: boolean;
-  noVoice: boolean;
-  color: string;
-  whiteboardAccess: boolean;
-  animations: boolean;
-  emoji: string;
-  avatar: string;
-  isChrome: boolean;
-  isFirefox: boolean;
-  isEdge: boolean;
+    moderator?: boolean;
+    presenter?: boolean;
+    talking?: boolean;
+    muted?: boolean;
+    listenOnly?: boolean;
+    voice?: boolean;
+    noVoice?: boolean;
+    color?: string;
+    whiteboardAccess?: boolean;
+    animations?: boolean;
+    emoji?: boolean;
+    avatar?: string;
+    isChrome?: boolean;
+    isFirefox?: boolean;
+    isEdge?: boolean;
+    isSkeleton?: boolean;
 }
 
 interface UserItemContentsProps {
-  selected: boolean;
-  isActionsOpen: boolean;
+  selected?: boolean;
+  isActionsOpen?: boolean;
 }
 
 const UserItemContents = styled.div<UserItemContentsProps>`
@@ -307,15 +307,16 @@ const Avatar = styled.div<AvatarProps>`
   `}
 
   // ================ talking animation ================
-  ${({ talking, animations, color }) => talking && animations && css`
+  ${({ talking, animations, color }) => talking && animations && color && css`
     animation: ${pulse(color)} 1s infinite ease-in;
   `}
   // ================ talking animation ================
   // ================ image ================
-  ${({ avatar, emoji }) => avatar?.length !== 0 && !emoji && css`
+  ${({ avatar, emoji, color }) => avatar?.length !== 0 && !emoji && css`
     background-image: url(${avatar});
     background-repeat: no-repeat;
     background-size: contain;
+    border: 2px solid ${color};
   `}
   // ================ image ================
 
@@ -407,4 +408,4 @@ export default {
   UserNameContainer,
   UserNameSub,
   UserName,
-}
+};

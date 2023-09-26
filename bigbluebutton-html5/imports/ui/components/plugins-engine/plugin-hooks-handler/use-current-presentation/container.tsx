@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useCurrentPresentation } from '/imports/ui/core/hooks/useCurrentPresentation';
+import useCurrentPresentation from '/imports/ui/core/hooks/useCurrentPresentation';
 import { CurrentPresentation } from '/imports/ui/Types/presentation';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 

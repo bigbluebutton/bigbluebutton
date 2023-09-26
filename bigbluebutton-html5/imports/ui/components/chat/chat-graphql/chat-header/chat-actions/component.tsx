@@ -1,16 +1,22 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useLazyQuery } from '@apollo/client';
-import { GET_CHAT_MESSAGE_HISTORY, GET_PERMISSIONS, getChatMessageHistory, getPermissions } from './queries';
+import {
+  GET_CHAT_MESSAGE_HISTORY, GET_PERMISSIONS, getChatMessageHistory, getPermissions,
+} from './queries';
 import { uid } from 'radash';
-import Button from '/imports/ui/components/common/button/component';
-import { clearPublicChatHistory, generateExportedMessages } from './services'
+import Trigger from '/imports/ui/components/common/control-header/right/component';
+import { clearPublicChatHistory, generateExportedMessages } from './services';
 import { getDateString } from '/imports/utils/string-utils';
-import Events from '/imports/ui/core/events/events';
+
 import { isEmpty } from 'ramda';
+import { ChatCommands } from '/imports/ui/core/enums/chat';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -47,7 +53,7 @@ const intlMessages = defineMessages({
   },
 });
 
-export const ChatActions: React.FC = () => {
+const ChatActions: React.FC = () => {
   const intl = useIntl();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const uniqueIdsRef = useRef<string[]>([uid(1), uid(2), uid(3), uid(4)]);
@@ -74,6 +80,7 @@ export const ChatActions: React.FC = () => {
       const exportedString = generateExportedMessages(
         dataHistory.chat_message_public,
         dataHistory.user_welcomeMsgs[0],
+        intl,
       );
       if (downloadOrCopyRef.current === 'download') {
         const link = document.createElement('a');
@@ -97,8 +104,8 @@ export const ChatActions: React.FC = () => {
     if (dataPermissions) {
       setUserIsmoderator(dataPermissions.user_current[0].isModerator);
       setMeetingIsBreakout(dataPermissions.meeting[0].isBreakout);
-      if (!isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsg || '') ||
-          !isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsgForModerators || '')) {
+      if (!isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsg || '')
+        || !isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsgForModerators || '')) {
         setShowShowWelcomeMessages(true);
       }
     }
@@ -144,36 +151,50 @@ export const ChatActions: React.FC = () => {
         dataTest: 'restoreWelcomeMessages',
         label: intl.formatMessage(intlMessages.showWelcomeMessage),
         onClick: () => {
-          const restoreWelcomeMessagesEvent = new CustomEvent(Events.RESTORE_WELCOME_MESSAGES);
+          const restoreWelcomeMessagesEvent = new CustomEvent(ChatCommands.RESTORE_WELCOME_MESSAGES);
           window.dispatchEvent(restoreWelcomeMessagesEvent);
         },
       },
     ];
     return dropdownActions.filter((action) => action.enable);
   }, [userIsModerator, meetingIsBreakout, showShowWelcomeMessages]);
-  if (errorHistory) return <p>Error loading chat history: {JSON.stringify(errorHistory)}</p>;
-  if (errorPermissions) return <p>Error loading permissions: {JSON.stringify(errorPermissions)}</p>;
+  if (errorHistory) {
+    return (
+      <p>
+        Error loading chat history:
+        {JSON.stringify(errorHistory)}
+      </p>
+    );
+  }
+  if (errorPermissions) {
+    return (
+      <p>
+        Error loading permissions:
+        {' '}
+        {JSON.stringify(errorPermissions)}
+      </p>
+    );
+  }
   return (
     <BBBMenu
-      trigger={
-        <Button
+      trigger={(
+        <Trigger
           label={intl.formatMessage(intlMessages.options)}
           aria-label={intl.formatMessage(intlMessages.options)}
           hideLabel
-          size="sm"
           icon="more"
           onClick={() => {
             getPermissions();
           }}
           data-test="chatOptionsMenu"
         />
-      }
+      )}
       opts={{
         id: 'chat-options-dropdown-menu',
         keepMounted: true,
         transitionDuration: 0,
         elevation: 3,
-        getContentAnchorEl: null,
+        getcontentanchorel: null,
         fullwidth: 'true',
         anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
         transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
@@ -181,4 +202,6 @@ export const ChatActions: React.FC = () => {
       actions={actions}
     />
   );
-}
+};
+
+export default ChatActions;

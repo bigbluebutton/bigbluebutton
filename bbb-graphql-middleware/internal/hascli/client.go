@@ -29,7 +29,7 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	hasuraConnectionId := "HC" + fmt.Sprintf("%010d", lastHasuraConnectionId)
 	log = log.WithField("hasuraConnectionId", hasuraConnectionId)
 
-	defer log.Infof("finished")
+	defer log.Debugf("finished")
 
 	// Add sub-protocol
 	var dialOptions websocket.DialOptions
@@ -80,7 +80,7 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	thisConnection.Websocket = c
 
 	// Log the connection success
-	log.Infof("connected with Hasura")
+	log.Debugf("connected with Hasura")
 
 	// Configure the wait group
 	var wg sync.WaitGroup

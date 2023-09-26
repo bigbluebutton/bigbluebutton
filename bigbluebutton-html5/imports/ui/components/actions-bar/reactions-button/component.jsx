@@ -5,6 +5,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import { Emoji } from 'emoji-mart';
+import { convertRemToPixels } from '/imports/utils/dom-utils';
 
 import Styled from './styles';
 
@@ -74,7 +75,7 @@ const ReactionsButton = (props) => {
 
   const emojiProps = {
     native: true,
-    size: '1.5rem',
+    size: convertRemToPixels(1.5),
     padding: '4px',
   };
 
@@ -123,9 +124,18 @@ const ReactionsButton = (props) => {
     customStyles: {...actionCustomStyles, width: 'auto'},
   });
 
-  const icon = currentUserReaction === 'none' ? 'hand' : null;
+  const icon = !raiseHand && currentUserReaction === 'none' ? 'hand' : null;
   const currentUserReactionEmoji = reactions.find(({ native }) => native === currentUserReaction);
-  const customIcon = !icon ? <Emoji key={currentUserReactionEmoji?.id} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} /> : null;
+
+  let customIcon = null;
+
+  if (raiseHand) {
+    customIcon = <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />;
+  } else {
+    if (!icon) {
+      customIcon = <Emoji key={currentUserReactionEmoji?.id} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
+    }
+  }
 
   return (
     <BBBMenu

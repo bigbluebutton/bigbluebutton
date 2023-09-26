@@ -1,10 +1,10 @@
 package org.bigbluebutton
 
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives._
-import org.bigbluebutton.service.{ HealthzService }
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.bigbluebutton.service.HealthzService
 import spray.json.DefaultJsonProtocol
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 
 case class HealthResponse(isHealthy: Boolean)
 case class StatusResponse(status: Array[String], heartbeat: Map[String, String])

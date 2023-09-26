@@ -7,7 +7,7 @@ test.describe.serial('Learning Dashboard', async () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await learningDashboard.initModPage(page, true,  { customParameter: c.recordMeeting });
+    await learningDashboard.initModPage(page, true,  { createParameter: c.recordMeeting });
     await learningDashboard.getDashboardPage(context);
   });
 
@@ -20,7 +20,7 @@ test.describe.serial('Learning Dashboard', async () => {
   });
 
   test('Polls @ci', async ({ context }) => {
-    await learningDashboard.initUserPage(true, context);
+    await learningDashboard.initUserPage(true, context, { isRecording: true });
     await learningDashboard.polls();
   });
 

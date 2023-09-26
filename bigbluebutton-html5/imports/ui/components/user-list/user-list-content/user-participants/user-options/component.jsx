@@ -281,8 +281,12 @@ class UserOptions extends PureComponent {
           onClick: this.onSaveUserNames,
           icon: 'download',
           dataTest: 'downloadUserNamesList',
-          divider: !USER_STATUS_ENABLED,
-        });
+        },
+        {
+          key: 'separator-01',
+          isSeparator: !USER_STATUS_ENABLED,
+        }
+        );
       }
 
       if (USER_STATUS_ENABLED) {
@@ -292,7 +296,10 @@ class UserOptions extends PureComponent {
           description: intl.formatMessage(intlMessages.clearAllDesc),
           onClick: toggleStatus,
           icon: 'clear_status',
-          divider: true,
+        },
+        {
+          key: 'separator-02',
+          isSeparator: true,
         });
       }
 
@@ -303,7 +310,10 @@ class UserOptions extends PureComponent {
           description: intl.formatMessage(intlMessages.clearAllReactionsDesc),
           onClick: toggleReactions,
           icon: 'clear_status',
-          divider: true,
+        },
+        {
+          key: 'separator-03',
+          isSeparator: true,
         });
       }
 
@@ -331,13 +341,16 @@ class UserOptions extends PureComponent {
       if (amIModerator) {
         if (isLearningDashboardEnabled()) {
           this.menuItems.push({
+            key: 'separator-04',
+            isSeparator: true,
+            },
+            {
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',
             label: intl.formatMessage(intlMessages.learningDashboardLabel),
             description: `${intl.formatMessage(intlMessages.learningDashboardDesc)} ${intl.formatMessage(intlMessages.newTab)}`,
             key: this.learningDashboardId,
             onClick: () => { openLearningDashboardUrl(locale); },
-            dividerTop: true,
             dataTest: 'learningDashboard'
           });
         }

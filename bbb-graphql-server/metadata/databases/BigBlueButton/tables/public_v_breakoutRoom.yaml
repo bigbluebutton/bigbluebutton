@@ -31,19 +31,25 @@ select_permissions:
       columns:
         - assignedAt
         - breakoutRoomId
-        - currentIsOnline
-        - currentJoined
-        - currentRegisteredOn
+        - currentRoomIsOnline
+        - currentRoomJoined
+        - currentRoomPriority
+        - currentRoomRegisteredAt
         - durationInSeconds
         - endedAt
         - freeJoin
+        - inviteDismissedAt
         - isDefaultName
+        - joinURL
+        - lastRoomIsOnline
+        - lastRoomJoinedAt
+        - lastRoomJoinedId
         - name
         - sendInvitationToModerators
         - sequence
         - shortName
+        - showInvitation
         - startedAt
-        - willEndAt
       filter:
         userId:
           _eq: X-Hasura-UserId

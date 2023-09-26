@@ -6,6 +6,7 @@ import ExternalVideoModal from '/imports/ui/components/external-video-player/mod
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import TimerService from '/imports/ui/components/timer/service';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
@@ -33,6 +34,12 @@ const propTypes = {
   showPushLayout: PropTypes.bool.isRequired,
   isTimerFeatureEnabled: PropTypes.bool.isRequired,
   isCameraAsContentEnabled: PropTypes.bool.isRequired,
+  actionButtonDropdownItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      allowed: PropTypes.bool,
+      key: PropTypes.string,
+    }),
+  ).isRequired,
 };
 
 const defaultProps = {
@@ -178,14 +185,12 @@ class ActionsDropdown extends PureComponent {
       isTimerActive,
       isTimerEnabled,
       layoutContextDispatch,
-      setMeetingLayout,
-      setPushLayout,
-      showPushLayout,
       amIModerator,
-      isMobile,
       hasCameraAsContent,
+      actionButtonDropdownItems,
       isCameraAsContentEnabled,
       isTimerFeatureEnabled,
+      presentations,
     } = this.props;
 
     const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
@@ -195,13 +200,18 @@ class ActionsDropdown extends PureComponent {
     const actions = [];
 
     if (amIPresenter && isPresentationEnabled()) {
+      if (presentations && presentations.length > 1) {
+        actions.push({
+          key: 'separator-01',
+          isSeparator: true,
+        });
+      }
       actions.push({
         icon: 'upload',
         dataTest: 'managePresentations',
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
-        dividerTop: this.props?.presentations?.length > 1 ? true : false,
       });
     }
 
@@ -280,7 +290,7 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
-    if (isCameraAsContentEnabled && amIPresenter && !isMobile) {
+    if (isCameraAsContentEnabled && amIPresenter) {
       actions.push({
         icon: hasCameraAsContent ? 'video_off' : 'video',
         label: hasCameraAsContent
@@ -296,6 +306,29 @@ class ActionsDropdown extends PureComponent {
         dataTest: 'shareCameraAsContent',
       });
     }
+
+    actionButtonDropdownItems.forEach((actionButtonItem) => {
+      switch (actionButtonItem.type) {
+        case PluginSdk.ActionButtonDropdownItemType.OPTION:
+          actions.push({
+            icon: actionButtonItem.icon,
+            label: actionButtonItem.label,
+            key: actionButtonItem.id,
+            onClick: actionButtonItem.onClick,
+            allowed: actionButtonItem.allowed,
+          });
+          break;
+        case PluginSdk.ActionButtonDropdownItemType.SEPARATOR:
+          actions.push({
+            key: actionButtonItem.id,
+            allowed: actionButtonItem.allowed,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
 
     return actions;
   }

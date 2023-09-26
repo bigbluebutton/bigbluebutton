@@ -13,7 +13,7 @@ func BrowserConnectionWriter(browserConnectionId string, ctx context.Context, c 
 	log := log.WithField("_routine", "websocketConnectionWriter").WithField("browserConnectionId", browserConnectionId)
 
 	defer wg.Done()
-	defer log.Printf("finished")
+	defer log.Debugf("finished")
 
 RangeLoop:
 	for {

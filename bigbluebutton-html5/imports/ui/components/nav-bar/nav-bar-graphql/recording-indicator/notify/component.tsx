@@ -37,6 +37,7 @@ const LOGOUT_CODE = '680';
 interface RecordingNotifyModalProps {
   toggleShouldNotify: () => void;
   closeModal: () => void;
+  // eslint-disable-next-line react/no-unused-prop-types
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   isOpen: boolean;
   priority: string;
@@ -51,6 +52,7 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
   const intl = useIntl();
   const skipButtonHandle = useCallback(() => {
     makeCall('userLeftMeeting');
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Session is a global variable in Meteor
     Session.set('codeError', LOGOUT_CODE);
     toggleShouldNotify();

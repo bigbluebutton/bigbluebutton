@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Presentations from '/imports/api/presentations';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
@@ -7,6 +7,7 @@ import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 import { isCameraAsContentEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -15,6 +16,11 @@ const ActionsDropdownContainer = (props) => {
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i) => i.isRTL);
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  let actionButtonDropdownItems = [];
+  if (pluginsProvidedAggregatedState.actionButtonDropdownItems) {
+    actionButtonDropdownItems = [...pluginsProvidedAggregatedState.actionButtonDropdownItems];
+  }
 
   return (
     <ActionsDropdown
@@ -24,6 +30,7 @@ const ActionsDropdownContainer = (props) => {
         sidebarNavigation,
         isMobile,
         isRTL,
+        actionButtonDropdownItems,
         ...props,
       }}
     />

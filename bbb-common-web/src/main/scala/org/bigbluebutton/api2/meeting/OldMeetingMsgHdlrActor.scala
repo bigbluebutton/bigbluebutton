@@ -2,7 +2,7 @@ package org.bigbluebutton.api2.meeting
 
 import java.util
 
-import akka.actor.{ Actor, ActorLogging, Props }
+import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
 import org.bigbluebutton.common2.msgs._
@@ -187,7 +187,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     val presId = msg.body.presentationId
     val downloadable = msg.body.downloadable
     val presFilename = msg.body.presFilename
-    val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable)
+    val downloadableExtension = msg.body.downloadableExtension;
+    val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable, downloadableExtension)
     olgMsgGW.handle(m)
   }
 
