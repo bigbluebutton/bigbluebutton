@@ -26,7 +26,7 @@ test.describe.serial('Options', () => {
     await options.darkMode();
   });
 
-  test.only('Font size @ci', async () => {
+  test('Font size @ci', async () => {
     await options.fontSizeTest();
   });
 });
