@@ -94,7 +94,8 @@ exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
-exports.chatButton = 'div[data-test="chatButton"]';
+exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
+exports.chatButton = 'button[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
 exports.chatPollMessageText = 'p[data-test="chatPollMessageText"]';
 exports.chatMessages = 'div[data-test="chatMessages"]';
@@ -105,15 +106,15 @@ exports.chatCopy = 'li[data-test="chatCopy"]';
 exports.chatTitle = 'header[data-test="chatTitle"]';
 exports.startPrivateChat = 'li[data-test="startPrivateChat"]';
 exports.publicChat = 'div[data-test="publicChat"]';
-exports.privateChat = 'div[data-test="privateChat"]';
+exports.privateChat = 'div[data-test="messageContent"] p>>nth=1';
 exports.hidePublicChat = 'button[data-test="hidePublicChat"]';
 exports.hidePrivateChat = 'button[data-test="hidePrivateChat"]';
 exports.closePrivateChat = 'button[data-test="closePrivateChat"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
-exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
+exports.errorTypingIndicator = 'div[data-test="errorTypingIndicator"]';
+exports.chatUserMessageText = 'div[data-test="messageContent"] p';
 exports.secondChatUserMessageText = 'p[data-test="chatUserMessageText"]>>nth=1';
-exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
-exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
+exports.chatWelcomeMessageText = 'button[data-test="closePopup"]';
 exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
 exports.sendLobbyMessage = 'div[data-test="lobbyMessage"] >> button';
 exports.lobbyMessage = 'div[data-test="lobbyMessage"] >> p';
@@ -319,7 +320,7 @@ exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
 
 // User
-const userAvatar = 'div[data-test="userAvatar"]';
+const userAvatar = 'div[data-test-avatar="userAvatar"]';
 const networkDataContainer = 'div[data-test="networkDataContainer"]';
 exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';

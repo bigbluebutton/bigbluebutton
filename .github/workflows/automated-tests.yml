@@ -55,7 +55,7 @@ jobs:
             build-name: bbb-graphql-server
             build-list: bbb-graphql-server bbb-graphql-middleware
           - package: bbb-etherpad
-            cache-files-list: bbb-etherpad.placeholder.sh build/packages-template/bbb-etherpad
+            cache-files-list: bbb-etherpad.placeholder.sh
             cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
           - package: bbb-web
             cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
@@ -66,11 +66,11 @@ jobs:
             cache-files-list: bigbluebutton-html5
           - package: bbb-freeswitch
             build-list: bbb-freeswitch-core bbb-freeswitch-sounds
-            cache-files-list: freeswitch.placeholder.sh build/packages-template/bbb-freeswitch-core build/packages-template/bbb-freeswitch-sounds
+            cache-files-list: freeswitch.placeholder.sh
             cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
           - package: bbb-webrtc
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
-            cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh build/packages-template/bbb-webrtc-sfu build/packages-template/bbb-webrtc-recorder
+            cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
             build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton
     steps:
@@ -79,7 +79,9 @@ jobs:
         uses: ./.github/actions/merge-branches
       - name: Set cache-key vars
         run: |
-          echo "CACHE_KEY_FILES=$(echo '${{ matrix.cache-files-list }} .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
+          BUILD_DIRS="$(echo '${{ matrix.build-list || matrix.package }}' | sed 's/[^ ]\+/build\/packages-template\/&/g')"
+          echo "Including build dirs: $BUILD_DIRS"
+          echo "CACHE_KEY_FILES=$(echo '${{ matrix.cache-files-list }} '$BUILD_DIRS' .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
           echo "CACHE_KEY_URLS=$(echo '${{ matrix.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
           cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
           echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
@@ -323,16 +325,17 @@ jobs:
           chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
           bbb-conf --zip
           ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
+          echo "MATRIX_SHARD=$(echo ${{ matrix.shard }} | tr '/' '_')" >> $GITHUB_ENV
           EOF
       - if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: bbb-configs
+          name: bbb-configs-${{ env.MATRIX_SHARD }}
           path: configs
       - if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: bbb-logs
+          name: bbb-logs-${{ env.MATRIX_SHARD }}
           path: ./bbb-logs.tar.gz
   upload-report:
     if: always()

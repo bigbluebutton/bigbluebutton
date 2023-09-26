@@ -31,7 +31,8 @@ const UserParticipantsContainer = (props) => {
 
   const currentUser = contextUsers && isReady ? contextUsers[Auth.meetingID][Auth.userID] : null;
   const usersArray = contextUsers && isReady ? Object.values(contextUsers[Auth.meetingID]) : null;
-  const users = contextUsers && isReady ? formatUsers(usersArray, videoUsers, whiteboardUsers, reactionUsers) : [];
+  const users = contextUsers && isReady
+    ? formatUsers(usersArray, videoUsers, whiteboardUsers, reactionUsers) : [];
 
   return (
     <UserParticipants {

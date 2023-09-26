@@ -10,7 +10,7 @@ func SessionTokenReader(connectionId string, browserConnectionContext context.Co
 	log := log.WithField("_routine", "SessionTokenReader")
 
 	defer wg.Done()
-	defer log.Info("finished")
+	defer log.Debugf("finished")
 
 	BrowserConnectionsMutex.RLock()
 	browserConnection := BrowserConnections[connectionId]

@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.voice
 
-import akka.actor.{ ActorContext, ActorSystem, Cancellable }
+import org.apache.pekko.actor.{ ActorContext, ActorSystem, Cancellable }
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers

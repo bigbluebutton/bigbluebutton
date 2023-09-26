@@ -2,8 +2,8 @@ package org.bigbluebutton.api2.bus
 
 import java.io.{ PrintWriter, StringWriter }
 
-import akka.actor.SupervisorStrategy.Resume
-import akka.actor.{ Actor, ActorLogging, OneForOneStrategy, Props }
+import org.apache.pekko.actor.SupervisorStrategy.Resume
+import org.apache.pekko.actor.{ Actor, ActorLogging, OneForOneStrategy, Props }
 import org.bigbluebutton.common2.redis.MessageSender
 import scala.concurrent.duration._
 

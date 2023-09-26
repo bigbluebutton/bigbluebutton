@@ -39,8 +39,8 @@ class Chat extends MultiUsers {
     await this.userPage.type(e.chatBox, e.message2);
     await this.userPage.waitAndClick(e.sendButton);
     // check sent messages 
-    await this.modPage.hasText(e.privateChat, e.message2);
-    await this.userPage.hasText(e.privateChat, e.message2);
+    await this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, e.message2);
+    await this.userPage.hasText(`${e.chatUserMessageText}>>nth=1`, e.message2);
 
     await this.modPage.waitAndClick(e.chatButton);
     await this.userPage.waitAndClick(e.chatButton);
@@ -61,9 +61,7 @@ class Chat extends MultiUsers {
     // clear
     await this.modPage.waitAndClick(e.chatOptions);
     await this.modPage.waitAndClick(e.chatClear);
-    const clearMessage = this.modPage.getLocator(e.chatClearMessageText);
-    await expect(clearMessage).toBeVisible();
-
+    await this.modPage.hasText(e.chatUserMessageText, 'The public chat history was cleared by a moderator');
   }
 
   async copyChat(context) {
@@ -117,7 +115,7 @@ class Chat extends MultiUsers {
 
     await this.modPage.page.fill(e.chatBox, e.uniqueCharacterMessage.repeat(maxMessageLength));
     await this.modPage.type(e.chatBox, '123');  // it should has no effect
-    await this.modPage.waitForSelector(e.typingIndicator);  // warning below input message saying it has exceeded the maximum of characters
+    await this.modPage.waitForSelector(e.errorTypingIndicator);  // warning below input message saying it has exceeded the maximum of characters
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.checkElementCount(e.chatUserMessageText, initialMessagesCount + 2);
   }
@@ -265,13 +263,15 @@ class Chat extends MultiUsers {
       await this.modPage.hasElement(e.publicChat);
     }
 
-    const message = await this.modPage.getSelectorCount(e.chatUserMessageText);
-    await this.modPage.checkElementCount(e.chatUserMessageText, message);
+    await this.modPage.waitAndClick(e.chatOptions);
+    await this.modPage.waitAndClick(e.chatClear);
+
+    await this.modPage.checkElementCount(e.chatUserMessageText, 1);
 
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.waitForSelector(e.chatUserMessageText);
-    await this.modPage.checkElementCount(e.chatUserMessageText, message + 1);
+    await this.modPage.checkElementCount(e.chatUserMessageText, 2);
   }
 
   async autoConvertEmojiCopyChat(context) {
@@ -323,7 +323,8 @@ class Chat extends MultiUsers {
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
-    await openPrivateChat(this.userPage);
+    //await openPrivateChat(this.userPage);
+    await this.userPage.waitAndClick(`${e.chatButton}>>nth=1`);
     await this.userPage.waitForSelector(e.hidePrivateChat);
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage)
@@ -332,8 +333,10 @@ class Chat extends MultiUsers {
     await this.userPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.userPage.waitAndClick(e.sendButton);
     // check sent messages 
-    await this.modPage.hasText(e.privateChat, e.convertedEmojiMessage);
-    await this.userPage.hasText(e.privateChat, e.convertedEmojiMessage);
+    const lastMessageLocator = await this.modPage.getLocator(e.chatUserMessageText).last();
+    await expect(lastMessageLocator).toHaveText(e.convertedEmojiMessage);
+    const lastMessageLocatorUser = await this.userPage.getLocator(e.chatUserMessageText).last()
+    await expect(lastMessageLocatorUser).toHaveText(e.convertedEmojiMessage);
   }
 
   async chatDisabledUserLeaves() {
@@ -341,8 +344,8 @@ class Chat extends MultiUsers {
     await this.modPage.waitForSelector(e.sendButton);
     await this.userPage.waitAndClick(e.optionsButton);
     await this.userPage.waitAndClick(e.logout);
-    await this.modPage.hasElementDisabled(e.chatBox);
-    await this.modPage.hasElementDisabled(e.sendButton);
+    await this.modPage.hasElement(e.partnerDisconnectedMessage, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.sendButton);
   }  
 }
 

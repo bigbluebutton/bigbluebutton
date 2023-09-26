@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.running
 
-import akka.actor.ActorContext
+import org.apache.pekko.actor.ActorContext
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._

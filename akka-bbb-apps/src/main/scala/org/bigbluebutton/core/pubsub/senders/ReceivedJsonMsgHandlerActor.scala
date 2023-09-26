@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import akka.actor.{ Actor, ActorLogging, Props }
+import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.common2.msgs._
