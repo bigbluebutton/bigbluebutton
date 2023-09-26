@@ -173,6 +173,7 @@ const UserActions = (props) => {
             key: pluginItem.id,
             label: pluginItem.label,
             onClick: pluginItem.onClick,
+            icon: pluginItem.icon,
           });
           break;
         case PluginSdk.UserCameraDropdownItemType.SEPARATOR:
