@@ -1411,8 +1411,10 @@ CREATE TABLE "audio_caption" (
     "createdAt" timestamp with time zone
 );
 
-CREATE VIEW "v_audio_caption" AS
-SELECT * FROM "audio_caption";
+CREATE OR REPLACE VIEW "v_audio_caption" AS
+SELECT *
+FROM "audio_caption"
+WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
 ------------------------------------
 ----
