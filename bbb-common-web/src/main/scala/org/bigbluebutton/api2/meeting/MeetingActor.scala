@@ -1,7 +1,7 @@
 package org.bigbluebutton.api2.meeting
 
-import akka.actor.Actor
-import akka.actor.ActorLogging
+import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.ActorLogging
 
 object MeetingActor {
 
