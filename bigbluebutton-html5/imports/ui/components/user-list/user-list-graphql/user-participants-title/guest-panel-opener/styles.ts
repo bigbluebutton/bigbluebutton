@@ -1,10 +1,5 @@
 import styled from 'styled-components';
 
-import Styled from '/imports/ui/components/user-list/styles';
-import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
-
-import styled from 'styled-components';
-
 import {
   smPaddingX,
   lgPaddingY,

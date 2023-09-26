@@ -1,4 +1,6 @@
 import React, { useCallback } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import { Meeting } from '/imports/ui/Types/meeting';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import { useSubscription } from '@apollo/client';
@@ -6,9 +8,9 @@ import { GET_GUESTS_COUNT, GuestUsersCountResponse } from './queries';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
-import { defineMessages, useIntl } from 'react-intl';
+import logger from '/imports/startup/client/logger';
 
 const ALWAYS_SHOW_WAITING_ROOM = Meteor.settings.public.app.alwaysShowWaitingRoomUI;
 
@@ -26,7 +28,6 @@ const intlMessages = defineMessages({
     description: 'Title for the waiting users',
   },
 });
-
 
 const GuestPanelOpener: React.FC<GuestPanelOpenerProps> = ({
   count: pendingUsers = 0,
@@ -100,7 +101,7 @@ const GuestPanelOpenerContainer: React.FC = () => {
   } = useSubscription<GuestUsersCountResponse>(GET_GUESTS_COUNT);
 
   if (guestsCountError) {
-    console.error(guestsCountError);
+    logger.error(guestsCountError);
     return (
       <div>
         {
