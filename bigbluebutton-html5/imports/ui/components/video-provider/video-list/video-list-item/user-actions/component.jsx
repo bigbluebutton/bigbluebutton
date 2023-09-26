@@ -81,7 +81,6 @@ const UserActions = (props) => {
       ...pluginsProvidedAggregatedState.userCameraDropdownItems,
     ];
   }
-  console.log("Teste aqui ----> ", pluginsProvidedAggregatedState.userCameraDropdownItems)
 
   const intl = useIntl();
   const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -173,9 +172,7 @@ const UserActions = (props) => {
           menuItems.push({
             key: pluginItem.id,
             label: pluginItem.label,
-            onclick: pluginItem.onClick,
-            icon: pluginItem.icon,
-            allowed: pluginItem.allowed,
+            onClick: pluginItem.onClick,
           });
           break;
         case PluginSdk.UserCameraDropdownItemType.SEPARATOR:

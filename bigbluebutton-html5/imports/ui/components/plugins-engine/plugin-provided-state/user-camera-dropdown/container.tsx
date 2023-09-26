@@ -17,7 +17,7 @@ const UserCameraDropdownPluginStateContainer = ((
     pluginApi,
   } = props;
   const [
-    actionButtonDropdownItems,
+    userCameraDropdownItems,
     setUserCameraDropdownItems,
   ] = useState<PluginSdk.UserCameraDropdownItem[]>([]);
 
@@ -28,21 +28,21 @@ const UserCameraDropdownPluginStateContainer = ((
 
   useEffect(() => {
     // Change this plugin provided toolbar items
-    pluginProvidedStateMap[uuid].actionButtonDropdownItems = actionButtonDropdownItems;
+    pluginProvidedStateMap[uuid].userCameraDropdownItems = userCameraDropdownItems;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedUserCameraDropdownItems = (
       [] as PluginSdk.UserCameraDropdownItem[]).concat(
       ...Object.values(pluginProvidedStateMap)
-        .map((pps: PluginProvidedState) => pps.actionButtonDropdownItems),
+        .map((pps: PluginProvidedState) => pps.userCameraDropdownItems),
     );
     setPluginsProvidedAggregatedState(
       {
         ...pluginsProvidedAggregatedState,
-        actionButtonDropdownItems: aggregatedUserCameraDropdownItems,
+        userCameraDropdownItems: aggregatedUserCameraDropdownItems,
       },
     );
-  }, [actionButtonDropdownItems]);
+  }, [userCameraDropdownItems]);
 
   pluginApi.setUserCameraDropdownItems = (items: PluginSdk.UserCameraDropdownItem[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.UserCameraDropdownItem[];
