@@ -1,14 +1,14 @@
 import React from 'react';
 import Header from '/imports/ui/components/common/control-header/component';
 import { useMutation, useQuery } from '@apollo/client';
-import { GET_CHAT_DATA, GetChatDataResponse, CLOSE_PRIVATE_CHAT_MUTATION } from './queries';
 import { defineMessages, useIntl } from 'react-intl';
-import { closePrivateChat } from './services';
+import { GET_CHAT_DATA, GetChatDataResponse, CLOSE_PRIVATE_CHAT_MUTATION } from './queries';
+import closePrivateChat from './services';
 import { layoutSelect, layoutDispatch } from '../../../layout/context';
 import { useShortcut } from '../../../../core/hooks/useShortcut';
 import { Layout } from '../../../layout/layoutTypes';
 import { ACTIONS, PANELS } from '../../../layout/enums';
-import { ChatActions } from './chat-actions/component';
+import ChatActions from './chat-actions/component';
 
 interface ChatHeaderProps {
   chatId: string;
@@ -36,7 +36,6 @@ const intlMessages = defineMessages({
 });
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId, isPublicChat, title }) => {
-
   const HIDE_CHAT_AK = useShortcut('hideprivatechat');
   const CLOSE_CHAT_AK = useShortcut('closeprivatechat');
   const layoutContextDispatch = layoutDispatch();
@@ -109,8 +108,22 @@ const ChatHeaderContainer: React.FC = () => {
   });
 
   if (chatDataLoading) return null;
-  if (chatDataError) return (<div>Error: {JSON.stringify(chatDataError)}</div>);
-  if (!isChatResponse(chatData)) return (<div>Error: {JSON.stringify(chatData)}</div>);
+  if (chatDataError) {
+    return (
+      <div>
+        Error:
+        {JSON.stringify(chatDataError)}
+      </div>
+    );
+  }
+  if (!isChatResponse(chatData)) {
+    return (
+      <div>
+        Error:
+        {JSON.stringify(chatData)}
+      </div>
+    );
+  }
   const isPublicChat = chatData.chat[0]?.public;
   const title = isPublicChat ? intl.formatMessage(intlMessages.titlePublic)
     : intl.formatMessage(intlMessages.titlePrivate, { 0: chatData?.chat[0]?.participant?.name });

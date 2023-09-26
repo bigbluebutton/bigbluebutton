@@ -13,6 +13,7 @@ function createUseLocalState<T>(initialValue: T):
     return [reactiveLocalState, changeLocalState];
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   function changeLocalState(value: T | Function) {
     if (value instanceof Function) {
       return localState(value(localState()));

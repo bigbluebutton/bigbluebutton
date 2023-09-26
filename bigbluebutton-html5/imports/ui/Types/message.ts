@@ -4,8 +4,7 @@ export interface Message {
   chatEmphasizedText: boolean;
   chatId: string;
   correlationId: string;
-  createdTime: number;
-  createdTimeAsDate: string;
+  createdAt: string;
   meetingId: string;
   message: string;
   messageType: string;

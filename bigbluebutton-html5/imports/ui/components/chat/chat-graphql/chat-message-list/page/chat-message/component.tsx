@@ -85,7 +85,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
 
   const sameSender = (previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId;
-  const dateTime = new Date(message?.createdTime);
+  const dateTime = new Date(message?.createdAt);
   const messageContent: {
     name: string,
     color: string,
@@ -146,7 +146,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           color={messageContent.color}
           moderator={messageContent.isModerator}
         >
-          {messageContent.name.toLowerCase().slice(0, 2) || ' '}
+          {message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) || '' : ''}
         </ChatAvatar>
       )}
       <ChatContent sameSender={message?.user ? sameSender : false}>

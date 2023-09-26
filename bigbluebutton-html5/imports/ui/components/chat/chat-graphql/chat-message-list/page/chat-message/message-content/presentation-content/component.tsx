@@ -1,6 +1,7 @@
-import React from "react";
+import React from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
-import { defineMessages, useIntl } from "react-intl";
+
 interface ChatMessagePresentationContentProps {
   metadata: string;
 }
@@ -32,7 +33,6 @@ const intlMessages = defineMessages({
   },
 });
 
-
 const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentProps> = ({
   metadata: string,
 }) => {
@@ -49,10 +49,11 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
         rel="noopener, noreferrer"
         download
       >
-        {intl.formatMessage(intlMessages.download)} <i className="icon-bbb-warning"></i>
+        {intl.formatMessage(intlMessages.download)}
+        <i className="icon-bbb-warning" />
       </Styled.ChatLink>
-    </Styled.ChatDowloadContainer >
+    </Styled.ChatDowloadContainer>
   );
-}
+};
 
 export default ChatMessagePresentationContent;

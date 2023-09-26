@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.bus
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import org.bigbluebutton.core.api.InMessage
 
 case class BigBlueButtonEvent(val topic: String, val payload: InMessage)

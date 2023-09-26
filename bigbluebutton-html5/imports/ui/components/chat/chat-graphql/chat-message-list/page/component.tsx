@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
 import { useSubscription } from '@apollo/client';
 import {
@@ -7,7 +8,7 @@ import {
   ChatMessagePublicSubscriptionResponse,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
-import ChatMessage from './chat-message/componet';
+import ChatMessage from './chat-message/component';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -19,7 +20,7 @@ interface ChatListPageContainerProps {
   setLastSender: (page: number, message: string) => void;
   lastSenderPreviousPage: string | undefined;
   // eslint-disable-next-line react/no-unused-prop-types
-  lastSeenAt: number,
+  lastSeenAt: string,
   chatId: string;
   markMessageAsSeen: (message: Message) => void;
   scrollRef: React.RefObject<HTMLDivElement>;
@@ -38,7 +39,7 @@ const verifyIfIsPublicChat = (message: unknown):
 message is ChatMessagePublicSubscriptionResponse => (message as ChatMessagePublicSubscriptionResponse).chat_message_public !== undefined;
 
 // eslint-disable-next-line max-len
-const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined
+const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined;
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
@@ -53,7 +54,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
       const previousMessage = Array[index - 1];
       return (
         <ChatMessage
-          key={message.createdTime}
+          key={message.createdAt}
           message={message}
           previousMessage={previousMessage}
           lastSenderPreviousPage={

@@ -1,12 +1,12 @@
 import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import Styled from './styles';
 import { defineMessages, useIntl } from 'react-intl';
-import ChatListItem from './chat-list-item/component'
+import { findDOMNode } from 'react-dom';
+import Styled from './styles';
+import ChatListItem from './chat-list-item/component';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import Service from '/imports/ui/components/user-list/service';
-import { findDOMNode } from 'react-dom';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -65,11 +65,12 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   }, [selectedChat]);
 
   const rove = (event: KeyboardEvent) => {
+    // eslint-disable-next-line react/no-find-dom-node
     const msgItemsRef = findDOMNode(messageItemsRef.current);
     const msgItemsRefChild = msgItemsRef?.firstChild;
     roving(event, setSelectedChat, msgItemsRefChild, selectedChat);
     event.stopPropagation();
-  }
+  };
 
   const intl = useIntl();
   return (
@@ -85,12 +86,13 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
         ref={messageListRef}
       >
         <Styled.List ref={messageItemsRef}>
-          <TransitionGroup >
+          <TransitionGroup>
             {getActiveChats(chats) ?? null}
           </TransitionGroup>
         </Styled.List>
       </Styled.ScrollableList>
-    </Styled.Messages>)
+    </Styled.Messages>
+  );
 };
 
 const ChatListContainer: React.FC = () => {

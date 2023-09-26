@@ -77,7 +77,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
           "numResponders" -> result.numResponders,
         )
 
-        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "poll", resultAsSimpleMap, "")
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.POLL, resultAsSimpleMap, "")
         broadcastEvent(msg, result, annotationProp)
       }
     }

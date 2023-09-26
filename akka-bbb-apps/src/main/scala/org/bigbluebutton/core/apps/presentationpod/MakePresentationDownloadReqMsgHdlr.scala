@@ -247,7 +247,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         "fileURI" -> m.body.annotatedFileURI,
         "filename" -> "annotated_slides.pdf"
       )
-      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "presentation", presentationDownloadInfo, "")
+      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
     }
 
     bus.outGW.send(buildBroadcastNewPresFileAvailable(m, liveMeeting))

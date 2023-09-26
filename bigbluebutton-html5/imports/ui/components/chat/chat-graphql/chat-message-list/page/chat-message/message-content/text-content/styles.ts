@@ -23,6 +23,11 @@ export const ChatMessage = styled.div<ChatMessageProps>`
 
   & p {
     margin: 0;
+    white-space: pre-wrap;
+  }
+
+  & code {
+    white-space: pre-wrap;
   }
 `;
 

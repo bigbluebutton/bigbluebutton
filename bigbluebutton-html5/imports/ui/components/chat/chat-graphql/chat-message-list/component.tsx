@@ -1,7 +1,14 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+} from 'react';
 import { Meteor } from 'meteor/meteor';
 import { makeVar, useMutation } from '@apollo/client';
-import { LAST_SEEN_MUTATION } from './queries';
+import { defineMessages, useIntl } from 'react-intl';
+import LAST_SEEN_MUTATION from './queries';
 import {
   ButtonLoadMore,
   MessageList,
@@ -10,7 +17,6 @@ import {
 } from './styles';
 import { layoutSelect } from '../../../layout/context';
 import ChatListPage from './page/component';
-import { defineMessages, useIntl } from 'react-intl';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import { Message } from '/imports/ui/Types/message';
@@ -45,23 +51,23 @@ interface ChatListProps {
     data: {
       variables: {
         chatId: string,
-        lastSeenAt: number,
+        lastSeenAt: string,
       },
     }
   ) => void;
-  lastSeenAt: number;
+  lastSeenAt: string;
 }
-const isElement = (el: any): el is HTMLElement => {
+const isElement = (el: unknown): el is HTMLElement => {
   return el instanceof HTMLElement;
-}
+};
 
-const isMap = (map: any): map is Map<number, string> => {
+const isMap = (map: unknown): map is Map<number, string> => {
   return map instanceof Map;
-}
+};
 let elHeight = 0;
 
 const scrollObserver = new ResizeObserver((entries) => {
-  for (const entry of entries) {
+  entries.forEach((entry) => {
     const el = entry.target;
     if (isElement(el) && isElement(el.parentElement)) {
       if (el.offsetHeight > elHeight) {
@@ -71,32 +77,31 @@ const scrollObserver = new ResizeObserver((entries) => {
         elHeight = 0;
       }
     }
-  }
+  });
 });
 
 const setLastSender = (lastSenderPerPage: Map<number, string>) => {
-
   return (page: number, sender: string) => {
     if (isMap(lastSenderPerPage)) {
       lastSenderPerPage.set(page, sender);
     }
-  }
-}
+  };
+};
 
 const lastSeenQueue = makeVar<{ [key: string]: Set<number> }>({});
-const setter = makeVar<{ [key: string]: Function }>({});
+const setter = makeVar<{ [key: string]:(lastSeenTime: string) => void }>({});
 const lastSeenAtVar = makeVar<{ [key: string]: number }>({});
 const chatIdVar = makeVar<string>('');
 
 const dispatchLastSeen = () => setTimeout(() => {
   const lastSeenQueueValue = lastSeenQueue();
   if (lastSeenQueueValue[chatIdVar()]) {
-    const lastTimeQueue = Array.from(lastSeenQueueValue[chatIdVar()])
+    const lastTimeQueue = Array.from(lastSeenQueueValue[chatIdVar()]);
     const lastSeenTime = Math.max(...lastTimeQueue);
     const lastSeenAtVarValue = lastSeenAtVar();
     if (lastSeenTime > (lastSeenAtVarValue[chatIdVar()] ?? 0)) {
       lastSeenAtVar({ ...lastSeenAtVar(), [chatIdVar()]: lastSeenTime });
-      setter()[chatIdVar()](lastSeenTime);
+      setter()[chatIdVar()](new Date(lastSeenTime).toISOString());
     }
   }
 }, 500);
@@ -115,49 +120,49 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
-  const [lastMessageCreatedTime, setLastMessageCreatedTime] = useState<number>(0);
+  const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
 
   useEffect(() => {
     setter({
       ...setter(),
-      [chatId]: setLastMessageCreatedTime,
+      [chatId]: setLastMessageCreatedAt,
     });
     chatIdVar(chatId);
-    setLastMessageCreatedTime(0);
+    setLastMessageCreatedAt('');
   }, [chatId]);
   useEffect(() => {
-    setMessageAsSeenMutation({
-      variables: {
-        chatId: chatId,
-        lastSeenAt: lastMessageCreatedTime,
-      },
-    });
-  }, [lastMessageCreatedTime]);
+    if (lastMessageCreatedAt !== '') {
+      setMessageAsSeenMutation({
+        variables: {
+          chatId,
+          lastSeenAt: lastMessageCreatedAt,
+        },
+      });
+    }
+  }, [lastMessageCreatedAt]);
 
   const markMessageAsSeen = useCallback((message: Message) => {
-    if (message.createdTime > (lastMessageCreatedTime ?? 0)) {
+    if (new Date(message.createdAt).getTime() > new Date((lastMessageCreatedAt || 0)).getTime()) {
       dispatchLastSeen();
       const lastSeenQueueValue = lastSeenQueue();
       if (lastSeenQueueValue[chatId]) {
-        lastSeenQueueValue[chatId].add(message.createdTime);
-        lastSeenQueue(lastSeenQueueValue)
+        lastSeenQueueValue[chatId].add(new Date(message.createdAt).getTime());
+        lastSeenQueue(lastSeenQueueValue);
       } else {
-        lastSeenQueueValue[chatId] = new Set([message.createdTime]);
-        lastSeenQueue(lastSeenQueueValue)
+        lastSeenQueueValue[chatId] = new Set([new Date(message.createdAt).getTime()]);
+        lastSeenQueue(lastSeenQueueValue);
       }
     }
-  }, [lastMessageCreatedTime, chatId]);
+  }, [lastMessageCreatedAt, chatId]);
 
   const setScrollToTailEventHandler = (el: HTMLDivElement) => {
     if (Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) === 0) {
       if (isElement(contentRef.current)) {
-        toggleFollowingTail(true)
+        toggleFollowingTail(true);
       }
-    } else {
-      if (isElement(contentRef.current)) {
-        toggleFollowingTail(false)
-      }
+    } else if (isElement(contentRef.current)) {
+      toggleFollowingTail(false);
     }
   };
 
@@ -168,14 +173,12 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         scrollObserver.observe(contentRef.current as HTMLDivElement);
         setFollowingTail(true);
       }
-    } else {
-      if (isElement(contentRef.current)) {
-        if (userLoadedBackUntilPage === null) {
-          setUserLoadedBackUntilPage(Math.max(totalPages - 2, 0));
-        }
-        scrollObserver.unobserve(contentRef.current as HTMLDivElement);
-        setFollowingTail(false);
+    } else if (isElement(contentRef.current)) {
+      if (userLoadedBackUntilPage === null) {
+        setUserLoadedBackUntilPage(Math.max(totalPages - 2, 0));
       }
+      scrollObserver.unobserve(contentRef.current as HTMLDivElement);
+      setFollowingTail(false);
     }
   };
 
@@ -189,7 +192,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
           onClick={() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
           }}
         />
       );
@@ -232,7 +235,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
     return () => {
       toggleFollowingTail(false);
-    }
+    };
   }, [contentRef]);
 
   const firstPageToLoad = userLoadedBackUntilPage !== null
@@ -248,7 +251,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               onWheel={(e) => {
                 if (e.deltaY < 0) {
                   if (isElement(contentRef.current) && followingTail) {
-                    toggleFollowingTail(false)
+                    toggleFollowingTail(false);
                   }
                 } else if (e.deltaY > 0) {
                   setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
@@ -278,7 +281,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     ) : null
                 }
               </span>
-              <div id="contentRef" ref={contentRef}>
+              <div id="contentRef" ref={contentRef} data-test="chatMessages">
                 <ChatPopupContainer />
                 {
                   // @ts-ignore
@@ -288,14 +291,14 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                         key={`page-${page}`}
                         page={page}
                         pageSize={PAGE_SIZE}
-                        setLastSender={()=> setLastSender(lastSenderPerPage.current)}
+                        setLastSender={() => setLastSender(lastSenderPerPage.current)}
                         lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
                         chatId={chatId}
                         markMessageAsSeen={markMessageAsSeen}
                         scrollRef={messageListRef}
                         lastSeenAt={lastSeenAt}
                       />
-                    )
+                    );
                   })
                 }
               </div>
@@ -319,7 +322,7 @@ const ChatMessageListContainer: React.FC = () => {
       totalMessages: chat.totalMessages,
       totalUnread: chat.totalUnread,
       lastSeenAt: chat.lastSeenAt,
-    }
+    };
   }, chatId) as Partial<Chat>;
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);
@@ -328,7 +331,7 @@ const ChatMessageListContainer: React.FC = () => {
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
     <ChatMessageList
-      lastSeenAt={currentChat?.lastSeenAt || 0}
+      lastSeenAt={currentChat?.lastSeenAt || ''}
       totalPages={totalPages}
       chatId={chatId}
       setMessageAsSeenMutation={setMessageAsSeenMutation}
