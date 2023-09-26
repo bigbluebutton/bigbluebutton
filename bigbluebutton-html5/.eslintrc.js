@@ -32,6 +32,7 @@ module.exports = {
       parser: '@typescript-eslint/parser',
       plugins: ['@typescript-eslint'],
       rules: {
+        camelcase: 'off',
         'no-use-before-define': 'off',
         'arrow-body-style': 'off',
         'no-shadow': 'off',
