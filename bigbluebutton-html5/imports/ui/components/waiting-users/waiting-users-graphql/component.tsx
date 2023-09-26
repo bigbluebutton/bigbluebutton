@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
@@ -29,7 +34,7 @@ import { Meeting } from '/imports/ui/Types/meeting';
 // @ts-ignore - temporary, while meteor exists in the project
 const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
 // @ts-ignore - temporary, while meteor exists in the project
-const guestPolicyExtraAllowOptions = Meteor.settings.public.app.guestPolicyExtraAllowOptions;
+const { guestPolicyExtraAllowOptions } = Meteor.settings.public.app;
 
 // We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
 // @ts-ignore - temporary, while meteor exists in the project

@@ -102,12 +102,14 @@ const renderGuestUserItem = (
       {isGuestLobbyMessageEnabled ? (
         <Styled.PrivateLobbyMessage
           id={`privateMessage-${userId}`}
-          data-test="privateLobbyMessage">
+          data-test="privateLobbyMessage"
+        >
           <TextInput
             maxLength={128}
             placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder,
               { 0: name })}
-            send={setPrivateGuestLobbyMessage} />
+            send={setPrivateGuestLobbyMessage}
+          />
           <p>
             <i>
               &quot;

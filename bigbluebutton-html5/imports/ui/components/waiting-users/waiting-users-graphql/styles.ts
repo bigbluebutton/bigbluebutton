@@ -108,7 +108,7 @@ const ButtonContainer = styled.div`
     border-radius: 50%;
   }
 `;
-
+// @ts-ignore - Button is JS
 const WaitingUsersButton = styled(Button)`
   font-weight: 400;
   color: ${colorPrimary};
@@ -124,6 +124,7 @@ const WaitingUsersButton = styled(Button)`
     background-color: ${listItemBgHover} !important;
   }
 `;
+// @ts-ignore - Button is JS
 const WaitingUsersButtonMsg = styled(Button)`
   font-weight: 400;
   color: ${colorPrimary};
@@ -144,6 +145,7 @@ const WaitingUsersButtonMsg = styled(Button)`
     background-color: ${listItemBgHover} !important;
   }
 `;
+// @ts-ignore - Button is JS
 const WaitingUsersButtonDeny = styled(Button)`
   font-weight: 400;
   color: #ff0e0e;
@@ -183,7 +185,7 @@ const Users = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
+// @ts-ignore - Button is JS
 const CustomButton = styled(Button)`
   width: 100%;
   padding: .75rem;
@@ -266,7 +268,7 @@ const ModeratorActions = styled.div`
   padding: 0 .2rem;
 `;
 
-const pulse = (color: String) => keyframes`
+const pulse = (color: string) => keyframes`
     0% {
       box-shadow: 0 0 0 0 ${color}80;
     }
