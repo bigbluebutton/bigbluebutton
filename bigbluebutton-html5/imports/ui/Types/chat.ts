@@ -1,4 +1,5 @@
 import { User } from './user';
+
 export interface Chat {
   chatId: string;
   meetingId: string;

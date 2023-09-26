@@ -59,11 +59,11 @@ interface ChatListProps {
 }
 const isElement = (el: unknown): el is HTMLElement => {
   return el instanceof HTMLElement;
-}
+};
 
 const isMap = (map: unknown): map is Map<number, string> => {
   return map instanceof Map;
-}
+};
 let elHeight = 0;
 
 const scrollObserver = new ResizeObserver((entries) => {
@@ -81,7 +81,6 @@ const scrollObserver = new ResizeObserver((entries) => {
 });
 
 const setLastSender = (lastSenderPerPage: Map<number, string>) => {
-
   return (page: number, sender: string) => {
     if (isMap(lastSenderPerPage)) {
       lastSenderPerPage.set(page, sender);
