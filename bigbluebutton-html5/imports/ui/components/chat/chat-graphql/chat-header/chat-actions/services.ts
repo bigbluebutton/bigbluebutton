@@ -1,5 +1,5 @@
-import { Message } from "/imports/ui/Types/message";
-import { makeCall } from "/imports/ui/services/api";
+import { Message } from '/imports/ui/Types/message';
+import { makeCall } from '/imports/ui/services/api';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { IntlShape, defineMessages } from 'react-intl';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
@@ -23,7 +23,7 @@ export const generateExportedMessages = (
 ): string => {
   const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
   const modOnlyMessage = welcomeSettings.welcomeMsgForModerators && htmlDecode(welcomeSettings.welcomeMsgForModerators);
-  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}` : ''}\n`
+  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}` : ''}\n`;
 
   const text = messages.reduce((acc, message) => {
     const date = new Date(message.createdAt);

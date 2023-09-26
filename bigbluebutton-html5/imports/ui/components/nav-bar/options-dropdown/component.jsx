@@ -5,87 +5,88 @@ import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/container';
-import SettingsMenuContainer from '/imports/ui/components/settings/container';
+import OptionsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   optionsLabel: {
-    id: 'app.navBar.settingsDropdown.optionsLabel',
+    id: 'app.navBar.optionsDropdown.optionsLabel',
     description: 'Options button label',
   },
   fullscreenLabel: {
-    id: 'app.navBar.settingsDropdown.fullscreenLabel',
+    id: 'app.navBar.optionsDropdown.fullscreenLabel',
     description: 'Make fullscreen option label',
   },
   settingsLabel: {
-    id: 'app.navBar.settingsDropdown.settingsLabel',
+    id: 'app.navBar.optionsDropdown.settingsLabel',
     description: 'Open settings option label',
   },
   aboutLabel: {
-    id: 'app.navBar.settingsDropdown.aboutLabel',
+    id: 'app.navBar.optionsDropdown.aboutLabel',
     description: 'About option label',
   },
   aboutDesc: {
-    id: 'app.navBar.settingsDropdown.aboutDesc',
+    id: 'app.navBar.optionsDropdown.aboutDesc',
     description: 'Describes about option',
   },
   leaveSessionLabel: {
-    id: 'app.navBar.settingsDropdown.leaveSessionLabel',
+    id: 'app.navBar.optionsDropdown.leaveSessionLabel',
     description: 'Leave session button label',
   },
   fullscreenDesc: {
-    id: 'app.navBar.settingsDropdown.fullscreenDesc',
+    id: 'app.navBar.optionsDropdown.fullscreenDesc',
     description: 'Describes fullscreen option',
   },
   settingsDesc: {
-    id: 'app.navBar.settingsDropdown.settingsDesc',
+    id: 'app.navBar.optionsDropdown.settingsDesc',
     description: 'Describes settings option',
   },
   leaveSessionDesc: {
-    id: 'app.navBar.settingsDropdown.leaveSessionDesc',
+    id: 'app.navBar.optionsDropdown.leaveSessionDesc',
     description: 'Describes leave session option',
   },
   exitFullscreenDesc: {
-    id: 'app.navBar.settingsDropdown.exitFullscreenDesc',
+    id: 'app.navBar.optionsDropdown.exitFullscreenDesc',
     description: 'Describes exit fullscreen option',
   },
   exitFullscreenLabel: {
-    id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
+    id: 'app.navBar.optionsDropdown.exitFullscreenLabel',
     description: 'Exit fullscreen option label',
   },
   hotkeysLabel: {
-    id: 'app.navBar.settingsDropdown.hotkeysLabel',
+    id: 'app.navBar.optionsDropdown.hotkeysLabel',
     description: 'Hotkeys options label',
   },
   hotkeysDesc: {
-    id: 'app.navBar.settingsDropdown.hotkeysDesc',
+    id: 'app.navBar.optionsDropdown.hotkeysDesc',
     description: 'Describes hotkeys option',
   },
   helpLabel: {
-    id: 'app.navBar.settingsDropdown.helpLabel',
+    id: 'app.navBar.optionsDropdown.helpLabel',
     description: 'Help options label',
   },
   openAppLabel: {
-    id: 'app.navBar.settingsDropdown.openAppLabel',
+    id: 'app.navBar.optionsDropdown.openAppLabel',
     description: 'Open mobile app label',
   },
   helpDesc: {
-    id: 'app.navBar.settingsDropdown.helpDesc',
+    id: 'app.navBar.optionsDropdown.helpDesc',
     description: 'Describes help option',
   },
   endMeetingLabel: {
-    id: 'app.navBar.settingsDropdown.endMeetingLabel',
+    id: 'app.navBar.optionsDropdown.endMeetingLabel',
     description: 'End meeting options label',
   },
   endMeetingDesc: {
-    id: 'app.navBar.settingsDropdown.endMeetingDesc',
+    id: 'app.navBar.optionsDropdown.endMeetingDesc',
     description: 'Describes settings option closing the current meeting',
   },
   startCaption: {
@@ -113,6 +114,10 @@ const propTypes = {
   audioCaptionsActive: PropTypes.bool.isRequired,
   audioCaptionsSet: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
+  optionsDropdownItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    type: PropTypes.string,
+  })).isRequired,
 };
 
 const defaultProps = {
@@ -128,14 +133,14 @@ const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
 const { isSafari, isTabletApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
-class SettingsDropdown extends PureComponent {
+class OptionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
     this.state = {
       isAboutModalOpen: false,
       isShortcutHelpModalOpen: false,
-      isSettingsMenuModalOpen: false,
+      isOptionsMenuModalOpen: false,
       isEndMeetingConfirmationModalOpen: false,
       isMobileAppModalOpen:false,
       isFullscreen: false,
@@ -146,7 +151,7 @@ class SettingsDropdown extends PureComponent {
 
     this.leaveSession = this.leaveSession.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
-    this.setSettingsMenuModalIsOpen = this.setSettingsMenuModalIsOpen.bind(this);
+    this.setOptionsMenuModalIsOpen = this.setOptionsMenuModalIsOpen.bind(this);
     this.setEndMeetingConfirmationModalIsOpen = this.setEndMeetingConfirmationModalIsOpen.bind(this);
     this.setMobileAppModalIsOpen = this.setMobileAppModalIsOpen.bind(this);
     this.setAboutModalIsOpen = this.setAboutModalIsOpen.bind(this);
@@ -217,8 +222,8 @@ class SettingsDropdown extends PureComponent {
     this.setState({isShortcutHelpModalOpen: value})
   }
   
-  setSettingsMenuModalIsOpen(value) {
-    this.setState({isSettingsMenuModalOpen: value})
+  setOptionsMenuModalIsOpen(value) {
+    this.setState({isOptionsMenuModalOpen: value})
   }
   
   setEndMeetingConfirmationModalIsOpen(value) {
@@ -232,7 +237,7 @@ class SettingsDropdown extends PureComponent {
   renderMenuItems() {
     const {
       intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
-      audioCaptionsActive, audioCaptionsSet, isMobile,
+      audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -256,7 +261,7 @@ class SettingsDropdown extends PureComponent {
         dataTest: 'settings',
         label: intl.formatMessage(intlMessages.settingsLabel),
         description: intl.formatMessage(intlMessages.settingsDesc),
-        onClick: () => this.setSettingsMenuModalIsOpen(true),
+        onClick: () => this.setOptionsMenuModalIsOpen(true),
       },
       {
         key: 'list-item-about',
@@ -324,6 +329,27 @@ class SettingsDropdown extends PureComponent {
       },
     );
 
+    optionsDropdownItems.forEach((item) => {
+      switch (item.type) {
+        case PluginSdk.OptionsDropdownItemType.OPTION:
+          this.menuItems.push({
+            key: item.id,
+            icon: item.icon,
+            onClick: item.onClick,
+            label: item.label,
+          });
+          break;
+        case PluginSdk.OptionsDropdownItemType.SEPARATOR:
+          this.menuItems.push({
+            key: item.id,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
+
     if (allowLogoutSetting && isMeteorConnected) {
       this.menuItems.push(
         {
@@ -376,7 +402,7 @@ class SettingsDropdown extends PureComponent {
       isRTL,
     } = this.props;
 
-    const { isAboutModalOpen, isShortcutHelpModalOpen, isSettingsMenuModalOpen,
+    const { isAboutModalOpen, isShortcutHelpModalOpen, isOptionsMenuModalOpen,
       isEndMeetingConfirmationModalOpen, isMobileAppModalOpen, } = this.state;
 
     const customStyles = { top: '1rem' };
@@ -417,8 +443,8 @@ class SettingsDropdown extends PureComponent {
           AboutContainer)}
         {this.renderModal(isShortcutHelpModalOpen, this.setShortcutHelpModalIsOpen, 
           "low", ShortcutHelpComponent)}
-        {this.renderModal(isSettingsMenuModalOpen, this.setSettingsMenuModalIsOpen, 
-          "low", SettingsMenuContainer)}
+        {this.renderModal(isOptionsMenuModalOpen, this.setOptionsMenuModalIsOpen, 
+          "low", OptionsMenuContainer)}
         {this.renderModal(isEndMeetingConfirmationModalOpen, this.setEndMeetingConfirmationModalIsOpen, 
           "low", EndMeetingConfirmationContainer)}
         {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "low", 
@@ -427,6 +453,6 @@ class SettingsDropdown extends PureComponent {
     );
   }
 }
-SettingsDropdown.propTypes = propTypes;
-SettingsDropdown.defaultProps = defaultProps;
-export default withShortcutHelper(injectIntl(SettingsDropdown), 'openOptions');
+OptionsDropdown.propTypes = propTypes;
+OptionsDropdown.defaultProps = defaultProps;
+export default withShortcutHelper(injectIntl(OptionsDropdown), 'openOptions');

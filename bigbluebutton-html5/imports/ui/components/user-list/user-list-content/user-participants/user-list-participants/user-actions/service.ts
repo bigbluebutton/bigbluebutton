@@ -11,8 +11,10 @@ import logger from '/imports/startup/client/logger';
 import * as WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { throttle } from 'radash';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
 
@@ -86,6 +88,7 @@ export const generateActionsPermissions = (
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary, while meteor exists in the project
   const { allowUserLookup } = Meteor.settings.public.app;
 

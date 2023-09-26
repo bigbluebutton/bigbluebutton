@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const LAST_SEEN_MUTATION = gql`
+const LAST_SEEN_MUTATION = gql`
   mutation UpdateChatUser($chatId: String, $lastSeenAt: timestamptz) {
     update_chat_user(
       where: { 
@@ -16,3 +16,5 @@ export const LAST_SEEN_MUTATION = gql`
     }
   }
 `;
+
+export default LAST_SEEN_MUTATION;

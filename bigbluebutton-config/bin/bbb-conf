@@ -366,10 +366,6 @@ start_bigbluebutton () {
 
     echo "Starting BigBlueButton"
 
-    systemctl mask bbb-rap-resque-worker
-    systemctl mask bbb-rap-starter
-    systemctl mask bbb-rap-caption-inbox
-
     systemctl restart bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then

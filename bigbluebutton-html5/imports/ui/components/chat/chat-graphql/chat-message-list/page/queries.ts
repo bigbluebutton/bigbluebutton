@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { gql } from '@apollo/client';
 import { Message } from '/imports/ui/Types/message';
 

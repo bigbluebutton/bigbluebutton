@@ -1,11 +1,14 @@
 import { useEffect, useState, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-import { PluginProvidedStateChildrenProps, PluginProvidedState } from '../../types';
+import {
+  PluginProvidedStateContainerChildProps, PluginProvidedState,
+  PluginProvidedStateContainerChild,
+} from '../../types';
 import { PluginsContext } from '../../../components-data/plugin-context/context';
 
-const PresentationToolbarPluginStateContainer = (
-  props: PluginProvidedStateChildrenProps,
+const PresentationToolbarPluginStateContainer = ((
+  props: PluginProvidedStateContainerChildProps,
 ) => {
   const {
     uuid,
@@ -46,6 +49,6 @@ const PresentationToolbarPluginStateContainer = (
     return setPresentationToolbarItems(itemsWithId);
   };
   return null;
-};
+}) as PluginProvidedStateContainerChild;
 
 export default PresentationToolbarPluginStateContainer;

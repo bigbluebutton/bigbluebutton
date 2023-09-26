@@ -2,7 +2,9 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationConversionUpdatePubMsgHdlr {
@@ -34,6 +36,10 @@ trait PresentationConversionUpdatePubMsgHdlr {
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
+
+    val pres = new PresentationInPod(msg.body.presentationId, msg.body.presName, false, Map.empty, false,
+      false, uploadCompleted = false, numPages = -1, errorDetails = Map.empty)
+    PresPresentationDAO.insertOrUpdate(msg.header.meetingId, pres)
 
     broadcastEvent(msg)
     state

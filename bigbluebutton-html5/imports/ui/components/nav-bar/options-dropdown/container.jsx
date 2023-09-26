@@ -1,26 +1,38 @@
 import React from 'react';
+import { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
-import SettingsDropdown from './component';
+import OptionsDropdown from './component';
 import audioCaptionsService from '/imports/ui/components/audio/captions/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const { isIphone } = deviceInfo;
 const { isSafari, isValidSafariVersion } = browserInfo;
 
 const noIOSFullscreen = !!(((isSafari && !isValidSafariVersion) || isIphone));
 
-const SettingsDropdownContainer = (props) => {
+const OptionsDropdownContainer = (props) => {
   const { width: browserWidth } = layoutSelectInput((i) => i.browser);
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const isRTL = layoutSelect((i) => i.isRTL);
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  let optionsDropdownItems = [];
+  if (pluginsProvidedAggregatedState.optionsDropdownItems) {
+    optionsDropdownItems = [
+      ...pluginsProvidedAggregatedState.optionsDropdownItems,
+    ];
+  }
 
   return (
-    <SettingsDropdown {...{ isMobile, isRTL, ...props }} />
+    <OptionsDropdown {...{
+      isMobile, isRTL, optionsDropdownItems, ...props,
+    }}
+    />
   );
 };
 
@@ -38,4 +50,4 @@ export default withTracker((props) => {
     isBreakoutRoom: meetingIsBreakout(),
     isDropdownOpen: Session.get('dropdownOpen'),
   };
-})(SettingsDropdownContainer);
+})(OptionsDropdownContainer);
