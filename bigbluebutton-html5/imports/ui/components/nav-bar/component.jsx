@@ -58,70 +58,74 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const renderPluginItems = (pluginItems) => (
-  <>
-    {
-      pluginItems.map((pluginItem) => {
-        let returnComponent;
-        switch (pluginItem.type) {
-          case PluginSdk.NavBarItemType.BUTTON:
-            returnComponent = (
-              <Styled.PluginComponentWrapper
-                key={pluginItem.id}
-              >
-                <Button
-                  icon={pluginItem.icon}
-                  label={pluginItem.label}
-                  aria-label={pluginItem.tooltip}
-                  color="primary"
-                  tooltip={pluginItem.tooltip}
-                  onClick={pluginItem.onClick}
-                />
-              </Styled.PluginComponentWrapper>
-            );
-            break;
-          case PluginSdk.NavBarItemType.INFO:
-            returnComponent = (
-              <Styled.PluginComponentWrapper
-                key={pluginItem.id}
-                tooltip={pluginItem.tooltip}
-              >
-                <Styled.PluginInfoComponent>
-                  {pluginItem.label}
-                </Styled.PluginInfoComponent>
-              </Styled.PluginComponentWrapper>
-            );
-            break;
-          default:
-            returnComponent = null;
-            break;
+const renderPluginItems = (pluginItems) => {
+  if (pluginItems !== undefined) {
+    return (
+      <>
+        {
+          pluginItems.map((pluginItem) => {
+            let returnComponent;
+            switch (pluginItem.type) {
+              case PluginSdk.NavBarItemType.BUTTON:
+                returnComponent = (
+                  <Styled.PluginComponentWrapper
+                    key={pluginItem.id}
+                  >
+                    <Button
+                      icon={pluginItem.icon}
+                      label={pluginItem.label}
+                      aria-label={pluginItem.tooltip}
+                      color="primary"
+                      tooltip={pluginItem.tooltip}
+                      onClick={pluginItem.onClick}
+                    />
+                  </Styled.PluginComponentWrapper>
+                );
+                break;
+              case PluginSdk.NavBarItemType.INFO:
+                returnComponent = (
+                  <Styled.PluginComponentWrapper
+                    key={pluginItem.id}
+                    tooltip={pluginItem.tooltip}
+                  >
+                    <Styled.PluginInfoComponent>
+                      {pluginItem.label}
+                    </Styled.PluginInfoComponent>
+                  </Styled.PluginComponentWrapper>
+                );
+                break;
+              default:
+                returnComponent = null;
+                break;
+            }
+            if (pluginItem.hasSeparator) {
+              switch (pluginItem.position) {
+                case PluginSdk.NavBarItemPosition.RIGHT:
+                  returnComponent = (
+                    <>
+                      {returnComponent}
+                      <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                    </>
+                  );
+                  break;
+                default:
+                  returnComponent = (
+                    <>
+                      <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                      {returnComponent}
+                    </>
+                  );
+                  break;
+              }
+            }
+            return returnComponent;
+          })
         }
-
-        if (pluginItem.hasSeparator) {
-          switch (pluginItem.position) {
-            case PluginSdk.NavBarItemPosition.RIGHT:
-              returnComponent = (
-                <>
-                  {returnComponent}
-                  <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
-                </>
-              );
-              break;
-            default:
-              returnComponent = (
-                <>
-                  <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
-                  {returnComponent}
-                </>
-              );
-              break;
-          }
-        }
-        return returnComponent;
-      })
-    }
-  </>
-);
+      </>
+    );
+  }
+  return (<></>);
+};
 class NavBar extends Component {
   constructor(props) {
     super(props);
