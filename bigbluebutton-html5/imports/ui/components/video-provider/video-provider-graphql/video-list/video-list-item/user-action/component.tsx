@@ -73,7 +73,7 @@ interface UserActionContainerProps {
   isVideoSqueezed: boolean;
   isStream: boolean;
   videoContainer: React.RefObject<HTMLDivElement> | null;
-  onHandleMirror: Function;
+  onHandleMirror: (cameraId: string)=> void;
   name: string;
   numOfStreams: number;
   isModerator: boolean;
@@ -140,7 +140,7 @@ const UserAction: React.FC<UserActionProps> = ({
             key: `${cameraId}-fullscreen`,
             label: intl.formatMessage(intlMessages.fullscreenLabel),
             description: intl.formatMessage(intlMessages.fullscreenLabel),
-            onClick: () => toggleFullscreen(videoContainer.current),
+            onClick: () => toggleFullscreen(videoContainer),
           },
         );
       }

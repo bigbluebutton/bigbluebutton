@@ -1,5 +1,6 @@
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+
 const STREAM_STATE_CHANGED_EVENT_PREFIX = 'streamStateChanged';
 
 export const isStreamStateUnhealthy = (streamState: string): boolean => streamState === 'failed' || streamState === 'closed';

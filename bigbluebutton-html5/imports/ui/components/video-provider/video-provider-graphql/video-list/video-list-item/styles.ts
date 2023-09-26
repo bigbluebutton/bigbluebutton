@@ -19,12 +19,17 @@ const fade = keyframes`
 `;
 
 type ContentProps = {
-  isStream?: boolean;
-  dragging?: boolean;
-  draggingOver?: boolean;
-  fullscreen?: boolean;
-  talking?: boolean;
-  animations?: boolean;
+  ref: React.RefObject<HTMLElement>; // Ref for the component
+  talking: boolean;
+  fullscreen: boolean;
+  'data-test': string;
+  animations: boolean;
+  isStream: boolean;
+  dragging: boolean;
+  draggingOver: boolean;
+  onDragOver: (e: React.DragEvent<HTMLElement>) => void;
+  onDragLeave: (e: React.DragEvent<HTMLElement>) => void;
+  onDrop: (e: React.DragEvent<HTMLElement>) => void;
 };
 
 const Content = styled.div<ContentProps>`

@@ -11,7 +11,10 @@ interface ViewActionsProps {
   cameraId: string;
   videoContainer: React.RefObject<HTMLDivElement> | null;
   isFullscreenContext: boolean;
-  layoutContextDispatch: Function;
+  layoutContextDispatch: (action: { type: string; value: {
+    element: string,
+    group: string,
+  } }) => void;
   isStream: boolean;
 }
 

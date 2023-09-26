@@ -1,7 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Styled from './styles';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import UserListService from '/imports/ui/components/user-list/service';
 
 interface UserAvatarVideoProps {
@@ -46,6 +45,7 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = ({
       avatar={avatar}
       unhealthyStream={unhealthyStream}
       talking={talking}
+      whiteboardAccess={false}
     >
       {handleUserIcon()}
     </Styled.UserAvatarStyled>

@@ -14,7 +14,10 @@ export interface PinnedUser {
   }>;
 }
 
-export function assertionStreamsCounter(data: unknown): asserts data is streamsCounter {
+export function assertionStreamsCounter(data: unknown): asserts data is StreamsCounter {
+  if (!data) {
+    throw new Error('data is undefined');
+  }
   if (typeof data !== 'object') {
     throw new Error('data is not object');
   }
@@ -24,11 +27,17 @@ export function assertionStreamsCounter(data: unknown): asserts data is streamsC
   if (typeof data.user_camera_aggregate !== 'object') {
     throw new Error('data.user_camera_aggregate is not object');
   }
+  if (!data.user_camera_aggregate) {
+    throw new Error('data.user_camera_aggregate is falsy');
+  }
   if (!('aggregate' in data.user_camera_aggregate)) {
     throw new Error('data.user_camera_aggregate.aggregate is not defined');
   }
   if (typeof data.user_camera_aggregate.aggregate !== 'object') {
     throw new Error('data.user_camera_aggregate.aggregate is not object');
+  }
+  if (!data.user_camera_aggregate.aggregate) {
+    throw new Error('data.user_camera_aggregate.aggregate is falsy');
   }
   if (!('count' in data.user_camera_aggregate.aggregate)) {
     throw new Error('data.user_camera_aggregate.aggregate.count is not defined');
@@ -39,6 +48,9 @@ export function assertionStreamsCounter(data: unknown): asserts data is streamsC
 }
 
 export function assertionPinnedUser(data: unknown): asserts data is PinnedUser {
+  if (!data) {
+    throw new Error('data is undefined');
+  }
   if (typeof data !== 'object') {
     throw new Error('data is not object');
   }

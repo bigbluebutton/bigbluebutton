@@ -13,6 +13,7 @@ export const handleVideoFocus = (id: string, focusedId: string) => {
 };
 
 export const toggleFullscreen = (videoContainer: React.RefObject<HTMLDivElement> | null) => {
+  // @ts-ignore - fullscreenService is JS
   FullscreenService.toggleFullScreen(videoContainer.current);
 };
 

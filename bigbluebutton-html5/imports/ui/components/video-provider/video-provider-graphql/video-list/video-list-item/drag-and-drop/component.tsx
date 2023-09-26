@@ -1,5 +1,11 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { injectIntl, defineMessages } from 'react-intl';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import { Meteor } from 'meteor/meteor';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
@@ -8,6 +14,7 @@ import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
+import { VideoListItemContainerProps } from '../component';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -24,31 +31,54 @@ const intlMessages = defineMessages({
 
 const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
-const DragAndDrop:  = (props) => {
-  const { children, intl, readFile, onVirtualBgDrop: onAction, isStream } = props;
+interface DragAndDropProps {
+  readFile: (file: File, onSuccess: (background: {
+    filename: string, data: string | ArrayBuffer
+  }) => void,
+    onError: (error: ReturnType<typeof Error>) => void) => void;
+  onVirtualBgDrop: (
+    tream: string,
+    type: string,
+    name: string,
+    data: string | ArrayBuffer,
+  ) => Promise<void>;
+  isStream: boolean;
+}
 
+interface ExtendedDragAndDropProps extends DragAndDropProps {
+  children: React.ReactNode;
+}
+
+const DragAndDrop: React.FC<ExtendedDragAndDropProps> = (props) => {
+  const {
+    // @ts-ignore children is a JS component
+    children,
+    readFile,
+    onVirtualBgDrop: onAction,
+    isStream,
+  } = props;
+  const intl = useIntl();
   const [dragging, setDragging] = useState(false);
   const [draggingOver, setDraggingOver] = useState(false);
   const [isConfirmModalOpen, setConfirmModalIsOpen] = useState(false);
-  const [file, setFile] = useState(false);
+  const [file, setFile] = useState<File>();
   const { dispatch: dispatchCustomBackground } = useContext(CustomVirtualBackgroundsContext);
 
-  let callback;
-  const resetEvent = (e) => {
+  const resetEvent = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-  }
+  };
 
   useEffect(() => {
-    const onDragOver = (e) => {
+    const onDragOver = (e: DragEvent) => {
       resetEvent(e);
       setDragging(true);
     };
-    const onDragLeave = (e) => {
+    const onDragLeave = (e: DragEvent) => {
       resetEvent(e);
       setDragging(false);
     };
-    const onDrop = (e) => {
+    const onDrop = (e: DragEvent) => {
       resetEvent(e);
       setDragging(false);
     };
@@ -64,11 +94,11 @@ const DragAndDrop:  = (props) => {
     };
   }, []);
 
-  const handleStartAndSaveVirtualBackground = (file) => {
-    const onSuccess = (background) => {
+  const handleStartAndSaveVirtualBackground = (fileItem: File) => {
+    const onSuccess = (background: { filename: string, data: string | ArrayBuffer}) => {
       const { filename, data } = background;
       if (onAction) {
-        onAction(EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
+        onAction('', EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
           dispatchCustomBackground({
             type: 'new',
             background: {
@@ -78,17 +108,19 @@ const DragAndDrop:  = (props) => {
             },
           });
         });
-      } else dispatchCustomBackground({
-        type: 'new',
-        background: {
-          ...background,
-          custom: true,
-          lastActivityDate: Date.now(),
-        },
-      });
+      } else {
+        dispatchCustomBackground({
+          type: 'new',
+          background: {
+            ...background,
+            custom: true,
+            lastActivityDate: Date.now(),
+          },
+        });
+      }
     };
 
-    const onError = (error) => {
+    const onError = (error: ReturnType<typeof Error>) => {
       logger.warn({
         logCode: 'read_file_error',
         extraInfo: {
@@ -98,42 +130,48 @@ const DragAndDrop:  = (props) => {
       }, error.message);
     };
 
-    readFile(file, onSuccess, onError);
+    readFile(fileItem, onSuccess, onError);
   };
 
-  callback = (checked) => {
-    handleStartAndSaveVirtualBackground(file);
+  const callback = (checked: boolean) => {
+    handleStartAndSaveVirtualBackground(file as File);
     Session.set('skipBackgroundDropConfirmation', checked);
   };
 
-  const makeDragOperations = useCallback((userId) => {
-    if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD || !isStream) return {};
+  const makeDragOperations = useCallback((userId: string) => {
+    if (
+      !userId
+      || Auth.userID !== userId
+      || !ENABLE_WEBCAM_BACKGROUND_UPLOAD
+      || !isStream
+    ) return {};
 
-    const startAndSaveVirtualBackground = (file) => handleStartAndSaveVirtualBackground(file);
+    const startAndSaveVirtualBackground = (fileItem: File) => {
+      handleStartAndSaveVirtualBackground(fileItem);
+    };
 
-    const onDragOverHandler = (e) => {
+    const onDragOverHandler = (e: DragEvent) => {
       resetEvent(e);
       setDraggingOver(true);
       setDragging(false);
     };
 
-    const onDropHandler = (e) => {
+    const onDropHandler = (e: DragEvent) => {
       resetEvent(e);
       setDraggingOver(false);
       setDragging(false);
 
-      const { files } = e.dataTransfer;
-      const file = files[0];
+      const fileItem = e.dataTransfer?.files[0];
 
       if (Session.get('skipBackgroundDropConfirmation')) {
-        return startAndSaveVirtualBackground(file);
+        return startAndSaveVirtualBackground(fileItem as File);
       }
 
       setFile(file);
-      setConfirmModalIsOpen(true);
+      return setConfirmModalIsOpen(true);
     };
 
-    const onDragLeaveHandler = (e) => {
+    const onDragLeaveHandler = (e: DragEvent) => {
       resetEvent(e);
       setDragging(false);
       setDraggingOver(false);
@@ -146,29 +184,59 @@ const DragAndDrop:  = (props) => {
     };
   }, [Auth.userID]);
 
-  return <>
-    {React.cloneElement(children, { ...props, dragging, draggingOver, makeDragOperations })}
-    {isConfirmModalOpen ? <ConfirmationModal
-        intl={intl}
-        onConfirm={callback}
-        title={intl.formatMessage(intlMessages.confirmationTitle)}
-        description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file.name })}
-        checkboxMessageId="app.confirmation.skipConfirm" 
-        {...{
-          onRequestClose: () => setConfirmModalIsOpen(false),
-          priority: "low",
-          setIsOpen: setConfirmModalIsOpen,
-          isOpen: isConfirmModalOpen
-        }}
-      /> : null}
-  </>;
+  return (
+    <>
+      {/* @ts-ignore */}
+      {React.cloneElement(children, {
+        ...props,
+        dragging,
+        draggingOver,
+        makeDragOperations,
+      })}
+      {isConfirmModalOpen ? (
+        <ConfirmationModal
+          intl={intl}
+          onConfirm={callback}
+          title={intl.formatMessage(intlMessages.confirmationTitle)}
+          description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file?.name })}
+          checkboxMessageId="app.confirmation.skipConfirm"
+          {...{
+            onRequestClose: () => setConfirmModalIsOpen(false),
+            priority: 'low',
+            setIsOpen: setConfirmModalIsOpen,
+            isOpen: isConfirmModalOpen,
+          }}
+        />
+      ) : null}
+    </>
+  );
 };
 
-const Wrapper = (Component) => (props) => (
-  <DragAndDrop {...props} >
-    <Component />
-  </DragAndDrop>
-);
+const Wrapper = (Component: React.FC<VideoListItemContainerProps>) => {
+  const WrapComponent: React.FC<DragAndDropProps> = (props) => {
+    const {
+      readFile,
+      onVirtualBgDrop,
+      isStream,
+    } = props;
+    return (
+      <DragAndDrop
+        readFile={readFile}
+        onVirtualBgDrop={onVirtualBgDrop}
+        isStream={isStream}
+      >
+        {/* eslint react/jsx-props-no-spreading: 0 */}
+        {/* @ts-ignore wrapper should die */}
+        <Component {...props} />
+      </DragAndDrop>
+    );
+  };
 
-export const withDragAndDrop = (Component) =>
-  injectIntl(withFileReader(Wrapper(Component), MIME_TYPES_ALLOWED, MAX_FILE_SIZE));
+  return WrapComponent;
+};
+export const withDragAndDrop = (Component: React.FC<VideoListItemContainerProps>) => {
+  /* @ts-ignore wrapper should die */
+  return withFileReader(Wrapper(Component), MIME_TYPES_ALLOWED, MAX_FILE_SIZE);
+};
+
+export default withDragAndDrop;

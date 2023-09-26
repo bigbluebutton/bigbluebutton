@@ -1,10 +1,20 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  DragEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
-import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
+import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
 import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
 import { useSubscription } from '@apollo/client';
-import { PINNED_USER, STREAMS_COUNTER, StreamsCounter, assertionStreamsCounter } from './queries';
+import {
+  PINNED_USER, STREAMS_COUNTER,
+  StreamsCounter,
+  assertionStreamsCounter,
+} from './queries';
 import { defineMessages, useIntl } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
@@ -13,7 +23,7 @@ import { subscribeToStreamStateChange } from './service';
 import UserActionContainer from './user-action/component';
 import Styled from './styles';
 import { withDragAndDrop } from './drag-and-drop/component';
-import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import VideoService from '/imports/ui/components/video-provider/service';
 import UserAvatarVideo from './user-avatar/component';
 import UserStatus from './user-status/component';
@@ -30,16 +40,17 @@ const intlMessages = defineMessages({
   },
 });
 
-interface VideoListItemContainerProps {
+type OnDropHandlerType = React.DragEventHandler<HTMLDivElement> & ((e: DragEvent<HTMLElement>) => void);
+export interface VideoListItemContainerProps {
   cameraId: string;
-  onVideoItemMount: Function;
+  onVideoItemMount: (video: HTMLVideoElement | null) => void;
   isStream: boolean;
   focused: boolean;
   name: string;
   makeDragOperations: (userId: string) => ({
-    onDragOver: (event: DragEvent) => void,
-    onDragLeave: (event: DragEvent) => void,
-    onDrop:(event: DragEvent) => void,
+    onDragOver:OnDropHandlerType,
+    onDragLeave:OnDropHandlerType,
+    onDrop:OnDropHandlerType,
   });
   userId: string;
   dragging: boolean;
@@ -63,6 +74,40 @@ interface VideoListItemProps extends VideoListItemContainerProps {
   muted: boolean;
   isFullscreenContext: boolean;
   PinnedUserId: string;
+}
+
+interface CustomEvent {
+  detail: {
+    streamState: string;
+  };
+  stopPropagation: () => void;
+}
+
+function customEventAssertion(data: unknown): asserts data is CustomEvent {
+  if (!data) {
+    throw new Error('data is undefined');
+  }
+  if (typeof data !== 'object') {
+    throw new Error('data is not object');
+  }
+  if (!('detail' in data)) {
+    throw new Error('data.detail is not defined');
+  }
+  if (typeof data.detail !== 'object') {
+    throw new Error('data.detail is not object');
+  }
+  if (!data.detail) {
+    throw new Error('data.detail is falsy');
+  }
+  if (!('streamState' in data.detail)) {
+    throw new Error('data.detail.streamState is not defined');
+  }
+  if (typeof data.detail.streamState !== 'string') {
+    throw new Error('data.detail.streamState is not string');
+  }
+  if (!('stopPropagation' in data)) {
+    throw new Error('data.stopPropagation is not defined');
+  }
 }
 
 const VideoListItem: React.FC<VideoListItemProps> = ({
@@ -117,7 +162,9 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   // @ts-ignore: Singleton with auto-generated Fields
   const { animations } = Settings.application;
 
-  const onStreamStateChange = useCallback((e) => {
+  const onStreamStateChange = useCallback((evt: Event) => {
+    const e: unknown = evt;
+    customEventAssertion(e);
     const { streamState } = e.detail;
     const newHealthState = !isStreamStateUnhealthy(streamState);
     e.stopPropagation();
@@ -138,7 +185,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   }, []);
 
   useEffect(() => {
-    subscribeToStreamStateChange(cameraId, onStreamStateChange);
+    subscribeToStreamStateChange(cameraId, onStreamStateChange as EventListener);
     onVideoItemMount(videoTag.current);
     if (videoContainer.current !== null) {
       resizeObserver.observe(videoContainer.current);
@@ -172,7 +219,9 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
       playElement(videoTag.current);
     }
     if ((isSelfViewDisabled && userId === Auth.userID) || disabledCams?.includes(cameraId)) {
-      videoTag?.current?.pause();
+      if (videoTag?.current?.pause) {
+        videoTag?.current?.pause();
+      }
     }
   }, [isSelfViewDisabled, videoDataLoaded]);
 
@@ -303,7 +352,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   const eventsHandlers = makeDragOperations(userId);
   return (
     <Styled.Content
-      ref={(ref) => { videoContainer.current = ref; }}
+      ref={videoContainer}
       talking={talking}
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
@@ -332,10 +381,10 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
       </Styled.VideoContainer>
 
       {isStream && ((isSelfViewDisabled && userId === Auth.userID)
-      || disabledCams.includes(cameraId)) && (
-        <Styled.VideoDisabled>
-          {intl.formatMessage(intlMessages.disableDesc)}
-        </Styled.VideoDisabled>
+        || disabledCams.includes(cameraId)) && (
+          <Styled.VideoDisabled>
+            {intl.formatMessage(intlMessages.disableDesc)}
+          </Styled.VideoDisabled>
       )}
 
       {/* eslint-disable-next-line no-nested-ternary */}
@@ -347,7 +396,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
       {((isSelfViewDisabled && userId === Auth.userID) || disabledCams.includes(cameraId))
-      && renderWebcamConnecting()}
+        && renderWebcamConnecting()}
     </Styled.Content>
   );
 };
@@ -364,8 +413,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
   draggingOver,
 }) => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
-  const focusedId = layoutSelectInput((i: Input) => i.cameraDock.focusedId);
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
 
@@ -426,9 +473,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
       color={currenUser?.color ?? ''}
       avatar={currenUser?.avatar ?? ''}
       emoji={currenUser?.emoji ?? ''}
-      focusedId={focusedId}
-      isRTL={isRTL}
-      pinned={false}
       isFullscreenContext={isFullscreenContext}
       makeDragOperations={makeDragOperations}
       PinnedUserId={pinnedUser?.data?.user[0]?.userId ?? ''}

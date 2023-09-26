@@ -84,7 +84,7 @@ const MenuWrapperSqueezed = styled.div`
   right: 0;
   top: 0;
 `;
-
+// @ts-ignore - Button is JS
 const OptionsButton = styled(Button)`
   position: absolute;
   right: 7px;

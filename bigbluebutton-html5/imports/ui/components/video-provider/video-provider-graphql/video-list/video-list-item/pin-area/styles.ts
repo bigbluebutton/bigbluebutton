@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { colorTransparent, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
+// @ts-ignore - Button is JS
 const PinButton = styled(Button)`
   padding: 5px;
   &,
