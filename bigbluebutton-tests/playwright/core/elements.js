@@ -98,7 +98,7 @@ exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
 exports.chatButton = 'button[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
 exports.chatPollMessageText = 'div[data-test="chatPollMessageText"]';
-exports.chatMessages = 'div[data-test="contentRef"]';
+exports.chatMessages = 'div[data-test="chatMessages"]';
 exports.chatOptions = 'button[data-test="chatOptionsMenu"]';
 exports.chatClear = 'li[data-test="chatClear"]';
 exports.chatSave = 'li[data-test="chatSave"]';
