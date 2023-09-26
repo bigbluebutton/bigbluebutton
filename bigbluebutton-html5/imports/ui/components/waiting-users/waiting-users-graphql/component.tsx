@@ -30,6 +30,7 @@ import TextInput from '/imports/ui/components/text-input/component';
 import renderNoUserWaitingItem from './guest-items/noPendingGuestUser';
 import renderPendingUsers from './guest-items/guestPendingUser';
 import { Meeting } from '/imports/ui/Types/meeting';
+import logger from '/imports/startup/client/logger';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
@@ -379,7 +380,7 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
   }
 
   if (guestWaitingUsersError) {
-    if (guestWaitingUsersError) console.log('guestWaitingUsersError', guestWaitingUsersError);
+    if (guestWaitingUsersError) logger.error('guestWaitingUsersError', guestWaitingUsersError);
     return (
       <div>
         {guestWaitingUsersError && <p>{JSON.stringify(guestWaitingUsersError)}</p>}
