@@ -35,6 +35,7 @@ export interface PluginProvidedState {
     presentationDropdownItems: PluginSdk.PresentationDropdownItem[];
     navBarItems: PluginSdk.NavBarItem[];
     optionsDropdownItems: PluginSdk.OptionsDropdownItem[];
+    cameraSettingsDropdownItems: PluginSdk.CameraSettingsDropdownItem[];
 }
 
 /**

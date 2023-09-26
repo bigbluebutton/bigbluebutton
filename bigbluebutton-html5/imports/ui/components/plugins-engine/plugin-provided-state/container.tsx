@@ -13,6 +13,7 @@ import ActionBarPluginStateContainer from './action-bar/container';
 import PresentationDropdownPluginStateContainer from './presentation-dropdown/container';
 import NavBarPluginStateContainer from './nav-bar/container';
 import OptionsDropdownPluginStateContainer from './options-dropdown/container';
+import CameraSettingsDropdownPluginStateContainer from './camera-settings-dropdown/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
@@ -25,6 +26,7 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   PresentationDropdownPluginStateContainer,
   NavBarPluginStateContainer,
   OptionsDropdownPluginStateContainer,
+  CameraSettingsDropdownPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
