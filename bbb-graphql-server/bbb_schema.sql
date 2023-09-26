@@ -257,7 +257,6 @@ COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dyn
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
 COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds with disconnected=true';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
-COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
 
 --Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
@@ -344,20 +343,23 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
    FROM "user"
   WHERE "user"."loggedOut" IS FALSE
   AND "user"."expired" IS FALSE
+  AND "user"."ejected" IS NOT TRUE
   AND "user"."joined" IS TRUE;
 
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
                 where "user"."loggedOut" IS FALSE
                 AND "user"."expired" IS FALSE
+                AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
 
 CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","raiseHandTime","awayTime","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","nameSortable","userId")
                 where "user"."loggedOut" IS FALSE
                 AND "user"."expired" IS FALSE
+                AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
 
 CREATE OR REPLACE VIEW "v_user_current"
@@ -442,7 +444,7 @@ AS SELECT "user"."userId",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
    FROM "user";
 
 create table "user_customParameter"(
