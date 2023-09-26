@@ -1,9 +1,9 @@
 package org.bigbluebutton.service
 
-import akka.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Props }
-import akka.pattern.ask
-import akka.pattern.AskTimeoutException
-import akka.util.Timeout
+import org.apache.pekko.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Props }
+import org.apache.pekko.pattern.ask
+import org.apache.pekko.pattern.AskTimeoutException
+import org.apache.pekko.util.Timeout
 import org.bigbluebutton.MeetingInfoAnalytics
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, MeetingEndingEvtMsg, MeetingInfoAnalyticsServiceMsg }
 

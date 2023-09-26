@@ -1,6 +1,6 @@
 package org.bigbluebutton.api2.meeting
 
-import akka.actor.{ Actor, ActorLogging, Props }
+import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api2.bus.MsgToAkkaAppsEventBus
 import org.bigbluebutton.common2.domain.DefaultProps

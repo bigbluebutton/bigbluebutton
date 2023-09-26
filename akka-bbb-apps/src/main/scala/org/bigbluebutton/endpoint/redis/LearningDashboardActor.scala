@@ -1,6 +1,6 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil

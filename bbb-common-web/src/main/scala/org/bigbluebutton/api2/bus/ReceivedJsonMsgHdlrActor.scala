@@ -4,9 +4,9 @@ import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.common2.bus._
 import org.bigbluebutton.common2.msgs._
 import com.fasterxml.jackson.databind.JsonNode
-import akka.actor.Actor
-import akka.actor.ActorLogging
-import akka.actor.Props
+import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.Props
 
 import scala.reflect.runtime.universe._
 
