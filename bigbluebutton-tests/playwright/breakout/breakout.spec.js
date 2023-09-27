@@ -71,7 +71,7 @@ test.describe.parallel('Breakout', () => {
       await join.joinWithAudio();
     });
 
-    test('Message to all rooms @ci @flaky', async ({ browser, context, page }) => {
+    test('Message to all rooms @ci', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();

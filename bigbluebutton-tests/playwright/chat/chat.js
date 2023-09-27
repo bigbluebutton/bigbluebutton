@@ -260,7 +260,7 @@ class Chat extends MultiUsers {
       await this.modPage.hasElement(e.hidePrivateChat);
       await this.modPage.waitAndClick(e.chatButton);
     } catch {
-      await this.modPage.hasElement(e.publicChat);
+      await this.modPage.hasElement(e.hidePublicChat);
     }
 
     await this.modPage.waitAndClick(e.chatOptions);

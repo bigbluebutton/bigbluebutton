@@ -40,7 +40,7 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   const presentationData = JSON.parse(string) as unknown;
   assertAsMetadata(presentationData);
   return (
-    <Styled.ChatDowloadContainer>
+    <Styled.ChatDowloadContainer data-test="downloadPresentationContainer">
       <span>{presentationData.filename}</span>
       <Styled.ChatLink
         href={presentationData.fileURI}
