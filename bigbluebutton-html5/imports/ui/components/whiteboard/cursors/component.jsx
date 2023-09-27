@@ -271,7 +271,7 @@ const Cursors = (props) => {
       {otherCursors
         .filter((c) => c?.xPercent && c.xPercent !== -1.0 && c?.yPercent && c.yPercent !== -1.0)
         .filter((c) => {
-          if ((isViewersCursorLocked && c?.role !== 'VIEWER')
+          if ((isViewersCursorLocked && c?.user.role !== 'VIEWER')
             || !isViewersCursorLocked
             || currentUser?.presenter
           ) {
@@ -281,11 +281,11 @@ const Cursors = (props) => {
         })
         .map((c) => {
           if (c && currentUser.userId !== c?.userId) {
-            if (c.presenter) {
+            if (c.user.presenter) {
               return (
                 <Cursor
                   key={`${c?.userId}`}
-                  name={c?.userName}
+                  name={c?.user.name}
                   color="#C70039"
                   x={c?.xPercent}
                   y={c?.yPercent}
@@ -300,7 +300,7 @@ const Cursors = (props) => {
               && (
                 <Cursor
                   key={`${c?.userId}`}
-                  name={c?.userName}
+                  name={c?.user.name}
                   color="#AFE1AF"
                   x={c?.xPercent}
                   y={c?.yPercent}
