@@ -55,8 +55,8 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploader.export.originalLabel',
     description: 'Label to identify original presentation exported',
   },
-  currentState: {
-    id: 'app.presentationUploader.export.inCurrentStateLabel',
+  withWhiteboardAnnotations: {
+    id: 'app.presentationUploader.export.withWhiteboardAnnotations',
     description: 'Label to identify in current state presentation exported',
   },
 });
@@ -345,7 +345,7 @@ const removePackagedClassAttribute = (classnames, attribute) => {
 };
 
 const getExportedPresentationString = (fileURI, filename, intl, fileStateType) => {
-  const intlFileStateType = fileStateType === 'Original' ? intlMessages.original : intlMessages.currentState;
+  const intlFileStateType = fileStateType === 'Original' ? intlMessages.original : intlMessages.withWhiteboardAnnotations;
   const href = `${APP.bbbWebBase}/${fileURI}`;
   const warningIcon = '<i class="icon-bbb-warning"></i>';
   const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
