@@ -14,8 +14,8 @@ export interface GetAudioCaptions {
 }
 
 export const GET_AUDIO_CAPTIONS = gql`
-  subscription MySubscription ($time: Date!){
-    audio_caption(where: {createdAt: {_lte: $time}}, order_by: {createdAt: desc}, limit: 10) {
+  subscription MySubscription {
+    audio_caption {
       user {
         avatar
         color

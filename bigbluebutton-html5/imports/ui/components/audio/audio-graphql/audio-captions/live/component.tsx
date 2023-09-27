@@ -75,11 +75,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     data: AudioCaptionsLiveData,
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
-  } = useSubscription<GetAudioCaptions>(GET_AUDIO_CAPTIONS, {
-    variables: {
-      time: new Date().toISOString(),
-    },
-  });
+  } = useSubscription<GetAudioCaptions>(GET_AUDIO_CAPTIONS);
 
   if (AudioCaptionsLiveLoading) return null;
 
@@ -93,6 +89,8 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   }
 
   if (!AudioCaptionsLiveData) return null;
+  if (!AudioCaptionsLiveData.audio_caption) return null;
+  if (!AudioCaptionsLiveData.audio_caption[0]) return null;
   const {
     transcript,
     user,
