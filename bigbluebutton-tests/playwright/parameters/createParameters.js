@@ -96,7 +96,7 @@ class CreateParameters extends MultiUsers {
 
   async lockSettingsDisablePublicChat() {
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.hasText(e.typingIndicator, /locked/);
+    await this.userPage.hasText(e.errorTypingIndicator, /locked/);
   }
 
   async lockSettingsHideUserList() {

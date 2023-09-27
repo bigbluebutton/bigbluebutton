@@ -13,7 +13,7 @@ class CustomParameters extends MultiUsers {
 
   async showPublicChatOnLogin() {
     await this.modPage.waitForSelector(e.actions);
-    await this.modPage.wasRemoved(e.publicChat);
+    await this.modPage.wasRemoved(e.hidePublicChat);
   }
 
   async recordMeeting() {
