@@ -211,8 +211,8 @@ export function makeUserCSVData(users, polls, intl) {
   }
 
   for (let i = 0; i < pollValues.length; i += 1) {
-    // Add the poll question headers
-    header += `,${pollValues[i].question || `Poll ${i + 1}`}`;
+    // Add the poll question headers (remove spaces and line breaks)
+    header += `,${pollValues[i].question.replace(/\s+/g, ' ').trim() || `Poll ${i + 1}`}`;
 
     // Add the anonymous answers
     anonymousRecord += `,"${pollValues[i].anonymousAnswers.join('\r\n')}"`;
