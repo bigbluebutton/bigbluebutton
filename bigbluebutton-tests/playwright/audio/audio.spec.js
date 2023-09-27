@@ -1,9 +1,12 @@
 const { test } = require('@playwright/test');
-const { testSpeakerButton } = require('../core/elements');
+const { fullyParallel } = require('../playwright.config');
 const { Audio } = require('./audio');
 
-test.describe.serial('Audio', () => {
+if (!fullyParallel) test.describe.configure({ mode: 'serial' });
+
+test.describe('Audio', () => {
   const audio = new Audio();
+
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();

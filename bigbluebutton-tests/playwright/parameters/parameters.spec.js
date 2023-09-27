@@ -4,7 +4,6 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
-const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Create Parameters', () => {
   test('Record Meeting', async ({ browser, context, page }) => {
