@@ -56,11 +56,11 @@ test.describe('Polling', () => {
   });
 
   // Results
-  test('Poll results in chat message @ci @flaky', async () => {
+  test('Poll results in chat message @ci', async () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard @ci @flaky', async () => {
+  test('Poll results on whiteboard @ci', async () => {
     await polling.pollResultsOnWhiteboard();
   });
 

@@ -31,7 +31,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async chat() {
-    await this.modPage.wasRemoved(e.publicChat);
+    await this.modPage.wasRemoved(e.hidePublicChat);
   }
 
   async externalVideos() {
@@ -136,7 +136,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async chatExclude() {
-    await this.modPage.hasElement(e.publicChat);
+    await this.modPage.hasElement(e.hidePublicChat);
   }
 
   async externalVideosExclude() {

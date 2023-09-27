@@ -23,7 +23,7 @@ const PopupContent: React.FC<PopupContentProps> = ({ message, closePopup }) => {
   const [showPopup, setShowPopup] = React.useState(true);
   if (!showPopup) return null;
   return (
-    <PopupContentBox>
+    <PopupContentBox data-test="welcomeMessage">
       <PopupContentHeader>
         <CloseButton
           size="sm"
