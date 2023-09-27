@@ -16,6 +16,7 @@ select_permissions:
         - isCurrentPage
         - num
         - pageId
+        - presentationId
         - removable
         - scaledHeight
         - scaledViewBoxHeight

@@ -1,11 +1,11 @@
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
-import { ColorStyle, DashStyle, SizeStyle, TDShapeType } from '@tldraw/tldraw';
-import SettingsService from '/imports/ui/services/settings';
+import { useSubscription } from '@apollo/client';
 import {
-  getShapes,
-  getCurrentPres,
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  CURRENT_PAGE_ANNOTATIONS_SUBSCRIPTION,
+} from './queries';
+import { ColorStyle, DashStyle, SizeStyle, TDShapeType } from '@tldraw/tldraw';
+import {
   initDefaultPages,
   persistShape,
   removeShapes,
@@ -15,22 +15,62 @@ import {
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
+  formatAnnotations,
 } from './service';
-import Whiteboard from './component';
+import PresentationToolbarService from '../presentation/presentation-toolbar/service';
+import SettingsService from '/imports/ui/services/settings';
 import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import {
   layoutSelect,
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import deviceInfo from '/imports/utils/deviceInfo';
+import Whiteboard from './component';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
+const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const WhiteboardContainer = (props) => {
+  const {
+    whiteboardId,
+    intl,
+    slidePosition,
+    svgUri,
+    podId,
+    darkTheme,
+  } = props;
+
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
+  const currentPresentationPage = presentationPageArray && presentationPageArray[0];
+  const curPageId = currentPresentationPage?.num;
+  const presentationId = currentPresentationPage?.presentationId;
+
+  const {
+    loading: annotationsLoading,
+    data: annotationsData,
+  } = useSubscription(CURRENT_PAGE_ANNOTATIONS_SUBSCRIPTION);
+  const { pres_annotation_curr: annotations } = (annotationsData || []);
+
+  let shapes = {};
+
+  if (!annotationsLoading && annotations) {
+    shapes = formatAnnotations(annotations, intl, curPageId);
+  }
+
+  const { isIphone } = deviceInfo;
+
+  const assets = {};
+  assets[`slide-background-asset-${curPageId}`] = {
+    id: `slide-background-asset-${curPageId}`,
+    size: [slidePosition?.width || 0, slidePosition?.height || 0],
+    src: svgUri,
+    type: 'image',
+  };
+
   const usingUsersContext = useContext(UsersContext);
   const isRTL = layoutSelect((i) => i.isRTL);
   const width = layoutSelect((i) => i?.output?.presentation?.width);
@@ -48,7 +88,27 @@ const WhiteboardContainer = (props) => {
     FullscreenService.toggleFullScreen(ref);
   const layoutContextDispatch = layoutDispatch();
 
-  const { shapes } = props;
+  shapes['slide-background-shape'] = {
+    assetId: `slide-background-asset-${curPageId}`,
+    childIndex: -1,
+    id: 'slide-background-shape',
+    name: 'Image',
+    type: TDShapeType.Image,
+    parentId: `${curPageId}`,
+    point: [0, 0],
+    isLocked: true,
+    size: [slidePosition?.width || 0, slidePosition?.height || 0],
+    style: {
+      dash: DashStyle.Draw,
+      size: SizeStyle.Medium,
+      color: ColorStyle.Blue,
+    },
+  };
+
+  if (!presentationId || !currentPresentationPage) {
+    return null;
+  }
+
   const hasShapeAccess = (id) => {
     const owner = shapes[id]?.userId;
     const isBackgroundShape = id?.includes('slide-background');
@@ -70,101 +130,51 @@ const WhiteboardContainer = (props) => {
       modShape.isLocked = true;
     }
   });
-
-  return (
-    <Whiteboard
-      {...{
-        isPresenter,
-        isModerator,
-        currentUser,
-        isRTL,
-        width,
-        height,
-        maxStickyNoteLength,
-        maxNumberOfAnnotations,
-        fontFamily,
-        hasShapeAccess,
-        handleToggleFullScreen,
-        sidebarNavigationWidth,
-        layoutContextDispatch,
-      }}
-      {...props}
-      meetingId={Auth.meetingID}
-    />
-  );
-};
-
-export default withTracker(
-  ({
-    whiteboardId,
-    curPageId,
-    intl,
-    slidePosition,
-    svgUri,
-    podId,
+  return <Whiteboard
+  {...{
+    isPresenter,
+    isModerator,
+    currentUser,
+    isRTL,
+    width,
+    height,
+    maxStickyNoteLength,
+    maxNumberOfAnnotations,
+    fontFamily,
+    hasShapeAccess,
+    handleToggleFullScreen,
+    sidebarNavigationWidth,
+    layoutContextDispatch,
+    initDefaultPages,
+    persistShape,
+    isMultiUserActive,
+    hasMultiUserAccess,
+    changeCurrentSlide,
+    shapes,
+    assets,
+    removeShapes,
+    zoomSlide: PresentationToolbarService.zoomSlide,
+    skipToSlide: PresentationToolbarService.skipToSlide,
+    nextSlide: PresentationToolbarService.nextSlide,
+    previousSlide: PresentationToolbarService.previousSlide,
+    numberOfSlides: PresentationToolbarService.getNumberOfSlides(
+      podId,
+      presentationId
+    ),
+    notifyNotAllowedChange,
+    notifyShapeNumberExceeded,
+    whiteboardToolbarAutoHide:
+      SettingsService?.application?.whiteboardToolbarAutoHide,
+    animations: SettingsService?.application?.animations,
+    toggleToolsAnimations,
+    isIphone,
+    currentPresentationPage,
+    numberOfPages: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     presentationId,
-    darkTheme,
-    isViewersAnnotationsLocked,
-  }) => {
-    const shapes = getShapes(whiteboardId, curPageId, intl, isViewersAnnotationsLocked);
-    const curPres = getCurrentPres();
-    const { isIphone } = deviceInfo;
+  }}
+  {...props}
+  meetingId={Auth.meetingID}
+  />;
+}
 
-    shapes['slide-background-shape'] = {
-      assetId: `slide-background-asset-${curPageId}`,
-      childIndex: -1,
-      id: 'slide-background-shape',
-      name: 'Image',
-      type: TDShapeType.Image,
-      parentId: `${curPageId}`,
-      point: [0, 0],
-      isLocked: true,
-      size: [slidePosition?.width || 0, slidePosition?.height || 0],
-      style: {
-        dash: DashStyle.Draw,
-        size: SizeStyle.Medium,
-        color: ColorStyle.Blue,
-      },
-    };
-
-    const assets = {};
-    assets[`slide-background-asset-${curPageId}`] = {
-      id: `slide-background-asset-${curPageId}`,
-      size: [slidePosition?.width || 0, slidePosition?.height || 0],
-      src: svgUri,
-      type: 'image',
-    };
-
-    return {
-      initDefaultPages,
-      persistShape,
-      isMultiUserActive,
-      hasMultiUserAccess,
-      changeCurrentSlide,
-      shapes,
-      assets,
-      curPres,
-      removeShapes,
-      zoomSlide: PresentationToolbarService.zoomSlide,
-      skipToSlide: PresentationToolbarService.skipToSlide,
-      nextSlide: PresentationToolbarService.nextSlide,
-      previousSlide: PresentationToolbarService.previousSlide,
-      numberOfSlides: PresentationToolbarService.getNumberOfSlides(
-        podId,
-        presentationId
-      ),
-      notifyNotAllowedChange,
-      notifyShapeNumberExceeded,
-      darkTheme,
-      whiteboardToolbarAutoHide:
-        SettingsService?.application?.whiteboardToolbarAutoHide,
-      animations: SettingsService?.application?.animations,
-      toggleToolsAnimations,
-      isIphone,
-    };
-  }
-)(WhiteboardContainer);
-
-WhiteboardContainer.propTypes = {
-  shapes: PropTypes.objectOf(PropTypes.shape).isRequired,
-};
+export default WhiteboardContainer;

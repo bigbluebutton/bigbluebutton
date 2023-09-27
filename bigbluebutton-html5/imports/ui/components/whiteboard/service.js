@@ -403,6 +403,62 @@ const toggleToolsAnimations = (activeAnim, anim, time) => {
   }
 }
 
+const formatAnnotations = (annotations, intl, curPageId) => {
+  const result = {};
+  annotations.forEach((annotation) => {
+    let annotationInfo = JSON.parse(annotation.annotationInfo);
+
+    if (annotationInfo.questionType) {
+      const modAnnotation = annotation;
+      // poll result, convert it to text and create tldraw shape
+      annotationInfo.answers = annotationInfo.answers.reduce(
+        caseInsensitiveReducer, [],
+      );
+      let pollResult = PollService.getPollResultString(annotationInfo, intl)
+        .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
+
+      const lines = pollResult.split('\n');
+      const longestLine = lines.reduce((a, b) => a.length > b.length ? a : b, '').length;
+
+      // add empty spaces before first | in each of the lines to make them all the same length
+      pollResult = lines.map((line) => {
+        if (!line.includes('|') || line.length === longestLine) return line;
+
+        const splitLine = line.split(' |');
+        const spaces = ' '.repeat(longestLine - line.length);
+        return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
+      }).join('\n');
+
+      const style = {
+        color: 'white',
+        dash: 'solid',
+        font: 'mono',
+        isFilled: true,
+        size: 'small',
+        scale: 1,
+      };
+
+      const textSize = getTextSize(pollResult, style, padding = 20);
+
+      annotationInfo = {
+        childIndex: 0,
+        id: annotationInfo.id,
+        name: `poll-result-${annotationInfo.id}`,
+        type: 'rectangle',
+        label: pollResult,
+        labelPoint: [0.5, 0.5],
+        parentId: `${curPageId}`,
+        point: [0, 0],
+        size: textSize,
+        style,
+      };
+      annotationInfo.questionType = false;
+    }
+    result[annotationInfo.id] = annotationInfo;
+  });
+  return result;
+};
+
 export {
   initDefaultPages,
   Annotations,
@@ -426,4 +482,5 @@ export {
   notifyShapeNumberExceeded,
   hasAnnotations,
   toggleToolsAnimations,
+  formatAnnotations,
 };

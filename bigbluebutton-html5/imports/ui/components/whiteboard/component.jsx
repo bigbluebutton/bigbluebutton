@@ -37,7 +37,6 @@ export default function Whiteboard(props) {
     shapes,
     assets,
     currentUser,
-    curPres,
     whiteboardId,
     podId,
     zoomSlide,
@@ -79,8 +78,12 @@ export default function Whiteboard(props) {
     fullscreenRef,
     fullscreenElementId,
     layoutContextDispatch,
+    currentPresentationPage,
+    numberOfPages,
+    presentationId,
   } = props;
-  const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
+  // TODO: use real number of pages of the presentation when this information gets available from graphQL
+  const { pages, pageStates } = initDefaultPages(numberOfPages || 1);
   const rDocument = React.useRef({
     name: 'test',
     version: TldrawApp.version,
@@ -279,7 +282,7 @@ export default function Whiteboard(props) {
     const currentDoc = rDocument.current;
 
     // update document if the number of pages has changed
-    if (currentDoc.id !== whiteboardId && currentDoc?.pages.length !== curPres?.pages.length) {
+    if (currentDoc.id !== whiteboardId && currentDoc?.pages.length !== numberOfPages) {
       const currentPageShapes = currentDoc?.pages[curPageId]?.shapes;
       currentDoc.id = whiteboardId;
       currentDoc.pages = pages;
@@ -573,7 +576,7 @@ export default function Whiteboard(props) {
       setHistory(null);
       tldrawAPI?.resetHistory();
     }
-  }, [curPres?.id]);
+  }, [presentationId]);
 
   React.useEffect(() => {
     const currentZoom = tldrawAPI?.getPageState()?.camera?.zoom;
@@ -964,10 +967,7 @@ export default function Whiteboard(props) {
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
-      const currentPage = curPres.pages.find(
-        (page) => page.num === Number.parseInt(app.currentPageId, 10),
-      );
-      if (!currentPage) return;
+      if (!currentPresentationPage) return;
       const newWhiteboardId = currentPage.id;
       // remove from previous page and persist on new
       if (changedShapes) {
@@ -1021,8 +1021,8 @@ export default function Whiteboard(props) {
         onMount={onMount}
         showPages={false}
         showZoom={false}
-        showUI={curPres ? (isPresenter || hasWBAccess) : true}
-        showMenu={!curPres}
+        showUI={presentationId ? (isPresenter || hasWBAccess) : true}
+        showMenu={!presentationId}
         showMultiplayerMenu={false}
         readOnly={false}
         onPatch={onPatch}
@@ -1130,10 +1130,6 @@ Whiteboard.propTypes = {
   currentUser: PropTypes.shape({
     userId: PropTypes.string.isRequired,
   }).isRequired,
-  curPres: PropTypes.shape({
-    pages: PropTypes.arrayOf(PropTypes.shape({})),
-    id: PropTypes.string.isRequired,
-  }),
   whiteboardId: PropTypes.string,
   podId: PropTypes.string.isRequired,
   zoomSlide: PropTypes.func.isRequired,
@@ -1182,13 +1178,14 @@ Whiteboard.propTypes = {
   numberOfSlides: PropTypes.number.isRequired,
   previousSlide: PropTypes.func.isRequired,
   sidebarNavigationWidth: PropTypes.number,
+  presentationId: PropTypes.string,
 };
 
 Whiteboard.defaultProps = {
-  curPres: undefined,
   fullscreenRef: undefined,
   slidePosition: undefined,
   svgUri: undefined,
   whiteboardId: undefined,
   sidebarNavigationWidth: 0,
+  presentationId: undefined,
 };
