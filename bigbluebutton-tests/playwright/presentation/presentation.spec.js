@@ -92,10 +92,10 @@ test.describe.parallel('Presentation', () => {
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
     
-    test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page }, testInfo) => {
+    test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page, browserName }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
-      await presentation.sendPresentationToDownload(testInfo);
+      await presentation.sendPresentationToDownload(testInfo, browserName);
     });
 
     test('Remove all presentation @ci', async ({ browser, context, page }) => {

@@ -423,6 +423,7 @@ exports.advancedVideoSettingsBtn = 'li[data-test="advancedVideoSettingsButton"]'
 exports.mirrorWebcamBtn = 'li[data-test="mirrorWebcamBtn"]';
 exports.focusWebcamBtn = 'li[data-test="focusWebcamBtn"]';
 exports.pinWebcamBtn = 'li[data-test="pinWebcamBtn"]';
+exports.pinnedWebcam = 'button[data-test="pinVideoButton"]';
 exports.webcamFullscreenButton = 'button[data-test="webcamFullscreenButton"]';
 exports.selectDefaultBackground = 'button[data-test="selectDefaultBackground"]';
 exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
@@ -437,6 +438,7 @@ exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]'
 
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
+exports.webcamItem = 'div[data-test="webcamItem"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
 exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
