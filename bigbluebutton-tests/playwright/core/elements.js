@@ -97,7 +97,7 @@ exports.chatBox = 'textarea[id="message-input"]';
 exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
 exports.chatButton = 'button[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
-exports.chatPollMessageText = 'p[data-test="chatPollMessageText"]';
+exports.chatPollMessageText = 'div[data-test="chatPollMessageText"]';
 exports.chatMessages = 'div[data-test="chatMessages"]';
 exports.chatOptions = 'button[data-test="chatOptionsMenu"]';
 exports.chatClear = 'li[data-test="chatClear"]';
@@ -297,7 +297,7 @@ exports.presentationsList = 'div[id="upload-modal"] tbody';
 exports.enableOriginalPresentationDownloadBtn = 'li[data-test="enableOriginalPresentationDownload"]';
 exports.disableOriginalPresentationDownloadBtn = 'li[data-test="disableOriginalPresentationDownload"]';
 exports.sendPresentationInCurrentStateBtn = 'li[data-test="sendCurrentStateDocument"]';
-exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
+exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > a';
 exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
@@ -306,7 +306,7 @@ exports.toolVisibility = 'li[data-test="toolVisibility"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
-exports.youtubeFrame = 'iframe[title~="GreenLight"]';
+exports.youtubeFrame = 'div[data-test="videoPlayer"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';

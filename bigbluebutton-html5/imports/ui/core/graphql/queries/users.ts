@@ -53,6 +53,9 @@ export const USER_LIST_SUBSCRIPTION = gql`subscription Users($offset: Int!, $lim
       shortName
       currentlyInRoom
     }
+    reaction {
+      reactionEmoji
+    }
   }
 }`;
 
