@@ -12,6 +12,8 @@ SyslogIdentifier=bbb-graphql-actions-adapter-server
 User=bigbluebutton
 Group=bigbluebutton
 Environment=NODE_ENV=production
+RestartSec=30s
+StartLimitIntervalSec=0
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target
