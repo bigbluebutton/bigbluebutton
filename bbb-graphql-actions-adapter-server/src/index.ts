@@ -4,20 +4,25 @@ import { redisMessageFactory } from './imports/redisMessageFactory';
 import { DEBUG, SERVER_HOST, SERVER_PORT } from './config';
 import { createRedisClient } from './imports/redis';
 
-
-// Initialize the application
+// Initialize Express Application
 const app = express();
 app.use(express.json());
 
 // Create and configure Redis client
 const redisClient = createRedisClient();
 
-// Define a route to handle action submissions
+/**
+ * Handles action submissions and publishes them to Redis.
+ */
 app.post('/', async (req: Request, res: Response) => {
   try {
+    // Destructure relevant information from the request body.
     const { action: { name: actionName }, input, session_variables: sessionVariables } = req.body;
+    
+    // Build message using received information.
     const { eventName, routing, header, body } = await redisMessageFactory.buildMessage(sessionVariables, actionName, input);
     
+    // Construct payload to be sent to Redis.
     const redisPayload = {
       envelope: {
         name: eventName,
@@ -27,18 +32,18 @@ app.post('/', async (req: Request, res: Response) => {
       core: { header, body },
     };
     
-    if( DEBUG ) {
+    // If in debug mode, log the input and output information.
+    if(DEBUG) {
       console.log(util.inspect({
         input: { actionName, input, sessionVariables },
         output: { redisPayload },
       }, { depth: null, colors: true }));
     }
     
-
-    // Publish the constructed payload to Redis
+    // Publish the constructed payload to Redis.
     await redisClient.publish('to-akka-apps-redis-channel', JSON.stringify(redisPayload));
     
-    // Send a success response
+    // Send a success response.
     res.status(200).json(true);
     
   } catch (error) {
@@ -47,13 +52,19 @@ app.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// Start the server once the Redis client has connected
-redisClient.on('connect', () => {
+// Start the server and establish a connection to Redis.
+const startServer = () => {
+  console.info("Starting server");
   app.listen(SERVER_PORT, SERVER_HOST, () => {
     console.log(`Server is running on ${SERVER_HOST}:${SERVER_PORT}`);
+    console.info("Waiting for Redis connection");
+    redisClient.connect();
   });
-});
+}
 
-// Establish a connection between the Redis client and the Redis server
-redisClient.connect();
+// Redis Client Event Listeners
+redisClient.on('connect', () => console.info("Connected with Redis"));
+redisClient.on('disconnect', () => console.info("Disconnected from Redis"));
 
+// Start the Server and Redis client.
+startServer();
