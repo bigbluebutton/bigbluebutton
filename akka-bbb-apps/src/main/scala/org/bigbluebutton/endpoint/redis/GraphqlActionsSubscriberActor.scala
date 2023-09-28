@@ -2,26 +2,18 @@ package org.bigbluebutton.endpoint.redis
 
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.db.UserGraphqlConnectionDAO
-import scala.concurrent._
-
 
 object GraphqlActionsActor {
-  def props(
-             system:         ActorSystem,
-             outGW:          OutMessageGateway,
-  ): Props =
+  def props(system: ActorSystem): Props =
     Props(
       classOf[GraphqlActionsActor],
       system,
-      outGW
     )
 }
 
 class GraphqlActionsActor(
     system:         ActorSystem,
-    val outGW:          OutMessageGateway,
 ) extends Actor with ActorLogging {
 
   def receive = {

@@ -12,8 +12,6 @@ func StartRedisListener() {
 
 	var ctx = context.Background()
 
-	//redisClient := GetConn()
-
 	subscriber := GetRedisConn().Subscribe(ctx, "from-akka-apps-redis-channel")
 
 	for {
@@ -44,6 +42,7 @@ func StartRedisListener() {
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
 			log.Debugf("Received invalidate request for sessionToken %v", sessionTokenToInvalidate)
 
+			//Not being used yet
 			//websrv.InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
 		}
 	}

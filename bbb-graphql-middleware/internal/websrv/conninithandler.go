@@ -2,7 +2,6 @@ package websrv
 
 import (
 	"context"
-	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/rediscli"
 	log "github.com/sirupsen/logrus"
 	"sync"
@@ -26,8 +25,6 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 		if browserConnection.SessionToken == "" {
 			var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
-			fmt.Printf("%v\n", fromBrowserMessageAsMap)
-
 			if fromBrowserMessageAsMap["type"] == "connection_init" {
 				var payloadAsMap = fromBrowserMessageAsMap["payload"].(map[string]interface{})
 				var headersAsMap = payloadAsMap["headers"].(map[string]interface{})
@@ -39,7 +36,7 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 					browserConnection.SessionToken = sessionToken
 					BrowserConnectionsMutex.Unlock()
 
-					rediscli.SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
+					go rediscli.SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
 
 					break
 				}

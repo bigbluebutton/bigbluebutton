@@ -65,15 +65,13 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		sessionTokenRemoved := BrowserConnections[browserConnectionId].SessionToken
 		delete(BrowserConnections, browserConnectionId)
 		BrowserConnectionsMutex.Unlock()
-		rediscli.SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
+		go rediscli.SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
 
 		log.Infof("connection removed")
 	}()
 
 	// Log it
 	log.Infof("connection accepted")
-
-	//rediscli.SendUserGraphqlConnectionStablishedSysMsg()
 
 	// Create channels
 	fromBrowserChannel1 := make(chan interface{}, bufferSize)
@@ -138,7 +136,7 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 				browserConnection.HasuraConnection.ContextCancelFunc()
 				log.Debugf("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
 
-				//SendInvalidatedUserGraphqlConnectionEvtMsg(browserConnection.SessionToken)
+				//go SendInvalidatedUserGraphqlConnectionEvtMsg(browserConnection.SessionToken)
 			}
 		}
 	}

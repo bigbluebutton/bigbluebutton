@@ -9,14 +9,5 @@ var redisClient = redis.NewClient(&redis.Options{
 })
 
 func GetRedisConn() *redis.Client {
-
-	//if redisClient == nil {
-	//	redisClient := redis.NewClient(&redis.Options{
-	//		Addr:     "127.0.0.1:6379",
-	//		Password: "",
-	//		DB:       0,
-	//	})
-	//}
-
 	return redisClient
 }

@@ -68,7 +68,7 @@ object Boot extends App with SystemConfiguration {
   )
 
   val graphqlActionsActor = system.actorOf(
-    GraphqlActionsActor.props(system, outGW),
+    GraphqlActionsActor.props(system),
     "GraphqlActionsActor"
   )
 
@@ -88,8 +88,6 @@ object Boot extends App with SystemConfiguration {
   outBus2.subscribe(learningDashboardActor, outBbbMsgMsgChannel)
   bbbMsgBus.subscribe(learningDashboardActor, analyticsChannel)
 
-  //TODO check if the 3 are necessary
-  outBus2.subscribe(graphqlActionsActor, outBbbMsgMsgChannel)
   eventBus.subscribe(graphqlActionsActor, meetingManagerChannel)
   bbbMsgBus.subscribe(graphqlActionsActor, analyticsChannel)
 
