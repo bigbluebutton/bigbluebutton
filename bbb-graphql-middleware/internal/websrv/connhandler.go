@@ -139,7 +139,6 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 				log.Debugf("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
 
 				//SendInvalidatedUserGraphqlConnectionEvtMsg(browserConnection.SessionToken)
-
 			}
 		}
 	}

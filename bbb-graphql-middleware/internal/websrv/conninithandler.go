@@ -39,7 +39,6 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 					browserConnection.SessionToken = sessionToken
 					BrowserConnectionsMutex.Unlock()
 
-					println(">>>>>>>>>>>>>>>>>>>>>>>> hello")
 					rediscli.SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
 
 					break
