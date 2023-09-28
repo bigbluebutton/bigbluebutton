@@ -28,8 +28,6 @@ class UserGraphqlConnectionDbTableDef(tag: Tag) extends Table[UserGraphqlConnect
 
 object UserGraphqlConnectionDAO {
   def insert(sessionToken: String, middlewareConnectionId: String) = {
-    println("Inserting>>>: " + sessionToken + ", middlewareConnectionId: " + middlewareConnectionId)
-
     DatabaseConnection.db.run(
       TableQuery[UserGraphqlConnectionDbTableDef].insertOrUpdate(
         UserGraphqlConnectionDbModel(
@@ -49,9 +47,6 @@ object UserGraphqlConnectionDAO {
   }
 
   def updateClosed(sessionToken: String, middlewareConnectionId: String) = {
-
-    println("Updating: " + sessionToken + ", middlewareConnectionId: " + middlewareConnectionId)
-
     DatabaseConnection.db.run(
       TableQuery[UserGraphqlConnectionDbTableDef]
         .filter(_.sessionToken === sessionToken)
