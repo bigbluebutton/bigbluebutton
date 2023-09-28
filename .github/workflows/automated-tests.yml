@@ -268,7 +268,7 @@ jobs:
         timeout-minutes: 1
         run: |
           sudo -i <<EOF
-          systemctl
+          systemctl --type=service --state=running,exited,failed --all --no-pager --no-legend
           EOF
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
