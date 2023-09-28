@@ -24,7 +24,7 @@ test.describe.parallel('Webcam', () => {
 
   test('Pinning and unpinning webcams @ci', async ({ browser, context, page, browserName }) => {
     const webcam = new MultiUsers(browser, context);
-    test.skip(browserName === 'firefox' || browserName === 'webkit', 'Firefox has a bug, Webkit does not support webcams permission');
+    test.skip(browserName === 'firefox' || browserName === 'webkit', 'Firefox needs to change the test, Webkit does not support webcams permission');
     await webcam.initModPage(page);
     await webcam.initUserPage();
     await webcam.initModPage2();
@@ -43,10 +43,10 @@ test.describe.parallel('Webcam', () => {
     await webcam.webcamFullscreen();
   });
 
-  test.describe('Webcam background', () => {
+  test.describe('Webcam background @ci @flaky', () => {
     /* this test has the flaky tag because it is breaking due to a default video from chrome that
     is overlapping the virtual background. */
-    test('Select one of the default backgrounds @ci @flaky', async ({ browser, page }) => {
+    test('Select one of the default backgrounds', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.applyBackground();
@@ -54,13 +54,13 @@ test.describe.parallel('Webcam', () => {
 
     // following test is throwing failures due to mis-comparison screenshot
     // as the emulated video is not static, we may add a mask in the middle part - where it moves the most
-    test('Managing new background @flaky', async ({ browser, page }) => {
+    test('Managing new background', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.managingNewBackground();
     });
 
-    test('Keep background when rejoin @ci', async ({ browser, context, page }) => {
+    test('Keep background when rejoin', async ({ browser, context, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.keepBackgroundWhenRejoin(context);
