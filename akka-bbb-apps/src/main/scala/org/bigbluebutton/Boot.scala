@@ -69,6 +69,7 @@ object Boot extends App with SystemConfiguration {
     "LearningDashboardActor"
   )
 
+  ClientSettings.loadClientSettingsFromFile()
   recordingEventBus.subscribe(redisRecorderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 

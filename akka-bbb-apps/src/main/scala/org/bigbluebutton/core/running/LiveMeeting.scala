@@ -26,5 +26,5 @@ class LiveMeeting(
     val voiceUsers:          VoiceUsers,
     val users2x:             Users2x,
     val guestsWaiting:       GuestsWaiting,
-    val clientConfiguration: Map[String, Object],
+    val clientSettings: Map[String, Object],
 )

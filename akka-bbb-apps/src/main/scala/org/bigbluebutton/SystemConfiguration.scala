@@ -1,6 +1,6 @@
 package org.bigbluebutton
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.Try
 import com.typesafe.config.ConfigFactory
 
 trait SystemConfiguration {
@@ -76,31 +76,6 @@ trait SystemConfiguration {
   lazy val fromBbbWebRedisChannel = Try(config.getString("redis.fromBbbWebRedisChannel")).getOrElse("from-bbb-web-redis-channel")
 
   lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
-
-  // Client configuration
-  lazy val clientConfigurationPath = Try(config.getBoolean("client.clientConfigurationFilePath")).getOrElse(
-    "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml"
-  ).asInstanceOf[String]
-  lazy val clientConfigurationPathOverride = Try(config.getBoolean("client.clientConfigurationOverrideFilePath")).getOrElse(
-    "/etc/bigbluebutton/bbb-html5.yml"
-  ).asInstanceOf[String]
-
-  private val clientConfigurationFile = scala.io.Source.fromFile(clientConfigurationPath)
-  private val clientConfigurationFileOverride = scala.io.Source.fromFile(clientConfigurationPathOverride)
-  val clientConfigurationFromFile: Map[String, Object] = common2.util.YamlUtil.mergeImmutableMaps(
-    common2.util.YamlUtil.toMap[Object](clientConfigurationFile.mkString) match {
-      case Success(value) => value
-      case Failure(exception) =>
-        println("Error while fetching client configuration: ", exception)
-        Map[String, Object]()
-    },
-    common2.util.YamlUtil.toMap[Object](clientConfigurationFileOverride.mkString) match {
-      case Success(value) => value
-      case Failure(exception) =>
-        println("Error while fetching client override configuration: ", exception)
-        Map[String, Object]()
-    }
-  )
 
   // Grab the "interface" parameter from the http config
   val httpHost = config.getString("http.interface")

@@ -120,9 +120,7 @@ class BigBlueButtonActor(
       case None =>
         log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
 
-        val clientConfigForMeeting: Map[String, Object] = clientConfigurationFromFile
-
-        val m = RunningMeeting(msg.body.props, outGW, eventBus, clientConfigForMeeting)
+        val m = RunningMeeting(msg.body.props, outGW, eventBus)
 
         // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
