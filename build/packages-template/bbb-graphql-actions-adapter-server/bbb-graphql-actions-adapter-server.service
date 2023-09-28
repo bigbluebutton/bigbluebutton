@@ -6,7 +6,7 @@ PartOf=bigbluebutton.target
 
 [Service]
 WorkingDirectory=/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server
-ExecStart=/usr/bin/node dist/index.js
+ExecStart=/usr/bin/node bbb-graphql-actions-adapter-server.js
 Restart=always
 SyslogIdentifier=bbb-graphql-actions-adapter-server
 User=bigbluebutton

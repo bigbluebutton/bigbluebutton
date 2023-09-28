@@ -14,15 +14,22 @@ rm -rf staging
 #
 # package
 
-mkdir -p staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server
+mkdir -p staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server-temp
 
-find -maxdepth 1 ! -path . ! -name staging $(printf "! -name %s " $(cat .build-files)) -exec cp -r {} staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/ \;
+find -maxdepth 1 ! -path . ! -name staging $(printf "! -name %s " $(cat .build-files)) -exec cp -r {} staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server-temp/ \;
 
 pushd .
-cd staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/
+cd staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server-temp/
 npm -v
 npm install
 npm run build
+popd
+
+mkdir -p staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server
+mv staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server-temp/dist/* staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/
+pushd .
+cd staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/
+mv index.js bbb-graphql-actions-adapter-server.js
 popd
 
 mkdir -p staging/usr/lib/systemd/system
