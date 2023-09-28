@@ -7,13 +7,14 @@ import { ParameterizedHookContainerProps } from '../types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CustomSubscriptionHookContainer = (props: ParameterizedHookContainerProps) => {
-  const { queryFromPlugin } = props;
+  const { parameter } = props;
+  const { query: queryFromPlugin, variables } = parameter;
 
   const [sendSignal, setSendSignal] = useState(false);
 
   let customSubscription: any;
   try {
-    const subscriptionResult = useSubscription(gql`${queryFromPlugin}`);
+    const subscriptionResult = useSubscription(gql`${queryFromPlugin}`, variables);
     customSubscription = subscriptionResult?.data;
   } catch (err) {
     logger.error(
@@ -30,9 +31,12 @@ const CustomSubscriptionHookContainer = (props: ParameterizedHookContainerProps)
           detail: {
             data: customSubscription,
             hook: PluginSdk.Internal.BbbHooks.UseCustomSubscription,
-            parameter: queryFromPlugin,
+            parameter: {
+              query: queryFromPlugin,
+              variables,
+            },
           },
-        },
+        } as PluginSdk.CustomEventHookWrapper<string>,
       ),
     );
   };

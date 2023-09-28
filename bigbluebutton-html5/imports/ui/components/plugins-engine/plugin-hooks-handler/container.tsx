@@ -7,7 +7,7 @@ import LoadedUserListHookContainer from './use-loaded-user-list/container';
 import CurrentUserHookContainer from './use-current-user/container';
 import CustomSubscriptionHookContainer from './use-custom-subscription/container';
 
-import { ParameterizedHookContainerProps, ParameterizedHookContainerToRender } from './types';
+import { ObjectToCustomHookContainerMap, ParameterizedHookContainerProps, ParameterizedHookContainerToRender } from './types';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent
@@ -32,10 +32,10 @@ const PluginHooksHandlerContainer: React.FC = () => {
   const [
     parameterizedHookUtilizationCount,
     setParameterizedHookUtilizationCount,
-  ] = useState(new Map<string, Map<string, number>>());
+  ] = useState(new Map<string, Map<string, ObjectToCustomHookContainerMap>>());
 
   useEffect(() => {
-    const updateHookUsage = (hookName: string, delta: number, parameter?: string): void => {
+    const updateHookUsage = (hookName: string, delta: number, parameter?: PluginSdk.CustomEventParameter): void => {
       if (!hookName.includes('Parameterized')) {
         setHookUtilizationCount((mapObj) => {
           const newMap = new Map<string, number>(mapObj.entries());
@@ -45,12 +45,16 @@ const PluginHooksHandlerContainer: React.FC = () => {
       } else {
         setParameterizedHookUtilizationCount((mapObj) => {
           if (parameter) {
+            const parameterAsKey = PluginSdk.concatenateParameterQueryAndVariables(parameter);
             // Create object from the parameterized hook
-            const mapToBeSet = new Map<string, number>(mapObj.get(hookName)?.entries());
-            mapToBeSet.set(parameter, (mapObj.get(hookName)?.get(parameter) || 0) + delta);
+            const mapToBeSet = new Map<string, ObjectToCustomHookContainerMap>(mapObj.get(hookName)?.entries());
+            mapToBeSet.set(parameterAsKey, {
+              count: (mapObj.get(hookName)?.get(parameterAsKey)?.count || 0 + delta),
+              parameter,
+            } as ObjectToCustomHookContainerMap);
 
             // Create new parameterized map
-            const newMap = new Map<string, Map<string, number>>(mapObj.entries());
+            const newMap = new Map<string, Map<string, ObjectToCustomHookContainerMap>>(mapObj.entries());
             newMap.set(hookName, mapToBeSet);
             return newMap;
           } return mapObj;
@@ -78,11 +82,11 @@ const PluginHooksHandlerContainer: React.FC = () => {
   const parameterizedHooksContainerToRun: ParameterizedHookContainerToRender[] = [];
   Object.keys(parameterizedHooksMap).forEach((hookName) => {
     if (parameterizedHookUtilizationCount.get(hookName)) {
-      parameterizedHookUtilizationCount.get(hookName)?.forEach((countOfPlugins, parameter) => {
-        if (countOfPlugins > 0) {
+      parameterizedHookUtilizationCount.get(hookName)?.forEach((object) => {
+        if (object.count > 0) {
           parameterizedHooksContainerToRun.push({
             componentToRender: parameterizedHooksMap[hookName],
-            query: parameter,
+            parameter: object.parameter,
           });
         }
       });
@@ -103,7 +107,12 @@ const PluginHooksHandlerContainer: React.FC = () => {
       {
         parameterizedHooksContainerToRun.map((parameterizedHook) => {
           const HookComponent = parameterizedHook.componentToRender;
-          return <HookComponent key={parameterizedHook.query} queryFromPlugin={parameterizedHook.query} />;
+          return (
+            <HookComponent
+              key={PluginSdk.concatenateParameterQueryAndVariables(parameterizedHook.parameter)}
+              parameter={parameterizedHook.parameter}
+            />
+          );
         })
       }
     </>
