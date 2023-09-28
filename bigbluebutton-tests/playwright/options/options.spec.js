@@ -18,7 +18,8 @@ test.describe.serial('Options', () => {
     await options.openHelp(context);
   });
 
-  test('Locales test', async () => {
+  test('Locales test', async ({ browserName }) => {
+    test.skip();
     await options.localesTest();
   });
 

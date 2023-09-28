@@ -35,11 +35,12 @@ const webkitConfig = {
   name: 'WebKit',
   use: {
     browserName: 'webkit',
+    devices: ['Desktop Safari'],
     launchOptions: {
       args: [
-        '--no-sandbox',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
+        //'--no-sandbox',
+        //'--use-fake-ui-for-media-stream',
+        //'--use-fake-device-for-media-stream',
       ]
     },
   },
