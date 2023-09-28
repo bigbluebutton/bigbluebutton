@@ -22,6 +22,7 @@ pushd .
 cd staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/
 npm -v
 npm install --omit=dev
+npm run build
 popd
 
 mkdir -p staging/usr/lib/systemd/system
