@@ -21,7 +21,7 @@ find -maxdepth 1 ! -path . ! -name staging $(printf "! -name %s " $(cat .build-f
 pushd .
 cd staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server-temp/
 npm -v
-npm ci
+npm ci --no-progress
 npm run build
 popd
 
@@ -32,7 +32,7 @@ mv ../bbb-graphql-actions-adapter-server-temp/dist/* .
 mv index.js bbb-graphql-actions-adapter-server.js
 cp ../bbb-graphql-actions-adapter-server-temp/package.json .
 cp ../bbb-graphql-actions-adapter-server-temp/package-lock.json .
-npm ci --omit=dev
+npm ci --no-progress --omit=dev
 rm -rf ../bbb-graphql-actions-adapter-server-temp/
 popd
 
