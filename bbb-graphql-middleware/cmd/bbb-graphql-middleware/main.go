@@ -13,7 +13,7 @@ import (
 
 func main() {
 	// Configure logger
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.InfoLevel)
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 
