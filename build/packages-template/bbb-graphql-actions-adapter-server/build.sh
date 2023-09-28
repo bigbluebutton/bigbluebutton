@@ -21,6 +21,7 @@ find -maxdepth 1 ! -path . ! -name staging $(printf "! -name %s " $(cat .build-f
 pushd .
 cd staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/
 npm -v
+npm install -g typescript
 npm install --omit=dev
 npm run build
 popd
