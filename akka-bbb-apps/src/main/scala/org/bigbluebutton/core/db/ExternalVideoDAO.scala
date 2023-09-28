@@ -5,33 +5,31 @@ import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 case class ExternalVideoDbModel(
-    externalVideoId:  String,
-    meetingId:        String,
-    externalVideoUrl: String,
-    startedAt:        java.sql.Timestamp         = new java.sql.Timestamp(System.currentTimeMillis()),
-    stoppedAt:        Option[java.sql.Timestamp],
-    lastEventAt:      Option[java.sql.Timestamp],
-    lastEventDesc:    String,
-    playerRate:       Double,
-    playerTime:       Double,
-    playerState:      Int
+    externalVideoId:    String,
+    meetingId:          String,
+    externalVideoUrl:   String,
+    startedSharingAt:   java.sql.Timestamp,
+    stoppedSharingAt:   Option[java.sql.Timestamp],
+    updatedAt:          java.sql.Timestamp,
+    playerPlaybackRate: Double,
+    playerCurrentTime:  Double,
+    playerPlaying:      Boolean
 )
 
-class ExternalVideoDbTableDef(tag: Tag) extends Table[ExternalVideoDbModel](tag, "external_video") {
+class ExternalVideoDbTableDef(tag: Tag) extends Table[ExternalVideoDbModel](tag, "externalVideo") {
   val externalVideoId = column[String]("externalVideoId", O.PrimaryKey)
   val meetingId = column[String]("meetingId")
   val externalVideoUrl = column[String]("externalVideoUrl")
-  val startedAt = column[java.sql.Timestamp]("startedAt")
-  val stoppedAt = column[Option[java.sql.Timestamp]]("stoppedAt")
-  val lastEventAt = column[Option[java.sql.Timestamp]]("lastEventAt")
-  val lastEventDesc = column[String]("lastEventDesc")
-  val playerRate = column[Double]("playerRate")
-  val playerTime = column[Double]("playerTime")
-  val playerState = column[Int]("playerState")
-  override def * : ProvenShape[ExternalVideoDbModel] = (externalVideoId, meetingId, externalVideoUrl, startedAt, stoppedAt, lastEventAt, lastEventDesc, playerRate, playerTime, playerState) <> (ExternalVideoDbModel.tupled, ExternalVideoDbModel.unapply)
+  val startedSharingAt = column[java.sql.Timestamp]("startedSharingAt")
+  val stoppedSharingAt = column[Option[java.sql.Timestamp]]("stoppedSharingAt")
+  val updatedAt = column[java.sql.Timestamp]("updatedAt")
+  val playerPlaybackRate = column[Double]("playerPlaybackRate")
+  val playerCurrentTime = column[Double]("playerCurrentTime")
+  val playerPlaying = column[Boolean]("playerPlaying")
+  override def * : ProvenShape[ExternalVideoDbModel] = (externalVideoId, meetingId, externalVideoUrl, startedSharingAt, stoppedSharingAt, updatedAt, playerPlaybackRate, playerCurrentTime, playerPlaying) <> (ExternalVideoDbModel.tupled, ExternalVideoDbModel.unapply)
 }
 
 object ExternalVideoDAO {
@@ -42,18 +40,17 @@ object ExternalVideoDAO {
           externalVideoId = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8),
           meetingId = meetingId,
           externalVideoUrl = externalVideoUrl,
-          startedAt = new java.sql.Timestamp(System.currentTimeMillis()),
-          stoppedAt = None,
-          lastEventAt = None,
-          lastEventDesc = "",
-          playerRate = 0,
-          playerTime = 0,
-          playerState = 0,
+          startedSharingAt = new java.sql.Timestamp(System.currentTimeMillis()),
+          stoppedSharingAt = None,
+          updatedAt = new java.sql.Timestamp(System.currentTimeMillis()),
+          playerPlaybackRate = 1,
+          playerCurrentTime = 0,
+          playerPlaying = true
         )
       )
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in ExternalVideo table!")
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting ExternalVideo: $e")
+        case Failure(e)            => DatabaseConnection.logger.error(s"Error inserting ExternalVideo: $e")
       }
   }
 
@@ -61,26 +58,38 @@ object ExternalVideoDAO {
     DatabaseConnection.db.run(
       TableQuery[ExternalVideoDbTableDef]
         .filter(_.meetingId === meetingId)
-        .filter(_.stoppedAt.isEmpty)
-        .map(ev => (ev.lastEventDesc, ev.playerRate, ev.playerTime, ev.playerState, ev.lastEventAt))
-        .update((status, rate, time, state, Some(new java.sql.Timestamp(System.currentTimeMillis()))))
+        .filter(_.stoppedSharingAt.isEmpty)
+        .map(ev => (ev.playerPlaybackRate, ev.playerCurrentTime, ev.playerPlaying, ev.updatedAt))
+        .update((
+          rate,
+          time,
+          status match {
+            case "play" => true
+            case "stop" => false
+            case _ => state match {
+              case 1 => true
+              case 0 => false
+            }
+          },
+          new java.sql.Timestamp(System.currentTimeMillis())
+        ))
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on ExternalVideo table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating ExternalVideo: $e")
-    }
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on ExternalVideo table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating ExternalVideo: $e")
+      }
   }
 
-  def updateStopped(meetingId: String) = {
+  def updateStoppedSharing(meetingId: String) = {
     DatabaseConnection.db.run(
       TableQuery[ExternalVideoDbTableDef]
         .filter(_.meetingId === meetingId)
-        .filter(_.stoppedAt.isEmpty)
-        .map(ev => ev.stoppedAt)
-        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
+        .filter(_.stoppedSharingAt.isEmpty)
+        .map(ev => (ev.stoppedSharingAt, ev.playerPlaying))
+        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())), false)
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated stoppedAt on ExternalVideo table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating stoppedAt on ExternalVideo: $e")
-    }
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated stoppedSharingAt on ExternalVideo table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating stoppedSharingAt on ExternalVideo: $e")
+      }
   }
 
 }

@@ -1,3 +1,10 @@
+--unaccent will be used to create nameSortable
+CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
+				RETURNS text AS $$
+				SELECT lower(unaccent('unaccent', $1))
+				$$ LANGUAGE SQL IMMUTABLE;
+
 -- ========== Meeting tables
 
 create table "meeting" (
@@ -252,11 +259,17 @@ COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds 
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
+
 --Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
 ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS ("clientType" = 'dial-in-user') STORED;
 ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestStatus" = 'WAIT') STORED;
 ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestStatus" = 'ALLOW') STORED;
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
+
+ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp(("registeredOn" + 6000) / 1000)) STORED;
+
+--Used to sort the Userlist
+ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
@@ -301,6 +314,7 @@ AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -322,6 +336,7 @@ AS SELECT "user"."userId",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
+    "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
@@ -340,17 +355,17 @@ CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
                 AND "user"."expired" IS FALSE
                 and "user"."joined" IS TRUE;
 
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","name","userId") 
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","raiseHandTime","awayTime","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","nameSortable","userId")
                 where "user"."loggedOut" IS FALSE
                 AND "user"."expired" IS FALSE
                 and "user"."joined" IS TRUE;
-
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -372,6 +387,7 @@ AS SELECT "user"."userId",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
+    "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
@@ -400,6 +416,7 @@ AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -418,6 +435,7 @@ AS SELECT "user"."userId",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
+    "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
@@ -824,18 +842,15 @@ CREATE TABLE "pres_presentation" (
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"current" boolean,
 	"downloadable" boolean,
-	"removable" boolean
+	"removable" boolean,
+    "converting" boolean,
+    "uploadCompleted" boolean,
+    "numPages" integer,
+    "errorMsgKey" varchar(100),
+    "errorDetails" TEXT
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
-
-CREATE OR REPLACE VIEW public.v_pres_presentation AS
-SELECT pres_presentation."meetingId",
-	pres_presentation."presentationId",
-	pres_presentation."current",
-	pres_presentation."downloadable",
-	pres_presentation."removable"
-   FROM pres_presentation;
 
 CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
@@ -853,10 +868,25 @@ CREATE TABLE "pres_page" (
     "viewBoxWidth" NUMERIC,
     "viewBoxHeight" NUMERIC,
     "maxImageWidth" integer,
-    "maxImageHeight" integer
+    "maxImageHeight" integer,
+    "converted" boolean
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
+
+CREATE OR REPLACE VIEW public.v_pres_presentation AS
+SELECT pres_presentation."meetingId",
+	pres_presentation."presentationId",
+	pres_presentation."current",
+	pres_presentation."downloadable",
+	pres_presentation."removable",
+    pres_presentation."converting",
+    pres_presentation."uploadCompleted",
+    pres_presentation."numPages",
+    pres_presentation."errorMsgKey",
+    pres_presentation."errorDetails",
+    (SELECT count(*) FROM pres_page WHERE pres_page."presentationId" = pres_presentation."presentationId" AND "converted" is true) as "pagesUploaded"
+   FROM pres_presentation;
 
 CREATE OR REPLACE VIEW public.v_pres_page AS
 SELECT pres_presentation."meetingId",
@@ -877,7 +907,8 @@ SELECT pres_presentation."meetingId",
     (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledWidth",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
-    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight"
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
+    pres_page."converted"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
@@ -1161,23 +1192,22 @@ WHERE poll."type" != 'R-';
 --------------------------------
 ----External video
 
-create table "external_video"(
+create table "externalVideo"(
 "externalVideoId" varchar(100) primary key,
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "externalVideoUrl" varchar(500),
-"startedAt" timestamp with time zone,
-"stoppedAt" timestamp with time zone,
-"lastEventAt" timestamp with time zone,
-"lastEventDesc" varchar(50),
-"playerRate" numeric,
-"playerTime" numeric,
-"playerState" integer
+"startedSharingAt" timestamp with time zone,
+"stoppedSharingAt" timestamp with time zone,
+"updatedAt" timestamp with time zone,
+"playerPlaybackRate" numeric,
+"playerCurrentTime" numeric,
+"playerPlaying" boolean
 );
-create index "external_video_meetingId_current" on "external_video"("meetingId") WHERE "stoppedAt" IS NULL;
+create index "externalVideo_meetingId_current" on "externalVideo"("meetingId") WHERE "stoppedSharingAt" IS NULL;
 
-CREATE VIEW "v_external_video" AS
-SELECT * FROM "external_video"
-WHERE "stoppedAt" IS NULL;
+CREATE VIEW "v_externalVideo" AS
+SELECT * FROM "externalVideo"
+WHERE "stoppedSharingAt" IS NULL;
 
 --------------------------------
 ----Screenshare
@@ -1248,37 +1278,73 @@ CREATE INDEX "idx_breakoutRoom_parentMeetingId" ON "breakoutRoom"("parentMeeting
 CREATE TABLE "breakoutRoom_user" (
 	"breakoutRoomId" varchar(100) NOT NULL REFERENCES "breakoutRoom"("breakoutRoomId") ON DELETE CASCADE,
 	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE,
+	"joinURL" text,
 	"assignedAt" timestamp with time zone,
+	"joinedAt" timestamp with time zone,
+	"inviteDismissedAt" timestamp with time zone,
 	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "userId")
 );
 
 CREATE OR REPLACE VIEW "v_breakoutRoom" AS
-SELECT u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
-        b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
-CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
-bu."assignedAt", ub."isOnline" AS "currentIsOnline", ub."registeredOn" AS "currentRegisteredOn", ub."joined" AS "currentJoined"
-FROM "user" u
-JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
-LEFT JOIN "breakoutRoom_user" bu ON bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
-LEFT JOIN "meeting" mb ON mb."extId" = b."externalId"
-LEFT JOIN "v_user" ub ON ub."meetingId" = mb."meetingId" and ub."extId" = u."extId" || '-' || b."sequence"
-WHERE (bu."assignedAt" IS NOT NULL
-		OR b."freeJoin" IS TRUE
-		OR u."role" = 'MODERATOR')
-AND b."endedAt" IS NULL;
+SELECT *,
+    --showInvitation flag
+    case WHEN 1=1
+    	--this is not the last room the user joined
+    	-- AND "lastRoomJoinedId" != "breakoutRoomId" --the next condition turn this one useless
+    	--user didn't joined some room after assigned
+    	AND ("lastRoomJoinedAt" IS NULL OR "lastRoomJoinedAt" < "assignedAt")
+    	--user didn't close the invitation already
+    	and ("inviteDismissedAt" is NULL OR "assignedAt" > "inviteDismissedAt")
+    	--user is not online in other room
+    	AND "lastRoomIsOnline" IS FALSE
+    	--this is this the last assignment?
+    	AND "currentRoomPriority" = 1
+    	--user is not moderator or sendInviteToMod flag is true
+    	AND ("isModerator" is false OR "sendInvitationToModerators")
+    	THEN TRUE ELSE FALSE END "showInvitation"
+from (
+    SELECT u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
+            b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
+                bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
+                --CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
+                ub."isOnline" AS "currentRoomIsOnline",
+                ub."registeredAt" AS "currentRoomRegisteredAt",
+                ub."joined" AS "currentRoomJoined",
+                rank() OVER (partition BY u."userId" order by "assignedAt" desc nulls last) as "currentRoomPriority",
+                max(bu."joinedAt") OVER (partition BY u."userId") AS "lastRoomJoinedAt",
+                max(bu."breakoutRoomId") OVER (partition BY u."userId" ORDER BY bu."joinedAt") AS "lastRoomJoinedId",
+                sum(CASE WHEN ub."isOnline" THEN 1 ELSE 0 END) OVER (partition BY u."userId") > 0 as "lastRoomIsOnline"
+    FROM "user" u
+    JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
+    LEFT JOIN "breakoutRoom_user" bu ON bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
+    LEFT JOIN "meeting" mb ON mb."extId" = b."externalId"
+    LEFT JOIN "v_user" ub ON ub."meetingId" = mb."meetingId" and ub."extId" = u."extId" || '-' || b."sequence"
+    WHERE (bu."assignedAt" IS NOT NULL
+            OR b."freeJoin" IS TRUE
+            OR u."role" = 'MODERATOR')
+    AND b."endedAt" IS NULL
+) a;
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
 SELECT "parentMeetingId", "breakoutRoomId", "userId"
 FROM "v_breakoutRoom"
 WHERE "assignedAt" IS NOT NULL;
 
+--TODO improve performance (and handle two users with same extId)
 CREATE OR REPLACE VIEW "v_breakoutRoom_participant" AS
-SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."userId"
-FROM v_user "user"
-JOIN "meeting" m using("meetingId")
-JOIN "v_meeting_breakoutPolicies"vmbp using("meetingId")
-JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
+SELECT DISTINCT "parentMeetingId", "breakoutRoomId", "userId"
+FROM "v_breakoutRoom"
+WHERE "currentRoomIsOnline" IS TRUE;
+--SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."userId"
+--FROM v_user "user"
+--JOIN "meeting" m using("meetingId")
+--JOIN "v_meeting_breakoutPolicies" vmbp using("meetingId")
+--JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
+--User to update "inviteDismissedAt" via Mutation
+CREATE VIEW "v_breakoutRoom_user" AS
+SELECT *
+FROM "breakoutRoom_user";
 
 ------------------------------------
 ----sharedNotes
@@ -1347,3 +1413,21 @@ CREATE TABLE "audio_caption" (
 
 CREATE VIEW "v_audio_caption" AS
 SELECT * FROM "audio_caption";
+
+------------------------------------
+----
+
+CREATE TABLE "layout" (
+	"meetingId" 			varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"currentLayoutType"     varchar(100),
+	"presentationMinimized" boolean,
+	"cameraDockIsResizing"	boolean,
+	"cameraDockPlacement" 	varchar(100),
+	"cameraDockAspectRatio" numeric,
+	"cameraWithFocus" 		varchar(100),
+	"propagateLayout" 		boolean,
+	"updatedAt" 			timestamp with time zone
+);
+
+CREATE VIEW "v_layout" AS
+SELECT * FROM "layout";

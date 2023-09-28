@@ -29,7 +29,6 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
       for {
         breakoutModel <- state.breakout
       } yield {
-
         //Eject user from room From
         for {
           roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
@@ -58,7 +57,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
         )
 
         //Update database
-        BreakoutRoomUserDAO.updateRoomChanged(msg.body.userId, msg.body.fromBreakoutId, msg.body.toBreakoutId)
+        BreakoutRoomUserDAO.updateRoomChanged(msg.body.userId, msg.body.fromBreakoutId, msg.body.toBreakoutId, redirectToHtml5JoinURL)
 
 
         //Send notification to moved User

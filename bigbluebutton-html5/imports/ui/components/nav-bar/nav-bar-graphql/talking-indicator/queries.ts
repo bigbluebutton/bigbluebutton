@@ -7,6 +7,7 @@ interface IsBreakoutData {
 }
 
 export interface TalkingIndicatorSubscriptionData {
+  // eslint-disable-next-line camelcase
   user_voice: Array<Partial<UserVoice>>;
 }
 

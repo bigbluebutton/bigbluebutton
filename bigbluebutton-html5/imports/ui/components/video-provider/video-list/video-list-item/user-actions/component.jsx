@@ -39,11 +39,17 @@ const intlMessages = defineMessages({
   unpinDesc: {
     id: 'app.videoDock.webcamUnpinDesc',
   },
-  mirrorLabel: {
-    id: 'app.videoDock.webcamMirrorLabel',
+  enableMirrorLabel: {
+    id: 'app.videoDock.webcamEnableMirrorLabel',
   },
-  mirrorDesc: {
-    id: 'app.videoDock.webcamMirrorDesc',
+  enableMirrorDesc: {
+    id: 'app.videoDock.webcamEnableMirrorDesc',
+  },
+  disableMirrorLabel: {
+    id: 'app.videoDock.webcamDisableMirrorLabel',
+  },
+  disableMirrorDesc: {
+    id: 'app.videoDock.webcamDisableMirrorDesc',
   },
   fullscreenLabel: {
     id: 'app.videoDock.webcamFullscreenLabel',
@@ -61,7 +67,7 @@ const intlMessages = defineMessages({
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled,
+    isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
   } = props;
 
   const intl = useIntl();
@@ -73,6 +79,7 @@ const UserActions = (props) => {
     const userId = user?.userId;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
+    const isMirroredIntlKey = !isMirrored ? 'enableMirror' : 'disableMirror';
     const disabledCams = Session.get('disabledCams') || [];
     const isCameraDisabled = disabledCams && disabledCams?.includes(cameraId);
     const enableSelfCamIntlKey = !isCameraDisabled ? 'disable' : 'enable';
@@ -120,8 +127,8 @@ const UserActions = (props) => {
     if (isStream) {
       menuItems.push({
         key: `${cameraId}-mirror`,
-        label: intl.formatMessage(intlMessages.mirrorLabel),
-        description: intl.formatMessage(intlMessages.mirrorDesc),
+        label: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Label`]),
+        description: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Desc`]),
         onClick: () => onHandleMirror(cameraId),
         dataTest: 'mirrorWebcamBtn',
       });

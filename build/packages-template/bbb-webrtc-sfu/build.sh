@@ -61,4 +61,5 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     --before-remove before-remove.sh                \
     --description "BigBlueButton WebRTC SFU"        \
     $DIRECTORIES                                    \
-    $OPTS
+    $OPTS                                           \
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'

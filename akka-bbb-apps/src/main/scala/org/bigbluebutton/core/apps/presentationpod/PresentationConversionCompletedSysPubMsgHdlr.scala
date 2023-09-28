@@ -48,11 +48,11 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       )
 
       val presWithConvertedName = PresentationInPod(pres.id, pres.name, pres.current, pres.pages,
-        pres.downloadable, pres.removable, msg.body.presentation.filenameConverted)
+        pres.downloadable, pres.removable, msg.body.presentation.filenameConverted, uploadCompleted = true, numPages = pres.numPages, errorDetails = Map.empty)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
 
-      PresPresentationDAO.insert(meetingId, pres)
+      PresPresentationDAO.insertOrUpdate(meetingId, presWithConvertedName)
 
       state.update(pods)
     }

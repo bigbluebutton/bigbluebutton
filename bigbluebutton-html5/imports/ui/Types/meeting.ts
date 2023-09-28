@@ -37,7 +37,6 @@ export interface MeetingRecordingPolicies {
   stoppedBy: string;
 }
 
-
 export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
   allowModsToUnmuteUsers: boolean;

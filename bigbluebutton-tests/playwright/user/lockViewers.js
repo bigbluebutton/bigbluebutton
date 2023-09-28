@@ -48,7 +48,7 @@ class LockViewers extends MultiUsers {
       await this.modPage.getSelectorCount(e.webcamVideoItem),
       await this.userPage.getSelectorCount(e.webcamVideoItem),
     ];
-    expect(videoContainersCount).toStrictEqual([2, 2]);
+    await expect(videoContainersCount).toStrictEqual([2, 2]);
 
     await this.initUserPage2(true);
 
@@ -112,6 +112,9 @@ class LockViewers extends MultiUsers {
     await this.initUserPage2(true);
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+
+    await this.modPage.waitAndClick(`${e.userListItem}>>nth=0`);
+    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     
     await this.userPage2.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.userPage2.waitAndClick(`${e.startPrivateChat}>>nth=1`);
@@ -128,7 +131,7 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
     await sharedNotesLocator.type(e.message, { timeout: ELEMENT_WAIT_LONGER_TIME });
-    expect(sharedNotesLocator).toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
+    await expect(sharedNotesLocator).toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
 
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
@@ -152,7 +155,7 @@ class LockViewers extends MultiUsers {
     await this.initUserPage2(true);
     await this.userPage2.checkElementCount(e.userListItem, 1);
     await sleep(1000);
-    expect(await this.userPage.getLocator(e.userListItem).count()).toBe(1);
+    await expect(await this.userPage.getLocator(e.userListItem).count()).toBe(1);
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);

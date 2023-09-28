@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.redis
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 
 abstract class RedisStorageProvider(system: ActorSystem, clientName: String, config: RedisConfig) {
   val redisPass = config.password match {

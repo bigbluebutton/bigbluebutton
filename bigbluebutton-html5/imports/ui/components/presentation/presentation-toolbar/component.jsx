@@ -169,50 +169,6 @@ class PresentationToolbar extends PureComponent {
     return addWhiteboardGlobalAccess(whiteboardId);
   }
 
-  renderToolbarPluginItems() {
-    let pluginProvidedItems = [];
-    if (this.props) {
-      const {
-        pluginProvidedPresentationToolbarItems: ppb,
-      } = this.props;
-      pluginProvidedItems = ppb;
-    }
-
-    return pluginProvidedItems?.map((ppb) => {
-      let componentToReturn;
-      const ppbId = ppb.id;
-
-      switch (ppb.type) {
-        case PluginSdk.PresentationToolbarItemType.BUTTON:
-          componentToReturn = (
-            <Button
-              key={ppbId}
-              style={{ marginLeft: '2px' }}
-              label={ppb.label}
-              onClick={ppb.onClick}
-              tooltipLabel={ppb.tooltip}
-            />
-          );
-          break;
-        case PluginSdk.PresentationToolbarItemType.SPINNER:
-          componentToReturn = (
-            <Spinner
-              key={ppbId}
-            />
-          );
-          break;
-        case PluginSdk.PresentationToolbarItemType.SEPARATOR:
-          componentToReturn = (
-            <Separator />
-          );
-          break;
-        default:
-          componentToReturn = null;
-      }
-      return componentToReturn;
-    });
-  }
-
   fullscreenToggleHandler() {
     const {
       fullscreenElementId,
@@ -282,6 +238,50 @@ class PresentationToolbar extends PureComponent {
   change(value) {
     const { zoomChanger } = this.props;
     zoomChanger(value);
+  }
+
+  renderToolbarPluginItems() {
+    let pluginProvidedItems = [];
+    if (this.props) {
+      const {
+        pluginProvidedPresentationToolbarItems,
+      } = this.props;
+      pluginProvidedItems = pluginProvidedPresentationToolbarItems;
+    }
+
+    return pluginProvidedItems?.map((ppb) => {
+      let componentToReturn;
+      const ppbId = ppb.id;
+
+      switch (ppb.type) {
+        case PluginSdk.PresentationToolbarItemType.BUTTON:
+          componentToReturn = (
+            <Button
+              key={ppbId}
+              style={{ marginLeft: '2px' }}
+              label={ppb.label}
+              onClick={ppb.onClick}
+              tooltipLabel={ppb.tooltip}
+            />
+          );
+          break;
+        case PluginSdk.PresentationToolbarItemType.SPINNER:
+          componentToReturn = (
+            <Spinner
+              key={ppbId}
+            />
+          );
+          break;
+        case PluginSdk.PresentationToolbarItemType.SEPARATOR:
+          componentToReturn = (
+            <Separator />
+          );
+          break;
+        default:
+          componentToReturn = null;
+      }
+      return componentToReturn;
+    });
   }
 
   renderAriaDescs() {

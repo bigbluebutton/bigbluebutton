@@ -63,10 +63,12 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		BrowserConnectionsMutex.Lock()
 		delete(BrowserConnections, browserConnectionId)
 		BrowserConnectionsMutex.Unlock()
+
+		log.Infof("connection removed")
 	}()
 
 	// Log it
-	log.Printf("connection accepted")
+	log.Infof("connection accepted")
 
 	// Create channels
 	fromBrowserChannel1 := make(chan interface{}, bufferSize)
@@ -75,7 +77,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Ensure a hasura client is running while the browser is connected
 	go func() {
-		log.Printf("starting hasura client")
+		log.Debugf("starting hasura client")
 
 	BrowserConnectedLoop:
 		for {
@@ -84,7 +86,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 				break BrowserConnectedLoop
 			default:
 				{
-					log.Printf("creating hasura client")
+					log.Debugf("creating hasura client")
 					BrowserConnectionsMutex.RLock()
 					thisBrowserConnection := BrowserConnections[browserConnectionId]
 					BrowserConnectionsMutex.RUnlock()
