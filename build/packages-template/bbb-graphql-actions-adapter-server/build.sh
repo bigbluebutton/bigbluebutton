@@ -31,7 +31,7 @@ pushd .
 cd staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/
 mv index.js bbb-graphql-actions-adapter-server.js
 cp ../bbb-graphql-actions-adapter-server-temp/package.json .
-cp ../bbb-graphql-actions-adapter-server-temp/package.lock .
+cp ../bbb-graphql-actions-adapter-server-temp/package-lock.json .
 npm ci --omit=dev
 popd
 
