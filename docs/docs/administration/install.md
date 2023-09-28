@@ -325,6 +325,8 @@ Do you have a firewall between you and your users? If so, see [configuring your 
 
 You can upgrade by re-running the `bbb-install.sh` script again -- it will download and install the latest release of BigBlueButton 2.7.
 
+** Note: ** BigBlueButton packages may get upgrated when you run `apt upgrade`. In case of upgrading packages in this way, you may encounter some issues (like in connecting audio); Since some post-install configurations are done by installation script. It's recommended to run `bbb-install.sh` script afterwards if you notice BigBlueButton packages are updated via apt.
+
 ### Upgrading from BigBlueButton 2.5 or 2.6
 
 You can upgrade in a few steps:
