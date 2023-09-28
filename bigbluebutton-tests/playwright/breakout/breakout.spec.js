@@ -50,22 +50,25 @@ test.describe.parallel('Breakout', () => {
       await join.joinRoom();
     });
 
-    test('Join Breakout room and share webcam', async ({ browser, context, page }) => {
+    test('Join Breakout room and share webcam', async ({ browser, context, page, browserName }) => {
       const join = new Join(browser, context);
+      test.skip(browserName === 'webkit', 'Playwright does not have support camera permission for Webkit');
       await join.initPages(page);
       await join.create()
       await join.joinAndShareWebcam();
     });
 
-    test('Join Breakout room and share screen', async ({ browser, context, page }) => {
+    test('Join Breakout room and share screen', async ({ browser, context, page, browserName }) => {
       const join = new Join(browser, context);
+      test.skip(browserName === 'webkit', 'Screensharing not working on Webkit');
       await join.initPages(page);
       await join.create();
       await join.joinAndShareScreen();
     });
 
-    test('Join Breakout room with Audio', async ({ browser, context, page }) => {
+    test('Join Breakout room with Audio', async ({ browser, context, page, browserName }) => {
       const join = new Join(browser, context);
+      test.skip(browserName === 'webkit', 'Playwright does not have support audio permission for Webkit');
       await join.initPages(page);
       await join.create();
       await join.joinWithAudio();

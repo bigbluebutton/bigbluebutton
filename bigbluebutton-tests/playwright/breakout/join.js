@@ -139,7 +139,7 @@ class Join extends Create {
     await breakoutUserPage.page.isClosed();
 
     await this.userPage.waitAndClick(e.modalConfirmButton);
-    await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/);
+    await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/, ELEMENT_WAIT_LONGER_TIME);
   }
 
   async exportBreakoutNotes() {

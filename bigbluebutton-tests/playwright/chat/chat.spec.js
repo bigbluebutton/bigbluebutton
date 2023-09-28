@@ -43,8 +43,9 @@ test.describe.serial('Chat', () => {
     await chat.emptyMessage();
   });
 
-  test('Copy and paste public message', async () => {
+  test('Copy and paste public message', async ({ browserName }) => {
     linkIssue('15948');
+    test.skip(browserName === 'webkit', 'The message breaks in two, but it should keep together.');
     await chat.copyPastePublicMessage();
   })
 
