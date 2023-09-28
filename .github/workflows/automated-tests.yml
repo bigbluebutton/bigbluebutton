@@ -264,6 +264,12 @@ jobs:
           sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
           bbb-conf --restart
           EOF
+      - name: List systemctl services
+        timeout-minutes: 1
+        run: |
+          sudo -i <<EOF
+          systemctl
+          EOF
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         run: |
