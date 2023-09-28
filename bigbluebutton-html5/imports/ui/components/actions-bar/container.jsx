@@ -16,6 +16,7 @@ import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 import MediaService from '../media/service';
 
@@ -24,6 +25,16 @@ const ActionsBarContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const usingUsersContext = useContext(UsersContext);
+  const {
+    pluginsProvidedAggregatedState,
+  } = useContext(PluginsContext);
+  let actionBarItems = [];
+  if (pluginsProvidedAggregatedState.actionsBarItems) {
+    actionBarItems = [
+      ...pluginsProvidedAggregatedState.actionsBarItems,
+    ];
+  }
+
   const { users } = usingUsersContext;
 
   const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
@@ -40,6 +51,7 @@ const ActionsBarContainer = (props) => {
         layoutContextDispatch,
         actionsBarStyle,
         amIPresenter,
+        actionBarItems,
       }
     }
     />

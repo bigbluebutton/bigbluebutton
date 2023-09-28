@@ -20,3 +20,8 @@ export const SmallTitle = styled.h2`
   flex: 1;
   margin: 0;
 `;
+
+export default {
+  Container,
+  SmallTitle,
+};

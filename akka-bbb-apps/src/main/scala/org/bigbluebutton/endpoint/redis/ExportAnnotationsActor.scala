@@ -5,10 +5,10 @@ import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisStorageProvider }
 import org.bigbluebutton.core.record.events.{ AbstractPresentationWithAnnotations, StoreAnnotationsInRedisPresAnnEvent, StoreExportJobInRedisPresAnnEvent }
-import akka.actor.Actor
-import akka.actor.ActorLogging
-import akka.actor.ActorSystem
-import akka.actor.Props
+import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.Props
 import org.bigbluebutton.service.HealthzService
 
 import scala.concurrent.duration._

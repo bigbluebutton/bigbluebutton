@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
-export const CURRENT_PRESENTATION_SUBSCRIPTION = gql`
+const CURRENT_PRESENTATION_SUBSCRIPTION = gql`
 subscription currentPresentationSubscription {
     pres_presentation (where: {current: {_eq: true}}) {
         presentationId
@@ -12,3 +12,4 @@ subscription currentPresentationSubscription {
     }
 }
 `;
+export default CURRENT_PRESENTATION_SUBSCRIPTION;

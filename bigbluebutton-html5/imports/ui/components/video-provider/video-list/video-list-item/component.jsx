@@ -129,6 +129,7 @@ const VideoListItem = (props) => {
       onHandleVideoFocus={onHandleVideoFocus}
       focused={focused}
       onHandleMirror={() => setIsMirrored((value) => !value)}
+      isMirrored={isMirrored}
       isRTL={isRTL}
       isStream={isStream}
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
@@ -156,6 +157,7 @@ const VideoListItem = (props) => {
           onHandleVideoFocus={onHandleVideoFocus}
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
+          isMirrored={isMirrored}
           isRTL={isRTL}
           isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
@@ -206,6 +208,7 @@ const VideoListItem = (props) => {
           onHandleVideoFocus={onHandleVideoFocus}
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
+          isMirrored={isMirrored}
           isRTL={isRTL}
           isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}

@@ -48,4 +48,4 @@ const UserActionsTrigger = styled.div<UserActionsTriggerProps>`
 
 export default {
   UserActionsTrigger,
-}
+};

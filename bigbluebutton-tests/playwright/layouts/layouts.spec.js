@@ -1,4 +1,5 @@
 const { test } = require('@playwright/test');
+const { fullyParallel } = require('../playwright.config');
 const { encodeCustomParams } = require('../parameters/util');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const { Layouts } = require('./layouts');
@@ -7,7 +8,9 @@ const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOA
 
 const CUSTOM_MEETING_ID = 'layout_management_meeting';
 
-test.describe.serial("Layout management", () => {
+if (!fullyParallel) test.describe.configure({ mode: 'serial' });
+
+test.describe("Layout management", () => {
   const layouts = new Layouts();
 
   test.beforeAll(async ({ browser }) => {

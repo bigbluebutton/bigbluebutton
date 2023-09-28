@@ -1,9 +1,9 @@
 package org.bigbluebutton
 
-import akka.actor.ActorSystem
-import akka.event.Logging
-import akka.http.scaladsl.Http
-import akka.stream.ActorMaterializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.event.Logging
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.stream.ActorMaterializer
 import org.bigbluebutton.common2.redis.{ MessageSender, RedisConfig, RedisPublisher }
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.bus._

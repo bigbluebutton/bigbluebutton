@@ -1,8 +1,11 @@
 const { test } = require('@playwright/test');
+const { fullyParallel } = require('../playwright.config');
 const { linkIssue } = require('../core/helpers');
 const { Chat } = require('./chat');
 
-test.describe.serial('Chat', () => {
+if (!fullyParallel) test.describe.configure({ mode: 'serial' });
+
+test.describe('Chat', () => {
   const chat = new Chat();
   let context;
   test.beforeAll(async ({ browser }) => {
@@ -13,16 +16,16 @@ test.describe.serial('Chat', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
-  test('Send public message @ci @flaky', async () => {
+  test('Send public message @ci', async () => {
     await chat.sendPublicMessage();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#private-message-automated
-  test('Send private message @ci @flaky', async () => {
+  test('Send private message @ci', async () => {
     await chat.sendPrivateMessage();
   });
 
-  test('Clear chat @ci @flaky', async () => {
+  test('Clear chat @ci', async () => {
     await chat.clearChat();
   });
 
@@ -30,7 +33,7 @@ test.describe.serial('Chat', () => {
     await chat.copyChat(context);
   });
 
-  test('Save chat @ci @flaky', async ({}, testInfo) => {
+  test('Save chat @ci', async ({}, testInfo) => {
     await chat.saveChat(testInfo);
   });
 
@@ -39,7 +42,7 @@ test.describe.serial('Chat', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#sending-empty-chat-message-automated
-  test('Not able to send an empty message @ci @flaky', async () => {
+  test('Not able to send an empty message @ci', async () => {
     await chat.emptyMessage();
   });
 
@@ -57,7 +60,7 @@ test.describe.serial('Chat', () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat @ci @flaky', async () => {
+  test('Close private chat @ci', async () => {
     await chat.closePrivateChat();
   });
 
@@ -85,7 +88,7 @@ test.describe.serial('Chat', () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  test('Private chat disabled when user leaves meeting @ci @flaky', async () => {
+  test('Private chat disabled when user leaves meeting @ci', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

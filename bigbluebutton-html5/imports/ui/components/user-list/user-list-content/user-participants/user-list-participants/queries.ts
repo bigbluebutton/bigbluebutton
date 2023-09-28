@@ -28,7 +28,7 @@ export const MEETING_PERMISSIONS_SUBSCRIPTION = gql`subscription {
   }
 }`;
 
-export const CURRENT_USER_SUBSCRIPTION   = gql`subscription {
+export const CURRENT_USER_SUBSCRIPTION = gql`subscription {
   user_current {
     userId 
     isModerator
@@ -51,5 +51,5 @@ subscription {
 export default {
   MEETING_PERMISSIONS_SUBSCRIPTION,
   CURRENT_USER_SUBSCRIPTION,
-  USER_AGGREGATE_COUNT_SUBSCRIPTION
+  USER_AGGREGATE_COUNT_SUBSCRIPTION,
 };

@@ -7,13 +7,15 @@ import {
 import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
+
 const DEBUG_CONSOLE = false;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -31,11 +33,9 @@ const messages = defineMessages({
   },
 });
 
-
-
 const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   typingUsers,
-  indicatorEnabled
+  indicatorEnabled,
 }) => {
   const intl = useIntl();
 
@@ -56,10 +56,11 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
         id="app.chat.one.typing"
         description="label used when one user is typing"
         values={{
-          0: <Styled.SingleTyper>
-            {`${name}`}
-            &nbsp;
-          </Styled.SingleTyper>,
+          0:
+  <Styled.SingleTyper>
+    {`${name}`}
+    &nbsp;
+  </Styled.SingleTyper>,
         }}
       />
     );
@@ -74,15 +75,17 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
         id="app.chat.two.typing"
         description="label used when two users are typing"
         values={{
-          0: <Styled.CoupleTyper>
-            {`${name}`}
-            &nbsp;
-          </Styled.CoupleTyper>,
-          1: <Styled.CoupleTyper>
-            &nbsp;
-            {`${name2}`}
-            &nbsp;
-          </Styled.CoupleTyper>,
+          0:
+  <Styled.CoupleTyper>
+    {`${name}`}
+    &nbsp;
+  </Styled.CoupleTyper>,
+          1:
+  <Styled.CoupleTyper>
+    &nbsp;
+    {`${name2}`}
+    &nbsp;
+  </Styled.CoupleTyper>,
         }}
       />
     );
@@ -97,51 +100,51 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   }
 
   return (
-    <Styled.TypingIndicatorWrapper
-    >
+    <Styled.TypingIndicatorWrapper>
       <Styled.TypingIndicator data-test="typingIndicator">{element}</Styled.TypingIndicator>
     </Styled.TypingIndicatorWrapper>
   );
 };
 
 const TypingIndicatorContainer: React.FC = () => {
-
-
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const currentUser = useCurrentUser((user: Partial<User>) => {
     return {
       userId: user.userId,
-    }
+    };
   });
+  // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:currentUser', currentUser);
-  const chat = useChat((c: Partial<Chat>) => {
-    const participant = c?.participant ? {
-      participant: {
-        name: c?.participant?.name,
-        isModerator: c?.participant?.isModerator,
-        isOnline: c?.participant?.isOnline,
-      }
-    } : {};
-
+  const chat = useChat((c) => {
     return {
-      ...participant,
+      participant: c?.participant,
       chatId: c?.chatId,
       public: c?.public,
     };
   }, idChatOpen) as Partial<Chat>;
+  // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:chat', chat);
-  const typingQuery = idChatOpen === PUBLIC_GROUP_CHAT_KEY ? IS_TYPING_PUBLIC_SUBSCRIPTION : IS_TYPING_PRIVATE_SUBSCRIPTION;
+  const typingQuery = idChatOpen === PUBLIC_GROUP_CHAT_KEY ? IS_TYPING_PUBLIC_SUBSCRIPTION
+    : IS_TYPING_PRIVATE_SUBSCRIPTION;
   const {
     data: typingUsersData,
     error: typingUsersError,
   } = useSubscription(typingQuery, {
     variables: {
       chatId: idChatOpen,
-    }
+    },
   });
+  // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:typingUsersData', typingUsersData);
 
-  if (typingUsersError) return <div>Error: {JSON.stringify(typingUsersError)}</div>
+  if (typingUsersError) {
+    return (
+      <div>
+        Error:
+        {JSON.stringify(typingUsersError)}
+      </div>
+    );
+  }
   const publicTypingUsers = typingUsersData?.user_typing_public || [];
   const privateTypingUsers = typingUsersData?.user_typing_private || [];
 
@@ -151,10 +154,12 @@ const TypingIndicatorContainer: React.FC = () => {
     .filter((user: { user: object; userId: string; }) => user?.user && user?.userId !== currentUser?.userId)
     .map((user: { user: object; }) => user.user);
 
-  return <TypingIndicator
-    typingUsers={typingUsersArray}
-    indicatorEnabled={TYPING_INDICATOR_ENABLED}
-  />
+  return (
+    <TypingIndicator
+      typingUsers={typingUsersArray}
+      indicatorEnabled={TYPING_INDICATOR_ENABLED}
+    />
+  );
 };
 
 export default TypingIndicatorContainer;

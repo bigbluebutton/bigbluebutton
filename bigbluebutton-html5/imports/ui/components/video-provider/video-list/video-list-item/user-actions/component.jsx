@@ -1,12 +1,15 @@
 import React from 'react';
+import { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import VideoService from '/imports/ui/components/video-provider/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -39,11 +42,17 @@ const intlMessages = defineMessages({
   unpinDesc: {
     id: 'app.videoDock.webcamUnpinDesc',
   },
-  mirrorLabel: {
-    id: 'app.videoDock.webcamMirrorLabel',
+  enableMirrorLabel: {
+    id: 'app.videoDock.webcamEnableMirrorLabel',
   },
-  mirrorDesc: {
-    id: 'app.videoDock.webcamMirrorDesc',
+  enableMirrorDesc: {
+    id: 'app.videoDock.webcamEnableMirrorDesc',
+  },
+  disableMirrorLabel: {
+    id: 'app.videoDock.webcamDisableMirrorLabel',
+  },
+  disableMirrorDesc: {
+    id: 'app.videoDock.webcamDisableMirrorDesc',
   },
   fullscreenLabel: {
     id: 'app.videoDock.webcamFullscreenLabel',
@@ -61,8 +70,17 @@ const intlMessages = defineMessages({
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled,
+    isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
   } = props;
+
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+
+  let userCameraDropdownItems = [];
+  if (pluginsProvidedAggregatedState.userCameraDropdownItems) {
+    userCameraDropdownItems = [
+      ...pluginsProvidedAggregatedState.userCameraDropdownItems,
+    ];
+  }
 
   const intl = useIntl();
   const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -73,6 +91,7 @@ const UserActions = (props) => {
     const userId = user?.userId;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
+    const isMirroredIntlKey = !isMirrored ? 'enableMirror' : 'disableMirror';
     const disabledCams = Session.get('disabledCams') || [];
     const isCameraDisabled = disabledCams && disabledCams?.includes(cameraId);
     const enableSelfCamIntlKey = !isCameraDisabled ? 'disable' : 'enable';
@@ -120,8 +139,8 @@ const UserActions = (props) => {
     if (isStream) {
       menuItems.push({
         key: `${cameraId}-mirror`,
-        label: intl.formatMessage(intlMessages.mirrorLabel),
-        description: intl.formatMessage(intlMessages.mirrorDesc),
+        label: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Label`]),
+        description: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Desc`]),
         onClick: () => onHandleMirror(cameraId),
         dataTest: 'mirrorWebcamBtn',
       });
@@ -146,6 +165,27 @@ const UserActions = (props) => {
         dataTest: 'pinWebcamBtn',
       });
     }
+
+    userCameraDropdownItems.forEach((pluginItem) => {
+      switch (pluginItem.type) {
+        case PluginSdk.UserCameraDropdownItemType.OPTION:
+          menuItems.push({
+            key: pluginItem.id,
+            label: pluginItem.label,
+            onClick: pluginItem.onClick,
+            icon: pluginItem.icon,
+          });
+          break;
+        case PluginSdk.UserCameraDropdownItemType.SEPARATOR:
+          menuItems.push({
+            key: pluginItem.id,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
 
     return menuItems;
   };
