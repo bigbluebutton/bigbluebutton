@@ -26,17 +26,21 @@ npm run build
 popd
 
 mkdir -p staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server
-mv staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server-temp/dist/* staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/
 pushd .
 cd staging/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server/
+mv ../bbb-graphql-actions-adapter-server-temp/dist/* .
 mv index.js bbb-graphql-actions-adapter-server.js
 cp ../bbb-graphql-actions-adapter-server-temp/package.json .
 cp ../bbb-graphql-actions-adapter-server-temp/package-lock.json .
 npm ci --omit=dev
+rm -rf ../bbb-graphql-actions-adapter-server-temp/
 popd
 
 mkdir -p staging/usr/lib/systemd/system
 cp bbb-graphql-actions-adapter-server.service staging/usr/lib/systemd/system
+
+echo "List files"
+find staging/
 
 ##
 
