@@ -22,8 +22,9 @@ test.describe.parallel('Webcam', () => {
     await webcam.talkingIndicator();
   });
 
-  test('Pinning and unpinning webcams @ci', async ({ browser, context, page }) => {
+  test('Pinning and unpinning webcams @ci', async ({ browser, context, page, browserName }) => {
     const webcam = new MultiUsers(browser, context);
+    test.skip(browserName === 'firefox' || browserName === 'webkit', 'Firefox has a bug, Webkit does not support webcams permission');
     await webcam.initModPage(page);
     await webcam.initUserPage();
     await webcam.initModPage2();
