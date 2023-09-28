@@ -6,14 +6,14 @@ import (
 	"sync"
 )
 
-func SessionTokenReader(connectionId string, browserConnectionContext context.Context, fromBrowser chan interface{}, wg *sync.WaitGroup) {
-	log := log.WithField("_routine", "SessionTokenReader")
-
-	defer wg.Done()
+func SessionTokenReader(browserConnectionId string, browserConnectionContext context.Context, fromBrowser chan interface{}, wg *sync.WaitGroup) {
+	log := log.WithField("_routine", "SessionTokenReader").WithField("browserConnectionId", browserConnectionId)
 	defer log.Debugf("finished")
+	log.Debugf("starting")
+	defer wg.Done()
 
 	BrowserConnectionsMutex.RLock()
-	browserConnection := BrowserConnections[connectionId]
+	browserConnection := BrowserConnections[browserConnectionId]
 	BrowserConnectionsMutex.RUnlock()
 
 	// Intercept the fromBrowserMessage channel to get the sessionToken
