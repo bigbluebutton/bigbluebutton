@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { useSubscription } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-  CURRENT_PAGE_ANNOTATIONS_SUBSCRIPTION,
+  CURRENT_PAGE_ANNOTATIONS_QUERY,
+  CURRENT_PAGE_ANNOTATIONS_STREAM,
 } from './queries';
 import { ColorStyle, DashStyle, SizeStyle, TDShapeType } from '@tldraw/tldraw';
 import {
@@ -33,6 +34,9 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
+let annotations = [];
+let lastUpdatedAt = null;
+
 const WhiteboardContainer = (props) => {
   const {
     whiteboardId,
@@ -52,13 +56,42 @@ const WhiteboardContainer = (props) => {
   const {
     loading: annotationsLoading,
     data: annotationsData,
-  } = useSubscription(CURRENT_PAGE_ANNOTATIONS_SUBSCRIPTION);
-  const { pres_annotation_curr: annotations } = (annotationsData || []);
+  } = useQuery(CURRENT_PAGE_ANNOTATIONS_QUERY);
+  let { pres_annotation_curr: history } = (annotationsData || []);
 
+  const lastHistoryTime = history?.[0]?.lastUpdatedAt || null;
+
+  if (!lastUpdatedAt) {
+    if(lastHistoryTime){
+      if (new Date(lastUpdatedAt).getTime() < new Date(lastHistoryTime).getTime()) {
+        lastUpdatedAt = lastHistoryTime;
+      }
+    }else{
+      const newLastUpdatedAt = new Date();
+      lastUpdatedAt = newLastUpdatedAt.toISOString();
+    }
+  }
+
+  const { data: streamData } = useSubscription(
+    CURRENT_PAGE_ANNOTATIONS_STREAM,
+    {
+      variables: { lastUpdatedAt },
+    }
+  );
+  const { pres_annotation_curr_stream: streamDataItem } = (streamData || []);
+
+  if (streamDataItem) {
+    if (new Date(lastUpdatedAt).getTime() < new Date(streamDataItem[0].lastUpdatedAt).getTime()) {
+      annotations = annotations.concat(streamDataItem);
+      lastUpdatedAt = streamDataItem[0].lastUpdatedAt;
+    }
+  }
   let shapes = {};
 
-  if (!annotationsLoading && annotations) {
-    shapes = formatAnnotations(annotations, intl, curPageId);
+  if (!annotationsLoading && history) {
+    const pageAnnotations = history.concat(annotations).filter((annotation) => annotation.pageId === currentPresentationPage.pageId);
+
+    shapes = formatAnnotations(pageAnnotations, intl, curPageId);
   }
 
   const { isIphone } = deviceInfo;
@@ -130,6 +163,7 @@ const WhiteboardContainer = (props) => {
       modShape.isLocked = true;
     }
   });
+
   return <Whiteboard
   {...{
     isPresenter,

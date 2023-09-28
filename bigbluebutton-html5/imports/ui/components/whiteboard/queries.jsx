@@ -23,8 +23,8 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
   }  
 }`;
 
-export const CURRENT_PAGE_ANNOTATIONS_SUBSCRIPTION = gql`subscription CurrentPageAnnotationsSubscription {
-  pres_annotation_curr {
+export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQuery {
+  pres_annotation_curr(order_by: { lastUpdatedAt: desc }) {
     annotationId
     annotationInfo
     lastHistorySequence
@@ -35,5 +35,16 @@ export const CURRENT_PAGE_ANNOTATIONS_SUBSCRIPTION = gql`subscription CurrentPag
   }  
 }`;
 
+export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStream($lastUpdatedAt: timestamptz){
+  pres_annotation_curr_stream(batch_size: 10, cursor: {initial_value: {lastUpdatedAt: $lastUpdatedAt}}) {
+    annotationId
+    annotationInfo
+    lastUpdatedAt
+    pageId
+    presentationId
+    userId
+  }
+}
+`
 
-export default CURRENT_PRESENTATION_PAGE_SUBSCRIPTION;
+export default CURRENT_PAGE_ANNOTATIONS_QUERY;
