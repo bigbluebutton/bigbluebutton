@@ -217,6 +217,7 @@ CREATE TABLE "user" (
 	"role" varchar(20),
 	"avatar" varchar(500),
 	"color" varchar(7),
+    "sessionToken" varchar(16),
     "authed" bool,
     "joined" bool,
     "banned" bool,
@@ -644,6 +645,18 @@ LEFT JOIN "user_connectionStatusMetrics" csm ON csm."userId" = u."userId" AND cs
 GROUP BY u."meetingId", u."userId";
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("userId") WHERE "status" != 'normal';
+
+
+CREATE TABLE "user_graphqlConnection" (
+	"graphqlConnectionId" serial PRIMARY KEY,
+	"sessionToken" varchar(16),
+	"middlewareConnectionId" varchar(12),
+	"stablishedAt" timestamp with time zone,
+	"closedAt" timestamp with time zone
+);
+
+CREATE INDEX "idx_user_graphqlConnectionsessionToken" ON "user_graphqlConnection"("sessionToken");
+
 
 
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "rttInMs" NUMERIC GENERATED ALWAYS AS

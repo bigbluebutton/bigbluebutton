@@ -3,8 +3,8 @@ package invalidator
 import (
 	"context"
 	"encoding/json"
+	"github.com/iMDT/bbb-graphql-middleware/internal/rediscli"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
-	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 	"strings"
 )
@@ -14,13 +14,7 @@ func BrowserConnectionInvalidator() {
 
 	var ctx = context.Background()
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
-		DB:       0,
-	})
-
-	subscriber := redisClient.Subscribe(ctx, "from-akka-apps-redis-channel")
+	subscriber := rediscli.GetRedisConn().Subscribe(ctx, "from-akka-apps-redis-channel")
 
 	for {
 		msg, err := subscriber.ReceiveMessage(ctx)
@@ -57,6 +51,8 @@ func BrowserConnectionInvalidator() {
 						log.Debugf("Processing invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
 						browserConnection.HasuraConnection.ContextCancelFunc()
 						log.Debugf("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
+
+						rediscli.SendUserGraphqlConnectionInvalidatedEvtMsg(sessionTokenToInvalidate.(string))
 					}
 				}
 			}
