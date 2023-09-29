@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { notify } from '/imports/ui/services/notification';
 import PresentationService from './service';
-import { Slides } from '/imports/api/slides';
 import Presentation from '/imports/ui/components/presentation/component';
 import PresentationToolbarService from './presentation-toolbar/service';
 import { UsersContext } from '../components-data/users-context/context';
@@ -20,9 +19,13 @@ import lockContextContainer from '/imports/ui/components/lock-viewers/context/co
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 import MediaService from '../media/service';
+import { useSubscription } from '@apollo/client';
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 
 const PresentationContainer = ({
-  presentationIsOpen, presentationPodIds, mountPresentation, layoutType, ...props
+  presentationIsOpen, presentationPodIds, mountPresentation, layoutType, currentSlide, ...props
 }) => {
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
@@ -42,6 +45,8 @@ const PresentationContainer = ({
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
+  if (!currentSlide) return null;
+
   return (
     <Presentation
       {
@@ -57,6 +62,7 @@ const PresentationContainer = ({
         isMobile: deviceType === DEVICE_TYPE.MOBILE,
         isIphone,
         presentationIsOpen,
+        currentSlide,
       }
       }
     />
@@ -69,44 +75,66 @@ const fetchedpresentation = {};
 
 export default lockContextContainer(
   withTracker(({ podId, presentationIsOpen, userLocks }) => {
-    const currentSlide = PresentationService.getCurrentSlide(podId);
-    const numPages = PresentationService.getSlidesLength(podId);
-    const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
+    const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+    const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
+    const currentPresentationPage = presentationPageArray && presentationPageArray[0];
+
+    const slideImageUrls = currentPresentationPage && JSON.parse(currentPresentationPage.urls);
+
+    const currentSlide = currentPresentationPage ? {
+      content: 'test', // TODO: add to graphql
+      current: currentPresentationPage?.isCurrentPage,
+      height: currentPresentationPage?.height,
+      width: currentPresentationPage?.width,
+      id: currentPresentationPage?.pageId,
+      imageUri: slideImageUrls?.svg,
+      num: currentPresentationPage?.num,
+      podId: "DEFAULT_PRESENTATION_POD", // TODO: remove this when is not needed anymore
+      presentationId: currentPresentationPage?.presentationId,
+      svgUri: slideImageUrls?.svg,
+    } : null;
+
+    const numPages = PresentationService.getSlidesLength(podId); // TODO: add to graphql
+    const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId); // TODO: add to graphql
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
     const isViewersAnnotationsLocked = userLocks?.hideViewersAnnotation;
 
     let slidePosition;
     if (currentSlide) {
-      const {
-        presentationId,
-        id: slideId,
-      } = currentSlide;
-      slidePosition = PresentationService.getSlidePosition(podId, presentationId, slideId);
+      const { presentationId } = currentSlide;
+
+      slidePosition = {
+        height: currentPresentationPage.scaledHeight,
+        id: currentPresentationPage.pageId,
+        podId: currentSlide.podId,
+        presentationId: currentPresentationPage.presentationId,
+        viewBoxHeight: currentPresentationPage.scaledViewBoxHeight,
+        viewBoxWidth: currentPresentationPage.scaledViewBoxWidth,
+        width: currentPresentationPage.scaledWidth,
+        x: currentPresentationPage.xOffset,
+        y: currentPresentationPage.yOffset,
+      };
+
       if (PRELOAD_NEXT_SLIDE && !fetchedpresentation[presentationId]) {
         fetchedpresentation[presentationId] = {
           canFetch: true,
           fetchedSlide: {},
         };
       }
-      const currentSlideNum = currentSlide.num;
       const presentation = fetchedpresentation[presentationId];
 
       if (PRELOAD_NEXT_SLIDE
         && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
         && presentation.canFetch) {
-        const slidesToFetch = Slides.find({
-          podId,
-          presentationId,
-          num: {
-            $in: Array(PRELOAD_NEXT_SLIDE).fill(1).map((v, idx) => currentSlideNum + (idx + 1)),
-          },
-        }).fetch();
+        // TODO: preload next slides should be reimplemented in graphql
+        const slidesToFetch = [currentPresentationPage];
 
         const promiseImageGet = slidesToFetch
           .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
           .map(async (slide) => {
+            const slideUrls = JSON.parse(slide.urls);
             if (presentation.canFetch) presentation.canFetch = false;
-            const image = await fetch(slide.imageUri);
+            const image = await fetch(slideUrls.svg);
             if (image.ok) {
               presentation.fetchedSlide[slide.num] = true;
             }
@@ -116,15 +144,15 @@ export default lockContextContainer(
         });
       }
     }
-    const currentPresentation = PresentationService.getCurrentPresentation(podId);
+    const currentPresentation = PresentationService.getCurrentPresentation(podId); // TODO: add to graphql
     return {
       currentSlide,
       slidePosition,
-      downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
+      downloadPresentationUri: PresentationService.downloadPresentationUri(podId), // TODO: add to graphql
       multiUser:
         (WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
           || WhiteboardService.isMultiUserActive(currentSlide?.id)
-        ) && presentationIsOpen,
+        ) && presentationIsOpen, // TODO: add to graphql
       presentationIsDownloadable,
       mountPresentation: !!currentSlide,
       currentPresentation,
@@ -137,14 +165,14 @@ export default lockContextContainer(
         fields: {
           publishedPoll: 1,
         },
-      }).publishedPoll,
+      }).publishedPoll, // TODO: add to graphql
       restoreOnUpdate: getFromUserSettings(
         'bbb_force_restore_presentation_on_new_events',
         Meteor.settings.public.presentation.restoreOnUpdate,
       ),
       addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
       removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
-      multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
+      multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id), // TODO: add to graphql
       isViewersCursorLocked,
       setPresentationIsOpen: MediaService.setPresentationIsOpen,
       isViewersAnnotationsLocked,
