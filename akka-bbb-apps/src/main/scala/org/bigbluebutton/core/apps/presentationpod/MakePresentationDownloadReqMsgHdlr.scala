@@ -6,7 +6,7 @@ import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.apps.presentationpod.PresentationSender
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.ChatMessageDAO
+import org.bigbluebutton.core.db.{ ChatMessageDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
@@ -53,12 +53,13 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
   def buildBroadcastNewPresFileAvailable(newPresFileAvailableMsg: NewPresFileAvailableMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
-    val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
+    val envelope = BbbCoreEnvelope(NewPresFileAvailableEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(NewPresFileAvailableEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
     val body = NewPresFileAvailableEvtMsgBody(
       annotatedFileURI = newPresFileAvailableMsg.body.annotatedFileURI,
       originalFileURI = newPresFileAvailableMsg.body.originalFileURI,
-      convertedFileURI = newPresFileAvailableMsg.body.convertedFileURI, presId = newPresFileAvailableMsg.body.presId,
+      convertedFileURI = newPresFileAvailableMsg.body.convertedFileURI,
+      presId = newPresFileAvailableMsg.body.presId,
       fileStateType = newPresFileAvailableMsg.body.fileStateType
     )
     val event = NewPresFileAvailableEvtMsg(header, body)
@@ -224,7 +225,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
 
-      val exportJob: ExportJob = new ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
+      val exportJob: ExportJob = ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
       val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
@@ -257,6 +258,10 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         "filename" -> "annotated_slides.pdf"
       )
       ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
+    } else if (m.body.fileStateType == "Converted") {
+      PresPresentationDAO.updatDownloadUri(m.body.presId, m.body.convertedFileURI)
+    } else if (m.body.fileStateType == "Original") {
+      PresPresentationDAO.updatDownloadUri(m.body.presId, m.body.originalFileURI)
     }
 
     bus.outGW.send(buildBroadcastNewPresFileAvailable(m, liveMeeting))
