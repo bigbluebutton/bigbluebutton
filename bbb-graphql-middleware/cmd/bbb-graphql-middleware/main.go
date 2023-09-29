@@ -15,7 +15,7 @@ func main() {
 	// Configure logger
 	log.SetLevel(log.InfoLevel)
 	log.SetFormatter(&log.JSONFormatter{})
-	log := log.WithField("_routine", "SessionTokenReader")
+	log := log.WithField("_routine", "main")
 
 	//Clear cache from last exec
 	msgpatch.ClearAllCaches()
