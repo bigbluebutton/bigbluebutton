@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.presentationpod
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -51,6 +52,14 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
           msg.header.userId, presentationId, downloadable, pres.name, downloadableExtension)
 
         val pods = state.presentationPodManager.setPresentationDownloadableInPod(pod.id, presentationId, downloadable)
+
+        for {
+          pod <- pods.getPod(pod.id)
+          updatedPres <- pod.getPresentation(presentationId)
+        } yield {
+          PresPresentationDAO.insertOrUpdate(meetingId, updatedPres)
+        }
+
         state.update(pods)
       }
 
