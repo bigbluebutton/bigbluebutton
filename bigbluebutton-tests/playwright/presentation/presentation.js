@@ -206,7 +206,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
-    await this.modPage.hasText(e.chatMessages, /Download/, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.hasText(e.chatMessages, /Download/, 20000);
     if(browserName === 'chromium') {
       await this.modPage.hasElement(e.smallToastMsg, 20000);
     }
