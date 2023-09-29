@@ -3,6 +3,7 @@ Description=BigBlueButton GraphQL Actions Adapter Server
 Wants=redis-server.service bbb-graphql-server.service
 After=syslog.target network.target redis-server.service bbb-graphql-server.service
 PartOf=bigbluebutton.target
+StartLimitIntervalSec=0
 
 [Service]
 WorkingDirectory=/usr/local/bigbluebutton/bbb-graphql-actions-adapter-server
@@ -12,8 +13,7 @@ SyslogIdentifier=bbb-graphql-actions-adapter-server
 User=bigbluebutton
 Group=bigbluebutton
 Environment=NODE_ENV=production
-RestartSec=30s
-StartLimitIntervalSec=0
+RestartSec=1s
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target
