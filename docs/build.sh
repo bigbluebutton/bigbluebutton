@@ -22,17 +22,17 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 for tag in "${TAGS[@]}"; do
 
-  if [ "$branch" != "$current_branch" ]; then
+  if [ "$tag" != "$current_branch" ]; then
     git fetch "$REMOTE" "$tag"
   fi
 
   git checkout "$tag"
   if [ -f docusaurus.config.js ]; then
-    version=${branch:1:3}-legacy
+    version=${tag:1:3}-legacy
     echo "Adding documentation for $version"
     yarn docusaurus docs:version "${version}"
   else
-    echo "Warning: branch $(version) does not contain a docusaurus.config.js!"
+    echo "Warning: branch/tag $(version) does not contain a docusaurus.config.js!"
   fi
 
 done
