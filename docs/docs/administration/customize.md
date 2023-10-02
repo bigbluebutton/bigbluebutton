@@ -493,6 +493,49 @@ yq w -i $HTML5_CONFIG 'public.kurento.cameraProfiles.(id==hd).default' false
 chown meteor:meteor $HTML5_CONFIG
 ```
 
+#### Change screen sharing quality parameters
+
+Screen sharing quality can be tweaked to either improve quality or reduce bandwidth usage.
+There are different configurations for live meetings and recordings and they need to be changed independently from each other.
+
+For **recordings**, the following parameters can be changed (presentation format):
+  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_width` (default: 1280)
+  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_height` (default: 720)
+  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_framerate` (default: 5)
+
+As an example, suppose you want to increase the output resolution and framerate of the recorded screen share media to match a 1080p/15 FPS stream. The following changes would be necessary:
+  -  `$ yq w -i /usr/local/bigbluebutton/core/scripts/presentation.yml deskshare_output_width 1920`
+  -  `$ yq w -i /usr/local/bigbluebutton/core/scripts/presentation.yml deskshare_output_height 1080`
+  -  `$ yq w -i /usr/local/bigbluebutton/core/scripts/presentation.yml deskshare_output_framerate 15`
+
+For **live meetings**, the following parameters can be changed:
+  - `/etc/bigbluebutton/bbb-html5.yml`: `public.kurento.screenshare.bitrate`
+  - `/etc/bigbluebutton/bbb-html5.yml`: `public.kurento.screenshare.constraints`
+
+The bitrate is specified in kbps and represents screen sharing's maximum bandwidth usage. Setting it to a higher value *may* improve quality but also increase bandwidth usage, while setting it to a lower value *may* reduce quality but will reduce average bandwidth usage.
+
+The constraints are specified as an YAML object with the same semantics as the [MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints) from the WebRTC specification. We recommend checking the aforementioned MDN link as well as the [Media Capture and Streams API spec](https://www.w3.org/TR/mediacapture-streams) for an extensive list of constraints.
+
+To set new screen sharing constraints, translate the JSON constraints object into an YAML format object and put it into `public.kurento.screenshare.constraints`. Restart bbb-html5 afterwards.
+As an example, suppose you want to set the maximum screen sharing resolution to 1080p, alter the maxium bitrate to 2000 kbps and set a 10 FPS target. The following would need to be added to `etc/bigbluebutton/bbb-html5.yml`:
+
+```yaml
+public:
+  kurento:
+    screenshare:
+      bitrate: 2000
+      constraints:
+        audio: true
+        video:
+          width:
+            max: 1920
+          height:
+            max: 1080
+          frameRate:
+            ideal: 10
+            max: 10
+```
+
 #### Run three parallel Kurento media servers
 
 [ Available since BigBluebutton 2.2.24+ ]
