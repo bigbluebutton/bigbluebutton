@@ -2,12 +2,10 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { notify } from '/imports/ui/services/notification';
-import PresentationService from './service';
 import Presentation from '/imports/ui/components/presentation/component';
 import PresentationToolbarService from './presentation-toolbar/service';
 import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   layoutSelect,
@@ -22,7 +20,9 @@ import MediaService from '../media/service';
 import { useSubscription } from '@apollo/client';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
+import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 
 const PresentationContainer = ({
   presentationIsOpen, presentationPodIds, mountPresentation, layoutType, currentSlide, ...props
@@ -78,24 +78,35 @@ export default lockContextContainer(
     const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
     const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
     const currentPresentationPage = presentationPageArray && presentationPageArray[0];
-
     const slideImageUrls = currentPresentationPage && JSON.parse(currentPresentationPage.urls);
 
+    const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+    const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
+
+    const multiUserData = {
+      active: whiteboardWriters?.length > 0,
+      size: whiteboardWriters?.length || 0,
+      hasAccess: whiteboardWriters?.some((writer) => writer.userId === Auth.userID),
+    };
+
+    const { data: pollData } = useSubscription(POLL_SUBSCRIPTION);
+    const poll = pollData?.poll[0] || {};
+
     const currentSlide = currentPresentationPage ? {
-      content: 'test', // TODO: add to graphql
-      current: currentPresentationPage?.isCurrentPage,
-      height: currentPresentationPage?.height,
-      width: currentPresentationPage?.width,
-      id: currentPresentationPage?.pageId,
-      imageUri: slideImageUrls?.svg,
+      content: currentPresentationPage.content,
+      current: currentPresentationPage.isCurrentPage,
+      height: currentPresentationPage.height,
+      width: currentPresentationPage.width,
+      id: currentPresentationPage.pageId,
+      imageUri: slideImageUrls.svg,
       num: currentPresentationPage?.num,
-      podId: "DEFAULT_PRESENTATION_POD", // TODO: remove this when is not needed anymore
+      podId: 'DEFAULT_PRESENTATION_POD', // TODO: remove this when is not needed anymore
       presentationId: currentPresentationPage?.presentationId,
       svgUri: slideImageUrls?.svg,
     } : null;
 
-    const numPages = PresentationService.getSlidesLength(podId); // TODO: add to graphql
-    const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId); // TODO: add to graphql
+    const numPages = currentPresentationPage?.numPages;
+    const presentationIsDownloadable = currentPresentationPage?.downloadable;
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
     const isViewersAnnotationsLocked = userLocks?.hideViewersAnnotation;
 
@@ -144,38 +155,36 @@ export default lockContextContainer(
         });
       }
     }
-    const currentPresentation = PresentationService.getCurrentPresentation(podId); // TODO: add to graphql
+
+    // TODO: add to graphql
+    const isInitialPresentation = currentPresentationPage?.isInitialPresentation || false;
+    const presentationName = currentPresentationPage?.presentationName || 'Presentation';
+
     return {
       currentSlide,
       slidePosition,
-      downloadPresentationUri: PresentationService.downloadPresentationUri(podId), // TODO: add to graphql
-      multiUser:
-        (WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
-          || WhiteboardService.isMultiUserActive(currentSlide?.id)
-        ) && presentationIsOpen, // TODO: add to graphql
+      downloadPresentationUri: currentPresentationPage?.downloadFileUri,
+      multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
       presentationIsDownloadable,
       mountPresentation: !!currentSlide,
-      currentPresentation,
-      currentPresentationId: currentPresentation?.id,
+      currentPresentationId: currentPresentationPage?.presentationId,
       numPages,
       notify,
       zoomSlide: PresentationToolbarService.zoomSlide,
       podId,
-      publishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }, {
-        fields: {
-          publishedPoll: 1,
-        },
-      }).publishedPoll, // TODO: add to graphql
+      publishedPoll: poll?.published || false,
       restoreOnUpdate: getFromUserSettings(
         'bbb_force_restore_presentation_on_new_events',
         Meteor.settings.public.presentation.restoreOnUpdate,
       ),
       addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
       removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
-      multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id), // TODO: add to graphql
+      multiUserSize: multiUserData.size,
       isViewersCursorLocked,
       setPresentationIsOpen: MediaService.setPresentationIsOpen,
       isViewersAnnotationsLocked,
+      isInitialPresentation,
+      presentationName,
     };
   })(PresentationContainer),
 );

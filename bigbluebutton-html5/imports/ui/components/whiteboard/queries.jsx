@@ -20,6 +20,10 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     xOffset
     yOffset
     presentationId
+    content
+    downloadFileUri
+    numPages
+    downloadable
   }  
 }`;
 
@@ -44,7 +48,16 @@ export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStrea
     presentationId
     userId
   }
-}
-`
+}`;
+
+export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`subscription currentPageWritersSubscription {
+  pres_page_writers {
+    changedModeOn
+    isCurrentPage
+    pageId
+    presentationId
+    userId
+  }
+}`;
 
 export default CURRENT_PAGE_ANNOTATIONS_QUERY;

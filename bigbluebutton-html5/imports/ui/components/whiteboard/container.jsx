@@ -91,7 +91,7 @@ const WhiteboardContainer = (props) => {
   if (!annotationsLoading && history) {
     const pageAnnotations = history
       .concat(annotations)
-      .filter((annotation) => annotation.pageId === currentPresentationPage.pageId);
+      .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
 
     shapes = formatAnnotations(pageAnnotations, intl, curPageId);
   }
