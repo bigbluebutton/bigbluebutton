@@ -278,6 +278,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'unmute',
+      dataTest: 'unmuteUser',
     },
     {
       allowed: allowedToChangeWhiteboardAccess
@@ -373,6 +374,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'video_off',
+      dataTest: 'ejectCamera',
     },
     {
       allowed: allowedToSetAway,

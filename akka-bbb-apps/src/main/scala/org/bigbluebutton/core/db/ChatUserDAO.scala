@@ -11,7 +11,7 @@ case class ChatUserDbModel(
     chatId:     String,
     meetingId:  String,
     userId:     String,
-    lastSeenAt: Long,
+    lastSeenAt: Option[java.sql.Timestamp],
     typingAt:   Option[java.sql.Timestamp],
     visible:    Boolean
 )
@@ -20,7 +20,7 @@ class ChatUserDbTableDef(tag: Tag) extends Table[ChatUserDbModel](tag, None, "ch
   val chatId = column[String]("chatId", O.PrimaryKey)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
-  val lastSeenAt = column[Long]("lastSeenAt")
+  val lastSeenAt = column[Option[java.sql.Timestamp]]("lastSeenAt")
   val typingAt = column[Option[java.sql.Timestamp]]("typingAt")
   val visible = column[Boolean]("visible")
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
@@ -46,7 +46,7 @@ object ChatUserDAO {
           userId = userId,
           chatId = chatId,
           meetingId = meetingId,
-          lastSeenAt = 0,
+          lastSeenAt = None,
           typingAt = None,
           visible = visible
         )

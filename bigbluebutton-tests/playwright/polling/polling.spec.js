@@ -1,9 +1,12 @@
 const { test } = require('@playwright/test');
+const { fullyParallel } = require('../playwright.config');
 const { Polling } = require('./poll');
 
+if (!fullyParallel) test.describe.configure({ mode: 'serial' });
 
-test.describe.serial('Polling', () => {
+test.describe('Polling', () => {
   const polling = new Polling();
+
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -53,11 +56,11 @@ test.describe.serial('Polling', () => {
   });
 
   // Results
-  test('Poll results in chat message @ci @flaky', async () => {
+  test('Poll results in chat message @ci', async () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard @ci @flaky', async () => {
+  test('Poll results on whiteboard @ci', async () => {
     await polling.pollResultsOnWhiteboard();
   });
 

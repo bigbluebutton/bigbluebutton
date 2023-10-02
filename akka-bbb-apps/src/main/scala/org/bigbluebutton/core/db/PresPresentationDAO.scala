@@ -7,13 +7,25 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 import spray.json._
 
-case class PresPresentationDbModel(presentationId: String, meetingId: String, current: Boolean, downloadable: Boolean, removable: Boolean, uploadCompleted: Boolean, numPages: Int, errorMsgKey: String, errorDetails: String)
+case class PresPresentationDbModel(
+    presentationId:  String,
+    meetingId:       String,
+    current:         Boolean,
+    downloadable:    Boolean,
+    downloadFileUri: Option[String],
+    removable:       Boolean,
+    uploadCompleted: Boolean,
+    numPages:        Int,
+    errorMsgKey:     String,
+    errorDetails:    String
+)
 
 class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel](tag, None, "pres_presentation") {
   val presentationId = column[String]("presentationId", O.PrimaryKey)
   val meetingId = column[String]("meetingId")
   val current = column[Boolean]("current")
   val downloadable = column[Boolean]("downloadable")
+  val downloadFileUri = column[Option[String]]("downloadFileUri")
   val removable = column[Boolean]("removable")
   val uploadCompleted = column[Boolean]("uploadCompleted")
   val numPages = column[Int]("numPages")
@@ -21,7 +33,7 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
   val errorDetails = column[String]("errorDetails")
   //  val meeting = foreignKey("meeting_fk", meetingId, Meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
 
-  def * = (presentationId, meetingId, current, downloadable, removable, uploadCompleted, numPages, errorMsgKey, errorDetails) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
+  def * = (presentationId, meetingId, current, downloadable, downloadFileUri, removable, uploadCompleted, numPages, errorMsgKey, errorDetails) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
 }
 
 object PresPresentationDAO {
@@ -39,6 +51,7 @@ object PresPresentationDAO {
           meetingId = meetingId,
           current = false, //Set after pages were inserted
           downloadable = presentation.downloadable,
+          downloadFileUri = None,
           removable = presentation.removable,
           uploadCompleted = presentation.uploadCompleted,
           numPages = presentation.numPages,
@@ -60,6 +73,7 @@ object PresPresentationDAO {
                   presentationId = presentation.id,
                   num = page._2.num,
                   urls = page._2.urls.toJson.asJsObject.compactPrint,
+                  content = "Slide Content TODO", //TODO Get content from slide.txtUri (bbb-web should send its content)
                   slideRevealed = page._2.current,
                   current = page._2.current,
                   xOffset = page._2.xOffset,
@@ -99,6 +113,18 @@ object PresPresentationDAO {
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPresentation table")
         case Failure(e)            => DatabaseConnection.logger.error(s"Error updating current on PresPresentation: $e")
+      }
+  }
+
+  def updatDownloadUri(presentationId: String, downloadFileUri: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => p.downloadFileUri)
+        .update(Some(downloadFileUri))
+    ).onComplete {
+        case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated originalFileURI on PresPresentation table")
+        case Failure(e)           => DatabaseConnection.logger.error(s"Error updating originalFileURI on PresPresentation: $e")
       }
   }
 

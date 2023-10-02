@@ -86,7 +86,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   const sameSender = (previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId;
   const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
-  const dateTime = new Date(message?.createdTime);
+  const dateTime = new Date(message?.createdAt);
   const messageContent: {
     name: string,
     color: string,
