@@ -28,6 +28,8 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       createdTime
       createdTimeAsDate
       messageMetadata
+      senderName
+      senderRole
     }
   }
 `;
