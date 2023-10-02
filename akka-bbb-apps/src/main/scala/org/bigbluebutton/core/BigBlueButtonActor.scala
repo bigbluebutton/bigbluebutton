@@ -1,10 +1,10 @@
 package org.bigbluebutton.core
 
 import java.io.{ PrintWriter, StringWriter }
-import akka.actor._
-import akka.actor.ActorLogging
-import akka.actor.SupervisorStrategy.Resume
-import akka.util.Timeout
+import org.apache.pekko.actor._
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.SupervisorStrategy.Resume
+import org.apache.pekko.util.Timeout
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.bus._
@@ -19,8 +19,6 @@ import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
-import org.bigbluebutton.common2
-import org.bigbluebutton.common2.util.YamlUtil
 import org.bigbluebutton.common2
 import org.bigbluebutton.common2.util.YamlUtil
 
@@ -83,13 +81,15 @@ class BigBlueButtonActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
 
-      case m: CreateMeetingReqMsg         => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg          => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg        => handleGetAllMeetingsReqMsg(m)
-      case m: GetRunningMeetingsReqMsg    => handleGetRunningMeetingsReqMsg(m)
-      case m: CheckAlivePingSysMsg        => handleCheckAlivePingSysMsg(m)
-      case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
-      case _                              => log.warning("Cannot handle " + msg.envelope.name)
+      case m: CreateMeetingReqMsg                   => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg                    => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg                  => handleGetAllMeetingsReqMsg(m)
+      case m: GetRunningMeetingsReqMsg              => handleGetRunningMeetingsReqMsg(m)
+      case m: CheckAlivePingSysMsg                  => handleCheckAlivePingSysMsg(m)
+      case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
+      case _: UserGraphqlConnectionStablishedSysMsg => //Ignore
+      case _: UserGraphqlConnectionClosedSysMsg     => //Ignore
+      case _                                        => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 

@@ -22,7 +22,7 @@ test.describe.parallel('User', () => {
       await multiusers.raiseHandRejected();
     });
 
-    test('Toggle user list @ci @flaky', async ({ browser, context, page }) => {
+    test('Toggle user list @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.toggleUserList();
@@ -44,34 +44,34 @@ test.describe.parallel('User', () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#make-viewer-a-presenter-automated
-    test('Make presenter @ci @flaky', async ({ browser, context, page }) => {
+    test('Make presenter @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.makePresenter();
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#taking-presenter-status-back-automated
-    test('Take presenter @ci @flaky', async ({ browser, context, page }) => {
+    test('Take presenter @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.takePresenter();
     });
 
-    test('Promote to moderator @ci @flaky', async ({ browser, context, page }) => {
+    test('Promote to moderator @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.promoteToModerator();
     });
 
-    test('Demote to viewer @ci @flaky', async ({ browser, context, page }) => {
+    test('Demote to viewer @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.demoteToViewer();
     });
 
-    test('Give and remove whiteboard access @ci @flaky', async ({ browser, context, page }) => {
+    test('Give and remove whiteboard access @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
@@ -102,7 +102,7 @@ test.describe.parallel('User', () => {
           await guestPolicy.initModPage(page);
           await guestPolicy.messageToGuestLobby();
         });
-        test('Allow Everyone @flaky', async ({ browser, context, page }) => {
+        test('Allow Everyone', async ({ browser, context, page }) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page);
           await guestPolicy.allowEveryone();
@@ -126,7 +126,7 @@ test.describe.parallel('User', () => {
             await guestPolicy.messageToSpecificUser();
           });
 
-          test('Accept @flaky', async ({ browser, context, page }) => {
+          test('Accept', async ({ browser, context, page }) => {
             const guestPolicy = new GuestPolicy(browser, context);
             await guestPolicy.initModPage(page);
             await guestPolicy.acceptSpecificUser();
@@ -153,7 +153,7 @@ test.describe.parallel('User', () => {
       });
     });
 
-    test.describe.parallel('Lock viewers @ci @flaky', () => {
+    test.describe.parallel('Lock viewers @ci', () => {
       // https://docs.bigbluebutton.org/2.6/release-tests.html#webcam
       test('Lock Share webcam', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
@@ -162,7 +162,7 @@ test.describe.parallel('User', () => {
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-webcams
-      test('Lock See other viewers webcams', async ({ browser, context, page }) => {
+      test('Lock See other viewers webcams @flaky', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersWebcams();
@@ -203,7 +203,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations', async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations @flaky', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersAnnotations();
@@ -258,7 +258,7 @@ test.describe.parallel('User', () => {
       test.skip(browserName === 'firefox', 'Mobile tests are not able in Firefox browser');
     });
 
-    test('Mobile Tag Name For Mobile User @ci @flaky', async ({ browser }) => {
+    test('Mobile Tag Name For Mobile User @ci', async ({ browser }) => {
       const context = await browser.newContext({ ...iPhone11 });
       const mobilePage = await context.newPage();
       const mobileDevices = new MobileDevices(browser, context);

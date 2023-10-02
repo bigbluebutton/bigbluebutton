@@ -1,3 +1,10 @@
+--unaccent will be used to create nameSortable
+CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
+				RETURNS text AS $$
+				SELECT lower(unaccent('unaccent', $1))
+				$$ LANGUAGE SQL IMMUTABLE;
+
 -- ========== Meeting tables
 
 create table "meeting" (
@@ -210,6 +217,7 @@ CREATE TABLE "user" (
 	"role" varchar(20),
 	"avatar" varchar(500),
 	"color" varchar(7),
+    "sessionToken" varchar(16),
     "authed" bool,
     "joined" bool,
     "banned" bool,
@@ -250,7 +258,6 @@ COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dyn
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
 COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds with disconnected=true';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
-COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
 
 --Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
@@ -260,6 +267,9 @@ ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestSta
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
 
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp(("registeredOn" + 6000) / 1000)) STORED;
+
+--Used to sort the Userlist
+ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
@@ -304,6 +314,7 @@ AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -333,28 +344,31 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
    FROM "user"
   WHERE "user"."loggedOut" IS FALSE
   AND "user"."expired" IS FALSE
+  AND "user"."ejected" IS NOT TRUE
   AND "user"."joined" IS TRUE;
 
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
                 where "user"."loggedOut" IS FALSE
                 AND "user"."expired" IS FALSE
+                AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
 
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","name","userId") 
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","raiseHandTime","awayTime","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","nameSortable","userId")
                 where "user"."loggedOut" IS FALSE
                 AND "user"."expired" IS FALSE
+                AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
-
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -405,6 +419,7 @@ AS SELECT "user"."userId",
     "user"."extId",
     "user"."meetingId",
     "user"."name",
+    "user"."nameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -430,7 +445,7 @@ AS SELECT "user"."userId",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
    FROM "user";
 
 create table "user_customParameter"(
@@ -632,6 +647,18 @@ GROUP BY u."meetingId", u."userId";
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("userId") WHERE "status" != 'normal';
 
 
+CREATE TABLE "user_graphqlConnection" (
+	"graphqlConnectionId" serial PRIMARY KEY,
+	"sessionToken" varchar(16),
+	"middlewareConnectionId" varchar(12),
+	"stablishedAt" timestamp with time zone,
+	"closedAt" timestamp with time zone
+);
+
+CREATE INDEX "idx_user_graphqlConnectionsessionToken" ON "user_graphqlConnection"("sessionToken");
+
+
+
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "rttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
 --ELSE EXTRACT(EPOCH FROM ("userClientResponseAt" - "connectionAliveAt")) * 1000
@@ -714,7 +741,7 @@ CREATE TABLE "chat_user" (
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
 	"userId" varchar(50),
-	"lastSeenAt" bigint,
+	"lastSeenAt" timestamp with time zone,
 	"typingAt"   timestamp with time zone,
 	"visible" boolean,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
@@ -760,7 +787,6 @@ CREATE TABLE "chat_message" (
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
 	"correlationId" varchar(100),
-	"createdTime" bigint,
 	"chatEmphasizedText" boolean,
 	"message" text,
 	"messageType" varchar(50),
@@ -768,6 +794,7 @@ CREATE TABLE "chat_message" (
     "senderId" varchar(100),
     "senderName" varchar(255),
 	"senderRole" varchar(20),
+	"createdAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
@@ -793,7 +820,9 @@ SELECT 	"user"."userId",
 		cu."visible",
 		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
-		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" > coalesce(NULLIF(cu."lastSeenAt",0),"user"."registeredOn") THEN 1 ELSE 0 end) "totalUnread",
+		sum(CASE WHEN cm."senderId" != "user"."userId"
+		    and cm."createdAt" < current_timestamp - '2 seconds'::interval --set a delay while user send lastSeenAt
+		    and cm."createdAt" > coalesce(cu."lastSeenAt","user"."registeredAt") THEN 1 ELSE 0 end) "totalUnread",
 		cu."lastSeenAt",
 		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN true ELSE false end public
 FROM "user"
@@ -807,15 +836,13 @@ WHERE cu."visible" is true
 GROUP BY "user"."userId", chat."meetingId", chat."chatId", cu."visible", cu."lastSeenAt", chat_with."userId";
 
 CREATE OR REPLACE VIEW "v_chat_message_public" AS
-SELECT cm.*,
-        to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
+SELECT cm.*
 FROM chat_message cm
 WHERE cm."chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 
 CREATE OR REPLACE VIEW "v_chat_message_private" AS
 SELECT cu."userId",
-        cm.*,
-        to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
+        cm.*
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
@@ -830,24 +857,23 @@ CREATE TABLE "pres_presentation" (
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"current" boolean,
 	"downloadable" boolean,
-	"removable" boolean
+	"downloadFileUri" varchar(500),
+	"removable" boolean,
+    "converting" boolean,
+    "uploadCompleted" boolean,
+    "numPages" integer,
+    "errorMsgKey" varchar(100),
+    "errorDetails" TEXT
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
-
-CREATE OR REPLACE VIEW public.v_pres_presentation AS
-SELECT pres_presentation."meetingId",
-	pres_presentation."presentationId",
-	pres_presentation."current",
-	pres_presentation."downloadable",
-	pres_presentation."removable"
-   FROM pres_presentation;
 
 CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
 	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
 	"num" integer,
 	"urls" TEXT,
+	"content" TEXT,
 	"slideRevealed" boolean default false,
 	"current" boolean,
 	"xOffset" NUMERIC,
@@ -859,10 +885,26 @@ CREATE TABLE "pres_page" (
     "viewBoxWidth" NUMERIC,
     "viewBoxHeight" NUMERIC,
     "maxImageWidth" integer,
-    "maxImageHeight" integer
+    "maxImageHeight" integer,
+    "converted" boolean
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
+
+CREATE OR REPLACE VIEW public.v_pres_presentation AS
+SELECT pres_presentation."meetingId",
+	pres_presentation."presentationId",
+	pres_presentation."current",
+	pres_presentation."downloadable",
+	pres_presentation."downloadFileUri",
+	pres_presentation."removable",
+    pres_presentation."converting",
+    pres_presentation."uploadCompleted",
+    pres_presentation."numPages",
+    pres_presentation."errorMsgKey",
+    pres_presentation."errorDetails",
+    (SELECT count(*) FROM pres_page WHERE pres_page."presentationId" = pres_presentation."presentationId" AND "converted" is true) as "pagesUploaded"
+   FROM pres_presentation;
 
 CREATE OR REPLACE VIEW public.v_pres_page AS
 SELECT pres_presentation."meetingId",
@@ -870,6 +912,7 @@ SELECT pres_presentation."meetingId",
 	pres_page."pageId",
     pres_page.num,
     pres_page.urls,
+    pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
     pres_page."xOffset",
@@ -883,7 +926,8 @@ SELECT pres_presentation."meetingId",
     (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledWidth",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
-    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight"
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
+    pres_page."converted"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
@@ -892,9 +936,12 @@ SELECT pres_presentation."meetingId",
 	pres_page."presentationId",
 	pres_page."pageId",
 	pres_presentation."downloadable",
+	case when pres_presentation."downloadable" then pres_presentation."downloadFileUri" else null end "downloadFileUri",
     pres_presentation."removable",
+    pres_presentation."numPages",
     pres_page.num,
     pres_page.urls,
+    pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
     pres_page."xOffset",
@@ -1167,23 +1214,22 @@ WHERE poll."type" != 'R-';
 --------------------------------
 ----External video
 
-create table "external_video"(
+create table "externalVideo"(
 "externalVideoId" varchar(100) primary key,
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "externalVideoUrl" varchar(500),
-"startedAt" timestamp with time zone,
-"stoppedAt" timestamp with time zone,
-"lastEventAt" timestamp with time zone,
-"lastEventDesc" varchar(50),
-"playerRate" numeric,
-"playerTime" numeric,
-"playerState" integer
+"startedSharingAt" timestamp with time zone,
+"stoppedSharingAt" timestamp with time zone,
+"updatedAt" timestamp with time zone,
+"playerPlaybackRate" numeric,
+"playerCurrentTime" numeric,
+"playerPlaying" boolean
 );
-create index "external_video_meetingId_current" on "external_video"("meetingId") WHERE "stoppedAt" IS NULL;
+create index "externalVideo_meetingId_current" on "externalVideo"("meetingId") WHERE "stoppedSharingAt" IS NULL;
 
-CREATE VIEW "v_external_video" AS
-SELECT * FROM "external_video"
-WHERE "stoppedAt" IS NULL;
+CREATE VIEW "v_externalVideo" AS
+SELECT * FROM "externalVideo"
+WHERE "stoppedSharingAt" IS NULL;
 
 --------------------------------
 ----Screenshare
@@ -1387,5 +1433,25 @@ CREATE TABLE "audio_caption" (
     "createdAt" timestamp with time zone
 );
 
-CREATE VIEW "v_audio_caption" AS
-SELECT * FROM "audio_caption";
+CREATE OR REPLACE VIEW "v_audio_caption" AS
+SELECT *
+FROM "audio_caption"
+WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
+
+------------------------------------
+----
+
+CREATE TABLE "layout" (
+	"meetingId" 			varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"currentLayoutType"     varchar(100),
+	"presentationMinimized" boolean,
+	"cameraDockIsResizing"	boolean,
+	"cameraDockPlacement" 	varchar(100),
+	"cameraDockAspectRatio" numeric,
+	"cameraWithFocus" 		varchar(100),
+	"propagateLayout" 		boolean,
+	"updatedAt" 			timestamp with time zone
+);
+
+CREATE VIEW "v_layout" AS
+SELECT * FROM "layout";

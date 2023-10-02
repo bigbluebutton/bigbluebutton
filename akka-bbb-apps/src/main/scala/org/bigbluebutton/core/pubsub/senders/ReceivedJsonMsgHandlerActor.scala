@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import akka.actor.{ Actor, ActorLogging, Props }
+import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.common2.msgs._
@@ -446,6 +446,13 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetTrackReqMsg](envelope, jsonNode)
       case TimerEndedPubMsg.NAME =>
         routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
+
+      // Messages from Graphql Middleware
+      case UserGraphqlConnectionStablishedSysMsg.NAME =>
+        route[UserGraphqlConnectionStablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
+
+      case UserGraphqlConnectionClosedSysMsg.NAME =>
+        route[UserGraphqlConnectionClosedSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

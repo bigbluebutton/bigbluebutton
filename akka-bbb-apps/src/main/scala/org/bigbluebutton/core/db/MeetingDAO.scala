@@ -87,6 +87,7 @@ object MeetingDAO {
           MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
           MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
           TimerDAO.insert(meetingProps.meetingProp.intId)
+          LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
         }
         case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Meeting: $e")
       }

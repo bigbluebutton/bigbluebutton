@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
-const PluginsEngine = styled.div`
+// eslint-disable-next-line import/prefer-default-export
+export const PluginsEngine = styled.div`
   position: 'absolute',
   top: 0,
   left: 0,
@@ -8,8 +9,3 @@ const PluginsEngine = styled.div`
   height: '100vh',
   zIndex: -1,
 `;
-
-
-export {
-  PluginsEngine,
-};

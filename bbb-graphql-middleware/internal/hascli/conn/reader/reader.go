@@ -12,11 +12,11 @@ import (
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
 func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChannel chan interface{}, fromBrowserToHasuraChannel chan interface{}, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.Browserconn.Id).WithField("hasuraConnectionId", hc.Id)
+	defer log.Debugf("finished")
+	log.Debugf("starting")
 
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
-
-	defer log.Info("finished")
 
 	for {
 		// Read a message from hasura
@@ -50,7 +50,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 					hc.Browserconn.ActiveSubscriptionsMutex.Lock()
 					delete(hc.Browserconn.ActiveSubscriptions, queryId)
 					hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
-					log.Infof("Subscription with Id %s finished by Hasura.", queryId)
+					log.Debugf("Subscription with Id %s finished by Hasura.", queryId)
 				}
 
 				//Apply msg patch when it supports it

@@ -2,7 +2,9 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationHasInvalidMimeTypeErrorPubMsgHdlr {
@@ -31,6 +33,15 @@ trait PresentationHasInvalidMimeTypeErrorPubMsgHdlr {
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
+
+    val errorDetails = scala.collection.immutable.Map(
+      "fileMime" -> msg.body.fileMime,
+      "fileExtension" -> msg.body.fileExtension
+    )
+
+    val pres = new PresentationInPod(msg.body.presentationId, msg.body.presentationName, false, Map.empty, false,
+      false, uploadCompleted = false, numPages = -1, errorMsgKey = msg.body.messageKey, errorDetails = errorDetails)
+    PresPresentationDAO.insertOrUpdate(msg.header.meetingId, pres)
 
     broadcastEvent(msg)
     state

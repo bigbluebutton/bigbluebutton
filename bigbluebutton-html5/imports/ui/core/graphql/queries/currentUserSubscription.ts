@@ -1,7 +1,6 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
-
-export const CURRENT_USER_SUBSCRIPTION = gql`
+const CURRENT_USER_SUBSCRIPTION = gql`
 subscription userCurrentSubscription {
   user_current {
     authed
@@ -58,3 +57,4 @@ subscription userCurrentSubscription {
   }
 }
 `;
+export default CURRENT_USER_SUBSCRIPTION;

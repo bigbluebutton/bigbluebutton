@@ -13,6 +13,7 @@ case class PresPageDbModel(
     presentationId: String,
     num:            Int,
     urls:           String,
+    content:        String,
     slideRevealed:  Boolean,
     current:        Boolean,
     xOffset:        Double,
@@ -24,7 +25,8 @@ case class PresPageDbModel(
     viewBoxWidth:   Double,
     viewBoxHeight:  Double,
     maxImageWidth:  Int,
-    maxImageHeight: Int
+    maxImageHeight: Int,
+    converted:      Boolean
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
@@ -32,6 +34,7 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val presentationId = column[String]("presentationId")
   val num = column[Int]("num")
   val urls = column[String]("urls")
+  val content = column[String]("content")
   val slideRevealed = column[Boolean]("slideRevealed")
   val current = column[Boolean]("current")
   val xOffset = column[Double]("xOffset")
@@ -44,8 +47,9 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val viewBoxHeight = column[Double]("viewBoxHeight")
   val maxImageWidth = column[Int]("maxImageWidth")
   val maxImageHeight = column[Int]("maxImageHeight")
+  val converted = column[Boolean]("converted")
   //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  def * = (pageId, presentationId, num, urls, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, converted) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {

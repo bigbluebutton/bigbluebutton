@@ -1,9 +1,11 @@
-import React, { useCallback } from "react";
+/* eslint-disable @typescript-eslint/ban-types */
+import React, { useCallback, useContext } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { defineMessages, useIntl } from "react-intl";
-import { useShortcut } from "/imports/ui/core/hooks/useShortcut";
+import { defineMessages, useIntl } from 'react-intl';
+import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes'
+import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from '../styles';
 import {
   handleLeaveAudio,
@@ -11,10 +13,10 @@ import {
   liveChangeOutputDevice,
   notify,
   truncateDeviceName,
-} from "../service";
-import Mutetoggle from "./muteToggle";
-import ListenOnly from "./listenOnly";
-
+} from '../service';
+import Mutetoggle from './muteToggle';
+import ListenOnly from './listenOnly';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
@@ -88,6 +90,16 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   const intl = useIntl();
 
   const leaveAudioShourtcut = useShortcut('leaveAudio');
+
+  const {
+    pluginsProvidedAggregatedState,
+  } = useContext(PluginsContext);
+  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownItem[];
+  if (pluginsProvidedAggregatedState.audioSettingsDropdownItems) {
+    audioSettingsDropdownItems = [
+      ...pluginsProvidedAggregatedState.audioSettingsDropdownItems,
+    ];
+  }
 
   const renderDeviceList = useCallback((
     deviceKind: string,
@@ -194,11 +206,39 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
       isSeparator: true,
     })
     .concat(leaveAudioOption);
+
+  audioSettingsDropdownItems.forEach((audioSettingsDropdownItem:
+    PluginSdk.AudioSettingsDropdownItem) => {
+    switch (audioSettingsDropdownItem.type) {
+      case PluginSdk.AudioSettingsDropdownItemType.OPTION: {
+        const audioSettingsDropdownOption = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
+        dropdownListComplete.push({
+          label: audioSettingsDropdownOption.label,
+          iconRight: audioSettingsDropdownOption.icon,
+          onClick: audioSettingsDropdownOption.onClick,
+          key: audioSettingsDropdownOption.id,
+        });
+        break;
+      }
+      case PluginSdk.AudioSettingsDropdownItemType.SEPARATOR: {
+        const audioSettingsDropdownSeparator = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
+        dropdownListComplete.push({
+          isSeparator: true,
+          key: audioSettingsDropdownSeparator.id,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  });
+
   const customStyles = { top: '-1rem' };
   const { isMobile } = deviceInfo;
   return (
     <>
       {!listenOnly ? (
+        // eslint-disable-next-line jsx-a11y/no-access-key
         <span
           style={{ display: 'none' }}
           accessKey={leaveAudioShourtcut}
@@ -211,18 +251,22 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         trigger={(
           <>
             {listenOnly
-              ? <ListenOnly
-                listenOnly={listenOnly}
-                handleLeaveAudio={handleLeaveAudio}
-                meetingIsBreakout={meetingIsBreakout}
-              />
-              : <Mutetoggle
-                talking={talking}
-                muted={muted}
-                disabled={disabled || isAudioLocked}
-                isAudioLocked={isAudioLocked}
-                toggleMuteMicrophone={toggleMuteMicrophone}
-              />}
+              ? (
+                <ListenOnly
+                  listenOnly={listenOnly}
+                  handleLeaveAudio={handleLeaveAudio}
+                  meetingIsBreakout={meetingIsBreakout}
+                />
+              )
+              : (
+                <Mutetoggle
+                  talking={talking}
+                  muted={muted}
+                  disabled={disabled || isAudioLocked}
+                  isAudioLocked={isAudioLocked}
+                  toggleMuteMicrophone={toggleMuteMicrophone}
+                />
+              )}
             <Styled.AudioDropdown
               data-test="audioDropdownMenu"
               emoji="device_list_selector"

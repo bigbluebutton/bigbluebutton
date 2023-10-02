@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.running
 
-import akka.actor.ActorContext
+import org.apache.pekko.actor.ActorContext
+import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
@@ -34,6 +35,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val deskshareModel = new ScreenshareModel
   private val audioCaptions = new AudioCaptions
   private val timerModel = new TimerModel
+  private val clientSettings = ClientSettings.clientSettingsFromFile
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
@@ -41,7 +43,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
     chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel, captionModel,
-    webcams, voiceUsers, users2x, guestsWaiting, clientConfiguration)
+    webcams, voiceUsers, users2x, guestsWaiting, clientSettings)
 
   GuestsWaiting.setGuestPolicy(
     liveMeeting.props.meetingProp.intId,

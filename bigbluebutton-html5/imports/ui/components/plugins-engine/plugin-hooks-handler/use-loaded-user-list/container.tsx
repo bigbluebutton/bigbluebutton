@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { useSubscription } from '@apollo/client';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users.ts';
+import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 
 const LoadedUserListHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);

@@ -11,6 +11,8 @@ import (
 
 func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromBrowserChannel1 chan interface{}, fromBrowserChannel2 chan interface{}, waitGroups []*sync.WaitGroup) {
 	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnectionId)
+	defer log.Debugf("finished")
+	log.Debugf("starting")
 
 	defer func() {
 		close(fromBrowserChannel1)
@@ -26,12 +28,10 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 		time.Sleep(100 * time.Millisecond)
 	}()
 
-	defer log.Infof("finished")
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
 	for {
-		ctx, cancel := context.WithCancel(ctx)
-		defer cancel()
-
 		var v interface{}
 		err := wsjson.Read(ctx, c, &v)
 		if err != nil {

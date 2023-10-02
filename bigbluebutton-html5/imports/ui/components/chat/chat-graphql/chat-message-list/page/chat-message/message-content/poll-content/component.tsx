@@ -1,5 +1,7 @@
-import React from "react";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import React from 'react';
+import {
+  Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
+} from 'recharts';
 import Styled from './styles';
 
 interface ChatPollContentProps {
@@ -21,7 +23,6 @@ interface Answers {
   numVotes: number;
   id: number;
 }
-
 
 function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
   if (typeof metadata !== 'object' || metadata === null) {
@@ -56,10 +57,10 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
   const pollData = JSON.parse(string) as unknown;
   assertAsMetadata(pollData);
   return (
-    <div>
-      <Styled.pollText>
+    <div data-test="chatPollMessageText">
+      <Styled.PollText>
         {pollData.questionText}
-      </Styled.pollText>
+      </Styled.PollText>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart
           data={pollData.answers}

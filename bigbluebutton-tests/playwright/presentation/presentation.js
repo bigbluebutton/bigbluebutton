@@ -3,7 +3,7 @@ const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight } = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification, waitAndClearNotification } = require('../notifications/util');
@@ -206,7 +206,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
-    await this.modPage.hasElement(e.smallToastMsg, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.hasElement(e.smallToastMsg, 20000);
     await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
     const downloadPresentationLocator = this.userPage.getLocator(e.downloadPresentation);
     await this.userPage.handleDownload(downloadPresentationLocator, testInfo);
@@ -284,11 +284,11 @@ class Presentation extends MultiUsers {
 
   async getFrame(page, frameSelector) {
     await page.waitForSelector(frameSelector);
-    await sleep(1000);
-    const handleFrame = await page.page.frame({ url: /youtube/ });
-    const frame = new Page(page.browser, handleFrame);
-    await frame.waitForSelector(e.ytFrameTitle);
-    return frame;
+    const iframeElement = await page.getLocator('iframe').elementHandle();
+    const frame = await iframeElement.contentFrame();
+    await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
+    const ytFrame = new Page(page.browser, frame);
+    return ytFrame;
   }
 
   async presentationFullscreen() {

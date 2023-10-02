@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
-import { generateActionsPermissions, isVoiceOnlyUser } from './service';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
@@ -12,6 +11,8 @@ import {
   changeWhiteboardAccess,
   isMe,
   removeUser,
+  generateActionsPermissions,
+  isVoiceOnlyUser,
 } from './service';
 
 import { makeCall } from '/imports/ui/services/api';
@@ -124,6 +125,14 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
+  awayLabel: {
+    id: 'app.userList.menu.away',
+    description: 'Text for identifying away user',
+  },
+  notAwayLabel: {
+    id: 'app.userList.menu.notAway',
+    description: 'Text for identifying not away user',
+  },
 });
 
 const UserActions: React.FC<UserActionsProps> = ({
@@ -145,7 +154,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     currentUser,
     lockSettings,
     usersPolicies,
-    isBreakout
+    isBreakout,
   );
   const {
     allowedToChangeStatus,
@@ -161,7 +170,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowUserLookup,
     allowedToRemove,
     allowedToEjectCameras,
-  } = actionsnPermitions
+    allowedToSetAway,
+  } = actionsnPermitions;
 
   const {
     disablePrivateChat,
@@ -268,6 +278,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'unmute',
+      dataTest: 'unmuteUser',
     },
     {
       allowed: allowedToChangeWhiteboardAccess
@@ -278,7 +289,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        changeWhiteboardAccess(user.userId, user.presPagesWritable.length > 0)
+        changeWhiteboardAccess(user.userId, user.presPagesWritable.length > 0);
         setSelected(false);
       },
       icon: 'pen_tool',
@@ -346,11 +357,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'remove',
       label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
       onClick: () => {
-        setIsConfirmationModalOpen(true)
+        setIsConfirmationModalOpen(true);
         setSelected(false);
       },
       icon: 'circle_close',
-      dataTest: 'removeUser'
+      dataTest: 'removeUser',
     },
     {
       allowed: allowedToEjectCameras
@@ -363,6 +374,17 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'video_off',
+      dataTest: 'ejectCamera',
+    },
+    {
+      allowed: allowedToSetAway,
+      key: 'setAway',
+      label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
+      onClick: () => {
+        makeCall('changeAway', !user.away);
+        setSelected(false);
+      },
+      icon: 'time',
     },
     ...userListDropdownItems.filter(
       (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
@@ -414,66 +436,77 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     ...Object.keys(EMOJI_STATUSES).map((key) => ({
       allowed: showNestedOptions,
-      key: key,
+      key,
       label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${key}Label` }),
       onClick: () => {
         setEmojiStatus(user.userId, key);
         setSelected(false);
         setShowNestedOptions(false);
       },
-      icon: EMOJI_STATUSES[key],
+      icon: (EMOJI_STATUSES as Record<string, string>)[key],
       dataTest: key,
     })),
   ];
 
   const actions = showNestedOptions
-    ? nestedOptions.filter(key => key.allowed)
-    : dropdownOptions.filter(key => key.allowed);
-  if (!actions.length) return children;
-  return <div>
-    <BBBMenu
-      trigger={
-        (
-          <Styled.UserActionsTrigger
-            isActionsOpen={selected}
-            selected={selected === true}
-            tabIndex={-1}
-            onClick={() => setSelected(true)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                setSelected(true);
-              }
-            }}
-            role="button"
-          >
-            {children}
-          </Styled.UserActionsTrigger>
-        )
-      }
-      actions={actions}
-      selectedEmoji={user.emoji}
-      onCloseCallback={() => {
-        setSelected(false);
-        setShowNestedOptions(false);
-      }}
-      open={selected}
-    />
-    {isConfirmationModalOpen ? <ConfirmationModal
-      intl={intl}
-      titleMessageId="app.userList.menu.removeConfirmation.label"
-      titleMessageExtra={user.name}
-      checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
-      confirmParam={user.userId}
-      onConfirm={removeUser}
-      confirmButtonDataTest="removeUserConfirmation"
-      {...{
-        onRequestClose: () => setIsConfirmationModalOpen(false),
-        priority: "low",
-        setIsOpen: setIsConfirmationModalOpen,
-        isOpen: isConfirmationModalOpen
-      }}
-    /> : null}
-  </div>;
+    ? nestedOptions.filter((key) => key.allowed)
+    : dropdownOptions.filter((key) => key.allowed);
+  if (!actions.length) {
+    return (
+      <span>
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <div>
+      <BBBMenu
+        trigger={
+          (
+            <Styled.UserActionsTrigger
+              isActionsOpen={selected}
+              selected={selected === true}
+              tabIndex={-1}
+              onClick={() => setSelected(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setSelected(true);
+                }
+              }}
+              role="button"
+            >
+              {children}
+            </Styled.UserActionsTrigger>
+          )
+        }
+        actions={actions}
+        selectedEmoji={user.emoji}
+        onCloseCallback={() => {
+          setSelected(false);
+          setShowNestedOptions(false);
+        }}
+        open={selected}
+      />
+      {isConfirmationModalOpen ? (
+        <ConfirmationModal
+          intl={intl}
+          titleMessageId="app.userList.menu.removeConfirmation.label"
+          titleMessageExtra={user.name}
+          checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+          confirmParam={user.userId}
+          onConfirm={removeUser}
+          confirmButtonDataTest="removeUserConfirmation"
+          {...{
+            onRequestClose: () => setIsConfirmationModalOpen(false),
+            priority: 'low',
+            setIsOpen: setIsConfirmationModalOpen,
+            isOpen: isConfirmationModalOpen,
+          }}
+        />
+      ) : null}
+    </div>
+  );
 };
 
 export default UserActions;

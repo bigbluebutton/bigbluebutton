@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 
-
 export const CHATS_SUBSCRIPTION = gql`subscription {
     chat (order_by: [
         {public: desc}, 
@@ -33,4 +32,4 @@ export const CLOSE_PRIVATE_CHAT_MUTATION = gql`
         affected_rows
         }
     }
-`
+`;
