@@ -72,6 +72,7 @@ object Boot extends App with SystemConfiguration {
     "GraphqlActionsActor"
   )
 
+  ClientSettings.loadClientSettingsFromFile()
   recordingEventBus.subscribe(redisRecorderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 
