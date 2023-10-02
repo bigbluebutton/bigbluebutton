@@ -8,21 +8,27 @@ import scala.util.{ Failure, Success }
 import spray.json._
 
 case class PresPresentationDbModel(
-    presentationId:  String,
-    meetingId:       String,
-    current:         Boolean,
-    downloadable:    Boolean,
-    downloadFileUri: Option[String],
-    removable:       Boolean,
-    uploadCompleted: Boolean,
-    numPages:        Int,
-    errorMsgKey:     String,
-    errorDetails:    String
+    presentationId:    String,
+    meetingId:         String,
+    name:              String,
+    filenameConverted: String,
+    isDefault:         Boolean,
+    current:           Boolean,
+    downloadable:      Boolean,
+    downloadFileUri:   Option[String],
+    removable:         Boolean,
+    uploadCompleted:   Boolean,
+    numPages:          Int,
+    errorMsgKey:       String,
+    errorDetails:      String
 )
 
 class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel](tag, None, "pres_presentation") {
   val presentationId = column[String]("presentationId", O.PrimaryKey)
   val meetingId = column[String]("meetingId")
+  val name = column[String]("name")
+  val filenameConverted = column[String]("filenameConverted")
+  val isDefault = column[Boolean]("isDefault")
   val current = column[Boolean]("current")
   val downloadable = column[Boolean]("downloadable")
   val downloadFileUri = column[Option[String]]("downloadFileUri")
@@ -33,7 +39,9 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
   val errorDetails = column[String]("errorDetails")
   //  val meeting = foreignKey("meeting_fk", meetingId, Meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
 
-  def * = (presentationId, meetingId, current, downloadable, downloadFileUri, removable, uploadCompleted, numPages, errorMsgKey, errorDetails) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
+  def * = (
+    presentationId, meetingId, name, filenameConverted, isDefault, current, downloadable, downloadFileUri, removable, uploadCompleted, numPages, errorMsgKey, errorDetails
+  ) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
 }
 
 object PresPresentationDAO {
@@ -49,6 +57,9 @@ object PresPresentationDAO {
         PresPresentationDbModel(
           presentationId = presentation.id,
           meetingId = meetingId,
+          name = presentation.name,
+          filenameConverted = presentation.filenameConverted,
+          isDefault = presentation.default,
           current = false, //Set after pages were inserted
           downloadable = presentation.downloadable,
           downloadFileUri = None,
