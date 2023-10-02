@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React from 'react';
+import React, { useContext } from 'react';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
@@ -12,6 +13,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { Emoji } from 'emoji-mart';
 import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { isReactionsEnabled } from '/imports/ui/services/features';
 
 const messages = defineMessages({
@@ -121,6 +123,17 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     ? user.lastBreakoutRoom?.sequence
     : iconUser;
 
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  let iconRight = '';
+  if (pluginsProvidedAggregatedState.userListIconItems) {
+    const userListIconObject = pluginsProvidedAggregatedState.userListIconItems.find((item) => {
+      const userListIcon = item as PluginSdk.UserListIcon;
+      return userListIcon.userId === user.userId;
+    }) as PluginSdk.UserListIcon;
+    if (userListIconObject) {
+      iconRight = userListIconObject.icon;
+    }
+  }
   return (
     <Styled.UserItemContents data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
@@ -157,6 +170,14 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
+      {
+        iconRight
+          ? (
+            <Styled.IconRightContainer>
+              <Icon iconName={iconRight} />
+            </Styled.IconRightContainer>
+          ) : null
+      }
     </Styled.UserItemContents>
   );
 };
