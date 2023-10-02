@@ -28,7 +28,7 @@ for tag in "${TAGS[@]}"; do
 
   git checkout "$tag"
   if [ -f docusaurus.config.js ]; then
-    version=${branch:1:3}
+    version=${branch:1:3}-legacy
     echo "Adding documentation for $version"
     yarn docusaurus docs:version "${version}"
   else
