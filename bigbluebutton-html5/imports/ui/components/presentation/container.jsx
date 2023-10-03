@@ -23,6 +23,7 @@ import {
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const PresentationContainer = ({
   presentationIsOpen, presentationPodIds, mountPresentation, layoutType, currentSlide, ...props
@@ -83,6 +84,10 @@ export default lockContextContainer(
     const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
     const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
 
+    const meeting = useMeeting((m) => ({
+      lockSettings: m?.lockSettings,
+    }));
+
     const multiUserData = {
       active: whiteboardWriters?.length > 0,
       size: whiteboardWriters?.length || 0,
@@ -107,8 +112,9 @@ export default lockContextContainer(
 
     const numPages = currentPresentationPage?.numPages;
     const presentationIsDownloadable = currentPresentationPage?.downloadable;
-    const isViewersCursorLocked = userLocks?.hideViewersCursor;
-    const isViewersAnnotationsLocked = userLocks?.hideViewersAnnotation;
+
+    const isViewersCursorLocked = meeting?.lockSettings?.hideViewersCursor || true;
+    const isViewersAnnotationsLocked = meeting?.lockSettings?.hideViewersAnnotation || true;
 
     let slidePosition;
     if (currentSlide) {
@@ -156,10 +162,6 @@ export default lockContextContainer(
       }
     }
 
-    // TODO: add to graphql
-    const isInitialPresentation = currentPresentationPage?.isInitialPresentation || false;
-    const presentationName = currentPresentationPage?.presentationName || 'Presentation';
-
     return {
       currentSlide,
       slidePosition,
@@ -183,8 +185,8 @@ export default lockContextContainer(
       isViewersCursorLocked,
       setPresentationIsOpen: MediaService.setPresentationIsOpen,
       isViewersAnnotationsLocked,
-      isInitialPresentation,
-      presentationName,
+      isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
+      presentationName: currentPresentationPage?.presentationName,
     };
   })(PresentationContainer),
 );

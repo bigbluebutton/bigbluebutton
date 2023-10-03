@@ -203,7 +203,7 @@ class Presentation extends PureComponent {
       numPages,
       currentPresentationId,
       fitToWidth,
-      isInitialPresentation,
+      isDefaultPresentation,
       presentationIsDownloadable,
     } = this.props;
     const {
@@ -316,7 +316,7 @@ class Presentation extends PureComponent {
           slideChanged
           || positionChanged
           || pollPublished
-          || (presentationChanged && (hadPresentation || !isInitialPresentation))
+          || (presentationChanged && (hadPresentation || !isDefaultPresentation))
         ) {
           setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
         }
