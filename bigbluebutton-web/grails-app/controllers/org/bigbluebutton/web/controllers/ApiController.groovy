@@ -154,9 +154,9 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
 
     // The client configs are going to be parsed to the LinkedHashMap in akka
-    String overrideClientConfigs = overrideClientConfigs(requestBody)
+    String overrideClientSettings = overrideClientSettings(requestBody)
 
-    paramsProcessorUtil.processCreateBody(newMeeting, overrideClientConfigs)
+    paramsProcessorUtil.processCreateBody(newMeeting, overrideClientSettings)
 
     ApiErrors errors = new ApiErrors()
 
@@ -1391,10 +1391,12 @@ class ApiController {
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
       Boolean hasCurrent = false;
+      Boolean hasPresentationModule = false;
       xml.children().each { module ->
         log.debug("module config found: [${module.@name}]");
 
         if ("presentation".equals(module.@name.toString())) {
+          hasPresentationModule = true
           for (document in module.children()) {
             if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
                     document.@current.toString()) && !hasCurrent) {
@@ -1416,6 +1418,10 @@ class ApiController {
             }
           }
         }
+      }
+      if (!hasPresentationModule) {
+        hasCurrent = true
+        listOfPresentation.add(0, [name: "default", current: true])
       }
       presentationListHasCurrent = hasCurrent;
     }
@@ -1478,8 +1484,8 @@ class ApiController {
     return true
   }
 
-  def String overrideClientConfigs(requestBody) {
-    log.debug("ApiController#overrideClientConfigs");
+  def String overrideClientSettings(requestBody) {
+    log.debug("ApiController#overrideClientSettings");
     //sanitizeInput
     params.each {
       key, value -> params[key] = sanitizeInput(value)

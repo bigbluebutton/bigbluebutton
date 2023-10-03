@@ -19,13 +19,10 @@
 
 package org.bigbluebutton.api;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,12 +34,6 @@ import com.google.gson.JsonObject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
 import org.bigbluebutton.api.domain.Meeting;
@@ -1156,11 +1147,11 @@ public class ParamsProcessorUtil {
 		return true;
 	}
 
-    public void processCreateBody(Meeting newMeeting, String overrideClientConfig){
-        if (overrideClientConfig != null) {
-            newMeeting.setOverrideClientConfigs(overrideClientConfig);
+    public void processCreateBody(Meeting newMeeting, String overrideClientSettings){
+        if (overrideClientSettings != null) {
+            newMeeting.setOverrideClientSettings(overrideClientSettings);
         } else {
-            newMeeting.setOverrideClientConfigs("");
+            newMeeting.setOverrideClientSettings("");
         }
     }
 

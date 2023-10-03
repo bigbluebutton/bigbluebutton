@@ -19,12 +19,6 @@ import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
-import org.bigbluebutton.common2
-import org.bigbluebutton.common2.util.YamlUtil
-
-import scala.jdk.CollectionConverters._
-import java.util
-import scala.util.{ Failure, Success }
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
@@ -122,18 +116,7 @@ class BigBlueButtonActor(
       case None =>
         log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
 
-        val clientConfigForMeeting: Map[String, Object] = if (msg.body.overrideClientConfigs != null
-          && msg.body.overrideClientConfigs.nonEmpty) {
-          val scalaMapClientOverride = common2.util.JsonUtil.toMap[Object](msg.body.overrideClientConfigs)
-          scalaMapClientOverride match {
-            case Success(value) => YamlUtil.mergeImmutableMaps(clientConfigurationFromFile, value)
-            case Failure(_) =>
-              log.info("No valid JSON override of client configuration in create call")
-              clientConfigurationFromFile
-          }
-        } else clientConfigurationFromFile
-
-        val m = RunningMeeting(msg.body.props, outGW, eventBus, clientConfigForMeeting)
+        val m = RunningMeeting(msg.body.props, outGW, eventBus)
 
         // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)

@@ -155,6 +155,7 @@ export default async function addMeeting(meeting) {
       html5InstanceId: Number,
     },
     groups: Array,
+    overrideClientSettings: String,
   });
 
   const {

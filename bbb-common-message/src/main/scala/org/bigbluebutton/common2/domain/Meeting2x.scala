@@ -19,8 +19,6 @@ case class MeetingProp(
     presentationUploadExternalUrl:          String,
 )
 
-
-
 case class BreakoutProps(
     parentId:           String,
     sequence:           Int,
@@ -91,7 +89,8 @@ case class DefaultProps(
     metadataProp:      MetadataProp,
     lockSettingsProps: LockSettingsProps,
     systemProps:       SystemProps,
-    groups:            Vector[GroupProps]
+    groups:            Vector[GroupProps],
+    overrideClientSettings: String
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
@@ -121,5 +120,3 @@ case class UserVO(id: String, externalId: String, name: String, role: String,
 case class VoiceUserVO(userId: String, webUserId: String, callerName: String,
                        callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
                        talking: Boolean, avatarURL: String, listenOnly: Boolean)
-
-

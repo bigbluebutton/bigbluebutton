@@ -154,7 +154,7 @@ class BbbWebApiGWApp(
                     notifyRecordingIsOn:                    java.lang.Boolean,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
-                    overrideClientConfigs:                  String): Unit = {
+                    overrideClientSettings:                 String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -247,12 +247,13 @@ class BbbWebApiGWApp(
       metadataProp,
       lockSettingsProps,
       systemProps,
-      groupsAsVector
+      groupsAsVector,
+      overrideClientSettings
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
 
-    val event = MsgBuilder.buildCreateMeetingRequestToAkkaApps(defaultProps, overrideClientConfigs)
+    val event = MsgBuilder.buildCreateMeetingRequestToAkkaApps(defaultProps)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 
   }
