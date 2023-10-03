@@ -217,6 +217,7 @@ CREATE TABLE "user" (
 	"role" varchar(20),
 	"avatar" varchar(500),
 	"color" varchar(7),
+    "sessionToken" varchar(16),
     "authed" bool,
     "joined" bool,
     "banned" bool,
@@ -646,6 +647,18 @@ GROUP BY u."meetingId", u."userId";
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("userId") WHERE "status" != 'normal';
 
 
+CREATE TABLE "user_graphqlConnection" (
+	"graphqlConnectionId" serial PRIMARY KEY,
+	"sessionToken" varchar(16),
+	"middlewareConnectionId" varchar(12),
+	"stablishedAt" timestamp with time zone,
+	"closedAt" timestamp with time zone
+);
+
+CREATE INDEX "idx_user_graphqlConnectionsessionToken" ON "user_graphqlConnection"("sessionToken");
+
+
+
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "rttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
 --ELSE EXTRACT(EPOCH FROM ("userClientResponseAt" - "connectionAliveAt")) * 1000
@@ -842,8 +855,12 @@ WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 CREATE TABLE "pres_presentation" (
 	"presentationId" varchar(100) PRIMARY KEY,
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"name" varchar(500),
+	"filenameConverted" varchar(500),
+	"isDefault" boolean,
 	"current" boolean,
 	"downloadable" boolean,
+	"downloadFileUri" varchar(500),
 	"removable" boolean,
     "converting" boolean,
     "uploadCompleted" boolean,
@@ -859,6 +876,7 @@ CREATE TABLE "pres_page" (
 	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
 	"num" integer,
 	"urls" TEXT,
+	"content" TEXT,
 	"slideRevealed" boolean default false,
 	"current" boolean,
 	"xOffset" NUMERIC,
@@ -879,8 +897,12 @@ CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId"
 CREATE OR REPLACE VIEW public.v_pres_presentation AS
 SELECT pres_presentation."meetingId",
 	pres_presentation."presentationId",
+	pres_presentation."name",
+	pres_presentation."filenameConverted",
+	pres_presentation."isDefault",
 	pres_presentation."current",
 	pres_presentation."downloadable",
+	pres_presentation."downloadFileUri",
 	pres_presentation."removable",
     pres_presentation."converting",
     pres_presentation."uploadCompleted",
@@ -896,6 +918,7 @@ SELECT pres_presentation."meetingId",
 	pres_page."pageId",
     pres_page.num,
     pres_page.urls,
+    pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
     pres_page."xOffset",
@@ -918,10 +941,16 @@ CREATE OR REPLACE VIEW public.v_pres_page_curr AS
 SELECT pres_presentation."meetingId",
 	pres_page."presentationId",
 	pres_page."pageId",
+    pres_presentation."name" as "presentationName",
+    pres_presentation."filenameConverted" as "presentationFilenameConverted",
+    pres_presentation."isDefault" as "isDefaultPresentation",
 	pres_presentation."downloadable",
+	case when pres_presentation."downloadable" then pres_presentation."downloadFileUri" else null end "downloadFileUri",
     pres_presentation."removable",
+    pres_presentation."numPages",
     pres_page.num,
     pres_page.urls,
+    pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
     pres_page."xOffset",

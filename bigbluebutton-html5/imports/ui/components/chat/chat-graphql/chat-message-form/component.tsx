@@ -10,14 +10,13 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
 import ClickOutside from '/imports/ui/components/click-outside/component';
-import Styled from './styles';
 import { checkText } from 'smile2emoji';
+import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
-  handleSendMessage,
   startUserTyping,
   stopUserTyping,
 } from './service';
@@ -27,6 +26,17 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import { useMutation } from '@apollo/client';
+import { SEND_GROUP_CHAT_MSG } from './mutations';
+import Storage from '/imports/ui/services/storage/session';
+import { indexOf, without } from '/imports/utils/array-utils';
+
+// @ts-ignore - temporary, while meteor exists in the project
+const CHAT_CONFIG = Meteor.settings.public.chat;
+
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -95,8 +105,6 @@ const messages = defineMessages({
   },
 });
 
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
 // @ts-ignore - temporary, while meteor exists in the project
 const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
 // @ts-ignore - temporary, while meteor exists in the project
@@ -183,29 +191,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setError(chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null);
   };
 
-  const handleSubmit = (e:React.FormEvent<HTMLFormElement>|React.KeyboardEvent<HTMLInputElement>|Event) => {
-    e.preventDefault();
-
-    const msg = message.trim();
-
-    if (msg.length < minMessageLength) return;
-
-    if (disabled
-      || msg.length > maxMessageLength) {
-      setHasErrors(true);
-      return;
-    }
-
-    handleSendMessage(msg, chatId);
-    setMessage('');
-    updateUnreadMessages(chatId, '');
-    setHasErrors(false);
-    setShowEmojiPicker(false);
-    if (ENABLE_TYPING_INDICATOR) stopUserTyping();
-    const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
-    window.dispatchEvent(sentMessageEvent);
-  };
-
   const handleEmojiSelect = (emojiObject: { native: string }): void => {
     const txtArea = textAreaRef?.current?.textarea;
     if (!txtArea) return;
@@ -248,22 +233,64 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     handleUserTyping(newError != null);
   };
 
-  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
-    if (e.keyCode === 13 && !e.shiftKey) {
-      e.preventDefault();
-
-      const event = new Event('submit', {
-        bubbles: true,
-        cancelable: true,
-      });
-
-      handleSubmit(event);
-    }
-  };
-
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null >(null);
+
+    const [sendGroupChatMsg, {
+      loading: sendGroupChatMsgLoading, error: sendGroupChatMsgError,
+    }] = useMutation(SEND_GROUP_CHAT_MSG);
+
+    const handleSubmit = (e:React.FormEvent<HTMLFormElement>|React.KeyboardEvent<HTMLInputElement>|Event) => {
+      e.preventDefault();
+
+      const msg = message.trim();
+
+      if (msg.length < minMessageLength) return;
+
+      if (disabled
+        || msg.length > maxMessageLength) {
+        setHasErrors(true);
+        return;
+      }
+
+      sendGroupChatMsg({
+        variables: {
+          chatMessageInMarkdownFormat: msg,
+          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+        },
+      });
+
+      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+
+      // Remove the chat that user send messages from the session.
+      if (indexOf(currentClosedChats, chatId) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
+      }
+
+      setMessage('');
+      updateUnreadMessages(chatId, '');
+      setHasErrors(false);
+      setShowEmojiPicker(false);
+      if (ENABLE_TYPING_INDICATOR) stopUserTyping();
+      const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
+      window.dispatchEvent(sentMessageEvent);
+    };
+
+    const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
+      if (e.keyCode === 13 && !e.shiftKey) {
+        e.preventDefault();
+
+        const event = new Event('submit', {
+          bubbles: true,
+          cancelable: true,
+        });
+
+        handleSubmit(event);
+      }
+    };
+
+    if (sendGroupChatMsgError) { return <div>something went wrong</div>; }
 
     return (
       <Styled.Form
@@ -289,7 +316,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
-            disabled={disabled || partnerIsLoggedOut}
+            disabled={disabled || partnerIsLoggedOut || sendGroupChatMsgLoading}
             value={message}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}
@@ -316,7 +343,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             circle
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
-            disabled={disabled || partnerIsLoggedOut}
+            disabled={disabled || partnerIsLoggedOut || sendGroupChatMsgLoading}
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"

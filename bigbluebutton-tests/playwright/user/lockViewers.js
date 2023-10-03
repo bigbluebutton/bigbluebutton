@@ -95,6 +95,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    await this.userPage2.hasElementEnabled(e.chatBox, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage2.type(e.chatBox, e.message);
     await this.userPage2.waitAndClick(e.sendButton);
     await this.userPage.waitForSelector(e.chatUserMessageText);
@@ -109,21 +110,21 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockPrivateChat);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.initUserPage2(true);
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    await this.initUserPage2();
+    await this.modPage.getLocator(e.userListItem).filter({ hasNotText: this.userPage2.username }).click();
+    await this.modPage.waitAndClick(e.unlockUserButton);
 
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=0`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-    
-    await this.userPage2.waitAndClick(`${e.userListItem}>>nth=1`);
-    await this.userPage2.waitAndClick(`${e.startPrivateChat}>>nth=1`);
-    await this.userPage2.type(e.chatBox, 'Test');
-    await this.userPage2.waitAndClick(e.sendButton);
-    
-    await this.userPage.waitAndClick(`${e.chatButton}>>nth=1`);
-    await this.userPage.hasElementDisabled(e.chatBox);
-    await this.userPage.hasElementDisabled(e.sendButton);
+    await this.userPage.getLocator(e.userListItem).filter({ hasText: this.userPage2.username }).click();
+    await this.userPage.waitAndClick(`${e.startPrivateChat} >> visible=true`);
+    await this.userPage.hasElementEnabled(e.chatBox);
+    await this.userPage.hasElementEnabled(e.sendButton);
+    await this.userPage.type(e.chatBox, 'Test');
+    await this.userPage.waitAndClick(e.sendButton);
+
+    await this.userPage2.getLocator(e.chatButton).filter({ hasText: this.userPage.username }).click();
+    await this.userPage2.waitForSelector(e.closePrivateChat);
+    await this.userPage2.hasElementDisabled(e.chatBox);
+    await this.userPage2.hasElementDisabled(e.sendButton);
   }
 
   async lockEditSharedNotes() {

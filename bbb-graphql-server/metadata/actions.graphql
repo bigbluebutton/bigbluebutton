@@ -1,0 +1,7 @@
+type Mutation {
+  sendGroupChatMsg(
+    chatId: String!
+    chatMessageInMarkdownFormat: String!
+  ): Boolean
+}
+

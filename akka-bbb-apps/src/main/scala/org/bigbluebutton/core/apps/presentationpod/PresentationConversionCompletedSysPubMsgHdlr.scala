@@ -47,7 +47,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         originalDownloadableExtension
       )
 
-      val presWithConvertedName = PresentationInPod(pres.id, pres.name, pres.current, pres.pages,
+      val presWithConvertedName = PresentationInPod(pres.id, pres.name, default = msg.body.presentation.isInitialPresentation, pres.current, pres.pages,
         pres.downloadable, pres.removable, msg.body.presentation.filenameConverted, uploadCompleted = true, numPages = pres.numPages, errorDetails = Map.empty)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
