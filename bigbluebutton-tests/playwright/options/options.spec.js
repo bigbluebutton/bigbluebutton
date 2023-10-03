@@ -1,7 +1,10 @@
 const { test } = require('@playwright/test');
+const { fullyParallel } = require('../playwright.config');
 const { Options } = require('./options');
 
-test.describe.serial('Options', () => {
+if (!fullyParallel) test.describe.configure({ mode: 'serial' });
+
+test.describe('Options', () => {
   const options = new Options();
   let context;
   test.beforeAll(async ({ browser }) => {

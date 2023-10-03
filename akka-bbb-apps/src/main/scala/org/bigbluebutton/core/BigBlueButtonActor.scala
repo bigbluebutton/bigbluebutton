@@ -19,6 +19,12 @@ import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
+import org.bigbluebutton.common2
+import org.bigbluebutton.common2.util.YamlUtil
+
+import scala.jdk.CollectionConverters._
+import java.util
+import scala.util.{ Failure, Success }
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
@@ -75,13 +81,15 @@ class BigBlueButtonActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
 
-      case m: CreateMeetingReqMsg         => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg          => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg        => handleGetAllMeetingsReqMsg(m)
-      case m: GetRunningMeetingsReqMsg    => handleGetRunningMeetingsReqMsg(m)
-      case m: CheckAlivePingSysMsg        => handleCheckAlivePingSysMsg(m)
-      case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
-      case _                              => log.warning("Cannot handle " + msg.envelope.name)
+      case m: CreateMeetingReqMsg                   => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg                    => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg                  => handleGetAllMeetingsReqMsg(m)
+      case m: GetRunningMeetingsReqMsg              => handleGetRunningMeetingsReqMsg(m)
+      case m: CheckAlivePingSysMsg                  => handleCheckAlivePingSysMsg(m)
+      case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
+      case _: UserGraphqlConnectionStablishedSysMsg => //Ignore
+      case _: UserGraphqlConnectionClosedSysMsg     => //Ignore
+      case _                                        => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 

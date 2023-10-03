@@ -10,10 +10,10 @@ import (
 )
 
 func BrowserConnectionWriter(browserConnectionId string, ctx context.Context, c *websocket.Conn, toBrowserChannel chan interface{}, wg *sync.WaitGroup) {
-	log := log.WithField("_routine", "websocketConnectionWriter").WithField("browserConnectionId", browserConnectionId)
-
-	defer wg.Done()
+	log := log.WithField("_routine", "BrowserConnectionWriter").WithField("browserConnectionId", browserConnectionId)
 	defer log.Debugf("finished")
+	log.Debugf("starting")
+	defer wg.Done()
 
 RangeLoop:
 	for {

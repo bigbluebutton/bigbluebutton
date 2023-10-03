@@ -13,6 +13,7 @@ const config = {
     : [['list'], ['html', { open: 'never' }],
   ],
   forbidOnly: CI,
+  fullyParallel: CI,
   use: {
     headless: true,
     trace: DEBUG_MODE ? 'on'
