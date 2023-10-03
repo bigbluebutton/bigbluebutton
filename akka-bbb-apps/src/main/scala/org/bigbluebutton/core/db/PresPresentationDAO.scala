@@ -151,4 +151,15 @@ object PresPresentationDAO {
       }
   }
 
+  def delete(presentationId: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .delete
+    ).onComplete {
+        case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) deleted presentation on PresPresentation table")
+        case Failure(e)           => DatabaseConnection.logger.error(s"Error deleting presentation on PresPresentation: $e")
+      }
+  }
+
 }
