@@ -18,6 +18,7 @@ select_permissions:
         - hasActiveLockSetting
         - hideUserList
         - hideViewersCursor
+        - hideViewersAnnotation
         - webcamsOnlyForModerator
       filter:
         meetingId:
