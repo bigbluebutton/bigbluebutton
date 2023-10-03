@@ -24,6 +24,9 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     downloadFileUri
     numPages
     downloadable
+    presentationName
+    presentationFilenameConverted
+    isDefaultPresentation
   }  
 }`;
 
