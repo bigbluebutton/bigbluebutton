@@ -22,9 +22,13 @@ select_permissions:
       columns:
         - converting
         - current
+        - downloadFileUri
         - downloadable
         - errorDetails
         - errorMsgKey
+        - filenameConverted
+        - isDefault
+        - name
         - numPages
         - pagesUploaded
         - presentationId

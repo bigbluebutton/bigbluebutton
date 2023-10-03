@@ -19,6 +19,12 @@ import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
+import org.bigbluebutton.common2
+import org.bigbluebutton.common2.util.YamlUtil
+
+import scala.jdk.CollectionConverters._
+import java.util
+import scala.util.{ Failure, Success }
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
