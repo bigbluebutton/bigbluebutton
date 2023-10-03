@@ -27,6 +27,8 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       messageId
       createdAt
       messageMetadata
+      senderName
+      senderRole
     }
   }
 `;
