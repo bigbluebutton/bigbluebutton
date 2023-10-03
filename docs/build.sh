@@ -18,6 +18,7 @@ BRANCHES=(
 REMOTE="origin"
 
 git fetch --all
+git fetch --tags
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 for tag in "${TAGS[@]}"; do
