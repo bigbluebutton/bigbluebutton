@@ -120,7 +120,10 @@ module BigBlueButton
 
             # Check for and handle audio files with mismatched lengths (generated
             # by buggy versions of freeswitch in old BigBlueButton
-            if entry[:original_duration] && (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
+            if (audioinfo[audio[:filename]][:format][:format_name] == 'wav' ||
+                audioinfo[audio[:filename]][:audio][:codec_name] == 'vorbis') &&
+               entry[:original_duration] &&
+               (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
                ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
                       entry[:original_duration]).abs < 0.05
               BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
@@ -141,9 +144,9 @@ module BigBlueButton
               ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
             end
 
-            ffmpeg_filter << ",atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])}" if speed != 1
+            ffmpeg_filter << ',asetpts=N'
 
-            ffmpeg_filter << ",asetpts=N"
+            ffmpeg_filter << ",atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])}" if speed != 1
           else
             BigBlueButton.logger.info "  Generating silence"
 
