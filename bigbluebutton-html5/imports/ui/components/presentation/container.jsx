@@ -40,6 +40,9 @@ const PresentationContainer = (props) => {
     lockSettings: m?.lockSettings,
   }));
 
+  const isViewersCursorLocked = meeting?.lockSettings?.hideViewersCursor || true;
+  const isViewersAnnotationsLocked = meeting?.lockSettings?.hideViewersAnnotation || true;
+
   const multiUserData = {
     active: whiteboardWriters?.length > 0,
     size: whiteboardWriters?.length || 0,
@@ -61,12 +64,6 @@ const PresentationContainer = (props) => {
     presentationId: currentPresentationPage?.presentationId,
     svgUri: slideImageUrls?.svg,
   } : null;
-
-  const numPages = currentPresentationPage?.numPages;
-  const presentationIsDownloadable = currentPresentationPage?.downloadable;
-
-  const isViewersCursorLocked = meeting?.lockSettings?.hideViewersCursor || true;
-  const isViewersAnnotationsLocked = meeting?.lockSettings?.hideViewersAnnotation || true;
 
   let slidePosition;
   if (currentSlide) {
@@ -116,33 +113,6 @@ const PresentationContainer = (props) => {
 
   const { presentationIsOpen } = props;
 
-  const newProps = {
-    currentSlide,
-    slidePosition,
-    downloadPresentationUri: currentPresentationPage?.downloadFileUri,
-    multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
-    presentationIsDownloadable,
-    mountPresentation: !!currentSlide,
-    currentPresentationId: currentPresentationPage?.presentationId,
-    numPages,
-    notify,
-    zoomSlide: PresentationToolbarService.zoomSlide,
-    podId: currentSlide?.podId,
-    publishedPoll: poll?.published || false,
-    restoreOnUpdate: getFromUserSettings(
-      'bbb_force_restore_presentation_on_new_events',
-      Meteor.settings.public.presentation.restoreOnUpdate,
-    ),
-    addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
-    removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
-    multiUserSize: multiUserData.size,
-    isViewersCursorLocked,
-    setPresentationIsOpen: MediaService.setPresentationIsOpen,
-    isViewersAnnotationsLocked,
-    isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
-    presentationName: currentPresentationPage?.presentationName,
-  };
-
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -170,7 +140,6 @@ const PresentationContainer = (props) => {
         layoutContextDispatch,
         numCameras,
         ...props,
-        ...newProps,
         userIsPresenter,
         presentationBounds: presentation,
         fullscreenContext,
@@ -178,6 +147,29 @@ const PresentationContainer = (props) => {
         isMobile: deviceType === DEVICE_TYPE.MOBILE,
         isIphone,
         currentSlide,
+        slidePosition,
+        downloadPresentationUri: currentPresentationPage?.downloadFileUri,
+        multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
+        presentationIsDownloadable: currentPresentationPage?.downloadable,
+        mountPresentation: !!currentSlide,
+        currentPresentationId: currentPresentationPage?.presentationId,
+        numPages: currentPresentationPage?.numPages,
+        notify,
+        zoomSlide: PresentationToolbarService.zoomSlide,
+        podId: currentSlide?.podId,
+        publishedPoll: poll?.published || false,
+        restoreOnUpdate: getFromUserSettings(
+          'bbb_force_restore_presentation_on_new_events',
+          Meteor.settings.public.presentation.restoreOnUpdate,
+        ),
+        addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
+        removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
+        multiUserSize: multiUserData.size,
+        isViewersCursorLocked,
+        isViewersAnnotationsLocked,
+        setPresentationIsOpen: MediaService.setPresentationIsOpen,
+        isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
+        presentationName: currentPresentationPage?.presentationName,
       }
       }
     />
