@@ -15,7 +15,7 @@ import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
 import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 
-import useCurrentUser from '../../../../../core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -119,7 +119,6 @@ const UserListParticipantsContainer: React.FC = () => {
 
   const {
     data: usersData,
-    loading: usersLoading,
   } = useSubscription(USER_LIST_SUBSCRIPTION, {
     variables: {
       offset,
@@ -130,7 +129,6 @@ const UserListParticipantsContainer: React.FC = () => {
 
   const {
     data: meetingData,
-    loading: meetingLoading,
   } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION);
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
@@ -138,7 +136,6 @@ const UserListParticipantsContainer: React.FC = () => {
   const { setUserListGraphqlVariables } = useContext(PluginsContext);
   const {
     data: countData,
-    loading: countLoading,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
@@ -155,17 +152,16 @@ const UserListParticipantsContainer: React.FC = () => {
     });
   }, [offset, limit]);
 
-  if (usersLoading || meetingLoading || countLoading || !currentUser) return null;
   return (
     <>
       <UserListParticipants
-        users={users}
-        offset={offset}
+        users={users ?? []}
+        offset={offset ?? 0}
         setOffset={setOffset}
         setLimit={setLimit}
-        meeting={meeting}
-        currentUser={currentUser}
-        count={count}
+        meeting={meeting ?? {}}
+        currentUser={currentUser ?? {}}
+        count={count ?? 0}
       />
     </>
   );
