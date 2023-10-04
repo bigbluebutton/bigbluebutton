@@ -2,7 +2,6 @@ package websrv
 
 import (
 	"context"
-	"github.com/iMDT/bbb-graphql-middleware/internal/rediscli"
 	log "github.com/sirupsen/logrus"
 	"sync"
 )
@@ -36,7 +35,7 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 					browserConnection.SessionToken = sessionToken
 					BrowserConnectionsMutex.Unlock()
 
-					go rediscli.SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
+					go SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
 
 					break
 				}

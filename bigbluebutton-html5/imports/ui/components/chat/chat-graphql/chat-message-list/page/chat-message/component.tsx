@@ -85,6 +85,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
 
   const sameSender = (previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId;
+  const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
   const dateTime = new Date(message?.createdAt);
   const messageContent: {
     name: string,
@@ -123,12 +124,26 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             />
           ),
         };
+      case ChatMessageType.BREAKOUT_ROOM:
+        return {
+          name: message.senderName,
+          color: '#0F70D7',
+          isModerator: true,
+          isSystemSender: true,
+          component: (
+            <ChatMessageTextContent
+              emphasizedMessage
+              text={message.message}
+            />
+          ),
+        };
       case ChatMessageType.TEXT:
       default:
         return {
           name: message.user?.name,
           color: message.user?.color,
           isModerator: message.user?.isModerator,
+          isSystemSender: ChatMessageType.BREAKOUT_ROOM,
           component: (
             <ChatMessageTextContent
               emphasizedMessage={message?.user?.isModerator}
@@ -139,14 +154,14 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     }
   }, []);
   return (
-    <ChatWrapper sameSender={sameSender} ref={messageRef}>
+    <ChatWrapper isSystemSender={isSystemSender} sameSender={sameSender} ref={messageRef}>
       {(!message?.user || !sameSender) && (
         <ChatAvatar
           avatar={message.user?.avatar}
           color={messageContent.color}
           moderator={messageContent.isModerator}
         >
-          {message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) || '' : ''}
+          {!message.user || message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) || 'q' : 'a'}
         </ChatAvatar>
       )}
       <ChatContent sameSender={message?.user ? sameSender : false}>
