@@ -36,8 +36,6 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 					BrowserConnectionsMutex.Unlock()
 
 					go SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
-
-					break
 				}
 			}
 		}
