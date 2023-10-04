@@ -74,7 +74,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Create channels
 	fromBrowserChannel1 := make(chan interface{}, bufferSize)
-	fromBrowserChannel2 := make(chan interface{}, bufferSize)
+	fromBrowserChannel2 := common.NewSafeChannel(bufferSize)
 	toBrowserChannel := make(chan interface{}, bufferSize)
 
 	// Ensure a hasura client is running while the browser is connected
