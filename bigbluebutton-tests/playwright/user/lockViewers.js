@@ -160,7 +160,7 @@ class LockViewers extends MultiUsers {
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-    await this.userPage2.checkElementCount(e.userListItem, 1);
+    await this.userPage2.checkElementCount(e.userListItem, 2);
   }
 
   async lockSeeOtherViewersAnnotations() {
