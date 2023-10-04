@@ -43,9 +43,8 @@ const TypingIndicatorWrapper = styled.div`
     text-align: left;
     vertical-align: top;
     padding: ${borderSize} 0;
-    height: .93rem;
-    max-height: .93rem;
-    margin-bottom: .25rem;
+    height: 1.5rem;
+    max-height: 1.5rem;
 `;
 
 export default {
