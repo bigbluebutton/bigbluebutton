@@ -16,7 +16,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasActiveLockSetting
           hideUserList
           hideViewersCursor
-          hideViewersAnnotations
+          hideViewersAnnotation
           webcamsOnlyForModerator
         }
         maxPinnedCameras
