@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	"github.com/iMDT/bbb-graphql-middleware/internal/rediscli"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -21,7 +20,7 @@ func main() {
 	msgpatch.ClearAllCaches()
 
 	// Listen msgs from akka (for example to invalidate connection)
-	go rediscli.StartRedisListener()
+	go websrv.StartRedisListener()
 
 	// Websocket listener
 	// set default port
