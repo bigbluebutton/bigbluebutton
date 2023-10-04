@@ -22,6 +22,7 @@ import {
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Checkbox from '/imports/ui/components/common/checkbox/component'
+import AppService from '/imports/ui/components/app/service';
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -49,9 +50,9 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
-  webcamEffectsTitle: {
-    id: 'app.videoPreview.webcamEffectsTitle',
-    description: 'Title for the video effects modal',
+  webcamVirtualBackgroundTitle: {
+    id: 'app.videoPreview.webcamVirtualBackgroundLabel',
+    description: 'Title for the virtual background modal',
   },
   webcamSettingsTitle: {
     id: 'app.videoPreview.webcamSettingsTitle',
@@ -549,12 +550,12 @@ class VideoPreview extends Component {
   }
 
   handleProceed() {
-    const { resolve, closeModal, sharedDevices, isVisualEffects } = this.props;
+    const { resolve, closeModal, sharedDevices } = this.props;
     const { webcamDeviceId, brightness } = this.state;
     const shared = sharedDevices.includes(webcamDeviceId);
 
     if (
-      (shared || isVisualEffects)
+      (shared)
       && this.currentVideoStream.virtualBgService
       && brightness === 100
       && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
@@ -925,7 +926,6 @@ class VideoPreview extends Component {
   }
 
   renderVirtualBgSelector() {
-    const { isVisualEffects } = this.props;
     const { isStartSharingDisabled, webcamDeviceId } = this.state;
     const initialVirtualBgState = this.currentVideoStream ? {
       type: this.currentVideoStream.virtualBgType,
@@ -942,7 +942,6 @@ class VideoPreview extends Component {
         locked={isStartSharingDisabled}
         showThumbnails={SHOW_THUMBNAILS}
         initialVirtualBgState={initialVirtualBgState}
-        isVisualEffects={isVisualEffects}
       />
     );
   }
@@ -950,36 +949,30 @@ class VideoPreview extends Component {
   renderTabsContent(tabNumber) {
     const {
       cameraAsContent,
-      isVisualEffects,
     } = this.props;
-
+  
     const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled() && !cameraAsContent;
-    
-    if (isVisualEffects) {
-      return (
-        <>
-          {shouldShowVirtualBackgrounds && this.renderVirtualBgSelector()}
-        </>
-      );
-    }
-
-    switch (tabNumber) {
-      case 0:
-        return (
+  
+    const containerStyle = {
+      width: '60%',
+      height: '25vh', 
+    };
+  
+    return (
+      <div style={containerStyle}>
+        {tabNumber === 0 && (
           <Styled.Col>
             {this.renderDeviceSelectors()}
             {this.renderBrightnessInput()}
           </Styled.Col>
-        );
-      case 1:
-        return (
+        )}
+        {tabNumber === 1 && shouldShowVirtualBackgrounds && (
           <Styled.Col>
-            {shouldShowVirtualBackgrounds && this.renderVirtualBgSelector()}
+            {this.renderVirtualBgSelector()}
           </Styled.Col>
-        );
-      default:
-        return null;
-    }
+        )}
+      </div>
+    );
   }
 
   renderContent(selectedTab) {
@@ -1055,7 +1048,6 @@ class VideoPreview extends Component {
       hasVideoStream,
       forceOpen,
       camCapReached,
-      isVisualEffects,
       closeModal,
     } = this.props;
 
@@ -1070,6 +1062,8 @@ class VideoPreview extends Component {
     && !(deviceError || previewError);
 
     const shared = this.isAlreadyShared(webcamDeviceId);
+
+    const showStopAllButton = hasVideoStream && VideoService.isMultipleCamerasEnabled();
 
     const { isIe } = browserInfo;
 
@@ -1090,45 +1084,43 @@ class VideoPreview extends Component {
 
         {this.renderContent(selectedTab)}
 
-        {!isVisualEffects ? (
-          <Styled.Footer>
-            <Styled.BottomSeparator /> 
-            {hasVideoStream && VideoService.isMultipleCamerasEnabled()
-              ? (
+        <Styled.Footer>
+          <Styled.BottomSeparator />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: showStopAllButton ? 'flex-start' : 'flex-end' }}>
+              {showStopAllButton ? (
                 <Styled.ExtraActions>
-                  <Button
+                  <Styled.StopAllButton
                     color="danger"
                     label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
                     onClick={this.handleStopSharingAll}
                     disabled={shouldDisableButtons}
                   />
                 </Styled.ExtraActions>
-              )
-              : null
-            }
-            <Styled.Actions>
-              {!shared && camCapReached ? (
-                <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
-              ) : (
-                <div style={{ display: 'flex' }}>
-                <Styled.CancelButton
-                  data-test="cancelSharingWebcam"
-                  label={intl.formatMessage(intlMessages.cancelLabel)}
-                  onClick={closeModal}
-                  disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
-                />
-                <Styled.SharingButton
-                  data-test="startSharingWebcam"
-                  color={shared ? 'danger' : 'primary'}
-                  label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
-                  onClick={shared ? this.handleStopSharing : this.handleStartSharing}
-                  disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
-                />
-              </div>
-              )}
-            </Styled.Actions>
-          </Styled.Footer>
-        ) : null }
+              ) : null}
+              <Styled.Actions>
+                {!shared && camCapReached ? (
+                  <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
+                ) : (
+                  <div style={{ display: 'flex' }}>
+                    <div>
+                      <Styled.CancelButton
+                        data-test="cancelSharingWebcam"
+                        label={intl.formatMessage(intlMessages.cancelLabel)}
+                        onClick={closeModal}
+                      />
+                      <Styled.SharingButton
+                        data-test="startSharingWebcam"
+                        color={shared ? 'danger' : 'primary'}
+                        label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+                        onClick={shared ? this.handleStopSharing : this.handleStartSharing}
+                        disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
+                      />
+                    </div>
+                  </div>
+                )}
+              </Styled.Actions>
+            </div>
+        </Styled.Footer>
       </>
     );
   }
@@ -1144,7 +1136,6 @@ class VideoPreview extends Component {
       intl,
       isCamLocked,
       forceOpen,
-      isVisualEffects,
       isOpen,
       priority,
     } = this.props;
@@ -1155,6 +1146,8 @@ class VideoPreview extends Component {
     const BASE_NAME = window.meetingClientSettings.public.app.basename;
     const WebcamSettingsImg = `${BASE_NAME}/resources/images/webcam_settings.svg`;
     const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
+
+    const darkThemeState = AppService.isDarkThemeEnabled();
 
     if (isCamLocked === true) {
       this.handleProceed();
@@ -1198,6 +1191,7 @@ class VideoPreview extends Component {
                 <Styled.WebcamTabSelector selectedClassName="is-selected">
                   <Styled.IconSvg
                     src={WebcamSettingsImg}
+                    darkThemeState={darkThemeState}
                   />
                   <span 
                     id="backgrounds-title">{intl.formatMessage(intlMessages.webcamSettingsTitle)}
@@ -1207,9 +1201,10 @@ class VideoPreview extends Component {
                 <Styled.WebcamTabSelector selectedClassName="is-selected">
                   <Styled.IconSvg
                     src={WebcamBackgroundImg}
+                    darkThemeState={darkThemeState}
                   />
                   <span
-                    id="webcam-settings-title">{intl.formatMessage(intlMessages.webcamEffectsTitle)}
+                    id="webcam-settings-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}
                   </span>
                 </Styled.WebcamTabSelector>
               </Styled.WebcamTabList>

@@ -327,6 +327,10 @@ const IconSvg = styled.img`
   border-radius: 5px;
   margin: 5px;
 
+  ${({ darkThemeState }) => darkThemeState && css`
+      filter: invert(1);
+    `}
+
 `;
 
 const SharingButton = styled(Button)`
@@ -336,6 +340,12 @@ const SharingButton = styled(Button)`
   font-weight: bold;
   text-transform: uppercase;
   font-size: ${fontSizeSmall};
+
+  &:hover {
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.2s, color 0.2s, transform 0.2s;
+  }
 `;
 
 const CancelButton = styled(Button)`
@@ -348,6 +358,30 @@ const CancelButton = styled(Button)`
   font-weight: bold;
   text-transform: uppercase;
   font-size: ${fontSizeSmall};
+
+  &:hover {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: red;
+    transition: background-color 0.2s, transform 0.2s; 
+  }
+
+`;
+
+const StopAllButton = styled(Button)`
+  border: 1px solid red;
+  margin: 0 0.5rem;
+  border-radius: 5px;
+  height: 2.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: ${fontSizeSmall};
+
+  &:hover {
+    background-color: #cc0000;
+    color: white;
+    transition: background-color 0.2s, color 0.2s, transform 0.2s;
+  }
+
 `;
 
 export default {
@@ -367,6 +401,7 @@ export default {
   IconSvg,
   SharingButton,
   CancelButton,
+  StopAllButton,
   Label,
   Select,
   Content,
