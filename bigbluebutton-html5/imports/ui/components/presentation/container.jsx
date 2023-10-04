@@ -60,7 +60,6 @@ const PresentationContainer = (props) => {
     id: currentPresentationPage.pageId,
     imageUri: slideImageUrls.svg,
     num: currentPresentationPage?.num,
-    podId: 'DEFAULT_PRESENTATION_POD', // TODO: remove this when is not needed anymore
     presentationId: currentPresentationPage?.presentationId,
     svgUri: slideImageUrls?.svg,
   } : null;
@@ -131,6 +130,9 @@ const PresentationContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
+  // TODO: remove this when is not needed anymore
+  const podId = 'DEFAULT_PRESENTATION_POD';
+
   if (!currentSlide) return null;
 
   return (
@@ -156,7 +158,7 @@ const PresentationContainer = (props) => {
         numPages: currentPresentationPage?.numPages,
         notify,
         zoomSlide: PresentationToolbarService.zoomSlide,
-        podId: currentSlide?.podId,
+        podId,
         publishedPoll: poll?.published || false,
         restoreOnUpdate: getFromUserSettings(
           'bbb_force_restore_presentation_on_new_events',
