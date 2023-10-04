@@ -4,7 +4,12 @@ import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
 } from './queries';
-import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
+import {
+  defineMessages,
+  FormattedMessage,
+  useIntl,
+  IntlShape,
+} from 'react-intl';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -24,7 +29,7 @@ const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 
 interface TypingIndicatorProps {
   typingUsers: Array<User>,
-  intl: object,
+  intl: IntlShape,
 }
 
 const messages = defineMessages({
