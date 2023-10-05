@@ -132,11 +132,13 @@ const isWebSpeechApi = () => PROVIDER === 'webspeech';
 
 const isVosk = () => PROVIDER === 'vosk';
 
+const isGladia = () => PROVIDER === 'gladia';
+
 const isWhispering = () => PROVIDER === 'whisper';
 
 const isDeepSpeech = () => PROVIDER === 'deepSpeech'
 
-const isActive = () => isEnabled() && ((isWebSpeechApi() && hasSpeechLocale()) || isVosk() || isWhispering() || isDeepSpeech());
+const isActive = () => isEnabled() && ((isWebSpeechApi() && hasSpeechLocale()) || isVosk() || isGladia() || isWhispering() || isDeepSpeech());
 
 const getStatus = () => {
   const active = isActive();
@@ -163,7 +165,7 @@ const getLocale = () => {
   return locale;
 };
 
-const stereoUnsupported = () => isActive() && isVosk() && !!getSpeechLocale();
+const stereoUnsupported = () => isActive() && (isVosk() || isGladia()) && !!getSpeechLocale();
 
 export default {
   LANGUAGES,

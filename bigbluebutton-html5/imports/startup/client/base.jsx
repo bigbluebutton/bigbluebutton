@@ -98,6 +98,7 @@ class Base extends Component {
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, this.handleFullscreenChange);
     });
+    Session.set('audioCaptions', true);
     Session.set('isFullscreen', false);
   }
 
