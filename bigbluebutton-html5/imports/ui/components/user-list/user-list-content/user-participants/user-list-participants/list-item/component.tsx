@@ -59,7 +59,31 @@ interface UserListItemProps {
   lockSettings: LockSettings;
 }
 
+const renderUserListItemIconsFromPlugin = (
+  userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformation[],
+) => userItemsFromPlugin.filter(
+  (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.ICON,
+).map((item: PluginSdk.UserListItemAdditionalInformation) => {
+  const itemToRender = item as PluginSdk.UserListItemIcon;
+  return (
+    <Styled.IconRightContainer
+      key={item.id}
+    >
+      <Icon iconName={itemToRender.icon} />
+    </Styled.IconRightContainer>
+  );
+});
+
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformation[];
+  if (pluginsProvidedAggregatedState.userListItemAdditionalInformation) {
+    userItemsFromPlugin = pluginsProvidedAggregatedState.userListItemAdditionalInformation.filter((item) => {
+      const userListItem = item as PluginSdk.UserListItemAdditionalInformation;
+      return userListItem.userId === user.userId;
+    }) as PluginSdk.UserListItemAdditionalInformation[];
+  }
+
   const intl = useIntl();
   const voiceUser = user.voice;
   const subs = [
@@ -91,6 +115,18 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         {intl.formatMessage(messages.sharingWebcam)}
       </span>
     ),
+    ...userItemsFromPlugin.filter(
+      (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.LABEL,
+    ).map((item) => {
+      const itemToRender = item as PluginSdk.UserListItemLabel;
+      return (
+        <span key={itemToRender.id}>
+          { itemToRender.icon
+            && <Icon iconName={itemToRender.icon} /> }
+          {itemToRender.label}
+        </span>
+      );
+    }),
   ].filter(Boolean);
 
   const reactionsEnabled = isReactionsEnabled();
@@ -123,17 +159,6 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     ? user.lastBreakoutRoom?.sequence
     : iconUser;
 
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
-  let iconRight = '';
-  if (pluginsProvidedAggregatedState.userListIconItems) {
-    const userListIconObject = pluginsProvidedAggregatedState.userListIconItems.find((item) => {
-      const userListIcon = item as PluginSdk.UserListIcon;
-      return userListIcon.userId === user.userId;
-    }) as PluginSdk.UserListIcon;
-    if (userListIconObject) {
-      iconRight = userListIconObject.icon;
-    }
-  }
   return (
     <Styled.UserItemContents data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
@@ -170,14 +195,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
-      {
-        iconRight
-          ? (
-            <Styled.IconRightContainer>
-              <Icon iconName={iconRight} />
-            </Styled.IconRightContainer>
-          ) : null
-      }
+      {renderUserListItemIconsFromPlugin(userItemsFromPlugin)}
     </Styled.UserItemContents>
   );
 };
