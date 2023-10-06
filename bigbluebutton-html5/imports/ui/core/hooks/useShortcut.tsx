@@ -15,7 +15,7 @@ export function useShortcut(param: string): string {
   const [shortcut, setShortcut] = useState<string>('');
 
   useEffect(() => {
-    const ENABLED_SHORTCUTS = getFromUserSettings('bbb_shortcuts');
+    const ENABLED_SHORTCUTS = getFromUserSettings('bbb_shortcuts', null);
     const filteredShortcuts: ShortcutObject[] = Object.values(BASE_SHORTCUTS).filter(
       (el: ShortcutObject) => (ENABLED_SHORTCUTS ? ENABLED_SHORTCUTS.includes(el.descId) : true),
     );
