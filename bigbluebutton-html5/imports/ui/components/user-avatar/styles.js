@@ -118,7 +118,7 @@ const Avatar = styled.div`
     width: 0;
     height: 0;
     padding-top: .5rem;
-    padding-right: ${({ isSafari }) => isSafari ? '.6rem' : '0'};
+    padding-right: ${({ isIos }) => isIos ? '.6rem;' : '0;'};;
     padding-left: 0;
     padding-bottom: 0;
     color: inherit;
@@ -170,6 +170,7 @@ const Avatar = styled.div`
 
       [dir="rtl"] & {
         left: auto;
+        padding-right: .3rem !important;
         right: ${userIndicatorsOffset};
         letter-spacing: -.33rem;
       }
@@ -192,6 +193,7 @@ const Avatar = styled.div`
 
       [dir="rtl"] & {
         left: auto;
+        padding-right: .3rem !important;
         right: ${userIndicatorsOffset};
         letter-spacing: -.33rem;
         transform: scale(-1, 1);
