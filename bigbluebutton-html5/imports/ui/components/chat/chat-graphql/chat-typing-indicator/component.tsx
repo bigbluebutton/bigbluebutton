@@ -4,13 +4,19 @@ import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
 } from './queries';
-import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
+import {
+  defineMessages,
+  FormattedMessage,
+  useIntl,
+  IntlShape,
+} from 'react-intl';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
 import useChat from '/imports/ui/core/hooks/useChat';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Chat } from '/imports/ui/Types/chat';
 
 const DEBUG_CONSOLE = false;
@@ -23,7 +29,7 @@ const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 
 interface TypingIndicatorProps {
   typingUsers: Array<User>,
-  indicatorEnabled: boolean,
+  intl: IntlShape,
 }
 
 const messages = defineMessages({
@@ -35,12 +41,8 @@ const messages = defineMessages({
 
 const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   typingUsers,
-  indicatorEnabled,
+  intl,
 }) => {
-  const intl = useIntl();
-
-  if (!indicatorEnabled || !typingUsers) return null;
-
   const { length } = typingUsers;
   const isSingleTyper = length === 1;
   const isCoupleTyper = length === 2;
@@ -108,9 +110,12 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
 
 const TypingIndicatorContainer: React.FC = () => {
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
+  const intl = useIntl();
   const currentUser = useCurrentUser((user: Partial<User>) => {
     return {
       userId: user.userId,
+      isModerator: user.isModerator,
+      locked: user.locked,
     };
   });
   // eslint-disable-next-line no-unused-expressions, no-console
@@ -122,6 +127,27 @@ const TypingIndicatorContainer: React.FC = () => {
       public: c?.public,
     };
   }, idChatOpen) as Partial<Chat>;
+
+  const meeting = useMeeting((m) => ({
+    lockSettings: m?.lockSettings,
+  }));
+
+  const isLocked = currentUser?.locked;
+  const isModerator = currentUser?.isModerator;
+  const isPublicChat = chat?.public;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat;
+  const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
+
+  let locked = false;
+
+  if (!isModerator) {
+    if (isPublicChat) {
+      locked = (isLocked && disablePublicChat) || false;
+    } else {
+      locked = (isLocked && disablePrivateChat) || false;
+    }
+  }
+
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:chat', chat);
   const typingQuery = idChatOpen === PUBLIC_GROUP_CHAT_KEY ? IS_TYPING_PUBLIC_SUBSCRIPTION
@@ -154,10 +180,12 @@ const TypingIndicatorContainer: React.FC = () => {
     .filter((user: { user: object; userId: string; }) => user?.user && user?.userId !== currentUser?.userId)
     .map((user: { user: object; }) => user.user);
 
+  if (locked || !TYPING_INDICATOR_ENABLED || !typingUsers) return null;
+
   return (
     <TypingIndicator
       typingUsers={typingUsersArray}
-      indicatorEnabled={TYPING_INDICATOR_ENABLED}
+      intl={intl}
     />
   );
 };
