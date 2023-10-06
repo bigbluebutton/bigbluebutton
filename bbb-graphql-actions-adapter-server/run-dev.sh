@@ -15,4 +15,3 @@ fi
 
 sudo systemctl stop bbb-graphql-actions-adapter-server
 npm start
-xxx
