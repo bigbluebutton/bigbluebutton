@@ -15,13 +15,13 @@ export function useShortcut(param: string): string {
   const [shortcut, setShortcut] = useState<string>('');
 
   useEffect(() => {
-    const ENABLED_SHORTCUTS = getFromUserSettings('bbb_shortcuts', null);
+    const ENABLED_SHORTCUTS = getFromUserSettings('bbb_shortcuts');
     const filteredShortcuts: ShortcutObject[] = Object.values(BASE_SHORTCUTS).filter(
       (el: ShortcutObject) => (ENABLED_SHORTCUTS ? ENABLED_SHORTCUTS.includes(el.descId) : true),
     );
 
     const shortcutsString: string = filteredShortcuts
-      .filter((el) => el.descId === param.toLowerCase())
+      .filter((el) => el.descId.toLowerCase() === param.toLowerCase())
       .map((el) => el.accesskey)
       .pop() || '';
 
