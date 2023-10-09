@@ -76,7 +76,6 @@ export default withTracker(() => ({
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   handleTakePresenter: Service.takePresenterRole,
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
-  parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),

@@ -72,7 +72,6 @@ export default withTracker((params) => {
     isMeteorConnected: Meteor.status().connected,
     isPollingEnabled: isPollingEnabled(),
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
-    parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     startPoll,
   };
 })(PresentationToolbarContainer);

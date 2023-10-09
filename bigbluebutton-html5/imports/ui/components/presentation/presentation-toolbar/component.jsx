@@ -341,7 +341,6 @@ class PresentationToolbar extends PureComponent {
       isPollingEnabled,
       amIPresenter,
       currentSlidHasContent,
-      parseCurrentSlideContent,
       startPoll,
       currentSlide,
       slidePosition,
@@ -377,7 +376,6 @@ class PresentationToolbar extends PureComponent {
                 currentSlidHasContent,
                 intl,
                 amIPresenter,
-                parseCurrentSlideContent,
                 startPoll,
                 currentSlide,
               }}
@@ -543,7 +541,6 @@ PresentationToolbar.propTypes = {
   isPollingEnabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
   currentSlidHasContent: PropTypes.bool.isRequired,
-  parseCurrentSlideContent: PropTypes.func.isRequired,
   startPoll: PropTypes.func.isRequired,
   currentSlide: PropTypes.shape().isRequired,
   slidePosition: PropTypes.shape().isRequired,
