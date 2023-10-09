@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
-import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const propTypes = {
   children: PropTypes.node,
@@ -37,7 +37,7 @@ const defaultProps = {
 };
 
 const { animations } = Settings.application;
-const { isChrome, isFirefox, isEdge } = browserInfo;
+const { isIos } = deviceInfo;
 
 const UserAvatar = ({
   children,
@@ -70,10 +70,7 @@ const UserAvatar = ({
         listenOnly={listenOnly}
         voice={voice}
         noVoice={noVoice && !listenOnly}
-        isChrome={isChrome}
-        isFirefox={isFirefox}
-        isEdge={isEdge}
-        className={className}
+        isIos={isIos}
         style={{
           backgroundColor: color,
           color, // We need the same color on both for the border
