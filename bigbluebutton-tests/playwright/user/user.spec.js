@@ -197,7 +197,7 @@ test.describe.parallel('User', () => {
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-in-the-users-list
-      test('Lock See other viewers in the Users list @flaky', async ({ browser, context, page }) => {
+      test('Lock See other viewers in the Users list', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersUserList();

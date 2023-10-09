@@ -21,7 +21,7 @@ export function useShortcut(param: string): string {
     );
 
     const shortcutsString: string = filteredShortcuts
-      .filter((el) => el.descId === param.toLowerCase())
+      .filter((el) => el.descId.toLowerCase() === param.toLowerCase())
       .map((el) => el.accesskey)
       .pop() || '';
 
