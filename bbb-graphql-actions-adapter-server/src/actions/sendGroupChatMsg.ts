@@ -4,7 +4,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const eventName = `SendGroupChatMessageMsg`;
 
   const routing = {
-    meetingId: sessionVariables['x-hasura-lockedinmeeting'] as String,
+    meetingId: sessionVariables['x-hasura-meetingid'] as String,
     userId: sessionVariables['x-hasura-userid'] as String
   };
 

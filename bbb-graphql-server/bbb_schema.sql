@@ -158,7 +158,8 @@ create table "meeting_lockSettings" (
     "hideUserList"           boolean,
     "lockOnJoin"             boolean,
     "lockOnJoinConfigurable" boolean,
-    "hideViewersCursor"      boolean
+    "hideViewersCursor"      boolean,
+    "hideViewersAnnotation"  boolean
 );
 create index "idx_meeting_lockSettings_meetingId" on "meeting_lockSettings"("meetingId");
 
@@ -172,6 +173,7 @@ SELECT
 	mls."disableNotes",
 	mls."hideUserList",
 	mls."hideViewersCursor",
+	mls."hideViewersAnnotation",
 	mup."webcamsOnlyForModerator",
 	CASE WHEN
 	mls."disableCam" IS TRUE THEN TRUE
@@ -181,6 +183,7 @@ SELECT
 	WHEN mls."disableNotes"  IS TRUE THEN TRUE
 	WHEN mls."hideUserList"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersCursor"  IS TRUE THEN TRUE
+	WHEN mls."hideViewersAnnotation"  IS TRUE THEN TRUE
 	WHEN mup."webcamsOnlyForModerator"  IS TRUE THEN TRUE
 	ELSE FALSE
 	END "hasActiveLockSetting"

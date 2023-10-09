@@ -17,6 +17,7 @@ import {
 
 interface ChatWrapperProps {
   sameSender: boolean;
+  isSystemSender: boolean;
 }
 
 interface ChatContentProps {
@@ -50,6 +51,12 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     margin: ${borderSize} ${borderSize} 0 0;
   }
   font-size: ${fontSizeBase};
+  ${({ isSystemSender }) => isSystemSender && `
+    background-color: #fef9f1;
+    border-left: 2px solid #f5c67f;
+    border-radius: 0px 3px 3px 0px;
+    padding: 8px 2px;
+  `}
 `;
 
 export const ChatContent = styled.div<ChatContentProps>`
@@ -118,7 +125,7 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   ${({ moderator }) => moderator && `
     border-radius: 5px;
   `}
-
+  
   // ================ image ================
   ${({ avatar, emoji, color }) => avatar?.length !== 0 && !emoji && css`
       background-image: url(${avatar});
@@ -136,7 +143,7 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   justify-content: center;
   align-items:center;
   // ================ content ================
-
+  
   & .react-loading-skeleton {
     height: 2.25rem;
     width: 2.25rem;

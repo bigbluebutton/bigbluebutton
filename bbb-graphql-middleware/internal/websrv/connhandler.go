@@ -6,7 +6,6 @@ import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/hascli"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	"github.com/iMDT/bbb-graphql-middleware/internal/rediscli"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/reader"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/writer"
 	log "github.com/sirupsen/logrus"
@@ -65,7 +64,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		sessionTokenRemoved := BrowserConnections[browserConnectionId].SessionToken
 		delete(BrowserConnections, browserConnectionId)
 		BrowserConnectionsMutex.Unlock()
-		go rediscli.SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
+		go SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
 
 		log.Infof("connection removed")
 	}()
@@ -75,7 +74,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Create channels
 	fromBrowserChannel1 := make(chan interface{}, bufferSize)
-	fromBrowserChannel2 := make(chan interface{}, bufferSize)
+	fromBrowserChannel2 := common.NewSafeChannel(bufferSize)
 	toBrowserChannel := make(chan interface{}, bufferSize)
 
 	// Ensure a hasura client is running while the browser is connected
@@ -136,7 +135,7 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 				browserConnection.HasuraConnection.ContextCancelFunc()
 				log.Debugf("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
 
-				//go SendInvalidatedUserGraphqlConnectionEvtMsg(browserConnection.SessionToken)
+				go SendUserGraphqlConnectionInvalidatedEvtMsg(browserConnection.SessionToken)
 			}
 		}
 	}
