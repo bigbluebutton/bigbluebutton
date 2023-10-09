@@ -2,6 +2,7 @@ package reader
 
 import (
 	"context"
+	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
@@ -9,12 +10,14 @@ import (
 	"time"
 )
 
-func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromBrowserChannel1 chan interface{}, fromBrowserChannel2 chan interface{}, waitGroups []*sync.WaitGroup) {
+func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromBrowserChannel1 chan interface{}, fromBrowserChannel2 *common.SafeChannel, waitGroups []*sync.WaitGroup) {
 	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnectionId)
+	defer log.Debugf("finished")
+	log.Debugf("starting")
 
 	defer func() {
 		close(fromBrowserChannel1)
-		close(fromBrowserChannel2)
+		fromBrowserChannel2.Close()
 	}()
 
 	defer func() {
@@ -26,12 +29,12 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 		time.Sleep(100 * time.Millisecond)
 	}()
 
-	defer log.Debugf("finished")
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	fromBrowserChannel2Alive := true
 
 	for {
-		ctx, cancel := context.WithCancel(ctx)
-		defer cancel()
-
 		var v interface{}
 		err := wsjson.Read(ctx, c, &v)
 		if err != nil {
@@ -42,6 +45,8 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 		log.Tracef("received from browser: %v", v)
 
 		fromBrowserChannel1 <- v
-		fromBrowserChannel2 <- v
+		if fromBrowserChannel2Alive {
+			fromBrowserChannel2Alive = fromBrowserChannel2.Send(v)
+		}
 	}
 }

@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import TimerService from '/imports/ui/components/timer/service';
 import logger from '/imports/startup/client/logger';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 
@@ -27,6 +29,33 @@ const propTypes = {
   isModerator: PropTypes.bool.isRequired,
   currentTrack: PropTypes.bool.isRequired,
 };
+
+const intlMessages = defineMessages({
+  toolTipTimerStopped: {
+    id: 'app.timer.toolTipTimerStopped',
+  },
+  toolTipTimerRunning: {
+    id: 'app.timer.toolTipTimerRunning',
+  },
+  toolTipStopwatchStopped: {
+    id: 'app.timer.toolTipStopwatchStopped',
+  },
+  toolTipStopwatchRunning: {
+    id: 'app.timer.toolTipStopwatchRunning',
+  },
+  toolTipTimerStoppedMod: {
+    id: 'app.timer.toolTipTimerStoppedMod',
+  },
+  toolTipTimerRunningMod: {
+    id: 'app.timer.toolTipTimerRunningMod',
+  },
+  toolTipStopwatchStoppedMod: {
+    id: 'app.timer.toolTipStopwatchStoppedMod',
+  },
+  toolTipStopwatchRunningMod: {
+    id: 'app.timer.toolTipStopwatchRunningMod',
+  },
+});
 
 class Indicator extends Component {
   constructor(props) {
@@ -356,8 +385,9 @@ class Indicator extends Component {
       sidebarNavigationIsOpen,
       sidebarContentIsOpen,
       currentTrack,
+      intl,
     } = this.props;
-    const { running } = timer;
+    const { stopwatch, running } = timer;
     const trackChanged = this.music?.track !== currentTrack;
     if (trackChanged) {
       this.setUpMusic();
@@ -365,30 +395,61 @@ class Indicator extends Component {
 
     const onClick = running ? TimerService.stopTimer : TimerService.startTimer;
     this.updateTabTitleTimer(false, time);
+
+    const title = () => {
+      if (isModerator) {
+        if (stopwatch && !running) {
+          return intl.formatMessage(intlMessages.toolTipStopwatchStoppedMod);
+        } if (stopwatch && running) {
+          return intl.formatMessage(intlMessages.toolTipStopwatchRunningMod);
+        } if (!stopwatch) {
+          if (running) {
+            return intl.formatMessage(intlMessages.toolTipTimerRunningMod);
+          } if (!running) {
+            return intl.formatMessage(intlMessages.toolTipTimerStoppedMod);
+          }
+        }
+      }
+      if (stopwatch && !running) {
+        return intl.formatMessage(intlMessages.toolTipStopwatchStopped);
+      } if (stopwatch && running) {
+        return intl.formatMessage(intlMessages.toolTipStopwatchRunning);
+      } if (!stopwatch) {
+        if (running) {
+          return intl.formatMessage(intlMessages.toolTipTimerRunning);
+        } if (!running) {
+          return intl.formatMessage(intlMessages.toolTipTimerStopped);
+        }
+      }
+    };
     return (
       <Styled.TimerWrapper>
-        <Styled.Timer>
-          <Styled.TimerButton
-            running={running}
-            disabled={!isModerator}
-            hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
-            role="button"
-            tabIndex={0}
-            onClick={isModerator ? onClick : null}
-          >
-            <Styled.TimerContent>
-              <Styled.TimerIcon>
-                <Icon iconName="time" />
-              </Styled.TimerIcon>
-              <Styled.TimerTime
-                aria-hidden
-                ref={this.timeRef}
-              >
-                {time}
-              </Styled.TimerTime>
-            </Styled.TimerContent>
-          </Styled.TimerButton>
-        </Styled.Timer>
+        <Tooltip
+          title={title}
+        >
+          <Styled.Timer>
+            <Styled.TimerButton
+              running={running}
+              disabled={!isModerator}
+              hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+              role="button"
+              tabIndex={0}
+              onClick={isModerator ? onClick : null}
+            >
+              <Styled.TimerContent>
+                <Styled.TimerIcon>
+                  <Icon iconName="time" />
+                </Styled.TimerIcon>
+                <Styled.TimerTime
+                  aria-hidden
+                  ref={this.timeRef}
+                >
+                  {time}
+                </Styled.TimerTime>
+              </Styled.TimerContent>
+            </Styled.TimerButton>
+          </Styled.Timer>
+        </Tooltip>
       </Styled.TimerWrapper>
     );
   }
@@ -396,4 +457,4 @@ class Indicator extends Component {
 
 Indicator.propTypes = propTypes;
 
-export default Indicator;
+export default injectIntl(Indicator);

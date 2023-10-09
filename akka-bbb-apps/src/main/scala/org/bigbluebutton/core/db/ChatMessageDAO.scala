@@ -11,7 +11,7 @@ case class ChatMessageDbModel(
     chatId:             String,
     meetingId:          String,
     correlationId:      String,
-    createdTime:        Long,
+    createdAt:          java.sql.Timestamp,
     chatEmphasizedText: Boolean,
     message:            String,
     messageType:        String,
@@ -26,7 +26,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   val chatId = column[String]("chatId")
   val meetingId = column[String]("meetingId")
   val correlationId = column[String]("correlationId")
-  val createdTime = column[Long]("createdTime")
+  val createdAt = column[java.sql.Timestamp]("createdAt")
   val chatEmphasizedText = column[Boolean]("chatEmphasizedText")
   val message = column[String]("message")
   val messageType = column[String]("messageType")
@@ -37,7 +37,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
 
-  override def * = (messageId, chatId, meetingId, correlationId, createdTime, chatEmphasizedText, message, messageType, messageMetadata, senderId, senderName, senderRole) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
+  override def * = (messageId, chatId, meetingId, correlationId, createdAt, chatEmphasizedText, message, messageType, messageMetadata, senderId, senderName, senderRole) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
 }
 
 object ChatMessageDAO {
@@ -49,7 +49,7 @@ object ChatMessageDAO {
           chatId = chatId,
           meetingId = meetingId,
           correlationId = groupChatMessage.correlationId,
-          createdTime = groupChatMessage.timestamp,
+          createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
           chatEmphasizedText = groupChatMessage.chatEmphasizedText,
           message = groupChatMessage.message,
           messageType = "default",
@@ -78,7 +78,7 @@ object ChatMessageDAO {
           chatId = chatId,
           meetingId = meetingId,
           correlationId = "",
-          createdTime = System.currentTimeMillis(),
+          createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
           chatEmphasizedText = false,
           message = message,
           messageType = messageType,

@@ -401,6 +401,12 @@ const UserNameSub = styled.span`
   }
 `;
 
+// ======================== Icon Right Container ========================
+
+const IconRightContainer = styled.div`
+  margin: .25rem;  
+`;
+
 export default {
   Avatar,
   Skeleton,
@@ -408,4 +414,5 @@ export default {
   UserNameContainer,
   UserNameSub,
   UserName,
+  IconRightContainer,
 };

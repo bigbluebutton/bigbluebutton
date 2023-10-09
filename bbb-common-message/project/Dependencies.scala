@@ -19,6 +19,7 @@ object Dependencies {
     val sl4j = "1.7.32"
     val pool = "2.11.1"
     val codec = "1.15"
+    val jacksonDataFormat = "2.13.5"
 
     // Redis
     val lettuce = "6.1.5.RELEASE"
@@ -40,6 +41,7 @@ object Dependencies {
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
 
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
+    val jacksonDataFormat = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jacksonDataFormat
   }
 
   object Test {
@@ -64,5 +66,6 @@ object Dependencies {
     Compile.sl4jApi,
     Compile.commonsCodec,
     Compile.apachePool2,
-    Compile.lettuceCore) ++ testing
+    Compile.lettuceCore,
+    Compile.jacksonDataFormat) ++ testing
 }

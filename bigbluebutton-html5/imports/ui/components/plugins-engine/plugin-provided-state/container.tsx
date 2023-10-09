@@ -8,6 +8,14 @@ import {
 import PresentationToolbarPluginStateContainer from './presentation-toolbar/container';
 import UserListDropdownPluginStateContainer from './user-list-dropdown/container';
 import ActionButtonDropdownPluginStateContainer from './action-button-dropdown/container';
+import AudioSettingsDropdownPluginStateContainer from './audio-settings-dropdown/container';
+import ActionBarPluginStateContainer from './action-bar/container';
+import PresentationDropdownPluginStateContainer from './presentation-dropdown/container';
+import NavBarPluginStateContainer from './nav-bar/container';
+import OptionsDropdownPluginStateContainer from './options-dropdown/container';
+import CameraSettingsDropdownPluginStateContainer from './camera-settings-dropdown/container';
+import UserCameraDropdownPluginStateContainer from './user-camera-dropdown/container';
+import UserListItemAdditionalInformationPluginStateContainer from './user-list-item-additional-information/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
@@ -15,6 +23,14 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   PresentationToolbarPluginStateContainer,
   UserListDropdownPluginStateContainer,
   ActionButtonDropdownPluginStateContainer,
+  AudioSettingsDropdownPluginStateContainer,
+  ActionBarPluginStateContainer,
+  PresentationDropdownPluginStateContainer,
+  NavBarPluginStateContainer,
+  OptionsDropdownPluginStateContainer,
+  CameraSettingsDropdownPluginStateContainer,
+  UserCameraDropdownPluginStateContainer,
+  UserListItemAdditionalInformationPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
