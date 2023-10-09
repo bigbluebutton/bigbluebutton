@@ -52,6 +52,7 @@ const MEETING_SUBSCRIPTION = gql`
           moderatorsCanUnmuteAudio
           userCameraCap
           webcamsOnlyForModerator
+          guestLobbyMessage
         }
         isBreakout
         breakoutPolicies {
@@ -76,4 +77,5 @@ const MEETING_SUBSCRIPTION = gql`
       }
   }
 `;
+
 export default MEETING_SUBSCRIPTION;

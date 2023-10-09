@@ -41,7 +41,7 @@ trait PresentationPageCountErrorPubMsgHdlr {
       pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
       pres <- pod.getPresentation(msg.body.presentationId)
     } yield {
-      val presWithError = PresentationInPod(pres.id, pres.name, pres.current, pres.pages, pres.downloadable, pres.removable,
+      val presWithError = PresentationInPod(pres.id, pres.name, pres.default, pres.current, pres.pages, pres.downloadable, pres.removable,
         pres.filenameConverted, pres.uploadCompleted, msg.body.numberOfPages, msg.body.messageKey, errorDetails)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithError)

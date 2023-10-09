@@ -2,23 +2,30 @@ package websrv
 
 import (
 	"context"
+	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"sync"
 )
 
-func SessionTokenReader(connectionId string, browserConnectionContext context.Context, fromBrowser chan interface{}, wg *sync.WaitGroup) {
-	log := log.WithField("_routine", "SessionTokenReader")
+func ConnectionInitHandler(browserConnectionId string, browserConnectionContext context.Context, fromBrowser *common.SafeChannel, wg *sync.WaitGroup) {
+	log := log.WithField("_routine", "ConnectionInitHandler").WithField("browserConnectionId", browserConnectionId)
+
+	log.Debugf("starting")
 
 	defer wg.Done()
 	defer log.Debugf("finished")
 
 	BrowserConnectionsMutex.RLock()
-	browserConnection := BrowserConnections[connectionId]
+	browserConnection := BrowserConnections[browserConnectionId]
 	BrowserConnectionsMutex.RUnlock()
 
 	// Intercept the fromBrowserMessage channel to get the sessionToken
-	for fromBrowserMessage := range fromBrowser {
-		// Gets the sessionToken
+	for {
+		fromBrowserMessage, ok := fromBrowser.Receive()
+		if !ok {
+			//Received all messages. Channel is closed
+			return
+		}
 		if browserConnection.SessionToken == "" {
 			var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
@@ -29,7 +36,13 @@ func SessionTokenReader(connectionId string, browserConnectionContext context.Co
 				if sessionToken != nil {
 					sessionToken := headersAsMap["X-Session-Token"].(string)
 					log.Infof("[SessionTokenReader] intercepted session token %v", sessionToken)
+					BrowserConnectionsMutex.Lock()
 					browserConnection.SessionToken = sessionToken
+					BrowserConnectionsMutex.Unlock()
+
+					go SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
+					fromBrowser.Close()
+					break
 				}
 			}
 		}
