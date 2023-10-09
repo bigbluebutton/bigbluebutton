@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import PresentationService from '/imports/ui/components/presentation/service';
 import PollService from '/imports/ui/components/poll/service';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
@@ -71,7 +70,6 @@ export default withTracker((params) => {
     skipToSlide: PresentationToolbarService.skipToSlide,
     isMeteorConnected: Meteor.status().connected,
     isPollingEnabled: isPollingEnabled(),
-    currentSlidHasContent: PresentationService.currentSlidHasContent(),
     startPoll,
   };
 })(PresentationToolbarContainer);

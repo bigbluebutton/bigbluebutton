@@ -4,7 +4,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
-import PresentationService from '/imports/ui/components/presentation/service';
 import Presentations from '/imports/api/presentations';
 import { UsersContext } from '../components-data/users-context/context';
 import ActionsBar from './component';
@@ -75,7 +74,6 @@ export default withTracker(() => ({
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   handleTakePresenter: Service.takePresenterRole,
-  currentSlidHasContent: PresentationService.currentSlidHasContent(),
   isSharingVideo: Service.isSharingVideo(),
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),

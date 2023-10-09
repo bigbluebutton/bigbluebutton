@@ -340,7 +340,6 @@ class PresentationToolbar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       amIPresenter,
-      currentSlidHasContent,
       startPoll,
       currentSlide,
       slidePosition,
@@ -373,7 +372,6 @@ class PresentationToolbar extends PureComponent {
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{
-                currentSlidHasContent,
                 intl,
                 amIPresenter,
                 startPoll,
@@ -540,7 +538,6 @@ PresentationToolbar.propTypes = {
   handleToggleFullScreen: PropTypes.func.isRequired,
   isPollingEnabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  currentSlidHasContent: PropTypes.bool.isRequired,
   startPoll: PropTypes.func.isRequired,
   currentSlide: PropTypes.shape().isRequired,
   slidePosition: PropTypes.shape().isRequired,

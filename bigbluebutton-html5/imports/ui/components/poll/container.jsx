@@ -1,14 +1,16 @@
 import React, { useContext } from 'react';
 import { makeCall } from '/imports/ui/services/api';
 import { withTracker } from 'meteor/react-meteor-data';
-import Presentations from '/imports/api/presentations';
-import PresentationService from '/imports/ui/components/presentation/service';
 import Poll from '/imports/ui/components/poll/component';
 import { Session } from 'meteor/session';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
+import { useSubscription } from '@apollo/client';
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -37,15 +39,14 @@ const PollContainer = ({ ...props }) => {
 
 export default withTracker(({ amIPresenter }) => {
   const isPollSecret = Session.get('secretPoll') || false;
-  const currentPresentation = Presentations.findOne({
-    current: true,
-  }, { fields: { podId: 1 } }) || {};
 
   Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
 
-  const currentSlide = PresentationService.getCurrentSlide(currentPresentation.podId);
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
 
-  const pollId = currentSlide ? currentSlide.id : PUBLIC_CHAT_KEY;
+  const currentSlideId = presentationPage?.pageId;
+  const pollId = currentSlideId || PUBLIC_CHAT_KEY;
 
   const { pollTypes } = Service;
 
@@ -57,7 +58,7 @@ export default withTracker(({ amIPresenter }) => {
 
   return {
     isPollSecret,
-    currentSlide,
+    currentSlideId,
     pollTypes,
     startPoll,
     startCustomPoll,
