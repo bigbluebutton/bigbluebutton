@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React from 'react';
+import React, { useContext } from 'react';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
@@ -12,6 +13,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { Emoji } from 'emoji-mart';
 import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { isReactionsEnabled } from '/imports/ui/services/features';
 
 const messages = defineMessages({
@@ -57,7 +59,31 @@ interface UserListItemProps {
   lockSettings: LockSettings;
 }
 
+const renderUserListItemIconsFromPlugin = (
+  userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformation[],
+) => userItemsFromPlugin.filter(
+  (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.ICON,
+).map((item: PluginSdk.UserListItemAdditionalInformation) => {
+  const itemToRender = item as PluginSdk.UserListItemIcon;
+  return (
+    <Styled.IconRightContainer
+      key={item.id}
+    >
+      <Icon iconName={itemToRender.icon} />
+    </Styled.IconRightContainer>
+  );
+});
+
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformation[];
+  if (pluginsProvidedAggregatedState.userListItemAdditionalInformation) {
+    userItemsFromPlugin = pluginsProvidedAggregatedState.userListItemAdditionalInformation.filter((item) => {
+      const userListItem = item as PluginSdk.UserListItemAdditionalInformation;
+      return userListItem.userId === user.userId;
+    }) as PluginSdk.UserListItemAdditionalInformation[];
+  }
+
   const intl = useIntl();
   const voiceUser = user.voice;
   const subs = [
@@ -89,6 +115,18 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         {intl.formatMessage(messages.sharingWebcam)}
       </span>
     ),
+    ...userItemsFromPlugin.filter(
+      (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.LABEL,
+    ).map((item) => {
+      const itemToRender = item as PluginSdk.UserListItemLabel;
+      return (
+        <span key={itemToRender.id}>
+          { itemToRender.icon
+            && <Icon iconName={itemToRender.icon} /> }
+          {itemToRender.label}
+        </span>
+      );
+    }),
   ].filter(Boolean);
 
   const reactionsEnabled = isReactionsEnabled();
@@ -157,6 +195,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
+      {renderUserListItemIconsFromPlugin(userItemsFromPlugin)}
     </Styled.UserItemContents>
   );
 };

@@ -97,6 +97,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     await this.userPage2.hasElementEnabled(e.chatBox, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage2.type(e.chatBox, e.message);
+    await this.modPage.hasElement(e.typingIndicator);
     await this.userPage2.waitAndClick(e.sendButton);
     await this.userPage.waitForSelector(e.chatUserMessageText);
     await this.userPage.checkElementCount(e.chatUserMessageText, 2);
