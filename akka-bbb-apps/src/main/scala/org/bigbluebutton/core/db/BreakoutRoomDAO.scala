@@ -175,10 +175,11 @@ object BreakoutRoomDAO {
     }
   }
 
-  def updateRoomsDuration(meetingId: String, newDurationInSeconds: Int) = {
+  def updateRoomsDuration(parentMeetingId: String, newDurationInSeconds: Int) = {
     DatabaseConnection.db.run(
       TableQuery[BreakoutRoomDbTableDef]
-        .filter(_.parentMeetingId === meetingId)
+        .filter(_.parentMeetingId === parentMeetingId)
+        .filter(_.endedAt.isEmpty)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
     ).onComplete {

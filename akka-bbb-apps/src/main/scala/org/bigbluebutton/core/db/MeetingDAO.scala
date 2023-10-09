@@ -93,6 +93,23 @@ object MeetingDAO {
       }
   }
 
+  def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {
+    val subqueryBreakoutRooms = TableQuery[BreakoutRoomDbTableDef]
+      .filter(_.parentMeetingId === parentMeetingId)
+      .filter(_.endedAt.isEmpty)
+      .map(_.externalId)
+
+    DatabaseConnection.db.run(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.extId in subqueryBreakoutRooms)
+        .map(u => u.duration)
+        .update(newDurationInSeconds)
+    ).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated duration on Meeting table")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating duration on Meeting: $e")
+      }
+  }
+
   def delete(meetingId: String) = {
     DatabaseConnection.db.run(
       TableQuery[MeetingDbTableDef]

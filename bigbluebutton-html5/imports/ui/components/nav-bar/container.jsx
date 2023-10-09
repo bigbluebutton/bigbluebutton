@@ -12,6 +12,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
@@ -31,6 +32,7 @@ const checkUnreadMessages = ({
 const NavBarContainer = ({ children, ...props }) => {
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
   const usingGroupChatContext = useContext(GroupChatContext);
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
@@ -62,6 +64,13 @@ const NavBarContainer = ({ children, ...props }) => {
 
   if (hideNavBar || navBar.display === false) return null;
 
+  let pluginNavBarItems = [];
+  if (pluginsProvidedAggregatedState.navBarItems) {
+    pluginNavBarItems = [
+      ...pluginsProvidedAggregatedState.navBarItems,
+    ];
+  }
+
   return (
     <NavBar
       {...{
@@ -76,6 +85,7 @@ const NavBarContainer = ({ children, ...props }) => {
         isExpanded,
         activeChats,
         currentUserId: Auth.userID,
+        pluginNavBarItems,
         ...rest,
       }}
       style={{ ...navBar }}

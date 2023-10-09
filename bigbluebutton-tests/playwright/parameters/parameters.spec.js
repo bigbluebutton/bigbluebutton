@@ -4,7 +4,6 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
-const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Create Parameters', () => {
   test('Record Meeting', async ({ browser, context, page }) => {
@@ -148,7 +147,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.initModPage(page, true, { createParameter: c.chatDisabled });
         await disabledFeatures.chat();
       });
-      test('Chat (exclude) @flaky', async ({ browser, context, page }) => {
+      test('Chat (exclude)', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.chatExclude });
         await disabledFeatures.chatExclude();
@@ -378,7 +377,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.shortcuts();
   });
 
-  test('Custom Styles: CSS code @ci @flaky', async ({ browser, context, page }) => {
+  test('Custom Styles: CSS code @ci', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(c.customStyle) });
     await customParam.customStyle();
@@ -422,7 +421,7 @@ test.describe.parallel('Custom Parameters', () => {
   });
 
   test.describe.parallel('Audio', () => {
-    test('Auto join @ci @flaky', async ({ browser, context, page }) => {
+    test('Auto join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.autoJoin });
       await customParam.autoJoin();

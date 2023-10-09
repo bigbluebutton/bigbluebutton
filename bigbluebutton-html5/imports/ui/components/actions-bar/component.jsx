@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import deviceInfo from '/imports/utils/deviceInfo';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
@@ -12,6 +13,7 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
 import { isPresentationEnabled } from '/imports/ui/services/features';
+import Button from '/imports/ui/components/common/button/component';
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -24,10 +26,51 @@ class ActionsBar extends PureComponent {
     this.setCaptionsReaderMenuModalIsOpen = this.setCaptionsReaderMenuModalIsOpen.bind(this);
     this.setRenderRaiseHand = this.renderRaiseHand.bind(this);
     this.actionsBarRef = React.createRef();
+    this.renderPluginsActionBarItems = this.renderPluginsActionBarItems.bind(this);
   }
 
   setCaptionsReaderMenuModalIsOpen(value) {
     this.setState({ isCaptionsReaderMenuModalOpen: value })
+  }
+
+  renderPluginsActionBarItems(position) {
+    const { actionBarItems } = this.props;
+    return (
+      <>
+        {
+          actionBarItems.filter((plugin) => plugin.position === position).map((plugin, index) => {
+            let actionBarItemToReturn;
+            switch (plugin.type) {
+              case PluginSdk.ActionsBarItemType.BUTTON:
+                actionBarItemToReturn = (
+                  <Button
+                    key={`${plugin.type}-${plugin.id}`}
+                    onClick={plugin.onClick}
+                    hideLabel
+                    color="primary"
+                    icon={plugin.icon}
+                    size="lg"
+                    circle
+                    label={plugin.tooltip}
+                  />
+                );
+                break;
+              case PluginSdk.ActionsBarItemType.SEPARATOR:
+                actionBarItemToReturn = (
+                  <Styled.Separator
+                    key={`${plugin.type}-${plugin.id}`}
+                  />
+                );
+                break;
+              default:
+                actionBarItemToReturn = null;
+                break;
+            }
+            return actionBarItemToReturn;
+          })
+        }
+      </>
+    );
   }
 
   renderRaiseHand() {
@@ -138,6 +181,7 @@ class ActionsBar extends PureComponent {
             : null }
         </Styled.Left>
         <Styled.Center>
+          {this.renderPluginsActionBarItems(PluginSdk.ActionsBarPosition.LEFT)}
           <AudioControlsContainer />
           {enableVideo
             ? (
@@ -149,7 +193,8 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
-        {isRaiseHandButtonCentered && this.renderRaiseHand()}
+          {isRaiseHandButtonCentered && this.renderRaiseHand()}
+          {this.renderPluginsActionBarItems(PluginSdk.ActionsBarPosition.RIGHT)}
         </Styled.Center>
         <Styled.Right>
           { shouldShowOptionsButton ?
