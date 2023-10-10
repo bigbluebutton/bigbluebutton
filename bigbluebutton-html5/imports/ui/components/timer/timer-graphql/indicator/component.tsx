@@ -25,6 +25,7 @@ interface TimerIndicatorProps {
   isModerator: boolean;
   sidebarNavigationIsOpen: boolean;
   sidebarContentIsOpen: boolean;
+  startedAt: number;
 }
 
 const TimerIndicator: React.FC<TimerIndicatorProps> = ({
@@ -35,6 +36,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   isModerator,
   sidebarNavigationIsOpen,
   sidebarContentIsOpen,
+  startedAt,
 }) => {
   const [time, setTime] = useState<number>(0);
   const timeRef = useRef<HTMLSpanElement>(null);
@@ -91,7 +93,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   useEffect(() => {
     setTime((prev) => {
       if (passedTime < prev) return passedTime;
-      if (passedTime > prev && !stopwatch) return passedTime;
+      if (passedTime > prev) return passedTime;
       return prev;
     });
   }, [passedTime, stopwatch]);
@@ -103,6 +105,12 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (alarm.current) alarm.current.pause();
     }
   }, [time]);
+
+  useEffect(() => {
+    if (startedAt === 0) {
+      setTime(passedTime);
+    }
+  }, [startedAt]);
 
   const onClick = running ? stopTimer : startTimer;
 
@@ -191,6 +199,7 @@ const TimerIndicatorContainer: React.FC = () => {
       isModerator={currentUser.isModerator ?? false}
       sidebarNavigationIsOpen={sidebarNavigationIsOpen}
       sidebarContentIsOpen={sidebarContentIsOpen}
+      startedAt={startedAt}
     />
   );
 };
