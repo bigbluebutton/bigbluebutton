@@ -45,14 +45,14 @@ const intlMessages = defineMessages({
   },
 });
 
+const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: [number] = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
+
 interface MeetingRemainingTimeContainerProps {
   isBreakoutDuration: boolean | false;
   fromBreakoutPanel: boolean;
   displayAlerts: boolean;
 }
-
-const METEOR_SETTINGS_APP = Meteor.settings.public.app;
-const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: [number] = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
 
 interface MeetingRemainingTimeProps {
   durationInSeconds: number;

@@ -4,7 +4,7 @@ import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Service from './service';
-import MeetingRemainingTime from '../notifications-bar/meeting-remaining-time/container';
+import MeetingRemainingTime from '/imports/ui/components/common/meeting-remaining-time-graphql/component';
 import MessageFormContainer from './message-form/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
