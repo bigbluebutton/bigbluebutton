@@ -185,7 +185,7 @@ const TimerIndicatorContainer: React.FC = () => {
   const timeDifferenceMs: number = adjustedCurrent.getTime() - startedAtDate.getTime();
 
   const timePassed = stopwatch ? (
-    Math.floor(((timeDifferenceMs) + accumulated))
+    Math.floor(((running ? timeDifferenceMs : 0) + accumulated))
   ) : (
     Math.floor(((time) - accumulated))
   );
