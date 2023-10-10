@@ -1,4 +1,5 @@
 import React from 'react';
+import { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationMenu from './component';
@@ -9,6 +10,7 @@ import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/cont
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import UserService from '/imports/ui/components/user-list/service';
 import { isSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -17,6 +19,13 @@ const PresentationMenuContainer = (props) => {
   const { elementId } = props;
   const isFullscreen = currentElement === elementId;
   const isRTL = layoutSelect((i) => i.isRTL);
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  let presentationDropdownItems = [];
+  if (pluginsProvidedAggregatedState.presentationDropdownItems) {
+    presentationDropdownItems = [
+      ...pluginsProvidedAggregatedState.presentationDropdownItems,
+    ];
+  }
 
   return (
     <PresentationMenu
@@ -27,6 +36,7 @@ const PresentationMenuContainer = (props) => {
         isFullscreen,
         layoutContextDispatch,
         isRTL,
+        presentationDropdownItems,
       }}
     />
   );

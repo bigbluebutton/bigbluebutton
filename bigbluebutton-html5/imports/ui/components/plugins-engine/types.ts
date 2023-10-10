@@ -30,6 +30,14 @@ export interface PluginProvidedState {
     presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
     userListDropdownItems: PluginSdk.UserListDropdownItem[];
     actionButtonDropdownItems: PluginSdk.ActionButtonDropdownItem[];
+    audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownItem[];
+    actionsBarItems: PluginSdk.ActionsBarItem[];
+    presentationDropdownItems: PluginSdk.PresentationDropdownItem[];
+    navBarItems: PluginSdk.NavBarItem[];
+    optionsDropdownItems: PluginSdk.OptionsDropdownItem[];
+    cameraSettingsDropdownItems: PluginSdk.CameraSettingsDropdownItem[];
+    userCameraDropdownItems: PluginSdk.UserCameraDropdownItem[];
+    userListItemAdditionalInformation: PluginSdk.UserListItemAdditionalInformation[];
 }
 
 /**

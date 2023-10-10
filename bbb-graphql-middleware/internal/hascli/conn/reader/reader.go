@@ -12,11 +12,11 @@ import (
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
 func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChannel chan interface{}, fromBrowserToHasuraChannel chan interface{}, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.Browserconn.Id).WithField("hasuraConnectionId", hc.Id)
+	defer log.Debugf("finished")
+	log.Debugf("starting")
 
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
-
-	defer log.Debugf("finished")
 
 	for {
 		// Read a message from hasura

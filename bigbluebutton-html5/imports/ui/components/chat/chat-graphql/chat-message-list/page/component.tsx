@@ -20,7 +20,7 @@ interface ChatListPageContainerProps {
   setLastSender: (page: number, message: string) => void;
   lastSenderPreviousPage: string | undefined;
   // eslint-disable-next-line react/no-unused-prop-types
-  lastSeenAt: number,
+  lastSeenAt: string,
   chatId: string;
   markMessageAsSeen: (message: Message) => void;
   scrollRef: React.RefObject<HTMLDivElement>;
@@ -54,7 +54,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
       const previousMessage = Array[index - 1];
       return (
         <ChatMessage
-          key={message.createdTime}
+          key={message.createdAt}
           message={message}
           previousMessage={previousMessage}
           lastSenderPreviousPage={

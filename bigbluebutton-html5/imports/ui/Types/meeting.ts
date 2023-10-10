@@ -48,6 +48,7 @@ export interface UsersPolicies {
   meetingLayout: string;
   userCameraCap: number;
   webcamsOnlyForModerator: boolean;
+  guestLobbyMessage: string | null;
 }
 
 export interface VoiceSettings {

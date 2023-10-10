@@ -21,6 +21,7 @@ import { isPresentationEnabled } from '/imports/ui/services/features';
 const { isMobile } = deviceInfo;
 const propTypes = {
   allowDownloadOriginal: PropTypes.bool.isRequired,
+  allowDownloadConverted: PropTypes.bool.isRequired,
   allowDownloadWithAnnotations: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -1002,6 +1003,7 @@ class PresentationUploader extends Component {
       intl,
       selectedToBeNextCurrent,
       allowDownloadOriginal,
+      allowDownloadConverted,
       allowDownloadWithAnnotations,
       renderPresentationItemStatus,
       hasAnnotations,
@@ -1077,7 +1079,7 @@ class PresentationUploader extends Component {
         {
         hasError ? null : (
           <Styled.TableItemActions notDownloadable={!allowDownloadOriginal}>
-            {allowDownloadOriginal || allowDownloadWithAnnotations ? (
+            {allowDownloadOriginal || allowDownloadWithAnnotations || allowDownloadConverted ? (
               <PresentationDownloadDropdown
                 hasAnnotations={hasAnyAnnotation}
                 disabled={shouldDisableExportButton}
@@ -1086,6 +1088,7 @@ class PresentationUploader extends Component {
                 color="primary"
                 isDownloadable={isDownloadable}
                 allowDownloadOriginal={allowDownloadOriginal}
+                allowDownloadConverted={allowDownloadConverted}
                 allowDownloadWithAnnotations={allowDownloadWithAnnotations}
                 handleDownloadableChange={this.handleDownloadableChange}
                 item={item}
