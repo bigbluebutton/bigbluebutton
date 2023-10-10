@@ -3,7 +3,6 @@ import { gql } from '@apollo/client';
 export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPresentationPagesSubscription {
   pres_page_curr {
     height
-    heightRatio
     isCurrentPage
     num
     pageId
@@ -11,12 +10,8 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     scaledViewBoxHeight
     scaledViewBoxWidth
     scaledWidth
-    slideRevealed
     urls
-    viewBoxHeight
-    viewBoxWidth
     width
-    widthRatio
     xOffset
     yOffset
     presentationId
@@ -25,7 +20,6 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     numPages
     downloadable
     presentationName
-    presentationFilenameConverted
     isDefaultPresentation
   }  
 }`;
@@ -55,10 +49,6 @@ export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStrea
 
 export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`subscription currentPageWritersSubscription {
   pres_page_writers {
-    changedModeOn
-    isCurrentPage
-    pageId
-    presentationId
     userId
   }
 }`;
