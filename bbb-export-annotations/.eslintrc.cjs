@@ -9,10 +9,8 @@ module.exports = {
   ],
   'parserOptions': {
     'ecmaVersion': 'latest',
+    'sourceType': 'module',
   },
   'rules': {
-    'require-jsdoc': 0,
-    'camelcase': 0,
-    'max-len': 0,
   },
 };
