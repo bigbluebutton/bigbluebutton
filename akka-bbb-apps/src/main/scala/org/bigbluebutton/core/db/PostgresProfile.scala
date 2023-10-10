@@ -34,6 +34,7 @@ object JsonUtils {
       case m: Map[_, _] => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
       case l: List[_]   => JsArray(l.map(write).toVector)
       case a: Array[_]  => JsArray(a.map(write).toVector)
+      case null         => JsNull
       case _            => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
       //      case _            => JsNull
     }

@@ -80,29 +80,11 @@ trait SystemConfiguration {
 
   lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
 
-  // Client configuration
-  lazy val clientConfigurationPath = Try(config.getBoolean("client.clientConfigurationFilePath")).getOrElse(
+  lazy val clientSettingsPath = Try(config.getString("client.clientSettingsFilePath")).getOrElse(
     "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml"
-  ).asInstanceOf[String]
-  lazy val clientConfigurationPathOverride = Try(config.getBoolean("client.clientConfigurationOverrideFilePath")).getOrElse(
+  )
+  lazy val clientSettingsPathOverride = Try(config.getString("client.clientSettingsOverrideFilePath")).getOrElse(
     "/etc/bigbluebutton/bbb-html5.yml"
-  ).asInstanceOf[String]
-
-  private val clientConfigurationFile = scala.io.Source.fromFile(clientConfigurationPath)
-  private val clientConfigurationFileOverride = scala.io.Source.fromFile(clientConfigurationPathOverride)
-  val clientConfigurationFromFile: Map[String, Object] = common2.util.YamlUtil.mergeImmutableMaps(
-    common2.util.YamlUtil.toMap[Object](clientConfigurationFile.mkString) match {
-      case Success(value) => value
-      case Failure(exception) =>
-        println("Error while fetching client configuration: ", exception)
-        Map[String, Object]()
-    },
-    common2.util.YamlUtil.toMap[Object](clientConfigurationFileOverride.mkString) match {
-      case Success(value) => value
-      case Failure(exception) =>
-        println("Error while fetching client override configuration: ", exception)
-        Map[String, Object]()
-    }
   )
 
   // Grab the "interface" parameter from the http config

@@ -136,6 +136,7 @@ public class ParamsProcessorUtil {
 
     private String bbbVersion = "";
     private Boolean allowRevealOfBBBVersion = false;
+    private Boolean allowOverrideClientSettingsOnCreateCall = false;
 
   	private String formatConfNum(String s) {
   		if (s.length() > 5) {
@@ -903,6 +904,10 @@ public class ParamsProcessorUtil {
     return allowRevealOfBBBVersion;
   }
 
+  public Boolean getAllowOverrideClientSettingsOnCreateCall() {
+    return allowOverrideClientSettingsOnCreateCall;
+  }
+
     public String processWelcomeMessage(String message, Boolean isBreakout) {
         String welcomeMessage = message;
         if (StringUtils.isEmpty(message)) {
@@ -1146,14 +1151,6 @@ public class ParamsProcessorUtil {
 
 		return true;
 	}
-
-    public void processCreateBody(Meeting newMeeting, String overrideClientSettings){
-        if (overrideClientSettings != null) {
-            newMeeting.setOverrideClientSettings(overrideClientSettings);
-        } else {
-            newMeeting.setOverrideClientSettings("");
-        }
-    }
 
 	/*************************************************
 	 * Setters
@@ -1512,6 +1509,10 @@ public class ParamsProcessorUtil {
 
   public void setAllowRevealOfBBBVersion(Boolean allowVersion) {
     this.allowRevealOfBBBVersion = allowVersion;
+  }
+
+  public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
+    this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
   }
 
 }
