@@ -3,11 +3,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
+import { isEmpty } from 'radash';
 import MeetingRemainingTimeComponent from './component';
+import MeetingRemainingTimeContainer from '../meeting-remaining-time-graphql/component';
 import BreakoutService from '/imports/ui/components/breakout-room/service';
 import { Text, Time } from './styles';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { isEmpty } from 'radash';
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -100,13 +101,14 @@ const setTimeRemaining = (sec) => {
 
 const startCounter = (sec, set, get, interval) => {
   clearInterval(interval);
-  if (!sec) return;
-  set(sec);
-  return setInterval(() => set(get() - 1), 1000);
+  if (sec) {
+    set(sec);
+    return setInterval(() => set(get() - 1), 1000);
+  }
+  return null;
 };
 
-
-export default injectNotify(injectIntl(withTracker(({
+injectNotify(injectIntl(withTracker(({
   breakoutRoom,
   intl,
   notify,
@@ -119,7 +121,8 @@ export default injectNotify(injectIntl(withTracker(({
   if (breakoutRoom) {
     const roomRemainingTime = breakoutRoom.timeRemaining;
     const localRemainingTime = getTimeRemaining();
-    const shouldResync = prevTimeRemaining !== roomRemainingTime && roomRemainingTime !== localRemainingTime;
+    const shouldResync = prevTimeRemaining !== roomRemainingTime
+      && roomRemainingTime !== localRemainingTime;
 
     if ((!timeRemainingInterval || shouldResync) && roomRemainingTime) {
       prevTimeRemaining = roomRemainingTime;
@@ -163,3 +166,5 @@ export default injectNotify(injectIntl(withTracker(({
   }
   return data;
 })(breakoutRemainingTimeContainer)));
+
+export default MeetingRemainingTimeContainer;

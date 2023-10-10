@@ -3,13 +3,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
-import { MeetingTimeRemaining } from '/imports/api/meetings';
-import Meetings from '/imports/api/meetings';
+import { Meetings, MeetingTimeRemaining } from '/imports/api/meetings';
+import { isEmpty } from 'radash';
 import MeetingRemainingTime from './meeting-remaining-time/container';
 import Styled from './styles';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
-import { isEmpty } from 'radash';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
@@ -44,25 +43,9 @@ const intlMessages = defineMessages({
     id: 'app.retryNow',
     description: 'Retry now text for reconnection counter',
   },
-  breakoutTimeRemaining: {
-    id: 'app.breakoutTimeRemainingMessage',
-    description: 'Message that tells how much time is remaining for the breakout room',
-  },
-  breakoutWillClose: {
-    id: 'app.breakoutWillCloseMessage',
-    description: 'Message that tells time has ended and breakout will close',
-  },
   calculatingBreakoutTimeRemaining: {
     id: 'app.calculatingBreakoutTimeRemaining',
     description: 'Message that tells that the remaining time is being calculated',
-  },
-  meetingTimeRemaining: {
-    id: 'app.meeting.meetingTimeRemaining',
-    description: 'Message that tells how much time is remaining for the meeting',
-  },
-  meetingWillClose: {
-    id: 'app.meeting.meetingTimeHasEnded',
-    description: 'Message that tells time has ended and meeting will close',
   },
   alertMeetingEndsUnderMinutes: {
     id: 'app.meeting.alertMeetingEndsUnderMinutes',
@@ -177,31 +160,25 @@ export default injectIntl(withTracker(({ intl }) => {
     if (currentBreakout) {
       data.message = (
         <MeetingRemainingTime
-          breakoutRoom={currentBreakout}
-          messageDuration={intlMessages.breakoutTimeRemaining}
-          timeEndedMessage={intlMessages.breakoutWillClose}
-          displayAlerts={true}
+          displayAlerts
         />
       );
     }
   }
 
-  const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
+  const meetingWithTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
   const Meeting = Meetings.findOne({ meetingId },
     { fields: { 'meetingProp.isBreakout': 1 } });
 
-  if (meetingTimeRemaining && Meeting) {
-    const { timeRemaining } = meetingTimeRemaining;
+  if (meetingWithTimeRemaining && Meeting) {
+    const { timeRemaining } = meetingWithTimeRemaining;
     const { isBreakout } = Meeting.meetingProp;
     const underThirtyMin = timeRemaining && timeRemaining <= (REMAINING_TIME_THRESHOLD * 60);
 
     if (underThirtyMin && !isBreakout) {
       data.message = (
         <MeetingRemainingTime
-          breakoutRoom={meetingTimeRemaining}
-          messageDuration={intlMessages.meetingTimeRemaining}
-          timeEndedMessage={intlMessages.meetingWillClose}
-          displayAlerts={true}
+          displayAlerts
         />
       );
     }

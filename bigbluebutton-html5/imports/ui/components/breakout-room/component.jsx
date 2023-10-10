@@ -25,10 +25,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.ariaTitle',
     description: 'breakout aria title',
   },
-  breakoutDuration: {
-    id: 'app.createBreakoutRoom.duration',
-    description: 'breakout duration time',
-  },
   breakoutRoom: {
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
@@ -175,6 +171,16 @@ class BreakoutRoom extends PureComponent {
     return true;
   }
 
+  handleClickOutsideDurationContainer(e) {
+    if (this.durationContainerRef) {
+      const { x, right, y, bottom } = this.durationContainerRef.getBoundingClientRect();
+
+      if (e.clientX < x || e.clientX > right || e.clientY < y || e.clientY > bottom) {
+        this.resetSetTimeForm();
+      }
+    }
+  }
+
   getBreakoutURL(breakoutId) {
     const { requestJoinURL, getBreakoutRoomUrl } = this.props;
     const { waiting } = this.state;
@@ -191,12 +197,22 @@ class BreakoutRoom extends PureComponent {
     }
 
     if (breakoutRoomUrlData) {
-
       Session.set('lastBreakoutIdOpened', breakoutId);
       window.open(breakoutRoomUrlData.redirectToHtml5JoinURL, '_blank');
       this.setState({ waiting: false, generated: false });
     }
     return null;
+  }
+
+  getBreakoutLabel(breakoutId) {
+    const { intl } = this.props;
+    const hasBreakoutUrl = this.hasBreakoutUrl(breakoutId)
+
+    if (hasBreakoutUrl) {
+      return intl.formatMessage(intlMessages.breakoutJoin);
+    }
+
+    return intl.formatMessage(intlMessages.askToJoin);
   }
 
   hasBreakoutUrl(breakoutId) {
@@ -212,17 +228,6 @@ class BreakoutRoom extends PureComponent {
     return false;
   }
 
-  getBreakoutLabel(breakoutId) {
-    const { intl } = this.props;
-    const hasBreakoutUrl = this.hasBreakoutUrl(breakoutId)
-
-    if (hasBreakoutUrl) {
-      return intl.formatMessage(intlMessages.breakoutJoin);
-    }
-
-    return intl.formatMessage(intlMessages.askToJoin);
-  }
-
   clearJoinedAudioOnly() {
     this.setState({ joinedAudioOnly: false });
   }
@@ -230,16 +235,6 @@ class BreakoutRoom extends PureComponent {
   changeSetTime(event) {
     const newSetTime = Number.parseInt(event.target.value, 10) || 0;
     this.setState({ newTime: newSetTime >= 0 ? newSetTime : 0 });
-  }
-
-  handleClickOutsideDurationContainer(e) {
-    if (this.durationContainerRef) {
-      const { x, right, y, bottom } = this.durationContainerRef.getBoundingClientRect();
-
-      if (e.clientX < x || e.clientX > right || e.clientY < y || e.clientY > bottom) {
-        this.resetSetTimeForm();
-      }
-    }
   }
 
   showSetTimeForm() {
@@ -479,7 +474,6 @@ class BreakoutRoom extends PureComponent {
   renderDuration() {
     const {
       intl,
-      breakoutRooms,
       amIModerator,
       isMeteorConnected,
       setBreakoutsTime,
@@ -497,14 +491,13 @@ class BreakoutRoom extends PureComponent {
       >
         <Styled.Duration>
           <MeetingRemainingTime
-            messageDuration={intlMessages.breakoutDuration}
-            breakoutRoom={breakoutRooms[0]}
+            isBreakoutDuration
             fromBreakoutPanel
           />
         </Styled.Duration>
         {amIModerator && visibleSetTimeForm ? (
           <Styled.SetTimeContainer>
-            <label htmlFor="inputSetTimeSelector" >
+            <label htmlFor="inputSetTimeSelector">
               {intl.formatMessage(intlMessages.setTimeInMinutes)}
             </label>
             <br />

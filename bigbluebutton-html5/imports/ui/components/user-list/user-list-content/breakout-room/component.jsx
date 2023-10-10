@@ -11,15 +11,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.title',
     description: 'breakout title',
   },
-  breakoutTimeRemaining: {
-    id: 'app.createBreakoutRoom.duration',
-    description: 'Message that tells how much time is remaining for the breakout room',
-  },
 });
 
 const BreakoutRoomItem = ({
   hasBreakoutRoom,
-  breakoutRoom,
   sidebarContentPanel,
   layoutContextDispatch,
   intl,
@@ -67,8 +62,7 @@ const BreakoutRoomItem = ({
                 </Styled.BreakoutTitle>
                 <Styled.BreakoutDuration>
                   <MeetingRemainingTime
-                    messageDuration={intlMessages.breakoutTimeRemaining}
-                    breakoutRoom={breakoutRoom}
+                    isBreakoutDuration
                   />
                 </Styled.BreakoutDuration>
               </div>
