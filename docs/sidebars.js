@@ -83,6 +83,7 @@ const sidebars = {
                 id: 'support/getting-help',
             },
         }
+     ],
 };
 
 module.exports = sidebars;
