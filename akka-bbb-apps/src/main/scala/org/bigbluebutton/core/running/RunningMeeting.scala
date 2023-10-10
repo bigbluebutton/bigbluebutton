@@ -8,10 +8,6 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.common2
-import org.bigbluebutton.common2.util.YamlUtil
-
-import scala.util.{ Failure, Success }
 
 object RunningMeeting {
   def apply(props: DefaultProps, outGW: OutMessageGateway,
@@ -39,19 +35,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val deskshareModel = new ScreenshareModel
   private val audioCaptions = new AudioCaptions
   private val timerModel = new TimerModel
-
-  val clientSettingsFromFile = ClientSettings.clientSettingsFromFile
-
-  private val clientSettings: Map[String, Object] = if (props.overrideClientSettings != null
-    && props.overrideClientSettings.nonEmpty) {
-    val scalaMapClientOverride = common2.util.JsonUtil.toMap[Object](props.overrideClientSettings)
-    scalaMapClientOverride match {
-      case Success(value) => YamlUtil.mergeImmutableMaps(clientSettingsFromFile, value)
-      case Failure(_) =>
-        println("No valid JSON override of client configuration in create call")
-        clientSettingsFromFile
-    }
-  } else clientSettingsFromFile
+  private val clientSettings: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings)
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 

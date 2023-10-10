@@ -118,7 +118,7 @@ public class Meeting {
 
 	private Integer html5InstanceId;
 
-	private String overrideClientSettings;
+	private String overrideClientSettings = "";
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;

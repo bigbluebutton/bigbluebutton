@@ -44,6 +44,7 @@ import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
 
+
 import javax.servlet.ServletRequest
 
 class ApiController {
@@ -62,6 +63,7 @@ class ApiController {
   HTML5LoadBalancingService html5LoadBalancingService
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
+
 
   def initResponseBuilder = {
     String protocol = this.getClass().getResource("").getProtocol();
@@ -153,16 +155,22 @@ class ApiController {
     String requestBody = request.inputStream == null ? null : request.inputStream.text
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
 
-    // The client configs are going to be parsed to the LinkedHashMap in akka
-    String overrideClientSettings = overrideClientSettings(requestBody)
+    def xmlModules = processRequestXmlModules(requestBody)
 
-    paramsProcessorUtil.processCreateBody(newMeeting, overrideClientSettings)
+    // Set Client Settings Override
+    if(xmlModules.containsKey("clientSettingsOverride")) {
+      if(paramsProcessorUtil.getAllowOverrideClientSettingsOnCreateCall()) {
+        newMeeting.setOverrideClientSettings(xmlModules.get("clientSettingsOverride").text())
+      } else {
+        log.warn("Module `clientSettingsOverride` provided but this options is disabled by `allowOverrideClientSettingsOnCreateCall=false` config.");
+      }
+    }
 
     ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(requestBody, newMeeting, false);  //
+      uploadDocuments(xmlModules, newMeeting, false);  //
       respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
@@ -1114,10 +1122,12 @@ class ApiController {
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
-    if (meeting != null){
-      String requestBody = request.inputStream == null ? null : request.inputStream.text;
-      requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
-      if (uploadDocuments(requestBody, meeting, true)) {
+    if (meeting != null) {
+      String requestBody = request.inputStream == null ? null : request.inputStream.text
+      requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
+
+      def xmlModules = processRequestXmlModules(requestBody)
+      if (uploadDocuments(xmlModules, meeting, true)) {
         withFormat {
           xml {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
@@ -1355,7 +1365,7 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(requestBody, conf, isFromInsertAPI) {
+  def uploadDocuments(xmlModules, conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains("presentation")) {
       log.warn("Presentation feature is disabled.")
       return false
@@ -1382,40 +1392,37 @@ class ApiController {
     // This part of the code is responsible for organize the presentations in a certain order
     // It selects the one that has the current=true, and put it in the 0th place.
     // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
-    if (requestBody == null) {
+    if (!xmlModules.containsKey("presentation")) {
       if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
       listOfPresentation << [name: "default", current: true];
     } else {
-      def xml = new XmlSlurper().parseText(requestBody);
       Boolean hasCurrent = false;
       Boolean hasPresentationModule = false;
-      xml.children().each { module ->
-        log.debug("module config found: [${module.@name}]");
-
-        if ("presentation".equals(module.@name.toString())) {
-          hasPresentationModule = true
-          for (document in module.children()) {
-            if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
-                    document.@current.toString()) && !hasCurrent) {
-              listOfPresentation.add(0, document)
-              hasCurrent = true;
-            } else {
-              listOfPresentation << document
-            }
+      if (xmlModules.containsKey("presentation")) {
+        def modulePresentation = xmlModules.get("presentation")
+        hasPresentationModule = true
+        for (document in modulePresentation.children()) {
+          if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
+                  document.@current.toString()) && !hasCurrent) {
+            listOfPresentation.add(0, document)
+            hasCurrent = true;
+          } else {
+            listOfPresentation << document
           }
-          Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
-          if (uploadDefault) {
-            isDefaultPresentationCurrent = !hasCurrent;
-            hasCurrent = true
-            isDefaultPresentationUsed = true
-            if (isDefaultPresentationCurrent) {
-              listOfPresentation.add(0, [name: "default", current: true])
-            } else {
-              listOfPresentation << [name: "default", current: false];
-            }
+        }
+
+        Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
+        if (uploadDefault) {
+          isDefaultPresentationCurrent = !hasCurrent;
+          hasCurrent = true
+          isDefaultPresentationUsed = true
+          if (isDefaultPresentationCurrent) {
+            listOfPresentation.add(0, [name: "default", current: true])
+          } else {
+            listOfPresentation << [name: "default", current: false];
           }
         }
       }
@@ -1484,26 +1491,18 @@ class ApiController {
     return true
   }
 
-  def String overrideClientSettings(requestBody) {
-    log.debug("ApiController#overrideClientSettings");
-    //sanitizeInput
-    params.each {
-      key, value -> params[key] = sanitizeInput(value)
-    }
+  def processRequestXmlModules(String requestBody) {
+    def xmlModules = [:]
 
-    if (requestBody == null) {
-      log.warn("No payload, ignoring")
-    } else {
-      def xml = new XmlSlurper().parseText(requestBody);
+    if (requestBody != null && requestBody != "") {
+      def xml = new XmlSlurper().parseText(requestBody)
       xml.children().each { module ->
-        log.debug("module config found: [${module.@name}]")
-        if ("client".equals(module.@name.toString())) {
-          for (document in module.children()) {
-            return document
-          }
-        }
+        log.debug("module found: [${module.@name}]")
+        xmlModules.put(module.@name.toString(), module);
       }
     }
+
+    return xmlModules
   }
 
   def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
