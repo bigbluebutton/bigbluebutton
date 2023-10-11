@@ -10,7 +10,7 @@ object RunningMeetings {
 
   def add(meetings: RunningMeetings, meeting: RunningMeeting): RunningMeeting = {
     meetings.save(meeting)
-    MeetingDAO.insert(meeting.props)
+    MeetingDAO.insert(meeting.props, meeting.clientSettings)
     meeting
   }
 

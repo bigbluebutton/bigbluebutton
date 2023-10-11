@@ -198,6 +198,13 @@ WHERE "hideUserList" IS FALSE;
 
 CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSettings"("meetingId") WHERE "hideUserList" IS FALSE;
 
+create table "meeting_clientSettings" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+    "clientSettingsJson"             text
+);
+
+CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings";
+
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
