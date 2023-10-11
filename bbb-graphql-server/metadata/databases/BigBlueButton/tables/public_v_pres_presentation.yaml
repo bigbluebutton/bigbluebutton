@@ -24,6 +24,7 @@ select_permissions:
         - current
         - downloadFileUri
         - downloadable
+        - downloadFileExtension
         - errorDetails
         - errorMsgKey
         - filenameConverted
