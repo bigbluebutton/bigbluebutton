@@ -590,14 +590,10 @@ class App extends Component {
       isRandomUserSelectModalOpen,
       isVideoPreviewModalOpen,
       presentationFitToWidth,
-      allPluginsLoaded,
     } = this.state;
     return (
       <>
-        <PluginsEngineContainer onReady={() => {
-          this.setState({ allPluginsLoaded: true });
-        }}
-        />
+        <PluginsEngineContainer />
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Resizable from 're-resizable';
 import { ACTIONS } from '../layout/enums';
 import UserListContainer from '../user-list/container';
@@ -60,6 +61,14 @@ const SidebarNavigation = (props) => {
       },
     });
   };
+
+  useEffect(() => {
+    window.dispatchEvent(new Event(PluginSdk.BbbUiEvents.UserListOpened));
+
+    return () => {
+      window.dispatchEvent(new Event(PluginSdk.BbbUiEvents.UserListClosed));
+    };
+  }, []);
 
   return (
     <Resizable

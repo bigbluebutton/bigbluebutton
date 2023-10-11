@@ -23,6 +23,7 @@ import {
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
@@ -228,6 +229,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       startUserTyping(chatId);
     };
 
+    window.dispatchEvent(new CustomEvent(PluginSdk.BbbUiEvents.ChatInputChanged, {
+      detail: {
+        hook: PluginSdk.BbbUiEvents.ChatInputChanged,
+        data: {
+          currentText: newMessage,
+        } as PluginSdk.ChatChangedEventData,
+      },
+    }) as PluginSdk.CustomEventHookWrapper<PluginSdk.ChatChangedEventData>);
     setMessage(newMessage);
     setError(newError);
     handleUserTyping(newError != null);
@@ -322,6 +331,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             spellCheck="true"
             disabled={disabled || partnerIsLoggedOut || sendGroupChatMsgLoading}
             value={message}
+            onFocus={() => {
+              window.dispatchEvent(new CustomEvent(PluginSdk.BbbUiEvents.ChatInputFocused));
+            }}
+            onBlur={() => {
+              window.dispatchEvent(new CustomEvent(PluginSdk.BbbUiEvents.ChatInputUnfocused));
+            }}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}
             onPaste={(e) => { e.stopPropagation(); }}
