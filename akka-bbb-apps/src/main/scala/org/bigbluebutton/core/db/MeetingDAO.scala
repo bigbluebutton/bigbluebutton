@@ -55,7 +55,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
 }
 
 object MeetingDAO {
-  def insert(meetingProps: DefaultProps) = {
+  def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object]) = {
     DatabaseConnection.db.run(
       TableQuery[MeetingDbTableDef].forceInsert(
         MeetingDbModel(
@@ -88,6 +88,7 @@ object MeetingDAO {
           MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
           TimerDAO.insert(meetingProps.meetingProp.intId)
           LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
+          MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
         }
         case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Meeting: $e")
       }
