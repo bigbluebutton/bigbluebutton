@@ -43,7 +43,6 @@ export default withTracker(() => {
     isTimerFeatureEnabled: isTimerFeatureEnabled(),
     isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
-    podId: 'DEFAULT_PRESENTATION_POD',
     isCameraAsContentEnabled: isCameraAsContentEnabled(),
   };
 })(ActionsDropdownContainer);

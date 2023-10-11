@@ -337,11 +337,8 @@ class ActionsDropdown extends PureComponent {
     const {
       presentations,
       setPresentation,
-      podId,
       setPresentationFitToWidth,
     } = this.props;
-
-    if (!podId) return [];
 
     const presentationItemElements = presentations
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -359,7 +356,7 @@ class ActionsDropdown extends PureComponent {
             key: `uploaded-presentation-${p.id}`,
             onClick: () => {
               setPresentationFitToWidth(false);
-              setPresentation(p.id, podId);
+              setPresentation(p.id);
             },
           }
         );

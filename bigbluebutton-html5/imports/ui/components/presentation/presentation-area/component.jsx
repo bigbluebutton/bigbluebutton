@@ -17,7 +17,6 @@ const PresentationArea = ({
   };
   return (
     <PresentationContainer
-      podId="DEFAULT_PRESENTATION_POD"
       {
       ...{
         presentationAreaSize,
@@ -27,7 +26,8 @@ const PresentationArea = ({
         setPresentationFitToWidth,
         fitToWidth,
       }
-      } />
+      }
+    />
   );
 };
 

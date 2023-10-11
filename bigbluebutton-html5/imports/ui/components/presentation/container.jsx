@@ -71,7 +71,6 @@ const PresentationContainer = (props) => {
     slidePosition = {
       height: currentPresentationPage.scaledHeight,
       id: currentPresentationPage.pageId,
-      podId: currentSlide.podId,
       presentationId: currentPresentationPage.presentationId,
       viewBoxHeight: currentPresentationPage.scaledViewBoxHeight,
       viewBoxWidth: currentPresentationPage.scaledViewBoxWidth,
@@ -130,9 +129,6 @@ const PresentationContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
-  // TODO: remove this when is not needed anymore
-  const podId = 'DEFAULT_PRESENTATION_POD';
-
   if (!currentSlide) return null;
 
   return (
@@ -158,7 +154,6 @@ const PresentationContainer = (props) => {
         numPages: currentPresentationPage?.numPages,
         notify,
         zoomSlide: PresentationToolbarService.zoomSlide,
-        podId,
         publishedPoll: poll?.published || false,
         restoreOnUpdate: getFromUserSettings(
           'bbb_force_restore_presentation_on_new_events',

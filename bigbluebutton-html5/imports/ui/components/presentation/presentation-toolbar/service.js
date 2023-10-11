@@ -3,24 +3,26 @@ import { throttle } from '/imports/utils/throttle';
 
 const PAN_ZOOM_INTERVAL = Meteor.settings.public.presentation.panZoomInterval || 200;
 
-const previousSlide = (currentSlideNum, podId) => {
+const POD_ID = 'DEFAULT_PRESENTATION_POD';
+
+const previousSlide = (currentSlideNum) => {
   if (currentSlideNum > 1) {
-    makeCall('switchSlide', currentSlideNum - 1, podId);
+    makeCall('switchSlide', currentSlideNum - 1, POD_ID);
   }
 };
 
-const nextSlide = (currentSlideNum, numberOfSlides, podId) => {
+const nextSlide = (currentSlideNum, numberOfSlides) => {
   if (currentSlideNum < numberOfSlides) {
-    makeCall('switchSlide', currentSlideNum + 1, podId);
+    makeCall('switchSlide', currentSlideNum + 1, POD_ID);
   }
 };
 
-const zoomSlide = throttle((currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset) => {
-  makeCall('zoomSlide', currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset);
+const zoomSlide = throttle((currentSlideNum, widthRatio, heightRatio, xOffset, yOffset) => {
+  makeCall('zoomSlide', currentSlideNum, POD_ID, widthRatio, heightRatio, xOffset, yOffset);
 }, PAN_ZOOM_INTERVAL);
 
-const skipToSlide = (requestedSlideNum, podId) => {
-  makeCall('switchSlide', requestedSlideNum, podId);
+const skipToSlide = (requestedSlideNum) => {
+  makeCall('switchSlide', requestedSlideNum, POD_ID);
 };
 
 export default {

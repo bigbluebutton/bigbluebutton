@@ -568,15 +568,14 @@ class Presentation extends PureComponent {
   }
 
   panAndZoomChanger(w, h, x, y) {
-    const { currentSlide, podId, zoomSlide } = this.props;
+    const { currentSlide, zoomSlide } = this.props;
 
-    zoomSlide(currentSlide.num, podId, w, h, x, y);
+    zoomSlide(currentSlide.num, w, h, x, y);
   }
 
   renderPresentationToolbar(svgWidth = 0) {
     const {
       currentSlide,
-      podId,
       isMobile,
       layoutType,
       numCameras,
@@ -608,7 +607,6 @@ class Presentation extends PureComponent {
         {...{
           fitToWidth,
           zoom,
-          podId,
           currentSlide,
           slidePosition,
           toolbarWidth,
@@ -726,7 +724,6 @@ class Presentation extends PureComponent {
       layoutType,
       numCameras,
       currentPresentationId,
-      podId,
       intl,
       isViewersCursorLocked,
       fullscreenElementId,
@@ -846,7 +843,6 @@ class Presentation extends PureComponent {
                   && this.renderPresentationMenu()}
                 <WhiteboardContainer
                   whiteboardId={currentSlide?.id}
-                  podId={podId}
                   slidePosition={slidePosition}
                   getSvgRef={this.getSvgRef}
                   tldrawAPI={tldrawAPI}
@@ -900,7 +896,6 @@ class Presentation extends PureComponent {
 export default injectIntl(Presentation);
 
 Presentation.propTypes = {
-  podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,
   currentSlide: PropTypes.shape({

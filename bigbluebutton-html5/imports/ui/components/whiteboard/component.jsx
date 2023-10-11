@@ -38,7 +38,6 @@ export default function Whiteboard(props) {
     assets,
     currentUser,
     whiteboardId,
-    podId,
     zoomSlide,
     skipToSlide,
     slidePosition,
@@ -417,7 +416,7 @@ export default function Whiteboard(props) {
         );
         setZoom(HUNDRED_PERCENT);
         zoomChanger(HUNDRED_PERCENT);
-        zoomSlide(parseInt(curPageId, 10), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
+        zoomSlide(parseInt(curPageId, 10), HUNDRED_PERCENT, viewedRegionH, 0, 0);
       } else {
         const currentAspectRatio = Math.round((presentationWidth / presentationHeight) * 100) / 100;
         const previousAspectRatio = Math.round(
@@ -517,7 +516,7 @@ export default function Whiteboard(props) {
           const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
             tldrawAPI?.viewport.height, slidePosition.height,
           );
-          zoomSlide(parseInt(curPageId, 10), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
+          zoomSlide(parseInt(curPageId, 10), HUNDRED_PERCENT, viewedRegionH, 0, 0);
           setZoom(HUNDRED_PERCENT);
           zoomChanger(HUNDRED_PERCENT);
         } else if (!isMounting) {
@@ -535,7 +534,6 @@ export default function Whiteboard(props) {
           }
           zoomSlide(
             parseInt(curPageId, 10),
-            podId,
             viewedRegionW,
             viewedRegionH,
             camera.point[0],
@@ -609,14 +607,14 @@ export default function Whiteboard(props) {
     const { nextSlide, numberOfSlides } = props;
 
     if (event) event.currentTarget.blur();
-    nextSlide(+curPageId, numberOfSlides, podId);
+    nextSlide(+curPageId, numberOfSlides);
   };
 
   const previousSlideHandler = (event) => {
     const { previousSlide } = props;
 
     if (event) event.currentTarget.blur();
-    previousSlide(+curPageId, podId);
+    previousSlide(+curPageId);
   };
 
   const handleOnKeyDown = (event) => {
@@ -821,7 +819,6 @@ export default function Whiteboard(props) {
 
       zoomSlide(
         parseInt(curPageId, 10),
-        podId,
         viewedRegionW,
         viewedRegionH,
         camera.point[0],
@@ -913,7 +910,7 @@ export default function Whiteboard(props) {
     if (app.currentPageId !== curPageId) {
       if (isPresenter) {
         // change slide for others
-        skipToSlide(Number.parseInt(app.currentPageId, 10), podId);
+        skipToSlide(Number.parseInt(app.currentPageId, 10));
       } else {
         // ignore, stay on same page
         app.changePage(curPageId);
@@ -934,7 +931,7 @@ export default function Whiteboard(props) {
     if (app.currentPageId !== curPageId) {
       if (isPresenter) {
         // change slide for others
-        skipToSlide(Number.parseInt(app.currentPageId, 10), podId);
+        skipToSlide(Number.parseInt(app.currentPageId, 10));
       } else {
         // ignore, stay on same page
         app.changePage(curPageId);
@@ -982,7 +979,7 @@ export default function Whiteboard(props) {
       }
       if (isPresenter) {
         // change slide for others
-        skipToSlide(Number.parseInt(app.currentPageId, 10), podId);
+        skipToSlide(Number.parseInt(app.currentPageId, 10));
       } else {
         // ignore, stay on same page
         app.changePage(curPageId);
@@ -1131,7 +1128,6 @@ Whiteboard.propTypes = {
     userId: PropTypes.string.isRequired,
   }).isRequired,
   whiteboardId: PropTypes.string,
-  podId: PropTypes.string.isRequired,
   zoomSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
   slidePosition: PropTypes.shape({
