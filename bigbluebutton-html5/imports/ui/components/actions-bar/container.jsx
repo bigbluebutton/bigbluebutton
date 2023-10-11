@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
+import { useSubscription } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
-import Presentations from '/imports/api/presentations';
 import { UsersContext } from '../components-data/users-context/context';
 import ActionsBar from './component';
 import Service from './service';
@@ -16,12 +16,18 @@ import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
+
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
+  const isThereCurrentPresentation = !!presentationPage?.presentationId;
 
   const usingUsersContext = useContext(UsersContext);
   const {
@@ -51,6 +57,7 @@ const ActionsBarContainer = (props) => {
         actionsBarStyle,
         amIPresenter,
         actionBarItems,
+        isThereCurrentPresentation,
       }
     }
     />
@@ -87,8 +94,6 @@ export default withTracker(() => ({
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
   isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
-  isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
-    { fields: {} }),
   allowExternalVideo: isExternalVideoEnabled(),
   setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));
