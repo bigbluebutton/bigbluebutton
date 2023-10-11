@@ -1,12 +1,9 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
-import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import PollService from '/imports/ui/components/poll/service';
-import logger from '/imports/startup/client/logger';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
@@ -24,79 +21,6 @@ const intlMessages = defineMessages({
     description: 'Label shown in toast when the user tries to add more shapes than the limit',
   },
 });
-
-let annotationsStreamListener = null;
-
-async function handleAddedAnnotation({
-  meetingId,
-  whiteboardId,
-  userId,
-  annotation,
-}) {
-  const query = await addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
-
-  Annotations.upsert(query.selector, query.modifier);
-}
-
-function handleRemovedAnnotation({
-  meetingId, whiteboardId, userId, shapeId,
-}) {
-  const query = { meetingId, whiteboardId };
-
-  if (userId) {
-    query.userId = userId;
-  }
-
-  if (shapeId) {
-    query.id = shapeId;
-  }
-  Annotations.remove(query);
-}
-
-export function initAnnotationsStreamListener() {
-  logger.info(
-    { logCode: 'init_annotations_stream_listener' },
-    'initAnnotationsStreamListener called',
-  );
-  /**
-   * We create a promise to add the handlers after a ddp subscription stop.
-   * The problem was caused because we add handlers to stream before the onStop event happens,
-   * which set the handlers to undefined.
-   */
-  annotationsStreamListener = new Meteor.Streamer(
-    `annotations-${Auth.meetingID}`,
-    { retransmit: false },
-  );
-
-  const startStreamHandlersPromise = new Promise((resolve) => {
-    const checkStreamHandlersInterval = setInterval(() => {
-      const streamHandlersSize = Object.values(
-        Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`]
-          .handlers,
-      ).filter((el) => el !== undefined).length;
-
-      if (!streamHandlersSize) {
-        resolve(clearInterval(checkStreamHandlersInterval));
-      }
-    }, 250);
-  });
-
-  startStreamHandlersPromise.then(() => {
-    logger.debug(
-      { logCode: 'annotations_stream_handler_attach' },
-      'Attaching handlers for annotations stream',
-    );
-
-    annotationsStreamListener.on('removed', handleRemovedAnnotation);
-
-    annotationsStreamListener.on('added', async ({ annotations }) => {
-      await Promise.all(annotations.map(async (annotation) => {
-        const addedHandeler = await handleAddedAnnotation(annotation);
-        return addedHandeler;
-      }));
-    });
-  });
-}
 
 const annotationsQueue = [];
 // How many packets we need to have to use annotationsBufferTimeMax
@@ -165,33 +89,6 @@ const getMultiUser = (whiteboardId) => {
   if (!data || !data.multiUser || !Array.isArray(data.multiUser)) return [];
 
   return data.multiUser;
-};
-
-const getMultiUserSize = (whiteboardId) => {
-  const multiUser = getMultiUser(whiteboardId);
-
-  if (multiUser.length === 0) return 0;
-
-  // Individual whiteboard access is controlled by an array of userIds.
-  // When an user leaves the meeting or the presenter role moves from an
-  // user to another we applying a filter at the whiteboard collection.
-  // Ideally this should change to something more cohese but this would
-  // require extra changes at multiple backend modules.
-  const multiUserSize = Users.find(
-    {
-      meetingId: Auth.meetingID,
-      $or: [
-        {
-          userId: { $in: multiUser },
-          presenter: false,
-        },
-        { presenter: true },
-      ],
-    },
-    { fields: { userId: 1 } },
-  ).fetch();
-
-  return multiUserSize.length;
 };
 
 const getCurrentWhiteboardId = () => {
@@ -409,7 +306,6 @@ const formatAnnotations = (annotations, intl, curPageId) => {
     let annotationInfo = JSON.parse(annotation.annotationInfo);
 
     if (annotationInfo.questionType) {
-      const modAnnotation = annotation;
       // poll result, convert it to text and create tldraw shape
       annotationInfo.answers = annotationInfo.answers.reduce(
         caseInsensitiveReducer, [],
@@ -438,7 +334,8 @@ const formatAnnotations = (annotations, intl, curPageId) => {
         scale: 1,
       };
 
-      const textSize = getTextSize(pollResult, style, padding = 20);
+      const padding = 20;
+      const textSize = getTextSize(pollResult, style, padding);
 
       annotationInfo = {
         childIndex: 0,
@@ -464,7 +361,6 @@ export {
   Annotations,
   sendAnnotation,
   getMultiUser,
-  getMultiUserSize,
   getCurrentWhiteboardId,
   isMultiUserActive,
   hasMultiUserAccess,
