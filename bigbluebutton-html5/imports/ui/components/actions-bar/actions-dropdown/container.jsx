@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Presentations from '/imports/api/presentations';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
-import PresentationPodService from '/imports/ui/components/presentation-pod/service';
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
@@ -44,7 +43,7 @@ export default withTracker(() => {
     isTimerFeatureEnabled: isTimerFeatureEnabled(),
     isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
-    podIds: PresentationPodService.getPresentationPodIds(),
+    podId: 'DEFAULT_PRESENTATION_POD',
     isCameraAsContentEnabled: isCameraAsContentEnabled(),
   };
 })(ActionsDropdownContainer);

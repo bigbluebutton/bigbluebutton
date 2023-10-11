@@ -1,8 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
-import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
-import PresentationService from '/imports/ui/components/presentation/service';
 import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -91,24 +89,6 @@ const getMultiUser = (whiteboardId) => {
   return data.multiUser;
 };
 
-const getCurrentWhiteboardId = () => {
-  const podId = 'DEFAULT_PRESENTATION_POD';
-  const currentPresentation = PresentationService.getCurrentPresentation(podId);
-
-  if (!currentPresentation) return null;
-
-  const currentSlide = Slides.findOne(
-    {
-      podId,
-      presentationId: currentPresentation.id,
-      current: true,
-    },
-    { fields: { id: 1 } },
-  );
-
-  return currentSlide && currentSlide.id;
-};
-
 const hasAnnotations = (presentationId) => {
   const ann = Annotations.findOne(
     { whiteboardId: { $regex: `^${presentationId}` } },
@@ -144,15 +124,13 @@ const removeIndividualAccess = (whiteboardId, userId) => {
   makeCall('removeIndividualAccess', whiteboardId, userId);
 };
 
-const changeWhiteboardAccess = (userId, access) => {
-  const whiteboardId = getCurrentWhiteboardId();
-
-  if (!whiteboardId) return;
+const changeWhiteboardAccess = (pageId, userId, access) => {
+  if (!pageId) return;
 
   if (access) {
-    addIndividualAccess(whiteboardId, userId);
+    addIndividualAccess(pageId, userId);
   } else {
-    removeIndividualAccess(whiteboardId, userId);
+    removeIndividualAccess(pageId, userId);
   }
 };
 
@@ -242,11 +220,6 @@ const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
     result[annotation.annotationInfo.id] = annotation.annotationInfo;
   });
   return result;
-};
-
-const getCurrentPres = () => {
-  const podId = 'DEFAULT_PRESENTATION_POD';
-  return PresentationService.getCurrentPresentation(podId);
 };
 
 const initDefaultPages = (count = 1) => {
@@ -361,7 +334,6 @@ export {
   Annotations,
   sendAnnotation,
   getMultiUser,
-  getCurrentWhiteboardId,
   isMultiUserActive,
   hasMultiUserAccess,
   changeWhiteboardAccess,
@@ -371,7 +343,6 @@ export {
   removeIndividualAccess,
   persistShape,
   getShapes,
-  getCurrentPres,
   removeShapes,
   changeCurrentSlide,
   notifyNotAllowedChange,

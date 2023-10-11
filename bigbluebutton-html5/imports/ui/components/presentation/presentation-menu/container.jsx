@@ -7,10 +7,13 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import UserService from '/imports/ui/components/user-list/service';
 import { isSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { useSubscription } from '@apollo/client';
+import {
+  CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -27,6 +30,10 @@ const PresentationMenuContainer = (props) => {
     ];
   }
 
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
+  const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
+
   return (
     <PresentationMenu
       {...props}
@@ -37,6 +44,7 @@ const PresentationMenuContainer = (props) => {
         layoutContextDispatch,
         isRTL,
         presentationDropdownItems,
+        hasWBAccess,
       }}
     />
   );
@@ -47,7 +55,6 @@ export default withTracker((props) => {
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({ meetingId }, { fields: { 'meetingProp.name': 1 } });
-  const hasWBAccess = WhiteboardService.hasMultiUserAccess(WhiteboardService.getCurrentWhiteboardId(), Auth.userID);
   const amIPresenter = UserService.isUserPresenter(Auth.userID);
 
   return {
@@ -57,7 +64,6 @@ export default withTracker((props) => {
     isIphone,
     isDropdownOpen: Session.get('dropdownOpen'),
     meetingName: meetingObject.meetingProp.name,
-    hasWBAccess,
     amIPresenter,
   };
 })(PresentationMenuContainer);

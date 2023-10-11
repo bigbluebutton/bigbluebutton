@@ -35,6 +35,7 @@ interface UserActionsProps {
   usersPolicies: UsersPolicies;
   isBreakout: boolean;
   children: React.ReactNode;
+  pageId: string;
 }
 
 interface DropdownItem {
@@ -189,6 +190,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   usersPolicies,
   isBreakout,
   children,
+  pageId,
 }) => {
   const intl = useIntl();
   const [showNestedOptions, setShowNestedOptions] = useState(false);
@@ -343,7 +345,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        changeWhiteboardAccess(user.userId, user.presPagesWritable.length > 0);
+        changeWhiteboardAccess(pageId, user.userId, user.presPagesWritable.length > 0);
         setSelected(false);
       },
       icon: 'pen_tool',

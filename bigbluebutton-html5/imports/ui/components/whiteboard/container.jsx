@@ -44,7 +44,6 @@ const WhiteboardContainer = (props) => {
     intl,
     slidePosition,
     svgUri,
-    podId,
   } = props;
 
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
@@ -192,10 +191,7 @@ const WhiteboardContainer = (props) => {
         skipToSlide: PresentationToolbarService.skipToSlide,
         nextSlide: PresentationToolbarService.nextSlide,
         previousSlide: PresentationToolbarService.previousSlide,
-        numberOfSlides: PresentationToolbarService.getNumberOfSlides(
-          podId,
-          presentationId,
-        ),
+        numberOfSlides: currentPresentationPage?.numPages,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
         whiteboardToolbarAutoHide:

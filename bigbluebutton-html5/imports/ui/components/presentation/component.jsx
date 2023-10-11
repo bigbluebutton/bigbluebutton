@@ -590,6 +590,7 @@ class Presentation extends PureComponent {
       multiUserSize,
       multiUser,
       fitToWidth,
+      numPages,
     } = this.props;
     const { zoom, isPanning } = this.state;
 
@@ -629,6 +630,7 @@ class Presentation extends PureComponent {
         multiUserSize={multiUserSize}
         multiUser={multiUser}
         whiteboardId={currentSlide?.id}
+        numberOfSlides={numPages}
       />
     );
   }

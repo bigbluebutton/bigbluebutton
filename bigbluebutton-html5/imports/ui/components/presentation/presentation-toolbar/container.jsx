@@ -49,12 +49,7 @@ const PresentationToolbarContainer = (props) => {
   return null;
 };
 
-export default withTracker((params) => {
-  const {
-    podId,
-    presentationId,
-  } = params;
-
+export default withTracker(() => {
   const startPoll = (type, id, answers = [], question = '', multiResp = false) => {
     Session.set('openPanel', 'poll');
     Session.set('forcePollOpen', true);
@@ -64,7 +59,6 @@ export default withTracker((params) => {
   };
 
   return {
-    numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
     nextSlide: PresentationToolbarService.nextSlide,
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,

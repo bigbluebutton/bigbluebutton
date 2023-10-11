@@ -1,21 +1,7 @@
-import Auth from '/imports/ui/services/auth';
-import Presentations from '/imports/api/presentations';
 import { makeCall } from '/imports/ui/services/api';
 import { throttle } from '/imports/utils/throttle';
 
 const PAN_ZOOM_INTERVAL = Meteor.settings.public.presentation.panZoomInterval || 200;
-
-const getNumberOfSlides = (podId, presentationId) => {
-  const meetingId = Auth.meetingID;
-
-  const presentation = Presentations.findOne({
-    meetingId,
-    podId,
-    id: presentationId,
-  });
-
-  return presentation && presentation.pages ? presentation.pages.length : 0;
-};
 
 const previousSlide = (currentSlideNum, podId) => {
   if (currentSlideNum > 1) {
@@ -38,7 +24,6 @@ const skipToSlide = (requestedSlideNum, podId) => {
 };
 
 export default {
-  getNumberOfSlides,
   nextSlide,
   previousSlide,
   skipToSlide,

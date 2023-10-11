@@ -14,7 +14,9 @@ import {
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
 import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
-
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
@@ -28,6 +30,7 @@ interface UserListParticipantsProps {
   meeting: Meeting;
   currentUser: Partial<User>;
   count: number;
+  pageId: string;
 }
 interface RowRendererProps extends ListProps {
   users: Array<User>;
@@ -37,7 +40,7 @@ interface RowRendererProps extends ListProps {
   index: number;
 }
 const rowRenderer: React.FC<RowRendererProps> = ({
-  index, key, style, users, validCurrentUser, offset, meeting, isRTL,
+  index, key, style, users, validCurrentUser, offset, meeting, isRTL, pageId,
 }) => {
   const userIndex = index - offset;
   const user = users && users[userIndex];
@@ -52,6 +55,7 @@ const rowRenderer: React.FC<RowRendererProps> = ({
           lockSettings={meeting.lockSettings}
           usersPolicies={meeting.usersPolicies}
           isBreakout={meeting.isBreakout}
+          pageId={pageId}
         >
           <ListItem user={user} lockSettings={meeting.lockSettings} />
         </UserActions>
@@ -70,6 +74,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   currentUser,
   meeting,
   count,
+  pageId,
 }) => {
   const validCurrentUser: Partial<User> = currentUser && currentUser.userId
     ? currentUser
@@ -90,7 +95,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
             rowRenderer={
               (props: RowRendererProps) => rowRenderer(
                 {
-                  ...props, users: users || previousUsersData, validCurrentUser, offset, meeting, isRTL,
+                  ...props, users: users || previousUsersData, validCurrentUser, offset, meeting, isRTL, pageId,
                 },
               )
             }
@@ -145,6 +150,10 @@ const UserListParticipantsContainer: React.FC = () => {
     presenter: c.presenter,
   }));
 
+  const { data: presentationData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const presentationPage = presentationData?.pres_page_curr[0] || {};
+  const pageId = presentationPage?.pageId;
+
   useEffect(() => {
     setUserListGraphqlVariables({
       offset,
@@ -162,6 +171,7 @@ const UserListParticipantsContainer: React.FC = () => {
         meeting={meeting ?? {}}
         currentUser={currentUser ?? {}}
         count={count ?? 0}
+        pageId={pageId}
       />
     </>
   );

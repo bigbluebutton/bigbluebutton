@@ -337,15 +337,11 @@ class ActionsDropdown extends PureComponent {
     const {
       presentations,
       setPresentation,
-      podIds,
+      podId,
       setPresentationFitToWidth,
     } = this.props;
 
-    if (!podIds || podIds.length < 1) return [];
-
-    // We still have code for other pods from the Flash client. This intentionally only cares
-    // about the first one because it's the default.
-    const { podId } = podIds[0];
+    if (!podId) return [];
 
     const presentationItemElements = presentations
       .sort((a, b) => a.name.localeCompare(b.name))
