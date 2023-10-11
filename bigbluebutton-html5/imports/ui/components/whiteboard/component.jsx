@@ -80,6 +80,7 @@ export default function Whiteboard(props) {
     currentPresentationPage,
     numberOfPages,
     presentationId,
+    hasWBAccess,
   } = props;
   // TODO: use real number of pages of the presentation when this information gets available from graphQL
   const { pages, pageStates } = initDefaultPages(numberOfPages || 1);
@@ -550,8 +551,6 @@ export default function Whiteboard(props) {
       }
     }
   }, [isPresenter]);
-
-  const hasWBAccess = hasMultiUserAccess(whiteboardId, currentUser.userId);
 
   React.useEffect(() => {
     if (tldrawAPI) {

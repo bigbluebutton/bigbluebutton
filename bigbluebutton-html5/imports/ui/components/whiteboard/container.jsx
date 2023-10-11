@@ -7,6 +7,7 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
+  CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from './queries';
 import {
   initDefaultPages,
@@ -51,6 +52,10 @@ const WhiteboardContainer = (props) => {
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const curPageId = currentPresentationPage?.num;
   const presentationId = currentPresentationPage?.presentationId;
+
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
+  const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
   const {
     loading: annotationsLoading,
@@ -202,6 +207,7 @@ const WhiteboardContainer = (props) => {
         currentPresentationPage,
         numberOfPages: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
         presentationId,
+        hasWBAccess,
       }}
       {...props}
       meetingId={Auth.meetingID}
