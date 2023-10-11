@@ -7,10 +7,6 @@ import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
-import { useSubscription } from '@apollo/client';
-import {
-  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-} from '/imports/ui/components/whiteboard/queries';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -37,15 +33,11 @@ const PollContainer = ({ ...props }) => {
   );
 };
 
-export default withTracker(({ amIPresenter }) => {
+export default withTracker(({ amIPresenter, currentSlideId }) => {
   const isPollSecret = Session.get('secretPoll') || false;
 
   Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
 
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
-  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
-
-  const currentSlideId = presentationPage?.pageId;
   const pollId = currentSlideId || PUBLIC_CHAT_KEY;
 
   const { pollTypes } = Service;
