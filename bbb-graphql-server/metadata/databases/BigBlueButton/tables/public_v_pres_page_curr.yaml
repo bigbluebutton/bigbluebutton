@@ -13,6 +13,7 @@ select_permissions:
         - content
         - downloadFileUri
         - downloadable
+        - downloadFileExtension
         - height
         - heightRatio
         - isCurrentPage
