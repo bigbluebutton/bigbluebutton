@@ -129,6 +129,11 @@ const PresentationContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
+  const presentationAreaSize = {
+    presentationAreaWidth: presentation?.width,
+    presentationAreaHeight: presentation?.height,
+  };
+
   if (!currentSlide) return null;
 
   return (
@@ -167,6 +172,7 @@ const PresentationContainer = (props) => {
         setPresentationIsOpen: MediaService.setPresentationIsOpen,
         isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
         presentationName: currentPresentationPage?.presentationName,
+        presentationAreaSize,
       }
       }
     />
