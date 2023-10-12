@@ -2,11 +2,12 @@ package websrv
 
 import (
 	"context"
+	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"sync"
 )
 
-func ConnectionInitHandler(browserConnectionId string, browserConnectionContext context.Context, fromBrowser chan interface{}, wg *sync.WaitGroup) {
+func ConnectionInitHandler(browserConnectionId string, browserConnectionContext context.Context, fromBrowser *common.SafeChannel, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "ConnectionInitHandler").WithField("browserConnectionId", browserConnectionId)
 
 	log.Debugf("starting")
@@ -19,8 +20,12 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 	BrowserConnectionsMutex.RUnlock()
 
 	// Intercept the fromBrowserMessage channel to get the sessionToken
-	for fromBrowserMessage := range fromBrowser {
-		// Gets the sessionToken
+	for {
+		fromBrowserMessage, ok := fromBrowser.Receive()
+		if !ok {
+			//Received all messages. Channel is closed
+			return
+		}
 		if browserConnection.SessionToken == "" {
 			var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
@@ -36,7 +41,7 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 					BrowserConnectionsMutex.Unlock()
 
 					go SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
-
+					fromBrowser.Close()
 					break
 				}
 			}

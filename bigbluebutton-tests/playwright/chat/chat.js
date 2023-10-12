@@ -18,6 +18,7 @@ class Chat extends MultiUsers {
     await this.modPage.checkElementCount(e.chatUserMessageText, 0);
 
     await this.modPage.type(e.chatBox, e.message);
+    await this.userPage.hasElement(e.typingIndicator);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.checkElementCount(e.chatUserMessageText, 1);
   }
@@ -37,6 +38,7 @@ class Chat extends MultiUsers {
     await this.userPage.hasText(e.chatUserMessageText, e.message1);
     // userPage send message
     await this.userPage.type(e.chatBox, e.message2);
+    await this.modPage.hasElement(e.typingIndicator);
     await this.userPage.waitAndClick(e.sendButton);
     // check sent messages 
     await this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, e.message2);

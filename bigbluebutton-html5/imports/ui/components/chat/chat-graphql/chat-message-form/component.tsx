@@ -234,13 +234,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   };
 
   const renderForm = () => {
-    const formRef = useRef<HTMLFormElement | null >(null);
+    const formRef = useRef<HTMLFormElement | null>(null);
 
     const [sendGroupChatMsg, {
       loading: sendGroupChatMsgLoading, error: sendGroupChatMsgError,
     }] = useMutation(SEND_GROUP_CHAT_MSG);
 
-    const handleSubmit = (e:React.FormEvent<HTMLFormElement>|React.KeyboardEvent<HTMLInputElement>|Event) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
       const msg = message.trim();
@@ -274,6 +274,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       if (ENABLE_TYPING_INDICATOR) stopUserTyping();
       const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
       window.dispatchEvent(sentMessageEvent);
+
+      setTimeout(() => {
+        textAreaRef.current?.textarea.focus();
+      }, 100);
     };
 
     const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

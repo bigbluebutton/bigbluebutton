@@ -21,7 +21,7 @@ create table "meeting" (
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
 	"createdTime" bigint,
-	"duration" integer
+	"durationInSeconds" integer
 );
 create index "idx_meeting_extId" on "meeting"("extId");
 
@@ -198,6 +198,13 @@ WHERE "hideUserList" IS FALSE;
 
 CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSettings"("meetingId") WHERE "hideUserList" IS FALSE;
 
+create table "meeting_clientSettings" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+    	"clientSettingsJson"    jsonb
+);
+
+CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings";
+
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -342,7 +349,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
@@ -396,7 +403,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
@@ -444,7 +451,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
@@ -693,7 +700,7 @@ create view "v_user_localSettings" as select * from "user_localSettings";
 CREATE TABLE "user_reaction" (
 	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 	"reactionEmoji" varchar(25),
-	"duration" integer not null,
+	"durationInSeconds" integer not null,
 	"createdAt" timestamp with time zone not null,
 	"expiresAt" timestamp with time zone
 );
@@ -701,7 +708,7 @@ CREATE TABLE "user_reaction" (
 --Set expiresAt on isert or update user_reaction
 CREATE OR REPLACE FUNCTION "update_user_reaction_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
-    NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."duration";
+    NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."durationInSeconds";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -712,7 +719,7 @@ CREATE TRIGGER "update_user_reaction_trigger" BEFORE UPDATE ON "user_reaction"
 CREATE TRIGGER "insert_user_reaction_trigger" BEFORE INSERT ON "user_reaction" FOR EACH ROW
 EXECUTE FUNCTION "update_user_reaction_trigger_func"();
 
---ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp with time zone GENERATED ALWAYS AS ("createdAt" + '1 seconds'::INTERVAL * "duration") STORED;
+--ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp with time zone GENERATED ALWAYS AS ("createdAt" + '1 seconds'::INTERVAL * "durationInSeconds") STORED;
 
 CREATE INDEX "idx_user_reaction_userId_createdAt" ON "user_reaction"("userId", "expiresAt");
 
@@ -863,6 +870,7 @@ CREATE TABLE "pres_presentation" (
 	"isDefault" boolean,
 	"current" boolean,
 	"downloadable" boolean,
+	"downloadFileExtension" varchar(25),
 	"downloadFileUri" varchar(500),
 	"removable" boolean,
     "converting" boolean,
@@ -905,6 +913,7 @@ SELECT pres_presentation."meetingId",
 	pres_presentation."isDefault",
 	pres_presentation."current",
 	pres_presentation."downloadable",
+	pres_presentation."downloadFileExtension",
 	pres_presentation."downloadFileUri",
 	pres_presentation."removable",
     pres_presentation."converting",
@@ -948,6 +957,7 @@ SELECT pres_presentation."meetingId",
     pres_presentation."filenameConverted" as "presentationFilenameConverted",
     pres_presentation."isDefault" as "isDefaultPresentation",
 	pres_presentation."downloadable",
+	case when pres_presentation."downloadable" then pres_presentation."downloadFileExtension" else null end "downloadFileExtension",
 	case when pres_presentation."downloadable" then pres_presentation."downloadFileUri" else null end "downloadFileUri",
     pres_presentation."removable",
     pres_presentation."numPages",

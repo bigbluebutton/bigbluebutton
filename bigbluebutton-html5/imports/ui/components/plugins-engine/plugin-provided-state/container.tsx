@@ -15,6 +15,7 @@ import NavBarPluginStateContainer from './nav-bar/container';
 import OptionsDropdownPluginStateContainer from './options-dropdown/container';
 import CameraSettingsDropdownPluginStateContainer from './camera-settings-dropdown/container';
 import UserCameraDropdownPluginStateContainer from './user-camera-dropdown/container';
+import UserListItemAdditionalInformationPluginStateContainer from './user-list-item-additional-information/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
@@ -29,6 +30,7 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   OptionsDropdownPluginStateContainer,
   CameraSettingsDropdownPluginStateContainer,
   UserCameraDropdownPluginStateContainer,
+  UserListItemAdditionalInformationPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
