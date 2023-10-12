@@ -216,8 +216,9 @@ class PresentationToolbar extends PureComponent {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
+    const isElementFocused = document.getElementById('presentationToolbarWrapper').matches(':focus');
 
-    if (isBody) {
+    if (isElementFocused && isBody) {
       switch (which) {
         case KEY_CODES.ARROW_LEFT:
         case KEY_CODES.PAGE_UP:
