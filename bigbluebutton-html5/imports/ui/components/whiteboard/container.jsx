@@ -33,7 +33,6 @@ import Whiteboard from './component';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
-const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 let annotations = [];
 let lastUpdatedAt = null;
@@ -204,7 +203,7 @@ const WhiteboardContainer = (props) => {
         toggleToolsAnimations,
         isIphone,
         currentPresentationPage,
-        numberOfPages: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
+        numberOfPages: currentPresentationPage?.numPages,
         presentationId,
         hasWBAccess,
         whiteboardWriters,

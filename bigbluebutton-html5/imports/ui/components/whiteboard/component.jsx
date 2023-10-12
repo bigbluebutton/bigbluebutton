@@ -82,7 +82,7 @@ export default function Whiteboard(props) {
     hasWBAccess,
     whiteboardWriters,
   } = props;
-  // TODO: use real number of pages of the presentation when this information gets available from graphQL
+
   const { pages, pageStates } = initDefaultPages(numberOfPages || 1);
   const rDocument = React.useRef({
     name: 'test',
