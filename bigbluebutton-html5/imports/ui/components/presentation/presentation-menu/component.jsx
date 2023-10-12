@@ -371,6 +371,7 @@ const PresentationMenu = (props) => {
               state={isDropdownOpen ? 'open' : 'closed'}
               aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
               data-test="whiteboardOptionsButton"
+              data-state={isDropdownOpen ? 'open' : 'closed'}
               onClick={() => {
                 setIsDropdownOpen((isOpen) => !isOpen);
               }}
