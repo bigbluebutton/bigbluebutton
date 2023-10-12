@@ -45,9 +45,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const METEOR_SETTINGS_APP = Meteor.settings.public.app;
-const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: [number] = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
-
 interface MeetingRemainingTimeContainerProps {
   isBreakoutDuration: boolean | false;
   fromBreakoutPanel: boolean;
@@ -62,6 +59,11 @@ interface MeetingRemainingTimeProps {
   displayAlerts: boolean;
   isBreakout: boolean | false;
 }
+
+const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: [number] = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
+
+let lastAlertTime: number | null = null;
 
 const MeetingRemainingTime: React.FC<MeetingRemainingTimeProps> = (props) => {
   const {
@@ -108,7 +110,6 @@ const MeetingRemainingTime: React.FC<MeetingRemainingTimeProps> = (props) => {
     };
   }, [remainingTime, durationInSeconds]);
 
-  let lastAlertTime: number | null = null;
   let meetingTimeMessage: string = '';
   let boldText: boolean = false;
 
