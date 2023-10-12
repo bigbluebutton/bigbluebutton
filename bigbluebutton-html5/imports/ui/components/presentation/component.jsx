@@ -18,7 +18,6 @@ import DEFAULT_VALUES from '../layout/defaultValues';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
 import { addNewAlert } from '../screenreader-alert/service';
-import { clearCursors } from '/imports/ui/components/whiteboard/cursors/service';
 import { debounce } from '/imports/utils/debounce';
 
 const intlMessages = defineMessages({
@@ -199,7 +198,6 @@ class Presentation extends PureComponent {
       presentationBounds,
       numCameras,
       intl,
-      multiUser,
       numPages,
       currentPresentationId,
       fitToWidth,
@@ -217,12 +215,7 @@ class Presentation extends PureComponent {
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
-      multiUser: prevMultiUser,
     } = prevProps;
-
-    if (prevMultiUser && !multiUser) {
-      clearCursors();
-    }
 
     if (numCameras !== prevNumCameras) {
       this.onResize();

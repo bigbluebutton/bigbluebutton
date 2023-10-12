@@ -6,13 +6,8 @@ const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;
 
 const publishCursorUpdate = throttle(
   (payload) => makeCall('publishCursorUpdate', Auth.meetingID, Auth.userID, payload),
-  CURSOR_INTERVAL
+  CURSOR_INTERVAL,
 );
-
-export const clearCursors = () => {
-  // TODO
-  console.log('TODO: clearCursors');
-};
 
 export default {
   publishCursorUpdate,
