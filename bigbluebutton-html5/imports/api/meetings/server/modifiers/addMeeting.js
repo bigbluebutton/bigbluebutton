@@ -14,7 +14,6 @@ import { initPads } from '/imports/api/pads/server/helpers';
 import createTimer from '/imports/api/timer/server/methods/createTimer';
 import { initCaptions } from '/imports/api/captions/server/helpers';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
-import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import addUserReactionsObserver from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
@@ -233,7 +232,6 @@ export default async function addMeeting(meeting) {
 
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
     addAnnotationsStreamer(meetingId);
-    addCursorStreamer(meetingId);
     addExternalVideoStreamer(meetingId);
 
     // we don't want to fully process the create meeting message

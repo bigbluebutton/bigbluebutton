@@ -96,18 +96,6 @@ const hasAnnotations = (presentationId) => {
   return ann !== undefined;
 };
 
-const isMultiUserActive = (whiteboardId) => {
-  const multiUser = getMultiUser(whiteboardId);
-
-  return multiUser.length !== 0;
-};
-
-const hasMultiUserAccess = (whiteboardId, userId) => {
-  const multiUser = getMultiUser(whiteboardId);
-
-  return multiUser.includes(userId);
-};
-
 const addGlobalAccess = (whiteboardId) => {
   makeCall('addGlobalAccess', whiteboardId);
 };
@@ -334,8 +322,6 @@ export {
   Annotations,
   sendAnnotation,
   getMultiUser,
-  isMultiUserActive,
-  hasMultiUserAccess,
   changeWhiteboardAccess,
   addGlobalAccess,
   addIndividualAccess,

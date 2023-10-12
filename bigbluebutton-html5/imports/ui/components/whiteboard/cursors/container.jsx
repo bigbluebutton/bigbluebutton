@@ -1,4 +1,3 @@
-import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import { useSubscription } from '@apollo/client';
 import SettingsService from '/imports/ui/services/settings';
@@ -8,10 +7,7 @@ import { CURSOR_SUBSCRIPTION } from './queries';
 import { omit } from 'radash';
 
 const CursorsContainer = (props) => {
-  const {
-    data: cursorData,
-    error: cursorError,
-  } = useSubscription(CURSOR_SUBSCRIPTION);
+  const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
   const { pres_page_cursor: cursorArray } = (cursorData || []);
 
   if (!cursorData) return null;

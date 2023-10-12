@@ -64,7 +64,6 @@ export default function Whiteboard(props) {
     setTldrawIsMounting,
     width,
     height,
-    hasMultiUserAccess,
     tldrawAPI,
     setTldrawAPI,
     whiteboardToolbarAutoHide,
@@ -81,6 +80,7 @@ export default function Whiteboard(props) {
     numberOfPages,
     presentationId,
     hasWBAccess,
+    whiteboardWriters,
   } = props;
   // TODO: use real number of pages of the presentation when this information gets available from graphQL
   const { pages, pageStates } = initDefaultPages(numberOfPages || 1);
@@ -1071,7 +1071,6 @@ export default function Whiteboard(props) {
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
-        hasMultiUserAccess={hasMultiUserAccess}
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
@@ -1080,6 +1079,8 @@ export default function Whiteboard(props) {
         currentTool={currentTool}
         whiteboardToolbarAutoHide={whiteboardToolbarAutoHide}
         toggleToolsAnimations={toggleToolsAnimations}
+        hasWBAccess={hasWBAccess}
+        whiteboardWriters={whiteboardWriters}
       >
         {(hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <Styled.TldrawGlobalStyle
@@ -1142,7 +1143,6 @@ Whiteboard.propTypes = {
   presentationHeight: PropTypes.number.isRequired,
   isViewersCursorLocked: PropTypes.bool.isRequired,
   zoomChanger: PropTypes.func.isRequired,
-  isMultiUserActive: PropTypes.func.isRequired,
   isRTL: PropTypes.bool.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
   zoomValue: PropTypes.number.isRequired,
@@ -1162,7 +1162,6 @@ Whiteboard.propTypes = {
   setTldrawIsMounting: PropTypes.func.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  hasMultiUserAccess: PropTypes.func.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,

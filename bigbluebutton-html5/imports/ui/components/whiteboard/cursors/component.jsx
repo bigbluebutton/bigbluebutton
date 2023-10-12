@@ -41,7 +41,7 @@ const Cursors = (props) => {
     publishCursorUpdate,
     children,
     isViewersCursorLocked,
-    hasMultiUserAccess,
+    hasWBAccess,
     isMultiUserActive,
     isPanning,
     isMoving,
@@ -49,6 +49,7 @@ const Cursors = (props) => {
     toggleToolsAnimations,
     whiteboardToolbarAutoHide,
     application,
+    whiteboardWriters,
   } = props;
 
   const [panGrabbing, setPanGrabbing] = React.useState(false);
@@ -68,9 +69,8 @@ const Cursors = (props) => {
   const handleGrabbing = () => setPanGrabbing(true);
   const handleReleaseGrab = () => setPanGrabbing(false);
 
-  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   const end = () => {
-    if (whiteboardId && (multiUserAccess || currentUser?.presenter)) {
+    if (whiteboardId && (hasWBAccess || currentUser?.presenter)) {
       publishCursorUpdate({
         xPercent: -1.0,
         yPercent: -1.0,
@@ -241,7 +241,7 @@ const Cursors = (props) => {
     };
   }, [cursorWrapper, whiteboardId, currentUser.presenter, whiteboardToolbarAutoHide]);
 
-  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] : 'default';
+  let cursorType = hasWBAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] : 'default';
 
   if (isPanning) {
     if (panGrabbing) {
@@ -254,7 +254,7 @@ const Cursors = (props) => {
   return (
     <span key={`cursor-wrapper-${whiteboardId}`} ref={cursorWrapper}>
       <div style={{ height: '100%', cursor: cursorType }}>
-        {((active && multiUserAccess) || (active && currentUser?.presenter)) && (
+        {((active && hasWBAccess) || (active && currentUser?.presenter)) && (
           <PositionLabel
             pos={pos}
             otherCursors={otherCursors}
@@ -290,13 +290,13 @@ const Cursors = (props) => {
                   x={c?.xPercent}
                   y={c?.yPercent}
                   tldrawCamera={tldrawCamera}
-                  isMultiUserActive={isMultiUserActive(whiteboardId)}
+                  isMultiUserActive={isMultiUserActive}
                   owner
                 />
               );
             }
 
-            return hasMultiUserAccess(whiteboardId, c?.userId)
+            return whiteboardWriters?.some((writer) => writer.userId === c?.userId)
               && (
                 <Cursor
                   key={`${c?.userId}`}
@@ -305,7 +305,7 @@ const Cursors = (props) => {
                   x={c?.xPercent}
                   y={c?.yPercent}
                   tldrawCamera={tldrawCamera}
-                  isMultiUserActive={isMultiUserActive(whiteboardId)}
+                  isMultiUserActive={isMultiUserActive}
                   owner
                 />
               );
@@ -331,8 +331,7 @@ Cursors.propTypes = {
   publishCursorUpdate: PropTypes.func.isRequired,
   children: PropTypes.arrayOf(PropTypes.element).isRequired,
   isViewersCursorLocked: PropTypes.bool.isRequired,
-  hasMultiUserAccess: PropTypes.func.isRequired,
-  isMultiUserActive: PropTypes.func.isRequired,
+  isMultiUserActive: PropTypes.bool.isRequired,
   isPanning: PropTypes.bool.isRequired,
   isMoving: PropTypes.bool.isRequired,
   currentTool: PropTypes.string,

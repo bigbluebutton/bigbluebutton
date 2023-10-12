@@ -13,8 +13,6 @@ import {
   initDefaultPages,
   persistShape,
   removeShapes,
-  isMultiUserActive,
-  hasMultiUserAccess,
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
@@ -56,6 +54,8 @@ const WhiteboardContainer = (props) => {
   const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
+
+  const isMultiUserActive = whiteboardWriters?.length > 0;
 
   const {
     loading: annotationsLoading,
@@ -187,7 +187,6 @@ const WhiteboardContainer = (props) => {
         initDefaultPages,
         persistShape,
         isMultiUserActive,
-        hasMultiUserAccess,
         changeCurrentSlide,
         shapes,
         assets,
@@ -208,6 +207,7 @@ const WhiteboardContainer = (props) => {
         numberOfPages: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
         presentationId,
         hasWBAccess,
+        whiteboardWriters,
       }}
       {...props}
       meetingId={Auth.meetingID}
