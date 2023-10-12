@@ -226,7 +226,7 @@ const MeetingRemainingTimeContainer: React.FC<MeetingRemainingTimeContainerProps
   const currentMeeting = useMeeting((m) => {
     return {
       isBreakout: m.isBreakout,
-      duration: m.duration,
+      durationInSeconds: m.durationInSeconds,
       createdTime: m.createdTime,
     };
   });
@@ -234,10 +234,8 @@ const MeetingRemainingTimeContainer: React.FC<MeetingRemainingTimeContainerProps
   if (!currentMeeting) return loadingRemainingTime();
 
   const { isBreakout } = currentMeeting;
-  const meetingDuration: number = currentMeeting.duration ?? 0;
-  const meetingCreatedTime = currentMeeting.createdTime ?? 0;
-  // normal meeting duration is in MINUTES and breakout meeting duration in SECONDS
-  const meetingDurationInSeconds = (isBreakout) ? meetingDuration : meetingDuration * 60;
+  const meetingDurationInSeconds: number = currentMeeting.durationInSeconds ?? 0;
+  const meetingCreatedTime: number = currentMeeting.createdTime ?? 0;
 
   return (
     <MeetingRemainingTime

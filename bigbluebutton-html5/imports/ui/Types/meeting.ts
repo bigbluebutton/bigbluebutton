@@ -76,7 +76,7 @@ export interface BreakoutPolicies {
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
-  duration: number;
+  durationInSeconds: number;
   extId: string;
   html5InstanceId: string | null;
   isBreakout: boolean;
