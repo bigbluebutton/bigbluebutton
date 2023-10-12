@@ -131,7 +131,7 @@ select_permissions:
       columns:
         - createdTime
         - disabledFeatures
-        - duration
+        - durationInSeconds
         - extId
         - html5InstanceId
         - isBreakout
