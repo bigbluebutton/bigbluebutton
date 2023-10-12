@@ -9,8 +9,9 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import Auth from '/imports/ui/services/auth';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
-import { CurrentPoll } from '/imports/api/polls';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { useSubscription } from '@apollo/client';
+import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 
 const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
@@ -22,10 +23,13 @@ const PresentationToolbarContainer = (props) => {
 
   const { layoutSwapped } = props;
 
+  const { data: pollData } = useSubscription(POLL_SUBSCRIPTION);
+  const hasPoll = pollData?.poll?.length > 0;
+
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
   const endCurrentPoll = () => {
-    if (CurrentPoll.findOne({ meetingId: Auth.meetingID })) makeCall('stopPoll');
+    if (hasPoll) makeCall('stopPoll');
   };
 
   if (userIsPresenter && !layoutSwapped) {
