@@ -955,7 +955,7 @@ class VideoPreview extends Component {
   
     const containerStyle = {
       width: '60%',
-      height: '25vh', 
+      height: '25vh',
     };
   
     return (
@@ -989,12 +989,20 @@ class VideoPreview extends Component {
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
+    const containerStyle = {
+      width: '60%',
+      height: '25vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center', 
+    };
+
     switch (viewState) {
       case VIEW_STATES.finding:
         return (
           <Styled.Content>
             <Styled.VideoCol>
-              <div>
+              <div style={containerStyle}>
                 <span>{intl.formatMessage(intlMessages.findingWebcamsLabel)}</span>
                 <Styled.FetchingAnimation animations={animations} />
               </div>
@@ -1138,6 +1146,7 @@ class VideoPreview extends Component {
       forceOpen,
       isOpen,
       priority,
+      cameraAsContent,
     } = this.props;
 
     const { selectedTab } = this.state;
@@ -1197,16 +1206,18 @@ class VideoPreview extends Component {
                     id="backgrounds-title">{intl.formatMessage(intlMessages.webcamSettingsTitle)}
                   </span>
                 </Styled.WebcamTabSelector>
-                <Styled.HeaderSeparator />
-                <Styled.WebcamTabSelector selectedClassName="is-selected">
-                  <Styled.IconSvg
-                    src={WebcamBackgroundImg}
-                    darkThemeState={darkThemeState}
-                  />
-                  <span
-                    id="webcam-settings-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}
-                  </span>
-                </Styled.WebcamTabSelector>
+                {!cameraAsContent && (
+                <>
+                  <Styled.HeaderSeparator />
+                  <Styled.WebcamTabSelector selectedClassName="is-selected">
+                    <Styled.IconSvg
+                      src={WebcamBackgroundImg}
+                      darkThemeState={darkThemeState}
+                    />
+                    <span id="webcam-settings-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}</span>
+                  </Styled.WebcamTabSelector>
+                </>
+              )}
               </Styled.WebcamTabList>
               
             </Styled.WebcamTabs>
