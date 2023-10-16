@@ -6,8 +6,9 @@ import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPage
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
 
-import java.io.IOException
+import java.io.{ BufferedReader, IOException, InputStreamReader }
 import java.net.URL
+import java.util.stream.Collectors
 import javax.imageio.ImageIO
 import scala.xml.XML
 
@@ -90,10 +91,15 @@ object MsgBuilder {
       val width = w.toDouble
       val height = h.toDouble
 
+      val contentUrl = new URL(txtUrl)
+      val reader = new BufferedReader(new InputStreamReader(contentUrl.openStream()))
+      val content = reader.lines().collect(Collectors.joining("\n"))
+
       PresentationPageConvertedVO(
         id = id,
         num = page,
         urls = urls,
+        content = content,
         current = current,
         width = width,
         height = height
@@ -105,6 +111,7 @@ object MsgBuilder {
           id = id,
           num = page,
           urls = urls,
+          content = "",
           current = current
         )
     }
