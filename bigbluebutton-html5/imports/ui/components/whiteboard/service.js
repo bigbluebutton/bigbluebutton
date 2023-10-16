@@ -7,8 +7,6 @@ import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { getTextSize } from './utils';
 
-const Annotations = new Mongo.Collection(null);
-
 const intlMessages = defineMessages({
   notifyNotAllowedChange: {
     id: 'app.whiteboard.annotations.notAllowed',
@@ -89,13 +87,6 @@ const getMultiUser = (whiteboardId) => {
   return data.multiUser;
 };
 
-const hasAnnotations = (presentationId) => {
-  const ann = Annotations.findOne(
-    { whiteboardId: { $regex: `^${presentationId}` } },
-  );
-  return ann !== undefined;
-};
-
 const addGlobalAccess = (whiteboardId) => {
   makeCall('addGlobalAccess', whiteboardId);
 };
@@ -137,77 +128,6 @@ const removeShapes = (shapes, whiteboardId) => makeCall('deleteAnnotations', sha
 
 const changeCurrentSlide = (s) => {
   makeCall('changeCurrentSlide', s);
-};
-
-const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
-  const unlockedSelector = { whiteboardId };
-  const lockedSelector = {
-    whiteboardId,
-    $or: [
-      { 'annotationInfo.isModerator': true },
-      { 'annotationInfo.userId': Auth.userID },
-    ],
-  };
-
-  const annotations = Annotations.find(
-    isLocked ? lockedSelector : unlockedSelector,
-    {
-      fields: { annotationInfo: 1, userId: 1 },
-    },
-  ).fetch();
-
-  const result = {};
-
-  annotations.forEach((annotation) => {
-    if (annotation.annotationInfo.questionType) {
-      const modAnnotation = annotation;
-      // poll result, convert it to text and create tldraw shape
-      modAnnotation.annotationInfo.answers = annotation.annotationInfo.answers.reduce(
-        caseInsensitiveReducer, [],
-      );
-      let pollResult = PollService.getPollResultString(annotation.annotationInfo, intl)
-        .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
-
-      const lines = pollResult.split('\n');
-      const longestLine = lines.reduce((a, b) => a.length > b.length ? a : b, '').length;
-
-      // add empty spaces before first | in each of the lines to make them all the same length
-      pollResult = lines.map((line) => {
-        if (!line.includes('|') || line.length === longestLine) return line;
-
-        const splitLine = line.split(' |');
-        const spaces = ' '.repeat(longestLine - line.length);
-        return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
-      }).join('\n');
-
-      const style = {
-        color: 'white',
-        dash: 'solid',
-        font: 'mono',
-        isFilled: true,
-        size: 'small',
-        scale: 1,
-      };
-
-      const textSize = getTextSize(pollResult, style, padding = 20);
-
-      modAnnotation.annotationInfo = {
-        childIndex: 0,
-        id: annotation.annotationInfo.id,
-        name: `poll-result-${annotation.annotationInfo.id}`,
-        type: 'rectangle',
-        label: pollResult,
-        labelPoint: [0.5, 0.5],
-        parentId: `${curPageId}`,
-        point: [0, 0],
-        size: textSize,
-        style,
-      };
-      modAnnotation.annotationInfo.questionType = false;
-    }
-    result[annotation.annotationInfo.id] = annotation.annotationInfo;
-  });
-  return result;
 };
 
 const initDefaultPages = (count = 1) => {
@@ -319,7 +239,6 @@ const formatAnnotations = (annotations, intl, curPageId) => {
 
 export {
   initDefaultPages,
-  Annotations,
   sendAnnotation,
   getMultiUser,
   changeWhiteboardAccess,
@@ -328,12 +247,10 @@ export {
   removeGlobalAccess,
   removeIndividualAccess,
   persistShape,
-  getShapes,
   removeShapes,
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
-  hasAnnotations,
   toggleToolsAnimations,
   formatAnnotations,
 };

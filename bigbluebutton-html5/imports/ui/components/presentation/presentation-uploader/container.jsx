@@ -14,7 +14,6 @@ import {
   isDownloadPresentationConvertedToPdfEnabled,
   isPresentationEnabled,
 } from '/imports/ui/services/features';
-import { hasAnnotations } from '/imports/ui/components/whiteboard/service';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -64,6 +63,5 @@ export default withTracker(() => {
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),
     handleFiledrop: Service.handleFiledrop,
-    hasAnnotations,
   };
 })(PresentationUploaderContainer);

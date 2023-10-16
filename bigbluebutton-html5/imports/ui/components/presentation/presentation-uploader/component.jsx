@@ -50,7 +50,6 @@ const propTypes = {
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
   exportPresentation: PropTypes.func.isRequired,
-  hasAnnotations: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -1006,7 +1005,6 @@ class PresentationUploader extends Component {
       allowDownloadConverted,
       allowDownloadWithAnnotations,
       renderPresentationItemStatus,
-      hasAnnotations,
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent
@@ -1038,7 +1036,6 @@ class PresentationUploader extends Component {
 
     const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.filename}`;
 
-    const hasAnyAnnotation = hasAnnotations(item.id);
     return (
       <Styled.PresentationItem
         key={item.id}
@@ -1081,7 +1078,6 @@ class PresentationUploader extends Component {
           <Styled.TableItemActions notDownloadable={!allowDownloadOriginal}>
             {allowDownloadOriginal || allowDownloadWithAnnotations || allowDownloadConverted ? (
               <PresentationDownloadDropdown
-                hasAnnotations={hasAnyAnnotation}
                 disabled={shouldDisableExportButton}
                 data-test="exportPresentation"
                 aria-label={formattedDownloadAriaLabel}
