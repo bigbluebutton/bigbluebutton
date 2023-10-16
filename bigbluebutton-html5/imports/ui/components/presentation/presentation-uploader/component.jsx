@@ -33,11 +33,9 @@ const propTypes = {
   dispatchChangePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.shape).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    filename: PropTypes.string.isRequired,
-    isCurrent: PropTypes.bool.isRequired,
-    conversion: PropTypes.shape,
-    upload: PropTypes.shape,
+    presentationId: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    current: PropTypes.bool.isRequired,
   })).isRequired,
   currentPresentation: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
@@ -379,14 +377,14 @@ class PresentationUploader extends Component {
       shouldUpdateState = true;
       const propsDiffs = propPresentations.filter(
         (p) => !prevPropPresentations.some(
-          (presentation) => p.id === presentation.id
+          (presentation) => p.presentationId === presentation.presentationId
             || p.temporaryPresentationId === presentation.temporaryPresentationId,
         ),
       );
 
       propsDiffs.forEach((p) => {
         const index = presState.findIndex(
-          (pres) => pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id,
+          (pres) => pres.temporaryPresentationId === p.temporaryPresentationId || pres.presentationId === p.presentationId,
         );
         if (index === -1) {
           presState.push(p);
@@ -394,27 +392,34 @@ class PresentationUploader extends Component {
       });
     }
     const presStateFiltered = presState.filter((presentation) => {
-      const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
-      const prevPropPres = prevPropPresentations.find((pres) => pres.id === presentation.id);
-      const hasConversionError = presentation?.conversion?.error;
-      const finishedConversion = presentation?.conversion?.done
-        || currentPropPres?.conversion?.done;
-      const hasTemporaryId = presentation.id.startsWith(presentation.filename);
+      const currentPropPres = propPresentations.find((pres) => pres.presentationId === presentation.presentationId);
+      const prevPropPres = prevPropPresentations.find((pres) => pres.presentationId === presentation.presentationId);
+      const hasConversionError = !!presentation?.errorMsgKey;
+      const finishedConversion = !presentation?.converting
+        || !currentPropPres?.converting;
+      const hasTemporaryId = presentation.presentationId.startsWith(presentation.name);
 
       if (hasConversionError || (!finishedConversion && hasTemporaryId)) return true;
       if (!currentPropPres) return false;
 
-      if (presentation?.conversion?.done !== finishedConversion) {
+      if (presentation?.converting && presentation?.converting !== finishedConversion) {
         shouldUpdateState = true;
       }
 
       const modPresentation = presentation;
-      if (currentPropPres.isCurrent !== prevPropPres?.isCurrent) {
-        modPresentation.isCurrent = currentPropPres.isCurrent;
+      if (currentPropPres.current !== prevPropPres?.current) {
+        modPresentation.current = currentPropPres.current;
       }
 
-      if (currentPropPres?.isDownloadable !== prevPropPres?.isDownloadable) {
-        presentation.isDownloadable = currentPropPres.isDownloadable;
+      if (currentPropPres?.pagesUploaded !== prevPropPres?.pagesUploaded) {
+        modPresentation.numPages = currentPropPres.numPages;
+        modPresentation.pagesUploaded = currentPropPres.pagesUploaded;
+        modPresentation.uploadCompleted = currentPropPres.uploadCompleted;
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres?.downloadable !== prevPropPres?.downloadable) {
+        presentation.downloadable = currentPropPres.downloadable;
         shouldUpdateState = true;
       }
 
@@ -428,19 +433,19 @@ class PresentationUploader extends Component {
         shouldUpdateState = true;
       }
 
-      modPresentation.conversion = currentPropPres.conversion;
+      modPresentation.converting = currentPropPres.converting;
       modPresentation.isRemovable = currentPropPres.isRemovable;
 
       return true;
     }).filter((presentation) => {
       const duplicated = presentations.find(
-        (pres) => pres.filename === presentation.filename
-          && pres.id !== presentation.id,
+        (pres) => pres.name === presentation.name
+          && pres.presentationId !== presentation.presentationId,
       );
       if (duplicated
-        && duplicated.id.startsWith(presentation.filename)
-        && !presentation.id.startsWith(presentation.filename)
-        && presentation?.conversion?.done === duplicated?.conversion?.done) {
+        && duplicated.presentationId.startsWith(presentation.name)
+        && !presentation.presentationId.startsWith(presentation.name)
+        && presentation?.converting === duplicated?.converting) {
         return false; // Prioritizing propPresentations (the one with id from back-end)
       }
       return true;
@@ -448,7 +453,7 @@ class PresentationUploader extends Component {
 
     if (shouldUpdateState) {
       this.setState({
-        presentations: unique(presStateFiltered, p => p.id)
+        presentations: unique(presStateFiltered, p => p.presentationId)
       });
     }
 
@@ -487,8 +492,8 @@ class PresentationUploader extends Component {
     }
 
     if (presentations.length > 0) {
-      const selected = propPresentations.filter((p) => p.isCurrent);
-      if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
+      const selected = propPresentations.filter((p) => p.current);
+      if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].presentationId);
     }
 
     if (this.exportToastId) {
@@ -516,18 +521,18 @@ class PresentationUploader extends Component {
       const { presentations } = this.state;
       const { presentations: propPresentations } = this.props;
     
-      const filteredPropPresentations = propPresentations.filter(d => d.upload.done && d.conversion?.done);
-      const ids = new Set(filteredPropPresentations.map((d) => d.id));
+      const filteredPropPresentations = propPresentations.filter(d => d.uploadCompleted && !d.converting);
+      const ids = new Set(filteredPropPresentations.map((d) => d.presentationId));
       const filteredPresentations = presentations.filter((d) => {
-        d.isCurrent = false;
-        return !ids.has(d.id) && !(d.upload.error || d.conversion.error) && !(d.upload.done && d.conversion.done)});
+        d.current = false;
+        return !ids.has(d.presentationId) && !d.errorMsgKey && !(d.uploadCompleted && !d.converting)});
       const merged = [
         ...filteredPresentations,
         ...filteredPropPresentations,
       ];
       let hasUploading
       merged.forEach(d => {
-        if (!d.upload?.done || !d.conversion?.done) {
+        if (!d.uploadCompleted || d.converting) {
           hasUploading = true;
         }})
       this.hasError = false;
@@ -553,15 +558,15 @@ class PresentationUploader extends Component {
       const { presentations: updatedPresentations, oldCurrentId } = this.state;
       const commands = {};
 
-      const currentIndex = updatedPresentations.findIndex((p) => p.isCurrent);
-      const actualCurrentIndex = updatedPresentations.findIndex((p) => p.id === oldCurrentId);
+      const currentIndex = updatedPresentations.findIndex((p) => p.current);
+      const actualCurrentIndex = updatedPresentations.findIndex((p) => p.presentationId === oldCurrentId);
 
       if (currentIndex === -1 && updatedPresentations.length > 0) {
         const newCurrentIndex = actualCurrentIndex === -1 ? 0 : actualCurrentIndex;
         commands[newCurrentIndex] = {
           $apply: (presentation) => {
             const p = presentation;
-            p.isCurrent = true;
+            p.current = true;
             return p;
           },
         };
@@ -577,8 +582,8 @@ class PresentationUploader extends Component {
 
     if (disableActions || presentations?.length === 0) return;
 
-    const currentIndex = presentations.findIndex((p) => p.isCurrent);
-    const newCurrentIndex = presentations.findIndex((p) => p.id === id);
+    const currentIndex = presentations.findIndex((p) => p.current);
+    const newCurrentIndex = presentations.findIndex((p) => p.presentationId === id);
     const commands = {};
 
     // we can end up without a current presentation
@@ -586,7 +591,7 @@ class PresentationUploader extends Component {
       commands[currentIndex] = {
         $apply: (presentation) => {
           const p = presentation;
-          p.isCurrent = false;
+          p.current = false;
           return p;
         },
       };
@@ -595,7 +600,9 @@ class PresentationUploader extends Component {
     commands[newCurrentIndex] = {
       $apply: (presentation) => {
         const p = presentation;
-        p.isCurrent = true;
+        if (p) {
+          p.current = true;
+        }
         return p;
       },
     };
@@ -625,21 +632,21 @@ class PresentationUploader extends Component {
     this.setState({ disableActions: true });
 
     presentations.forEach((item) => {
-      if (item.upload.done) {
+      if (item.uploadCompleted) {
         const didDownloadableStateChange = propPresentations.some(
-          (p) => p.id === item.id && p.isDownloadable !== item.isDownloadable,
+          (p) => p.presentationId === item.presentationId && p.downloadable !== item.downloadable,
         );
         if (didDownloadableStateChange) {
-          dispatchChangePresentationDownloadable(item, item.isDownloadable);
+          dispatchChangePresentationDownloadable(item, item.downloadable);
         }
       }
     });
 
     if (!disableActions) {
       Session.set('showUploadPresentationView', false);
-      return handleSave(presentationsToSave)
+      return handleSave(presentationsToSave, true, {}, propPresentations)
         .then(() => {
-          const hasError = presentations.some((p) => p.upload.error || p.conversion.error);
+          const hasError = presentations.some((p) => !!p.errorMsgKey);
           if (!hasError) {
             this.setState({
               disableActions: false,
@@ -652,8 +659,8 @@ class PresentationUploader extends Component {
             // preventClosing: true,
           }, () => {
             // if the selected current has error we revert back to the old one
-            const newCurrent = presentations.find((p) => p.isCurrent);
-            if (newCurrent.upload.error || newCurrent.conversion.error) {
+            const newCurrent = presentations.find((p) => p.current);
+            if (newCurrent.errorMsgKey) {
               this.handleCurrentChange(selectedToBeNextCurrent);
             }
           });
@@ -680,16 +687,16 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
     const { presentations: propPresentations } = this.props;
 
-    const ids = new Set(propPresentations.map((d) => d.id));
+    const ids = new Set(propPresentations.map((d) => d.presentationId));
 
-    const filteredPresentations = presentations.filter((d) => !ids.has(d.id)
-      && (d.upload.done || d.upload.progress !== 0));
-    const isThereStateCurrentPres = filteredPresentations.some((p) => p.isCurrent);
+    const filteredPresentations = presentations.filter((d) => !ids.has(d.presentationId)
+      && (d.uploadCompleted || d.pagesUploaded !== 0));
+    const isThereStateCurrentPres = filteredPresentations.some((p) => p.current);
     const merged = [
       ...filteredPresentations,
       ...propPresentations.filter((p) => {
         if (isThereStateCurrentPres) {
-          p.isCurrent = false;
+          p.current = false;
         }
         return true;
       }),
@@ -707,15 +714,15 @@ class PresentationUploader extends Component {
     } = this.props;
 
     const observer = (exportation, stopped) => {
-      this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
+      this.deepMergeUpdateFileKey(item.presentationId, 'exportation', exportation);
 
       if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
         if (fileStateType === 'Original' || fileStateType === 'Converted') {
-          if (!item.isDownloadable) {
-            notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.filename }), 'success');
+          if (!item.downloadable) {
+            notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.name }), 'success');
           }
         } else {
-          notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.filename }), 'success');
+          notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.name }), 'success');
         }
       }
 
@@ -725,7 +732,7 @@ class PresentationUploader extends Component {
         EXPORT_STATUSES.PROCESSING,
       ].includes(exportation.status) && fileStateType === 'Annotated') {
         this.setState((prevState) => {
-          prevState.presExporting.add(item.id);
+          prevState.presExporting.add(item.presentationId);
           return {
             presExporting: prevState.presExporting,
           };
@@ -758,14 +765,14 @@ class PresentationUploader extends Component {
       }
     };
 
-    exportPresentation(item.id, observer, fileStateType);
+    exportPresentation(item.presentationId, observer, fileStateType);
   }
 
   getPresentationsToShow() {
     const { presentations, presExporting } = this.state;
 
     return Array.from(presExporting)
-      .map((id) => presentations.find((p) => p.id === id))
+      .map((id) => presentations.find((p) => p.presentationId === id))
       .filter((p) => p);
   }
 
@@ -776,7 +783,7 @@ class PresentationUploader extends Component {
 
   updateFileKey(id, key, value, operation = '$set') {
     this.setState(({ presentations }) => {
-      const fileIndex = presentations.findIndex((f) => f.id === id);
+      const fileIndex = presentations.findIndex((f) => f.presentationId === id);
 
       return fileIndex === -1 ? false : {
         presentations: update(presentations, {
@@ -820,12 +827,12 @@ class PresentationUploader extends Component {
     try {
       presentationsSorted = presentations
         .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
-        .sort((a, b) => a.filename.localeCompare(b.filename))
-        .sort((a, b) => b.upload.progress - a.upload.progress)
-        .sort((a, b) => b.conversion.done - a.conversion.done)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .sort((a, b) => b.pagesUploaded - a.pagesUploaded)
+        .sort((a, b) => b.converting - a.converting)
         .sort((a, b) => {
-          const aUploadNotTriggeredYet = !a.upload.done && a.upload.progress === 0;
-          const bUploadNotTriggeredYet = !b.upload.done && b.upload.progress === 0;
+          const aUploadNotTriggeredYet = !a.uploadCompleted && a.pagesUploaded === 0;
+          const bUploadNotTriggeredYet = !b.uploadCompleted && b.pagesUploaded === 0;
           return bUploadNotTriggeredYet - aUploadNotTriggeredYet;
         });
     } catch (error) {
@@ -859,7 +866,7 @@ class PresentationUploader extends Component {
             </Styled.Head>
           </thead>
           <tbody>
-            {unique(presentationsSorted, p => p.id) .map((item) => this.renderPresentationItem(item))}
+            {unique(presentationsSorted, p => p.presentationId) .map((item) => this.renderPresentationItem(item))}
           </tbody>
         </Styled.Table>
       </Styled.FileList>
@@ -934,14 +941,14 @@ class PresentationUploader extends Component {
 
     return (
       <Styled.UploadRow
-        key={item.id || item.temporaryPresentationId}
+        key={item.presentationId || item.temporaryPresentationId}
       >
         <Styled.FileLine>
           <span>
             <Icon iconName="file" />
           </span>
           <Styled.ToastFileName>
-            <span>{item.filename}</span>
+            <span>{item.name}</span>
           </Styled.ToastFileName>
           <Styled.StatusIcon>
             <Styled.ToastItemIcon
@@ -1008,11 +1015,11 @@ class PresentationUploader extends Component {
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent
-      ? item.id === selectedToBeNextCurrent
-      : item.isCurrent;
-    const isUploading = !item.upload.done && item.upload.progress > 0;
-    const isConverting = !item.conversion.done && item.upload.done;
-    const hasError = item.conversion.error || item.upload.error;
+      ? item.presentationId === selectedToBeNextCurrent
+      : item.current;
+    const isUploading = !item.uploadCompleted;
+    const isConverting = item.converting;
+    const hasError = !!item.errorMsgKey;
     const isProcessing = (isUploading || isConverting) && !hasError;
 
     if (hasError) {
@@ -1021,25 +1028,26 @@ class PresentationUploader extends Component {
 
     const { animations } = Settings.application;
 
-    const { isRemovable, exportation: { status }, isDownloadable } = item;
+    const { isRemovable, downloadable } = item;
+    const status = ''; // TODO: add exportation status in graphql
 
     const isExporting = status === 'RUNNING';
 
     const shouldDisableExportButton = (isExporting
-      || !item.conversion.done
+      || item.converting
       || hasError
-      || disableActions) && !item.conversion?.done;
+      || disableActions) && item.converting;
 
     const formattedDownloadLabel = isExporting
       ? intl.formatMessage(intlMessages.exporting)
       : intl.formatMessage(intlMessages.export);
 
-    const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.filename}`;
+    const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.name}`;
 
     return (
       <Styled.PresentationItem
-        key={item.id}
-        isNew={item.id.indexOf(item.filename) !== -1}
+        key={item.presentationId}
+        isNew={item.presentationId.indexOf(item.name) !== -1}
         uploading={isUploading}
         converting={isConverting}
         error={hasError}
@@ -1049,15 +1057,15 @@ class PresentationUploader extends Component {
         <Styled.SetCurrentAction>
           <Radio
             animations={animations}
-            ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
-            checked={item.isCurrent}
-            keyValue={item.id}
-            onChange={() => this.handleCurrentChange(item.id)}
+            ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.name}`}
+            checked={item.current}
+            keyValue={item.presentationId}
+            onChange={() => this.handleCurrentChange(item.presentationId)}
             disabled={disableActions || hasError}
           />
         </Styled.SetCurrentAction>
         <Styled.TableItemName colSpan={!isActualCurrent ? 2 : 0}>
-          <span>{item.filename}</span>
+          <span>{item.name}</span>
         </Styled.TableItemName>
         {
           isActualCurrent
@@ -1082,7 +1090,7 @@ class PresentationUploader extends Component {
                 data-test="exportPresentation"
                 aria-label={formattedDownloadAriaLabel}
                 color="primary"
-                isDownloadable={isDownloadable}
+                isDownloadable={downloadable}
                 allowDownloadOriginal={allowDownloadOriginal}
                 allowDownloadConverted={allowDownloadConverted}
                 allowDownloadWithAnnotations={allowDownloadWithAnnotations}
@@ -1098,7 +1106,7 @@ class PresentationUploader extends Component {
                 disabled={disableActions}
                 label={intl.formatMessage(intlMessages.removePresentation)}
                 data-test="removePresentation"
-                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
+                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.name}`}
                 size="sm"
                 icon="delete"
                 hideLabel
@@ -1239,7 +1247,7 @@ class PresentationUploader extends Component {
     let hasNewUpload = false;
 
     presentations.forEach((item) => {
-      if (item.id.indexOf(item.filename) !== -1 && item.upload.progress === 0) hasNewUpload = true;
+      if (item?.presentationId.indexOf(item.name) !== -1 && item.pagesUploaded === 0) hasNewUpload = true;
     });
 
     return (

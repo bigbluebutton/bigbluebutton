@@ -14,6 +14,10 @@ import {
   isDownloadPresentationConvertedToPdfEnabled,
   isPresentationEnabled,
 } from '/imports/ui/services/features';
+import { useSubscription } from '@apollo/client';
+import {
+  PRESENTATIONS_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -23,16 +27,23 @@ const PresentationUploaderContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
+  const { data: presentationData } = useSubscription(PRESENTATIONS_SUBSCRIPTION);
+  const presentations = presentationData?.pres_presentation || [];
+  const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
+
   return userIsPresenter && (
     <ErrorBoundary Fallback={FallbackModal}>
-      <PresentationUploader isPresenter={userIsPresenter} {...props} />
+      <PresentationUploader
+        isPresenter={userIsPresenter}
+        presentations={presentations}
+        currentPresentation={currentPresentation}
+        {...props}
+      />
     </ErrorBoundary>
   );
 };
 
 export default withTracker(() => {
-  const presentations = Service.getPresentations();
-  const currentPresentation = presentations.find((p) => p.isCurrent)?.id || '';
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
@@ -42,8 +53,6 @@ export default withTracker(() => {
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
   return {
-    presentations,
-    currentPresentation,
     fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,

@@ -133,7 +133,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if (('conversion' in item) && (!item.conversion.done && item.conversion.error)) {
+  if (('conversion' in item) && (item.converting && item.errorMsgKey)) {
     const errorMessage = intlMessages[item.conversion.status]
       || intlMessages.genericConversionStatus;
 
@@ -162,17 +162,17 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if ((('conversion' in item) && (!item.conversion.done && !item.conversion.error)) || (('progress' in item) && item.progress === 100)) {
+  if ((('conversion' in item) && (item.converting && !item.errorMsgKey)) || (('progress' in item) && item.progress === 100)) {
     let conversionStatusMessage;
     if ('conversion' in item) {
-      if (item.conversion.pagesCompleted < item.conversion.numPages) {
+      if (item.conversion?.pagesCompleted < item.conversion?.numPages) {
         return intl.formatMessage(intlMessages.conversionProcessingSlides, {
           0: item.conversion.pagesCompleted,
           1: item.conversion.numPages,
         });
       }
 
-      conversionStatusMessage = intlMessages[item.conversion.status]
+      conversionStatusMessage = intlMessages[item.conversion?.status]
         || intlMessages.genericConversionStatus;
     } else {
       conversionStatusMessage = intlMessages.genericConversionStatus;
@@ -238,7 +238,7 @@ const renderToastList = (presentations, intl) => {
 
   presentationsSorted
     .forEach((p) => {
-      const presDone = p.conversion ? p.conversion.done : false;
+      const presDone = !p.converting;
       if (presDone) converted += 1;
       return p;
     });

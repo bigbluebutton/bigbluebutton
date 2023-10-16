@@ -24,6 +24,25 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
   }  
 }`;
 
+export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
+  pres_presentation {
+    converting
+    current
+    downloadFileUri
+    downloadable
+    errorDetails
+    errorMsgKey
+    filenameConverted
+    isDefault
+    name
+    numPages
+    pagesUploaded
+    presentationId
+    removable
+    uploadCompleted
+  }  
+}`;
+
 export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQuery {
   pres_annotation_curr(order_by: { lastUpdatedAt: desc }) {
     annotationId
