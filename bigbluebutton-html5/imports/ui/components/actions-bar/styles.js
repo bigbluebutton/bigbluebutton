@@ -102,7 +102,7 @@ const ReactionsDropdown = styled.div`
 
 const Wrapper = styled.div`
   overflow: hidden;
-  padding: 5px;
+  margin: 0.2em 0.2em 0.2em 0.2em;
   text-align: center;
   max-height: 270px;
   width: 270px;
