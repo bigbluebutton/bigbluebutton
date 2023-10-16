@@ -249,7 +249,7 @@ class MessageForm extends PureComponent {
       stopUserTyping,
     } = this.props;
     const { message } = this.state;
-    let msg = message.trim();
+    const msg = message.trim();
 
     if (msg.length < minMessageLength) return;
 
@@ -289,8 +289,6 @@ class MessageForm extends PureComponent {
         <Styled.EmojiPickerWrapper>
           <Styled.EmojiPicker
             onEmojiSelect={(emojiObject) => this.handleEmojiSelect(emojiObject)}
-            showPreview={false}
-            showSkinTones={false}
           />
         </Styled.EmojiPickerWrapper>
       );

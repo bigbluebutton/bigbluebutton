@@ -597,8 +597,7 @@ public:
     autoConvertEmoji: true
     emojiPicker:
       enable: false
-      frequentEmojiSortOnClick: false
-    # e.g.: disableEmojis: ['1F595','1F922']
+    # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
   userReaction:
     enabled: true
