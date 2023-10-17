@@ -82,7 +82,9 @@ object MsgBuilder {
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
     try {
-      val svgContent = Source.fromURL(new URL(svgUrl)).mkString
+      val svgSource = Source.fromURL(new URL(svgUrl))
+      val svgContent = svgSource.mkString
+      svgSource.close()
 
       // XML parser configuration in use disallows the DOCTYPE declaration within the XML document
       // Sanitize the XML content removing DOCTYPE
