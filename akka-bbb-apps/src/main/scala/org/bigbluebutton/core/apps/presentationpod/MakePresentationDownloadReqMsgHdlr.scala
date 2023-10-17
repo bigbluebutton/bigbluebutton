@@ -259,11 +259,12 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       )
       ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
     } else if (m.body.fileStateType == "Converted") {
-      PresPresentationDAO.updatDownloadUri(m.body.presId, m.body.convertedFileURI)
+      PresPresentationDAO.updateDownloadUri(m.body.presId, m.body.convertedFileURI)
     } else if (m.body.fileStateType == "Original") {
-      PresPresentationDAO.updatDownloadUri(m.body.presId, m.body.originalFileURI)
+      PresPresentationDAO.updateDownloadUri(m.body.presId, m.body.originalFileURI)
     }
 
+    PresPresentationDAO.updateExportToChatStatus(m.body.presId, "EXPORTED")
     bus.outGW.send(buildBroadcastNewPresFileAvailable(m, liveMeeting))
   }
 
@@ -279,6 +280,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   }
 
   def handle(m: PresAnnStatusMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    PresPresentationDAO.updateExportToChat(m.body.presId, m.body.status, m.body.pageNumber, m.body.error)
     bus.outGW.send(buildBroadcastPresAnnStatusMsg(m, liveMeeting))
   }
 
