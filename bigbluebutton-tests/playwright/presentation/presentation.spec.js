@@ -12,6 +12,12 @@ test.describe.parallel('Presentation', () => {
     await presentation.skipSlide();
   });
 
+  test('Share Camera As Content', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.shareCameraAsContent();
+  });
+
   // https://docs.bigbluebutton.org/2.6/release-tests.html#minimizerestore-presentation-automated
   test('Hide/Restore presentation @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
