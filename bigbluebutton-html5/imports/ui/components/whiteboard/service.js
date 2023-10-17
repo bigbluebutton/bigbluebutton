@@ -184,6 +184,8 @@ const toggleToolsAnimations = (activeAnim, anim, time) => {
 const formatAnnotations = (annotations, intl, curPageId) => {
   const result = {};
   annotations.forEach((annotation) => {
+    if (annotation.annotationInfo === '') return;
+
     let annotationInfo = JSON.parse(annotation.annotationInfo);
 
     if (annotationInfo.questionType) {

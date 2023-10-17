@@ -85,7 +85,15 @@ const WhiteboardContainer = (props) => {
 
   if (streamDataItem) {
     if (new Date(lastUpdatedAt).getTime() < new Date(streamDataItem[0].lastUpdatedAt).getTime()) {
-      annotations = annotations.concat(streamDataItem);
+      if (streamDataItem[0].annotationInfo === '') {
+        // remove shape
+        annotations = annotations.filter(
+          (annotation) => annotation.annotationId !== streamDataItem[0].annotationId,
+        );
+      } else {
+        // add shape
+        annotations = annotations.concat(streamDataItem);
+      }
       lastUpdatedAt = streamDataItem[0].lastUpdatedAt;
     }
   }
