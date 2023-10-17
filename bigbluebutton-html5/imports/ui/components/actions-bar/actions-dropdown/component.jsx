@@ -353,10 +353,10 @@ class ActionsDropdown extends PureComponent {
             selected: p.current ? true : false,
             label: p.name,
             description: "uploaded presentation file",
-            key: `uploaded-presentation-${p.id}`,
+            key: `uploaded-presentation-${p.presentationId}`,
             onClick: () => {
               setPresentationFitToWidth(false);
-              setPresentation(p.id);
+              setPresentation(p.presentationId);
             },
           }
         );

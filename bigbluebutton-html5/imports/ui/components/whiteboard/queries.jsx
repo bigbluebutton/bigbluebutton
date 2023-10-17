@@ -43,6 +43,14 @@ export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscrip
   }  
 }`;
 
+export const PROCESSED_PRESENTATIONS_SUBSCRIPTION = gql`subscription ProcessedPresentationsSubscription {
+  pres_presentation(where: { converting: { _is_null: true }, uploadCompleted: { _eq: true } }) {
+    current
+    name
+    presentationId
+  }
+}`;
+
 export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQuery {
   pres_annotation_curr(order_by: { lastUpdatedAt: desc }) {
     annotationId
