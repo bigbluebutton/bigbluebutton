@@ -10,6 +10,8 @@ import { init } from 'emoji-mart';
 
 import Styled from './styles';
 
+const REACTIONS = Meteor.settings.public.userReaction.reactions;
+
 const ReactionsButton = (props) => {
   const {
     intl,
@@ -87,36 +89,9 @@ const ReactionsButton = (props) => {
     native: '✋',
   };
 
-  const reactions = [
-    {
-      id: 'smiley',
-      native: '😃',
-    },
-    {
-      id: 'neutral_face',
-      native: '😐',
-    },
-    {
-      id: 'slightly_frowning_face',
-      native: '🙁',
-    },
-    {
-      id: '+1',
-      native: '👍',
-    },
-    {
-      id: '-1',
-      native: '👎',
-    },
-    {
-      id: 'clap',
-      native: '👏',
-    },
-  ];
-
   let actions = [];
 
-  reactions.forEach(({ id, native }) => {
+  REACTIONS.forEach(({ id, native }) => {
     actions.push({
       label: <Styled.ButtonWrapper active={currentUserReaction === native}><em-emoji key={native} native={native} {...emojiProps} /></Styled.ButtonWrapper>,
       key: id,
@@ -133,7 +108,7 @@ const ReactionsButton = (props) => {
   });
 
   const icon = !raiseHand && currentUserReaction === 'none' ? 'hand' : null;
-  const currentUserReactionEmoji = reactions.find(({ native }) => native === currentUserReaction);
+  const currentUserReactionEmoji = REACTIONS.find(({ native }) => native === currentUserReaction);
 
   let customIcon = null;
 

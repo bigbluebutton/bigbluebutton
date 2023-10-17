@@ -602,6 +602,19 @@ public:
   userReaction:
     enabled: true
     expire: 60
+    reactions:
+      - id: 'smiley'
+        native: '😃'
+      - id: 'neutral_face'
+        native: '😐'
+      - id: 'slightly_frowning_face'
+        native: '🙁'
+      - id: '+1'
+        native: '👍'
+      - id: '-1'
+        native: '👎'
+      - id: 'clap'
+        native: '👏'
   userStatus:
     enabled: false
   notes:
