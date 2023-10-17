@@ -394,15 +394,15 @@ class PresentationUploader extends Component {
     const presStateFiltered = presState.filter((presentation) => {
       const currentPropPres = propPresentations.find((pres) => pres.presentationId === presentation.presentationId);
       const prevPropPres = prevPropPresentations.find((pres) => pres.presentationId === presentation.presentationId);
-      const hasConversionError = !!presentation?.errorMsgKey;
-      const finishedConversion = !presentation?.converting
-        || !currentPropPres?.converting;
+      const hasConversionError = !!presentation?.uploadErrorMsgKey;
+      const finishedConversion = !presentation?.uploadInProgress
+        || !currentPropPres?.uploadInProgress;
       const hasTemporaryId = presentation.presentationId.startsWith(presentation.name);
 
       if (hasConversionError || (!finishedConversion && hasTemporaryId)) return true;
       if (!currentPropPres) return false;
 
-      if (presentation?.converting && presentation?.converting !== finishedConversion) {
+      if (presentation?.uploadInProgress && presentation?.uploadInProgress !== finishedConversion) {
         shouldUpdateState = true;
       }
 
@@ -411,9 +411,9 @@ class PresentationUploader extends Component {
         modPresentation.current = currentPropPres.current;
       }
 
-      if (currentPropPres?.pagesUploaded !== prevPropPres?.pagesUploaded) {
-        modPresentation.numPages = currentPropPres.numPages;
-        modPresentation.pagesUploaded = currentPropPres.pagesUploaded;
+      if (currentPropPres?.totalPagesUploaded !== prevPropPres?.totalPagesUploaded) {
+        modPresentation.totalPages = currentPropPres.totalPages;
+        modPresentation.totalPagesUploaded = currentPropPres.totalPagesUploaded;
         modPresentation.uploadCompleted = currentPropPres.uploadCompleted;
         shouldUpdateState = true;
       }
@@ -433,7 +433,7 @@ class PresentationUploader extends Component {
         shouldUpdateState = true;
       }
 
-      modPresentation.converting = currentPropPres.converting;
+      modPresentation.uploadInProgress = currentPropPres.uploadInProgress;
       modPresentation.isRemovable = currentPropPres.isRemovable;
 
       return true;
@@ -445,7 +445,7 @@ class PresentationUploader extends Component {
       if (duplicated
         && duplicated.presentationId.startsWith(presentation.name)
         && !presentation.presentationId.startsWith(presentation.name)
-        && presentation?.converting === duplicated?.converting) {
+        && presentation?.uploadInProgress === duplicated?.uploadInProgress) {
         return false; // Prioritizing propPresentations (the one with id from back-end)
       }
       return true;
@@ -521,18 +521,18 @@ class PresentationUploader extends Component {
       const { presentations } = this.state;
       const { presentations: propPresentations } = this.props;
     
-      const filteredPropPresentations = propPresentations.filter(d => d.uploadCompleted && !d.converting);
+      const filteredPropPresentations = propPresentations.filter(d => d.uploadCompleted && !d.uploadInProgress);
       const ids = new Set(filteredPropPresentations.map((d) => d.presentationId));
       const filteredPresentations = presentations.filter((d) => {
         d.current = false;
-        return !ids.has(d.presentationId) && !d.errorMsgKey && !(d.uploadCompleted && !d.converting)});
+        return !ids.has(d.presentationId) && !d.uploadErrorMsgKey && !(d.uploadCompleted && !d.uploadInProgress)});
       const merged = [
         ...filteredPresentations,
         ...filteredPropPresentations,
       ];
       let hasUploading
       merged.forEach(d => {
-        if (!d.uploadCompleted || d.converting) {
+        if (!d.uploadCompleted || d.uploadInProgress) {
           hasUploading = true;
         }})
       this.hasError = false;
@@ -646,7 +646,7 @@ class PresentationUploader extends Component {
       Session.set('showUploadPresentationView', false);
       return handleSave(presentationsToSave, true, {}, propPresentations)
         .then(() => {
-          const hasError = presentations.some((p) => !!p.errorMsgKey);
+          const hasError = presentations.some((p) => !!p.uploadErrorMsgKey);
           if (!hasError) {
             this.setState({
               disableActions: false,
@@ -660,7 +660,7 @@ class PresentationUploader extends Component {
           }, () => {
             // if the selected current has error we revert back to the old one
             const newCurrent = presentations.find((p) => p.current);
-            if (newCurrent.errorMsgKey) {
+            if (newCurrent.uploadErrorMsgKey) {
               this.handleCurrentChange(selectedToBeNextCurrent);
             }
           });
@@ -690,7 +690,7 @@ class PresentationUploader extends Component {
     const ids = new Set(propPresentations.map((d) => d.presentationId));
 
     const filteredPresentations = presentations.filter((d) => !ids.has(d.presentationId)
-      && (d.uploadCompleted || d.pagesUploaded !== 0));
+      && (d.uploadCompleted || d.totalPagesUploaded !== 0));
     const isThereStateCurrentPres = filteredPresentations.some((p) => p.current);
     const merged = [
       ...filteredPresentations,
@@ -828,11 +828,11 @@ class PresentationUploader extends Component {
       presentationsSorted = presentations
         .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
         .sort((a, b) => a.name.localeCompare(b.name))
-        .sort((a, b) => b.pagesUploaded - a.pagesUploaded)
-        .sort((a, b) => b.converting - a.converting)
+        .sort((a, b) => b.totalPagesUploaded - a.totalPagesUploaded)
+        .sort((a, b) => b.uploadInProgress - a.uploadInProgress)
         .sort((a, b) => {
-          const aUploadNotTriggeredYet = !a.uploadCompleted && a.pagesUploaded === 0;
-          const bUploadNotTriggeredYet = !b.uploadCompleted && b.pagesUploaded === 0;
+          const aUploadNotTriggeredYet = !a.uploadCompleted && a.totalPagesUploaded === 0;
+          const bUploadNotTriggeredYet = !b.uploadCompleted && b.totalPagesUploaded === 0;
           return bUploadNotTriggeredYet - aUploadNotTriggeredYet;
         });
     } catch (error) {
@@ -1018,9 +1018,9 @@ class PresentationUploader extends Component {
       ? item.presentationId === selectedToBeNextCurrent
       : item.current;
     const isUploading = !item.uploadCompleted;
-    const isConverting = item.converting;
-    const hasError = !!item.errorMsgKey;
-    const isProcessing = (isUploading || isConverting) && !hasError;
+    const uploadInProgress = item.uploadInProgress;
+    const hasError = !!item.uploadErrorMsgKey;
+    const isProcessing = (isUploading || uploadInProgress) && !hasError;
 
     if (hasError) {
       this.hasError = true;
@@ -1034,9 +1034,9 @@ class PresentationUploader extends Component {
     const isExporting = status === 'RUNNING';
 
     const shouldDisableExportButton = (isExporting
-      || item.converting
+      || item.uploadInProgress
       || hasError
-      || disableActions) && item.converting;
+      || disableActions) && item.uploadInProgress;
 
     const formattedDownloadLabel = isExporting
       ? intl.formatMessage(intlMessages.exporting)
@@ -1049,7 +1049,7 @@ class PresentationUploader extends Component {
         key={item.presentationId}
         isNew={item.presentationId.indexOf(item.name) !== -1}
         uploading={isUploading}
-        converting={isConverting}
+        uploadInProgress={uploadInProgress}
         error={hasError}
         animated={isProcessing}
         animations={animations}
@@ -1247,7 +1247,7 @@ class PresentationUploader extends Component {
     let hasNewUpload = false;
 
     presentations.forEach((item) => {
-      if (item?.presentationId.indexOf(item.name) !== -1 && item.pagesUploaded === 0) hasNewUpload = true;
+      if (item?.presentationId.indexOf(item.name) !== -1 && item.totalPagesUploaded === 0) hasNewUpload = true;
     });
 
     return (

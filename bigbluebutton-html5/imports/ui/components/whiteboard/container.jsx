@@ -202,7 +202,7 @@ const WhiteboardContainer = (props) => {
         skipToSlide: PresentationToolbarService.skipToSlide,
         nextSlide: PresentationToolbarService.nextSlide,
         previousSlide: PresentationToolbarService.previousSlide,
-        numberOfSlides: currentPresentationPage?.numPages,
+        numberOfSlides: currentPresentationPage?.totalPages,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
         whiteboardToolbarAutoHide:
@@ -211,7 +211,7 @@ const WhiteboardContainer = (props) => {
         toggleToolsAnimations,
         isIphone,
         currentPresentationPage,
-        numberOfPages: currentPresentationPage?.numPages,
+        numberOfPages: currentPresentationPage?.totalPages,
         presentationId,
         hasWBAccess,
         whiteboardWriters,

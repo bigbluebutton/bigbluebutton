@@ -10,14 +10,14 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     scaledViewBoxHeight
     scaledViewBoxWidth
     scaledWidth
-    urls
+    urlsJson
     width
     xOffset
     yOffset
     presentationId
     content
     downloadFileUri
-    numPages
+    totalPages
     downloadable
     presentationName
     isDefaultPresentation
@@ -26,17 +26,17 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
 
 export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
   pres_presentation {
-    converting
+    uploadInProgress
     current
     downloadFileUri
     downloadable
-    errorDetails
-    errorMsgKey
+    uploadErrorDetailsJson
+    uploadErrorMsgKey
     filenameConverted
     isDefault
     name
-    numPages
-    pagesUploaded
+    totalPages
+    totalPagesUploaded
     presentationId
     removable
     uploadCompleted
@@ -44,7 +44,7 @@ export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscrip
 }`;
 
 export const PROCESSED_PRESENTATIONS_SUBSCRIPTION = gql`subscription ProcessedPresentationsSubscription {
-  pres_presentation(where: { converting: { _is_null: true }, uploadCompleted: { _eq: true } }) {
+  pres_presentation(where: { uploadInProgress: { _is_null: true }, uploadCompleted: { _eq: true } }) {
     current
     name
     presentationId

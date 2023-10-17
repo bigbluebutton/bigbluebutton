@@ -133,7 +133,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if (('conversion' in item) && (item.converting && item.errorMsgKey)) {
+  if (('conversion' in item) && (item.uploadInProgress && item.errorMsgKey)) {
     const errorMessage = intlMessages[item.conversion.status]
       || intlMessages.genericConversionStatus;
 
@@ -162,7 +162,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if ((('conversion' in item) && (item.converting && !item.errorMsgKey)) || (('progress' in item) && item.progress === 100)) {
+  if ((('conversion' in item) && (item.uploadInProgress && !item.errorMsgKey)) || (('progress' in item) && item.progress === 100)) {
     let conversionStatusMessage;
     if ('conversion' in item) {
       if (item.conversion?.pagesCompleted < item.conversion?.numPages) {
@@ -185,9 +185,9 @@ function renderPresentationItemStatus(item, intl) {
 
 function renderToastItem(item, intl) {
   const isUploading = ('progress' in item) && item.progress <= 100;
-  const isConverting = ('conversion' in item) && !item.conversion.done;
+  const uploadInProgress = ('conversion' in item) && !item.conversion.done;
   const hasError = ((('conversion' in item) && item.conversion.error) || (('upload' in item) && item.upload.error));
-  const isProcessing = (isUploading || isConverting) && !hasError;
+  const isProcessing = (isUploading || uploadInProgress) && !hasError;
 
   let icon = isProcessing ? 'blank' : 'check';
   if (hasError) icon = 'circle_close';
@@ -238,7 +238,7 @@ const renderToastList = (presentations, intl) => {
 
   presentationsSorted
     .forEach((p) => {
-      const presDone = !p.converting;
+      const presDone = !p.uploadInProgress;
       if (presDone) converted += 1;
       return p;
     });

@@ -261,7 +261,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
       }
 
       // If its a newly uploaded presentation we need to get it from promise result
-      if (currentPresentation?.converting) {
+      if (currentPresentation?.uploadInProgress) {
         const currentIndex = presentationsToUpload.findIndex((p) => p === currentPresentation);
         currentPresentation = presentations[currentIndex];
       }

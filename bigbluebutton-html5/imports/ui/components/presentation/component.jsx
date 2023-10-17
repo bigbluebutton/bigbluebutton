@@ -155,7 +155,7 @@ class Presentation extends PureComponent {
     const {
       currentSlide,
       slidePosition,
-      numPages,
+      totalPages,
       layoutContextDispatch,
       currentPresentationId,
     } = this.props;
@@ -180,7 +180,7 @@ class Presentation extends PureComponent {
       });
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
-        value: numPages,
+        value: totalPages,
       });
     }
   }
@@ -198,7 +198,7 @@ class Presentation extends PureComponent {
       presentationBounds,
       numCameras,
       intl,
-      numPages,
+      totalPages,
       currentPresentationId,
       fitToWidth,
       isDefaultPresentation,
@@ -221,10 +221,10 @@ class Presentation extends PureComponent {
       this.onResize();
     }
 
-    if (numPages !== prevProps.numPages) {
+    if (totalPages !== prevProps.totalPages) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
-        value: numPages,
+        value: totalPages,
       });
     }
 
@@ -582,7 +582,7 @@ class Presentation extends PureComponent {
       multiUserSize,
       multiUser,
       fitToWidth,
-      numPages,
+      totalPages,
     } = this.props;
     const { zoom, isPanning } = this.state;
 
@@ -621,7 +621,7 @@ class Presentation extends PureComponent {
         multiUserSize={multiUserSize}
         multiUser={multiUser}
         whiteboardId={currentSlide?.id}
-        numberOfSlides={numPages}
+        numberOfSlides={totalPages}
       />
     );
   }
@@ -919,7 +919,7 @@ Presentation.propTypes = {
   presentationName: PropTypes.string.isRequired,
   currentPresentationId: PropTypes.string.isRequired,
   presentationIsOpen: PropTypes.bool.isRequired,
-  numPages: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
   publishedPoll: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
     top: PropTypes.number,

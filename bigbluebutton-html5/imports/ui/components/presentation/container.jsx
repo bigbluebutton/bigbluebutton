@@ -31,7 +31,7 @@ const PresentationContainer = (props) => {
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
-  const slideImageUrls = currentPresentationPage && JSON.parse(currentPresentationPage.urls);
+  const slideImageUrls = currentPresentationPage && currentPresentationPage.urlsJson;
 
   const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
@@ -96,7 +96,7 @@ const PresentationContainer = (props) => {
       const promiseImageGet = slidesToFetch
         .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
         .map(async (slide) => {
-          const slideUrls = JSON.parse(slide.urls);
+          const slideUrls = slide.urlsJson;
           if (presentation.canFetch) presentation.canFetch = false;
           const image = await fetch(slideUrls.svg);
           if (image.ok) {
@@ -156,7 +156,7 @@ const PresentationContainer = (props) => {
         presentationIsDownloadable: currentPresentationPage?.downloadable,
         mountPresentation: !!currentSlide,
         currentPresentationId: currentPresentationPage?.presentationId,
-        numPages: currentPresentationPage?.numPages,
+        totalPages: currentPresentationPage?.totalPages,
         notify,
         zoomSlide: PresentationToolbarService.zoomSlide,
         publishedPoll: poll?.published || false,
