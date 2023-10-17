@@ -9,6 +9,7 @@ import org.bigbluebutton.presentation.messages._
 import java.io.IOException
 import java.net.URL
 import javax.imageio.ImageIO
+import scala.io.Source
 import scala.xml.XML
 
 object MsgBuilder {
@@ -81,11 +82,16 @@ object MsgBuilder {
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
     try {
-      val imgUrl = new URL(svgUrl)
-      val imgContent = XML.load(imgUrl)
+      val svgContent = Source.fromURL(new URL(svgUrl)).mkString
 
-      val w = (imgContent \ "@width").text.replaceAll("[^.0-9]", "")
-      val h = (imgContent \ "@height").text.replaceAll("[^.0-9]", "")
+      // XML parser configuration in use disallows the DOCTYPE declaration within the XML document
+      // Sanitize the XML content removing DOCTYPE
+      val sanitizedSvgContent = "(?i)<!DOCTYPE[^>]*>".r.replaceAllIn(svgContent, "")
+
+      val xmlContent = XML.loadString(sanitizedSvgContent)
+
+      val w = (xmlContent \ "@width").text.replaceAll("[^.0-9]", "")
+      val h = (xmlContent \ "@height").text.replaceAll("[^.0-9]", "")
 
       val width = w.toDouble
       val height = h.toDouble
