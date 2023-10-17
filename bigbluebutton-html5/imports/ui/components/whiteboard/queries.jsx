@@ -10,7 +10,7 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     scaledViewBoxHeight
     scaledViewBoxWidth
     scaledWidth
-    urlsJson
+    svgUrl: urlsJson(path: "$.svg")
     width
     xOffset
     yOffset

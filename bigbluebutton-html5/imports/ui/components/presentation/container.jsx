@@ -31,7 +31,7 @@ const PresentationContainer = (props) => {
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
-  const slideImageUrls = currentPresentationPage && currentPresentationPage.urlsJson;
+  const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
 
   const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
@@ -58,10 +58,10 @@ const PresentationContainer = (props) => {
     height: currentPresentationPage.height,
     width: currentPresentationPage.width,
     id: currentPresentationPage.pageId,
-    imageUri: slideImageUrls.svg,
+    imageUri: slideSvgUrl,
     num: currentPresentationPage?.num,
     presentationId: currentPresentationPage?.presentationId,
-    svgUri: slideImageUrls?.svg,
+    svgUri: slideSvgUrl,
   } : null;
 
   let slidePosition;
@@ -96,9 +96,8 @@ const PresentationContainer = (props) => {
       const promiseImageGet = slidesToFetch
         .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
         .map(async (slide) => {
-          const slideUrls = slide.urlsJson;
           if (presentation.canFetch) presentation.canFetch = false;
-          const image = await fetch(slideUrls.svg);
+          const image = await fetch(slide.svgUrl);
           if (image.ok) {
             presentation.fetchedSlide[slide.num] = true;
           }

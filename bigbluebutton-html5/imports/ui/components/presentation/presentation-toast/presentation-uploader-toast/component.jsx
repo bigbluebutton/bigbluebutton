@@ -133,7 +133,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if (('conversion' in item) && (item.uploadInProgress && item.errorMsgKey)) {
+  if (('conversion' in item) && (item.uploadInProgress && item.uploadErrorMsgKey)) {
     const errorMessage = intlMessages[item.conversion.status]
       || intlMessages.genericConversionStatus;
 
@@ -162,7 +162,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if ((('conversion' in item) && (item.uploadInProgress && !item.errorMsgKey)) || (('progress' in item) && item.progress === 100)) {
+  if ((('conversion' in item) && (item.uploadInProgress && !item.uploadErrorMsgKey)) || (('progress' in item) && item.progress === 100)) {
     let conversionStatusMessage;
     if ('conversion' in item) {
       if (item.conversion?.pagesCompleted < item.conversion?.numPages) {
