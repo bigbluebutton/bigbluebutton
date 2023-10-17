@@ -12,6 +12,7 @@
 - "!include public_v_layout.yaml"
 - "!include public_v_meeting.yaml"
 - "!include public_v_meeting_breakoutPolicies.yaml"
+- "!include public_v_meeting_clientSettings.yaml"
 - "!include public_v_meeting_group.yaml"
 - "!include public_v_meeting_lockSettings.yaml"
 - "!include public_v_meeting_recording.yaml"

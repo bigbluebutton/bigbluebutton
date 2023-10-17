@@ -36,7 +36,7 @@ object PresAnnotationDAO {
               annotationId = annotation.id,
               pageId = annotation.wbId,
               userId = annotation.userId,
-              annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo),
+              annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo).compactPrint,
               lastHistorySequence = sequence.getOrElse(0),
               lastUpdatedAt = new java.sql.Timestamp(System.currentTimeMillis())
             )

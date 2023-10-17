@@ -20,20 +20,24 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - converting
         - current
         - downloadFileUri
         - downloadable
-        - errorDetails
-        - errorMsgKey
+        - downloadFileExtension
+        - uploadInProgress
+        - uploadCompleted
+        - uploadErrorMsgKey
+        - uploadErrorDetailsJson
+        - exportToChatStatus
+        - exportToChatCurrentPage
+        - exportToChatHasError
         - filenameConverted
         - isDefault
         - name
-        - numPages
-        - pagesUploaded
+        - totalPages
+        - totalPagesUploaded
         - presentationId
         - removable
-        - uploadCompleted
       filter:
         meetingId:
           _eq: X-Hasura-PresenterInMeeting

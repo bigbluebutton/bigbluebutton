@@ -2,11 +2,12 @@ package org.bigbluebutton.core.db
 
 import com.github.tminglei.slickpg._
 import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter }
-import spray.json.{ _ }
+import spray.json._
 
 trait PostgresProfile extends ExPostgresProfile
-  with PgArraySupport {
-  //  def pgjson = "jsonb" // jsonb support is in postgres 9.4.0 onward; for 9.3.x use "json"
+  with PgArraySupport
+  with PgSprayJsonSupport {
+  def pgjson = "jsonb" // jsonb support is in postgres 9.4.0 onward; for 9.3.x use "json"
 
   // Add back `capabilities.insertOrUpdate` to enable native `upsert` support; for postgres 9.5+
   override protected def computeCapabilities: Set[slick.basic.Capability] =
@@ -14,7 +15,7 @@ trait PostgresProfile extends ExPostgresProfile
 
   override val api = PgAPI
 
-  object PgAPI extends API with ArrayImplicits //    with DateTimeImplicits
+  object PgAPI extends API with ArrayImplicits with SprayJsonImplicits //    with DateTimeImplicits
   {
     implicit val strListTypeMapper = new SimpleArrayJdbcType[String]("text").to(_.toList)
   }
@@ -47,7 +48,7 @@ object JsonUtils {
   }
 
   def mapToJson(genericMap: Map[String, Any]) = {
-    genericMap.toJson.compactPrint
+    genericMap.toJson
   }
 
 }

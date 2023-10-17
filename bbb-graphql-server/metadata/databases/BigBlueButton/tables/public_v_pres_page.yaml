@@ -32,7 +32,7 @@ select_permissions:
         - scaledViewBoxWidth
         - scaledWidth
         - slideRevealed
-        - urls
+        - urlsJson
         - viewBoxHeight
         - viewBoxWidth
         - width

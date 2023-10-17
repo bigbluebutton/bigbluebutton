@@ -84,11 +84,11 @@ object MsgBuilder {
       val imgUrl = new URL(svgUrl)
       val imgContent = XML.load(imgUrl)
 
-      val w = (imgContent \ "@width").text.replaceAll("[^\\d]", "")
-      val h = (imgContent \ "@height").text.replaceAll("[^\\d]", "")
+      val w = (imgContent \ "@width").text.replaceAll("[^.0-9]", "")
+      val h = (imgContent \ "@height").text.replaceAll("[^.0-9]", "")
 
-      val width = w.toInt
-      val height = h.toInt
+      val width = w.toDouble
+      val height = h.toDouble
 
       PresentationPageConvertedVO(
         id = id,
