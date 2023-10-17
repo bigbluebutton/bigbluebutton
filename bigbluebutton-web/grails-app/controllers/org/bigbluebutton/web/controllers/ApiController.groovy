@@ -1382,18 +1382,18 @@ class ApiController {
     Boolean hasPresentationUrlInParameter = false
 
 
-    String[] pu = request.getParameterMap().get("presentationURL")
+    String[] pu = request.getParameterMap().get("preUploadedPresentation")
     if (pu != null) {
-      String presentationURL = pu[0]
+      String preUploadedPresentation = pu[0]
       hasPresentationUrlInParameter = true
       def xmlString = new StringWriter()
       def xml = new MarkupBuilder(xmlString)
       xml.document (
         removable: "true",
         downloadable: "false",
-        url: presentationURL,
-        filename: extractFilenameFromUrl(presentationURL),
-        name: extractFilenameFromUrl(presentationURL)
+        url: preUploadedPresentation,
+        filename: extractFilenameFromUrl(preUploadedPresentation),
+        name: extractFilenameFromUrl(preUploadedPresentation)
       )
 
       def parsedXml = new XmlSlurper().parseText(xmlString.toString())
