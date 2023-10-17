@@ -44,7 +44,7 @@ export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscrip
 }`;
 
 export const PROCESSED_PRESENTATIONS_SUBSCRIPTION = gql`subscription ProcessedPresentationsSubscription {
-  pres_presentation(where: { uploadInProgress: { _is_null: true }, uploadCompleted: { _eq: true } }) {
+  pres_presentation(where: { uploadCompleted: { _eq: true } }) {
     current
     name
     presentationId
