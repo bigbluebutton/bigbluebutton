@@ -82,6 +82,8 @@ Others see your reactions in the participants list.
 
 Animations were added to the Reactions Bar as part of BigBlueButton 2.7.2. By default they are disabled in the configurations. To enable them run the following: `yq w -i /etc/bigbluebutton/bbb-html5.yml public.app.emojiRain.enabled true`
 
+You can disable any animations in the client, including Reactions Animations via a toggle in the client: Settings -> Application -> Animations on/off.
+
 <!-- ### Analytics -->
 
 
