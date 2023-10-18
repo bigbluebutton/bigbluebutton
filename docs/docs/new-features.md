@@ -78,6 +78,10 @@ Others see your reactions in the participants list.
 
 ![Others see your reactions in the participants list](/img/27-reactions-thumbs-up.png)
 
+##### Reactions animation
+
+Animations were added to the Reactions Bar as part of BigBlueButton 2.7.2. By default they are disabled in the configurations. To enable them run the following: `yq w -i /etc/bigbluebutton/bbb-html5.yml public.app.emojiRain.enabled true`
+
 <!-- ### Analytics -->
 
 
