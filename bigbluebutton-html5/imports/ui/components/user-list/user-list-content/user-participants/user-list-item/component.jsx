@@ -4,7 +4,6 @@ import { injectIntl, defineMessages } from 'react-intl';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { Session } from 'meteor/session';
 import { findDOMNode } from 'react-dom';
-import { Emoji } from 'emoji-mart';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
@@ -634,20 +633,30 @@ class UserListItem extends PureComponent {
     } = this.props;
 
     const emojiProps = {
-      native: true,
       size: '1.3rem',
     };
 
     let userAvatarFiltered = user.avatar;
 
+    const emojiIcons = [
+      {
+        id: 'hand',
+        native: '✋',
+      },
+      {
+        id: 'clock7',
+        native: '⏰',
+      },
+    ];
+
     const getIconUser = () => {
       if (user.raiseHand === true) {
         return isReactionsEnabled 
-          ? <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />
+          ? <em-emoji key={emojiIcons[0].id} native={emojiIcons[0].native}  emoji={emojiIcons[0]} {...emojiProps} />
           : <Icon iconName={normalizeEmojiName('raiseHand')} />;
       } if (user.away === true) {
         return isReactionsEnabled 
-          ? <Emoji key="away" emoji={{ id: 'clock7' }} {...emojiProps} />
+          ? <em-emoji key="away" native={emojiIcons[1].native} emoji={emojiIcons[1]} {...emojiProps} />
           : <Icon iconName={normalizeEmojiName('away')} />;
       } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
         return <Icon iconName={normalizeEmojiName(user.emoji)} />;

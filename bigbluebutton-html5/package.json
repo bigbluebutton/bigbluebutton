@@ -31,6 +31,8 @@
   "dependencies": {
     "@babel/runtime": "^7.17.9",
     "@browser-bunyan/server-stream": "^1.8.0",
+    "@emoji-mart/data": "^1.1.2",
+    "@emoji-mart/react": "^1.1.1",
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",
     "@jitsi/sdp-interop": "0.1.14",
@@ -45,7 +47,7 @@
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
     "darkreader": "^4.9.46",
-    "emoji-mart": "^3.0.1",
+    "emoji-mart": "^5.5.2",
     "eventemitter2": "~6.4.6",
     "fastdom": "^1.0.10",
     "fibers": "^4.0.2",
