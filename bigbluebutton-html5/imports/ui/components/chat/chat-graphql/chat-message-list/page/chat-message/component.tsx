@@ -137,6 +137,18 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             />
           ),
         };
+      case ChatMessageType.SYSTEM:
+        return {
+          name: intl.formatMessage(intlMessages.systemLabel),
+          color: '#0F70D7',
+          isModerator: true,
+          component: (
+            <ChatMessageTextContent
+              emphasizedMessage
+              text={message.message}
+            />
+          ),
+        } ; 
       case ChatMessageType.TEXT:
       default:
         return {

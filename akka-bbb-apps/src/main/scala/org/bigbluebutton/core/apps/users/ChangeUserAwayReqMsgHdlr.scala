@@ -45,9 +45,9 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
         Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "none")
         outGW.send(MsgBuilder.buildUserEmojiChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId, "none"))
       }
-
+      
       val chatMsg = s"${user.name} is " + (if (msg.body.away) "now " else "no longer ") + "away"
-      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, chatMsg, GroupChatMessageType.DEFAULT, Map(), "")
+      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, chatMsg, GroupChatMessageType.SYSTEM, Map(), "")
 
       broadcast(newUserState, msg.body.away)
     }

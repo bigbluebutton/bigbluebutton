@@ -11,6 +11,7 @@ object GroupChatMessageType {
   val POLL = "poll"
   val BREAKOUTROOM_MOD_MSG = "breakoutRoomModeratorMsg"
   val PUBLIC_CHAT_HIST_CLEARED = "publicChatHistoryCleared"
+  val SYSTEM = "system"
 }
 
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
