@@ -2,7 +2,9 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
-import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.db.ChatMessageDAO
+import org.bigbluebutton.core.models.{ GroupChatFactory, GroupChatMessage, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -43,6 +45,9 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
         Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "none")
         outGW.send(MsgBuilder.buildUserEmojiChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId, "none"))
       }
+
+      val chatMsg = s"${user.name} is " + (if (msg.body.away) "now " else "no longer ") + "away"
+      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, chatMsg, GroupChatMessageType.DEFAULT, Map(), "")
 
       broadcast(newUserState, msg.body.away)
     }
