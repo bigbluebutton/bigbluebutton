@@ -8,6 +8,7 @@ import org.bigbluebutton.presentation.messages._
 
 import java.io.{ BufferedReader, IOException, InputStreamReader }
 import java.net.URL
+import java.nio.charset.StandardCharsets
 import java.util.stream.Collectors
 import javax.imageio.ImageIO
 import scala.io.Source
