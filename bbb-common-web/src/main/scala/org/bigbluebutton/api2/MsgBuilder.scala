@@ -100,7 +100,7 @@ object MsgBuilder {
       val height = h.toDouble
 
       val contentUrl = new URL(txtUrl)
-      val reader = new BufferedReader(new InputStreamReader(contentUrl.openStream()))
+      val reader = new BufferedReader(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
       val content = reader.lines().collect(Collectors.joining("\n"))
 
       PresentationPageConvertedVO(
