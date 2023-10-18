@@ -105,7 +105,7 @@ object PresPresentationDAO {
                   presentationId = presentation.id,
                   num = page._2.num,
                   urlsJson = page._2.urls.toJson,
-                  content = "Slide Content TODO", //TODO Get content from slide.txtUri (bbb-web should send its content)
+                  content = page._2.content,
                   slideRevealed = page._2.current,
                   current = page._2.current,
                   xOffset = page._2.xOffset,

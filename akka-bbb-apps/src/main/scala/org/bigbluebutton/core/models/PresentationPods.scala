@@ -25,6 +25,7 @@ case class PresentationPage(
     id:          String,
     num:         Int,
     urls:        Map[String, String],
+    content:     String,
     current:     Boolean             = false,
     xOffset:     Double              = 0,
     yOffset:     Double              = 0,
