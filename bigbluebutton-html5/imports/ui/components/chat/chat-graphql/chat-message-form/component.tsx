@@ -280,13 +280,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }, 100);
     };
 
-    document.addEventListener('click', (event) => {
-      const chatList = document.getElementById('chat-list');
-      if (chatList?.contains(event.target as Node)) {
-        textAreaRef.current?.textarea.focus();
-      }
-    });
-
     const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
       if (e.keyCode === 13 && !e.shiftKey) {
@@ -300,6 +293,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         handleSubmit(event);
       }
     };
+
+    document.addEventListener('click', (event) => {
+      const chatList = document.getElementById('chat-list');
+      if (chatList?.contains(event.target as Node)) {
+        textAreaRef.current?.textarea.focus();
+      }
+    });
 
     if (sendGroupChatMsgError) { return <div>something went wrong</div>; }
 
