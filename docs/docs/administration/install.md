@@ -41,7 +41,7 @@ If you are setting up BigBlueButton for local development on your workstation, y
 - 50G of disk space
 - IPV4 address only
 
-Regardless of your environment, the setup steps will include configuring a SSL certificate on the nginx server. Why?  All browsers now require a valid SSL certificate from the web server when a page requests access to the user's webcam or microphone via web real-time communications (WebRTC). If you try to access a BigBlueButton server with an IP address only, the browsers will block BigBlueButton client from accessing your webcam or microhone.
+Regardless of your environment, the setup steps will include configuring a SSL certificate on the nginx server. Why?  All browsers now require a valid SSL certificate from the web server when a page requests access to the user's webcam or microphone via web real-time communications (WebRTC). If you try to access a BigBlueButton server with an IP address only, the browsers will block BigBlueButton client from accessing your webcam or microphone.
 
 ### Pre-installation checks
 
@@ -59,8 +59,8 @@ LANG="en_US.UTF-8"
 If you don't see `LANG="en_US.UTF-8"`, enter the following commands to set the local to `en_US.UTF-8`.
 
 ```bash
-$ sudo apt-get install -y language-pack-en
-$ sudo update-locale LANG=en_US.UTF-8
+sudo apt-get install -y language-pack-en
+sudo update-locale LANG=en_US.UTF-8
 ```
 
 and then log out and log in again to your SSH session -- this will reload the locale configuration for your session. Run the above command `cat /etc/default/locale` again. Verify you see only the single line `LANG="en_US.UTF-8"`.
@@ -145,10 +145,12 @@ $ sudo ufw status
 ```
 
 If you don't see these lines, you need to open them by
+
 ```bash
 sudo ufw allow 80
 sudo ufw allow 443
 ```
+
 Sometimes we get asked "Why are you only supporting Ubuntu 20.04 64-bit?". The answer is based on choosing quality over quantity. Long ago we concluded that its better for the project to have solid, well-tested, well-documented installation for a specific version of Linux that works really, really well than to try and support may variants of Linux and have none of them work well.
 
 At the moment, the requirement for docker may preclude running 2.7 within some virtualized environments; however, it ensures libreoffice runs within a restricted sandbox for document conversion.  We are exploring if we can run libreoffice within systemd (such as systemd-nspawn).
@@ -332,8 +334,8 @@ You can upgrade in a few steps:
   Make sure you don't have `bbb-demo` installed `sudo apt purge bbb-demo`
 
   Then run the `bbb-install.sh` script -- it will download and install the latest release of BigBlueButton 2.7 on top of your old 2.5 version.
-  
-  Make sure you read through the "what's new in 2.7" document https://docs.bigbluebutton.org/2.7/new and specifically https://docs.bigbluebutton.org/2.7/new#other-notable-changes
+
+  Make sure you read through the "what's new in 2.7" document <https://docs.bigbluebutton.org/2.7/new> and specifically <https://docs.bigbluebutton.org/2.7/new#other-notable-changes>
 
 ### Upgrading from BigBlueButton 2.4
 
@@ -344,8 +346,8 @@ If you are upgrading BigBlueButton 2.4 or 2.3 we recommend you set up a new Ubun
 You can restart and check your BigBlueButton server at any time using the commands
 
 ```bash
-$ sudo bbb-conf --restart
-$ sudo bbb-conf --check
+sudo bbb-conf --restart
+sudo bbb-conf --check
 ```
 
 The `bbb-conf --check` scans some of the log files for error messages. Again, any output that followed `Potential problems` **may** indicate configuration errors or installation errors. In many cases, the messages will give you recommendations on how to resolve the issue.
@@ -401,10 +403,10 @@ Large scale deployments must include several other components in addition to the
 
 ## Customizations
 
-See the [Server customization page](/administration/customize) for things you can do to adapt BigBlueButton to your environment or enable optional features after installation. For example 
+See the [Server customization page](/administration/customize) for things you can do to adapt BigBlueButton to your environment or enable optional features after installation. For example
 
-* [Install additional recording processing formats](/administration/customize#install-additional-recording-processing-formats)
-* [Enable generating mp4 (H.264) video output](/administration/customize#enable-generating-mp4-h264-video-output)
+- [Install additional recording processing formats](/administration/customize#install-additional-recording-processing-formats)
+- [Enable generating mp4 (H.264) video output](/administration/customize#enable-generating-mp4-h264-video-output)
 
 ## Troubleshooting
 
