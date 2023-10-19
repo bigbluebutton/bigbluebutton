@@ -148,7 +148,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               text={message.message}
             />
           ),
-        } ; 
+        }; 
       case ChatMessageType.TEXT:
       default:
         return {
