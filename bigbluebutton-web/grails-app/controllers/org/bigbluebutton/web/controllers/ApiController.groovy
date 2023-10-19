@@ -21,6 +21,7 @@ package org.bigbluebutton.web.controllers
 import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
+import groovy.xml.MarkupBuilder
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -43,7 +44,6 @@ import org.bigbluebutton.web.services.turn.TurnEntry
 import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
-
 import javax.servlet.ServletRequest
 
 class ApiController {
@@ -1378,6 +1378,37 @@ class ApiController {
     Boolean isDefaultPresentationCurrent = false;
     def listOfPresentation = []
     def presentationListHasCurrent = false
+    Boolean hasPresentationUrlInParameter = false
+
+
+    String[] pu = request.getParameterMap().get("preUploadedPresentation")
+    String[] puName = request.getParameterMap().get("preUploadedPresentationName")
+    if (pu != null) {
+      String preUploadedPresentation = pu[0]
+      hasPresentationUrlInParameter = true
+      def xmlString = new StringWriter()
+      def xml = new MarkupBuilder(xmlString)
+      String filename
+      if (puName == null) {
+        filename = Util.extractFilenameFromUrl(preUploadedPresentation)
+        if (filename == null) {
+          filename = "untitled"
+        }
+      } else {
+        filename = puName[0]
+      }
+      xml.document (
+        removable: "true",
+        downloadable: "false",
+        url: preUploadedPresentation,
+        filename: filename,
+        isPreUploadedPresentationFromParameter: "true"
+      )
+
+      def parsedXml = new XmlSlurper().parseText(xmlString.toString())
+
+      listOfPresentation << parsedXml
+    }
 
     // This part of the code is responsible for organize the presentations in a certain order
     // It selects the one that has the current=true, and put it in the 0th place.
@@ -1387,10 +1418,17 @@ class ApiController {
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
-      listOfPresentation << [name: "default", current: true];
+      if (hasPresentationUrlInParameter) {
+        if (!preUploadedPresentationOverrideDefault) {
+          listOfPresentation << [name: "default", current: true]
+        }
+      } else {
+        listOfPresentation << [name: "default", current: true]
+      }
+
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
-      Boolean hasCurrent = false;
+      Boolean hasCurrent = hasPresentationUrlInParameter;
       xml.children().each { module ->
         log.debug("module config found: [${module.@name}]");
 
@@ -1425,6 +1463,7 @@ class ApiController {
       def Boolean isRemovable = true;
       def Boolean isDownloadable = false;
       def Boolean isInitialPresentation = false;
+      def Boolean isPreUploadedPresentationFromParameter = false
 
       if (document.name != null && "default".equals(document.name)) {
         if (presentationService.defaultUploadedPresentation) {
@@ -1433,11 +1472,15 @@ class ApiController {
           }
           downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
                   document.current /* default presentation */, '', false,
-                  true, isInitialPresentation);
+                  true, isInitialPresentation, isPreUploadedPresentationFromParameter);
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
       } else {
+        if (!StringUtils.isEmpty(document.@isPreUploadedPresentationFromParameter.toString())) {
+          isPreUploadedPresentationFromParameter = java.lang.Boolean.parseBoolean(
+                  document.@isPreUploadedPresentationFromParameter.toString());
+        }
         // Extracting all properties inside the xml
         if (!StringUtils.isEmpty(document.@removable.toString())) {
           isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
@@ -1464,7 +1507,7 @@ class ApiController {
             fileName = document.@filename.toString();
           }
           downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isInitialPresentation);
+                  fileName, isDownloadable, isRemovable, isInitialPresentation, isPreUploadedPresentationFromParameter);
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
@@ -1534,7 +1577,8 @@ class ApiController {
     }
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable, isInitialPresentation) {
+  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
+                                 isInitialPresentation, isPreUploadedPresentationFromParameter) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
@@ -1559,7 +1603,7 @@ class ApiController {
     def pres = null
     def presId
 
-    if (presFilename == "" || filenameExt == "") {
+    if (presFilename == "" || (filenameExt == "" && !isPreUploadedPresentationFromParameter)) {
       log.debug("presentation is null by default")
       return
     } else {
@@ -1575,6 +1619,22 @@ class ApiController {
           log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
           uploadFailReasons.add("failed_to_download_file")
           uploadFailed = true
+        }
+
+        if (isPreUploadedPresentationFromParameter && filenameExt.isEmpty()) {
+          String fileExtension = SupportedFileTypes.detectFileExtensionBasedOnMimeType(pres)
+          newFilename = Util.createNewFilename(presId, fileExtension)
+          newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
+          File destination = new File(newFilePath)
+          filenameExt = fileExtension
+          presFilename = Util.createNewFilename(presFilename, fileExtension)
+          if (pres.renameTo(destination)) {
+            log.info("Presentation coming from URL parameter is at ${destination.getAbsolutePath()}")
+            pres = destination
+          } else {
+            log.error("Error while renaming presentation from URL parameter to ${destination.getAbsolutePath()}, " +
+                    "consider sending it through `/insertDocument`")
+          }
         }
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
