@@ -84,49 +84,6 @@ object MsgBuilder {
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
-    //    try {
-    //      val svgSource = Source.fromURL(new URL(svgUrl))
-    //      val svgContent = svgSource.mkString
-    //      svgSource.close()
-    //
-    //      // XML parser configuration in use disallows the DOCTYPE declaration within the XML document
-    //      // Sanitize the XML content removing DOCTYPE
-    //      val sanitizedSvgContent = "(?i)<!DOCTYPE[^>]*>".r.replaceAllIn(svgContent, "")
-    //
-    //      val xmlContent = XML.loadString(sanitizedSvgContent)
-    //
-    //      val w = (xmlContent \ "@width").text.replaceAll("[^.0-9]", "")
-    //      val h = (xmlContent \ "@height").text.replaceAll("[^.0-9]", "")
-    //
-    //      val width = w.toDouble
-    //      val height = h.toDouble
-    //
-    //      val contentUrl = new URL(txtUrl)
-    //      val stream = new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8)
-    //      val reader = new BufferedReader(stream)
-    //      val content = reader.lines().collect(Collectors.joining("\n"))
-    //
-    //      PresentationPageConvertedVO(
-    //        id = id,
-    //        num = page,
-    //        urls = urls,
-    //        content = content,
-    //        current = current,
-    //        width = width,
-    //        height = height
-    //      )
-    //    } catch {
-    //      case e: Exception =>
-    //        e.printStackTrace()
-    //        PresentationPageConvertedVO(
-    //          id = id,
-    //          num = page,
-    //          urls = urls,
-    //          content = "",
-    //          current = current
-    //        )
-    //    }
-
     val result = Using.Manager { use =>
       val contentUrl = new URL(txtUrl)
       val stream = use(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
