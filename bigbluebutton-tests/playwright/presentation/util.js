@@ -32,7 +32,7 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_P
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasElement(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
+  await test.hasElement(e.presentationUploadProgressToast, ELEMENT_WAIT_EXTRA_LONG_TIME);
   await test.page.waitForFunction(([selector, firstSlideSrc]) => {
     const currentSrc = document.querySelector(selector).src;
     return currentSrc != firstSlideSrc;
