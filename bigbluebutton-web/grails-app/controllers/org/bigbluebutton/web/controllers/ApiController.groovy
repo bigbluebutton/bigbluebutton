@@ -1420,7 +1420,7 @@ class ApiController {
       }
       if (hasPresentationUrlInParameter) {
         if (!preUploadedPresentationOverrideDefault) {
-          listOfPresentation << [name: "default", current: false]
+          listOfPresentation << [name: "default", current: true]
         }
       } else {
         listOfPresentation << [name: "default", current: true]
