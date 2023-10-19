@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from '/imports/ui/components/presentation/presentation-uploader/styles';
 import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
+import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import { notify } from '/imports/ui/services/notification';
 
 const TIMEOUT_CLOSE_TOAST = 1; // second
+
+const EXPORT_STATUSES = {
+  RUNNING: 'RUNNING',
+  COLLECTING: 'COLLECTING',
+  PROCESSING: 'PROCESSING',
+  TIMEOUT: 'TIMEOUT',
+  EXPORTED: 'EXPORTED',
+};
 
 const intlMessages = defineMessages({
   item: {
@@ -102,6 +112,42 @@ const intlMessages = defineMessages({
   genericConversionStatus: {
     id: 'app.presentationUploder.conversion.genericConversionStatus',
     description: 'indicates that file is being converted',
+  },
+  linkAvailable: {
+    id: 'app.presentationUploader.export.linkAvailable',
+    description: 'download presentation link available on public chat',
+  },
+  downloadButtonAvailable: {
+    id: 'app.presentationUploader.export.downloadButtonAvailable',
+    description: 'download presentation link available on public chat',
+  },
+  exportToastHeader: {
+    id: 'app.presentationUploader.exportToastHeader',
+    description: 'exporting toast header',
+  },
+  exportToastHeaderPlural: {
+    id: 'app.presentationUploader.exportToastHeaderPlural',
+    description: 'exporting toast header in plural',
+  },
+  sending: {
+    id: 'app.presentationUploader.sending',
+    description: 'sending label',
+  },
+  collecting: {
+    id: 'app.presentationUploader.collecting',
+    description: 'collecting label',
+  },
+  processing: {
+    id: 'app.presentationUploader.processing',
+    description: 'processing label',
+  },
+  sent: {
+    id: 'app.presentationUploader.sent',
+    description: 'sent label',
+  },
+  exportingTimeout: {
+    id: 'app.presentationUploader.exportingTimeout',
+    description: 'exporting timeout label',
   },
 });
 
@@ -280,8 +326,156 @@ function handleDismissToast(toastId) {
   return toast.dismiss(toastId);
 }
 
-export const PresentationUploaderToast = ({intl, convertingPresentations, uploadingPresentations }) => {
+function renderExportationStatus(item, intl) {
+  switch (item.exportToChatStatus) {
+    case EXPORT_STATUSES.RUNNING:
+      return intl.formatMessage(intlMessages.sending);
+    case EXPORT_STATUSES.COLLECTING:
+      return intl.formatMessage(intlMessages.collecting,
+        { 0: item.exportToChatCurrentPage, 1: item.totalPages });
+    case EXPORT_STATUSES.PROCESSING:
+      return intl.formatMessage(intlMessages.processing,
+        { 0: item.exportToChatCurrentPage, 1: item.totalPages });
+    case EXPORT_STATUSES.TIMEOUT:
+      return intl.formatMessage(intlMessages.exportingTimeout);
+    case EXPORT_STATUSES.EXPORTED:
+      return intl.formatMessage(intlMessages.sent);
+    default:
+      return '';
+  }
+}
+
+function renderToastExportItem(item, intl) {
+  const { exportToChatStatus: status } = item;
+  const loading = [EXPORT_STATUSES.RUNNING, EXPORT_STATUSES.COLLECTING,
+    EXPORT_STATUSES.PROCESSING].includes(status);
+  const done = status === EXPORT_STATUSES.EXPORTED;
+  const statusIconMap = {
+    [EXPORT_STATUSES.RUNNING]: 'blank',
+    [EXPORT_STATUSES.COLLECTING]: 'blank',
+    [EXPORT_STATUSES.PROCESSING]: 'blank',
+    [EXPORT_STATUSES.EXPORTED]: 'check',
+    [EXPORT_STATUSES.TIMEOUT]: 'warning',
+  };
+
+  const icon = statusIconMap[status] || '';
+
+  return (
+    <Styled.UploadRow
+      key={item.presentationId || item.temporaryPresentationId}
+    >
+      <Styled.FileLine>
+        <span>
+          <Icon iconName="file" />
+        </span>
+        <Styled.ToastFileName>
+          <span>{item.name}</span>
+        </Styled.ToastFileName>
+        <Styled.StatusIcon>
+          <Styled.ToastItemIcon
+            loading={loading}
+            done={done}
+            iconName={icon}
+            color="#0F70D7"
+          />
+        </Styled.StatusIcon>
+      </Styled.FileLine>
+      <Styled.StatusInfo>
+        <Styled.StatusInfoSpan>
+          {renderExportationStatus(item, intl)}
+        </Styled.StatusInfoSpan>
+      </Styled.StatusInfo>
+    </Styled.UploadRow>
+  );
+}
+
+function renderExportToast(presToShow, intl) {
+  const isAllExported = presToShow.every(
+    (p) => p.exportToChatStatus === EXPORT_STATUSES.EXPORTED,
+  );
+  const shouldDismiss = isAllExported && this.exportToastId;
+
+  if (shouldDismiss) {
+    handleDismissToast(this.exportToastId);
+    return null;
+  }
+
+  const presToShowSorted = [
+    ...presToShow.filter((p) => p.exportToChatStatus === EXPORT_STATUSES.RUNNING),
+    ...presToShow.filter((p) => p.exportToChatStatus === EXPORT_STATUSES.COLLECTING),
+    ...presToShow.filter((p) => p.exportToChatStatus === EXPORT_STATUSES.PROCESSING),
+    ...presToShow.filter((p) => p.exportToChatStatus === EXPORT_STATUSES.TIMEOUT),
+    ...presToShow.filter((p) => p.exportToChatStatus === EXPORT_STATUSES.EXPORTED),
+  ];
+
+  const headerLabelId = presToShowSorted.length === 1
+    ? 'exportToastHeader'
+    : 'exportToastHeaderPlural';
+
+  return (
+    <Styled.ToastWrapper data-test="downloadPresentationToast">
+      <Styled.UploadToastHeader>
+        <Styled.UploadIcon iconName="download" />
+        <Styled.UploadToastTitle>
+          {intl.formatMessage(intlMessages[headerLabelId], { 0: presToShowSorted.length })}
+        </Styled.UploadToastTitle>
+      </Styled.UploadToastHeader>
+      <Styled.InnerToast>
+        <div>
+          <div>
+            {presToShowSorted.map((item) => renderToastExportItem(item, intl))}
+          </div>
+        </div>
+      </Styled.InnerToast>
+    </Styled.ToastWrapper>
+  );
+}
+
+export const PresentationUploaderToast = ({intl, convertingPresentations, uploadingPresentations, presentations }) => {
   const presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
+  const prevPresentations = usePreviousValue(presentations);
+
+  useEffect(() => {
+    presentations.forEach((p) => {
+      const prevPropPres = prevPresentations.find((pres) => pres.presentationId === p.presentationId);
+  
+      // display notification when presentation is exported
+      let exportToastId = Session.get('presentationUploaderExportToastId');
+
+      if (prevPropPres?.exportToChatStatus
+        && p?.exportToChatStatus === EXPORT_STATUSES.EXPORTED
+        && prevPropPres?.exportToChatStatus !== p?.exportToChatStatus
+      ) {
+        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
+        Session.set('presentationUploaderExportToastId', null);
+        handleDismissToast(exportToastId);
+      }
+
+      // display notification for exportation status
+      if ([
+        EXPORT_STATUSES.RUNNING,
+        EXPORT_STATUSES.COLLECTING,
+        EXPORT_STATUSES.PROCESSING,
+      ].includes(p?.exportToChatStatus)) {
+        if (exportToastId) {
+          toast.update(exportToastId, {
+            render: renderExportToast(presentations, intl),
+          });
+        } else {
+          exportToastId = toast.info(renderExportToast(presentations, intl), {
+            hideProgressBar: true,
+            autoClose: false,
+            newestOnTop: true,
+            closeOnClick: true,
+            onClose: () => {
+              Session.set('presentationUploaderExportToastId', null);
+            },
+          });
+          Session.set('presentationUploaderExportToastId', exportToastId);
+        }
+      }
+    });
+  }, [presentations]);
 
   let activeToast = Session.get('presentationUploaderToastId');
   const showToast = presentationsToConvert.length > 0;

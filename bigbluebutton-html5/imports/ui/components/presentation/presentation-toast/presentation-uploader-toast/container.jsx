@@ -4,11 +4,11 @@ import { UploadingPresentations } from '/imports/api/presentations';
 import { PresentationUploaderToast } from './component';
 import { useSubscription } from '@apollo/client';
 import {
-  PRESENTATIONS_SUBSCRIPTION,
+  EXPORTING_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 
 const PresentationUploaderToastContainer = (props) => {
-  const { data: presentationData } = useSubscription(PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useSubscription(EXPORTING_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
 
   const convertingPresentations = presentations.filter(
@@ -19,6 +19,7 @@ const PresentationUploaderToastContainer = (props) => {
     <PresentationUploaderToast
       {
       ...{
+        presentations,
         convertingPresentations,
         ...props,
       }

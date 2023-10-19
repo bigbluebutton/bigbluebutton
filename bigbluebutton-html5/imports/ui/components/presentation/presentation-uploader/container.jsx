@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
+import { makeCall } from '/imports/ui/services/api';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
 import Service from './service';
@@ -31,12 +32,17 @@ const PresentationUploaderContainer = (props) => {
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
 
+  const exportPresentation = (presentationId, fileStateType) => {
+    makeCall('exportPresentation', presentationId, fileStateType);
+  };
+
   return userIsPresenter && (
     <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader
         isPresenter={userIsPresenter}
         presentations={presentations}
         currentPresentation={currentPresentation}
+        exportPresentation={exportPresentation}
         {...props}
       />
     </ErrorBoundary>
@@ -48,7 +54,6 @@ export default withTracker(() => {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchChangePresentationDownloadable,
-    exportPresentation,
   } = Service;
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
@@ -67,7 +72,6 @@ export default withTracker(() => {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchChangePresentationDownloadable,
-    exportPresentation,
     isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),

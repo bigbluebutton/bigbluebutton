@@ -4,10 +4,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
-import Icon from '/imports/ui/components/common/icon/component';
 import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
-import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
@@ -284,43 +282,8 @@ const intlMessages = defineMessages({
     id: 'app.presentation.actionsLabel',
     description: 'actions label',
   },
-  sending: {
-    id: 'app.presentationUploader.sending',
-    description: 'sending label',
-  },
-  collecting: {
-    id: 'app.presentationUploader.collecting',
-    description: 'collecting label',
-  },
-  processing: {
-    id: 'app.presentationUploader.processing',
-    description: 'processing label',
-  },
-  sent: {
-    id: 'app.presentationUploader.sent',
-    description: 'sent label',
-  },
-  exportingTimeout: {
-    id: 'app.presentationUploader.exportingTimeout',
-    description: 'exporting timeout label',
-  },
-  linkAvailable: {
-    id: 'app.presentationUploader.export.linkAvailable',
-    description: 'download presentation link available on public chat',
-  },
-  downloadButtonAvailable: {
-    id: 'app.presentationUploader.export.downloadButtonAvailable',
-    description: 'download presentation link available on public chat',
-  },
 });
 
-const EXPORT_STATUSES = {
-  RUNNING: 'RUNNING',
-  COLLECTING: 'COLLECTING',
-  PROCESSING: 'PROCESSING',
-  TIMEOUT: 'TIMEOUT',
-  EXPORTED: 'EXPORTED',
-};
 
 const handleDismissToast = (id) => toast.dismiss(id);
 
@@ -352,9 +315,6 @@ class PresentationUploader extends Component {
     this.renderPicDropzone = this.renderPicDropzone.bind(this);
     this.renderPresentationList = this.renderPresentationList.bind(this);
     this.renderPresentationItem = this.renderPresentationItem.bind(this);
-    this.renderExportToast = this.renderExportToast.bind(this);
-    this.renderToastExportItem = this.renderToastExportItem.bind(this);
-    this.renderExportationStatus = this.renderExportationStatus.bind(this);
     // utilities
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
@@ -704,64 +664,9 @@ class PresentationUploader extends Component {
   }
 
   handleDownloadingOfPresentation(item, fileStateType) {
-    const {
-      exportPresentation,
-      intl,
-    } = this.props;
+    const { exportPresentation } = this.props;
 
-    const observer = (exportation, stopped) => {
-      this.deepMergeUpdateFileKey(item.presentationId, 'exportation', exportation);
-
-      if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
-        if (fileStateType === 'Original' || fileStateType === 'Converted') {
-          if (!item.downloadable) {
-            notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.name }), 'success');
-          }
-        } else {
-          notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.name }), 'success');
-        }
-      }
-
-      if ([
-        EXPORT_STATUSES.RUNNING,
-        EXPORT_STATUSES.COLLECTING,
-        EXPORT_STATUSES.PROCESSING,
-      ].includes(exportation.status) && fileStateType === 'Annotated') {
-        this.setState((prevState) => {
-          prevState.presExporting.add(item.presentationId);
-          return {
-            presExporting: prevState.presExporting,
-          };
-        }, () => {
-          if (this.exportToastId) {
-            toast.update(this.exportToastId, {
-              render: this.renderExportToast(),
-            });
-          } else {
-            this.exportToastId = toast.info(this.renderExportToast(), {
-              hideProgressBar: true,
-              autoClose: false,
-              newestOnTop: true,
-              closeOnClick: true,
-              onClose: () => {
-                this.exportToastId = null;
-                const presToShow = this.getPresentationsToShow();
-                const isAnyRunning = presToShow.some(
-                  (p) => p.exportation.status === EXPORT_STATUSES.RUNNING
-                    || p.exportation.status === EXPORT_STATUSES.COLLECTING
-                    || p.exportation.status === EXPORT_STATUSES.PROCESSING,
-                );
-                if (!isAnyRunning) {
-                  this.setState({ presExporting: new Set() });
-                }
-              },
-            });
-          }
-        });
-      }
-    };
-
-    exportPresentation(item.presentationId, observer, fileStateType);
+    exportPresentation(item.presentationId, fileStateType);
   }
 
   getPresentationsToShow() {
@@ -869,121 +774,9 @@ class PresentationUploader extends Component {
     );
   }
 
-  renderExportToast() {
-    const { intl } = this.props;
-    const { presExporting } = this.state;
 
-    const presToShow = this.getPresentationsToShow();
 
-    const isAllExported = presToShow.every(
-      (p) => p.exportation.status === EXPORT_STATUSES.EXPORTED,
-    );
-    const shouldDismiss = isAllExported && this.exportToastId;
 
-    if (shouldDismiss) {
-      handleDismissToast(this.exportToastId);
-
-      if (presExporting.size) {
-        this.setState({ presExporting: new Set() });
-      }
-      return null;
-    }
-
-    const presToShowSorted = [
-      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.RUNNING),
-      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.COLLECTING),
-      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.PROCESSING),
-      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.TIMEOUT),
-      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.EXPORTED),
-    ];
-
-    const headerLabelId = presToShowSorted.length === 1
-      ? 'exportToastHeader'
-      : 'exportToastHeaderPlural';
-
-    return (
-      <Styled.ToastWrapper data-test="downloadPresentationToast">
-        <Styled.UploadToastHeader>
-          <Styled.UploadIcon iconName="download" />
-          <Styled.UploadToastTitle>
-            {intl.formatMessage(intlMessages[headerLabelId], { 0: presToShowSorted.length })}
-          </Styled.UploadToastTitle>
-        </Styled.UploadToastHeader>
-        <Styled.InnerToast>
-          <div>
-            <div>
-              {presToShowSorted.map((item) => this.renderToastExportItem(item))}
-            </div>
-          </div>
-        </Styled.InnerToast>
-      </Styled.ToastWrapper>
-    );
-  }
-
-  renderToastExportItem(item) {
-    const { status } = item.exportation;
-    const loading = [EXPORT_STATUSES.RUNNING, EXPORT_STATUSES.COLLECTING,
-      EXPORT_STATUSES.PROCESSING].includes(status);
-    const done = status === EXPORT_STATUSES.EXPORTED;
-    const statusIconMap = {
-      [EXPORT_STATUSES.RUNNING]: 'blank',
-      [EXPORT_STATUSES.COLLECTING]: 'blank',
-      [EXPORT_STATUSES.PROCESSING]: 'blank',
-      [EXPORT_STATUSES.EXPORTED]: 'check',
-      [EXPORT_STATUSES.TIMEOUT]: 'warning',
-    };
-
-    const icon = statusIconMap[status] || '';
-
-    return (
-      <Styled.UploadRow
-        key={item.presentationId || item.temporaryPresentationId}
-      >
-        <Styled.FileLine>
-          <span>
-            <Icon iconName="file" />
-          </span>
-          <Styled.ToastFileName>
-            <span>{item.name}</span>
-          </Styled.ToastFileName>
-          <Styled.StatusIcon>
-            <Styled.ToastItemIcon
-              loading={loading}
-              done={done}
-              iconName={icon}
-              color="#0F70D7"
-            />
-          </Styled.StatusIcon>
-        </Styled.FileLine>
-        <Styled.StatusInfo>
-          <Styled.StatusInfoSpan>
-            {this.renderExportationStatus(item)}
-          </Styled.StatusInfoSpan>
-        </Styled.StatusInfo>
-      </Styled.UploadRow>
-    );
-  }
-
-  renderExportationStatus(item) {
-    const { intl } = this.props;
-
-    switch (item.exportation.status) {
-      case EXPORT_STATUSES.RUNNING:
-        return intl.formatMessage(intlMessages.sending);
-      case EXPORT_STATUSES.COLLECTING:
-        return intl.formatMessage(intlMessages.collecting,
-          { 0: item.exportation.pageNumber, 1: item.exportation.totalPages });
-      case EXPORT_STATUSES.PROCESSING:
-        return intl.formatMessage(intlMessages.processing,
-          { 0: item.exportation.pageNumber, 1: item.exportation.totalPages });
-      case EXPORT_STATUSES.TIMEOUT:
-        return intl.formatMessage(intlMessages.exportingTimeout);
-      case EXPORT_STATUSES.EXPORTED:
-        return intl.formatMessage(intlMessages.sent);
-      default:
-        return '';
-    }
-  }
 
   renderDownloadableWithAnnotationsHint() {
     const {

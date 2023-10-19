@@ -43,6 +43,29 @@ export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscrip
   }  
 }`;
 
+export const EXPORTING_PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
+  pres_presentation {
+    uploadInProgress
+    current
+    downloadFileUri
+    downloadable
+    uploadErrorDetailsJson
+    uploadErrorMsgKey
+    filenameConverted
+    isDefault
+    name
+    totalPages
+    totalPagesUploaded
+    presentationId
+    removable
+    uploadCompleted
+    exportToChatInProgress
+    exportToChatStatus
+    exportToChatCurrentPage
+    exportToChatHasError
+  }  
+}`;
+
 export const PROCESSED_PRESENTATIONS_SUBSCRIPTION = gql`subscription ProcessedPresentationsSubscription {
   pres_presentation(where: { uploadCompleted: { _eq: true } }) {
     current
