@@ -44,7 +44,6 @@ import org.bigbluebutton.web.services.turn.TurnEntry
 import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
-import org.apache.commons.io.FilenameUtils
 import javax.servlet.ServletRequest
 
 class ApiController {
