@@ -21,23 +21,24 @@ select_permissions:
     permission:
       columns:
         - current
+        - downloadFileExtension
         - downloadFileUri
         - downloadable
-        - downloadFileExtension
-        - uploadInProgress
-        - uploadCompleted
-        - uploadErrorMsgKey
-        - uploadErrorDetailsJson
-        - exportToChatStatus
         - exportToChatCurrentPage
         - exportToChatHasError
+        - exportToChatInProgress
+        - exportToChatStatus
         - filenameConverted
         - isDefault
         - name
-        - totalPages
-        - totalPagesUploaded
         - presentationId
         - removable
+        - totalPages
+        - totalPagesUploaded
+        - uploadCompleted
+        - uploadErrorDetailsJson
+        - uploadErrorMsgKey
+        - uploadInProgress
       filter:
         meetingId:
           _eq: X-Hasura-PresenterInMeeting
