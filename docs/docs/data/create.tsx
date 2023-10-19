@@ -392,11 +392,10 @@ const createEndpointTableData = [
     "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2)</>)
   },
   {
-    "name": "preUploadedPresentationOverrideDefault",
+    "name": "preUploadedPresentationName",
     "required": false,
-    "type": "Boolean",
-    "default": true,
-    "description": (<>Controls whether <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> presentation is set as default. Default is true: the presentation passed in the same CREATE via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> will be set as the default presentation in the meeting. (added 2.7.2)</>)
+    "type": "String",
+    "description": (<>If passed it will use this string as the name of the presentation uploaded via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> (added 2.7.2)</>)
   }
 ]
 
