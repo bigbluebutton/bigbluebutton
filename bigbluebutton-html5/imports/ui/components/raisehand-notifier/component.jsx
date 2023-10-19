@@ -134,7 +134,7 @@ class RaiseHandNotifier extends Component {
           role="button"
           tabIndex={0}
           style={{ backgroundColor: `${u.color}` }}
-          onClick={() => clearUserStatus(u.userId)}
+          onClick={() => lowerUserHands(u.userId)}
           onKeyDown={(e) => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
           data-test="avatarsWrapperAvatar"
           moderator={u.role === ROLE_MODERATOR}
