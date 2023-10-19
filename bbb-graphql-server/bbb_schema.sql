@@ -1465,6 +1465,7 @@ CREATE TABLE "audio_caption" (
     "transcriptId" varchar(100) NOT NULL PRIMARY KEY,
     "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
     "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+    "lang" varchar(15),
     "transcript" text,
     "createdAt" timestamp with time zone
 );

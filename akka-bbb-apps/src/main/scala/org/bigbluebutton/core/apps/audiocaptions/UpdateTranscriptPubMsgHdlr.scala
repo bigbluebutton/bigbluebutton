@@ -66,7 +66,7 @@ trait UpdateTranscriptPubMsgHdlr {
 
       val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
 
-      AudioCaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, new Timestamp(System.currentTimeMillis()))
+      AudioCaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript)
 
       broadcastEvent(
         msg.header.userId,
