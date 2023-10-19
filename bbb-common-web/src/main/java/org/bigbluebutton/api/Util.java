@@ -2,11 +2,14 @@ package org.bigbluebutton.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public final class Util {
@@ -50,8 +53,19 @@ public final class Util {
 		return DigestUtils.sha1Hex(presFilename + uuid) + "-" + timestamp;
 	}
 
+	public static String extractFilenameFromUrl(String preUploadedPresentation) throws MalformedURLException {
+		URL url = new URL(preUploadedPresentation);
+		String filename = FilenameUtils.getName(url.getPath());
+		String extension = FilenameUtils.getExtension(url.getPath());
+		if (extension == null || extension.isEmpty()) return null;
+		return filename;
+	}
 	public static String createNewFilename(String presId, String fileExt) {
-		return presId + "." + fileExt;
+		if (!fileExt.isEmpty()) {
+			return presId + "." + fileExt;
+		} else {
+			return presId;
+		}
 	}
 	
 	public static File createPresentationDir(String meetingId, String presentationDir, String presentationId) {
