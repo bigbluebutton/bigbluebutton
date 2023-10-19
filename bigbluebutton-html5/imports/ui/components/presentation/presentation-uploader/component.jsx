@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { PresentationUploaderToast } from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
@@ -402,13 +401,10 @@ class PresentationUploader extends Component {
       if (hasConversionError || (!finishedConversion && hasTemporaryId)) return true;
       if (!currentPropPres) return false;
 
-      if (presentation?.uploadInProgress && presentation?.uploadInProgress !== finishedConversion) {
-        shouldUpdateState = true;
-      }
-
       const modPresentation = presentation;
       if (currentPropPres.current !== prevPropPres?.current) {
         modPresentation.current = currentPropPres.current;
+        shouldUpdateState = true;
       }
 
       if (currentPropPres?.totalPagesUploaded !== prevPropPres?.totalPagesUploaded) {
@@ -1252,7 +1248,6 @@ class PresentationUploader extends Component {
 
     return (
       <>
-        <PresentationUploaderToast intl={intl} />
         {isOpen
           ? (
             <Styled.UploaderModal id="upload-modal">

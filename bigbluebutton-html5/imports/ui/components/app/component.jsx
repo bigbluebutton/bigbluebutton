@@ -53,6 +53,7 @@ import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
 import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
+import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -583,6 +584,7 @@ class App extends Component {
       selectedLayout,
       presentationIsOpen,
       darkTheme,
+      intl,
     } = this.props;
 
     const {
@@ -637,6 +639,7 @@ class App extends Component {
           {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
+          <PresentationUploaderToastContainer intl={intl} />
           <UploaderContainer />
           <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
