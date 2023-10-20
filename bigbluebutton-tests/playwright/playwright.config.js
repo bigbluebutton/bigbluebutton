@@ -8,11 +8,12 @@ const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
 const config = {
   workers: CI ? 1 : 2,
   timeout: 3 * 60 * 1000,
-  reporter: [
-    [CI ? 'github' : 'list'],
-    ['html', { open: 'never' }],
+  reporter: CI 
+    ? [['blob'], ['github']]
+    : [['list'], ['html', { open: 'never' }],
   ],
   forbidOnly: CI,
+  fullyParallel: CI,
   use: {
     headless: true,
     trace: DEBUG_MODE ? 'on'

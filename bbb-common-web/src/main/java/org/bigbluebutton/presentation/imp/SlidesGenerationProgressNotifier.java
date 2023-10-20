@@ -108,12 +108,11 @@ public class SlidesGenerationProgressNotifier {
       log.error("GeneratedSlidesInfoHelper was not set. Could not notify interested listeners.");
       return;
     }
-
     DocPageCompletedProgress progress = new DocPageCompletedProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getTemporaryPresentationId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
-      pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent(), pres.getIsInitialPresentation());
+      pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent(), pres.getIsInitialPresentation(), pres.getFilenameConverted());
     messagingService.sendDocConversionMsg(progress);
   }
 

@@ -13,6 +13,7 @@ const UserAvatarStyled = styled(UserAvatar)`
   width: 45%;
   max-width: 66px;
   max-height: 66px;
+  scale: 1.5;
 
   ${({ unhealthyStream }) => unhealthyStream && `
     filter: grayscale(50%) opacity(50%);

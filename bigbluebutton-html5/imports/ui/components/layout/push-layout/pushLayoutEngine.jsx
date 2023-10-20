@@ -73,6 +73,8 @@ class PushLayoutEngine extends React.Component {
       selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
       Settings.application.selectedLayout = selectedLayout;
     }
+    Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+
     Settings.save();
 
     const initialPresentation = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
@@ -254,6 +256,10 @@ class PushLayoutEngine extends React.Component {
       if (isPresenter) {
         setMeetingLayout();
       }
+    }
+
+    if (selectedLayout !== prevProps.selectedLayout) {
+      Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
     }
   }
 

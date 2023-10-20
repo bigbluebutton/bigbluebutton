@@ -2,11 +2,14 @@ package org.bigbluebutton.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public final class Util {
@@ -50,8 +53,19 @@ public final class Util {
 		return DigestUtils.sha1Hex(presFilename + uuid) + "-" + timestamp;
 	}
 
+	public static String extractFilenameFromUrl(String preUploadedPresentation) throws MalformedURLException {
+		URL url = new URL(preUploadedPresentation);
+		String filename = FilenameUtils.getName(url.getPath());
+		String extension = FilenameUtils.getExtension(url.getPath());
+		if (extension == null || extension.isEmpty()) return null;
+		return filename;
+	}
 	public static String createNewFilename(String presId, String fileExt) {
-		return presId + "." + fileExt;
+		if (!fileExt.isEmpty()) {
+			return presId + "." + fileExt;
+		} else {
+			return presId;
+		}
 	}
 	
 	public static File createPresentationDir(String meetingId, String presentationDir, String presentationId) {
@@ -105,22 +119,36 @@ public final class Util {
 		return path;
 	}
 
-	public static File getPresFileDownloadMarker(File presBaseDir, String presId) {
+	public static File getPresFileDownloadMarker(File presBaseDir, String presId, String downloadableExtension) {
 		if (presBaseDir != null) {
-			String downloadMarker = presId.concat(".downloadable");
+			String downloadMarker = presId.concat(".").concat(downloadableExtension).concat(".downloadable");
 			return new File(presBaseDir.getAbsolutePath() + File.separatorChar + downloadMarker);
 		}
 		return null;
 	}
 
+	public static void deleteAllDownloadableMarksInPresentations(File presFileDir) {
+		// Delete files with .downloadable at the end of its filename
+		File[] presFiles = presFileDir.listFiles();
+		for (File presFile : presFiles) {
+			if (presFile.isFile() && presFile.getName().endsWith(".downloadable")) {
+				presFile.delete();
+			}
+		}
+	}
+
 	public static void makePresentationDownloadable(
 		File presFileDir,
 		String presId,
-		boolean downloadable
+		boolean downloadable,
+		String downloadableExtension
 	) throws IOException {
-		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId);
+		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId, downloadableExtension);
 		if (downloadable && downloadMarker != null && ! downloadMarker.exists()) {
+			Util.deleteAllDownloadableMarksInPresentations(presFileDir);
 			downloadMarker.createNewFile();
+		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {
+			downloadMarker.delete();
 		}
 	}
 }

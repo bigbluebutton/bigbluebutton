@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import { debounce } from '/imports/utils/debounce';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import Styled from './styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -14,7 +14,7 @@ const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 let globalAppplyStateToProps = () => {};
 
-const throttledFunc = _.debounce(() => {
+const throttledFunc = debounce(() => {
   globalAppplyStateToProps();
 }, DEBOUNCE_TIME, { trailing: true, leading: true });
 

@@ -53,7 +53,7 @@ class PresAnnStatusMsg {
   }
 };
 
-class NewPresAnnFileAvailableMsg {
+class NewPresFileAvailableMsg {
   constructor(exportJob, link) {
     this.message = {
       envelope: {
@@ -70,8 +70,11 @@ class NewPresAnnFileAvailableMsg {
           userId: '',
         },
         body: {
-          fileURI: link,
+          annotatedFileURI: link,
+          originalFileURI: '',
+          convertedFileURI: '',
           presId: exportJob.presId,
+          fileStateType: 'Annotated',
         },
       },
     };
@@ -84,5 +87,5 @@ class NewPresAnnFileAvailableMsg {
 
 module.exports = {
   PresAnnStatusMsg,
-  NewPresAnnFileAvailableMsg,
+  NewPresFileAvailableMsg,
 };

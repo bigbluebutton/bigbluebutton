@@ -17,6 +17,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.content.participants.options.clearedStatus',
     description: 'Used in toast notification when emojis have been cleared',
   },
+  clearReactionsMessage: {
+    id: 'app.userList.content.participants.options.clearedReactions',
+    description: 'Used in toast notification when reactions have been cleared',
+  },
 });
 
 const { dynamicGuestPolicy } = Meteor.settings.public.app;
@@ -28,26 +32,34 @@ const meetingMuteDisabledLog = () => logger.info({
 
 const UserOptionsContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
-  return ( 
+  return (
     <UserOptions
       {...props}
       {...{
-        isRTL
+        isRTL,
       }}
     />
-  )
+  );
 };
 
 export default injectIntl(withTracker((props) => {
   const {
-    users,
     clearAllEmojiStatus,
+    clearAllReactions,
     intl,
     isMeetingMuteOnStart,
   } = props;
 
+  const toggleReactions = () => {
+    clearAllReactions();
+
+    notify(
+      intl.formatMessage(intlMessages.clearReactionsMessage), 'info', 'clear_status',
+    );
+  };
+
   const toggleStatus = () => {
-    clearAllEmojiStatus(users);
+    clearAllEmojiStatus();
 
     notify(
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
@@ -82,6 +94,7 @@ export default injectIntl(withTracker((props) => {
       }, 'moderator enabled meeting mute, all users muted except presenter');
     },
     toggleStatus,
+    toggleReactions,
     isMeetingMuted: isMeetingMuteOnStart,
     amIModerator: ActionsBarService.amIModerator(),
     hasBreakoutRoom: UserListService.hasBreakoutRoom(),

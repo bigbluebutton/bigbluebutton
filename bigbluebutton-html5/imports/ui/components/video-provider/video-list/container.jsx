@@ -9,8 +9,8 @@ const VideoListContainer = ({ children, ...props }) => {
   const layoutType = layoutSelect((i) => i.layoutType);
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
-
   const { streams } = props;
+
   return (
     !streams.length
       ? null

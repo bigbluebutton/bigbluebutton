@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { defineMessages, injectIntl } from 'react-intl';
-import Modal from 'react-modal';
+import ReactModal from 'react-modal';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PollingContainer from '/imports/ui/components/polling/container';
@@ -13,22 +13,23 @@ import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitat
 import { Meteor } from 'meteor/meteor';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
-import ModalContainer from '/imports/ui/components/common/modal/container';
+import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
-import StatusNotifier from '/imports/ui/components/status-notifier/container';
+import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/speech/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
-import NewWebcamContainer from '../webcam/container';
+import WebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
+import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
 import {
@@ -50,6 +51,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
+import TimerService from '/imports/ui/components/timer/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -75,6 +77,10 @@ const intlMessages = defineMessages({
     id: 'app.toast.clearedEmoji.label',
     description: 'message for cleared emoji status',
   },
+  clearedReaction: {
+    id: 'app.toast.clearedReactions.label',
+    description: 'message for cleared reactions',
+  },
   setEmoji: {
     id: 'app.toast.setEmoji.label',
     description: 'message when a user emoji has been set',
@@ -86,6 +92,14 @@ const intlMessages = defineMessages({
   loweredHand: {
     id: 'app.toast.setEmoji.lowerHand',
     description: 'toast message for lowered hand notification',
+  },
+  away: {
+    id: 'app.toast.setEmoji.away',
+    description: 'toast message for set away notification',
+  },
+  notAway: {
+    id: 'app.toast.setEmoji.notAway',
+    description: 'toast message for remove away notification',
   },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
@@ -131,12 +145,21 @@ class App extends Component {
     super(props);
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
+      isAudioModalOpen: false,
+      isRandomUserSelectModalOpen: false,
+      isVideoPreviewModalOpen: false,
       presentationFitToWidth: false,
     };
+
+    this.isTimerEnabled = TimerService.isEnabled();
+    this.timeOffsetInterval = null;
 
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
+    this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
+    this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
+    this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -159,7 +182,7 @@ class App extends Component {
       value: isRTL,
     });
 
-    Modal.setAppElement('#app');
+    ReactModal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
@@ -203,6 +226,12 @@ class App extends Component {
 
     ConnectionStatusService.startRoundTripTime();
 
+    if (this.isTimerEnabled) {
+      TimerService.fetchTimeOffset();
+      this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
+        TimerService.OFFSET_INTERVAL);
+    }
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
@@ -210,8 +239,9 @@ class App extends Component {
     const {
       notify,
       currentUserEmoji,
+      currentUserAway,
+      currentUserRaiseHand,
       intl,
-      mountModal,
       deviceType,
       mountRandomUserModal,
       selectedLayout,
@@ -219,37 +249,48 @@ class App extends Component {
       layoutContextDispatch,
       numCameras,
       presentationIsOpen,
-      ignorePollNotifications,
     } = this.props;
 
     this.renderDarkMode();
 
-    if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
+    if (mountRandomUserModal) this.setRandomUserSelectModalIsOpen(true);
 
-    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
+    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status
+        && currentUserEmoji.status !== 'raiseHand'
+        && currentUserEmoji.status !== 'away'
+    ) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
         || currentUserEmoji.status;
 
-      const raisedHand = currentUserEmoji.status === 'raiseHand';
-
-      let statusLabel = '';
       if (currentUserEmoji.status === 'none') {
-        statusLabel = prevProps.currentUserEmoji.status === 'raiseHand'
-          ? intl.formatMessage(intlMessages.loweredHand)
-          : intl.formatMessage(intlMessages.clearedEmoji);
+        notify(
+          intl.formatMessage(intlMessages.clearedEmoji),
+          'info',
+          'clear_status',
+        );
       } else {
-        statusLabel = raisedHand
-          ? intl.formatMessage(intlMessages.raisedHand)
-          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus }));
+        notify(
+          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+          'info',
+          'user',
+        );
       }
+    }
 
-      notify(
-        statusLabel,
-        'info',
-        currentUserEmoji.status === 'none'
-          ? 'clear_status'
-          : 'user',
-      );
+    if (prevProps.currentUserAway !== currentUserAway) {
+      if (currentUserAway === true) {
+        notify(intl.formatMessage(intlMessages.away), 'info', 'user');
+      } else {
+        notify(intl.formatMessage(intlMessages.notAway), 'info', 'clear_status');
+      }
+    }
+
+    if (prevProps.currentUserRaiseHand !== currentUserRaiseHand) {
+      if (currentUserRaiseHand === true) {
+        notify(intl.formatMessage(intlMessages.raisedHand), 'info', 'user');
+      } else {
+        notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
+      }
     }
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
@@ -283,6 +324,10 @@ class App extends Component {
     window.removeEventListener('resize', this.handleWindowResize, false);
     window.onbeforeunload = null;
     ConnectionStatusService.stopRoundTripTime();
+
+    if (this.timeOffsetInterval) {
+      clearInterval(this.timeOffsetInterval);
+    }
   }
 
   setPresentationFitToWidth(presentationFitToWidth) {
@@ -502,10 +547,24 @@ class App extends Component {
           setMeetingLayout,
           setPushLayout,
           shouldShowScreenshare,
-          shouldShowExternalVideo,
+          shouldShowExternalVideo: !!shouldShowExternalVideo,
         }}
       />
     );
+  }
+
+  setAudioModalIsOpen(value) {
+    this.setState({isAudioModalOpen: value});
+  }
+
+  setVideoPreviewModalIsOpen(value) {
+    this.setState({isVideoPreviewModalOpen: value});
+  }
+
+  setRandomUserSelectModalIsOpen(value) {
+    const {setMountRandomUserModal} = this.props;
+    this.setState({isRandomUserSelectModalOpen: value});
+    setMountRandomUserModal(false);
   }
 
   render() {
@@ -524,7 +583,7 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
-    const { presentationFitToWidth } = this.state;
+    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen, presentationFitToWidth } = this.state;
 
     return (
       <>
@@ -547,9 +606,9 @@ class App extends Component {
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
-          <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
+          <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
-          {shouldShowPresentation ? <PresentationAreaContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} /> : null}
+          {shouldShowPresentation ? <PresentationAreaContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo
@@ -569,7 +628,12 @@ class App extends Component {
           <UploaderContainer />
           <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
-          <AudioContainer />
+          <AudioContainer {...{
+            isAudioModalOpen,
+            setAudioModalIsOpen: this.setAudioModalIsOpen,
+            isVideoPreviewModalOpen,
+            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
+          }} />
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
             && (
@@ -578,14 +642,23 @@ class App extends Component {
                 pushAlertEnabled={pushAlertEnabled}
               />
             )}
-          <StatusNotifier status="raiseHand" />
+          <RaiseHandNotifier />
           <ManyWebcamsNotifier />
           <PollingContainer />
-          <ModalContainer />
           <PadsSessionsContainer />
+          <WakeLockContainer />
           {this.renderActionsBar()}
+          <EmojiRainContainer />
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
+          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer
+            {...{
+              onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
+              priority: "low",
+              setIsOpen: this.setRandomUserSelectModalIsOpen,
+              isOpen: isRandomUserSelectModalOpen,
+            }}
+          /> : null}
         </Styled.Layout>
       </>
     );

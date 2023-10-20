@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import MediaService from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
@@ -13,11 +12,16 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
+import { LAYOUT_TYPE } from '../layout/enums';
+import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
+
+const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const WebcamContainer = ({
   audioModalIsOpen,
   swapLayout,
   usersVideo,
+  layoutType,
 }) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -34,8 +38,10 @@ const WebcamContainer = ({
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
 
+  const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+
   return !audioModalIsOpen
-    && usersVideo.length > 0
+    && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
         {...{
@@ -49,21 +55,28 @@ const WebcamContainer = ({
           isPresenter: currentUser.presenter,
           displayPresentation,
           isRTL,
+          isGridEnabled,
         }}
       />
     )
     : null;
 };
 
-export default withModalMounter(withTracker((props) => {
+export default withTracker((props) => {
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
     isMeteorConnected: Meteor.status().connected,
   };
 
-  const { streams: usersVideo } = VideoService.getVideoStreams();
-  data.usersVideo = usersVideo;
+  const { streams: usersVideo, gridUsers } = VideoService.getVideoStreams();
+
+  if(gridUsers.length > 0) {
+    const items = usersVideo.concat(gridUsers);
+    data.usersVideo = sortVideoStreams(items, DEFAULT_SORTING);
+  } else {
+    data.usersVideo = usersVideo;
+  }
   data.swapLayout = !hasPresentation || props.isLayoutSwapped;
 
   if (data.swapLayout) {
@@ -72,4 +85,4 @@ export default withModalMounter(withTracker((props) => {
   }
 
   return data;
-})(WebcamContainer));
+})(WebcamContainer);

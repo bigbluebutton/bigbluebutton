@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import _ from 'lodash';
+import { omit } from 'radash';
 import Styled from './styles';
 
 const propTypes = {
@@ -25,7 +25,7 @@ const Icon = ({
   <Styled.Icon
     className={cx(className, [prependIconName, iconName].join(''))}
     // ToastContainer from react-toastify passes a useless closeToast prop here
-    {..._.omit(props, ['closeToast', 'animations', 'loading'])}
+    {...omit(props, ['closeToast', 'animations', 'loading'])}
     $rotate={rotate}
   />
 );

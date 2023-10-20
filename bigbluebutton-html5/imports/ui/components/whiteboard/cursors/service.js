@@ -1,6 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import { throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
 
 const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;

@@ -9,8 +9,8 @@ case "$1" in
     chmod 644 $TARGET
     chown bigbluebutton:bigbluebutton $TARGET
 
-    BBB_SECRET=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2)
-    BBB_HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+    BBB_HOST=$(bbb-conf --secret | grep -F URL: | sed 's#^.*://##; s#/.*##')
+    BBB_SECRET=$(bbb-conf --secret | grep -F Secret: | sed 's/.*Secret: //')    
 
     yq w -i $TARGET bbb.sharedSecret "$BBB_SECRET"
     yq w -i $TARGET bbb.serverDomain "$BBB_HOST"

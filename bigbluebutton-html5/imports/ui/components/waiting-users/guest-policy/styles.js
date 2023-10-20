@@ -8,10 +8,10 @@ import {
   modalMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
-const GuestPolicyModal = styled(Modal)``;
+const GuestPolicyModal = styled(ModalSimple)``;
 
 const Container = styled.div`
   margin: 0 ${modalMargin} ${lgPaddingX};

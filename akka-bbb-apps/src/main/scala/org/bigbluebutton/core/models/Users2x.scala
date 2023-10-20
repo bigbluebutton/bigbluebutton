@@ -178,8 +178,40 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.emoji).setTo(emoji)
+
       users.save(newUser)
       newUser
+    }
+  }
+  def setReactionEmoji(users: Users2x, intId: String, reactionEmoji: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.reactionEmoji).setTo(reactionEmoji)
+        .modify(_.reactionChangedOn).setTo(System.currentTimeMillis())
+
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserRaiseHand(users: Users2x, intId: String, raiseHand: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUserState = u.modify(_.raiseHand).setTo(raiseHand)
+      users.save(newUserState)
+      newUserState
+    }
+  }
+
+  def setUserAway(users: Users2x, intId: String, away: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUserState = u.modify(_.away).setTo(away)
+      users.save(newUserState)
+      newUserState
     }
   }
 
@@ -198,6 +230,16 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.pickExempted).setTo(exempted)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserSpeechLocale(users: Users2x, intId: String, locale: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.speechLocale).setTo(locale)
       users.save(newUser)
       newUser
     }
@@ -364,6 +406,10 @@ case class UserState(
     authed:                Boolean,
     guestStatus:           String,
     emoji:                 String,
+    reactionEmoji:         String,
+    reactionChangedOn:     Long         = 0,
+    raiseHand:             Boolean,
+    away:                  Boolean,
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
@@ -373,7 +419,8 @@ case class UserState(
     lastInactivityInspect: Long         = 0,
     clientType:            String,
     pickExempted:          Boolean,
-    userLeftFlag:          UserLeftFlag
+    userLeftFlag:          UserLeftFlag,
+    speechLocale:          String       = ""
 )
 
 case class UserIdAndName(id: String, name: String)

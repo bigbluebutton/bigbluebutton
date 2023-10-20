@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { TldrawApp, Tldraw } from '@tldraw/tldraw';
 import SlideCalcUtil, { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -19,6 +18,7 @@ import PanToolInjector from './pan-tool-injector/component';
 import {
   findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious,
 } from './utils';
+import { isEqual } from 'radash';
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_DOCK_HEIGHT = 475;
@@ -75,6 +75,7 @@ export default function Whiteboard(props) {
     sidebarNavigationWidth,
     animations,
     isToolbarVisible,
+    isModerator,
     fullscreenRef,
     fullscreenElementId,
     layoutContextDispatch,
@@ -148,6 +149,16 @@ export default function Whiteboard(props) {
       panButton.classList.remove('select');
     }
   };
+
+  const setDockPosition = (setSetting) => {
+    if (hasWBAccess || isPresenter) {
+      if (((height < SMALLEST_DOCK_HEIGHT) || (width < SMALLEST_DOCK_WIDTH))) {
+        setSetting('dockPosition', 'bottom');
+      } else {
+        setSetting('dockPosition', isRTL ? 'left' : 'right');
+      }
+    }
+  }
 
   React.useEffect(() => {
     const toolbar = document.getElementById('TD-PrimaryTools');
@@ -281,7 +292,7 @@ export default function Whiteboard(props) {
 
     let changed = false;
 
-    if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+    if (next.pageStates[curPageId] && !isEqual(prevShapes, shapes)) {
       const editingShape = tldrawAPI?.getShape(tldrawAPI?.getPageState()?.editingId);
 
       if (editingShape) {
@@ -322,7 +333,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`] || (svgUri && !_.isEqual(prevSvgUri, svgUri)))) {
+    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`] || (svgUri && !isEqual(prevSvgUri, svgUri)))) {
       next.assets[`slide-background-asset-${curPageId}`] = assets[`slide-background-asset-${curPageId}`];
       tldrawAPI?.patchState(
         {
@@ -366,7 +377,7 @@ export default function Whiteboard(props) {
       const pollResults = Object.entries(next.pages[curPageId].shapes)
         .filter(([, shape]) => shape.name?.includes('poll-result'));
       pollResults.forEach(([id, shape]) => {
-        if (_.isEqual(shape.point, [0, 0])) {
+        if (isEqual(shape.point, [0, 0])) {
           try {
             const shapeBounds = tldrawAPI?.getShapeBounds(id);
             if (shapeBounds) {
@@ -376,7 +387,7 @@ export default function Whiteboard(props) {
                 slidePosition.height - shapeBounds.height,
               ];
               editedShape.size = [shapeBounds.width, shapeBounds.height];
-              if (isPresenter) persistShape(editedShape, whiteboardId);
+              if (isPresenter) persistShape(editedShape, whiteboardId, isModerator);
             }
           } catch (error) {
             logger.error({
@@ -549,6 +560,10 @@ export default function Whiteboard(props) {
   }, [isPanning]);
 
   React.useEffect(() => {
+    tldrawAPI && setDockPosition(tldrawAPI?.setSetting);
+  }, [height, width]);
+
+  React.useEffect(() => {
     tldrawAPI?.setSetting('language', language);
   }, [language]);
 
@@ -634,6 +649,7 @@ export default function Whiteboard(props) {
   };
 
   const onMount = (app) => {
+    setDockPosition(app?.setSetting);
     const menu = document.getElementById('TD-Styles')?.parentElement;
     const canvas = document.getElementById('canvas');
     if (canvas) {
@@ -798,6 +814,7 @@ export default function Whiteboard(props) {
       if (!fitToWidth && camera.zoom === zoomFitSlide) {
         viewedRegionW = HUNDRED_PERCENT;
         viewedRegionH = HUNDRED_PERCENT;
+        camera.point = [0,0];
       }
 
       zoomSlide(
@@ -848,7 +865,7 @@ export default function Whiteboard(props) {
           e?.cancelSession?.();
         } else {
           patchedShape.userId = currentUser?.userId;
-          persistShape(patchedShape, whiteboardId);
+          persistShape(patchedShape, whiteboardId, isModerator);
         }
       } else {
         const diff = {
@@ -856,7 +873,7 @@ export default function Whiteboard(props) {
           point: patchedShape.point,
           text: patchedShape.text,
         };
-        persistShape(diff, whiteboardId);
+        persistShape(diff, whiteboardId, isModerator);
       }
     }
 
@@ -961,7 +978,7 @@ export default function Whiteboard(props) {
             const shapeBounds = app.getShapeBounds(id);
             const editedShape = shape;
             editedShape.size = [shapeBounds.width, shapeBounds.height];
-            persistShape(editedShape, newWhiteboardId);
+            persistShape(editedShape, newWhiteboardId, isModerator);
           });
       }
       if (isPresenter) {
@@ -1040,14 +1057,6 @@ export default function Whiteboard(props) {
 
   const size = ((height < SMALL_HEIGHT) || (width < SMALL_WIDTH))
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
-
-  if (hasWBAccess || isPresenter) {
-    if (((height < SMALLEST_DOCK_HEIGHT) || (width < SMALLEST_DOCK_WIDTH))) {
-      tldrawAPI?.setSetting('dockPosition', 'bottom');
-    } else {
-      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
-    }
-  }
 
   const menuOffsetValues = {
     true: {

@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Modal from '/imports/ui/components/common/modal/simple/component';
-import _ from 'lodash';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import StyledSettings from '../settings/styles';
 import withShortcutHelper from './service';
 import { isChatEnabled } from '/imports/ui/services/features';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   title: {
@@ -252,7 +252,7 @@ const intlMessages = defineMessages({
 
 const renderItem = (func, key) => {
   return (
-    <tr key={_.uniqueId('hotkey-item-')}>
+    <tr key={uniqueId('hotkey-item-')}>
       <Styled.DescCell>{func}</Styled.DescCell>
       <Styled.KeyCell>{key}</Styled.KeyCell>
     </tr>
@@ -261,7 +261,7 @@ const renderItem = (func, key) => {
 
 const renderItemWhiteBoard = (func, key, alt) => {
   return (
-    <tr key={_.uniqueId('hotkey-item-')}>
+    <tr key={uniqueId('hotkey-item-')}>
       <Styled.DescCell>{func}</Styled.DescCell>
       <Styled.KeyCell>{key}</Styled.KeyCell>
       <Styled.KeyCell>{alt}</Styled.KeyCell>
@@ -270,7 +270,11 @@ const renderItemWhiteBoard = (func, key, alt) => {
 }
 
 const ShortcutHelpComponent = (props) => {
-  const { intl, shortcuts } = props;
+  const { intl, shortcuts,
+    isOpen,
+    onRequestClose,
+    priority,
+  } = props;
   const { browserName } = browserInfo;
   const { isIos, isMacos } = deviceInfo;
   const [ selectedTab, setSelectedTab] = React.useState(0);
@@ -355,13 +359,18 @@ const ShortcutHelpComponent = (props) => {
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.duplicate), 'Ctrl D', 'N/A'));
 
   return (
-    <Modal
+    <ModalSimple
       contentLabel={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.closeLabel),
         description: intl.formatMessage(intlMessages.closeDesc),
       }}
       title={intl.formatMessage(intlMessages.title)}
+      {...{
+        isOpen,
+        onRequestClose,
+        priority,
+      }}
     >
       <Styled.SettingsTabs
         onSelect={(tab) => setSelectedTab(tab)}
@@ -431,7 +440,7 @@ const ShortcutHelpComponent = (props) => {
         </Styled.TabPanel>
 
       </Styled.SettingsTabs>
-    </Modal>
+    </ModalSimple>
   );
 };
 

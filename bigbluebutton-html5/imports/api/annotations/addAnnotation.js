@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import _ from 'lodash';
+import { defaultsDeep } from '/imports/utils/array-utils';
 
 async function addAnnotation(meetingId, whiteboardId, userId, annotation, Annotations) {
   check(meetingId, String);
@@ -19,7 +19,7 @@ async function addAnnotation(meetingId, whiteboardId, userId, annotation, Annota
 
   const oldAnnotation = await Annotations.findOneAsync(selector);
   if (oldAnnotation) {
-    annotationInfo = _.merge(oldAnnotation.annotationInfo, annotationInfo);
+    annotationInfo = defaultsDeep(annotationInfo, oldAnnotation.annotationInfo);
   }
 
   const modifier = {

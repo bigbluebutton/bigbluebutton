@@ -338,6 +338,7 @@ class PresentationController {
     def presId = params.presId
     def presFilename = params.presFilename
     def meetingId = params.meetingId
+    def filename = params.filename
 
     log.debug "Controller: Download request for $presFilename"
 
@@ -348,7 +349,7 @@ class PresentationController {
         log.debug "Controller: Sending pdf reply for $presFilename"
 
         def bytes = pres.readBytes()
-        def responseName = pres.getName();
+        def responseName = filename;
         def mimeType = grailsMimeUtility.getMimeTypeForURI(responseName)
         def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
 

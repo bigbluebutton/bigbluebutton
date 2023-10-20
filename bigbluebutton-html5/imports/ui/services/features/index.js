@@ -61,7 +61,19 @@ export function isCustomVirtualBackgroundsEnabled() {
 }
 
 export function isDownloadPresentationWithAnnotationsEnabled() {
-  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadable;
+  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadWithAnnotations;
+}
+
+export function isDownloadPresentationConvertedToPdfEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationConvertedToPdf') === -1;
+}
+
+export function isDownloadPresentationOriginalFileEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationOriginalFile') === -1 && Meteor.settings.public.presentation.allowDownloadOriginal;
+}
+
+export function isSnapshotOfCurrentSlideEnabled() {
+  return getDisabledFeatures().indexOf('snapshotOfCurrentSlide') === -1 && Meteor.settings.public.presentation.allowSnapshotOfCurrentSlide;
 }
 
 export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
@@ -74,4 +86,22 @@ export function isImportSharedNotesFromBreakoutRoomsEnabled() {
 
 export function isPresentationEnabled() {
   return getDisabledFeatures().indexOf('presentation') === -1;
+}
+
+export function isReactionsEnabled() {
+  const USER_REACTIONS_ENABLED = Meteor.settings.public.userReaction.enabled;
+  const REACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.reactionsButton.enabled;
+
+  return getDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+}
+
+export function isTimerFeatureEnabled() {
+  return getDisabledFeatures().indexOf('timer') === -1 && Meteor.settings.public.timer.enabled;
+}
+
+export function isCameraAsContentEnabled() {
+  return (
+    getDisabledFeatures().indexOf('cameraAsContent') === -1 &&
+    Meteor.settings.public.app.enableCameraAsContent
+  );
 }

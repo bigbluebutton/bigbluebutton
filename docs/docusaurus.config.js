@@ -65,13 +65,14 @@ const config = {
                     {to: '/administration/install', label: 'Administration', position: 'left'},
                     {to: '/greenlight/v3/install', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
+                    {to: '/support/getting-help', label: 'support', position: 'left'},
                     {
                         type: 'docsVersionDropdown',
                         position: 'right',
                         dropdownActiveClassDisabled: true,
                     },
                     {
-                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v2.6.x-release/docs',
+                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v2.7.x-release/docs',
                         label: 'GitHub',
                         position: 'right',
                     },

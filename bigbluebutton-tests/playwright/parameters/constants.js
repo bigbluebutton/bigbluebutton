@@ -31,7 +31,7 @@ exports.docTitle = docTitle;
 exports.clientTitle = `userdata-bbb_client_title=${docTitle}`;
 exports.askForFeedbackOnLogout = 'userdata-bbb_ask_for_feedback_on_logout=true';
 exports.displayBrandingArea = 'userdata-bbb_display_branding_area=true';
-exports.logo = 'logo=https://bigbluebutton.org/wp-content/themes/bigbluebutton/library/images/bigbluebutton-logo.png';
+exports.logo = 'logo=https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlueButton_icon.svg.png';
 exports.enableVideo = 'userdata-bbb_enable_video=false';
 exports.autoShareWebcam = 'userdata-bbb_auto_share_webcam=true';
 exports.multiUserPenOnly = 'userdata-bbb_multi_user_pen_only=true';
@@ -73,6 +73,8 @@ exports.importSharedNotesFromBreakoutRoomsDisabled = 'disabledFeatures=importSha
 exports.layoutsDisabled = 'disabledFeatures=layouts';
 exports.presentationDisabled = 'disabledFeatures=presentation';
 exports.customVirtualBackgroundDisabled = 'disabledFeatures=customVirtualBackgrounds';
+exports.slideSnapshotDisabled = 'disabledFeatures=snapshotOfCurrentSlide';
+exports.cameraAsContent = 'disabledFeatures=cameraAsContent';
 
 // Disabled Features Exclude
 exports.breakoutRoomsExclude = 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms';
@@ -91,6 +93,8 @@ exports.importPresentationWithAnnotationsFromBreakoutRoomsExclude = 'disabledFea
 exports.importSharedNotesFromBreakoutRoomsExclude = 'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms';
 exports.presentationExclude = 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation';
 exports.customVirtualBackgroundExclude = 'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground';
+exports.slideSnapshotExclude = 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide';
+exports.cameraAsContentExclude = 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent';
 
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';

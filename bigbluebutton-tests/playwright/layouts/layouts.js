@@ -5,9 +5,9 @@ const { reopenChatSidebar, checkScreenshots } = require('./util');
 class Layouts extends MultiUsers {
   async focusOnPresentation() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.layoutSettingsModalButton);
+    await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnPresentation);
-    await this.modPage.waitAndClick(e.confirmButton);
+    await this.modPage.waitAndClick(e.updateLayoutBtn);
     await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.wasRemoved(e.toastContainer);
 
@@ -16,9 +16,9 @@ class Layouts extends MultiUsers {
 
   async focusOnVideo() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.layoutSettingsModalButton);
+    await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnVideo);
-    await this.modPage.waitAndClick(e.confirmButton);
+    await this.modPage.waitAndClick(e.updateLayoutBtn);
     await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.wasRemoved(e.toastContainer);
 
@@ -27,9 +27,9 @@ class Layouts extends MultiUsers {
 
   async smartLayout() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.layoutSettingsModalButton);
+    await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.smartLayout);
-    await this.modPage.waitAndClick(e.confirmButton);
+    await this.modPage.waitAndClick(e.updateLayoutBtn);
     await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.wasRemoved(e.toastContainer);
 
@@ -44,9 +44,9 @@ class Layouts extends MultiUsers {
 
   async customLayout() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.layoutSettingsModalButton);
+    await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
-    await this.modPage.waitAndClick(e.confirmButton);
+    await this.modPage.waitAndClick(e.updateLayoutBtn);
     await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.wasRemoved(e.toastContainer);
 
@@ -79,12 +79,11 @@ class Layouts extends MultiUsers {
     await reopenChatSidebar(this.modPage);
   }
 
-  async pushLayout() {
+  async updateEveryone() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.layoutSettingsModalButton);
+    await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
-    await this.modPage.waitAndClickElement(e.pushLayoutToggle);
-    await this.modPage.waitAndClick(e.confirmButton);
+    await this.modPage.waitAndClick(e.updateEveryoneLayoutBtn);
     await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.wasRemoved(e.toastContainer);
 
@@ -105,7 +104,7 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.restorePresentation);
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
 
-    await checkScreenshots(this, 'video', 'push-layout');
+    await checkScreenshots(this, 'video', 'update-everyone');
   }
 }
 

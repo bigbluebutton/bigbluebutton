@@ -49,6 +49,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         authed = true,
         guestStatus = GuestStatus.WAIT,
         emoji = "none",
+        reactionEmoji = "none",
+        raiseHand = false,
+        away = false,
         pin = false,
         mobile = false,
         presenter = false,
@@ -91,7 +94,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         userColor,
         msg.body.muted,
         msg.body.talking,
-        "freeswitch"
+        "freeswitch",
+        msg.body.hold,
+        msg.body.uuid
       )
     }
 

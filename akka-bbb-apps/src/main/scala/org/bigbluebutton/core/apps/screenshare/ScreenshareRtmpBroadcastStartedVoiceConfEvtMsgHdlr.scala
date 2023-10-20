@@ -10,7 +10,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
 
   def handle(msg: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     def broadcastEvent(voiceConf: String, screenshareConf: String, stream: String, vidWidth: Int, vidHeight: Int,
-                       timestamp: String, hasAudio: Boolean): BbbCommonEnvCoreMsg = {
+                       timestamp: String, hasAudio: Boolean, contentType: String): BbbCommonEnvCoreMsg = {
 
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
@@ -23,7 +23,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       )
 
       val body = ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf, screenshareConf,
-        stream, vidWidth, vidHeight, timestamp, hasAudio)
+        stream, vidWidth, vidHeight, timestamp, hasAudio, contentType)
       val event = ScreenshareRtmpBroadcastStartedEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
@@ -32,28 +32,39 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) +
       " URL:" + ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
 
-    // only valid if not broadcasting yet
-    if (!ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
-      // Stop external video if it's running
-      ExternalVideoModel.stop(bus.outGW, liveMeeting)
-
-      ScreenshareModel.setRTMPBroadcastingUrl(liveMeeting.screenshareModel, msg.body.stream)
-      ScreenshareModel.broadcastingRTMPStarted(liveMeeting.screenshareModel)
-      ScreenshareModel.setScreenshareVideoWidth(liveMeeting.screenshareModel, msg.body.vidWidth)
-      ScreenshareModel.setScreenshareVideoHeight(liveMeeting.screenshareModel, msg.body.vidHeight)
-      ScreenshareModel.setVoiceConf(liveMeeting.screenshareModel, msg.body.voiceConf)
-      ScreenshareModel.setScreenshareConf(liveMeeting.screenshareModel, msg.body.screenshareConf)
-      ScreenshareModel.setTimestamp(liveMeeting.screenshareModel, msg.body.timestamp)
-      ScreenshareModel.setHasAudio(liveMeeting.screenshareModel, msg.body.hasAudio)
-
-      log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
-
-      // Notify viewers in the meeting that there's an rtmp stream to view
-      val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.stream,
-        msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp, msg.body.hasAudio)
-      bus.outGW.send(msgEvent)
+    if (msg.body.contentType == "camera" && liveMeeting.props.meetingProp.disabledFeatures.contains("cameraAsContent")) {
+      log.error(
+        "Camera as a content is disabled for meeting {}, meetingID = {}",
+        liveMeeting.props.meetingProp.name, liveMeeting.props.meetingProp.intId
+      )
+    } else if (msg.body.contentType == "screenshare" && liveMeeting.props.meetingProp.disabledFeatures.contains("screenshare")) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      log.error("Screen sharing is disabled for this meeting, meetingID = {}", meetingId)
     } else {
-      log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
+      // only valid if not broadcasting yet
+      if (!ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
+        // Stop external video if it's running
+        ExternalVideoModel.stop(bus.outGW, liveMeeting)
+
+        ScreenshareModel.setRTMPBroadcastingUrl(liveMeeting.screenshareModel, msg.body.stream)
+        ScreenshareModel.broadcastingRTMPStarted(liveMeeting.screenshareModel)
+        ScreenshareModel.setScreenshareVideoWidth(liveMeeting.screenshareModel, msg.body.vidWidth)
+        ScreenshareModel.setScreenshareVideoHeight(liveMeeting.screenshareModel, msg.body.vidHeight)
+        ScreenshareModel.setVoiceConf(liveMeeting.screenshareModel, msg.body.voiceConf)
+        ScreenshareModel.setScreenshareConf(liveMeeting.screenshareModel, msg.body.screenshareConf)
+        ScreenshareModel.setTimestamp(liveMeeting.screenshareModel, msg.body.timestamp)
+        ScreenshareModel.setHasAudio(liveMeeting.screenshareModel, msg.body.hasAudio)
+        ScreenshareModel.setContentType(liveMeeting.screenshareModel, msg.body.contentType)
+
+        log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
+
+        // Notify viewers in the meeting that there's an rtmp stream to view
+        val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.stream,
+          msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp, msg.body.hasAudio, msg.body.contentType)
+        bus.outGW.send(msgEvent)
+      } else {
+        log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
+      }
     }
   }
 

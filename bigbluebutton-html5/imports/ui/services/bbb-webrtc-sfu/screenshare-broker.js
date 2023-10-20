@@ -23,6 +23,7 @@ class ScreenshareBroker extends BaseBroker {
     this.ws = null;
     this.webRtcPeer = null;
     this.hasAudio = false;
+    this.contentType = "camera";
     this.offering = true;
     this.signalCandidates = true;
     this.ending = false;
@@ -32,6 +33,7 @@ class ScreenshareBroker extends BaseBroker {
     // caleeName,
     // iceServers,
     // hasAudio,
+    // contentType,
     // bitrate,
     // offering,
     // mediaServer,
@@ -161,6 +163,7 @@ class ScreenshareBroker extends BaseBroker {
       callerName: this.userId,
       sdpOffer: offer,
       hasAudio: !!this.hasAudio,
+      contentType: this.contentType,
       bitrate: this.bitrate,
       mediaServer: this.mediaServer,
     };

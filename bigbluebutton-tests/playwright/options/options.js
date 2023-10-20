@@ -36,7 +36,7 @@ class Options extends MultiUsers {
       [e.joinVideo]: 'app.video.joinVideo',
       [e.startScreenSharing]: 'app.actionsBar.actionsDropdown.desktopShareLabel',
       [e.minimizePresentation]: 'app.actionsBar.actionsDropdown.minimizePresentationLabel',
-      [e.raiseHandBtn]: 'app.actionsBar.emojiMenu.raiseHandLabel',
+      [e.reactionsButton]: 'app.actionsBar.reactions.reactionsButtonLabel',
       [e.connectionStatusBtn]: 'app.connection-status.label',
       [e.optionsButton]: 'app.navBar.settingsDropdown.optionsLabel',
     }
@@ -98,8 +98,8 @@ class Options extends MultiUsers {
     await this.modPage.backgroundColorTest(`${e.joinVideo} >> span`, 'rgba(0, 0, 0, 0)');
     await this.modPage.textColorTest(`${e.startScreenSharing} >> span`, 'rgb(222, 220, 217)');
     await this.modPage.backgroundColorTest(`${e.startScreenSharing} >> span`, 'rgba(0, 0, 0, 0)');
-    await this.modPage.textColorTest(`${e.raiseHandBtn} >> span`, 'rgb(222, 220, 217)');
-    await this.modPage.backgroundColorTest(`${e.raiseHandBtn} >> span`, 'rgba(0, 0, 0, 0)');
+    await this.modPage.textColorTest(`${e.reactionsButton} >> span`, 'rgb(222, 220, 217)');
+    await this.modPage.backgroundColorTest(`${e.reactionsButton} >> span`, 'rgba(0, 0, 0, 0)');
     await this.modPage.backgroundColorTest(`${e.actions} >> span`, 'rgb(24, 94, 168)');
     await this.modPage.backgroundColorTest(`${e.minimizePresentation} >> span`, 'rgb(24, 94, 168)');
     

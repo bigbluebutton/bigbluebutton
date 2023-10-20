@@ -8,7 +8,7 @@ const { checkTextContent, checkElementLengthEqualTo } = require('../core/util');
 const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
 const { getNotesLocator } = require('../sharednotes/util');
 const { getSettings } = require('../core/settings');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -136,30 +136,45 @@ class MultiUsers {
   }
 
   async raiseAndLowerHand() {
-    const { raiseHandButton } = getSettings();
-    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+    const { reactionsButton } = getSettings();
+    if (!reactionsButton) {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.hasElement(e.joinAudio);
+      await this.modPage.wasRemoved(e.reactionsButton);
+      return;
+    }
 
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await this.initUserPage();
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await sleep(1000);
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.lowerHandBtn);
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
+    await sleep(1000);
     await this.userPage.waitAndClick(e.lowerHandBtn);
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
 
   async raiseHandRejected() {
-    const { raiseHandButton } = getSettings();
-    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+    const { reactionsButton } = getSettings();
+    if (!reactionsButton) {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.hasElement(e.joinAudio);
+      await this.modPage.wasRemoved(e.reactionsButton);
+      return
+    }
 
     await waitAndClearDefaultPresentationNotification(this.modPage);
     await this.initUserPage();
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await sleep(1000);
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.lowerHandBtn);
+    await this.userPage.press('Escape');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
+    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
 
@@ -336,16 +351,22 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
     await this.modPage.wasRemoved(e.userListItem);
 
-    //Will be modified when the issue is fixed and accept just one of both screens
-    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    // Will be modified when the issue is fixed and accept just one of both screens
+    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
     try {
       await this.modPage2.hasElement(e.errorScreenMessage);
-    } catch (err) {
+    } catch {
       await this.modPage2.hasElement(e.meetingEndedModalTitle);
     }
-    
-    await this.initModPage2(false, context, {meetingId: this.modPage.meetingId, customParameter: 'userID=Moderator2'})
-    await this.modPage2.hasText(e.userBannedMessage, /banned/);
+
+    await this.initModPage2(false, context, { meetingId: this.modPage.meetingId, joinParameter: 'userID=Moderator2' });
+
+    // Due to same reason above, sometimes it displays different messages
+    try {
+      await this.modPage2.hasText(e.userBannedMessage2, /banned/);
+    } catch {
+      await this.modPage2.hasText(e.userBannedMessage1, /removed/);
+    }
   }
 
   async writeClosedCaptions() {

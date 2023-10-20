@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
@@ -15,13 +15,13 @@ import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
 import { isPresentationEnabled } from '/imports/ui/services/features';
-import _ from 'lodash';
 import {
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
+import { isEqual } from 'radash';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -29,8 +29,6 @@ import {
   getFontSize,
   getBreakoutRooms,
 } from './service';
-
-import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 
 import App from './component';
 
@@ -71,6 +69,7 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
+    isSharedNotesPinned,
     ...otherProps
   } = props;
 
@@ -94,14 +93,17 @@ const AppContainer = (props) => {
 
   const { focusedId } = cameraDock;
 
-  if(
-    layoutContextDispatch
-    &&  (typeof meetingLayout != "undefined")
-    && (layoutType.current != meetingLayout)
+  useEffect(() => {
+    if (
+      layoutContextDispatch
+      && (typeof meetingLayout !== 'undefined')
+      && (layoutType.current !== meetingLayout)
+      && isSharedNotesPinned
     ) {
       layoutType.current = meetingLayout;
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
-  }
+    }
+  }, [meetingLayout, layoutContextDispatch, layoutType]);
 
   const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
   // this is not exactly right yet
@@ -115,10 +117,14 @@ const AppContainer = (props) => {
 
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
-  const mountRandomUserModal = !isPresenter
-  && !_.isEqual(prevRandomUser, randomlySelectedUser)
-  && randomlySelectedUser.length > 0
-  && !isModalOpen;
+  const [mountRandomUserModal, setMountRandomUserModal] = useState(false);
+
+  useEffect(() => {
+    setMountRandomUserModal(!isPresenter
+      && !isEqual(prevRandomUser, randomlySelectedUser)
+      && randomlySelectedUser.length > 0
+      && !isModalOpen);
+  }, [isPresenter, prevRandomUser, randomlySelectedUser, isModalOpen]);
 
   const setPushLayout = () => {
     LayoutService.setPushLayout(pushLayout);
@@ -138,7 +144,8 @@ const AppContainer = (props) => {
   };
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)});
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)
+  });
 
   return currentUserId
     ? (
@@ -175,6 +182,7 @@ const AppContainer = (props) => {
           sidebarContentIsOpen,
           shouldShowPresentation,
           mountRandomUserModal,
+          setMountRandomUserModal,
           isPresenter,
           numCameras: cameraDockInput.numCameras,
         }}
@@ -195,7 +203,7 @@ const currentUserEmoji = (currentUser) => (currentUser
   }
 );
 
-export default withModalMounter(withTracker(() => {
+export default withTracker(() => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed(userData) {
       // wait 3secs (before endMeeting), client will try to authenticate again
@@ -223,7 +231,7 @@ export default withModalMounter(withTracker(() => {
     {
       fields:
       {
-        approved: 1, emoji: 1, userId: 1, presenter: 1, role: 1,
+        approved: 1, emoji: 1, raiseHand: 1, away: 1, userId: 1, presenter: 1, role: 1,
       },
     },
   );
@@ -285,6 +293,8 @@ export default withModalMounter(withTracker(() => {
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     currentUserEmoji: currentUserEmoji(currentUser),
+    currentUserAway: currentUser.away,
+    currentUserRaiseHand: currentUser.raiseHand,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,
@@ -313,7 +323,7 @@ export default withModalMounter(withTracker(() => {
     ),
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
-    isModalOpen: !!getModal(),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
+    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
   };
-})(AppContainer));
+})(AppContainer);

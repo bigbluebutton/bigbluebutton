@@ -51,7 +51,7 @@ export const SmartMediaShare = (props) => {
         <Styled.QuickVideoButton
           role="button"
           label={intl.formatMessage(intlMessages.externalVideo)}
-          color="light"
+          color="primary"
           circle
           icon="external-video"
           size="md"
@@ -65,7 +65,7 @@ export const SmartMediaShare = (props) => {
         keepMounted: true,
         transitionDuration: 0,
         elevation: 3,
-        getContentAnchorEl: null,
+        getcontentanchorel: null,
         fullwidth: 'true',
         anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
         transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },

@@ -1,9 +1,12 @@
 const { test } = require('@playwright/test');
-const { testSpeakerButton } = require('../core/elements');
+const { fullyParallel } = require('../playwright.config');
 const { Audio } = require('./audio');
 
-test.describe.serial('Audio', () => {
+if (!fullyParallel) test.describe.configure({ mode: 'serial' });
+
+test.describe('Audio', () => {
   const audio = new Audio();
+
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -21,13 +24,13 @@ test.describe.serial('Audio', () => {
     await audio.joinMicrophone();
   });
 
+  test('Change audio input and keep it connected', async () => {
+    await audio.changeAudioInput();
+  });
+
   // https://docs.bigbluebutton.org/2.6/release-tests.html#muteunmute
   test('Mute yourself by clicking the mute button', async () => {
     await audio.muteYourselfByButton();
-  });
-
-  test('Change audio input and keep it connected', async () => {
-    await audio.changeAudioInput();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#choosing-different-sources

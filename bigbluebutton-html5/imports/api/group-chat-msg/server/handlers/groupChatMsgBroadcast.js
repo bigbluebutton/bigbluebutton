@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import addGroupChatMsg from '../modifiers/addGroupChatMsg';
 import addBulkGroupChatMsgs from '../modifiers/addBulkGroupChatMsgs';
 
@@ -7,7 +7,7 @@ const { bufferChatInsertsMs } = Meteor.settings.public.chat;
 
 const msgBuffer = [];
 
-const bulkFn = _.throttle(addBulkGroupChatMsgs, bufferChatInsertsMs);
+const bulkFn = throttle(addBulkGroupChatMsgs, bufferChatInsertsMs);
 
 export default async function handleGroupChatMsgBroadcast({ body }, meetingId) {
   const { chatId, msg } = body;

@@ -126,7 +126,7 @@ class LearningDashboard extends MultiUsers {
     const timeContent = await (timeLocator).textContent();
     const array = timeContent.split(':').map(Number);
     const firstTime = array[1] * 3600 + array[2] * 60 + array[3];
-    await sleep(5000);
+    await sleep(10000);
     await this.dashboardPage.reloadPage();
     const timeContentGreater = await (timeLocator).textContent();
     const arrayGreater = timeContentGreater.split(':').map(Number);
@@ -138,6 +138,7 @@ class LearningDashboard extends MultiUsers {
   async overview() {
     await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.raiseHandBtn);
 
     await this.dashboardPage.reloadPage();

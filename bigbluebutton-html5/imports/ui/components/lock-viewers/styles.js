@@ -10,7 +10,7 @@ import {
 } from '../../stylesheets/styled-components/general';
 import { fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import { colorGray, colorGrayLabel, colorGrayLighter } from '../../stylesheets/styled-components/palette';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
 const ToggleLabel = styled.span`
@@ -21,7 +21,7 @@ const ToggleLabel = styled.span`
   }
 `;
 
-const LockViewersModal = styled(Modal)``;
+const LockViewersModal = styled(ModalSimple)``;
 
 const Container = styled.div`
   margin: 0 ${modalMargin} ${lgPaddingX};

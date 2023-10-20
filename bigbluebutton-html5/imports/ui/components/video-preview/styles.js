@@ -16,7 +16,7 @@ import {
   headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
 
 const Warning = styled.div`
@@ -159,7 +159,7 @@ const ExtraActions = styled.div`
   }
 `;
 
-const VideoPreviewModal = styled(Modal)`
+const VideoPreviewModal = styled(ModalSimple)`
   padding: 1rem;
   min-height: 25rem;
   max-height: 100vh;

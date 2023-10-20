@@ -1,6 +1,5 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
@@ -25,7 +24,7 @@ const APP_CONFIG = Meteor.settings.public.app;
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 
-export default lockContextContainer(withModalMounter(withTracker(({ userLocks }) => {
+export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
   const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
@@ -65,7 +64,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
 
   return ({
     meetingIsBreakout,
-    closeModal,
+    closeModal: () => closeModal(() => setIsOpen(false)),
     joinMicrophone: (skipEchoTest) => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
     joinListenOnly,
     leaveEchoTest,
@@ -100,4 +99,4 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     isRTL,
     AudioError,
   });
-})(AudioModalContainer)));
+})(AudioModalContainer));

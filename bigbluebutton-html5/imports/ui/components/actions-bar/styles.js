@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import Button from '/imports/ui/components/common/button/component';
 
 const ActionsBar = styled.div`
   display: flex;
@@ -75,9 +77,56 @@ const Right = styled.div`
   }
 `;
 
+const RaiseHandButton = styled(Button)`
+${({ ghost }) => ghost && `
+  & > span {
+    box-shadow: none;
+    background-color: transparent !important;
+    border-color: ${colorWhite} !important;
+  }
+   `}
+`;
+
+const ButtonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  > * {
+    margin: 8px;
+  }
+`;
+
+const ReactionsDropdown = styled.div`
+  position: relative;
+`;
+
+const Wrapper = styled.div`
+  overflow: hidden;
+  margin: 0.2em 0.2em 0.2em 0.2em;
+  text-align: center;
+  max-height: 270px;
+  width: 270px;
+  em-emoji {
+    cursor: pointer;
+  }
+`;
+
+const Separator = styled.div`
+  height: 2.5rem;
+  width: 0;
+  border: 1px solid ${colorWhite};
+  align-self: center;
+  opacity: .75;
+`;
+
 export default {
   ActionsBar,
   Left,
   Center,
   Right,
+  RaiseHandButton,
+  ButtonContainer,
+  ReactionsDropdown,
+  Wrapper,
+  Separator,
 };

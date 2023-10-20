@@ -91,6 +91,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  allowSnapshotOfCurrentSlide: PropTypes.bool.isRequired,
   isIphone: false,
   isFullscreen: false,
   isRTL: false,
@@ -122,6 +123,7 @@ const PresentationMenu = (props) => {
     isRTL,
     isToolbarVisible,
     setIsToolbarVisible,
+    allowSnapshotOfCurrentSlide,
   } = props;
 
   const [state, setState] = useState({
@@ -199,7 +201,7 @@ const PresentationMenu = (props) => {
 
     const { isSafari } = browserInfo;
 
-    if (!isSafari) {
+    if (!isSafari && allowSnapshotOfCurrentSlide) {
       menuItems.push(
         {
           key: 'list-item-screenshot',
@@ -230,8 +232,18 @@ const PresentationMenu = (props) => {
             AppService.setDarkTheme(false);
 
             try {
-              const { copySvg, getShapes, currentPageId } = tldrawAPI;
-              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const { copySvg, getShape, getShapes, currentPageId } = tldrawAPI;
+
+              // filter shapes that are inside the slide
+              const backgroundShape = getShape('slide-background-shape');
+              const shapes = getShapes(currentPageId)
+                .filter((shape) =>
+                  shape.point[0] <= backgroundShape.size[0] &&
+                  shape.point[1] <= backgroundShape.size[1] &&
+                  shape.point[0] >= 0 &&
+                  shape.point[1] >= 0
+                );
+              const svgString = await copySvg(shapes.map((shape) => shape.id));
               const container = document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;
@@ -345,7 +357,7 @@ const PresentationMenu = (props) => {
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
-          getContentAnchorEl: null,
+          getcontentanchorel: null,
           fullwidth: 'true',
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },

@@ -10,13 +10,14 @@ object PreuploadedPresentationsSysPubMsg { val NAME = "PreuploadedPresentationsS
 case class PreuploadedPresentationsSysPubMsg(header: BbbClientMsgHeader, body: PreuploadedPresentationsSysPubMsgBody) extends StandardMsg
 case class PreuploadedPresentationsSysPubMsgBody(presentations: Vector[PresentationVO])
 
-object MakePresentationWithAnnotationDownloadReqMsg { val NAME = "MakePresentationWithAnnotationDownloadReqMsg" }
-case class MakePresentationWithAnnotationDownloadReqMsg(header: BbbClientMsgHeader, body: MakePresentationWithAnnotationDownloadReqMsgBody) extends StandardMsg
-case class MakePresentationWithAnnotationDownloadReqMsgBody(presId: String, allPages: Boolean, pages: List[Int])
+object MakePresentationDownloadReqMsg { val NAME = "MakePresentationDownloadReqMsg" }
+case class MakePresentationDownloadReqMsg(header: BbbClientMsgHeader, body: MakePresentationDownloadReqMsgBody) extends StandardMsg
+case class MakePresentationDownloadReqMsgBody(presId: String, allPages: Boolean, pages: List[Int], fileStateType: String)
 
-object NewPresAnnFileAvailableMsg { val NAME = "NewPresAnnFileAvailableMsg" }
-case class NewPresAnnFileAvailableMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableMsgBody) extends StandardMsg
-case class NewPresAnnFileAvailableMsgBody(fileURI: String, presId: String)
+object NewPresFileAvailableMsg { val NAME = "NewPresFileAvailableMsg" }
+case class NewPresFileAvailableMsg(header: BbbClientMsgHeader, body: NewPresFileAvailableMsgBody) extends StandardMsg
+case class NewPresFileAvailableMsgBody(annotatedFileURI: String, originalFileURI: String, convertedFileURI: String,
+                                       presId: String, fileStateType: String)
 
 object PresAnnStatusMsg { val NAME = "PresAnnStatusMsg" }
 case class PresAnnStatusMsg(header: BbbClientMsgHeader, body: PresAnnStatusMsgBody) extends StandardMsg
@@ -37,9 +38,10 @@ object NewPresentationEvtMsg { val NAME = "NewPresentationEvtMsg" }
 case class NewPresentationEvtMsg(header: BbbClientMsgHeader, body: NewPresentationEvtMsgBody) extends BbbCoreMsg
 case class NewPresentationEvtMsgBody(presentation: PresentationVO)
 
-object NewPresAnnFileAvailableEvtMsg { val NAME = "NewPresAnnFileAvailableEvtMsg" }
-case class NewPresAnnFileAvailableEvtMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableEvtMsgBody) extends BbbCoreMsg
-case class NewPresAnnFileAvailableEvtMsgBody(fileURI: String, presId: String)
+object NewPresFileAvailableEvtMsg { val NAME = "NewPresFileAvailableEvtMsg" }
+case class NewPresFileAvailableEvtMsg(header: BbbClientMsgHeader, body: NewPresFileAvailableEvtMsgBody) extends BbbCoreMsg
+case class NewPresFileAvailableEvtMsgBody(annotatedFileURI: String, originalFileURI: String, convertedFileURI: String,
+                                          presId: String, fileStateType: String)
 
 object PresAnnStatusEvtMsg { val NAME = "PresAnnStatusEvtMsg" }
 case class PresAnnStatusEvtMsg(header: BbbClientMsgHeader, body: PresAnnStatusEvtMsgBody) extends BbbCoreMsg

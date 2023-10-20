@@ -17,8 +17,21 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
     val meetingId = liveMeeting.props.meetingProp.intId
 
     if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&
-      permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
-      val reason = "No permission to remove presentation from meeting."
+      permissionFailed(
+        PermissionCheck.GUEST_LEVEL,
+        PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
+      )) {
+      val reason = "No permission to make presentation downloadable for meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+      state
+    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationOriginalFile")
+      && msg.body.fileStateType == "Original") {
+      val reason = "Download original presentation is disabled for meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+      state
+    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationConvertedToPdf")
+      && msg.body.fileStateType == "Converted") {
+      val reason = "Download converted presentation is disabled for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
@@ -31,8 +44,11 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
         pod <- PresentationPodsApp.getPresentationPod(state, podId)
         pres <- pod.getPresentation(presentationId)
       } yield {
+        val downloadableExtension = if (msg.body.fileStateType == "Original")
+          pres.name.split("\\.").last else pres.filenameConverted.split("\\.").last
+
         PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, pod.id,
-          msg.header.userId, presentationId, downloadable, pres.name)
+          msg.header.userId, presentationId, downloadable, pres.name, downloadableExtension)
 
         val pods = state.presentationPodManager.setPresentationDownloadableInPod(pod.id, presentationId, downloadable)
         state.update(pods)

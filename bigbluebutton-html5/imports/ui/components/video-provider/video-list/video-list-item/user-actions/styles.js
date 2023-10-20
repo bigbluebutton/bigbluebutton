@@ -23,6 +23,9 @@ const DropdownTrigger = styled(DivElipsis)`
     content: "\\203a";
     position: absolute;
     transform: rotate(90deg);
+    ${({ isRTL }) => isRTL && `
+      transform: rotate(-90deg);
+    `}
     top: 45%;
     width: 0;
     line-height: 0;
@@ -32,10 +35,7 @@ const DropdownTrigger = styled(DivElipsis)`
 
 const UserName = styled(TextElipsis)`
   position: relative;
-  max-width: 75%;
   // Keep the background with 0.5 opacity, but leave the text with 1
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 1px;
   color: ${colorOffWhite};
   padding: 0 1rem 0 .5rem !important;
   font-size: 80%;
@@ -48,7 +48,9 @@ const UserName = styled(TextElipsis)`
 const Dropdown = styled.div`
   display: flex;
   outline: none !important;
-  width: 70%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  display: inline-block;
 
   @media ${mediumUp} {
     >[aria-expanded] {

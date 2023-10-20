@@ -257,7 +257,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.downloadPresentationWithAnnotationsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Import Presentation With Annotations From Breakout Rooms', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -309,6 +309,32 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.customVirtualBackgroundExclude();
       });
     });
+    
+    test.describe.serial(() => {
+      test('Slide Snapshot', async ({ browser, context, page }) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, true, { createParameter: c.slideSnapshotDisabled });
+        await disabledFeatures.slideSnapshot();
+      });
+      test('Slide Snapshot (exclude)', async ({ browser, context, page }) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, true, { createParameter: c.slideSnapshotExclude });
+        await disabledFeatures.slideSnapshotExclude();
+      });
+    });
+
+    test.describe.serial(() => {
+      test('Camera As Content', async ({ browser, context, page }) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, true, { createParameter: c.cameraAsContent });
+        await disabledFeatures.cameraAsContent();
+      });
+      test('Camera As Content (exclude)', async ({ browser, context, page }) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, true, { createParameter: c.cameraAsContentExclude });
+        await disabledFeatures.cameraAsContentExclude();
+      });
+    });
   });
 });
 
@@ -339,7 +365,7 @@ test.describe.parallel('Custom Parameters', () => {
 
   test('Display Branding Area', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { joinParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
+    await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
     await customParam.displayBrandingArea();
   });
 
@@ -479,7 +505,7 @@ test.describe.parallel('Custom Parameters', () => {
     test('Multi Users Pen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.multiUserPenOnly });
-      await customParam.initUserPage(true, context, { useModMeetingId: true, customParameter: c.multiUserPenOnly });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, createParameter: c.multiUserPenOnly });
       await customParam.multiUserPenOnly();
     });
 
