@@ -133,7 +133,7 @@ class ApiController {
     }
 
     if(isBreakoutRoom) {
-      if(!params.parentMeetingID) {
+      if(StringUtils.isEmpty(params.parentMeetingID)) {
         invalid("parentMeetingIDMissing", "No parent meeting ID was provided for the breakout room")
         return
       }
