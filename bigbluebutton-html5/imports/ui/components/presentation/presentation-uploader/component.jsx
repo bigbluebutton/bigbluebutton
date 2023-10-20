@@ -817,10 +817,9 @@ class PresentationUploader extends Component {
 
     const { animations } = Settings.application;
 
-    const { isRemovable, downloadable } = item;
-    const status = ''; // TODO: add exportation status in graphql
+    const { removable, downloadable } = item;
 
-    const isExporting = status === 'RUNNING';
+    const isExporting = item?.exportToChatStatus === 'RUNNING';
 
     const shouldDisableExportButton = (isExporting
       || item.uploadInProgress
@@ -890,7 +889,7 @@ class PresentationUploader extends Component {
                   .handleDownloadingOfPresentation(item, fileStateType)}
               />
             ) : null}
-            {isRemovable ? (
+            {removable ? (
               <Styled.RemoveButton
                 disabled={disableActions}
                 label={intl.formatMessage(intlMessages.removePresentation)}

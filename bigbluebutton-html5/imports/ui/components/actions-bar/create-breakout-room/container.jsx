@@ -21,7 +21,6 @@ const CreateBreakoutRoomContainer = (props) => {
 
   const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
-  console.log({presentations})
 
   const { amIModerator } = props;
   return (
