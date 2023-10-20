@@ -127,7 +127,12 @@ class ApiController {
       return
     }
 
-    if(params.isBreakout == "true") {
+    Boolean isBreakoutRoom = false
+    if (!StringUtils.isEmpty(params.isBreakout)) {
+      isBreakoutRoom = Boolean.parseBoolean(params.isBreakout)
+    }
+
+    if(isBreakoutRoom) {
       if(!params.parentMeetingID) {
         invalid("parentMeetingIDMissing", "No parent meeting ID was provided for the breakout room")
         return
