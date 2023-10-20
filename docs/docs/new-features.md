@@ -172,6 +172,21 @@ Starting with BigBlueButton 2.7.0-beta.3 we are hiding by default a couple extra
 
 Starting with BigBlueButton 2.7.0-beta.3 we are enabling wake lock feature by default. It can be disabled by overriding the option `public.app.wakeLock.enabled` in `bbb-html5` config file `settings.yml`.
 
+#### Override default presentation on CREATE via url
+
+In BigBlueButton 2.7.2 we introduced a new way to include a presentation (with the goal to override default.pdf).
+
+Given that there are a few parameters involved, we'd like to provide an example here in addition to the existing documentation in the API table for the CREATE call.
+
+```
+preUploadedPresentation=https://dagrs.berkeley.edu/sites/default/files/2020-01/sample.pdf
+preUploadedPresentationOverrideDefault=true
+preUploadedPresentationName=ScientificPaper.pdf
+```
+
+In the above example on meeting creation BigBlueButton will pull the pdf, will convert it and when you join the meeting there will be only one presentation based on the sample.pdf url, named ScientificPaper.pdf.
+If `preUploadedPresentationOverrideDefault=false` (or omitted, since `false` is the default value), in the meeting you will see `default.pdf` as the current presentation and one more preloaded presentation called ScientificPaper.pdf to which you can switch at any point without having to wait for conversion to take place.
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 2.7](/development/guide).
