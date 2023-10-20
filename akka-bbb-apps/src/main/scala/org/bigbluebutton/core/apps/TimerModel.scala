@@ -16,7 +16,7 @@ object TimerModel {
 
   def reset(model: TimerModel) : Unit = {
     model.accumulated = 0
-    model.startedAt = 0
+    model.startedAt = System.currentTimeMillis()
     model.endedAt = 0
   }
 
