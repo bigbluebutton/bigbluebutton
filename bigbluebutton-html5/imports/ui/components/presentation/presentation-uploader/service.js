@@ -1,4 +1,4 @@
-import Presentations, { UploadingPresentations } from '/imports/api/presentations';
+import { UploadingPresentations } from '/imports/api/presentations';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
 import Poll from '/imports/api/polls/';
@@ -41,45 +41,6 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   }
   xhr.send(opts.body);
 });
-
-const getPresentations = () => Presentations
-  .find({
-    'conversion.error': false,
-  })
-  .fetch()
-  .map((presentation) => {
-    const {
-      conversion,
-      current,
-      downloadable,
-      removable,
-      renderedInToast,
-      temporaryPresentationId,
-      id,
-      name,
-      exportation,
-      filenameConverted,
-      downloadableExtension,
-    } = presentation;
-
-    const uploadTimestamp = id.split('-').pop();
-
-    return {
-      id,
-      name,
-      renderedInToast,
-      temporaryPresentationId,
-      current: current || false,
-      upload: { done: true, error: false },
-      isDownloadable: downloadable,
-      isRemovable: removable,
-      conversion: conversion || { done: true, error: false },
-      uploadTimestamp,
-      exportation: exportation || { error: false },
-      filenameConverted,
-      downloadableExtension,
-    };
-  });
 
 const dispatchChangePresentationDownloadable = (presentation, newState, fileStateType) => {
   makeCall('setPresentationDownloadable', presentation.presentationId, newState, fileStateType);
@@ -322,38 +283,6 @@ const getExternalUploadData = () => {
   };
 };
 
-const exportPresentation = (presentationId, observer, fileStateType) => {
-  let lastStatus = {};
-
-  Tracker.autorun((c) => {
-    const cursor = Presentations.find({ id: presentationId });
-
-    const checkStatus = (exportation) => {
-      const shouldStop = ['RUNNING', 'PROCESSING'].includes(lastStatus.status) && exportation.status === 'EXPORTED';
-
-      if (shouldStop) {
-        observer(exportation, true);
-        c.stop();
-        return;
-      }
-
-      observer(exportation, false);
-      lastStatus = exportation;
-    };
-
-    cursor.observe({
-      added: (doc) => {
-        checkStatus(doc.exportation);
-      },
-      changed: (doc) => {
-        checkStatus(doc.exportation);
-      },
-    });
-  });
-
-  makeCall('exportPresentation', presentationId, fileStateType);
-};
-
 function handleFiledrop(files, files2, that, intl, intlMessages) {
   if (that) {
     const { fileValidMimeTypes } = that.props;
@@ -425,13 +354,11 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
 
 export default {
   handleSavePresentation,
-  getPresentations,
   persistPresentationChanges,
   dispatchChangePresentationDownloadable,
   setPresentation,
   requestPresentationUploadToken,
   getExternalUploadData,
-  exportPresentation,
   uploadAndConvertPresentation,
   handleFiledrop,
 };
