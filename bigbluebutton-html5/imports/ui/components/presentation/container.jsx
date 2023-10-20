@@ -133,8 +133,6 @@ const PresentationContainer = (props) => {
     presentationAreaHeight: presentation?.height,
   };
 
-  if (!currentSlide) return null;
-
   return (
     <Presentation
       {
@@ -155,7 +153,7 @@ const PresentationContainer = (props) => {
         presentationIsDownloadable: currentPresentationPage?.downloadable,
         mountPresentation: !!currentSlide,
         currentPresentationId: currentPresentationPage?.presentationId,
-        totalPages: currentPresentationPage?.totalPages,
+        totalPages: currentPresentationPage?.totalPages || 0,
         notify,
         zoomSlide: PresentationToolbarService.zoomSlide,
         publishedPoll: poll?.published || false,
