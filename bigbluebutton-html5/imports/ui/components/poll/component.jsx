@@ -2,6 +2,7 @@ import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
+import PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 import DraggableTextArea from '/imports/ui/components/poll/dragAndDrop/component';
 import LiveResult from '/imports/ui/components/poll/live-result/component';
@@ -251,12 +252,15 @@ class Poll extends Component {
     this.displayToggleStatus = this.displayToggleStatus.bind(this);
     this.displayAutoOptionToggleStatus = this.displayAutoOptionToggleStatus.bind(this);
     this.setQuestionAndOptions = this.setQuestionAndOptions.bind(this);
+    this.handleCreatePollThroughEvent = this.handleCreatePollThroughEvent.bind(this);
   }
 
   componentDidMount() {
     if (this.textarea.current) {
       this.textarea.current.focus();
     }
+    window.addEventListener(PluginSdk.Internal.UiCommandsEvents.Poll.Fill,
+      this.handleCreatePollThroughEvent);
   }
 
   componentDidUpdate() {
@@ -293,6 +297,24 @@ class Poll extends Component {
       Session.set('resetPollPanel', false);
       document.activeElement.blur();
     });
+  }
+
+  handleCreatePollThroughEvent(eventData) {
+    const { detail } = eventData;
+    const { pollTypes } = this.props;
+    const quiz = { ...detail.data };
+    if (quiz) {
+      let { pollType } = quiz;
+      if (pollType === undefined || !Object.values(pollTypes).includes(pollType)) {
+        pollType = pollTypes.Letter;
+      }
+      const { answers } = quiz;
+      this.setState({
+        question: quiz.question,
+        optList: answers,
+        type: pollType,
+      });
+    }
   }
 
   /**

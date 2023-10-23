@@ -8,6 +8,7 @@ import PluginsEngineComponent from './component';
 import { PluginConfig, EffectivePluginConfig } from './types';
 import PluginLoaderContainer from './plugin-loader/container';
 import PluginProvidedStateContainer from './plugin-provided-state/container';
+import PluginUiCommandsHandler from './plugin-ui-commands-handler/container';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -69,6 +70,7 @@ const PluginsEngineContainer = () => {
         })
       }
       <PluginHooksHandlerContainer />
+      <PluginUiCommandsHandler />
     </>
   );
 };
