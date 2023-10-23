@@ -121,7 +121,7 @@ class RaiseHandNotifier extends Component {
   }
 
   raisedHandAvatars() {
-    const { raiseHandUsers, clearUserStatus, intl } = this.props;
+    const { raiseHandUsers, lowerUserHands, intl } = this.props;
     let users = raiseHandUsers;
     if (raiseHandUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
