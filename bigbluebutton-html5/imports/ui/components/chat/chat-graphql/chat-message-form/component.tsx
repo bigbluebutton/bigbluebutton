@@ -297,7 +297,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     document.addEventListener('click', (event) => {
       const chatList = document.getElementById('chat-list');
       if (chatList?.contains(event.target as Node)) {
-        textAreaRef.current?.textarea.focus();
+        const selection = window.getSelection()?.toString();
+        if (selection?.length === 0) {
+          textAreaRef.current?.textarea.focus();
+        }
       }
     });
 
