@@ -1,4 +1,4 @@
-- "!include public_v_audio_caption.yaml"
+- "!include public_v_caption.yaml"
 - "!include public_v_breakoutRoom.yaml"
 - "!include public_v_breakoutRoom_assignedUser.yaml"
 - "!include public_v_breakoutRoom_participant.yaml"

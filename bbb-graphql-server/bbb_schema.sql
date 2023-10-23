@@ -1422,7 +1422,7 @@ create table "sharedNotes_rev" (
 	"sharedNotesExtId" varchar(25),
 	"rev" integer,
 	"userId" varchar(50) references "user"("userId") ON DELETE SET NULL,
-	"changeset" varchar(25),
+	"changeset" text,
 	"start" integer,
 	"end" integer,
 	"diff" TEXT,
@@ -1461,18 +1461,22 @@ SELECT
 ------------------------------------
 ----audioCaption
 
-CREATE TABLE "audio_caption" (
-    "transcriptId" varchar(100) NOT NULL PRIMARY KEY,
-    "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+CREATE TABLE "caption" (
+    "captionId" varchar(100) NOT NULL PRIMARY KEY,
+    "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+    "captionType" varchar(100) NOT NULL, --Audio Transcription or Typed Caption
     "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
     "lang" varchar(15),
-    "transcript" text,
+    "captionText" text,
     "createdAt" timestamp with time zone
 );
 
-CREATE OR REPLACE VIEW "v_audio_caption" AS
+create index idx_caption on caption("meetingId","lang","createdAt");
+create index idx_caption_captionType on caption("meetingId","lang","captionType","createdAt");
+
+CREATE OR REPLACE VIEW "v_caption" AS
 SELECT *
-FROM "audio_caption"
+FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
 ------------------------------------

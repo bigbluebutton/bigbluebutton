@@ -1,10 +1,10 @@
 table:
-  name: v_audio_caption
+  name: v_caption
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: audio_caption
+  custom_name: caption
   custom_root_fields: {}
 object_relationships:
   - name: user
@@ -21,9 +21,11 @@ select_permissions:
     permission:
       columns:
         - createdAt
-        - transcript
-        - transcriptId
+        - captionText
+        - captionId
         - userId
+        - captionType
+        - lang
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
