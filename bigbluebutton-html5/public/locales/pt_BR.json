@@ -865,7 +865,7 @@
     "app.userList.guest.privateMessageLabel": "Mensagem",
     "app.userList.guest.acceptLabel": "Aceitar",
     "app.userList.guest.denyLabel": "Recusar",
-    "app.userList.guest.feedbackMessage": "Ação executada:",
+    "app.userList.guest.feedbackMessage": "Ação executada: ",
     "app.user-info.title": "Pesquisa de Diretório",
     "app.toast.breakoutRoomEnded": "A sala de apoio encerrou. Por favor, acione o áudio novamente.",
     "app.toast.chat.public": "Nova mensagem de Bate-papo público",
