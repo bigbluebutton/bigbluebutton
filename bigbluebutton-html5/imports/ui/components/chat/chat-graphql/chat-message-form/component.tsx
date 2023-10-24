@@ -294,6 +294,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     };
 
+    document.addEventListener('click', (event) => {
+      const chatList = document.getElementById('chat-list');
+      if (chatList?.contains(event.target as Node)) {
+        const selection = window.getSelection()?.toString();
+        if (selection?.length === 0) {
+          textAreaRef.current?.textarea.focus();
+        }
+      }
+    });
+
     if (sendGroupChatMsgError) { return <div>something went wrong</div>; }
 
     return (
