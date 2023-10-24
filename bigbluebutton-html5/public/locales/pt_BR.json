@@ -976,7 +976,7 @@
     "app.guest-policy.button.alwaysAccept": "Sempre aceitar",
     "app.guest-policy.button.alwaysDeny": "Sempre negar",
     "app.guest-policy.policyBtnDesc": "Define a política de convidados da sessão",
-    "app.guest-policy.feedbackMessage": "A política de convidados agora é:",
+    "app.guest-policy.feedbackMessage": "A política de convidados agora é: ",
     "app.connection-status.ariaTitle": "Status da conexão",
     "app.connection-status.title": "Status da conexão",
     "app.connection-status.description": "Mostra o status da conexão dos participantes",
