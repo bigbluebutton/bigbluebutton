@@ -844,7 +844,7 @@
     "app.guest.seatWait": "Convidado aguardando uma vaga na reunião.",
     "app.guest.allow": "Convidado aprovado e sendo redirecionado para a sessão.",
     "app.guest.firstPositionInWaitingQueue": "Você é o primeiro da fila!",
-    "app.guest.positionInWaitingQueue": "Sua posição atual na fila de espera é:",
+    "app.guest.positionInWaitingQueue": "Sua posição atual na fila de espera é: ",
     "app.guest.guestInvalid": "Convidado inválido",
     "app.guest.meetingForciblyEnded": "Você não pode acessar uma sessão que já foi encerrada",
     "app.userList.guest.waitingUsers": "Aguardando",
