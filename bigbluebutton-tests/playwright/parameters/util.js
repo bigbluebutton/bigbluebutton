@@ -102,6 +102,13 @@ async function checkShortcutsArray(test, shortcut) {
   }
 }
 
+async function timeInSeconds(locator) {
+  const texto = await locator.innerText();
+  const [horas, minutos, segundos] = texto.split(':').map(Number);
+    const tempoEmSegundos = horas * 3600 + minutos * 60 + segundos;
+    return tempoEmSegundos;
+}
+
 exports.zoomIn = zoomIn;
 exports.zoomOut = zoomOut;
 exports.poll = poll;
@@ -114,3 +121,4 @@ exports.encodeCustomParams = encodeCustomParams;
 exports.getAllShortcutParams = getAllShortcutParams;
 exports.checkAccesskey = checkAccesskey;
 exports.checkShortcutsArray = checkShortcutsArray;
+exports.timeInSeconds = timeInSeconds;
