@@ -23,10 +23,10 @@ class Timer extends MultiUsers {
     await this.modPage.hasText(e.timerCurrent, /00:00:00/);
     await this.modPage.waitAndClick(e.startStopTimer);
     await sleep(5000);
-    const currentValueTimer = await timeInSeconds(timerCurrentLocator);
-    console.log(currentValueTimer);
+    const currentValueStopwatch = await timeInSeconds(timerCurrentLocator);
+    console.log(currentValueStopwatch);
     const currentValueStopwatchIndicator = await timeInSeconds(timerIndicatorLocator);
-    await expect(currentValueTimer).toBeGreaterThan(initialValeuStopWatch);
+    await expect(currentValueStopwatch).toBeGreaterThan(initialValeuStopWatch);
     await expect(currentValueStopwatchIndicator).toBeGreaterThan(initialValeuStopWatchIndicator);
     await this.modPage.waitAndClick(e.resetTimer);
     await this.modPage.hasText(e.timerCurrent, /00:00:00/);
@@ -41,9 +41,21 @@ class Timer extends MultiUsers {
     */
     await this.modPage.waitAndClick(e.timerButton);
     await this.modPage.hasText(e.timerCurrent, /00:05:00/);
+    await this.modPage.hasText(e.timerIndicator, /00:05:00/);
 
+    await this.modPage.getLocator(e.minutesInput).press('Backspace');
     await this.modPage.type(e.minutesInput, '6');
+    await this.modPage.hasText(e.timerCurrent, /00:06:00/);
+    await this.modPage.hasText(e.timerIndicator, /00:06:00/);
 
+    const timerInitialValue = await timeInSeconds(timerCurrentLocator);
+
+    await this.modPage.waitAndClick(e.startStopTimer);
+
+    await sleep(5000);
+
+    const timerCurrentValue = await timeInSeconds(timerCurrentLocator);
+    await expect(timerInitialValue).toBeGreaterThan(timerCurrentValue);
   }
 }
 
