@@ -1,8 +1,10 @@
 package org.bigbluebutton.core.db
 
 import com.github.tminglei.slickpg._
-import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter }
-import spray.json._
+import org.apache.pekko.http.scaladsl.model.ParsingException
+import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter, _ }
+
+import scala.util.{ Failure, Success, Try }
 
 trait PostgresProfile extends ExPostgresProfile
   with PgArraySupport
@@ -49,6 +51,15 @@ object JsonUtils {
 
   def mapToJson(genericMap: Map[String, Any]) = {
     genericMap.toJson
+  }
+
+  def stringToJson(jsonString: String): JsValue = {
+    Try(jsonString.parseJson) match {
+      case Success(jsValue) => jsValue
+      case Failure(exception) =>
+        println(s"Failed to parse JSON string: $exception")
+        "{}".parseJson
+    }
   }
 
 }

@@ -20,6 +20,7 @@
 - "!include public_v_meeting_showUserlist.yaml"
 - "!include public_v_meeting_usersPolicies.yaml"
 - "!include public_v_meeting_voiceSettings.yaml"
+- "!include public_v_pluginDataChannel.yaml"
 - "!include public_v_poll.yaml"
 - "!include public_v_poll_option.yaml"
 - "!include public_v_poll_response.yaml"

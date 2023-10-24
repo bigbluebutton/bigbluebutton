@@ -1491,3 +1491,25 @@ CREATE TABLE "layout" (
 
 CREATE VIEW "v_layout" AS
 SELECT * FROM "layout";
+
+
+--------------------------------
+---Plugins Data Channel
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE "pluginDataChannel" (
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"pluginName" varchar(255),
+	"dataChannel" varchar(255),
+	"msgId" varchar(50) DEFAULT uuid_generate_v4(),
+	"msgSenderUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"msgJson" jsonb,
+	"toRole" varchar(255), --MODERATOR, VIEWER, PRESENTER
+	"toUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"createdAt" timestamp with time ZONE DEFAULT current_timestamp,
+	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","msgId")
+);
+
+create index "pluginDataChannel_meetingId_role_userId" on "pluginDataChannel"("meetingId", "dataChannel", "toRole", "toUserId", "createdAt");
+
+create view "v_pluginDataChannel" as select * from "pluginDataChannel";

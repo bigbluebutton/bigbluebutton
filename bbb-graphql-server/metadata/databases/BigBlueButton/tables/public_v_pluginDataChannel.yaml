@@ -1,0 +1,48 @@
+table:
+  name: v_pluginDataChannel
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: pluginDataChannel
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - createdAt
+        - dataChannel
+        - msgId
+        - msgJson
+        - msgSenderUserId
+        - pluginName
+        - toRole
+        - toUserId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - toUserId:
+                  _is_null: true
+              - toUserId:
+                  _eq: X-Hasura-UserId
+          - _or:
+              - toRole:
+                  _is_null: true
+              - _and:
+                  - toRole:
+                      _eq: MODERATOR
+                  - meetingId:
+                      _eq: X-Hasura-ModeratorInMeeting
+              - _and:
+                  - toRole:
+                      _eq: VIEWER
+                  - meetingId:
+                      _neq: X-Hasura-ModeratorInMeeting
+              - _and:
+                  - toRole:
+                      _eq: PRESENTER
+                  - meetingId:
+                      _eq: X-Hasura-PresenterInMeeting
+    comment: ""
