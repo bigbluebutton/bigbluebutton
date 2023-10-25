@@ -6,26 +6,25 @@ export default function PluginDataChannel({userId}) {
     const [textAreaValue, setTextAreaValue] = useState('');
 
     const [dispatchPluginDataChannelMessage] = useMutation(gql`
-      mutation DispatchPluginDataChannelMessageMsg($pluginName: String!, $dataChannel: String!, $msgId: String!, $msgJson: String!, $toRole: String!,$toUserId: String!) {
+      mutation DispatchPluginDataChannelMessageMsg($pluginName: String!, $dataChannel: String!, $messageContent: String!, $toRole: String!,$toUserId: String!) {
         dispatchPluginDataChannelMessageMsg(
           pluginName: $pluginName,
           dataChannel: $dataChannel,
-          msgId: $msgId,
-          msgJson: $msgJson,
+          messageContent: $messageContent,
           toRole: $toRole,
           toUserId: $toUserId,
         )
       }
     `);
-
     const handleDispatchPluginDataChannelMessage = (role, userId) => {
         if (textAreaValue.trim() !== '') {
             dispatchPluginDataChannelMessage({
                 variables: {
                     pluginName: 'my-plugin',
                     dataChannel: 'my-channel',
-                    msgId: 'xxx',
-                    msgJson: textAreaValue,
+                    // messageInternalId is optional
+                    // messageInternalId: 'ID' + new Date().getTime(),
+                    messageContent: textAreaValue,
                     toRole: role,
                     toUserId: userId,
                 },
@@ -35,12 +34,13 @@ export default function PluginDataChannel({userId}) {
 
     const { loading, error, data } = usePatchedSubscription(
         gql`subscription {
-              pluginDataChannel(order_by: {createdAt: asc}) {
+              pluginDataChannelMessage(order_by: {createdAt: asc}) {
                 createdAt
                 dataChannel
-                msgId
-                msgJson
-                msgSenderUserId
+                messageId
+                messageInternalId
+                messageContent
+                fromUserId
                 pluginName
                 toRole
                 toUserId
@@ -53,14 +53,15 @@ export default function PluginDataChannel({userId}) {
         (<table border="1">
             <thead>
             <tr>
-                <th colSpan="6">Plugin Data Channel</th>
+                <th colSpan="7">Plugin Data Channel</th>
             </tr>
             <tr>
                 <th>pluginName</th>
                 <th>dataChannel</th>
-                <th>msgSenderUserId</th>
-                <th>msgId</th>
-                <th>msgJson</th>
+                <th>fromUserId</th>
+                <th>messageId</th>
+                <th>messageInternalId</th>
+                <th>messageContent</th>
                 <th>createdAt</th>
                 <th></th>
             </tr>
@@ -69,12 +70,13 @@ export default function PluginDataChannel({userId}) {
             {data.map((curr) => {
                 console.log('message', curr);
                 return (
-                    <tr key={curr.msgId}>
+                    <tr key={curr.messageId}>
                         <td>{curr.pluginName}</td>
                         <td>{curr.dataChannel}</td>
-                        <td>{curr.msgSenderUserId}</td>
-                        <td>{curr.msgId}</td>
-                        <td>{JSON.stringify(curr.msgJson)}</td>
+                        <td>{curr.fromUserId}</td>
+                        <td>{curr.messageId}</td>
+                        <td>{curr.messageInternalId}</td>
+                        <td>{JSON.stringify(curr.messageContent)}</td>
                         <td>{curr.createdAt}</td>
                     </tr>
                 );
@@ -82,7 +84,7 @@ export default function PluginDataChannel({userId}) {
             </tbody>
             <tfoot>
             <tr>
-                <td colSpan="6">
+                <td colSpan="7">
                     <textarea name="test"
                               style={{height: '100px'}}
                               value={textAreaValue}

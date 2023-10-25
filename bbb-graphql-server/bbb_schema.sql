@@ -1497,19 +1497,21 @@ SELECT * FROM "layout";
 ---Plugins Data Channel
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE "pluginDataChannel" (
+CREATE TABLE "pluginDataChannelMessage" (
 	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
 	"pluginName" varchar(255),
 	"dataChannel" varchar(255),
-	"msgId" varchar(50) DEFAULT uuid_generate_v4(),
-	"msgSenderUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
-	"msgJson" jsonb,
+	"messageId" varchar(50) DEFAULT uuid_generate_v4(),
+	"messageInternalId" varchar(50),
+	"messageContent" jsonb,
+	"fromUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 	"toRole" varchar(255), --MODERATOR, VIEWER, PRESENTER
 	"toUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 	"createdAt" timestamp with time ZONE DEFAULT current_timestamp,
-	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","msgId")
+	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId")
 );
 
-create index "pluginDataChannel_meetingId_role_userId" on "pluginDataChannel"("meetingId", "dataChannel", "toRole", "toUserId", "createdAt");
+create index "idx_pluginDataChannelMessage" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRole", "toUserId", "createdAt");
+create index "idx_pluginDataChannelMessage_internalId" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "messageInternalId");
 
-create view "v_pluginDataChannel" as select * from "pluginDataChannel";
+create view "v_pluginDataChannelMessage" as select * from "pluginDataChannelMessage";

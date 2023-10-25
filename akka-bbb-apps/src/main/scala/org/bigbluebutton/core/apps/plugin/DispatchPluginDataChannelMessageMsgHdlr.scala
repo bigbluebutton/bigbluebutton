@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.plugin
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.PluginDataChannelDAO
+import org.bigbluebutton.core.db.PluginDataChannelMessageDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
@@ -24,12 +24,13 @@ trait DispatchPluginDataChannelMessageMsgHdlr extends HandlerHelpers {
       //Check channel exists
       //Check plugin write permission
       //Check if user has permission to write into this channel
-      PluginDataChannelDAO.insert(
+      PluginDataChannelMessageDAO.insert(
         meetingId,
         msg.body.pluginName,
         msg.body.dataChannel,
+        msg.body.messageInternalId,
         msg.header.userId,
-        msg.body.msgJson,
+        msg.body.messageContent,
         msg.body.toRole,
         msg.body.toUserId
       )

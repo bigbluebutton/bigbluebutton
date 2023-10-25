@@ -1,10 +1,10 @@
 table:
-  name: v_pluginDataChannel
+  name: v_pluginDataChannelMessage
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: pluginDataChannel
+  custom_name: pluginDataChannelMessage
   custom_root_fields: {}
 select_permissions:
   - role: bbb_client
@@ -12,9 +12,10 @@ select_permissions:
       columns:
         - createdAt
         - dataChannel
-        - msgId
-        - msgJson
-        - msgSenderUserId
+        - messageId
+        - messageInternalId
+        - messageContent
+        - fromUserId
         - pluginName
         - toRole
         - toUserId
