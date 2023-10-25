@@ -241,6 +241,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
   );
 
+  const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
+
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
       (item: PluginSdk.UserListDropdownItem) => (item?.type === PluginSdk.UserListDropdownItemType.INFORMATION),
@@ -341,11 +343,11 @@ const UserActions: React.FC<UserActionsProps> = ({
         && !user.presenter
         && !isVoiceOnlyUser(user.userId),
       key: 'changeWhiteboardAccess',
-      label: user.whiteboardAccess
+      label: hasWhiteboardAccess
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        changeWhiteboardAccess(pageId, user.userId, user.presPagesWritable.length > 0);
+        changeWhiteboardAccess(pageId, user.userId, hasWhiteboardAccess);
         setSelected(false);
       },
       icon: 'pen_tool',
