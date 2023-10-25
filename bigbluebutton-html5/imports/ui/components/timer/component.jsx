@@ -248,7 +248,7 @@ class Timer extends Component {
           color="secondary"
           label={intl.formatMessage(intlMessages.reset)}
           onClick={() => Service.resetTimer()}
-          data-test="reset"
+          data-test="resetTimerStopWatch"
         />
       </Styled.TimerControls>
     );

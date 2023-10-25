@@ -4,13 +4,6 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
-const { Timer } = require('./timer');
-
-test.only('Timer', async ({ browser, context, page })=> {
-  const timer = new Timer(browser, context);
-  await timer.initModPage(page, true);
-  await timer.timerTest();
-})
 
 test.describe.parallel('Create Parameters', () => {
   test('Record Meeting', async ({ browser, context, page }) => {
