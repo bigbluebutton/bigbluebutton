@@ -3,30 +3,28 @@ import usePatchedSubscription from "./usePatchedSubscription";
 import {useState} from "react";
 
 export default function PluginDataChannel({userId}) {
-    const [textAreaValue, setTextAreaValue] = useState('');
+    const [textAreaValue, setTextAreaValue] = useState(`{"bla": "sent by ${userId}"}`);
 
     const [dispatchPluginDataChannelMessage] = useMutation(gql`
-      mutation DispatchPluginDataChannelMessageMsg($pluginName: String!, $dataChannel: String!, $messageContent: String!, $toRole: String!,$toUserId: String!) {
+      mutation DispatchPluginDataChannelMessageMsg($pluginName: String!, $dataChannel: String!, $payloadJson: String!, $toRoles: [String]!,$toUserIds: [String]!) {
         dispatchPluginDataChannelMessageMsg(
           pluginName: $pluginName,
           dataChannel: $dataChannel,
-          messageContent: $messageContent,
-          toRole: $toRole,
-          toUserId: $toUserId,
+          payloadJson: $payloadJson,
+          toRoles: $toRoles,
+          toUserIds: $toUserIds,
         )
       }
     `);
-    const handleDispatchPluginDataChannelMessage = (role, userId) => {
+    const handleDispatchPluginDataChannelMessage = (roles, userIds) => {
         if (textAreaValue.trim() !== '') {
             dispatchPluginDataChannelMessage({
                 variables: {
-                    pluginName: 'my-plugin',
-                    dataChannel: 'my-channel',
-                    // messageInternalId is optional
-                    // messageInternalId: 'ID' + new Date().getTime(),
-                    messageContent: textAreaValue,
-                    toRole: role,
-                    toUserId: userId,
+                    pluginName: 'SamplePresentationToolbarPlugin',
+                    dataChannel: 'special-channel',
+                    payloadJson: textAreaValue,
+                    toRoles: roles,
+                    toUserIds: userIds,
                 },
             });
         }
@@ -38,8 +36,7 @@ export default function PluginDataChannel({userId}) {
                 createdAt
                 dataChannel
                 messageId
-                messageInternalId
-                messageContent
+                payloadJson
                 fromUserId
                 pluginName
                 toRole
@@ -53,15 +50,14 @@ export default function PluginDataChannel({userId}) {
         (<table border="1">
             <thead>
             <tr>
-                <th colSpan="7">Plugin Data Channel</th>
+                <th colSpan="6">Plugin Data Channel</th>
             </tr>
             <tr>
                 <th>pluginName</th>
                 <th>dataChannel</th>
                 <th>fromUserId</th>
                 <th>messageId</th>
-                <th>messageInternalId</th>
-                <th>messageContent</th>
+                <th>payloadJson</th>
                 <th>createdAt</th>
                 <th></th>
             </tr>
@@ -75,8 +71,7 @@ export default function PluginDataChannel({userId}) {
                         <td>{curr.dataChannel}</td>
                         <td>{curr.fromUserId}</td>
                         <td>{curr.messageId}</td>
-                        <td>{curr.messageInternalId}</td>
-                        <td>{JSON.stringify(curr.messageContent)}</td>
+                        <td>{JSON.stringify(curr.payloadJson)}</td>
                         <td>{curr.createdAt}</td>
                     </tr>
                 );
@@ -84,16 +79,16 @@ export default function PluginDataChannel({userId}) {
             </tbody>
             <tfoot>
             <tr>
-                <td colSpan="7">
+                <td colSpan="6">
                     <textarea name="test"
                               style={{height: '100px'}}
                               value={textAreaValue}
                               onChange={(e) => setTextAreaValue(e.target.value)}
                     ></textarea>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage('','')}>Dispatch to All!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage('MODERATOR', '')}>Dispatch to Moderators!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage('VIEWER', '')}>Dispatch to Viewers!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage('', userId)}>Dispatch to Me!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage([],[])}>Dispatch to All!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage(['MODERATOR','VIEWER'], [])}>Dispatch to Moderators and Viewers!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage(['PRESENTER'], [])}>Dispatch to Presenter!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage([], [userId, 'aaabbb'])}>Dispatch to Me!</button>
                 </td>
             </tr>
             </tfoot>

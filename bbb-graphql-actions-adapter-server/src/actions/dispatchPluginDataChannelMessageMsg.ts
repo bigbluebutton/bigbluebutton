@@ -14,13 +14,14 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
+  //Validate if payloadJson is a valid Json
+
   const body = {
     pluginName: input.pluginName,
     dataChannel: input.dataChannel,
-    messageInternalId: input.messageInternalId || null, //Optional
-    messageContent: input.messageContent,
-    toRole: input.toRole,
-    toUserId: input.toUserId
+    payloadJson: input.payloadJson,
+    toRoles: input.toRoles,
+    toUserIds: input.toUserIds
   };
 
   return { eventName, routing, header, body };

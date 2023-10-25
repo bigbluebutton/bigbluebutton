@@ -1,40 +1,52 @@
 package org.bigbluebutton.core.apps.plugin
 
+import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.PermissionCheck
-import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.PluginDataChannelMessageDAO
+import org.bigbluebutton.core.db.{ PluginDataChannelMessageDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
-import org.bigbluebutton.core2.MeetingStatus2x
 
 trait DispatchPluginDataChannelMessageMsgHdlr extends HandlerHelpers {
-  //  this: GroupChatHdlrs =>
 
   def handle(msg: DispatchPluginDataChannelMessageMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
-
     val meetingId = liveMeeting.props.meetingProp.intId
-    //    val pluginDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("plugin")
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
     } yield {
-      //Check plugin exists
-      //Check channel exists
-      //Check plugin write permission
-      //Check if user has permission to write into this channel
-      PluginDataChannelMessageDAO.insert(
-        meetingId,
-        msg.body.pluginName,
-        msg.body.dataChannel,
-        msg.body.messageInternalId,
-        msg.header.userId,
-        msg.body.messageContent,
-        msg.body.toRole,
-        msg.body.toUserId
-      )
+      val pluginsConfig = ClientSettings.getPluginsFromConfig(ClientSettings.clientSettingsFromFile)
+
+      if (!pluginsConfig.contains(msg.body.pluginName)) {
+        println(s"Plugin '${msg.body.pluginName}' not found.")
+      } else if (!pluginsConfig(msg.body.pluginName).dataChannels.contains(msg.body.dataChannel)) {
+        println(s"Data channel '${msg.body.dataChannel}' not found in plugin '${msg.body.pluginName}'.")
+      } else {
+        val hasPermission = for {
+          writePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.dataChannel).writePermission
+        } yield {
+          writePermission.toLowerCase match {
+            case "all"       => true
+            case "moderator" => user.role == Roles.MODERATOR_ROLE
+            case "presenter" => user.presenter
+            case _           => false
+          }
+        }
+
+        if (!hasPermission.contains(true)) {
+          println(s"No permission to write in plugin: '${msg.body.pluginName}', data channel: '${msg.body.dataChannel}'.")
+        } else {
+          PluginDataChannelMessageDAO.insert(
+            meetingId,
+            msg.body.pluginName,
+            msg.body.dataChannel,
+            msg.header.userId,
+            msg.body.payloadJson,
+            msg.body.toRoles,
+            msg.body.toUserIds
+          )
+        }
+      }
     }
   }
-
 }

@@ -10,8 +10,7 @@ case class DispatchPluginDataChannelMessageMsg(header: BbbClientMsgHeader, body:
 case class DispatchPluginDataChannelMessageMsgBody(
                                               pluginName: String,
                                               dataChannel: String,
-                                              messageInternalId: String,
-                                              messageContent: String,
-                                              toRole: String,
-                                              toUserId: String,
+                                              payloadJson: String,
+                                              toRoles: List[String],
+                                              toUserIds: List[String],
                                             )

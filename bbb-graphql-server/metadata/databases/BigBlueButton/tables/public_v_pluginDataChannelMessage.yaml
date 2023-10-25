@@ -23,8 +23,7 @@ select_permissions:
         - createdAt
         - dataChannel
         - messageId
-        - messageInternalId
-        - messageContent
+        - payloadJson
         - fromUserId
         - pluginName
         - toRole

@@ -2,10 +2,9 @@ type Mutation {
   dispatchPluginDataChannelMessageMsg(
     pluginName: String!
     dataChannel: String!
-    messageInternalId: String
-    messageContent: String!
-    toRole: String!
-    toUserId: String!
+    payloadJson: String!
+    toRoles: [String]!
+    toUserIds: [String]!
   ): Boolean
 }
 
