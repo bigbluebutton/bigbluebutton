@@ -379,8 +379,8 @@ class PresentationUploader extends Component {
         shouldUpdateState = true;
       }
 
-      if (currentPropPres?.downloadableExtension !== prevPropPres?.downloadableExtension) {
-        presentation.downloadableExtension = currentPropPres.downloadableExtension;
+      if (currentPropPres?.downloadFileUri !== prevPropPres?.downloadFileUri) {
+        presentation.downloadFileUri = currentPropPres.downloadFileUri;
         shouldUpdateState = true;
       }
 
