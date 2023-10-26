@@ -111,35 +111,35 @@ function App() {
               <br />
             <MyInfo />
             <br />
-            {/*<UserConnectionStatus />*/}
-            {/*<br />*/}
-            {/*<UserConnectionStatusReport />*/}
-            {/*<br />*/}
-            {/*<UserLocalSettings userId={userId} />*/}
-            {/*<br />*/}
-            {/*<UserList userId={userId} />*/}
-            {/*<br />*/}
-            {/*<ChatsInfo />*/}
-            {/*<br />*/}
-            {/*<ChatMessages userId={userId} />*/}
-            {/*<br />*/}
-            {/*<ChatPublicMessages userId={userId} />*/}
-            {/*<br />*/}
-            {/*<CursorsAll />*/}
-            {/*<br />*/}
-            {/*<TalkingStream />*/}
-            {/*<br />*/}
-            {/*<CursorsStream />*/}
-            {/*<br />*/}
-            {/*<Annotations />*/}
-            {/*<br />*/}
-            {/*<AnnotationsHistory />*/}
-            {/*<br />*/}
-            {/*<TotalOfUsers />*/}
-            {/*<TotalOfModerators />*/}
-            {/*<TotalOfViewers />*/}
-            {/*<TotalOfUsersTalking />*/}
-            {/*<TotalOfUniqueNames />*/}
+            <UserConnectionStatus />
+            <br />
+            <UserConnectionStatusReport />
+            <br />
+            <UserLocalSettings userId={userId} />
+            <br />
+            <UserList userId={userId} />
+            <br />
+            <ChatsInfo />
+            <br />
+            <ChatMessages userId={userId} />
+            <br />
+            <ChatPublicMessages userId={userId} />
+            <br />
+            <CursorsAll />
+            <br />
+            <TalkingStream />
+            <br />
+            <CursorsStream />
+            <br />
+            <Annotations />
+            <br />
+            <AnnotationsHistory />
+            <br />
+            <TotalOfUsers />
+            <TotalOfModerators />
+            <TotalOfViewers />
+            <TotalOfUsersTalking />
+            <TotalOfUniqueNames />
         </ApolloProvider>
         </div>
          ) : sessionToken == null ? 'Param sessionToken missing' : 'Loading...'}
