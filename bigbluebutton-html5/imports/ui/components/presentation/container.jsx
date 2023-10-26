@@ -40,8 +40,8 @@ const PresentationContainer = (props) => {
     lockSettings: m?.lockSettings,
   }));
 
-  const isViewersCursorLocked = meeting?.lockSettings?.hideViewersCursor || true;
-  const isViewersAnnotationsLocked = meeting?.lockSettings?.hideViewersAnnotation || true;
+  const isViewersCursorLocked = meeting ? meeting.lockSettings?.hideViewersCursor : true;
+  const isViewersAnnotationsLocked = meeting ? meeting.lockSettings?.hideViewersAnnotation : true;
 
   const multiUserData = {
     active: whiteboardWriters?.length > 0,
