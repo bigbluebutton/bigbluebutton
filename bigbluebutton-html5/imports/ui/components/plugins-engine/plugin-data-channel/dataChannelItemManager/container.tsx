@@ -4,12 +4,12 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import { PLUGIN_DATA_CHANNEL_DISPATCH_QUERY, PLUGIN_DATA_CHANNEL_FETCH_QUERY } from '../../queries';
 
-interface DataChannelItemManagerProps {
+export interface DataChannelItemManagerProps {
   pluginName: string;
   channelName: string;
 }
 
-interface Variables {
+export interface MutationVariables {
   pluginName: string,
   dataChannel: string,
   payloadJson: string,
@@ -17,7 +17,9 @@ interface Variables {
   toUserIds: string[],
 }
 
-const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (props: DataChannelItemManagerProps) => {
+export const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (
+  props: DataChannelItemManagerProps,
+) => {
   const {
     pluginName,
     channelName,
@@ -42,7 +44,7 @@ const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (
         payloadJson: JSON.stringify(msg),
         toRoles: [],
         toUserIds: [],
-      } as Variables,
+      } as MutationVariables,
     };
 
     if (objectsTo) {
@@ -83,5 +85,3 @@ const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (
   }, [data]);
   return null;
 };
-
-export default DataChannelItemManager;

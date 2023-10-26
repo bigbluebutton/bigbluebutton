@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { PluginDataChannelManagerContainerProps } from '../types';
-import DataChannelItemManager from './dataChannelItemManager/container';
+import { DataChannelItemManager } from './dataChannelItemManager/container';
 
 const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelManagerContainerProps> = ((
   props: PluginDataChannelManagerContainerProps,
