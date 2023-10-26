@@ -3,7 +3,7 @@ import usePatchedSubscription from "./usePatchedSubscription";
 import {useState} from "react";
 
 export default function PluginDataChannel({userId}) {
-    const [textAreaValue, setTextAreaValue] = useState(`{"bla": "sent by ${userId}"}`);
+    const [textAreaValue, setTextAreaValue] = useState(``);
 
     const [dispatchPluginDataChannelMessage] = useMutation(gql`
       mutation DispatchPluginDataChannelMessageMsg($pluginName: String!, $dataChannel: String!, $payloadJson: String!, $toRoles: [String]!,$toUserIds: [String]!) {
@@ -87,6 +87,8 @@ export default function PluginDataChannel({userId}) {
                               onChange={(e) => setTextAreaValue(e.target.value)}
                     ></textarea>
                     <button onClick={() => handleDispatchPluginDataChannelMessage([],[])}>Dispatch to All!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage(['moderator'], [])}>Dispatch to Moderators!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage(['viewer'], [])}>Dispatch to Viewers!</button>
                     <button onClick={() => handleDispatchPluginDataChannelMessage(['moderator','viewer'], [])}>Dispatch to Moderators and Viewers!</button>
                     <button onClick={() => handleDispatchPluginDataChannelMessage(['presenter'], [])}>Dispatch to Presenter!</button>
                     <button onClick={() => handleDispatchPluginDataChannelMessage([], [userId, 'user-xxx'])}>Dispatch to Me!</button>

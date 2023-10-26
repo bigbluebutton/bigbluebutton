@@ -1,4 +1,5 @@
 import { RedisMessage } from '../types';
+import { ValidationError } from '../types/ValidationError';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   const eventName = `DispatchPluginDataChannelMessageMsg`;
@@ -14,7 +15,11 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
-  //Validate if payloadJson is a valid Json
+  try {
+    JSON.parse(<string>input.payloadJson);
+  } catch (e) {
+    throw new ValidationError('Field `payloadJson` contains an invalid Json.', 400);
+  }
 
   const body = {
     pluginName: input.pluginName,
