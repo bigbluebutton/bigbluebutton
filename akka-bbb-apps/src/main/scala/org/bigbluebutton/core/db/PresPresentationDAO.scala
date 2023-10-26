@@ -124,14 +124,14 @@ object PresPresentationDAO {
             }
           ).transactionally)
             .onComplete {
-              case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresentationPage table!")
+              case Success(rowsAffected) => {
+                DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresentationPage table!")
+                if (presentation.current) {
+                  setCurrentPres(presentation.id)
+                }
+              }
               case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PresentationPage: $e")
             }
-
-          //Set current
-          if (presentation.current) {
-            setCurrentPres(presentation.id)
-          }
         }
         case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Presentation: $e")
       }
@@ -141,7 +141,8 @@ object PresPresentationDAO {
     DatabaseConnection.db.run(
       sqlu"""UPDATE pres_presentation SET
                 "current" = (case when "presentationId" = ${presentationId} then true else false end)
-                WHERE "meetingId" = (select "meetingId" from pres_presentation where "presentationId" = ${presentationId})"""
+                WHERE "meetingId" = (select "meetingId" from pres_presentation where "presentationId" = ${presentationId})
+                AND exists (select 1 from pres_page where "presentationId" = ${presentationId} AND "current" IS true)"""
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPresentation table")
         case Failure(e)            => DatabaseConnection.logger.error(s"Error updating current on PresPresentation: $e")
