@@ -13,7 +13,7 @@ interface Variables {
   pluginName: string,
   dataChannel: string,
   payloadJson: string,
-  toRoles: PluginSdk.Roles[],
+  toRoles: PluginSdk.Role[],
   toUserIds: string[],
 }
 
@@ -46,7 +46,7 @@ const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (
     };
 
     if (objectsTo) {
-      const rolesTo: PluginSdk.Roles[] = objectsTo.filter((
+      const rolesTo: PluginSdk.Role[] = objectsTo.filter((
         object: PluginSdk.ObjectTo,
       ) => 'role' in object).map(
         (object: PluginSdk.ObjectTo) => {
