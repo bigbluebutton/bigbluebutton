@@ -52,4 +52,67 @@ object ClientSettings extends SystemConfiguration {
     } else clientSettingsFromFile
   }
 
+  def getConfigPropertyValueByPath(map: Map[String, Any], path: String): Option[Any] = {
+    val keys = path.split("\\.")
+
+    def getRecursive(map: Map[String, Any], keys: Seq[String]): Option[Any] = {
+      keys match {
+        case Seq(head, tail @ _*) =>
+          map.get(head) match {
+            case Some(innerMap: Map[String, Any]) => getRecursive(innerMap, tail)
+            case otherValue if tail.isEmpty       => otherValue
+            case _                                => None
+          }
+        case _ => None
+      }
+    }
+
+    getRecursive(map, keys)
+  }
+
+  def getPluginsFromConfig(config: Map[String, Any]): Map[String, Plugin] = {
+    var pluginsFromConfig: Map[String, Plugin] = Map()
+
+    val pluginsConfig = getConfigPropertyValueByPath(config, "public.app.plugins")
+    pluginsConfig match {
+      case Some(plugins: List[Map[String, Any]]) =>
+        for {
+          plugin <- plugins
+        } yield {
+          if (plugin.contains("name") && plugin.contains("url")) {
+
+            val pluginName = plugin("name").toString
+            val pluginUrl = plugin("url").toString
+            var pluginDataChannels: Map[String, DataChannel] = Map()
+            if (plugin.contains("dataChannels")) {
+              plugin("dataChannels") match {
+                case dataChannels: List[Map[String, Any]] =>
+                  for {
+                    dataChannel <- dataChannels
+                  } yield {
+                    if (dataChannel.contains("name") && dataChannel.contains("writePermission")) {
+                      val channelName = dataChannel("name").toString
+                      val writePermission = dataChannel("writePermission")
+                      writePermission match {
+                        case wPerm: List[String] => pluginDataChannels += (channelName -> DataChannel(channelName, wPerm))
+                        case _                   => logger.warn(s"Invalid writePermission for channel $channelName in plugin $pluginName")
+                      }
+                    }
+                  }
+                case _ => logger.warn(s"Plugin $pluginName has an invalid dataChannels format")
+              }
+            }
+
+            pluginsFromConfig += (pluginName -> Plugin(pluginName, pluginUrl, pluginDataChannels))
+          }
+        }
+      case _ => logger.warn(s"Invalid plugins config found.")
+    }
+
+    pluginsFromConfig
+  }
+
+  case class DataChannel(name: String, writePermission: List[String])
+  case class Plugin(name: String, url: String, dataChannels: Map[String, DataChannel])
+
 }

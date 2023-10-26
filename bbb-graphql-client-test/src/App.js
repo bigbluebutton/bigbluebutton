@@ -13,6 +13,7 @@ import TotalOfUniqueNames from './TotalOfUniqueNames';
 import ChatMessages from "./ChatMessages";
 import ChatsInfo from "./ChatsInfo";
 import ChatPublicMessages from "./ChatPublicMessages";
+import PluginDataChannel from "./PluginDataChannel";
 import Annotations from "./Annotations";
 import AnnotationsHistory from "./AnnotationsHistory";
 import CursorsStream from "./CursorsStream";
@@ -106,6 +107,8 @@ function App() {
             Who am I? {userName} ({userId})
             <MeetingInfo />
             <br />
+              <PluginDataChannel userId={userId} />
+              <br />
             <MyInfo />
             <br />
             <UserConnectionStatus />
