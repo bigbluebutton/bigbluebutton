@@ -32,15 +32,21 @@ const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelMana
 
   useEffect(() => {
     const subscribeHandler: EventListener = (
-      (event: PluginSdk.DataChannelPluginHookEventDetailWrapper<void>) => {
-        if (event.detail.parameters.channelName && event.detail.parameters.pluginName) {
-          updateHookUsage(event.detail.parameters.channelName, event.detail.parameters.pluginName, 1);
+      (event: PluginSdk.CustomEventHookWrapper<void>) => {
+        if (event.detail.hook === PluginSdk.Internal.BbbDataChannel.UseDataChannel) {
+          const eventDetails = event.detail as PluginSdk.DataChannelPluginHookEventDetail<void>;
+          if (eventDetails.parameters.channelName && eventDetails.parameters.pluginName) {
+            updateHookUsage(eventDetails.parameters.channelName, eventDetails.parameters.pluginName, 1);
+          }
         }
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
-      (event: PluginSdk.DataChannelPluginHookEventDetailWrapper<void>) => {
-        if (event.detail.parameters.channelName && event.detail.parameters.pluginName) {
-          updateHookUsage(event.detail.parameters.channelName, event.detail.parameters.pluginName, -1);
+      (event: PluginSdk.CustomEventHookWrapper<void>) => {
+        if (event.detail.hook === PluginSdk.Internal.BbbDataChannel.UseDataChannel) {
+          const eventDetails = event.detail as PluginSdk.DataChannelPluginHookEventDetail<void>;
+          if (eventDetails.parameters.channelName && eventDetails.parameters.pluginName) {
+            updateHookUsage(eventDetails.parameters.channelName, eventDetails.parameters.pluginName, -1);
+          }
         }
       }) as EventListener;
 
