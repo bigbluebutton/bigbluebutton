@@ -13,12 +13,13 @@ select_permissions:
         - content
         - downloadFileUri
         - downloadable
+        - downloadFileExtension
         - height
         - heightRatio
         - isCurrentPage
         - isDefaultPresentation
         - num
-        - numPages
+        - totalPages
         - pageId
         - presentationFilenameConverted
         - presentationId
@@ -29,7 +30,7 @@ select_permissions:
         - scaledViewBoxWidth
         - scaledWidth
         - slideRevealed
-        - urls
+        - urlsJson
         - viewBoxHeight
         - viewBoxWidth
         - width

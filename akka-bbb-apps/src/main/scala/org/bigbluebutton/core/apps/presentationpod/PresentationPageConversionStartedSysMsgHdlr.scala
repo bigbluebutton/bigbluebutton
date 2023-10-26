@@ -45,7 +45,7 @@ trait PresentationPageConversionStartedSysMsgHdlr {
     val podId = msg.body.podId
 
     val pres = new PresentationInPod(presentationId, msg.body.presName, default = false, msg.body.current, Map.empty, downloadable,
-      removable, uploadCompleted = false, numPages = msg.body.numPages, errorDetails = Map.empty)
+      "", removable, uploadCompleted = false, numPages = msg.body.numPages, errorDetails = Map.empty)
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)

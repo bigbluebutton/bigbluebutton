@@ -1,6 +1,7 @@
 const { test } = require('@playwright/test');
 const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
+const { linkIssue } = require('../core/helpers');
 
 const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}`);
 
@@ -73,6 +74,7 @@ test.describe.parallel('Presentation', () => {
     });
 
     test('Upload Other Presentations Format @ci', async ({ browser, context, page }) => {
+      linkIssue(18971);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadOtherPresentationsFormat();

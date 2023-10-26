@@ -15,7 +15,7 @@ export default function allowPendingUsers(guests, status) {
     check(meetingId, String);
     check(requesterUserId, String);
     check(guests, Array);
-    const mappedGuests = guests.map((guest) => ({ status, guest: guest.intId }));
+    const mappedGuests = guests.map((guest) => ({ status, guest: guest.userId }));
 
     const payload = {
       approvedBy: requesterUserId,

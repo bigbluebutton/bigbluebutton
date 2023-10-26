@@ -1,23 +1,17 @@
 package org.bigbluebutton
 
-import com.typesafe.config.ConfigFactory
+import org.bigbluebutton.common2.util.YamlUtil
+import org.slf4j.LoggerFactory
 
 import java.io.{ ByteArrayInputStream, File }
 import scala.io.BufferedSource
 import scala.util.{ Failure, Success, Try }
 
-object ClientSettings {
-  val config = ConfigFactory.load()
+object ClientSettings extends SystemConfiguration {
   var clientSettingsFromFile: Map[String, Object] = Map("" -> "")
+  val logger = LoggerFactory.getLogger(this.getClass)
 
   def loadClientSettingsFromFile() = {
-    lazy val clientSettingsPath = Try(config.getString("client.clientSettingsFilePath")).getOrElse(
-      "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml"
-    )
-    lazy val clientSettingsPathOverride = Try(config.getString("client.clientSettingsOverrideFilePath")).getOrElse(
-      "/etc/bigbluebutton/bbb-html5.yml"
-    )
-
     val clientSettingsFile = scala.io.Source.fromFile(clientSettingsPath, "UTF-8")
 
     val clientSettingsFileOverrideToCheck = new File(clientSettingsPathOverride)
@@ -45,4 +39,17 @@ object ClientSettings {
         }
       )
   }
+
+  def getClientSettingsWithOverride(clientSettingsOverrideJson: String): Map[String, Object] = {
+    if (clientSettingsOverrideJson.nonEmpty) {
+      val scalaMapClientOverride = common2.util.JsonUtil.toMap[Object](clientSettingsOverrideJson)
+      scalaMapClientOverride match {
+        case Success(clientSettingsOverrideAsMap) => YamlUtil.mergeImmutableMaps(clientSettingsFromFile, clientSettingsOverrideAsMap)
+        case Failure(msg) =>
+          logger.debug("No valid JSON override of client configuration in create call: {}", msg)
+          clientSettingsFromFile
+      }
+    } else clientSettingsFromFile
+  }
+
 }
