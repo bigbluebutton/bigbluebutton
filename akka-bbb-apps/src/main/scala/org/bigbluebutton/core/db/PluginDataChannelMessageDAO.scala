@@ -44,7 +44,7 @@ object PluginDataChannelMessageDAO {
           dataChannel = dataChannel,
           payloadJson = JsonUtils.stringToJson(payloadJson),
           fromUserId = senderUserId,
-          toRoles = toRoles.filter(Permission.allowedRoles.contains) match {
+          toRoles = toRoles.map(_.toUpperCase).filter(Permission.allowedRoles.contains) match {
             case Nil => None
             case filtered => Some(filtered)
           },

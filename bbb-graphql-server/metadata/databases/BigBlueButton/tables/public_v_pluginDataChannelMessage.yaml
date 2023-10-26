@@ -21,38 +21,16 @@ select_permissions:
     permission:
       columns:
         - createdAt
+        - pluginName
         - dataChannel
         - messageId
         - payloadJson
         - fromUserId
-        - pluginName
-        - toRole
-        - toUserId
+        - toRoles
       filter:
         _and:
           - meetingId:
               _eq: X-Hasura-MeetingId
-          - _or:
-              - toUserId:
-                  _is_null: true
-              - toUserId:
-                  _eq: X-Hasura-UserId
-          - _or:
-              - toRole:
-                  _is_null: true
-              - _and:
-                  - toRole:
-                      _eq: MODERATOR
-                  - meetingId:
-                      _eq: X-Hasura-ModeratorInMeeting
-              - _and:
-                  - toRole:
-                      _eq: VIEWER
-                  - meetingId:
-                      _neq: X-Hasura-ModeratorInMeeting
-              - _and:
-                  - toRole:
-                      _eq: PRESENTER
-                  - meetingId:
-                      _eq: X-Hasura-PresenterInMeeting
+          - userId:
+              _eq: X-Hasura-UserId
     comment: ""

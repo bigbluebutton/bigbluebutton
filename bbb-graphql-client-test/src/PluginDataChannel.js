@@ -1,4 +1,4 @@
-import {useSubscription, gql, useMutation} from '@apollo/client';
+import {gql, useMutation} from '@apollo/client';
 import usePatchedSubscription from "./usePatchedSubscription";
 import {useState} from "react";
 
@@ -21,7 +21,7 @@ export default function PluginDataChannel({userId}) {
             dispatchPluginDataChannelMessage({
                 variables: {
                     pluginName: 'SamplePresentationToolbarPlugin',
-                    dataChannel: 'special-channel',
+                    dataChannel: 'public-channel',
                     payloadJson: textAreaValue,
                     toRoles: roles,
                     toUserIds: userIds,
@@ -39,8 +39,7 @@ export default function PluginDataChannel({userId}) {
                 payloadJson
                 fromUserId
                 pluginName
-                toRole
-                toUserId
+                toRoles
               }
             }
             `
@@ -50,7 +49,7 @@ export default function PluginDataChannel({userId}) {
         (<table border="1">
             <thead>
             <tr>
-                <th colSpan="6">Plugin Data Channel</th>
+                <th colSpan="7">Plugin Data Channel</th>
             </tr>
             <tr>
                 <th>pluginName</th>
@@ -58,6 +57,7 @@ export default function PluginDataChannel({userId}) {
                 <th>fromUserId</th>
                 <th>messageId</th>
                 <th>payloadJson</th>
+                <th>toRoles</th>
                 <th>createdAt</th>
                 <th></th>
             </tr>
@@ -72,6 +72,7 @@ export default function PluginDataChannel({userId}) {
                         <td>{curr.fromUserId}</td>
                         <td>{curr.messageId}</td>
                         <td>{JSON.stringify(curr.payloadJson)}</td>
+                        <td>{JSON.stringify(curr.toRoles)}</td>
                         <td>{curr.createdAt}</td>
                     </tr>
                 );
@@ -79,16 +80,16 @@ export default function PluginDataChannel({userId}) {
             </tbody>
             <tfoot>
             <tr>
-                <td colSpan="6">
+                <td colSpan="7">
                     <textarea name="test"
                               style={{height: '100px'}}
                               value={textAreaValue}
                               onChange={(e) => setTextAreaValue(e.target.value)}
                     ></textarea>
                     <button onClick={() => handleDispatchPluginDataChannelMessage([],[])}>Dispatch to All!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage(['MODERATOR','VIEWER'], [])}>Dispatch to Moderators and Viewers!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage(['PRESENTER'], [])}>Dispatch to Presenter!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage([], [userId, 'aaabbb'])}>Dispatch to Me!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage(['moderator','viewer'], [])}>Dispatch to Moderators and Viewers!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage(['presenter'], [])}>Dispatch to Presenter!</button>
+                    <button onClick={() => handleDispatchPluginDataChannelMessage([], [userId, 'user-xxx'])}>Dispatch to Me!</button>
                 </td>
             </tr>
             </tfoot>
