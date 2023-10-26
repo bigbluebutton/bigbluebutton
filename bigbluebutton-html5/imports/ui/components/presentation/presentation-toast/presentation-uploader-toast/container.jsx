@@ -12,7 +12,7 @@ const PresentationUploaderToastContainer = (props) => {
   const presentations = presentationData?.pres_presentation || [];
 
   const convertingPresentations = presentations.filter(
-    (p) => p.totalPagesUploaded < p.totalPages || !!p.uploadErrorMsgKey
+    (p) => !p.uploadCompleted || !!p.uploadErrorMsgKey,
   );
 
   return (
