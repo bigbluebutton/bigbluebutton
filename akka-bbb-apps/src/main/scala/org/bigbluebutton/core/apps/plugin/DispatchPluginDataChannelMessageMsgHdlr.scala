@@ -10,9 +10,11 @@ import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 trait DispatchPluginDataChannelMessageMsgHdlr extends HandlerHelpers {
 
   def handle(msg: DispatchPluginDataChannelMessageMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
+    val pluginsDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("plugins")
     val meetingId = liveMeeting.props.meetingProp.intId
 
     for {
+      _ <- if (!pluginsDisabled) Some(()) else None
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
     } yield {
       val pluginsConfig = ClientSettings.getPluginsFromConfig(ClientSettings.clientSettingsFromFile)

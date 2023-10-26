@@ -30,6 +30,7 @@ const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (
   const data = useSubscription(PLUGIN_DATA_CHANNEL_FETCH_QUERY, {
     variables: {
       pluginName,
+      channelName,
     },
   });
 
@@ -49,16 +50,16 @@ const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (
         object: PluginSdk.ObjectTo,
       ) => 'role' in object).map(
         (object: PluginSdk.ObjectTo) => {
-          const roleTo = object as PluginSdk.RoleTo;
-          return roleTo.role;
+          const toRole = object as PluginSdk.ToRole;
+          return toRole.role;
         },
       );
       const usersTo = objectsTo.filter((
         object: PluginSdk.ObjectTo,
       ) => 'userId' in object).map(
         (object: PluginSdk.ObjectTo) => {
-          const userIdTo = object as PluginSdk.UserIdTo;
-          return userIdTo.userId;
+          const toUserId = object as PluginSdk.ToUserId;
+          return toUserId.userId;
         },
       );
       if (rolesTo.length > 0) argumentsOfDispatcher.variables.toRoles = rolesTo;

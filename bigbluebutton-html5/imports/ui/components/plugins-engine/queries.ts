@@ -14,11 +14,12 @@ const PLUGIN_DATA_CHANNEL_DISPATCH_QUERY = gql`
 `;
 
 const PLUGIN_DATA_CHANNEL_FETCH_QUERY = gql`
-  subscription FetchPluginDataChannelMessageMsg($pluginName: String!){
+  subscription FetchPluginDataChannelMessageMsg($pluginName: String!, $channelName: String!){
     pluginDataChannelMessage(
       order_by: {createdAt: asc},
       where: {
         pluginName: { _eq: $pluginName }
+        dataChannel: { _eq: $channelName }
       }
     ) {
       createdAt,
