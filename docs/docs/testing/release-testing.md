@@ -93,9 +93,9 @@ all of these tests.
 
 1. Locate slide navigation bar
 
-2. Select next slide (>)
+2. Select next slide (\>)
 
-3. Select previous slide (<)
+3. Select previous slide (\<)
 
 4. Use dropdown to select a specific slide.
 
