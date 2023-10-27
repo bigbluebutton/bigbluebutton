@@ -181,8 +181,38 @@ const toggleToolsAnimations = (activeAnim, anim, time) => {
   }
 }
 
-const formatAnnotations = (annotations, intl, curPageId) => {
+const formatAnnotations = (annotations, intl, curPageId, pollResults) => {
   const result = {};
+
+  if (pollResults) {
+    // check if pollResults is already added to annotations
+    const hasPollResultsAnnotation = annotations.find(
+      (annotation) => annotation.annotationId === pollResults.pollId,
+    );
+
+    if (!hasPollResultsAnnotation) {
+      const answers = pollResults.responses.map((response) => ({
+        id: response.optionId,
+        key: response.optionDesc,
+        numVotes: response.optionResponsesCount,
+      }));
+
+      const pollResultsAnnotation = {
+        id: pollResults.pollId,
+        annotationInfo: JSON.stringify({
+          answers,
+          id: pollResults.pollId,
+          whiteboardId: curPageId,
+          questionType: true,
+          questionText: pollResults.questionText,
+        }),
+        wbId: curPageId,
+        userId: Auth.userID,
+      };
+      annotations.push(pollResultsAnnotation);
+    }
+  }
+
   annotations.forEach((annotation) => {
     if (annotation.annotationInfo === '') return;
 

@@ -30,6 +30,7 @@ import {
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
+import POLL_RESULTS_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollResultsSubscription';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
@@ -55,6 +56,9 @@ const WhiteboardContainer = (props) => {
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
+
+  const { data: pollData } = useSubscription(POLL_RESULTS_SUBSCRIPTION);
+  const pollResults = pollData?.poll[0] || null;
 
   const {
     loading: annotationsLoading,
@@ -104,7 +108,7 @@ const WhiteboardContainer = (props) => {
       .concat(annotations)
       .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
 
-    shapes = formatAnnotations(pageAnnotations, intl, curPageId);
+    shapes = formatAnnotations(pageAnnotations, intl, curPageId, pollResults);
   }
 
   const { isIphone } = deviceInfo;
