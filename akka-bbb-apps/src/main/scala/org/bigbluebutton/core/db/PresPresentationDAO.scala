@@ -7,6 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 import spray.json._
 
+
+
 case class PresPresentationDbModel(
     presentationId:         String,
     meetingId:              String,
@@ -64,9 +66,9 @@ object PresPresentationDAO {
     }
   }
 
-  def insertOrUpdate(meetingId: String, presentation: PresentationInPod) = {
+  def insert(meetingId: String, presentation: PresentationInPod) = {
     DatabaseConnection.db.run(
-      TableQuery[PresPresentationDbTableDef].insertOrUpdate(
+      TableQuery[PresPresentationDbTableDef].forceInsert(
         PresPresentationDbModel(
           presentationId = presentation.id,
           meetingId = meetingId,
@@ -76,7 +78,7 @@ object PresPresentationDAO {
           current = false, //Set after pages were inserted
           downloadable = presentation.downloadable,
           downloadFileExtension = presentation.downloadFileExtension match {
-            case ""                    => None
+            case "" => None
             case downloadFileExtension => Some(downloadFileExtension)
           },
           downloadFileUri = None,
@@ -92,10 +94,31 @@ object PresPresentationDAO {
         )
       )
     ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Presentation table!")
+      case Success(rowsAffected) =>  DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Presentation table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Presentation: $e")
+    }
+  }
 
-          DatabaseConnection.db.run(DBIO.sequence(
+
+  def updatePages(presentation: PresentationInPod) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentation.id)
+        .map(p => (p.downloadFileExtension, p.uploadInProgress, p.uploadCompleted, p.totalPages))
+        .update((
+          presentation.downloadFileExtension match {
+            case "" => None
+            case downloadFileExtension => Some(downloadFileExtension)
+          },
+          !presentation.uploadCompleted,
+          presentation.uploadCompleted,
+          presentation.numPages,
+        ))
+    ).onComplete {
+      case Success(rowsAffected) => {
+        DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on PresPresentation table!")
+
+        DatabaseConnection.db.run(DBIO.sequence(
             for {
               page <- presentation.pages
             } yield {
@@ -123,18 +146,19 @@ object PresPresentationDAO {
               )
             }
           ).transactionally)
-            .onComplete {
-              case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresentationPage table!")
-              case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PresentationPage: $e")
-            }
-
-          //Set current
-          if (presentation.current) {
-            setCurrentPres(presentation.id)
+          .onComplete {
+            case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on PresentationPage table!")
+            case Failure(e) => DatabaseConnection.logger.debug(s"Error updating PresentationPage: $e")
           }
+
+        //Set current
+        if (presentation.current) {
+          setCurrentPres(presentation.id)
         }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Presentation: $e")
+
       }
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user: $e")
+    }
   }
 
   def setCurrentPres(presentationId: String) = {
@@ -146,6 +170,18 @@ object PresPresentationDAO {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPresentation table")
         case Failure(e)            => DatabaseConnection.logger.error(s"Error updating current on PresPresentation: $e")
       }
+  }
+
+  def updateDownloadable(presentationId: String, downloadable : Boolean, downloadableExtension: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => (p.downloadable, p.downloadFileExtension))
+        .update((downloadable, Some(downloadableExtension)))
+    ).onComplete {
+      case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated downloadable on PresPresentation table")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating downloadable on PresPresentation: $e")
+    }
   }
 
   def updateDownloadUri(presentationId: String, downloadFileUri: String) = {

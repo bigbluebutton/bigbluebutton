@@ -70,7 +70,7 @@ trait PresentationPageConvertedSysMsgHdlr {
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, newPres)
 
-      PresPresentationDAO.insertOrUpdate(msg.header.meetingId, newPres)
+      PresPresentationDAO.updatePages(newPres)
       state.update(pods)
     }
 

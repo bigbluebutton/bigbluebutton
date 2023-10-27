@@ -124,7 +124,9 @@ case class PresentationConversionRequestReceivedSysMsgBody(
     presentationId:          String,
     temporaryPresentationId: String,
     current:                 Boolean,
+    default:                 Boolean,
     presName:                String,
+    presFilenameConverted:   String,
     downloadable:            Boolean,
     removable:               Boolean,
     authzToken:              String

@@ -74,7 +74,7 @@ object PresentationPodsApp {
   }
 
   def translatePresentationToPresentationVO(pres: PresentationInPod, temporaryPresentationId: String,
-                                            isInitialPresentation: Boolean, filenameConverted: String): PresentationVO = {
+                                            defaultPresentation: Boolean, filenameConverted: String): PresentationVO = {
     val pages = pres.pages.values.map { page =>
       PageVO(
         id = page.id,
@@ -92,7 +92,7 @@ object PresentationPodsApp {
       )
     }
     PresentationVO(pres.id, temporaryPresentationId, pres.name, pres.current, pages.toVector, pres.downloadable,
-      pres.removable, isInitialPresentation, filenameConverted)
+      pres.removable, defaultPresentation, filenameConverted)
   }
 
   def setCurrentPresentationInPod(state: MeetingState2x, podId: String, nextCurrentPresId: String): Option[PresentationPod] = {

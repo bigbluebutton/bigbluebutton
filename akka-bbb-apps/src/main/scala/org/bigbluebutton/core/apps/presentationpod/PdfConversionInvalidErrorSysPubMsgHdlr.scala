@@ -46,7 +46,8 @@ trait PdfConversionInvalidErrorSysPubMsgHdlr {
         msg.body.messageKey, errorDetails)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithError)
-      PresPresentationDAO.insertOrUpdate(msg.header.meetingId, presWithError)
+
+      PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
       state.update(pods)
     }
 
@@ -54,9 +55,7 @@ trait PdfConversionInvalidErrorSysPubMsgHdlr {
 
     newState match {
       case Some(ns) => ns
-      case None =>
-        PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
-        state
+      case None     => state
     }
   }
 }
