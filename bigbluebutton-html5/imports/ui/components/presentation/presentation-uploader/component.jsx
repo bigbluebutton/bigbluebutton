@@ -284,7 +284,6 @@ const intlMessages = defineMessages({
   },
 });
 
-
 const handleDismissToast = (id) => toast.dismiss(id);
 
 class PresentationUploader extends Component {
@@ -367,10 +366,21 @@ class PresentationUploader extends Component {
         shouldUpdateState = true;
       }
 
-      if (currentPropPres?.totalPagesUploaded !== prevPropPres?.totalPagesUploaded) {
-        modPresentation.totalPages = currentPropPres.totalPages;
+      if (currentPropPres?.totalPagesUploaded !== prevPropPres?.totalPagesUploaded
+        || presentation.totalPagesUploaded !== currentPropPres?.totalPagesUploaded) {
         modPresentation.totalPagesUploaded = currentPropPres.totalPagesUploaded;
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres?.uploadCompleted !== prevPropPres?.uploadCompleted
+        || presentation.uploadCompleted !== currentPropPres?.uploadCompleted) {
         modPresentation.uploadCompleted = currentPropPres.uploadCompleted;
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres?.totalPages !== prevPropPres?.totalPages
+        || presentation.totalPages !== currentPropPres?.totalPages) {
+        modPresentation.totalPages = currentPropPres.totalPages;
         shouldUpdateState = true;
       }
 
@@ -390,7 +400,7 @@ class PresentationUploader extends Component {
       }
 
       modPresentation.uploadInProgress = currentPropPres.uploadInProgress;
-      modPresentation.isRemovable = currentPropPres.isRemovable;
+      modPresentation.removable = currentPropPres.removable;
 
       return true;
     }).filter((presentation) => {
