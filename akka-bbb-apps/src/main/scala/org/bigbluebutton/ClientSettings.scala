@@ -73,7 +73,7 @@ object ClientSettings extends SystemConfiguration {
   def getPluginsFromConfig(config: Map[String, Any]): Map[String, Plugin] = {
     var pluginsFromConfig: Map[String, Plugin] = Map()
 
-    val pluginsConfig = getConfigPropertyValueByPath(config, "public.app.plugins")
+    val pluginsConfig = getConfigPropertyValueByPath(config, "public.plugins")
     pluginsConfig match {
       case Some(plugins: List[Map[String, Any]]) =>
         for {
