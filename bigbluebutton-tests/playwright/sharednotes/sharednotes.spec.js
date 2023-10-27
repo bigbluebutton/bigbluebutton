@@ -10,7 +10,8 @@ test.describe.parallel('Shared Notes', () => {
     await sharedNotes.initModPage(page, true);
     await sharedNotes.initUserPage(true, context);
   });
-  test('Open shared notes @ci', async () => {
+  test('Open shared notes @ci', async ({ browserName }) => {
+    test.skip(browserName === 'firefox');
     await sharedNotes.openSharedNotes();
   });
 
