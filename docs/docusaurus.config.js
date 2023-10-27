@@ -38,13 +38,16 @@ const config = {
                     lastVersion: '2.7',
                     includeCurrentVersion: false,
                     versions: {
-                        '2.5-legacy': {
+                        '2.5': {
                             banner: 'none'
                         },
                         '2.6': {
                             banner: 'none'
                         },
                         '2.7': {
+                            banner: 'none'
+                        },
+                        '3.0': {
                             banner: 'none'
                         },
                     }
