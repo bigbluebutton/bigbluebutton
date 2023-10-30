@@ -73,8 +73,9 @@ test.describe.parallel('Presentation', () => {
       await presentation.uploadSinglePresentationTest();
     });
 
-    test('Upload Other Presentations Format @ci', async ({ browser, context, page }) => {
+    test('Upload Other Presentations Format @ci', async ({ browserName, browser, context, page }) => {
       linkIssue(18971);
+      test.skip(browserName === 'firefox', 'Inconsistent screenshot PPTX');
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadOtherPresentationsFormat();
