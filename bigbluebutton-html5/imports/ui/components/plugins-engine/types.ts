@@ -3,6 +3,7 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 export interface PluginProvidedStateContainerProps {
     uuid: string;
+    pluginApi: PluginSdk.PluginApi;
 }
 
 export interface PluginsEngineComponentProps {
@@ -23,6 +24,7 @@ export interface PluginLoaderContainerProps {
 }
 
 export interface EffectivePluginConfig extends PluginConfig {
+    name: string;
     uuid: string;
 }
 
@@ -58,6 +60,10 @@ export interface PluginProvidedStateContainerChildProps {
     generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
         item: T, index: number): T;
     pluginProvidedStateMap: PluginsProvidedStateMap;
+    pluginApi: PluginSdk.PluginApi;
+}
+
+export interface PluginDataChannelManagerContainerProps {
     pluginApi: PluginSdk.PluginApi;
 }
 

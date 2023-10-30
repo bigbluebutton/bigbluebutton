@@ -45,11 +45,12 @@ function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
 const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) => {
   const {
     uuid,
+    pluginApi,
   } = props;
   if (!pluginProvidedStateMap[uuid]) {
     pluginProvidedStateMap[uuid] = {} as PluginProvidedState;
   }
-  const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
+
   return (
     <>
       {

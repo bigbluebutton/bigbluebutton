@@ -1,4 +1,14 @@
 type Mutation {
+  dispatchPluginDataChannelMessageMsg(
+    pluginName: String!
+    dataChannel: String!
+    payloadJson: String!
+    toRoles: [String]!
+    toUserIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
   sendGroupChatMsg(
     chatId: String!
     chatMessageInMarkdownFormat: String!

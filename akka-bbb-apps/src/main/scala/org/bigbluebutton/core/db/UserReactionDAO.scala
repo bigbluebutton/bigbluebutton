@@ -7,19 +7,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
 case class UserReactionDbModel(
-    userId:        String,
-    reactionEmoji: String,
-    duration:      Int,
-    createdAt:     java.sql.Timestamp
+    userId:            String,
+    reactionEmoji:     String,
+    durationInSeconds: Int,
+    createdAt:         java.sql.Timestamp
 )
 
 class UserReactionDbTableDef(tag: Tag) extends Table[UserReactionDbModel](tag, "user_reaction") {
   val userId = column[String]("userId")
   val reactionEmoji = column[String]("reactionEmoji")
-  val duration = column[Int]("duration")
+  val durationInSeconds = column[Int]("durationInSeconds")
   val createdAt = column[java.sql.Timestamp]("createdAt")
 
-  override def * : ProvenShape[UserReactionDbModel] = (userId, reactionEmoji, duration, createdAt) <> (UserReactionDbModel.tupled, UserReactionDbModel.unapply)
+  override def * : ProvenShape[UserReactionDbModel] = (userId, reactionEmoji, durationInSeconds, createdAt) <> (UserReactionDbModel.tupled, UserReactionDbModel.unapply)
 }
 
 object UserReactionDAO {
@@ -29,7 +29,7 @@ object UserReactionDAO {
         UserReactionDbModel(
           userId = userId,
           reactionEmoji = reactionEmoji,
-          duration = 60,
+          durationInSeconds = 60,
           createdAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )

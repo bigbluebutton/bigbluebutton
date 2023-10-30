@@ -1,12 +1,15 @@
 package org.bigbluebutton.core.db
 
 import com.github.tminglei.slickpg._
-import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter }
-import spray.json.{ _ }
+import org.apache.pekko.http.scaladsl.model.ParsingException
+import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter, _ }
+
+import scala.util.{ Failure, Success, Try }
 
 trait PostgresProfile extends ExPostgresProfile
-  with PgArraySupport {
-  //  def pgjson = "jsonb" // jsonb support is in postgres 9.4.0 onward; for 9.3.x use "json"
+  with PgArraySupport
+  with PgSprayJsonSupport {
+  def pgjson = "jsonb" // jsonb support is in postgres 9.4.0 onward; for 9.3.x use "json"
 
   // Add back `capabilities.insertOrUpdate` to enable native `upsert` support; for postgres 9.5+
   override protected def computeCapabilities: Set[slick.basic.Capability] =
@@ -14,7 +17,7 @@ trait PostgresProfile extends ExPostgresProfile
 
   override val api = PgAPI
 
-  object PgAPI extends API with ArrayImplicits //    with DateTimeImplicits
+  object PgAPI extends API with ArrayImplicits with SprayJsonImplicits //    with DateTimeImplicits
   {
     implicit val strListTypeMapper = new SimpleArrayJdbcType[String]("text").to(_.toList)
   }
@@ -34,6 +37,7 @@ object JsonUtils {
       case m: Map[_, _] => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
       case l: List[_]   => JsArray(l.map(write).toVector)
       case a: Array[_]  => JsArray(a.map(write).toVector)
+      case null         => JsNull
       case _            => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
       //      case _            => JsNull
     }
@@ -46,7 +50,16 @@ object JsonUtils {
   }
 
   def mapToJson(genericMap: Map[String, Any]) = {
-    genericMap.toJson.compactPrint
+    genericMap.toJson
+  }
+
+  def stringToJson(jsonString: String): JsValue = {
+    Try(jsonString.parseJson) match {
+      case Success(jsValue) => jsValue
+      case Failure(exception) =>
+        println(s"Failed to parse JSON string: $exception")
+        "{}".parseJson
+    }
   }
 
 }

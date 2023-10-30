@@ -89,7 +89,8 @@ case class DefaultProps(
     metadataProp:      MetadataProp,
     lockSettingsProps: LockSettingsProps,
     systemProps:       SystemProps,
-    groups:            Vector[GroupProps]
+    groups:            Vector[GroupProps],
+    overrideClientSettings: String
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
