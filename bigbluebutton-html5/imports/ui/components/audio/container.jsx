@@ -144,6 +144,9 @@ class AudioContainer extends PureComponent {
       /> : null}
       {isVideoPreviewModalOpen ? <VideoPreviewContainer 
         {...{
+          callbackToClose: () => {
+            setVideoPreviewModalIsOpen(false);
+          },
           priority: "low",
           setIsOpen: setVideoPreviewModalIsOpen,
           isOpen: isVideoPreviewModalOpen

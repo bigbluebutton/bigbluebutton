@@ -184,7 +184,7 @@ class JoinHandler extends Component {
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;
 
-    setLogoutURL(response);
+    setLogoutURL(response.logoutUrl);
     logUserInfo();
 
     if (response.returncode !== 'FAILED') {

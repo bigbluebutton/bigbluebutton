@@ -18,7 +18,8 @@ case class MeetingLockSettingsDbModel(
     hideUserList:           Boolean,
     lockOnJoin:             Boolean,
     lockOnJoinConfigurable: Boolean,
-    hideViewersCursor:      Boolean
+    hideViewersCursor:      Boolean,
+    hideViewersAnnotation:  Boolean
 )
 
 class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsDbModel](tag, "meeting_lockSettings") {
@@ -32,10 +33,11 @@ class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsD
   val lockOnJoin = column[Boolean]("lockOnJoin")
   val lockOnJoinConfigurable = column[Boolean]("lockOnJoinConfigurable")
   val hideViewersCursor = column[Boolean]("hideViewersCursor")
+  val hideViewersAnnotation = column[Boolean]("hideViewersAnnotation")
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingLockSettingsDbModel] = (meetingId, disableCam, disableMic, disablePrivateChat, disablePublicChat, disableNotes, hideUserList, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor) <> (MeetingLockSettingsDbModel.tupled, MeetingLockSettingsDbModel.unapply)
+  override def * : ProvenShape[MeetingLockSettingsDbModel] = (meetingId, disableCam, disableMic, disablePrivateChat, disablePublicChat, disableNotes, hideUserList, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor, hideViewersAnnotation) <> (MeetingLockSettingsDbModel.tupled, MeetingLockSettingsDbModel.unapply)
 }
 
 object MeetingLockSettingsDAO {
@@ -52,7 +54,8 @@ object MeetingLockSettingsDAO {
           hideUserList = lockSettingsProps.hideUserList,
           lockOnJoin = lockSettingsProps.lockOnJoin,
           lockOnJoinConfigurable = lockSettingsProps.lockOnJoinConfigurable,
-          hideViewersCursor = lockSettingsProps.hideViewersCursor
+          hideViewersCursor = lockSettingsProps.hideViewersCursor,
+          hideViewersAnnotation = lockSettingsProps.hideViewersAnnotation,
         )
       )
     ).onComplete {
@@ -76,7 +79,8 @@ object MeetingLockSettingsDAO {
           hideUserList = permissions.hideUserList,
           lockOnJoin = permissions.lockOnJoin,
           lockOnJoinConfigurable = permissions.lockOnJoinConfigurable,
-          hideViewersCursor = permissions.hideViewersCursor
+          hideViewersCursor = permissions.hideViewersCursor,
+          hideViewersAnnotation = permissions.hideViewersAnnotation,
         ),
       )
     ).onComplete {

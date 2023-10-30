@@ -18,11 +18,11 @@ export type getPermissions = {
 
 export const GET_CHAT_MESSAGE_HISTORY = gql`
 query getChatMessageHistory {
-  chat_message_public(order_by: {createdTime: asc}) {
+  chat_message_public(order_by: {createdAt: asc}) {
     message
     messageId
     messageType
-    createdTime
+    createdAt
     user {
       userId
       name

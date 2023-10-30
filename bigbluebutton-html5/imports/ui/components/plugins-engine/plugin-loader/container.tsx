@@ -27,7 +27,7 @@ const PluginLoaderContainer = (props: PluginLoaderContainerProps) => {
       logger.info(`Loaded plugin ${plugin.name}`);
     };
     script.onerror = (err) => {
-      logger.info(`Error when loading plugin ${plugin.name}, error: ${err}`);
+      logger.error(`Error when loading plugin ${plugin.name}, error: `, err);
     };
     script.src = plugin.url;
     script.setAttribute('uuid', div.id);

@@ -295,7 +295,7 @@
     "app.presentationUploader.export.downloadButtonAvailable": "{0} sunumu için indirme düğmesi kullanılabilir.",
     "app.presentationUploader.export.notAccessibleWarning": "erişilebilirlik uyumluluğu olmayabilir",
     "app.presentationUploader.export.originalLabel": "Özgün",
-    "app.presentationUploader.export.inCurrentStateLabel": "Geçerli durumda",
+    "app.presentationUploader.export.withWhiteboardAnnotations": "Geçerli durumda",
     "app.presentationUploader.currentPresentationLabel": "Geçerli sunum",
     "app.presentationUploder.extraHint": "ÖNEMLİ: Her bir dosya {0} MB boyutundan ve {1} sayfadan küçük olmalıdır.",
     "app.presentationUploder.uploadLabel": "Yükle",
