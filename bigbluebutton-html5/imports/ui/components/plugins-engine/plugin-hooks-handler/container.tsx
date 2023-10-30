@@ -63,12 +63,22 @@ const PluginHooksHandlerContainer: React.FC = () => {
     };
 
     const subscribeHandler: EventListener = (
-      (event: PluginSdk.CustomEventHookWrapper<string | undefined>) => {
-        updateHookUsage(event.detail.hook, 1, event.detail.parameter);
+      (event: PluginSdk.CustomEventHookWrapper<void>) => {
+        let parameter: PluginSdk.CustomEventParameter | undefined;
+        if (event.detail.hook === PluginSdk.Internal.BbbHooks.UseCustomSubscription) {
+          const detail = event.detail as PluginSdk.CustomEventHookWithParameters<void>;
+          parameter = detail.parameter;
+        }
+        updateHookUsage(event.detail.hook, 1, parameter);
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
-      (event: PluginSdk.CustomEventHookWrapper<string | undefined>) => {
-        updateHookUsage(event.detail.hook, -1, event.detail.parameter);
+      (event: PluginSdk.CustomEventHookWrapper<void>) => {
+        let parameter: PluginSdk.CustomEventParameter | undefined;
+        if (event.detail.hook === PluginSdk.Internal.BbbHooks.UseCustomSubscription) {
+          const detail = event.detail as PluginSdk.CustomEventHookWithParameters<void>;
+          parameter = detail.parameter;
+        }
+        updateHookUsage(event.detail.hook, -1, parameter);
       }) as EventListener;
 
     window.addEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, subscribeHandler);

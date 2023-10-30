@@ -25,7 +25,7 @@ const CustomSubscriptionHookContainer = (props: ParameterizedHookContainerProps)
 
   const updatePresentationForPlugin = () => {
     window.dispatchEvent(
-      new CustomEvent(
+      new CustomEvent<PluginSdk.CustomEventHookWithParameters<any>>(
         PluginSdk.Internal.BbbHookEvents.Update,
         {
           detail: {
@@ -35,8 +35,8 @@ const CustomSubscriptionHookContainer = (props: ParameterizedHookContainerProps)
               query: queryFromPlugin,
               variables,
             },
-          },
-        } as PluginSdk.CustomEventHookWrapper<string>,
+          } as PluginSdk.CustomEventHookWithParameters<any>,
+        },
       ),
     );
   };

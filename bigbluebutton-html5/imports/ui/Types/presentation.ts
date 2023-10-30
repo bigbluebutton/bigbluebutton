@@ -1,7 +1,14 @@
+export interface UrlsJson {
+    png: string;
+    svg: string;
+    text: string;
+    thumb: string;
+}
+
 export interface CurrentPage {
     num: number;
     pageId: string;
-    urls: string;
+    urlsJson: UrlsJson;
 }
 
 export interface CurrentPresentation {

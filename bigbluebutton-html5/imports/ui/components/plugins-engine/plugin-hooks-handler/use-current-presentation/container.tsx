@@ -14,7 +14,7 @@ const projectCurrentPresentation = (
       currentPage: {
         id: currentPage.pageId,
         num: currentPage.num,
-        urls: JSON.parse(currentPage.urls),
+        urls: currentPage.urlsJson as PluginSdk.CurrentPresentationPageUrls,
       },
     };
   }
