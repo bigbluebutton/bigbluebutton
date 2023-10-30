@@ -40,7 +40,6 @@ const Cursors = (props) => {
     tldrawCamera,
     publishCursorUpdate,
     children,
-    isViewersCursorLocked,
     hasWBAccess,
     isMultiUserActive,
     isPanning,
@@ -270,15 +269,6 @@ const Cursors = (props) => {
       </div>
       {otherCursors
         .filter((c) => c?.xPercent && c.xPercent !== -1.0 && c?.yPercent && c.yPercent !== -1.0)
-        .filter((c) => {
-          if ((isViewersCursorLocked && c?.user.role !== 'VIEWER')
-            || !isViewersCursorLocked
-            || currentUser?.presenter
-          ) {
-            return c;
-          }
-          return null;
-        })
         .map((c) => {
           if (c && currentUser.userId !== c?.userId) {
             if (c.user.presenter) {
@@ -330,7 +320,6 @@ Cursors.propTypes = {
   }),
   publishCursorUpdate: PropTypes.func.isRequired,
   children: PropTypes.arrayOf(PropTypes.element).isRequired,
-  isViewersCursorLocked: PropTypes.bool.isRequired,
   isMultiUserActive: PropTypes.bool.isRequired,
   isPanning: PropTypes.bool.isRequired,
   isMoving: PropTypes.bool.isRequired,

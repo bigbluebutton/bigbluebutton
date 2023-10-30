@@ -44,7 +44,6 @@ export default function Whiteboard(props) {
     curPageId,
     presentationWidth,
     presentationHeight,
-    isViewersCursorLocked,
     zoomChanger,
     isMultiUserActive,
     isRTL,
@@ -1072,7 +1071,6 @@ export default function Whiteboard(props) {
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
         whiteboardId={whiteboardId}
-        isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning || panSelected}
         isMoving={isMoving}
@@ -1141,7 +1139,6 @@ Whiteboard.propTypes = {
   curPageId: PropTypes.string.isRequired,
   presentationWidth: PropTypes.number.isRequired,
   presentationHeight: PropTypes.number.isRequired,
-  isViewersCursorLocked: PropTypes.bool.isRequired,
   zoomChanger: PropTypes.func.isRequired,
   isRTL: PropTypes.bool.isRequired,
   fitToWidth: PropTypes.bool.isRequired,

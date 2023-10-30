@@ -720,7 +720,6 @@ class Presentation extends PureComponent {
       numCameras,
       currentPresentationId,
       intl,
-      isViewersCursorLocked,
       fullscreenElementId,
       layoutContextDispatch,
       presentationIsOpen,
@@ -849,7 +848,6 @@ class Presentation extends PureComponent {
                   presentationHeight={svgHeight}
                   presentationAreaHeight={presentationBounds?.height}
                   presentationAreaWidth={presentationBounds?.width}
-                  isViewersCursorLocked={isViewersCursorLocked}
                   isPanning={isPanning}
                   zoomChanger={this.zoomChanger}
                   fitToWidth={fitToWidth}
@@ -947,7 +945,6 @@ Presentation.propTypes = {
   layoutType: PropTypes.string.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,
   downloadPresentationUri: PropTypes.string,
-  isViewersCursorLocked: PropTypes.bool.isRequired,
   darkTheme: PropTypes.bool.isRequired,
 };
 

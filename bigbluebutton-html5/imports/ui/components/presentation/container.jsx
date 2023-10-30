@@ -40,7 +40,6 @@ const PresentationContainer = (props) => {
     lockSettings: m?.lockSettings,
   }));
 
-  const isViewersCursorLocked = meeting ? meeting.lockSettings?.hideViewersCursor : true;
   const isViewersAnnotationsLocked = meeting ? meeting.lockSettings?.hideViewersAnnotation : true;
 
   const multiUserData = {
@@ -164,7 +163,6 @@ const PresentationContainer = (props) => {
         addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
         removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
         multiUserSize: multiUserData.size,
-        isViewersCursorLocked,
         isViewersAnnotationsLocked,
         setPresentationIsOpen: MediaService.setPresentationIsOpen,
         isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
