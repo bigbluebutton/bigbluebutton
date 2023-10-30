@@ -1,27 +1,60 @@
 package org.bigbluebutton.core.db
 
-import slick.jdbc.PostgresProfile.api._
+import PostgresProfile.api._
 import org.bigbluebutton.core.models.{ PresentationInPod }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 import spray.json._
 
-case class PresPresentationDbModel(presentationId: String, meetingId: String, current: Boolean, downloadable: Boolean, removable: Boolean, uploadCompleted: Boolean, numPages: Int, errorMsgKey: String, errorDetails: String)
+case class PresPresentationDbModel(
+    presentationId:         String,
+    meetingId:              String,
+    name:                   String,
+    filenameConverted:      String,
+    isDefault:              Boolean,
+    current:                Boolean,
+    downloadable:           Boolean,
+    downloadFileExtension:  Option[String],
+    downloadFileUri:        Option[String],
+    removable:              Boolean,
+    uploadInProgress:       Boolean,
+    uploadCompleted:        Boolean,
+    uploadErrorMsgKey:      String,
+    uploadErrorDetailsJson: JsValue,
+    totalPages:             Int,
+    exportToChatStatus:     Option[String],
+    exportToChatCurrentPage: Option[Int],
+    exportToChatHasError:   Option[Boolean]
+)
 
 class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel](tag, None, "pres_presentation") {
   val presentationId = column[String]("presentationId", O.PrimaryKey)
   val meetingId = column[String]("meetingId")
+  val name = column[String]("name")
+  val filenameConverted = column[String]("filenameConverted")
+  val isDefault = column[Boolean]("isDefault")
   val current = column[Boolean]("current")
   val downloadable = column[Boolean]("downloadable")
+  val downloadFileExtension = column[Option[String]]("downloadFileExtension")
+  val downloadFileUri = column[Option[String]]("downloadFileUri")
   val removable = column[Boolean]("removable")
+  val uploadInProgress = column[Boolean]("uploadInProgress")
   val uploadCompleted = column[Boolean]("uploadCompleted")
-  val numPages = column[Int]("numPages")
-  val errorMsgKey = column[String]("errorMsgKey")
-  val errorDetails = column[String]("errorDetails")
+  val uploadErrorMsgKey = column[String]("uploadErrorMsgKey")
+  val uploadErrorDetailsJson = column[JsValue]("uploadErrorDetailsJson")
+  val totalPages = column[Int]("totalPages")
+  val exportToChatStatus = column[Option[String]]("exportToChatStatus")
+  val exportToChatCurrentPage = column[Option[Int]]("exportToChatCurrentPage")
+  val exportToChatHasError = column[Option[Boolean]]("exportToChatHasError")
+
   //  val meeting = foreignKey("meeting_fk", meetingId, Meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
 
-  def * = (presentationId, meetingId, current, downloadable, removable, uploadCompleted, numPages, errorMsgKey, errorDetails) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
+  def * = (
+    presentationId, meetingId, name, filenameConverted, isDefault, current, downloadable, downloadFileExtension, downloadFileUri, removable,
+    uploadInProgress, uploadCompleted, uploadErrorMsgKey, uploadErrorDetailsJson, totalPages,
+    exportToChatStatus, exportToChatCurrentPage, exportToChatHasError
+  ) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
 }
 
 object PresPresentationDAO {
@@ -37,13 +70,25 @@ object PresPresentationDAO {
         PresPresentationDbModel(
           presentationId = presentation.id,
           meetingId = meetingId,
+          name = presentation.name,
+          filenameConverted = presentation.filenameConverted,
+          isDefault = presentation.default,
           current = false, //Set after pages were inserted
           downloadable = presentation.downloadable,
+          downloadFileExtension = presentation.downloadFileExtension match {
+            case ""                    => None
+            case downloadFileExtension => Some(downloadFileExtension)
+          },
+          downloadFileUri = None,
           removable = presentation.removable,
+          uploadInProgress = !presentation.uploadCompleted,
           uploadCompleted = presentation.uploadCompleted,
-          numPages = presentation.numPages,
-          errorMsgKey = presentation.errorMsgKey,
-          errorDetails = presentation.errorDetails.toJson.asJsObject.compactPrint
+          totalPages = presentation.numPages,
+          uploadErrorMsgKey = presentation.errorMsgKey,
+          uploadErrorDetailsJson = presentation.errorDetails.toJson,
+          exportToChatStatus = None,
+          exportToChatCurrentPage = None,
+          exportToChatHasError = None,
         )
       )
     ).onComplete {
@@ -59,7 +104,8 @@ object PresPresentationDAO {
                   pageId = page._2.id,
                   presentationId = presentation.id,
                   num = page._2.num,
-                  urls = page._2.urls.toJson.asJsObject.compactPrint,
+                  urlsJson = page._2.urls.toJson,
+                  content = page._2.content,
                   slideRevealed = page._2.current,
                   current = page._2.current,
                   xOffset = page._2.xOffset,
@@ -72,7 +118,7 @@ object PresPresentationDAO {
                   viewBoxHeight = 1,
                   maxImageWidth = 1440,
                   maxImageHeight = 1080,
-                  converted = page._2.converted
+                  uploadCompleted = page._2.converted
                 )
               )
             }
@@ -102,15 +148,62 @@ object PresPresentationDAO {
       }
   }
 
+  def updateDownloadUri(presentationId: String, downloadFileUri: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => p.downloadFileUri)
+        .update(Some(downloadFileUri))
+    ).onComplete {
+        case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated originalFileURI on PresPresentation table")
+        case Failure(e)           => DatabaseConnection.logger.error(s"Error updating originalFileURI on PresPresentation: $e")
+      }
+  }
+
   def updateErrors(presentationId: String, errorMsgKey: String, errorDetails: scala.collection.immutable.Map[String, String]) = {
     DatabaseConnection.db.run(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
-        .map(p => (p.errorMsgKey, p.errorDetails))
-        .update(errorMsgKey, errorDetails.toJson.asJsObject.compactPrint)
+        .map(p => (p.uploadErrorMsgKey, p.uploadErrorDetailsJson))
+        .update(errorMsgKey, errorDetails.toJson)
     ).onComplete {
         case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated errorMsgKey on PresPresentation table")
         case Failure(e)           => DatabaseConnection.logger.error(s"Error updating errorMsgKey on PresPresentation: $e")
+      }
+  }
+
+  def updateExportToChat(presentationId: String, exportToChatStatus: String, exportToChatCurrentPage: Int, exportToChatHasError: Boolean) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => (p.exportToChatStatus, p.exportToChatCurrentPage, p.exportToChatHasError))
+        .update(Some(exportToChatStatus), Some(exportToChatCurrentPage), Some(exportToChatHasError))
+    ).onComplete {
+      case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated exportToChat on PresPresentation table")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating exportToChat on PresPresentation: $e")
+    }
+  }
+
+  def updateExportToChatStatus(presentationId: String, exportToChatStatus: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => p.exportToChatStatus)
+        .update(Some(exportToChatStatus))
+    ).onComplete {
+      case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated exportToChatStatus on PresPresentation table")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating exportToChatStatus on PresPresentation: $e")
+    }
+  }
+
+  def delete(presentationId: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .delete
+    ).onComplete {
+        case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) deleted presentation on PresPresentation table")
+        case Failure(e)           => DatabaseConnection.logger.error(s"Error deleting presentation on PresPresentation: $e")
       }
   }
 

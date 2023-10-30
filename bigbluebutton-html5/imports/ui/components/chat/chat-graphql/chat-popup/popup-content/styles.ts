@@ -11,7 +11,7 @@ import {
 import Button from '/imports/ui/components/common/button/component';
 
 export const PopupContentBox = styled.div`
-  display: flex;
+  display: inherit;
   flex-direction: column;
   align-items: flex-start;
   background-color: ${systemMessageBackgroundColor};
@@ -41,9 +41,7 @@ export const CloseButton = styled(Button)`
   background-color: transparent;
   grid-area: 1 / 1 / 2 / 2;
   justify-self: end;
-  border-radius: 50%;
-  padding: 0.5rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
-
+  float: right;
 `;

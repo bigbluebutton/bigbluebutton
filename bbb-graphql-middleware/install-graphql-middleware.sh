@@ -8,11 +8,11 @@ cd "$(dirname "$0")"
 
 #Install Go
 #sudo apt install golang -y
-GO_VERSION=1.20.6
+GO_VERSION=1.20.8
 wget --no-verbose https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
-  && tar -xzf go${GO_VERSION}.linux-amd64.tar.gz \
-  && ln -s ${PWD}/go/bin/go /usr/bin/go \
-  && rm go${GO_VERSION}.linux-amd64.tar.gz
+  && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
+  && rm go${GO_VERSION}.linux-amd64.tar.gz \
+  && ln -sf /usr/local/go/bin/go /usr/bin/go
 
 go version
 

@@ -10,5 +10,6 @@ export const enum ChatMessageType {
   TEXT = 'default',
   POLL = 'poll',
   PRESENTATION = 'presentation',
-  CHAT_CLEAR = 'publicChatHistoryCleared'
+  CHAT_CLEAR = 'publicChatHistoryCleared',
+  BREAKOUT_ROOM = 'breakoutRoomModeratorMsg',
 }

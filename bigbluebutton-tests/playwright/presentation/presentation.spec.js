@@ -1,6 +1,7 @@
 const { test } = require('@playwright/test');
 const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
+const { linkIssue } = require('../core/helpers');
 
 const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}`);
 
@@ -27,7 +28,7 @@ test.describe.parallel('Presentation', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#fit-to-width-option
-  test('Presentation fit to width @ci @flaky', async ({ browser, context, page }) => {
+  test('Presentation fit to width @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, true, { createParameter: customStyleAvoidUploadingNotifications });
     await presentation.initUserPage(true, context);
@@ -52,11 +53,7 @@ test.describe.parallel('Presentation', () => {
     await presentation.hidePresentationToolbar();
   });
 
-  /**
-   * temporally skipped because it's currently failing the screenshot comparisons
-   * due to https://github.com/bigbluebutton/bigbluebutton/issues/18232
-   */
-  test.skip('Zoom In, Zoom Out, Reset Zoom @ci', async ({ browser, context, page }) => {
+  test('Zoom In, Zoom Out, Reset Zoom @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();
@@ -77,6 +74,7 @@ test.describe.parallel('Presentation', () => {
     });
 
     test('Upload Other Presentations Format @ci', async ({ browser, context, page }) => {
+      linkIssue(18971);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadOtherPresentationsFormat();
@@ -96,7 +94,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
     
-    test('Send presentation in the current state (with annotations) to chat for downloading @ci @flaky', async ({ browser, context, page }, testInfo) => {
+    test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.sendPresentationToDownload(testInfo);

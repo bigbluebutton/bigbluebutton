@@ -82,7 +82,7 @@ object ChatMessageDAO {
           chatEmphasizedText = false,
           message = message,
           messageType = messageType,
-          messageMetadata = Some(JsonUtils.mapToJson(messageMetadata)),
+          messageMetadata = Some(JsonUtils.mapToJson(messageMetadata).compactPrint),
           senderId = None,
           senderName = senderName,
           senderRole = None

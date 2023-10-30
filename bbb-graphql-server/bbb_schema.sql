@@ -21,7 +21,7 @@ create table "meeting" (
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
 	"createdTime" bigint,
-	"duration" integer
+	"durationInSeconds" integer
 );
 create index "idx_meeting_extId" on "meeting"("extId");
 
@@ -158,7 +158,8 @@ create table "meeting_lockSettings" (
     "hideUserList"           boolean,
     "lockOnJoin"             boolean,
     "lockOnJoinConfigurable" boolean,
-    "hideViewersCursor"      boolean
+    "hideViewersCursor"      boolean,
+    "hideViewersAnnotation"  boolean
 );
 create index "idx_meeting_lockSettings_meetingId" on "meeting_lockSettings"("meetingId");
 
@@ -172,6 +173,7 @@ SELECT
 	mls."disableNotes",
 	mls."hideUserList",
 	mls."hideViewersCursor",
+	mls."hideViewersAnnotation",
 	mup."webcamsOnlyForModerator",
 	CASE WHEN
 	mls."disableCam" IS TRUE THEN TRUE
@@ -181,6 +183,7 @@ SELECT
 	WHEN mls."disableNotes"  IS TRUE THEN TRUE
 	WHEN mls."hideUserList"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersCursor"  IS TRUE THEN TRUE
+	WHEN mls."hideViewersAnnotation"  IS TRUE THEN TRUE
 	WHEN mup."webcamsOnlyForModerator"  IS TRUE THEN TRUE
 	ELSE FALSE
 	END "hasActiveLockSetting"
@@ -194,6 +197,13 @@ FROM "meeting_lockSettings"
 WHERE "hideUserList" IS FALSE;
 
 CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSettings"("meetingId") WHERE "hideUserList" IS FALSE;
+
+create table "meeting_clientSettings" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+    	"clientSettingsJson"    jsonb
+);
+
+CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings";
 
 
 create table "meeting_group" (
@@ -217,6 +227,7 @@ CREATE TABLE "user" (
 	"role" varchar(20),
 	"avatar" varchar(500),
 	"color" varchar(7),
+    "sessionToken" varchar(16),
     "authed" bool,
     "joined" bool,
     "banned" bool,
@@ -338,7 +349,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
@@ -392,7 +403,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
@@ -440,7 +451,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
@@ -646,6 +657,18 @@ GROUP BY u."meetingId", u."userId";
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("userId") WHERE "status" != 'normal';
 
 
+CREATE TABLE "user_graphqlConnection" (
+	"graphqlConnectionId" serial PRIMARY KEY,
+	"sessionToken" varchar(16),
+	"middlewareConnectionId" varchar(12),
+	"stablishedAt" timestamp with time zone,
+	"closedAt" timestamp with time zone
+);
+
+CREATE INDEX "idx_user_graphqlConnectionsessionToken" ON "user_graphqlConnection"("sessionToken");
+
+
+
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "rttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
 --ELSE EXTRACT(EPOCH FROM ("userClientResponseAt" - "connectionAliveAt")) * 1000
@@ -677,7 +700,7 @@ create view "v_user_localSettings" as select * from "user_localSettings";
 CREATE TABLE "user_reaction" (
 	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 	"reactionEmoji" varchar(25),
-	"duration" integer not null,
+	"durationInSeconds" integer not null,
 	"createdAt" timestamp with time zone not null,
 	"expiresAt" timestamp with time zone
 );
@@ -685,7 +708,7 @@ CREATE TABLE "user_reaction" (
 --Set expiresAt on isert or update user_reaction
 CREATE OR REPLACE FUNCTION "update_user_reaction_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
-    NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."duration";
+    NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."durationInSeconds";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -696,7 +719,7 @@ CREATE TRIGGER "update_user_reaction_trigger" BEFORE UPDATE ON "user_reaction"
 CREATE TRIGGER "insert_user_reaction_trigger" BEFORE INSERT ON "user_reaction" FOR EACH ROW
 EXECUTE FUNCTION "update_user_reaction_trigger_func"();
 
---ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp with time zone GENERATED ALWAYS AS ("createdAt" + '1 seconds'::INTERVAL * "duration") STORED;
+--ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp with time zone GENERATED ALWAYS AS ("createdAt" + '1 seconds'::INTERVAL * "durationInSeconds") STORED;
 
 CREATE INDEX "idx_user_reaction_userId_createdAt" ON "user_reaction"("userId", "expiresAt");
 
@@ -842,14 +865,22 @@ WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 CREATE TABLE "pres_presentation" (
 	"presentationId" varchar(100) PRIMARY KEY,
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"name" varchar(500),
+	"filenameConverted" varchar(500),
+	"isDefault" boolean,
 	"current" boolean,
-	"downloadable" boolean,
 	"removable" boolean,
-    "converting" boolean,
+	"downloadable" boolean,
+	"downloadFileExtension" varchar(25),
+	"downloadFileUri" varchar(500),
+    "uploadInProgress" boolean,
     "uploadCompleted" boolean,
-    "numPages" integer,
-    "errorMsgKey" varchar(100),
-    "errorDetails" TEXT
+    "uploadErrorMsgKey" varchar(100),
+    "uploadErrorDetailsJson" jsonb,
+    "totalPages" integer,
+    "exportToChatStatus" varchar(25),
+    "exportToChatCurrentPage" integer,
+    "exportToChatHasError" boolean
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
@@ -858,7 +889,8 @@ CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
 	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
 	"num" integer,
-	"urls" TEXT,
+	"urlsJson" jsonb,
+	"content" TEXT,
 	"slideRevealed" boolean default false,
 	"current" boolean,
 	"xOffset" NUMERIC,
@@ -871,7 +903,7 @@ CREATE TABLE "pres_page" (
     "viewBoxHeight" NUMERIC,
     "maxImageWidth" integer,
     "maxImageHeight" integer,
-    "converted" boolean
+    "uploadCompleted" boolean
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
@@ -879,15 +911,31 @@ CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId"
 CREATE OR REPLACE VIEW public.v_pres_presentation AS
 SELECT pres_presentation."meetingId",
 	pres_presentation."presentationId",
+	pres_presentation."name",
+	pres_presentation."filenameConverted",
+	pres_presentation."isDefault",
 	pres_presentation."current",
 	pres_presentation."downloadable",
+	pres_presentation."downloadFileExtension",
+	pres_presentation."downloadFileUri",
 	pres_presentation."removable",
-    pres_presentation."converting",
+    pres_presentation."uploadInProgress",
     pres_presentation."uploadCompleted",
-    pres_presentation."numPages",
-    pres_presentation."errorMsgKey",
-    pres_presentation."errorDetails",
-    (SELECT count(*) FROM pres_page WHERE pres_page."presentationId" = pres_presentation."presentationId" AND "converted" is true) as "pagesUploaded"
+    pres_presentation."totalPages",
+    (   SELECT count(*)
+        FROM pres_page
+        WHERE pres_page."presentationId" = pres_presentation."presentationId"
+        AND "uploadCompleted" is true
+    ) as "totalPagesUploaded",
+    pres_presentation."uploadErrorMsgKey",
+    pres_presentation."uploadErrorDetailsJson",
+    case when pres_presentation."exportToChatStatus" is not null
+                and pres_presentation."exportToChatStatus" != 'EXPORTED'
+                and pres_presentation."exportToChatHasError" is not true
+                then true else false end "exportToChatInProgress",
+    pres_presentation."exportToChatStatus",
+    pres_presentation."exportToChatCurrentPage",
+    pres_presentation."exportToChatHasError"
    FROM pres_presentation;
 
 CREATE OR REPLACE VIEW public.v_pres_page AS
@@ -895,7 +943,8 @@ SELECT pres_presentation."meetingId",
 	pres_page."presentationId",
 	pres_page."pageId",
     pres_page.num,
-    pres_page.urls,
+    pres_page."urlsJson",
+    pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
     pres_page."xOffset",
@@ -910,7 +959,7 @@ SELECT pres_presentation."meetingId",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
-    pres_page."converted"
+    pres_page."uploadCompleted"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
@@ -918,10 +967,17 @@ CREATE OR REPLACE VIEW public.v_pres_page_curr AS
 SELECT pres_presentation."meetingId",
 	pres_page."presentationId",
 	pres_page."pageId",
+    pres_presentation."name" as "presentationName",
+    pres_presentation."filenameConverted" as "presentationFilenameConverted",
+    pres_presentation."isDefault" as "isDefaultPresentation",
 	pres_presentation."downloadable",
+	case when pres_presentation."downloadable" then pres_presentation."downloadFileExtension" else null end "downloadFileExtension",
+	case when pres_presentation."downloadable" then pres_presentation."downloadFileUri" else null end "downloadFileUri",
     pres_presentation."removable",
+    pres_presentation."totalPages",
     pres_page.num,
-    pres_page.urls,
+    pres_page."urlsJson",
+    pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
     pres_page."xOffset",
@@ -1435,3 +1491,35 @@ CREATE TABLE "layout" (
 
 CREATE VIEW "v_layout" AS
 SELECT * FROM "layout";
+
+
+--------------------------------
+---Plugins Data Channel
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE "pluginDataChannelMessage" (
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"pluginName" varchar(255),
+	"dataChannel" varchar(255),
+	"messageId" varchar(50) DEFAULT uuid_generate_v4(),
+	"payloadJson" jsonb,
+	"fromUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
+	"toUserIds" varchar[],
+	"createdAt" timestamp with time ZONE DEFAULT current_timestamp,
+	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId")
+);
+
+create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt");
+create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt");
+
+CREATE OR REPLACE VIEW "v_pluginDataChannelMessage" AS
+SELECT u."meetingId", u."userId", m."pluginName", m."dataChannel", m."messageId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
+FROM "user" u
+JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
+			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)
+				OR u."userId" = ANY(m."toUserIds")
+				OR u."role" = ANY(m."toRoles")
+				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
+				)
+ORDER BY m."createdAt";

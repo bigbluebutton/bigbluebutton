@@ -64,8 +64,12 @@ export function isDownloadPresentationWithAnnotationsEnabled() {
   return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadWithAnnotations;
 }
 
-export function isDownloadOriginalPresentationEnabled() {
-  return getDisabledFeatures().indexOf('downloadOriginalPresentation') === -1 && Meteor.settings.public.presentation.allowDownloadOriginal;
+export function isDownloadPresentationConvertedToPdfEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationConvertedToPdf') === -1;
+}
+
+export function isDownloadPresentationOriginalFileEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationOriginalFile') === -1 && Meteor.settings.public.presentation.allowDownloadOriginal;
 }
 
 export function isSnapshotOfCurrentSlideEnabled() {

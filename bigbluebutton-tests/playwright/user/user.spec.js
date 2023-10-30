@@ -31,7 +31,7 @@ test.describe.parallel('User', () => {
 
   test.describe.parallel('List', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
-    test('Change user status @ci @flaky', async ({ browser, page }) => {
+    test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
       await status.init(true, true);
       await status.changeUserStatus();
@@ -153,7 +153,7 @@ test.describe.parallel('User', () => {
       });
     });
 
-    test.describe.parallel('Lock viewers @ci @flaky', () => {
+    test.describe.parallel('Lock viewers @ci', () => {
       // https://docs.bigbluebutton.org/2.6/release-tests.html#webcam
       test('Lock Share webcam', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
@@ -162,7 +162,7 @@ test.describe.parallel('User', () => {
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-webcams
-      test('Lock See other viewers webcams', async ({ browser, context, page }) => {
+      test('Lock See other viewers webcams @flaky', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersWebcams();
@@ -203,7 +203,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations', async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations @flaky', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersAnnotations();

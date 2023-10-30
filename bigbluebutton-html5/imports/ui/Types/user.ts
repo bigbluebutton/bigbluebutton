@@ -42,6 +42,10 @@ export interface Voice {
   startTime: number;
 }
 
+export interface Reaction {
+  reactionEmoji: string;
+}
+
 export interface User {
   userId: string;
   extId: string;
@@ -63,7 +67,9 @@ export interface User {
   cameras: Array<Cameras>;
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
+  authed: boolean;
   size: number;
   away: boolean;
   raiseHand: boolean;
+  reaction: Reaction;
 }
