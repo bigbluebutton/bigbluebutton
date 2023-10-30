@@ -116,7 +116,7 @@ const Title = styled(TitleElipsis)`
   margin: 0;
   font-weight: 400;
 `;
-
+// @ts-ignore - button is a JS component
 const ButtonAdd = styled(Button)`
   flex: 0 1 35%;
 `;

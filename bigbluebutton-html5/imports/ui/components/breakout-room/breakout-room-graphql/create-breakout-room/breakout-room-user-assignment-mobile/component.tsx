@@ -63,7 +63,7 @@ const BreakoutRoomUserAssignmentMobile: React.FC<ChildComponentProps> = ({
           <Styled.ListContainer>
             <span>
               {
-                new Array(numberOfRooms).fill(1).map((room, idx) => (
+                new Array(numberOfRooms).fill(1).map((_, idx) => (
                   <Styled.RoomItem>
                     <Styled.ItemTitle>
                       {intl.formatMessage(intlMessages.breakoutRoomLabel, { 0: idx + 1 })}

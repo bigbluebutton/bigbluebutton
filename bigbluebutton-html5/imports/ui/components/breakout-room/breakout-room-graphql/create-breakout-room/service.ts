@@ -20,8 +20,8 @@ export const createBreakoutRoom = (
 
 export const moveUser = (
   userId: string,
-  fromBreakoutId: number,
-  toBreakoutId: number,
+  fromBreakoutId: string | undefined,
+  toBreakoutId: string | undefined,
 ) => makeCall('moveUser', fromBreakoutId, toBreakoutId, userId);
 
 export default {
