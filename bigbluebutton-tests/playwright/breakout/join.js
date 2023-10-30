@@ -144,8 +144,10 @@ class Join extends Create {
 
   async exportBreakoutNotes() {
     const { sharedNotesEnabled } = getSettings();
-    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
 
+    if(!sharedNotesEnabled) {
+      return await this.modPage.wasRemoved(e.sharedNotes);
+    }
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle);
     await breakoutUserPage.waitAndClick(e.sharedNotes);
