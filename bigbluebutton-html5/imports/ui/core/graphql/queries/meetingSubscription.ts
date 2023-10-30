@@ -5,7 +5,7 @@ const MEETING_SUBSCRIPTION = gql`
       meeting {
         createdTime
         disabledFeatures
-        duration
+        durationInSeconds
         extId
         lockSettings {
           disableCam

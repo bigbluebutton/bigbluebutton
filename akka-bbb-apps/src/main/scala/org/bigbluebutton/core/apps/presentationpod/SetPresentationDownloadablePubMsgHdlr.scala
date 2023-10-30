@@ -51,7 +51,7 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
         PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, pod.id,
           msg.header.userId, presentationId, downloadable, pres.name, downloadableExtension)
 
-        val pods = state.presentationPodManager.setPresentationDownloadableInPod(pod.id, presentationId, downloadable)
+        val pods = state.presentationPodManager.setPresentationDownloadableInPod(pod.id, presentationId, downloadable, downloadableExtension)
 
         for {
           pod <- pods.getPod(pod.id)
