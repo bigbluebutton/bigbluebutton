@@ -10,8 +10,10 @@ export type Room = {
 
 export interface moveUserRegistery {
   [userId: string]: {
-    fromRoomId: number;
-    toRoomId: number;
+    fromRoomId?: string | undefined;
+    toRoomId?: string | undefined;
+    fromSequence: number;
+    toSequence: number;
   }
 }
 

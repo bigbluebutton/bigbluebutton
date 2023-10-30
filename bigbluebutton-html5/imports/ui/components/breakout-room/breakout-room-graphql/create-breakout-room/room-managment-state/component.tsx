@@ -54,8 +54,10 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
     setMovementRegistered({
       ...movementRegistered,
       [userId]: {
-        fromRoomId: from,
-        toRoomId: to,
+        fromSequence: from,
+        toSequence: to,
+        toRoomId: runningRooms?.find((r) => r.sequence === to)?.breakoutRoomId,
+        fromRoomId: runningRooms?.find((r) => r.sequence === from)?.breakoutRoomId,
       },
     });
 

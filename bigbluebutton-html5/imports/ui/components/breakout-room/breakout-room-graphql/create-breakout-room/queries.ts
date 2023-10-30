@@ -8,7 +8,7 @@ export interface getUserResponse {
 export interface breakoutRoom {
   sequence: number;
   name: string;
-  breakoutRoomId: number;
+  breakoutRoomId: string;
   participants: Array<{
     user: {
       name: string;
