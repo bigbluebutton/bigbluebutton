@@ -2,12 +2,14 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import logger from '/imports/startup/client/logger';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import * as uuidLib from 'uuid';
 import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
 import PluginsEngineComponent from './component';
 import { PluginConfig, EffectivePluginConfig } from './types';
 import PluginLoaderContainer from './plugin-loader/container';
 import PluginProvidedStateContainer from './plugin-provided-state/container';
+import PluginDataChannelManagerContainer from './plugin-data-channel/container';
 import PluginUiCommandsHandler from './plugin-ui-commands-handler/container';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -48,7 +50,8 @@ const PluginsEngineContainer = () => {
       />
       {
         effectivePluginsConfig.map((effectivePluginConfig: EffectivePluginConfig) => {
-          const { uuid } = effectivePluginConfig;
+          const { uuid, name: pluginName } = effectivePluginConfig;
+          const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid, pluginName);
           return (
             <div key={uuid}>
               <PluginLoaderContainer
@@ -60,8 +63,14 @@ const PluginsEngineContainer = () => {
                   pluginConfig: effectivePluginConfig,
                 }}
               />
+              <PluginDataChannelManagerContainer
+                {...{
+                  pluginApi,
+                }}
+              />
               <PluginProvidedStateContainer
                 {...{
+                  pluginApi,
                   uuid,
                 }}
               />

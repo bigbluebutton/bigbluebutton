@@ -869,15 +869,18 @@ CREATE TABLE "pres_presentation" (
 	"filenameConverted" varchar(500),
 	"isDefault" boolean,
 	"current" boolean,
+	"removable" boolean,
 	"downloadable" boolean,
 	"downloadFileExtension" varchar(25),
 	"downloadFileUri" varchar(500),
-	"removable" boolean,
-    "converting" boolean,
+    "uploadInProgress" boolean,
     "uploadCompleted" boolean,
-    "numPages" integer,
-    "errorMsgKey" varchar(100),
-    "errorDetails" TEXT
+    "uploadErrorMsgKey" varchar(100),
+    "uploadErrorDetailsJson" jsonb,
+    "totalPages" integer,
+    "exportToChatStatus" varchar(25),
+    "exportToChatCurrentPage" integer,
+    "exportToChatHasError" boolean
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
@@ -886,7 +889,7 @@ CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
 	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
 	"num" integer,
-	"urls" TEXT,
+	"urlsJson" jsonb,
 	"content" TEXT,
 	"slideRevealed" boolean default false,
 	"current" boolean,
@@ -900,7 +903,7 @@ CREATE TABLE "pres_page" (
     "viewBoxHeight" NUMERIC,
     "maxImageWidth" integer,
     "maxImageHeight" integer,
-    "converted" boolean
+    "uploadCompleted" boolean
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
@@ -916,12 +919,23 @@ SELECT pres_presentation."meetingId",
 	pres_presentation."downloadFileExtension",
 	pres_presentation."downloadFileUri",
 	pres_presentation."removable",
-    pres_presentation."converting",
+    pres_presentation."uploadInProgress",
     pres_presentation."uploadCompleted",
-    pres_presentation."numPages",
-    pres_presentation."errorMsgKey",
-    pres_presentation."errorDetails",
-    (SELECT count(*) FROM pres_page WHERE pres_page."presentationId" = pres_presentation."presentationId" AND "converted" is true) as "pagesUploaded"
+    pres_presentation."totalPages",
+    (   SELECT count(*)
+        FROM pres_page
+        WHERE pres_page."presentationId" = pres_presentation."presentationId"
+        AND "uploadCompleted" is true
+    ) as "totalPagesUploaded",
+    pres_presentation."uploadErrorMsgKey",
+    pres_presentation."uploadErrorDetailsJson",
+    case when pres_presentation."exportToChatStatus" is not null
+                and pres_presentation."exportToChatStatus" != 'EXPORTED'
+                and pres_presentation."exportToChatHasError" is not true
+                then true else false end "exportToChatInProgress",
+    pres_presentation."exportToChatStatus",
+    pres_presentation."exportToChatCurrentPage",
+    pres_presentation."exportToChatHasError"
    FROM pres_presentation;
 
 CREATE OR REPLACE VIEW public.v_pres_page AS
@@ -929,7 +943,7 @@ SELECT pres_presentation."meetingId",
 	pres_page."presentationId",
 	pres_page."pageId",
     pres_page.num,
-    pres_page.urls,
+    pres_page."urlsJson",
     pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
@@ -945,7 +959,7 @@ SELECT pres_presentation."meetingId",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
-    pres_page."converted"
+    pres_page."uploadCompleted"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
@@ -960,9 +974,9 @@ SELECT pres_presentation."meetingId",
 	case when pres_presentation."downloadable" then pres_presentation."downloadFileExtension" else null end "downloadFileExtension",
 	case when pres_presentation."downloadable" then pres_presentation."downloadFileUri" else null end "downloadFileUri",
     pres_presentation."removable",
-    pres_presentation."numPages",
+    pres_presentation."totalPages",
     pres_page.num,
-    pres_page.urls,
+    pres_page."urlsJson",
     pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
@@ -1477,3 +1491,35 @@ CREATE TABLE "layout" (
 
 CREATE VIEW "v_layout" AS
 SELECT * FROM "layout";
+
+
+--------------------------------
+---Plugins Data Channel
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE "pluginDataChannelMessage" (
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"pluginName" varchar(255),
+	"dataChannel" varchar(255),
+	"messageId" varchar(50) DEFAULT uuid_generate_v4(),
+	"payloadJson" jsonb,
+	"fromUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
+	"toUserIds" varchar[],
+	"createdAt" timestamp with time ZONE DEFAULT current_timestamp,
+	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId")
+);
+
+create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt");
+create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt");
+
+CREATE OR REPLACE VIEW "v_pluginDataChannelMessage" AS
+SELECT u."meetingId", u."userId", m."pluginName", m."dataChannel", m."messageId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
+FROM "user" u
+JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
+			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)
+				OR u."userId" = ANY(m."toUserIds")
+				OR u."role" = ANY(m."toRoles")
+				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
+				)
+ORDER BY m."createdAt";
