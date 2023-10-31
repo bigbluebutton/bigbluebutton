@@ -2,33 +2,33 @@ import {useSubscription, gql, useMutation} from '@apollo/client';
 import React from "react";
 import usePatchedSubscription from "./usePatchedSubscription";
 
-export default function UserLocalSettings({userId}) {
+export default function UserClientSettings({userId}) {
 
-    const [updateLocalSettings] = useMutation(gql`
-      mutation UpdateUserLocalSettings($userId: String, $settingsJson: jsonb) {
-        update_user_localSettings(
+    const [updateClientSettings] = useMutation(gql`
+      mutation UpdateUserClientSettings($userId: String, $userClientSettingsJson: jsonb) {
+        update_user_clientSettings(
             where: { userId: { _eq: $userId } },
-            _set: { settingsJson: $settingsJson }
+            _set: { userClientSettingsJson: $userClientSettingsJson }
           ) {
             affected_rows
           }
       }
     `);
 
-    const handleUpdateLocalSettings = (userId, settingsJson) => {
-        updateLocalSettings({
+    const handleUpdateClientSettings = (userId, userClientSettingsJson) => {
+        updateClientSettings({
             variables: {
                 userId,
-                settingsJson
+                userClientSettingsJson
             },
         });
     };
 
   const { loading, error, data } = usePatchedSubscription(
     gql`subscription {
-      user_localSettings {
+      user_clientSettings {
         userId
-        settingsJson
+        userClientSettingsJson
       }
     }`
   );
@@ -38,7 +38,7 @@ export default function UserLocalSettings({userId}) {
       <thead>
           <tr>
               <th colSpan={2}>Local Settings
-                  <button onClick={() => handleUpdateLocalSettings(userId,
+                  <button onClick={() => handleUpdateClientSettings(userId,
                       {
                           application: {
                               animations : true,
@@ -49,14 +49,14 @@ export default function UserLocalSettings({userId}) {
               </th>
           </tr>
         <tr>
-            <th>settingsJson</th>
+            <th>userClientSettingsJson</th>
         </tr>
       </thead>
       <tbody>
         {data.map((curr) => {
           return (
               <tr key={curr.userId}>
-                  <td>{JSON.stringify(curr.settingsJson)}</td>
+                  <td>{JSON.stringify(curr.userClientSettingsJson)}</td>
               </tr>
           );
         })}

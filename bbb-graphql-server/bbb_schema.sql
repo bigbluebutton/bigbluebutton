@@ -200,7 +200,7 @@ CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSetti
 
 create table "meeting_clientSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    	"clientSettingsJson"    jsonb
+    "clientSettingsJson"    jsonb
 );
 
 CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings";
@@ -686,15 +686,16 @@ CREATE INDEX "idx_user_graphqlConnectionsessionToken" ON "user_graphqlConnection
 --FROM "user" u
 --LEFT JOIN "user_connectionStatus" uc ON uc."userId" = u."userId";
 
-CREATE TABLE "user_localSettings"(
-	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+CREATE TABLE "user_clientSettings"(
+	"userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
 	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-	"settingsJson" jsonb
+	"userClientSettingsJson" jsonb
 );
 
-CREATE INDEX "idx_user_local_settings_meetingId" ON "user_localSettings"("meetingId");
+CREATE INDEX "idx_user_clientSettings_meetingId" ON "user_clientSettings"("meetingId");
+CREATE INDEX "idx_user_clientSettings_userId" ON "user_clientSettings"("userId");
 
-create view "v_user_localSettings" as select * from "user_localSettings";
+create view "v_user_clientSettings" as select * from "user_clientSettings";
 
 
 CREATE TABLE "user_reaction" (
