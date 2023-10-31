@@ -226,6 +226,7 @@ const MultiUserTool = styled.span`
   box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDark};
   font-size: ${smPaddingX};
   user-select: none;
+  cursor: pointer;
 
   [dir="ltr"] & {
     right: 1rem;
