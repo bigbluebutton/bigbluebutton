@@ -181,7 +181,10 @@ class Join extends Create {
 
   async exportBreakoutWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
-    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
+    
+    if(!sharedNotesEnabled) {
+      return await this.modPage.wasRemoved(e.sharedNotes);
+    }
 
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle);

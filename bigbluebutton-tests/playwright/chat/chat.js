@@ -68,9 +68,13 @@ class Chat extends MultiUsers {
 
   async copyChat(context) {
     const { publicChatOptionsEnabled } = getSettings();
-    test.fail(!publicChatOptionsEnabled, 'Public chat options (save and copy) are disabled');
 
     await openPublicChat(this.modPage);
+
+    if(!publicChatOptionsEnabled) {
+      await this.modPage.waitAndClick(e.chatOptions);
+      return await this.modPage.wasRemoved(e.chatCopy);
+    }
     // sending a message
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
@@ -87,9 +91,13 @@ class Chat extends MultiUsers {
 
   async saveChat(testInfo) {
     const { publicChatOptionsEnabled } = getSettings();
-    test.fail(!publicChatOptionsEnabled, 'Public chat options (save and copy) are disabled');
 
     await openPublicChat(this.modPage);
+    if(!publicChatOptionsEnabled) {
+      await this.modPage.waitAndClick(e.chatOptions);
+      return await this.modPage.wasRemoved(e.chatSave);
+    }
+
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.waitForSelector(e.chatUserMessageText);
