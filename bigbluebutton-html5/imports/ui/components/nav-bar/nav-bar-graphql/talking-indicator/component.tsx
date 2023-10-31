@@ -62,7 +62,13 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   isModerator,
 }) => {
   const intl = useIntl();
-  const talkingElements = useMemo(() => talkingUsers.map((talkingUser: Partial<UserVoice>) => {
+  const sortedTalkingUsers = [...talkingUsers];
+  sortedTalkingUsers.sort((a, b) => {
+    const nameA = a.user?.name || '';
+    const nameB = b.user?.name || '';
+    return nameA.localeCompare(nameB);
+  });
+  const talkingElements = useMemo(() => sortedTalkingUsers.map((talkingUser: Partial<UserVoice>) => {
     const {
       talking,
       muted,
@@ -122,7 +128,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         </Styled.TalkingIndicatorButton>
       </Styled.TalkingIndicatorWrapper>
     );
-  }), [talkingUsers]);
+  }), [sortedTalkingUsers]);
 
   const maxIndicator = () => {
     if (!moreThanMaxIndicators) return null;
