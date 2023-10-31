@@ -5,9 +5,9 @@ import usePatchedSubscription from "./usePatchedSubscription";
 export default function UserClientSettings({userId}) {
 
     const [updateClientSettings] = useMutation(gql`
-      mutation UpdateUserClientSettings($userId: String, $userClientSettingsJson: jsonb) {
+      mutation UpdateUserClientSettings($userClientSettingsJson: jsonb) {
         update_user_clientSettings(
-            where: { userId: { _eq: $userId } },
+            where: {}
             _set: { userClientSettingsJson: $userClientSettingsJson }
           ) {
             affected_rows
@@ -15,10 +15,9 @@ export default function UserClientSettings({userId}) {
       }
     `);
 
-    const handleUpdateClientSettings = (userId, userClientSettingsJson) => {
+    const handleUpdateClientSettings = (userClientSettingsJson) => {
         updateClientSettings({
             variables: {
-                userId,
                 userClientSettingsJson
             },
         });
@@ -38,7 +37,7 @@ export default function UserClientSettings({userId}) {
       <thead>
           <tr>
               <th colSpan={2}>Local Settings
-                  <button onClick={() => handleUpdateClientSettings(userId,
+                  <button onClick={() => handleUpdateClientSettings(
                       {
                           application: {
                               animations : true,
