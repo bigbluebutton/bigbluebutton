@@ -69,25 +69,29 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   }
 
   if (isCoupleTyper) {
-    const name = typingUsers[0]?.name;
-    const name2 = typingUsers[1]?.name;
+    const names = typingUsers
+      .slice(0, 2)
+      .map((user) => user.name)
+      .sort((a, b) => a.localeCompare(b));
 
     element = (
       <FormattedMessage
         id="app.chat.two.typing"
         description="label used when two users are typing"
         values={{
-          0:
-  <Styled.CoupleTyper>
-    {`${name}`}
-    &nbsp;
-  </Styled.CoupleTyper>,
-          1:
-  <Styled.CoupleTyper>
-    &nbsp;
-    {`${name2}`}
-    &nbsp;
-  </Styled.CoupleTyper>,
+          0: (
+            <Styled.CoupleTyper>
+              {`${names[0]}`}
+              &nbsp;
+            </Styled.CoupleTyper>
+          ),
+          1: (
+            <Styled.CoupleTyper>
+              &nbsp;
+              {`${names[1]}`}
+              &nbsp;
+            </Styled.CoupleTyper>
+          ),
         }}
       />
     );
