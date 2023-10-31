@@ -62,6 +62,8 @@ interface ExternalVideoPlayerProps {
   playerPlaybackRate: number;
   currentTime: number;
   layoutContextDispatch: ReturnType<typeof layoutDispatch>;
+  key: string;
+  setKey: (key: string) => void;
 }
 
 // @ts-ignore - PeerTubePlayer is not typed
@@ -80,6 +82,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   currentTime,
   isEchoTest,
   layoutContextDispatch,
+  key,
+  setKey,
 }) => {
   const intl = useIntl();
 
@@ -149,7 +153,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const [autoPlayBlocked, setAutoPlayBlocked] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
   const [mute, setMute] = React.useState(false);
-  const [key, setKey] = React.useState(uniqueId('react-player'));
   const [volume, setVolume] = React.useState(1);
   const [subtitlesOn, setSubtitlesOn] = React.useState(false);
   const [played, setPlayed] = React.useState(0);
@@ -157,7 +160,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const playerRef = useRef<ReactPlayer>();
   const playerParentRef = useRef<HTMLDivElement| null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
-
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       setAutoPlayBlocked(true);
@@ -249,6 +251,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       <Styled.VideoPlayerWrapper
         fullscreen={fullscreenContext}
         ref={playerParentRef}
+        data-test="videoPlayer"
       >
 
         {
@@ -278,7 +281,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
             setLoaded(state.loaded);
           }}
           onPause={handleOnPause}
-          mute={mute.toString()}
+          mute={mute}
         />
         {
           !isPresenter ? (
@@ -330,7 +333,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
-
+  const [key, setKey] = React.useState(uniqueId('react-player'));
   if (!currentUser || !currentMeeting) return null;
 
   const playerCurrentTime = currentMeeting.externalVideo?.playerCurrentTime ?? 0;
@@ -353,6 +356,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
       currentTime={currentTime}
+      key={key}
+      setKey={setKey}
     />
   );
 };

@@ -53,7 +53,7 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
   const { animations } = SettingsSingleton.application;
   const [videoUrl, setVideoUrl] = React.useState('');
 
-  const valid = isUrlValid(videoUrl);
+  const valid = !videoUrl || isUrlValid(videoUrl);
 
   return (
     <Styled.ExternalVideoModal

@@ -19,6 +19,8 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
   const [volumeState, setVolume] = React.useState(volume);
   const [mutedState, setMuted] = React.useState(muted);
 
+  const volumeBeforeMute = React.useRef<number>(0);
+
   const getVolumeIcon = useCallback(() => {
     if (mutedState || volumeState <= 0) return 'volume_off';
 
@@ -60,6 +62,11 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
   return (
     <Styled.Slider>
       <Styled.Volume onClick={() => {
+        if (!muted) {
+          volumeBeforeMute.current = volumeState;
+        }
+        onVolumeChanged(muted ? volumeBeforeMute.current : 0);
+        setVolume(!muted ? 0 : volumeBeforeMute.current);
         setMuted(!muted);
         onMuted(!muted);
       }}
