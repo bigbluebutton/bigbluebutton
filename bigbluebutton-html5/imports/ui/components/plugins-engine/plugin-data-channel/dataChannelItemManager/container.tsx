@@ -7,6 +7,7 @@ import { PLUGIN_DATA_CHANNEL_DISPATCH_QUERY, PLUGIN_DATA_CHANNEL_FETCH_QUERY } f
 export interface DataChannelItemManagerProps {
   pluginName: string;
   channelName: string;
+  pluginApi: PluginSdk.PluginApi
 }
 
 export interface MutationVariables {
@@ -23,6 +24,7 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
   const {
     pluginName,
     channelName,
+    pluginApi,
   } = props;
   const pluginIdentifier = PluginSdk.createChannelIdentifier(channelName, pluginName);
 
@@ -70,11 +72,8 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
     dispatchPluginDataChannelMessage(argumentsOfDispatcher);
   }) as PluginSdk.DispatcherFunction;
 
-  window.dispatchEvent(new CustomEvent(`${pluginIdentifier}::dispatcherFunction`, {
-    detail: {
-      hook: PluginSdk.Internal.BbbDataChannel.UseDataChannel, data: useDataChannelHandlerFunction,
-    },
-  }));
+  pluginApi.mapOfDispatchers[pluginIdentifier] = useDataChannelHandlerFunction;
+  window.dispatchEvent(new Event(`${pluginIdentifier}::dispatcherFunction`));
 
   useEffect(() => {
     window.dispatchEvent(

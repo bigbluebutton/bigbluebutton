@@ -457,7 +457,11 @@ class PresentationToolbar extends PureComponent {
             hideLabel
           />
           {multiUser ? (
-            <Styled.MultiUserTool>{multiUserSize}</Styled.MultiUserTool>
+            <Styled.MultiUserTool
+              onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
+            >
+              {multiUserSize}
+            </Styled.MultiUserTool>
           ) : (
             <Styled.MUTPlaceholder />
           )}

@@ -70,6 +70,7 @@ const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelMana
                 key: PluginSdk.createChannelIdentifier(keyChannelName, pluginNameInUse),
                 pluginName: pluginNameInUse,
                 channelName: keyChannelName,
+                pluginApi,
               }}
             />
           ))
