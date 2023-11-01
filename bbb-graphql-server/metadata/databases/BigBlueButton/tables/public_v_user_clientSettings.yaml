@@ -1,16 +1,16 @@
 table:
-  name: v_user_localSettings
+  name: v_user_clientSettings
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: user_localSettings
+  custom_name: user_clientSettings
   custom_root_fields: {}
 select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - settingsJson
+        - userClientSettingsJson
         - userId
       filter:
         _and:
@@ -22,7 +22,7 @@ update_permissions:
   - role: bbb_client
     permission:
       columns:
-        - settingsJson
+        - userClientSettingsJson
       filter:
         _and:
           - meetingId:
