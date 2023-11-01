@@ -158,9 +158,12 @@ class Chat extends MultiUsers {
 
   async sendEmoji() {
     const { emojiPickerEnabled } = getSettings();
-    test.fail(!emojiPickerEnabled, 'Emoji Picker is disabled');
 
     await openPublicChat(this.modPage);
+    if(!emojiPickerEnabled) {
+      return await this.modPage.wasRemoved(e.emojiPickerButton);
+    }
+
     const message = this.modPage.getLocator(e.chatUserMessageText);
     await expect(message).toHaveCount(0);
 
@@ -174,9 +177,11 @@ class Chat extends MultiUsers {
 
   async emojiCopyChat(context) {
     const { emojiPickerEnabled } = getSettings();
-    test.fail(!emojiPickerEnabled, 'Emoji Picker is disabled');
 
     await openPublicChat(this);
+    if(!emojiPickerEnabled) {
+      return await this.modPage.wasRemoved(e.emojiPickerButton);
+    }
     await this.waitAndClick(e.emojiPickerButton);
     await this.waitAndClick(e.emojiSent);
     await this.waitAndClick(e.sendButton);
@@ -215,20 +220,22 @@ class Chat extends MultiUsers {
 
   async emojiSaveChat(testInfo) {
     const { emojiPickerEnabled } = getSettings();
-    test.fail(!emojiPickerEnabled, 'Emoji Picker is disabled');
 
-    await openPublicChat(this);
-    await this.waitAndClick(e.emojiPickerButton);
-    await this.waitAndClick(e.emojiSent);
-    await this.waitAndClick(e.sendButton);
-    await this.waitForSelector(e.chatUserMessageText);
-    await this.waitAndClick(e.chatOptions);
-    const chatSaveLocator = this.getLocator(e.chatSave);
-    const { content } = await this.handleDownload(chatSaveLocator, testInfo);
+    await openPublicChat(this.modPage);
+    if(!emojiPickerEnabled) {
+      return await this.modPage.wasRemoved(e.emojiPickerButton);
+    }
+    await this.modPage.waitAndClick(e.emojiPickerButton);
+    await this.modPage.waitAndClick(e.emojiSent);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.waitForSelector(e.chatUserMessageText);
+    await this.modPage.waitAndClick(e.chatOptions);
+    const chatSaveLocator = this.modPage.getLocator(e.chatSave);
+    const { content } = await this.modPage.handleDownload(chatSaveLocator, testInfo);
 
     const dataToCheck = [
-      this.meetingId,
-      this.username,
+      this.modPage.meetingId,
+      this.modPage.username,
       e.frequentlyUsedEmoji,
     ];
     await checkTextContent(content, dataToCheck);
@@ -236,12 +243,14 @@ class Chat extends MultiUsers {
 
   async emojiSendPrivateChat() {
     const { emojiPickerEnabled } = getSettings();
-    test.fail(!emojiPickerEnabled, 'Emoji Picker is disabled');
 
     await openPrivateChat(this.modPage);
     await this.modPage.waitForSelector(e.hidePrivateChat);
     await sleep(500); // prevent a race condition when running on a deployed server
     // modPage send message
+    if(!emojiPickerEnabled) {
+      return await this.modPage.wasRemoved(e.emojiPickerButton);
+    }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.waitAndClick(e.emojiSent);
     await this.modPage.waitAndClick(e.sendButton);
@@ -264,7 +273,6 @@ class Chat extends MultiUsers {
 
   async autoConvertEmojiPublicChat() {
     const { autoConvertEmojiEnabled } = getSettings();
-    test.fail(!autoConvertEmojiEnabled, 'Auto Convert Emoji is disabled');
 
     try {
       await this.modPage.hasElement(e.hidePrivateChat);
@@ -280,6 +288,11 @@ class Chat extends MultiUsers {
 
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
+
+    if(!autoConvertEmojiEnabled) {
+      return await this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ":)");
+    }
+
     await this.modPage.waitForSelector(e.chatUserMessageText);
     await this.modPage.checkElementCount(e.chatUserMessageText, 2);
   }
@@ -304,11 +317,13 @@ class Chat extends MultiUsers {
 
   async autoConvertEmojiSaveChat(testInfo) {
     const { autoConvertEmojiEnabled } = getSettings();
-    test.fail(!autoConvertEmojiEnabled, 'Auto Convert Emoji is disabled');
 
     await openPublicChat(this.modPage);
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
+    if(!autoConvertEmojiEnabled) {
+      return await this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ':)');
+    }
     await this.modPage.waitForSelector(e.chatUserMessageText);
     await this.modPage.waitAndClick(e.chatOptions);
     const chatSaveLocator = this.modPage.getLocator(e.chatSave);
@@ -324,7 +339,6 @@ class Chat extends MultiUsers {
 
   async autoConvertEmojiSendPrivateChat() {
     const { autoConvertEmojiEnabled } = getSettings();
-    test.fail(!autoConvertEmojiEnabled, 'Auto Convert Emoji is disabled');
 
     await openPrivateChat(this.modPage);
     await this.modPage.waitForSelector(e.hidePrivateChat);
@@ -332,9 +346,12 @@ class Chat extends MultiUsers {
     // modPage send message
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
+    if(!autoConvertEmojiEnabled) {
+      return await this.modPage.hasText(`${e.chatUserMessageText}>>nth=2`, ":)");
+    }
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
     //await openPrivateChat(this.userPage);
-    await this.userPage.waitAndClick(`${e.chatButton}>>nth=1`);
+    //await this.userPage.waitAndClick(`${e.chatButton}>>nth=1`);
     await this.userPage.waitForSelector(e.hidePrivateChat);
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage)

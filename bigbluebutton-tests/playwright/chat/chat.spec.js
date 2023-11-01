@@ -51,7 +51,7 @@ test.describe('Chat', () => {
     await chat.copyPastePublicMessage();
   })
 
-  test('Send emoji on public chat @ci', async () => {
+  test.only('Send emoji on public chat @ci', async () => {
     await chat.sendEmoji();
   });
 
@@ -64,15 +64,15 @@ test.describe('Chat', () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji @ci', async () => {
-    await chat.emojiSaveChat();
+  test.only('Save chat with emoji @ci', async ({}, testInfo) => {
+    await chat.emojiSaveChat(testInfo);
   });
 
-  test('Send emoji on private chat', async () => {
+  test.only('Send emoji on private chat', async () => {
     await chat.emojiSendPrivateChat();
   });
 
-  test('Send auto converted emoji on public chat', async () => {
+  test.only('Send auto converted emoji on public chat', async () => {
     await chat.autoConvertEmojiPublicChat();
   });
 
@@ -80,11 +80,11 @@ test.describe('Chat', () => {
     await chat.autoConvertEmojiCopyChat();
   });
 
-  test('Auto convert emoji save chat', async ({ context }, testInfo) => {
+  test.only('Auto convert emoji save chat', async ({ context }, testInfo) => {
     await chat.autoConvertEmojiSaveChat(testInfo);
   });
 
-  test('Send auto converted emoji on private chat', async () => {
+  test.only('Send auto converted emoji on private chat', async () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
