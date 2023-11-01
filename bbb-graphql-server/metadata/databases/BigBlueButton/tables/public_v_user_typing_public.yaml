@@ -22,7 +22,8 @@ select_permissions:
       columns:
         - chatId
         - userId
-        - typingAt
+        - lastTypingAt
+        - startedTypingAt
         - isCurrentlyTyping
       filter:
         _and:
