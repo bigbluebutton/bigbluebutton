@@ -124,9 +124,7 @@ case class PresentationConversionRequestReceivedSysMsgBody(
     presentationId:          String,
     temporaryPresentationId: String,
     current:                 Boolean,
-    default:                 Boolean,
     presName:                String,
-    presFilenameConverted:   String,
     downloadable:            Boolean,
     removable:               Boolean,
     authzToken:              String
@@ -141,7 +139,9 @@ case class PresentationPageConversionStartedSysMsgBody(
     podId:          String,
     presentationId: String,
     current:        Boolean,
+    default:        Boolean,
     presName:       String,
+    presFilenameConverted: String,
     downloadable:   Boolean,
     removable:      Boolean,
     authzToken:     String,
@@ -223,7 +223,7 @@ case class PdfConversionInvalidErrorEvtMsgBody(podId: String, messageKey: String
 
 object PresentationUploadTokenPassRespMsg { val NAME = "PresentationUploadTokenPassRespMsg" }
 case class PresentationUploadTokenPassRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenPassRespMsgBody) extends StandardMsg
-case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String, temporaryPresentationId: String)
+case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String, temporaryPresentationId: String, presentationId: String)
 
 object PresentationUploadTokenFailRespMsg { val NAME = "PresentationUploadTokenFailRespMsg" }
 case class PresentationUploadTokenFailRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenFailRespMsgBody) extends StandardMsg
@@ -361,5 +361,5 @@ case class SyncGetPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 // ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
 case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
-case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String)
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String, presentationId: String)
 // ------------ akka-apps to bbb-common-web ------------

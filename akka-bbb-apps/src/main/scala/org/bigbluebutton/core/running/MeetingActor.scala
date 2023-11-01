@@ -528,7 +528,6 @@ class MeetingActor(
       case m: RemovePresentationPodPubMsg                    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: GetAllPresentationPodsReqMsg                   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPresentationPubMsg                   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationConversionRequestReceivedSysMsg    => state = presentationPodsApp.handle(m, state, liveMeeting)
       case m: PresentationConversionCompletedSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PdfConversionInvalidErrorSysPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg                           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)

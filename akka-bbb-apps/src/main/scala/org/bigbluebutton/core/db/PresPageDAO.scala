@@ -3,6 +3,7 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage }
 import PostgresProfile.api._
 import spray.json.JsValue
+import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
@@ -52,6 +53,40 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
 }
 
 object PresPageDAO {
+  implicit val mapFormat: JsonWriter[Map[String, String]] = new JsonWriter[Map[String, String]] {
+    def write(m: Map[String, String]): JsValue = {
+      JsObject(m.map { case (k, v) => k -> JsString(v) })
+    }
+  }
+  def insert(presentationId: String, page: PresentationPage) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPageDbTableDef].insertOrUpdate(
+        PresPageDbModel(
+          pageId = page.id,
+          presentationId = presentationId,
+          num = page.num,
+          urlsJson = page.urls.toJson,
+          content = page.content,
+          slideRevealed = page.current,
+          current = page.current,
+          xOffset = page.xOffset,
+          yOffset = page.yOffset,
+          widthRatio = page.widthRatio,
+          heightRatio = page.heightRatio,
+          width = page.width,
+          height = page.height,
+          viewBoxWidth = 1,
+          viewBoxHeight = 1,
+          maxImageWidth = 1440,
+          maxImageHeight = 1080,
+          uploadCompleted = page.converted
+        )
+      )
+    ).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresentationPage table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PresentationPage: $e")
+      }
+  }
 
   def setCurrentPage(presentation: PresentationInPod, pageId: String) = {
     DatabaseConnection.db.run(

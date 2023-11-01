@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.presentationpod
 
+import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.models._
@@ -107,5 +108,11 @@ object PresentationPodsApp {
   def generateToken(podId: String, userId: String): String = {
     "PresUploadToken-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
   }
+
+  def generatePresentationId(presFilename: String) = {
+    val timestamp = System.currentTimeMillis
+    DigestUtils.sha1Hex(presFilename + RandomStringGenerator.randomAlphanumericString(8)) + "-" + timestamp
+  }
+
 }
 

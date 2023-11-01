@@ -734,7 +734,7 @@ public class MeetingService implements MessageListener {
     uploadAuthzTokens.put(message.authzToken, message);
   }
 
-  private void expirePresentationUploadToken(String usedToken) {
+  public void expirePresentationUploadToken(String usedToken) {
     uploadAuthzTokens.remove(usedToken);
   }
 

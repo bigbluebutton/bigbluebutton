@@ -47,10 +47,10 @@ trait PdfConversionInvalidErrorSysPubMsgHdlr {
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithError)
 
-      PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
       state.update(pods)
     }
 
+    PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
     broadcastEvent(msg)
 
     newState match {

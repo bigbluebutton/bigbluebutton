@@ -40,8 +40,8 @@ trait PresentationHasInvalidMimeTypeErrorPubMsgHdlr {
     )
 
     PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
-
     broadcastEvent(msg)
+
     state
   }
 }
