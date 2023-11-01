@@ -97,6 +97,9 @@ class Page {
     const { webcamSharingEnabled } = getSettings();
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
+    if(!webcamSharingEnabled) {
+      return await this.wasRemoved(e.joinVideo)
+    }
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.bringToFront();

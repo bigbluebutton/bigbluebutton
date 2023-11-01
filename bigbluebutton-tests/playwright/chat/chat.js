@@ -338,7 +338,7 @@ class Chat extends MultiUsers {
   }
 
   async autoConvertEmojiSendPrivateChat() {
-    const { autoConvertEmojiEnabled } = getSettings();
+    const { autoConvertEmojiEnabled, emojiPickerEnabled } = getSettings();
 
     await openPrivateChat(this.modPage);
     await this.modPage.waitForSelector(e.hidePrivateChat);
@@ -346,12 +346,12 @@ class Chat extends MultiUsers {
     // modPage send message
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
-    if(!autoConvertEmojiEnabled) {
+    if(!autoConvertEmojiEnabled && !emojiPickerEnabled) {
+      return await this.modPage.hasText(`${e.chatUserMessageText}>>nth=0`, ":)");
+    } else if (!autoConvertEmojiEnabled) {
       return await this.modPage.hasText(`${e.chatUserMessageText}>>nth=2`, ":)");
     }
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
-    //await openPrivateChat(this.userPage);
-    //await this.userPage.waitAndClick(`${e.chatButton}>>nth=1`);
     await this.userPage.waitForSelector(e.hidePrivateChat);
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage)
