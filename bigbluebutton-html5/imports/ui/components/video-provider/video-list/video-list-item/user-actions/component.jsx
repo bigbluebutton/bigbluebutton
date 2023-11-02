@@ -86,7 +86,7 @@ const UserActions = (props) => {
     const toggleDisableCam = () => {
       if (!isCameraDisabled) {
         Session.set('disabledCams', [...disabledCams, cameraId]);
-        notify(intl.formatMessage(intlMessages.disableWarning), 'level', 'warning');
+        notify(intl.formatMessage(intlMessages.disableWarning), 'info', 'warning');
       } else {
         Session.set('disabledCams', disabledCams.filter((cId) => cId !== cameraId));
       }
