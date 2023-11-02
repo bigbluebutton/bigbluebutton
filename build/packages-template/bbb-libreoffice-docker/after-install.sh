@@ -7,7 +7,7 @@ if ! which docker > /dev/null; then
 	exit 0
 fi
 
-LIBREOFFICE_TAG=7.5.7-2023-10-19-110211
+LIBREOFFICE_TAG=7.6.2-20231020-161900
 docker pull bigbluebutton/bbb-libreoffice:${LIBREOFFICE_TAG}
 docker image tag bigbluebutton/bbb-libreoffice:${LIBREOFFICE_TAG} bbb-soffice:${LIBREOFFICE_TAG} # rename to bbb-soffice
 
