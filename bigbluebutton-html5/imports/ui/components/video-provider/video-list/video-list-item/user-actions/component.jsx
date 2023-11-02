@@ -7,6 +7,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -56,6 +57,9 @@ const intlMessages = defineMessages({
   disableDesc: {
     id: 'app.videoDock.webcamDisableDesc',
   },
+  disableWarning: {
+    id: 'app.videoDock.webcamDisableWarning',
+  },
 });
 
 const UserActions = (props) => {
@@ -82,6 +86,7 @@ const UserActions = (props) => {
     const toggleDisableCam = () => {
       if (!isCameraDisabled) {
         Session.set('disabledCams', [...disabledCams, cameraId]);
+        notify(intl.formatMessage(intlMessages.disableWarning), 'level', 'warning');
       } else {
         Session.set('disabledCams', disabledCams.filter((cId) => cId !== cameraId));
       }
