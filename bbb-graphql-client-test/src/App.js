@@ -13,13 +13,14 @@ import TotalOfUniqueNames from './TotalOfUniqueNames';
 import ChatMessages from "./ChatMessages";
 import ChatsInfo from "./ChatsInfo";
 import ChatPublicMessages from "./ChatPublicMessages";
+import PluginDataChannel from "./PluginDataChannel";
 import Annotations from "./Annotations";
 import AnnotationsHistory from "./AnnotationsHistory";
 import CursorsStream from "./CursorsStream";
 import CursorsAll from "./CursorsAll";
 import TalkingStream from "./TalkingStream";
 import MyInfo from "./MyInfo";
-import UserLocalSettings from "./UserLocalSettings";
+import UserClientSettings from "./UserClientSettings";
 import UserConnectionStatus from "./UserConnectionStatus";
 import UserConnectionStatusReport from "./UserConnectionStatusReport";
 
@@ -106,13 +107,15 @@ function App() {
             Who am I? {userName} ({userId})
             <MeetingInfo />
             <br />
+            <PluginDataChannel userId={userId} />
+            <br />
             <MyInfo />
             <br />
             <UserConnectionStatus />
             <br />
             <UserConnectionStatusReport />
             <br />
-            <UserLocalSettings userId={userId} />
+            <UserClientSettings userId={userId} />
             <br />
             <UserList userId={userId} />
             <br />

@@ -44,27 +44,11 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   const { roving } = Service;
 
   React.useEffect(() => {
-    messageListRef.current?.addEventListener(
-      'keydown',
-      rove,
-      true,
-    );
-
-    return () => {
-      messageListRef.current?.removeEventListener(
-        'keydown',
-        rove,
-        true,
-      );
-    };
-  }, [messageListRef]);
-
-  React.useEffect(() => {
     const firstChild = (selectedChat as HTMLElement)?.firstChild;
     if (firstChild && firstChild instanceof HTMLElement) firstChild.focus();
   }, [selectedChat]);
 
-  const rove = (event: KeyboardEvent) => {
+  const rove = (event: React.KeyboardEvent) => {
     // eslint-disable-next-line react/no-find-dom-node
     const msgItemsRef = findDOMNode(messageItemsRef.current);
     const msgItemsRefChild = msgItemsRef?.firstChild;
@@ -84,6 +68,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
         role="tabpanel"
         tabIndex={0}
         ref={messageListRef}
+        onKeyDown={rove}
       >
         <Styled.List ref={messageItemsRef}>
           <TransitionGroup>

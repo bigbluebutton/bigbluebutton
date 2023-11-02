@@ -1,9 +1,6 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.domain.PageVO
-import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.db.{ PresPageDAO, PresPresentationDAO }
 
 object PresentationPodFactory {
@@ -25,6 +22,7 @@ case class PresentationPage(
     id:          String,
     num:         Int,
     urls:        Map[String, String],
+    content:     String,
     current:     Boolean             = false,
     xOffset:     Double              = 0,
     yOffset:     Double              = 0,
@@ -62,18 +60,19 @@ object PresentationInPod {
 }
 
 case class PresentationInPod(
-    id:                String,
-    name:              String,
-    default:           Boolean                                                  = false,
-    current:           Boolean                                                  = false,
-    pages:             scala.collection.immutable.Map[String, PresentationPage],
-    downloadable:      Boolean,
-    removable:         Boolean,
-    filenameConverted: String                                                   = "",
-    uploadCompleted:   Boolean,
-    numPages:          Int,
-    errorMsgKey:       String                                                   = "",
-    errorDetails:      scala.collection.immutable.Map[String, String]
+    id:                    String,
+    name:                  String,
+    default:               Boolean                                                  = false,
+    current:               Boolean                                                  = false,
+    pages:                 scala.collection.immutable.Map[String, PresentationPage],
+    downloadable:          Boolean,
+    downloadFileExtension: String                                                   = "",
+    removable:             Boolean,
+    filenameConverted:     String                                                   = "",
+    uploadCompleted:       Boolean,
+    numPages:              Int,
+    errorMsgKey:           String                                                   = "",
+    errorDetails:          scala.collection.immutable.Map[String, String]
 )
 
 object PresentationPod {
@@ -119,18 +118,18 @@ case class PresentationPod(id: String, currentPresenter: String,
     Some(tempPod)
   }
 
-  def setPresentationDownloadable(presentationId: String, downloadable: Boolean): Option[PresentationPod] = {
+  def setPresentationDownloadable(presentationId: String, downloadable: Boolean, downloadFileExtension: String): Option[PresentationPod] = {
     var tempPod: PresentationPod = this
     presentations.values foreach (curPres => { // unset previous current presentation
       if (curPres.id != presentationId) {
-        val newPres = curPres.copy(downloadable = downloadable)
+        val newPres = curPres.copy(downloadable = downloadable, downloadFileExtension = downloadFileExtension)
         tempPod = tempPod.addPresentation(newPres)
       }
     })
 
     presentations.get(presentationId) match { // set new current presentation
       case Some(pres) =>
-        val cp = pres.copy(downloadable = downloadable)
+        val cp = pres.copy(downloadable = downloadable, downloadFileExtension = downloadFileExtension)
         tempPod = tempPod.addPresentation(cp)
       case None => None
     }
@@ -236,10 +235,10 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
     }
   }
 
-  def setPresentationDownloadableInPod(podId: String, presentationId: String, downloadable: Boolean): PresentationPodManager = {
+  def setPresentationDownloadableInPod(podId: String, presentationId: String, downloadable: Boolean, downloadFileExtension: String): PresentationPodManager = {
     val updatedManager = for {
       pod <- getPod(podId)
-      podWithAdjustedDownloadablePresentation <- pod.setPresentationDownloadable(presentationId, downloadable)
+      podWithAdjustedDownloadablePresentation <- pod.setPresentationDownloadable(presentationId, downloadable, downloadFileExtension)
 
     } yield {
       updatePresentationPod(podWithAdjustedDownloadablePresentation)

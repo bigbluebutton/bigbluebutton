@@ -1,39 +1,39 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage }
-
-import org.bigbluebutton.core.models.PresentationInPod
-import slick.jdbc.PostgresProfile.api._
+import PostgresProfile.api._
+import spray.json.JsValue
+import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
 case class PresPageDbModel(
-    pageId:         String,
-    presentationId: String,
-    num:            Int,
-    urls:           String,
-    content:        String,
-    slideRevealed:  Boolean,
-    current:        Boolean,
-    xOffset:        Double,
-    yOffset:        Double,
-    widthRatio:     Double,
-    heightRatio:    Double,
-    width:          Double,
-    height:         Double,
-    viewBoxWidth:   Double,
-    viewBoxHeight:  Double,
-    maxImageWidth:  Int,
-    maxImageHeight: Int,
-    converted:      Boolean
+    pageId:          String,
+    presentationId:  String,
+    num:             Int,
+    urlsJson:        JsValue,
+    content:         String,
+    slideRevealed:   Boolean,
+    current:         Boolean,
+    xOffset:         Double,
+    yOffset:         Double,
+    widthRatio:      Double,
+    heightRatio:     Double,
+    width:           Double,
+    height:          Double,
+    viewBoxWidth:    Double,
+    viewBoxHeight:   Double,
+    maxImageWidth:   Int,
+    maxImageHeight:  Int,
+    uploadCompleted: Boolean
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
   val pageId = column[String]("pageId", O.PrimaryKey)
   val presentationId = column[String]("presentationId")
   val num = column[Int]("num")
-  val urls = column[String]("urls")
+  val urlsJson = column[JsValue]("urlsJson")
   val content = column[String]("content")
   val slideRevealed = column[Boolean]("slideRevealed")
   val current = column[Boolean]("current")
@@ -47,12 +47,46 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val viewBoxHeight = column[Double]("viewBoxHeight")
   val maxImageWidth = column[Int]("maxImageWidth")
   val maxImageHeight = column[Int]("maxImageHeight")
-  val converted = column[Boolean]("converted")
+  val uploadCompleted = column[Boolean]("uploadCompleted")
   //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, num, urls, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, converted) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  def * = (pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
+  implicit val mapFormat: JsonWriter[Map[String, String]] = new JsonWriter[Map[String, String]] {
+    def write(m: Map[String, String]): JsValue = {
+      JsObject(m.map { case (k, v) => k -> JsString(v) })
+    }
+  }
+  def insert(presentationId: String, page: PresentationPage) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPageDbTableDef].insertOrUpdate(
+        PresPageDbModel(
+          pageId = page.id,
+          presentationId = presentationId,
+          num = page.num,
+          urlsJson = page.urls.toJson,
+          content = page.content,
+          slideRevealed = page.current,
+          current = page.current,
+          xOffset = page.xOffset,
+          yOffset = page.yOffset,
+          widthRatio = page.widthRatio,
+          heightRatio = page.heightRatio,
+          width = page.width,
+          height = page.height,
+          viewBoxWidth = 1,
+          viewBoxHeight = 1,
+          maxImageWidth = 1440,
+          maxImageHeight = 1080,
+          uploadCompleted = page.converted
+        )
+      )
+    ).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresentationPage table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PresentationPage: $e")
+      }
+  }
 
   def setCurrentPage(presentation: PresentationInPod, pageId: String) = {
     DatabaseConnection.db.run(

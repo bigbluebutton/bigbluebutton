@@ -417,6 +417,10 @@ class ReceivedJsonMsgHandlerActor(
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
+      //Plugin
+      case DispatchPluginDataChannelMessageMsg.NAME =>
+        routeGenericMsg[DispatchPluginDataChannelMessageMsg](envelope, jsonNode)
+
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>
         routeGenericMsg[StartExternalVideoPubMsg](envelope, jsonNode)

@@ -245,7 +245,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     <>
       {
         [
-          <MessageListWrapper key="message-list-wrapper">
+          <MessageListWrapper key="message-list-wrapper" id="chat-list">
             <MessageList
               ref={messageListRef}
               onWheel={(e) => {
