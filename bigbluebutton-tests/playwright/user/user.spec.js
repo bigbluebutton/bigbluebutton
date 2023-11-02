@@ -78,7 +78,7 @@ test.describe.parallel('User', () => {
       await multiusers.giveAndRemoveWhiteboardAccess();
     });
 
-    test('Remove user @ci @flaky', async ({ browser, context, page }) => {
+    test('Remove user @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true);
@@ -162,7 +162,7 @@ test.describe.parallel('User', () => {
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-webcams
-      test('Lock See other viewers webcams @flaky', async ({ browser, context, page }) => {
+      test('Lock See other viewers webcams', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersWebcams();
@@ -203,7 +203,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations @flaky', async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersAnnotations();
