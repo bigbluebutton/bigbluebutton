@@ -20,6 +20,7 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - createdAt
         - current
         - downloadFileExtension
         - downloadFileUri
@@ -39,6 +40,7 @@ select_permissions:
         - uploadErrorDetailsJson
         - uploadErrorMsgKey
         - uploadInProgress
+        - uploadTemporaryId
       filter:
         meetingId:
           _eq: X-Hasura-PresenterInMeeting

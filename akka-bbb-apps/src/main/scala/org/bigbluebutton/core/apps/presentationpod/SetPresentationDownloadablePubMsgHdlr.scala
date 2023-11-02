@@ -53,13 +53,7 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
 
         val pods = state.presentationPodManager.setPresentationDownloadableInPod(pod.id, presentationId, downloadable, downloadableExtension)
 
-        for {
-          pod <- pods.getPod(pod.id)
-          updatedPres <- pod.getPresentation(presentationId)
-        } yield {
-          PresPresentationDAO.insertOrUpdate(meetingId, updatedPres)
-        }
-
+        PresPresentationDAO.updateDownloadable(presentationId, downloadable, downloadableExtension)
         state.update(pods)
       }
 
