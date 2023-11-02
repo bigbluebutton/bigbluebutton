@@ -6,7 +6,6 @@ const Wrapper = styled.div`
   background-color: ${colorTransparent};
   cursor: pointer;
   border: 0;
-  z-index: 2;
   margin: 2px;
 `;
 

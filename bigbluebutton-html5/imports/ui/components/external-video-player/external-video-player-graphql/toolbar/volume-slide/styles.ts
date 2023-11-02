@@ -17,12 +17,13 @@ const Slider = styled.div`
     font-size: 200%;
     cursor: pointer;
   }
-  z-index: 2;
+  z-index: 5;
 `;
 
 const Volume = styled.span`
   margin-right: 0.5em;
   cursor: pointer;
+  z-index: 5;
 `;
 
 const VolumeSlider = styled.input`
