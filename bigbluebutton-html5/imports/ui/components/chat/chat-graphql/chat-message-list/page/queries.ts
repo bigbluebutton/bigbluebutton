@@ -1,14 +1,5 @@
 /* eslint-disable camelcase */
 import { gql } from '@apollo/client';
-import { Message } from '/imports/ui/Types/message';
-
-export interface ChatMessagePublicSubscriptionResponse {
-  chat_message_public: Array<Message>;
-}
-
-export interface ChatMessagePrivateSubscriptionResponse {
-  chat_message_private: Array<Message>;
-}
 
 export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
   subscription chatMessages($limit: Int!, $offset: Int!) {
