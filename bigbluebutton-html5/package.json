@@ -52,6 +52,7 @@
     "darkreader": "^4.9.46",
     "emoji-mart": "^3.0.1",
     "eventemitter2": "~6.4.6",
+    "fast-json-patch": "^3.1.1",
     "fastdom": "^1.0.10",
     "fibers": "^4.0.2",
     "flat": "^5.0.2",
