@@ -76,7 +76,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
 
-  const useChatMessageSubscription = createUseSubscription<Partial<Message>>(chatQuery, true, variables);
+  const useChatMessageSubscription = createUseSubscription<Partial<Message>>(chatQuery, variables, true);
   const chatMessageData = useChatMessageSubscription((msg) => msg) as Array<Message>;
 
   if (chatMessageData.length > 0) {
