@@ -37,10 +37,6 @@ trait PresentationConversionUpdatePubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    val pres = new PresentationInPod(msg.body.presentationId, msg.body.presName, false, false, Map.empty, false,
-      "", false, uploadCompleted = false, numPages = -1, errorDetails = Map.empty)
-    PresPresentationDAO.insertOrUpdate(msg.header.meetingId, pres)
-
     broadcastEvent(msg)
     state
   }

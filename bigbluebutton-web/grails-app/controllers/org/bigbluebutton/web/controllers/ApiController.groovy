@@ -1437,16 +1437,16 @@ class ApiController {
       def Boolean isCurrent = false;
       def Boolean isRemovable = true;
       def Boolean isDownloadable = false;
-      def Boolean isInitialPresentation = false;
+      def Boolean isDefaultPresentation = false;
 
       if (document.name != null && "default".equals(document.name)) {
         if (presentationService.defaultUploadedPresentation) {
           if (document.current) {
-            isInitialPresentation = true
+            isDefaultPresentation = true
           }
           downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
                   document.current /* default presentation */, '', false,
-                  true, isInitialPresentation);
+                  true, isDefaultPresentation);
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
@@ -1465,7 +1465,7 @@ class ApiController {
             isCurrent = true
           }
         } else if (index == 0 && !isFromInsertAPI) {
-          isInitialPresentation = true
+          isDefaultPresentation = true
           isCurrent = true
         }
 
@@ -1477,12 +1477,12 @@ class ApiController {
             fileName = document.@filename.toString();
           }
           downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isInitialPresentation);
+                  fileName, isDownloadable, isRemovable, isDefaultPresentation);
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
           processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isInitialPresentation);
+                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation);
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }
@@ -1506,7 +1506,7 @@ class ApiController {
   }
 
   def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
-                                  isInitialPresentation) {
+                                  isDefaultPresentation) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
 
@@ -1554,14 +1554,14 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable,
-              isInitialPresentation
+              isDefaultPresentation
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
     }
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable, isInitialPresentation) {
+  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable, isDefaultPresentation) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
@@ -1624,7 +1624,7 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable,
-              isInitialPresentation
+              isDefaultPresentation
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
@@ -1634,7 +1634,7 @@ class ApiController {
 
 
   def processUploadedFile(podId, meetingId, presId, filename, presFile, current,
-                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable, isInitialPresentation ) {
+                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable, isDefaultPresentation ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
     UploadedPresentation uploadedPres = new UploadedPresentation(podId,
@@ -1646,7 +1646,7 @@ class ApiController {
             authzToken,
             uploadFailed,
             uploadFailReasons,
-            isInitialPresentation
+            isDefaultPresentation
     )
     uploadedPres.setUploadedFile(presFile);
     if (isRemovable != null) {

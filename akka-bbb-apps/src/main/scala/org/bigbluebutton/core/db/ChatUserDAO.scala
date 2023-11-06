@@ -8,12 +8,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
 case class ChatUserDbModel(
-    chatId:     String,
-    meetingId:  String,
-    userId:     String,
-    lastSeenAt: Option[java.sql.Timestamp],
-    typingAt:   Option[java.sql.Timestamp],
-    visible:    Boolean
+    chatId:          String,
+    meetingId:       String,
+    userId:          String,
+    lastSeenAt:      Option[java.sql.Timestamp],
+    startedTypingAt: Option[java.sql.Timestamp],
+    lastTypingAt:    Option[java.sql.Timestamp],
+    visible:         Boolean
 )
 
 class ChatUserDbTableDef(tag: Tag) extends Table[ChatUserDbModel](tag, None, "chat_user") {
@@ -21,12 +22,13 @@ class ChatUserDbTableDef(tag: Tag) extends Table[ChatUserDbModel](tag, None, "ch
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val lastSeenAt = column[Option[java.sql.Timestamp]]("lastSeenAt")
-  val typingAt = column[Option[java.sql.Timestamp]]("typingAt")
+  val startedTypingAt = column[Option[java.sql.Timestamp]]("startedTypingAt")
+  val lastTypingAt = column[Option[java.sql.Timestamp]]("lastTypingAt")
   val visible = column[Boolean]("visible")
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
 
-  override def * = (chatId, meetingId, userId, lastSeenAt, typingAt, visible) <> (ChatUserDbModel.tupled, ChatUserDbModel.unapply)
+  override def * = (chatId, meetingId, userId, lastSeenAt, startedTypingAt, lastTypingAt, visible) <> (ChatUserDbModel.tupled, ChatUserDbModel.unapply)
 }
 
 object ChatUserDAO {
@@ -47,7 +49,8 @@ object ChatUserDAO {
           chatId = chatId,
           meetingId = meetingId,
           lastSeenAt = None,
-          typingAt = None,
+          startedTypingAt = None,
+          lastTypingAt = None,
           visible = visible
         )
       )
@@ -63,11 +66,11 @@ object ChatUserDAO {
         .filter(_.meetingId === meetingId)
         .filter(_.chatId === (if (chatId == "public") "MAIN-PUBLIC-GROUP-CHAT" else chatId))
         .filter(_.userId === userId)
-        .map(u => (u.typingAt))
+        .map(u => (u.lastTypingAt))
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
     ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated typingAt on chat_user table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating typingAt on chat_user table: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated lastTypingAt on chat_user table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating lastTypingAt on chat_user table: $e")
       }
   }
 
