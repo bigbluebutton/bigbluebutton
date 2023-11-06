@@ -270,7 +270,7 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
-    if (isLayoutsEnabled()) {
+    if (isLayoutsEnabled() && (amIModerator || amIPresenter)) {
       actions.push({
         icon: 'manage_layout',
         label: intl.formatMessage(intlMessages.layoutModal),
