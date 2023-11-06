@@ -5,6 +5,7 @@ import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/container';
+import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
@@ -67,6 +68,10 @@ const intlMessages = defineMessages({
   hotkeysDesc: {
     id: 'app.navBar.settingsDropdown.hotkeysDesc',
     description: 'Describes hotkeys option',
+  },
+  layoutModal: {
+    id: 'app.actionsBar.actionsDropdown.layoutModal',
+    description: 'Label for layouts selection button',
   },
   helpLabel: {
     id: 'app.navBar.settingsDropdown.helpLabel',
@@ -139,6 +144,7 @@ class SettingsDropdown extends PureComponent {
       isEndMeetingConfirmationModalOpen: false,
       isMobileAppModalOpen:false,
       isFullscreen: false,
+      isLayoutModalOpen: false,
     };
 
     // Set the logout code to 680 because it's not a real code and can be matched on the other side
@@ -151,6 +157,7 @@ class SettingsDropdown extends PureComponent {
     this.setMobileAppModalIsOpen = this.setMobileAppModalIsOpen.bind(this);
     this.setAboutModalIsOpen = this.setAboutModalIsOpen.bind(this);
     this.setShortcutHelpModalIsOpen = this.setShortcutHelpModalIsOpen.bind(this);
+    this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
   }
 
   componentDidMount() {
@@ -227,6 +234,10 @@ class SettingsDropdown extends PureComponent {
   
   setMobileAppModalIsOpen(value) {
     this.setState({isMobileAppModalOpen: value})
+  }
+
+  setLayoutModalIsOpen(value) {
+    this.setState({ isLayoutModalOpen: value });
   }
 
   renderMenuItems() {
@@ -317,6 +328,15 @@ class SettingsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.hotkeysLabel),
         description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => this.setShortcutHelpModalIsOpen(true),
+      },
+    );
+
+    this.menuItems.push(
+      {
+        key: 'list-item-layout-modal',
+        icon: 'manage_layout',
+        label: intl.formatMessage(intlMessages.layoutModal),
+        onClick: () => this.setLayoutModalIsOpen(true),
         divider: true,
       },
     );
@@ -374,7 +394,7 @@ class SettingsDropdown extends PureComponent {
     } = this.props;
 
     const { isAboutModalOpen, isShortcutHelpModalOpen, isSettingsMenuModalOpen,
-      isEndMeetingConfirmationModalOpen, isMobileAppModalOpen, } = this.state;
+      isEndMeetingConfirmationModalOpen, isMobileAppModalOpen, isLayoutModalOpen } = this.state;
 
     const customStyles = { top: '1rem' };
 
@@ -420,6 +440,7 @@ class SettingsDropdown extends PureComponent {
           "low", EndMeetingConfirmationContainer)}
         {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "low", 
           MobileAppModal)}
+        {this.renderModal(isLayoutModalOpen, this.setLayoutModalIsOpen, 'low', LayoutModalContainer)}
       </>
     );
   }
