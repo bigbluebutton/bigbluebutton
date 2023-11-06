@@ -73,7 +73,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_meeting_recording_trigger_trigger" BEFORE UPDATE OF "stoppedAt" ON "meeting_recording"
+CREATE TRIGGER "update_meeting_recording_trigger" BEFORE UPDATE OF "stoppedAt" ON "meeting_recording"
     FOR EACH ROW EXECUTE FUNCTION "update_meeting_recording_trigger_func"();
 
 
@@ -753,7 +753,8 @@ CREATE TABLE "chat_user" (
 	"meetingId" varchar(100),
 	"userId" varchar(50),
 	"lastSeenAt" timestamp with time zone,
-	"typingAt"   timestamp with time zone,
+	"startedTypingAt" timestamp with time zone,
+	"lastTypingAt" timestamp with time zone,
 	"visible" boolean,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
@@ -761,35 +762,52 @@ CREATE TABLE "chat_user" (
 
 CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("meetingId", "userId", "chatId") WHERE "visible" is true;
 
+
+--TRIGER startedTypingAt
+CREATE OR REPLACE FUNCTION "update_chat_user_startedTypingAt_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    NEW."startedTypingAt" := CASE WHEN NEW."lastTypingAt" IS NULL THEN NULL
+                                  WHEN OLD."lastTypingAt" IS NULL THEN NEW."lastTypingAt"
+                                  WHEN OLD."lastTypingAt" < NEW."lastTypingAt" - INTERVAL '5 seconds' THEN NEW."lastTypingAt"
+                                  ELSE OLD."startedTypingAt"
+                             END;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_chat_user_startedTypingAt_trigger" BEFORE UPDATE OF "lastTypingAt" ON "chat_user"
+    FOR EACH ROW EXECUTE FUNCTION "update_chat_user_startedTypingAt_trigger_func"();
+
+
 create view "v_chat_user" as select * from "chat_user";
 
-CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "typingAt")
+CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "lastTypingAt")
         WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "typingAt" is not null;
+        AND "lastTypingAt" is not null;
 
-CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "typingAt")
+CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "lastTypingAt")
         WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
         AND "visible" is true;
 
-CREATE INDEX "idx_chat_with_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "typingAt")
+CREATE INDEX "idx_chat_with_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "lastTypingAt")
         WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "typingAt" is not null;
+        AND "lastTypingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
-SELECT "meetingId", "chatId", "userId", "typingAt",
-CASE WHEN "typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+SELECT "meetingId", "chatId", "userId", "lastTypingAt", "startedTypingAt",
+CASE WHEN "lastTypingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
 FROM chat_user
 WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-AND "typingAt" is not null;
+AND "lastTypingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_private" AS
-SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."typingAt",
-CASE WHEN chat_with."typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."lastTypingAt", chat_with."startedTypingAt",
+CASE WHEN chat_with."lastTypingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
 FROM chat_user
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
 									AND chat_with."userId" != chat_user."userId"
 									AND chat_with."chatId" = chat_user."chatId"
-									AND chat_with."typingAt" is not null
+									AND chat_with."lastTypingAt" is not null
 WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
 AND chat_user."visible" is true;
 
@@ -810,17 +828,17 @@ CREATE TABLE "chat_message" (
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
 
-CREATE OR REPLACE FUNCTION "update_chatUser_clear_typingAt_trigger_func"() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
   UPDATE "chat_user"
-  SET "typingAt" = null
+  SET "lastTypingAt" = null
   WHERE "chatId" = NEW."chatId" AND "meetingId" = NEW."meetingId" AND "userId" = NEW."senderId";
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_chatUser_clear_typingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
-EXECUTE FUNCTION "update_chatUser_clear_typingAt_trigger_func"();
+CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
+EXECUTE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"();
 
 
 CREATE OR REPLACE VIEW "v_chat" AS
