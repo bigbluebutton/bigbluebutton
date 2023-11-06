@@ -154,10 +154,6 @@ const WhiteboardContainer = (props) => {
     },
   };
 
-  if (!presentationId || !currentPresentationPage) {
-    return null;
-  }
-
   const hasShapeAccess = (id) => {
     const owner = shapes[id]?.userId;
     const isBackgroundShape = id?.includes('slide-background');
