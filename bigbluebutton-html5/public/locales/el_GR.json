@@ -1167,6 +1167,7 @@
     "app.videoDock.webcamDisableLabelAllCams": "Μη εμφάνιση κάμερας (όλες οι κάμερες).",
     "app.videoDock.webcamEnableLabel": "Εμφάνιση κάμερας",
     "app.videoDock.webcamDisableDesc": "Η μη εμφάνιση κάμερας απενεργοποιήθηκε",
+    "app.videoDock.webcamDisableWarning": "Η κάμερα σας εξακολουθεί να είναι ορατή σε άλλους! Μόνο η τοπική προβολή είναι απενεργοποιημένη.",
     "app.videoDock.webcamPinLabel": "Καρφίτσωμα",
     "app.videoDock.webcamPinDesc": "Καρφίτσωμα επιλεγμένων καμερών",
     "app.videoDock.webcamFullscreenLabel": "Κάμερα σε πλήρη οθόνη",
