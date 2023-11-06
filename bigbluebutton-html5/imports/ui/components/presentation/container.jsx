@@ -147,7 +147,7 @@ const PresentationContainer = (props) => {
         isIphone,
         currentSlide,
         slidePosition,
-        downloadPresentationUri: currentPresentationPage?.downloadFileUri,
+        downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
         multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
         presentationIsDownloadable: currentPresentationPage?.downloadable,
         mountPresentation: !!currentSlide,
