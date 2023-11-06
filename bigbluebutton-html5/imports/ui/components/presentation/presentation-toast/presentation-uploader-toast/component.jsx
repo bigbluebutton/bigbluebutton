@@ -229,7 +229,7 @@ function renderPresentationItemStatus(item, intl) {
 function renderToastItem(item, intl) {
   const isUploading = ('totalPages' in item) && item.totalPages > 0;
   const uploadInProgress = ('uploadCompleted' in item) && !item.uploadCompleted;
-  const hasError = (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey !== '');
+  const hasError = (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey);
   const isProcessing = (isUploading || uploadInProgress) && !hasError;
 
   let icon = isProcessing ? 'blank' : 'check';
