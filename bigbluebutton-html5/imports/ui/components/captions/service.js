@@ -169,7 +169,7 @@ const getName = (locale) => {
     locale,
   });
 
-  return captions.name;
+  return captions?.name;
 };
 
 const createCaptions = (locale) => {

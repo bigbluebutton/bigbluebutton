@@ -779,6 +779,7 @@
     "app.audio.captions.button.transcriptionSettings": "Transcription settings",
     "app.audio.captions.speech.title": "Automatic transcription",
     "app.audio.captions.speech.disabled": "Disabled",
+    "app.audio.captions.speech.auto": "Auto Detect",
     "app.audio.captions.speech.unsupported": "Your browser doesn't support speech recognition. Your audio won't be transcribed",
     "app.audio.captions.select.de-DE": "German",
     "app.audio.captions.select.en-US": "English",

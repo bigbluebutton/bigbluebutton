@@ -39,10 +39,14 @@ const getSpeechVoices = () => {
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
+const setSpeechOptions = (partialUtterances, minUtteranceLength) => {
+  return makeCall('setSpeechOptions', partialUtterances, minUtteranceLength);
+};
+
 const setSpeechLocale = (value) => {
   const voices = getSpeechVoices();
 
-  if (voices.includes(value) || value === '') {
+  if (voices.includes(value) || value === '' || value === 'auto') {
     makeCall('setSpeechLocale', value, CONFIG.provider);
   } else {
     logger.error({
@@ -176,6 +180,7 @@ export default {
   getSpeechVoices,
   getSpeechLocale,
   setSpeechLocale,
+  setSpeechOptions,
   hasSpeechLocale,
   isLocaleValid,
   isEnabled,
@@ -184,4 +189,5 @@ export default {
   generateId,
   useFixedLocale,
   stereoUnsupported,
+  isGladia,
 };

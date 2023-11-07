@@ -70,7 +70,7 @@ const CaptionsListItem = (props) => {
       onKeyPress={() => {}}
     >
       <Icon iconName="closed_caption" />
-      <span aria-hidden>{name}</span>
+      <span aria-hidden>Transcription</span>
     </Styled.ListItem>
   );
 };

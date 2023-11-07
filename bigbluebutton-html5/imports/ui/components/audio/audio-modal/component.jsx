@@ -13,6 +13,7 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
 import CaptionsSelectContainer from '/imports/ui/components/audio/captions/select/container';
+import GladiaOptionsContainer from '/imports/ui/components/audio/captions/gladia-options/container';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -466,6 +467,7 @@ class AudioModal extends Component {
           />
         ) : null}
         <CaptionsSelectContainer />
+        <GladiaOptionsContainer />
       </div>
     );
   }

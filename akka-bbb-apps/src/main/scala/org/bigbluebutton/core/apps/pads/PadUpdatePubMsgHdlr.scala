@@ -21,11 +21,13 @@ trait PadUpdatePubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    if (Pads.hasAccess(liveMeeting, msg.body.externalId, msg.header.userId)) {
-      Pads.getGroup(liveMeeting.pads, msg.body.externalId) match {
-        case Some(group) => broadcastEvent(group.groupId, msg.body.externalId, msg.body.text)
-        case _           =>
-      }
+    // Allow every user to edit the pad and dump transcriptions
+    // TODO: Actually validate the permissions here somehow
+    //if (Pads.hasAccess(liveMeeting, msg.body.externalId, msg.header.userId)) {
+    Pads.getGroup(liveMeeting.pads, msg.body.externalId) match {
+      case Some(group) => broadcastEvent(group.groupId, msg.body.externalId, msg.body.text)
+      case _           =>
     }
+    //}
   }
 }

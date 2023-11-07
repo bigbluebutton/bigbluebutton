@@ -12,6 +12,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.disabled',
     description: 'Audio speech recognition disabled',
   },
+  auto: {
+    id: 'app.audio.captions.speech.auto',
+    description: 'Audio speech recognition auto',
+  },
   unsupported: {
     id: 'app.audio.captions.speech.unsupported',
     description: 'Audio speech recognition unsupported',
@@ -104,6 +108,15 @@ const Select = ({
         >
           {intl.formatMessage(intlMessages.disabled)}
         </option>
+        {SpeechService.isGladia() ?
+          <option
+            key="auto"
+            value="auto"
+          >
+            {intl.formatMessage(intlMessages.auto)}
+          </option>
+          : null
+        }
         {voices.map((v) => (
           <option
             key={v}
