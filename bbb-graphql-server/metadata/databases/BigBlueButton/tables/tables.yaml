@@ -32,6 +32,7 @@
 - "!include public_v_pres_page_cursor.yaml"
 - "!include public_v_pres_page_writers.yaml"
 - "!include public_v_pres_presentation.yaml"
+- "!include public_v_pres_presentation_uploadToken.yaml"
 - "!include public_v_screenshare.yaml"
 - "!include public_v_sharedNotes.yaml"
 - "!include public_v_sharedNotes_session.yaml"

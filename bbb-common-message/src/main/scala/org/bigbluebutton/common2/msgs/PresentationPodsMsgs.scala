@@ -13,7 +13,7 @@ case class RemovePresentationPodPubMsgBody(podId: String)
 
 object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg" }
 case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
-case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, temporaryPresentationId: String)
+case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, uploadTemporaryId: String)
 
 object GetAllPresentationPodsReqMsg { val NAME = "GetAllPresentationPodsReqMsg" }
 case class GetAllPresentationPodsReqMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsReqMsgBody) extends StandardMsg

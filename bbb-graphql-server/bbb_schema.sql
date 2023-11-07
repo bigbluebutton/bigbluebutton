@@ -907,6 +907,7 @@ CREATE TABLE "pres_presentation" (
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
+CREATE INDEX "idx_pres_presentation_meetingId_uploadUserId" ON "pres_presentation"("meetingId","uploadUserId");
 
 CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
@@ -1076,6 +1077,12 @@ FROM "pres_page_writers"
 JOIN "user" u ON u."userId" = "pres_page_writers"."userId"
 JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
 JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId" ;
+
+CREATE OR REPLACE VIEW "v_pres_presentation_uploadToken" AS
+SELECT "meetingId", "presentationId", "uploadUserId", "uploadTemporaryId", "uploadToken"
+FROM pres_presentation pp
+WHERE "uploadInProgress" IS FALSE
+AND "uploadCompleted" IS FALSE;
 
 ------------------------------------------------------------
 -- Triggers to automatically control "user" flag "hasDrawPermissionOnCurrentPage"

@@ -9,6 +9,14 @@ type Mutation {
 }
 
 type Mutation {
+  requestPresentationUploadToken(
+    podId: String!
+    filename: String!
+    uploadTemporaryId: String!
+  ): Boolean
+}
+
+type Mutation {
   sendGroupChatMsg(
     chatId: String!
     chatMessageInMarkdownFormat: String!
