@@ -53,7 +53,7 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
   const { animations } = SettingsSingleton.application;
   const [videoUrl, setVideoUrl] = React.useState('');
 
-  const valid = !videoUrl || isUrlValid(videoUrl);
+  const valid = isUrlValid(videoUrl);
 
   return (
     <Styled.ExternalVideoModal
@@ -85,7 +85,7 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
         </Styled.VideoUrl>
         <div>
           {
-            !valid
+            !valid && videoUrl
               ? (
                 <Styled.UrlError animations={animations}>
                   {intl.formatMessage(intlMessages.urlError)}
@@ -97,7 +97,7 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
 
         <Styled.StartButton
           label={intl.formatMessage(intlMessages.start)}
-          disabled={!valid}
+          disabled={!valid || !videoUrl}
           onClick={() => {
             startWatching(videoUrl);
             onRequestClose();

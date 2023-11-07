@@ -29,6 +29,7 @@ import { ACTIONS } from '../../layout/enums';
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
+import { clearTimeout } from 'timers';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
@@ -190,6 +191,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   const handleOnPlay = () => {
     setAutoPlayBlocked(false);
+    clearTimeout(timeoutRef.current);
     if (isPresenter) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
