@@ -25,7 +25,6 @@ function createUseSubscription<T>(
         throw new Error('Error: query is not defined');
       }
 
-      // Check if the loc property is defined
       if (!query.loc) {
         throw new Error('Error: query.loc is not defined');
       }
@@ -74,7 +73,7 @@ function createUseSubscription<T>(
           },
         });
       return () => apolloSubscription.unsubscribe();
-    }, [JSON.stringify(variables)]);
+    }, [variables]);
 
     return projectedData;
   };
