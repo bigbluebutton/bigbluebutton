@@ -3,7 +3,7 @@ import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
 
-import { gql, useApolloClient } from '@apollo/client';
+import { OperationVariables, gql, useApolloClient } from '@apollo/client';
 import R from 'ramda';
 import { applyPatch } from 'fast-json-patch';
 
@@ -17,8 +17,6 @@ function createUseSubscription<T>(
     const [projectedData, setProjectedData] = useState<Array<T>>([]);
     const oldProjectionOfDataRef = useRef<Array<T>>([]);
     const dataRef = useRef<Array<T>>([]);
-    const variables = useMemo(() => queryVariables, [JSON.stringify(queryVariables)]);
-
     let newSubscriptionGQL = query;
     if (usePatchedSubscription) {
       if (!query) {
@@ -44,7 +42,7 @@ function createUseSubscription<T>(
       const apolloSubscription = client
         .subscribe({
           query: newSubscriptionGQL,
-          variables,
+          variables: queryVariables,
           fetchPolicy: usePatchedSubscription ? 'no-cache' : undefined,
         })
         .subscribe({
@@ -73,9 +71,24 @@ function createUseSubscription<T>(
           },
         });
       return () => apolloSubscription.unsubscribe();
-    }, [variables]);
+    }, [queryVariables]);
 
     return projectedData;
   };
 }
+
+export const useCreateUseSubscription = <T>(
+  query: DocumentNode | TypedQueryDocumentNode,
+  queryVariables = {},
+  usePatchedSubscription = false,
+) => {
+  const queryString = JSON.stringify(query);
+  const queryVariablesString = JSON.stringify(queryVariables);
+  const createdSubscription = useMemo(() => {
+    return createUseSubscription<T>(query, queryVariables, usePatchedSubscription);
+  },
+  [queryString, queryVariablesString, usePatchedSubscription]);
+  return createdSubscription;
+};
+
 export default createUseSubscription;
