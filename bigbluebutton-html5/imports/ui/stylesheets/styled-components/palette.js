@@ -64,6 +64,7 @@ const btnWarningBg = `var(--btn-warning-bg, ${colorWarning})`;
 const btnDangerBorder = `var(--btn-danger-border, ${colorDanger})`;
 const btnDangerColor = `var(--btn-danger-color, ${colorWhite})`;
 const btnDangerBg = `var(--btn-danger-bg, ${colorDanger})`;
+const btnDangerBgHover = 'var(--btn-danger-bg-hover, #C61C1C)';
 
 const btnDarkBorder = `var(--btn-dark-border, ${colorDanger})`;
 const btnDarkColor = `var(--btn-dark-color, ${colorWhite})`;
@@ -171,6 +172,7 @@ export {
   btnDangerBorder,
   btnDangerColor,
   btnDangerBg,
+  btnDangerBgHover,
   btnDarkBorder,
   btnDarkColor,
   btnDarkBg,
