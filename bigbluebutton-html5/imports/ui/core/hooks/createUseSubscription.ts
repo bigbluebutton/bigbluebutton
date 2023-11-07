@@ -3,7 +3,7 @@ import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
 
-import { OperationVariables, gql, useApolloClient } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
 import R from 'ramda';
 import { applyPatch } from 'fast-json-patch';
 
