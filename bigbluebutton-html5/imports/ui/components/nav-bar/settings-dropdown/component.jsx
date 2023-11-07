@@ -118,6 +118,7 @@ const propTypes = {
   audioCaptionsActive: PropTypes.bool.isRequired,
   audioCaptionsSet: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
+  isDirectLeaveButtonEnabled: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -243,7 +244,7 @@ class SettingsDropdown extends PureComponent {
   renderMenuItems() {
     const {
       intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
-      audioCaptionsActive, audioCaptionsSet, isMobile,
+      audioCaptionsActive, audioCaptionsSet, isMobile, isDirectLeaveButtonEnabled,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -341,7 +342,7 @@ class SettingsDropdown extends PureComponent {
       },
     );
 
-    if (allowLogoutSetting && isMeteorConnected) {
+    if (allowLogoutSetting && isMeteorConnected && !isDirectLeaveButtonEnabled) {
       this.menuItems.push(
         {
           key: 'list-item-logout',
