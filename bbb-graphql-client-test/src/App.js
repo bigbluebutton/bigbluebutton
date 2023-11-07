@@ -23,6 +23,7 @@ import MyInfo from "./MyInfo";
 import UserClientSettings from "./UserClientSettings";
 import UserConnectionStatus from "./UserConnectionStatus";
 import UserConnectionStatusReport from "./UserConnectionStatusReport";
+import PresPresentationUploadToken from "./PresPresentationUploadToken";
 
 
 function App() {
@@ -110,6 +111,8 @@ function App() {
             <PluginDataChannel userId={userId} />
             <br />
             <MyInfo />
+            <br />
+            <PresPresentationUploadToken />
             <br />
             <UserConnectionStatus />
             <br />
