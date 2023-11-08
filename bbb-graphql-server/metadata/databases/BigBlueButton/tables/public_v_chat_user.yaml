@@ -23,7 +23,7 @@ select_permissions:
         - chatId
         - lastSeenAt
         - meetingId
-        - typingAt
+        - lastTypingAt
         - userId
       filter:
         _and:
@@ -36,7 +36,7 @@ update_permissions:
     permission:
       columns:
         - lastSeenAt
-        - typingAt
+        - lastTypingAt
         - visible
       filter:
         _and:

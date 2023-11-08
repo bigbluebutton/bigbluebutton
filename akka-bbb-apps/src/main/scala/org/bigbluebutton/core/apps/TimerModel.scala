@@ -16,7 +16,7 @@ object TimerModel {
 
   def reset(model: TimerModel) : Unit = {
     model.accumulated = 0
-    model.startedAt = 0
+    model.startedAt = if (model.running) System.currentTimeMillis() else 0
     model.endedAt = 0
   }
 
@@ -24,7 +24,7 @@ object TimerModel {
     model.isActive = active
   }
 
-  def getIsACtive(model: TimerModel): Boolean = {
+  def getIsActive(model: TimerModel): Boolean = {
     model.isActive
   }
 

@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
-import { useSubscription } from '@apollo/client';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
-  ChatMessagePrivateSubscriptionResponse,
-  ChatMessagePublicSubscriptionResponse,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
+import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -33,13 +31,6 @@ interface ChatListPageProps {
   markMessageAsSeen: (message: Message)=> void;
   scrollRef: React.RefObject<HTMLDivElement>;
 }
-
-const verifyIfIsPublicChat = (message: unknown):
-// eslint-disable-next-line max-len
-message is ChatMessagePublicSubscriptionResponse => (message as ChatMessagePublicSubscriptionResponse).chat_message_public !== undefined;
-
-// eslint-disable-next-line max-len
-const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined;
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
@@ -84,38 +75,17 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const defaultVariables = { offset: (page) * pageSize, limit: pageSize };
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
-  const {
-    data: chatMessageData,
-    loading: chatMessageLoading,
-    error: chatMessageError,
-  } = useSubscription<ChatMessagePublicSubscriptionResponse|ChatMessagePrivateSubscriptionResponse>(
-    chatQuery,
-    { variables },
-  );
 
-  if (chatMessageError) {
-    return (
-      <p>
-        chatMessageError:
-        {JSON.stringify(chatMessageError)}
-      </p>
-    );
-  }
-  if (chatMessageLoading) return null;
-  let messages: Array<Message> = [];
-  if (verifyIfIsPublicChat(chatMessageData)) {
-    messages = chatMessageData.chat_message_public || [];
-  } else if (verifyIfIsPrivateChat(chatMessageData)) {
-    messages = chatMessageData.chat_message_private || [];
-  }
+  const useChatMessageSubscription = useCreateUseSubscription<Partial<Message>>(chatQuery, variables, true);
+  const chatMessageData = useChatMessageSubscription((msg) => msg) as Array<Message>;
 
-  if (messages.length > 0) {
-    setLastSender(page, messages[messages.length - 1].user?.userId);
+  if (chatMessageData.length > 0) {
+    setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
   }
 
   return (
     <ChatListPage
-      messages={messages}
+      messages={chatMessageData}
       lastSenderPreviousPage={lastSenderPreviousPage}
       page={page}
       markMessageAsSeen={markMessageAsSeen}

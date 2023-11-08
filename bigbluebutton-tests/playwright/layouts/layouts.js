@@ -14,7 +14,7 @@ class Layouts extends MultiUsers {
     await checkScreenshots(this, e.webcamContainer, 'focus-on-presentation');
   }
 
-  async focusOnVideo() {
+  async gridLayout() {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnVideo);
@@ -22,7 +22,7 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.wasRemoved(e.toastContainer);
 
-    await checkScreenshots(this, e.webcamContainer, 'focus-on-video');
+    await checkScreenshots(this, e.webcamContainer, 'grid-layout');
   }
 
   async smartLayout() {

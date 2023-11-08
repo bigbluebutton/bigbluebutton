@@ -4,19 +4,19 @@ import usePatchedSubscription from "./usePatchedSubscription";
 
 export default function ChatsInfo() {
 
-    const [updateTypingAt] = useMutation(gql`
+    const [updateLastTypingAt] = useMutation(gql`
       mutation UpdateChatUser($chatId: String) {
         update_chat_user(
             where: { chatId: { _eq: $chatId } },
-            _set: { typingAt: "now()" }
+            _set: { lastTypingAt: "now()" }
           ) {
             affected_rows
           }
       }
     `);
 
-    const handleUpdateTypingAt = (chatId, lastSeenAt) => {
-        updateTypingAt({
+    const handleUpdateLastTypingAt = (chatId, lastSeenAt) => {
+        updateLastTypingAt({
             variables: {
                 chatId
             },
@@ -67,7 +67,7 @@ export default function ChatsInfo() {
         user_typing_public(where: {isCurrentlyTyping: {_eq: true}}) {
             chatId
             isCurrentlyTyping
-            typingAt
+            lastTypingAt
             userId
             user {
                 name
@@ -81,7 +81,7 @@ export default function ChatsInfo() {
         user_typing_private(where: {isCurrentlyTyping: {_eq: true}}) {
             chatId
             isCurrentlyTyping
-            typingAt
+            lastTypingAt
             userId
             user {
                 name
@@ -117,13 +117,13 @@ export default function ChatsInfo() {
                           <td>
                               {(publicChatTypingSub?.user_typing_public || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)}
                               <br />
-                              <button onClick={() => handleUpdateTypingAt(curr.chatId)}>I'm typing!</button>
+                              <button onClick={() => handleUpdateLastTypingAt(curr.chatId)}>I'm typing!</button>
                           </td>
                            :
                               <td>
                                   {(privateChatTypingSub?.user_typing_private || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)}
                                   <br />
-                                  <button onClick={() => handleUpdateTypingAt(curr.chatId)}>I'm typing!</button>
+                                  <button onClick={() => handleUpdateLastTypingAt(curr.chatId)}>I'm typing!</button>
                               </td>
                       }
                   <td>{curr.totalMessages}</td>

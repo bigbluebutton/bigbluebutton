@@ -1,3 +1,5 @@
+const path = require('path');
+
 const chromiumConfig = {
   name: 'Chromium',
   use: {
@@ -9,6 +11,7 @@ const chromiumConfig = {
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
         '--allow-file-access-from-files',
+        `--use-file-for-fake-video-capture=${path.join(__dirname, 'media/video.y4m')}`
       ],
     },
   },

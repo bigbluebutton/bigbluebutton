@@ -49,7 +49,7 @@ test.describe.parallel('Webcam', () => {
     await webcam.disableSelfView();
   });
 
-  test.describe('Webcam background', () => {
+  test.describe('Webcam background @ci', () => {
     /* this test has the flaky tag because it is breaking due to a default video from chrome that
     is overlapping the virtual background. */
     test('Select one of the default backgrounds', async ({ browser, page }) => {
