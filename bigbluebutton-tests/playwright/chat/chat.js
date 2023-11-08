@@ -299,12 +299,13 @@ class Chat extends MultiUsers {
 
   async autoConvertEmojiCopyChat(context) {
     const { autoConvertEmojiEnabled } = getSettings();
-    test.fail(!autoConvertEmojiEnabled, 'Auto Convert Emoji is disabled');
 
     await openPublicChat(this);
     await this.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.waitAndClick(e.sendButton);
-
+    if(!autoConvertEmojiEnabled) {
+      return await this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ":)");
+    }
     await this.waitAndClick(e.chatOptions);
 
     await this.waitForSelector(e.chatUserMessageText);

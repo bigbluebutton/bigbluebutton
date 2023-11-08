@@ -12,7 +12,10 @@ class ScreenShare extends Page {
 
   async startSharing() {
     const { screensharingEnabled } = getSettings();
-    test.fail(!screensharingEnabled, 'Screensharing is disabled');
+
+    if(!screensharingEnabled) {
+      return await this.wasRemoved(e.startScreenSharing);
+    }
     await startScreenshare(this);
     await this.hasElement(e.isSharingScreen);
   }
@@ -29,7 +32,10 @@ class MultiUserScreenShare extends MultiUsers {
 
   async startSharing(page) {
     const { screensharingEnabled } = getSettings();
-    test.fail(!screensharingEnabled, 'Screensharing is disabled');
+
+    if(!screensharingEnabled) {
+      return await this.wasRemoved(e.startScreenSharing);
+    }
     await startScreenshare(page);
     await page.hasElement(e.isSharingScreen);
   }
