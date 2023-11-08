@@ -397,10 +397,33 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
       if (msg.body.reactionEmoji != "none") {
-        val updatedUser = user.copy(reactions = user.reactions :+ Emoji(msg.body.reactionEmoji))
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+        //Not considering flooding reactions, ignoring if same Emoji was sent in the last 30 seconds
+        val hasSameReactionInLast30Seconds = user.reactions.filter(r => {
+          System.currentTimeMillis() - r.sentOn < (30 * 1000) && r.name == msg.body.reactionEmoji
+        }).length > 0
 
-        meetings += (updatedMeeting.intId -> updatedMeeting)
+        if(!hasSameReactionInLast30Seconds) {
+          val updatedUser = user.copy(reactions = user.reactions :+ Emoji(msg.body.reactionEmoji))
+          val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+          meetings += (updatedMeeting.intId -> updatedMeeting)
+
+          //Convert Reactions to legacy Emoji (while LearningDashboard doesn't support Reactions)
+          val emoji = msg.body.reactionEmoji.codePointAt(0) match {
+            case 128515 => "happy"
+            case 128528 => "neutral"
+            case 128577 => "sad"
+            case 128077 => "thumbsUp"
+            case 128078 => "thumbsDown"
+            case 128079 => "applause"
+            case _ => "none"
+          }
+
+          if (emoji != "none") {
+            val updatedUserWithEmoji = updatedUser.copy(emojis = user.emojis :+ Emoji(emoji))
+            val updatedMeetingWithEmoji = meeting.copy(users = meeting.users + (updatedUserWithEmoji.userKey -> updatedUserWithEmoji))
+            meetings += (updatedMeeting.intId -> updatedMeetingWithEmoji)
+          }
+        }
       }
     }
   }
