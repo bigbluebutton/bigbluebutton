@@ -25,19 +25,22 @@ const Cursor = (props) => {
     _y = (y + tldrawCamera?.point[1]) * tldrawCamera?.zoom;
   }
 
+  const transitionStyle = owner ? { transition: 'left 0.3s ease-out, top 0.3s ease-out' } : {};
+
   return (
     <>
       <div
         style={{
           zIndex: z,
           position: 'absolute',
-          left: (_x || x) - pointerDiameter/2,
-          top: (_y || y) - pointerDiameter/2,
+          left: (_x || x) - pointerDiameter / 2,
+          top: (_y || y) - pointerDiameter / 2,
           width: pointerDiameter,
           height: pointerDiameter,
           borderRadius: '50%',
           background: `${color}`,
           pointerEvents: 'none',
+          ...transitionStyle,
         }}
       />
 
@@ -57,6 +60,7 @@ const Cursor = (props) => {
             color: '#FFF',
             backgroundColor: color,
             border: `1px solid ${color}`,
+            ...transitionStyle,
           }}
           data-test="whiteboardCursorIndicator"
         >
