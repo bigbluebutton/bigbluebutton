@@ -159,6 +159,8 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     ? user.lastBreakoutRoom?.sequence
     : iconUser;
 
+  const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
+
   return (
     <Styled.UserItemContents data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
@@ -173,7 +175,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         voice={voiceUser?.joined}
         noVoice={!voiceUser?.joined}
         color={user.color}
-        whiteboardAccess={user?.presPagesWritable?.length > 0}
+        whiteboardAccess={hasWhiteboardAccess}
         animations
         emoji={user.emoji !== 'none'}
         avatar={userAvatarFiltered}
