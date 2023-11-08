@@ -397,7 +397,7 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
       if (msg.body.reactionEmoji != "none") {
-        //Not considering flooding reactions, ignoring if same Emoji was sent in the last 30 seconds
+        //Ignore multiple Reactions to prevent flooding
         val hasSameReactionInLast30Seconds = user.reactions.filter(r => {
           System.currentTimeMillis() - r.sentOn < (30 * 1000) && r.name == msg.body.reactionEmoji
         }).length > 0
