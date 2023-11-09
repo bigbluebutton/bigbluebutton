@@ -3,6 +3,7 @@ import { useSubscription } from '@apollo/client';
 import { AutoSizer } from 'react-virtualized';
 import { debounce } from 'radash';
 import { ListProps } from 'react-virtualized/dist/es/List';
+import { findDOMNode } from 'react-dom';
 import Styled from './styles';
 import ListItem from './list-item/component';
 import Skeleton from './list-item/skeleton/component';
@@ -19,6 +20,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import Service from '/imports/ui/components/user-list/service';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -75,6 +77,11 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
     ? currentUser
     : { userId: '', isModerator: false, presenter: false };
 
+  const userListRef = React.useRef<HTMLDivElement | null>(null);
+  const userItemsRef = React.useRef<HTMLDivElement | null>(null);
+  const [selectedUser, setSelectedUser] = React.useState<HTMLElement>();
+  const { roving } = Service;
+
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [previousUsersData, setPreviousUsersData] = React.useState(users);
   useEffect(() => {
@@ -82,8 +89,24 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       setPreviousUsersData(users);
     }
   }, [users]);
+
+  React.useEffect(() => {
+    const firstChild = (selectedUser as HTMLElement)?.firstChild;
+    if (firstChild && firstChild instanceof HTMLElement) firstChild.focus();
+  }, [selectedUser]);
+
+  const rove = (event: React.KeyboardEvent) => {
+    // eslint-disable-next-line react/no-find-dom-node
+    const usrItemsRef = findDOMNode(userItemsRef.current);
+    const usrItemsRefChild = usrItemsRef?.firstChild;
+
+    roving(event, setSelectedUser, usrItemsRefChild, selectedUser);
+
+    event.stopPropagation();
+  };
+
   return (
-    <Styled.UserListColumn>
+    <Styled.UserListColumn onKeyDown={rove} tabIndex={0} ref={userListRef}>
       <AutoSizer>
         {({ width, height }) => (
           <Styled.VirtualizedList
@@ -94,6 +117,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                 },
               )
             }
+            ref={userItemsRef}
             noRowRenderer={() => <div>no users</div>}
             rowCount={count}
             height={height - 1}
@@ -105,7 +129,6 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
             })}
             overscanRowCount={10}
             rowHeight={50}
-            tabIndex={0}
           />
         )}
       </AutoSizer>
