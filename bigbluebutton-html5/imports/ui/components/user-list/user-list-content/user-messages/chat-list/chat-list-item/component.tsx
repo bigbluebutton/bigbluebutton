@@ -138,7 +138,7 @@ const ChatListItem = (props: ChatListItemProps) => {
           {isPublicGroupChat(chat)
             ? (
               <Styled.ChatThumbnail>
-                <Icon iconName="group_chat" className={undefined} prependIconName={undefined} rotate={undefined} />
+                <Icon iconName="group_chat" className={undefined} prependIconName={undefined} rotate={undefined} color={undefined} />
               </Styled.ChatThumbnail>
             ) : (
               <Styled.UserAvatar

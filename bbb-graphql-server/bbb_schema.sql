@@ -21,7 +21,7 @@ create table "meeting" (
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
 	"createdTime" bigint,
-	"duration" integer
+	"durationInSeconds" integer
 );
 create index "idx_meeting_extId" on "meeting"("extId");
 
@@ -73,7 +73,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_meeting_recording_trigger_trigger" BEFORE UPDATE OF "stoppedAt" ON "meeting_recording"
+CREATE TRIGGER "update_meeting_recording_trigger" BEFORE UPDATE OF "stoppedAt" ON "meeting_recording"
     FOR EACH ROW EXECUTE FUNCTION "update_meeting_recording_trigger_func"();
 
 
@@ -197,6 +197,13 @@ FROM "meeting_lockSettings"
 WHERE "hideUserList" IS FALSE;
 
 CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSettings"("meetingId") WHERE "hideUserList" IS FALSE;
+
+create table "meeting_clientSettings" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+    "clientSettingsJson"    jsonb
+);
+
+CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings";
 
 
 create table "meeting_group" (
@@ -342,7 +349,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
@@ -396,7 +403,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
@@ -444,7 +451,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
-    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
@@ -679,21 +686,22 @@ CREATE INDEX "idx_user_graphqlConnectionsessionToken" ON "user_graphqlConnection
 --FROM "user" u
 --LEFT JOIN "user_connectionStatus" uc ON uc."userId" = u."userId";
 
-CREATE TABLE "user_localSettings"(
-	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+CREATE TABLE "user_clientSettings"(
+	"userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
 	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-	"settingsJson" jsonb
+	"userClientSettingsJson" jsonb
 );
 
-CREATE INDEX "idx_user_local_settings_meetingId" ON "user_localSettings"("meetingId");
+CREATE INDEX "idx_user_clientSettings_meetingId" ON "user_clientSettings"("meetingId");
+CREATE INDEX "idx_user_clientSettings_userId" ON "user_clientSettings"("userId");
 
-create view "v_user_localSettings" as select * from "user_localSettings";
+create view "v_user_clientSettings" as select * from "user_clientSettings";
 
 
 CREATE TABLE "user_reaction" (
 	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 	"reactionEmoji" varchar(25),
-	"duration" integer not null,
+	"durationInSeconds" integer not null,
 	"createdAt" timestamp with time zone not null,
 	"expiresAt" timestamp with time zone
 );
@@ -701,7 +709,7 @@ CREATE TABLE "user_reaction" (
 --Set expiresAt on isert or update user_reaction
 CREATE OR REPLACE FUNCTION "update_user_reaction_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
-    NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."duration";
+    NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."durationInSeconds";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -712,7 +720,7 @@ CREATE TRIGGER "update_user_reaction_trigger" BEFORE UPDATE ON "user_reaction"
 CREATE TRIGGER "insert_user_reaction_trigger" BEFORE INSERT ON "user_reaction" FOR EACH ROW
 EXECUTE FUNCTION "update_user_reaction_trigger_func"();
 
---ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp with time zone GENERATED ALWAYS AS ("createdAt" + '1 seconds'::INTERVAL * "duration") STORED;
+--ALTER TABLE "user_reaction" ADD COLUMN "expiresAt" timestamp with time zone GENERATED ALWAYS AS ("createdAt" + '1 seconds'::INTERVAL * "durationInSeconds") STORED;
 
 CREATE INDEX "idx_user_reaction_userId_createdAt" ON "user_reaction"("userId", "expiresAt");
 
@@ -745,7 +753,8 @@ CREATE TABLE "chat_user" (
 	"meetingId" varchar(100),
 	"userId" varchar(50),
 	"lastSeenAt" timestamp with time zone,
-	"typingAt"   timestamp with time zone,
+	"startedTypingAt" timestamp with time zone,
+	"lastTypingAt" timestamp with time zone,
 	"visible" boolean,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
@@ -753,35 +762,52 @@ CREATE TABLE "chat_user" (
 
 CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("meetingId", "userId", "chatId") WHERE "visible" is true;
 
+
+--TRIGER startedTypingAt
+CREATE OR REPLACE FUNCTION "update_chat_user_startedTypingAt_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    NEW."startedTypingAt" := CASE WHEN NEW."lastTypingAt" IS NULL THEN NULL
+                                  WHEN OLD."lastTypingAt" IS NULL THEN NEW."lastTypingAt"
+                                  WHEN OLD."lastTypingAt" < NEW."lastTypingAt" - INTERVAL '5 seconds' THEN NEW."lastTypingAt"
+                                  ELSE OLD."startedTypingAt"
+                             END;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_chat_user_startedTypingAt_trigger" BEFORE UPDATE OF "lastTypingAt" ON "chat_user"
+    FOR EACH ROW EXECUTE FUNCTION "update_chat_user_startedTypingAt_trigger_func"();
+
+
 create view "v_chat_user" as select * from "chat_user";
 
-CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "typingAt")
+CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "lastTypingAt")
         WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "typingAt" is not null;
+        AND "lastTypingAt" is not null;
 
-CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "typingAt")
+CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "lastTypingAt")
         WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
         AND "visible" is true;
 
-CREATE INDEX "idx_chat_with_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "typingAt")
+CREATE INDEX "idx_chat_with_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "lastTypingAt")
         WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "typingAt" is not null;
+        AND "lastTypingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
-SELECT "meetingId", "chatId", "userId", "typingAt",
-CASE WHEN "typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+SELECT "meetingId", "chatId", "userId", "lastTypingAt", "startedTypingAt",
+CASE WHEN "lastTypingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
 FROM chat_user
 WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-AND "typingAt" is not null;
+AND "lastTypingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_private" AS
-SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."typingAt",
-CASE WHEN chat_with."typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."lastTypingAt", chat_with."startedTypingAt",
+CASE WHEN chat_with."lastTypingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
 FROM chat_user
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
 									AND chat_with."userId" != chat_user."userId"
 									AND chat_with."chatId" = chat_user."chatId"
-									AND chat_with."typingAt" is not null
+									AND chat_with."lastTypingAt" is not null
 WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
 AND chat_user."visible" is true;
 
@@ -802,17 +828,17 @@ CREATE TABLE "chat_message" (
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
 
-CREATE OR REPLACE FUNCTION "update_chatUser_clear_typingAt_trigger_func"() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
   UPDATE "chat_user"
-  SET "typingAt" = null
+  SET "lastTypingAt" = null
   WHERE "chatId" = NEW."chatId" AND "meetingId" = NEW."meetingId" AND "userId" = NEW."senderId";
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_chatUser_clear_typingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
-EXECUTE FUNCTION "update_chatUser_clear_typingAt_trigger_func"();
+CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
+EXECUTE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"();
 
 
 CREATE OR REPLACE VIEW "v_chat" AS
@@ -858,27 +884,36 @@ WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 CREATE TABLE "pres_presentation" (
 	"presentationId" varchar(100) PRIMARY KEY,
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"uploadUserId" varchar(100),
+    "uploadTemporaryId" varchar(100), --generated by UI
+    "uploadToken" varchar(100), --generated by Akka-apps, used for upload POST
 	"name" varchar(500),
 	"filenameConverted" varchar(500),
 	"isDefault" boolean,
 	"current" boolean,
-	"downloadable" boolean,
-	"downloadFileUri" varchar(500),
 	"removable" boolean,
-    "converting" boolean,
+	"downloadable" boolean,
+	"downloadFileExtension" varchar(25),
+	"downloadFileUri" varchar(500),
+    "uploadInProgress" boolean,
     "uploadCompleted" boolean,
-    "numPages" integer,
-    "errorMsgKey" varchar(100),
-    "errorDetails" TEXT
+    "uploadErrorMsgKey" varchar(100),
+    "uploadErrorDetailsJson" jsonb,
+    "totalPages" integer,
+    "exportToChatStatus" varchar(25),
+    "exportToChatCurrentPage" integer,
+    "exportToChatHasError" boolean,
+    "createdAt" timestamp with time zone DEFAULT now()
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
+CREATE INDEX "idx_pres_presentation_meetingId_uploadUserId" ON "pres_presentation"("meetingId","uploadUserId");
 
 CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
 	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
 	"num" integer,
-	"urls" TEXT,
+	"urlsJson" jsonb,
 	"content" TEXT,
 	"slideRevealed" boolean default false,
 	"current" boolean,
@@ -892,7 +927,7 @@ CREATE TABLE "pres_page" (
     "viewBoxHeight" NUMERIC,
     "maxImageWidth" integer,
     "maxImageHeight" integer,
-    "converted" boolean
+    "uploadCompleted" boolean
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
@@ -905,14 +940,28 @@ SELECT pres_presentation."meetingId",
 	pres_presentation."isDefault",
 	pres_presentation."current",
 	pres_presentation."downloadable",
+	pres_presentation."downloadFileExtension",
 	pres_presentation."downloadFileUri",
 	pres_presentation."removable",
-    pres_presentation."converting",
+    pres_presentation."uploadTemporaryId",
+    pres_presentation."uploadInProgress",
     pres_presentation."uploadCompleted",
-    pres_presentation."numPages",
-    pres_presentation."errorMsgKey",
-    pres_presentation."errorDetails",
-    (SELECT count(*) FROM pres_page WHERE pres_page."presentationId" = pres_presentation."presentationId" AND "converted" is true) as "pagesUploaded"
+    pres_presentation."totalPages",
+    (   SELECT count(*)
+        FROM pres_page
+        WHERE pres_page."presentationId" = pres_presentation."presentationId"
+        AND "uploadCompleted" is true
+    ) as "totalPagesUploaded",
+    pres_presentation."uploadErrorMsgKey",
+    pres_presentation."uploadErrorDetailsJson",
+    case when pres_presentation."exportToChatStatus" is not null
+                and pres_presentation."exportToChatStatus" != 'EXPORTED'
+                and pres_presentation."exportToChatHasError" is not true
+                then true else false end "exportToChatInProgress",
+    pres_presentation."exportToChatStatus",
+    pres_presentation."exportToChatCurrentPage",
+    pres_presentation."exportToChatHasError",
+    pres_presentation."createdAt"
    FROM pres_presentation;
 
 CREATE OR REPLACE VIEW public.v_pres_page AS
@@ -920,7 +969,7 @@ SELECT pres_presentation."meetingId",
 	pres_page."presentationId",
 	pres_page."pageId",
     pres_page.num,
-    pres_page.urls,
+    pres_page."urlsJson",
     pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
@@ -936,7 +985,7 @@ SELECT pres_presentation."meetingId",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
-    pres_page."converted"
+    pres_page."uploadCompleted"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
@@ -948,11 +997,12 @@ SELECT pres_presentation."meetingId",
     pres_presentation."filenameConverted" as "presentationFilenameConverted",
     pres_presentation."isDefault" as "isDefaultPresentation",
 	pres_presentation."downloadable",
+	case when pres_presentation."downloadable" then pres_presentation."downloadFileExtension" else null end "downloadFileExtension",
 	case when pres_presentation."downloadable" then pres_presentation."downloadFileUri" else null end "downloadFileUri",
     pres_presentation."removable",
-    pres_presentation."numPages",
+    pres_presentation."totalPages",
     pres_page.num,
-    pres_page.urls,
+    pres_page."urlsJson",
     pres_page.content,
     pres_page."slideRevealed",
     CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
@@ -1027,6 +1077,12 @@ FROM "pres_page_writers"
 JOIN "user" u ON u."userId" = "pres_page_writers"."userId"
 JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
 JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId" ;
+
+CREATE OR REPLACE VIEW "v_pres_presentation_uploadToken" AS
+SELECT "meetingId", "presentationId", "uploadUserId", "uploadTemporaryId", "uploadToken"
+FROM pres_presentation pp
+WHERE "uploadInProgress" IS FALSE
+AND "uploadCompleted" IS FALSE;
 
 ------------------------------------------------------------
 -- Triggers to automatically control "user" flag "hasDrawPermissionOnCurrentPage"
@@ -1467,3 +1523,35 @@ CREATE TABLE "layout" (
 
 CREATE VIEW "v_layout" AS
 SELECT * FROM "layout";
+
+
+--------------------------------
+---Plugins Data Channel
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE "pluginDataChannelMessage" (
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"pluginName" varchar(255),
+	"dataChannel" varchar(255),
+	"messageId" varchar(50) DEFAULT uuid_generate_v4(),
+	"payloadJson" jsonb,
+	"fromUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
+	"toUserIds" varchar[],
+	"createdAt" timestamp with time ZONE DEFAULT current_timestamp,
+	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId")
+);
+
+create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt");
+create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt");
+
+CREATE OR REPLACE VIEW "v_pluginDataChannelMessage" AS
+SELECT u."meetingId", u."userId", m."pluginName", m."dataChannel", m."messageId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
+FROM "user" u
+JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
+			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)
+				OR u."userId" = ANY(m."toUserIds")
+				OR u."role" = ANY(m."toRoles")
+				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
+				)
+ORDER BY m."createdAt";

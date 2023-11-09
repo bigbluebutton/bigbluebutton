@@ -86,11 +86,11 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildPresentationUploadTokenSysPubMsg(parentId: String, userId: String, presentationUploadToken: String, filename: String): BbbCommonEnvCoreMsg = {
+  def buildPresentationUploadTokenSysPubMsg(parentMeetingId: String, userId: String, presentationUploadToken: String, filename: String, presId: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
-    val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentId, userId)
-    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentId)
+    val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentMeetingId, userId)
+    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId)
     val event = PresentationUploadTokenSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -206,9 +206,10 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
     val filename = m.filename
     val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+    val presentationId = PresentationPodsApp.generatePresentationId(m.filename)
 
     // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
-    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
+    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename, presentationId))
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
       log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
@@ -259,11 +260,12 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       )
       ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
     } else if (m.body.fileStateType == "Converted") {
-      PresPresentationDAO.updatDownloadUri(m.body.presId, m.body.convertedFileURI)
+      PresPresentationDAO.updateDownloadUri(m.body.presId, m.body.convertedFileURI)
     } else if (m.body.fileStateType == "Original") {
-      PresPresentationDAO.updatDownloadUri(m.body.presId, m.body.originalFileURI)
+      PresPresentationDAO.updateDownloadUri(m.body.presId, m.body.originalFileURI)
     }
 
+    PresPresentationDAO.updateExportToChatStatus(m.body.presId, "EXPORTED")
     bus.outGW.send(buildBroadcastNewPresFileAvailable(m, liveMeeting))
   }
 
@@ -279,6 +281,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   }
 
   def handle(m: PresAnnStatusMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    PresPresentationDAO.updateExportToChat(m.body.presId, m.body.status, m.body.pageNumber, m.body.error)
     bus.outGW.send(buildBroadcastPresAnnStatusMsg(m, liveMeeting))
   }
 
@@ -288,8 +291,9 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     val jobId: String = s"${m.body.breakoutId}-notes" // Used as the temporaryPresentationId upon upload
     val filename = m.body.filename
     val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+    val presentationId = PresentationPodsApp.generatePresentationId(m.body.filename)
 
-    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
+    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename, presentationId))
 
     val exportJob = new ExportJob(jobId, JobTypes.CAPTURE_NOTES, filename, m.body.padId, "", true, List(), m.body.parentMeetingId, presentationUploadToken)
     val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)

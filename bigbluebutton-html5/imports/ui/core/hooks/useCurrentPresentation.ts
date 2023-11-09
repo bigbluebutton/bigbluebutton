@@ -3,7 +3,7 @@ import CURRENT_PRESENTATION_SUBSCRIPTION from '../graphql/queries/currentPresent
 import { CurrentPresentation } from '../../Types/presentation';
 
 const useCurrentPresentationSubscription = createUseSubscription<Partial<CurrentPresentation>>(
-  CURRENT_PRESENTATION_SUBSCRIPTION, false,
+  CURRENT_PRESENTATION_SUBSCRIPTION,
 );
 
 const useCurrentPresentation = (fn: (c: Partial<CurrentPresentation>) => Partial<CurrentPresentation>) => {

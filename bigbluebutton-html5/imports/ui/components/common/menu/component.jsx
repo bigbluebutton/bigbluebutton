@@ -101,7 +101,8 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji, intl, isHorizontal, isMobile, roundButtons, keepOpen } = this.props;
 
     return actions?.map(a => {
-      const { dataTest, label, onClick, key, disabled, description, selected } = a;
+      const { dataTest, label, onClick, key, disabled,
+        description, selected, textColor } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -117,7 +118,7 @@ class BBBMenu extends React.Component {
         customStyles = { ...customStyles, ...a.customStyles };
       }
       return [
-        !a.isSeparator && (
+        (!a.isSeparator && onClick) && (
           <Styled.BBBMenuItem
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
@@ -142,6 +143,17 @@ class BBBMenu extends React.Component {
               {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuItem>
+        ),
+        (!onClick && !a.isSeparator) && (
+          <Styled.BBBMenuInformation
+            key={a.key}
+          >
+            <Styled.MenuItemWrapper>
+              {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
+              <Styled.Option textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+              {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
+            </Styled.MenuItemWrapper>
+          </Styled.BBBMenuInformation>
         ),
         a.isSeparator && <Divider disabled />
       ];

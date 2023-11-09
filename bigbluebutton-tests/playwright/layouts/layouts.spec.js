@@ -26,8 +26,8 @@ test.describe("Layout management", () => {
     await layouts.focusOnPresentation();
   });
 
-  test("Focus on video", async () => {
-    await layouts.focusOnVideo();
+  test("Grid Layout", async () => {
+    await layouts.gridLayout();
   });
 
   test("Smart layout", async () => {

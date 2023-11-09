@@ -34,7 +34,7 @@ object PresAnnotationHistoryDAO {
           annotationId = annotationDiff.id,
           pageId = annotationDiff.wbId,
           userId = annotationDiff.userId,
-          annotationInfo = JsonUtils.mapToJson(annotationDiff.annotationInfo)
+          annotationInfo = JsonUtils.mapToJson(annotationDiff.annotationInfo).compactPrint
         )
     )
   }
