@@ -37,6 +37,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
   },
+  userAway: {
+    id: 'app.chat.away',
+    description: 'message when user is away'
+  },
+  userNotAway: {
+    id: 'app.chat.notAway',
+    description: 'message when user is no longer away'
+  },
 });
 
 function isInViewport(el: HTMLDivElement) {
@@ -137,7 +145,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             />
           ),
         };
-      case ChatMessageType.SYSTEM:
+      case ChatMessageType.USER_AWAY_STATUS_MSG:
+        const {user, away} = JSON.parse(message.messageMetadata)
         return {
           name: intl.formatMessage(intlMessages.systemLabel),
           color: '#0F70D7',
@@ -145,7 +154,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           component: (
             <ChatMessageTextContent
               emphasizedMessage
-              text={message.message}
+              text={user + " " + ((away) ? intl.formatMessage(intlMessages.userAway) : intl.formatMessage(intlMessages.userNotAway))}
             />
           ),
         };

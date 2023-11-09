@@ -12,5 +12,5 @@ export const enum ChatMessageType {
   PRESENTATION = 'presentation',
   CHAT_CLEAR = 'publicChatHistoryCleared',
   BREAKOUT_ROOM = 'breakoutRoomModeratorMsg',
-  SYSTEM = 'system'
+  USER_AWAY_STATUS_MSG = "userAwayStatusMsg"
 }
