@@ -14,6 +14,9 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -76,12 +79,26 @@ public class ValidationService {
 
         if(request == null) {
             violations.put("validationError", "Request not recognized");
+        } else if(params.containsKey("presentationUploadExternalUrl")) {
+            String urlToValidate = params.get("presentationUploadExternalUrl")[0];
+            if(!this.isValidURL(urlToValidate)) {
+                violations.put("validationError", "Param 'presentationUploadExternalUrl' is not a valid URL");
+            }
         } else {
             request.populateFromParamsMap(params);
             violations = performValidation(request);
         }
 
         return violations;
+    }
+
+    boolean isValidURL(String url) {
+        try {
+            new URL(url).toURI();
+            return true;
+        } catch (MalformedURLException | URISyntaxException e) {
+            return false;
+        }
     }
 
     private Request initializeRequest(ApiCall apiCall, Map<String, String[]> params, String queryString) {
