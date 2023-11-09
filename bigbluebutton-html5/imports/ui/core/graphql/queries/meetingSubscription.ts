@@ -74,6 +74,16 @@ const MEETING_SUBSCRIPTION = gql`
           voiceConf
           telVoice
         }
+        externalVideo {
+          externalVideoId
+          playerCurrentTime
+          playerPlaybackRate
+          playerPlaying
+          externalVideoUrl
+          startedSharingAt
+          stoppedSharingAt
+          updatedAt
+        }
       }
   }
 `;
