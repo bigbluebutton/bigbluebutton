@@ -31,6 +31,7 @@ const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 const MIN_BREAKOUT_TIME = 5;
+const DEFAULT_BREAKOUT_TIME = 15;
 
 interface CreateBreakoutRoomContainerProps {
   isOpen: boolean
@@ -233,7 +234,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const [captureNotes, setCaptureNotes] = React.useState(false);
   const [inviteMods, setInviteMods] = React.useState(false);
   const [numberOfRooms, setNumberOfRooms] = React.useState(MIN_BREAKOUT_ROOMS);
-  const [durationTime, setDurationTime] = React.useState(MIN_BREAKOUT_TIME);
+  const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
 
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
@@ -282,7 +283,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           captureNotesFilename: `${defaultName.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureNotesType)}`,
           captureSlidesFilename: `${defaultName.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureSlidesType)}`,
           isDefaultName: true,
-          freeJoin: false,
+          freeJoin,
           shortName: defaultName,
           users: [],
         });
