@@ -148,12 +148,12 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleSkipToSlideChange(event) {
-    const { skipToSlide, podId } = this.props;
+    const { skipToSlide } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    skipToSlide(requestedSlideNum, podId);
+    skipToSlide(requestedSlideNum);
   }
 
   handleSwitchWhiteboardMode() {
@@ -193,24 +193,24 @@ class PresentationToolbar extends PureComponent {
 
   nextSlideHandler(event) {
     const {
-      nextSlide, currentSlideNum, numberOfSlides, podId, endCurrentPoll
+      nextSlide, currentSlideNum, numberOfSlides, endCurrentPoll
     } = this.props;
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
-    nextSlide(currentSlideNum, numberOfSlides, podId);
+    nextSlide(currentSlideNum, numberOfSlides);
   }
 
   previousSlideHandler(event) {
     const {
-      previousSlide, currentSlideNum, podId, endCurrentPoll
+      previousSlide, currentSlideNum, endCurrentPoll
     } = this.props;
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
-    previousSlide(currentSlideNum, podId);
+    previousSlide(currentSlideNum);
   }
 
   switchSlide(event) {
@@ -340,8 +340,6 @@ class PresentationToolbar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       amIPresenter,
-      currentSlidHasContent,
-      parseCurrentSlideContent,
       startPoll,
       currentSlide,
       slidePosition,
@@ -374,10 +372,8 @@ class PresentationToolbar extends PureComponent {
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{
-                currentSlidHasContent,
                 intl,
                 amIPresenter,
-                parseCurrentSlideContent,
                 startPoll,
                 currentSlide,
               }}
@@ -515,8 +511,6 @@ class PresentationToolbar extends PureComponent {
 }
 
 PresentationToolbar.propTypes = {
-  // The Id for the current pod. Should always be default pod
-  podId: PropTypes.string.isRequired,
   // Number of current slide being displayed
   currentSlideNum: PropTypes.number.isRequired,
   // Total number of slides in this presentation
@@ -546,8 +540,6 @@ PresentationToolbar.propTypes = {
   handleToggleFullScreen: PropTypes.func.isRequired,
   isPollingEnabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  currentSlidHasContent: PropTypes.bool.isRequired,
-  parseCurrentSlideContent: PropTypes.func.isRequired,
   startPoll: PropTypes.func.isRequired,
   currentSlide: PropTypes.shape().isRequired,
   slidePosition: PropTypes.shape().isRequired,

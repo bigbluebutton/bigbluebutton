@@ -1,5 +1,4 @@
 import { check } from 'meteor/check';
-import AnnotationsStreamer from '/imports/api/annotations/server/streamer';
 import addAnnotation from '../modifiers/addAnnotation';
 import Metrics from '/imports/startup/server/metrics';
 
@@ -19,7 +18,6 @@ const process = () => {
   }
   annotationsRecieverIsRunning = true;
   Object.keys(annotationsQueue).forEach((meetingId) => {
-    AnnotationsStreamer(meetingId).emit('added', { meetingId, annotations: annotationsQueue[meetingId] });
     if (queueMetrics) {
       Metrics.setAnnotationQueueLength(meetingId, 0);
     }
