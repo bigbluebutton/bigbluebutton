@@ -39,11 +39,11 @@ const intlMessages = defineMessages({
   },
   userAway: {
     id: 'app.chat.away',
-    description: 'message when user is away'
+    description: 'message when user is away',
   },
   userNotAway: {
     id: 'app.chat.notAway',
-    description: 'message when user is no longer away'
+    description: 'message when user is no longer away',
   },
 });
 
@@ -145,19 +145,20 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             />
           ),
         };
-      case ChatMessageType.USER_AWAY_STATUS_MSG:
-        const {user, away} = JSON.parse(message.messageMetadata)
+      case ChatMessageType.USER_AWAY_STATUS_MSG: {
+        const { away } = JSON.parse(message.messageMetadata);
         return {
-          name: intl.formatMessage(intlMessages.systemLabel),
+          name: message.senderName,
           color: '#0F70D7',
           isModerator: true,
           component: (
             <ChatMessageTextContent
               emphasizedMessage
-              text={user + " " + ((away) ? intl.formatMessage(intlMessages.userAway) : intl.formatMessage(intlMessages.userNotAway))}
+              text={(away) ? intl.formatMessage(intlMessages.userAway) : intl.formatMessage(intlMessages.userNotAway)}
             />
           ),
         };
+      }  
       case ChatMessageType.TEXT:
       default:
         return {

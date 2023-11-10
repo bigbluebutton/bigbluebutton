@@ -35,6 +35,8 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
       newUserState <- Users2x.setUserAway(liveMeeting.users2x, user.intId, msg.body.away)
+      if !liveMeeting.props.lockSettingsProps.disablePublicChat
+      if (user.away && !msg.body.away) || (!user.away && msg.body.away)
     } yield {
       if (msg.body.away && user.emoji == "") {
         Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "away")
@@ -47,11 +49,10 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
       }
 
       val msgMeta = Map(
-        "user" -> user.name,
         "away" -> msg.body.away
       )
 
-      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_AWAY_STATUS_MSG, msgMeta, "")
+      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_AWAY_STATUS_MSG, msgMeta, user.name)
 
       broadcast(newUserState, msg.body.away)
     }
