@@ -92,7 +92,9 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 
   React.useEffect(() => {
     const firstChild = (selectedUser as HTMLElement)?.firstChild;
-    if (firstChild && firstChild instanceof HTMLElement) firstChild.focus();
+
+    const fourthChild = firstChild?.firstChild?.firstChild?.firstChild;
+    if (fourthChild && fourthChild instanceof HTMLElement) fourthChild.focus();
   }, [selectedUser]);
 
   const rove = (event: React.KeyboardEvent) => {
