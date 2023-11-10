@@ -496,7 +496,13 @@ class Presentation extends PureComponent {
   }
 
   zoomChanger(zoom) {
-    this.setState({ zoom });
+    let boundZoom = parseInt(zoom);
+    if (boundZoom < HUNDRED_PERCENT) {
+      boundZoom = HUNDRED_PERCENT
+    } else if (boundZoom > MAX_PERCENT) {
+      boundZoom = MAX_PERCENT
+    }
+    this.setState({ zoom: boundZoom });
   }
 
   fitToWidthHandler() {
