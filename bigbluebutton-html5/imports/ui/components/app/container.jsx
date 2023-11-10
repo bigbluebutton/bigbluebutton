@@ -281,6 +281,11 @@ export default withTracker(() => {
 
   const isPresenter = currentUser?.presenter;
 
+  const transcriptionSettings = {
+    partialUtterances: getFromUserSettings('bbb_transcription_partial_utterances'),
+    minUtteranceLength: getFromUserSettings('bbb_transcription_min_utterance_length'),
+  };
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     audioCaptions: AudioCaptionsService.getAudioCaptions() ? <AudioCaptionsLiveContainer /> : null,
@@ -325,5 +330,6 @@ export default withTracker(() => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
     isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
+    transcriptionSettings,
   };
 })(AppContainer);

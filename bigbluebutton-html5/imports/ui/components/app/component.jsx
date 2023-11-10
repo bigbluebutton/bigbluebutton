@@ -52,6 +52,7 @@ import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
 import TimerService from '/imports/ui/components/timer/service';
+import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -171,6 +172,7 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
+      transcriptionSettings,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -230,6 +232,14 @@ class App extends Component {
       TimerService.fetchTimeOffset();
       this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
         TimerService.OFFSET_INTERVAL);
+    }
+
+    if (transcriptionSettings) {
+      const { partialUtterances, minUtteranceLength } = transcriptionSettings;
+      if (partialUtterances || minUtteranceLength) {
+        logger.info({ logCode: 'app_component_set_speech_options' }, 'Setting initial speech options');
+        SpeechService.setSpeechOptions(partialUtterances ? true : false, parseInt(minUtteranceLength));
+      }
     }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');

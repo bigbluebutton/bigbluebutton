@@ -65,6 +65,9 @@ const currentParameters = [
   'bbb_hide_nav_bar',
   'bbb_change_layout',
   'bbb_direct_leave_button',
+  // TRANSCRIPTION
+  'bbb_transcription_partial_utterances',
+  'bbb_transcription_min_utterance_length',
 ];
 
 function valueParser(val) {
