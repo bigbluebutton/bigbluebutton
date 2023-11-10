@@ -23,6 +23,9 @@ const DropdownTrigger = styled(DivElipsis)`
     content: "\\203a";
     position: absolute;
     transform: rotate(90deg);
+    ${({ isRTL }) => isRTL && `
+      transform: rotate(-90deg);
+    `}
     top: 45%;
     width: 0;
     line-height: 0;
