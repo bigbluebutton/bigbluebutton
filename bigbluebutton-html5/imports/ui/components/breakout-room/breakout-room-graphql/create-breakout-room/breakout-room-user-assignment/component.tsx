@@ -294,7 +294,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
           >
             {roomUserList(0)}
           </Styled.BreakoutBox>
-          <Styled.SpanWarn data-test="warningNoUserAssigned" valid>
+          <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length}>
             {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
           </Styled.SpanWarn>
         </Styled.Alert>
@@ -314,6 +314,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                       changeRoomName(value, e.target.value);
                     }}
+                    data-test={getRoomName(value).length === 0 ? `room-error-${value}` : `roomName-${value}`}
                   />
                   <div aria-hidden id={`room-input-${value}`} className="sr-only">
                     {intl.formatMessage(intlMessages.roomNameInputDesc)}
@@ -329,12 +330,12 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                   {roomUserList(value)}
                 </Styled.BreakoutBox>
                 {hasNameDuplicated(value) ? (
-                  <Styled.SpanWarn valid={false}>
+                  <Styled.SpanWarn valid>
                     {intl.formatMessage(intlMessages.roomNameDuplicatedIsValid)}
                   </Styled.SpanWarn>
                 ) : null}
                 {getRoomName(value).length === 0 ? (
-                  <Styled.SpanWarn valid={false} aria-hidden id={`room-error-${value}`}>
+                  <Styled.SpanWarn valid aria-hidden id={`room-error-${value}`}>
                     {intl.formatMessage(intlMessages.roomNameEmptyIsValid)}
                   </Styled.SpanWarn>
                 ) : null}
