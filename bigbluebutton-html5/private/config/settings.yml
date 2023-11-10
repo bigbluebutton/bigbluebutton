@@ -238,6 +238,9 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
+      transcription:
+        partialUtterances: true
+        minUtteranceLength: 3
     shortcuts:
       openOptions:
         accesskey: O
