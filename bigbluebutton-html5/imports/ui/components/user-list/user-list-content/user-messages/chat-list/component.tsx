@@ -1,4 +1,5 @@
 import React from 'react';
+import { FetchResult } from '@apollo/client';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { defineMessages, useIntl } from 'react-intl';
 import { findDOMNode } from 'react-dom';
@@ -81,10 +82,12 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
 };
 
 const ChatListContainer: React.FC = () => {
-  const chats = useChat((chat) => chat) as Chat[];
-  return (
-    <ChatList chats={chats} />
-  );
+  const { data: chats } = useChat((chat) => chat) as FetchResult<Chat[]>;
+  if (chats) {
+    return (
+      <ChatList chats={chats} />
+    );
+  } return <></>;
 };
 
 export default ChatListContainer;

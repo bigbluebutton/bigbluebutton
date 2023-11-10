@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSubscription } from '@apollo/client';
+import { FetchResult, useSubscription } from '@apollo/client';
 import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
@@ -111,7 +111,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
 const TypingIndicatorContainer: React.FC = () => {
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const intl = useIntl();
-  const currentUser = useCurrentUser((user: Partial<User>) => {
+  const { data: currentUser } = useCurrentUser((user: Partial<User>) => {
     return {
       userId: user.userId,
       isModerator: user.isModerator,
@@ -120,15 +120,15 @@ const TypingIndicatorContainer: React.FC = () => {
   });
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:currentUser', currentUser);
-  const chat = useChat((c) => {
+  const { data: chat } = useChat((c) => {
     return {
       participant: c?.participant,
       chatId: c?.chatId,
       public: c?.public,
     };
-  }, idChatOpen) as Partial<Chat>;
+  }, idChatOpen) as FetchResult<Chat>;
 
-  const meeting = useMeeting((m) => ({
+  const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
   }));
 

@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { makeVar, useMutation } from '@apollo/client';
+import { FetchResult, makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import LAST_SEEN_MUTATION from './queries';
 import {
@@ -316,14 +316,14 @@ const ChatMessageListContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
-  const currentChat = useChat((chat) => {
+  const { data: currentChat } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       totalMessages: chat.totalMessages,
       totalUnread: chat.totalUnread,
       lastSeenAt: chat.lastSeenAt,
     };
-  }, chatId) as Partial<Chat>;
+  }, chatId) as FetchResult<Partial<Chat>>;
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);
 

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
+import { FetchResult } from '@apollo/client';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
@@ -76,22 +77,24 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
 
-  const useChatMessageSubscription = useCreateUseSubscription<Partial<Message>>(chatQuery, variables, true);
-  const chatMessageData = useChatMessageSubscription((msg) => msg) as Array<Message>;
+  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
+  const { data: chatMessageData } = useChatMessageSubscription((msg) => msg) as FetchResult<Message[]>;
 
-  if (chatMessageData.length > 0) {
-    setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
-  }
+  if (chatMessageData) {
+    if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
+      setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
+    }
 
-  return (
-    <ChatListPage
-      messages={chatMessageData}
-      lastSenderPreviousPage={lastSenderPreviousPage}
-      page={page}
-      markMessageAsSeen={markMessageAsSeen}
-      scrollRef={scrollRef}
-    />
-  );
+    return (
+      <ChatListPage
+        messages={chatMessageData}
+        lastSenderPreviousPage={lastSenderPreviousPage}
+        page={page}
+        markMessageAsSeen={markMessageAsSeen}
+        scrollRef={scrollRef}
+      />
+    );
+  } return (<></>);
 };
 
 export default ChatListPageContainer;

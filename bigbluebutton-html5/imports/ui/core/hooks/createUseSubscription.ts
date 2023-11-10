@@ -1,9 +1,8 @@
-import { TypedQueryDocumentNode, DocumentNode } from 'graphql';
+import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
-
-import { gql, useApolloClient } from '@apollo/client';
+import { FetchResult, gql, useApolloClient } from '@apollo/client';
 import R from 'ramda';
 import { applyPatch } from 'fast-json-patch';
 
@@ -12,10 +11,12 @@ function createUseSubscription<T>(
   queryVariables = {},
   usePatchedSubscription = false,
 ) {
-  return function useGeneratedUseSubscription(projectionFunction: (element: Partial<T>) => void): Array<Partial<T>> {
+  return function useGeneratedUseSubscription(
+    projectionFunction: (element: Partial<T>) => Partial<T>,
+  ): FetchResult<Array<Partial<T>>> {
     const client = useApolloClient();
-    const [projectedData, setProjectedData] = useState<Array<T>>([]);
-    const oldProjectionOfDataRef = useRef<Array<T>>([]);
+    const [projectedData, setProjectedData] = useState<FetchResult<Partial<T>[]>>({});
+    const oldProjectionOfDataRef = useRef<Partial<T>[]>([]);
     const dataRef = useRef<Array<T>>([]);
     let newSubscriptionGQL = query;
     if (usePatchedSubscription) {
@@ -46,8 +47,9 @@ function createUseSubscription<T>(
           fetchPolicy: usePatchedSubscription ? 'no-cache' : undefined,
         })
         .subscribe({
-          next({ data }) {
-            let currentData = [];
+          next(response) {
+            const { data } = response;
+            let currentData: T[] = [];
             if (usePatchedSubscription && data.patch) {
               const patchedData = applyPatch(dataRef.current, data.patch).newDocument;
               currentData = [...patchedData];
@@ -61,8 +63,12 @@ function createUseSubscription<T>(
 
             const newProjectionOfData = currentData.map((element: Partial<T>) => projectionFunction(element));
             if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData)) {
+              const objectFromProjectionToSave: FetchResult<Partial<T>[]> = {
+                ...response,
+              };
+              objectFromProjectionToSave.data = newProjectionOfData;
               oldProjectionOfDataRef.current = newProjectionOfData;
-              setProjectedData(newProjectionOfData);
+              setProjectedData(objectFromProjectionToSave);
             }
           },
           error(err) {

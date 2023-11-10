@@ -1,4 +1,5 @@
 import React from 'react';
+import { FetchResult } from '@apollo/client';
 import ChatHeader from './chat-header/component';
 import { layoutSelect, layoutSelectInput } from '../../layout/context';
 import { Input, Layout } from '../../layout/layoutTypes';
@@ -43,16 +44,16 @@ const ChatContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
-  const chats = useChat((chat) => {
+  const { data: chats } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       participant: chat.participant,
     };
-  }) as Partial<ChatType>[];
+  }) as FetchResult<Partial<ChatType>[]>;
 
   const [pendingChat, setPendingChat] = usePendingChat();
 
-  if (pendingChat) {
+  if (pendingChat && chats) {
     const chat = chats.find((c) => {
       return c.participant?.userId === pendingChat;
     });
