@@ -1,5 +1,4 @@
 import React from 'react';
-import { FetchResult } from '@apollo/client';
 import ChatHeader from './chat-header/component';
 import { layoutSelect, layoutSelectInput } from '../../layout/context';
 import { Input, Layout } from '../../layout/layoutTypes';
@@ -14,6 +13,7 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import browserInfo from '/imports/utils/browserInfo';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface ChatProps {
 
@@ -49,7 +49,7 @@ const ChatContainer: React.FC = () => {
       chatId: chat.chatId,
       participant: chat.participant,
     };
-  }) as FetchResult<Partial<ChatType>[]>;
+  }) as GraphqlDataHookSubscriptionResponse<Partial<ChatType>[]>;
 
   const [pendingChat, setPendingChat] = usePendingChat();
 

@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { FetchResult, makeVar, useMutation } from '@apollo/client';
+import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import LAST_SEEN_MUTATION from './queries';
 import {
@@ -23,6 +23,7 @@ import { Message } from '/imports/ui/Types/message';
 import ChatPopupContainer from '../chat-popup/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { Layout } from '../../../layout/layoutTypes';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -323,7 +324,7 @@ const ChatMessageListContainer: React.FC = () => {
       totalUnread: chat.totalUnread,
       lastSeenAt: chat.lastSeenAt,
     };
-  }, chatId) as FetchResult<Partial<Chat>>;
+  }, chatId) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);
 

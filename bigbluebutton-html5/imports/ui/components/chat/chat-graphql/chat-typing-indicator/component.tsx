@@ -1,5 +1,5 @@
 import React from 'react';
-import { FetchResult, useSubscription } from '@apollo/client';
+import { useSubscription } from '@apollo/client';
 import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
@@ -18,6 +18,7 @@ import { Layout } from '../../../layout/layoutTypes';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Chat } from '/imports/ui/Types/chat';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 const DEBUG_CONSOLE = false;
 
@@ -126,7 +127,7 @@ const TypingIndicatorContainer: React.FC = () => {
       chatId: c?.chatId,
       public: c?.public,
     };
-  }, idChatOpen) as FetchResult<Chat>;
+  }, idChatOpen) as GraphqlDataHookSubscriptionResponse<Chat>;
 
   const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,

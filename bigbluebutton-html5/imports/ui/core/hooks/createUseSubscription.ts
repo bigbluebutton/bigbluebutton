@@ -2,9 +2,10 @@ import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
-import { FetchResult, gql, useApolloClient } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
 import R from 'ramda';
 import { applyPatch } from 'fast-json-patch';
+import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 
 function createUseSubscription<T>(
   query: DocumentNode | TypedQueryDocumentNode,
@@ -13,9 +14,12 @@ function createUseSubscription<T>(
 ) {
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T>,
-  ): FetchResult<Array<Partial<T>>> {
+  ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
     const client = useApolloClient();
-    const [projectedData, setProjectedData] = useState<FetchResult<Partial<T>[]>>({});
+    const [
+      projectedData,
+      setProjectedData,
+    ] = useState<GraphqlDataHookSubscriptionResponse<Partial<T>[]>>({ loading: true });
     const oldProjectionOfDataRef = useRef<Partial<T>[]>([]);
     const dataRef = useRef<Array<T>>([]);
     let newSubscriptionGQL = query;
@@ -63,8 +67,10 @@ function createUseSubscription<T>(
 
             const newProjectionOfData = currentData.map((element: Partial<T>) => projectionFunction(element));
             if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData)) {
-              const objectFromProjectionToSave: FetchResult<Partial<T>[]> = {
+              const loading = response.data === undefined && response.errors === undefined;
+              const objectFromProjectionToSave: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
                 ...response,
+                loading,
               };
               objectFromProjectionToSave.data = newProjectionOfData;
               oldProjectionOfDataRef.current = newProjectionOfData;

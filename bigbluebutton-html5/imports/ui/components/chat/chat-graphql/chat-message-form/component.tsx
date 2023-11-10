@@ -27,10 +27,11 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { FetchResult, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { SEND_GROUP_CHAT_MSG } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -398,7 +399,7 @@ const ChatMessageFormContainer: React.FC = ({
     participant: c?.participant,
     chatId: c?.chatId,
     public: c?.public,
-  }), idChatOpen) as FetchResult<Partial<Chat>>;
+  }), idChatOpen) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
 
   const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,

@@ -1,5 +1,4 @@
 import React from 'react';
-import { FetchResult } from '@apollo/client';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { defineMessages, useIntl } from 'react-intl';
 import { findDOMNode } from 'react-dom';
@@ -8,6 +7,7 @@ import ChatListItem from './chat-list-item/component';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import Service from '/imports/ui/components/user-list/service';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -82,7 +82,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
 };
 
 const ChatListContainer: React.FC = () => {
-  const { data: chats } = useChat((chat) => chat) as FetchResult<Chat[]>;
+  const { data: chats } = useChat((chat) => chat) as GraphqlDataHookSubscriptionResponse<Chat[]>;
   if (chats) {
     return (
       <ChatList chats={chats} />
