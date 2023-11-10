@@ -36,6 +36,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.button.language',
     description: 'Audio speech recognition language label',
   },
+  autoDetect: {
+    id: 'app.audio.captions.button.autoDetect',
+    description: 'Audio speech recognition language auto detect',
+  },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
     description: 'Audio speech recognition german language',
@@ -133,7 +137,7 @@ const CaptionsButton = ({
         iconRight: selectedLocale.current === availableVoice ? 'check' : null,
         customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
         disabled: isTranscriptionDisabled(),
-        dividerTop: availableVoice === availableVoices[0],
+        dividerTop: false,
         onClick: () => {
           selectedLocale.current = availableVoice;
           SpeechService.setSpeechLocale(selectedLocale.current);
@@ -141,6 +145,20 @@ const CaptionsButton = ({
       }
     ))
   );
+
+  const autoLanguage = SpeechService.isGladia() ? {
+    icon: '',
+    label: intl.formatMessage(intlMessages.autoDetect),
+    key: 'auto',
+    iconRight: selectedLocale.current === 'auto' ? 'check' : null,
+    customStyles: (selectedLocale.current === 'auto') && Styled.SelectedLabel,
+    disabled: isTranscriptionDisabled(),
+    dividerTop: true,
+    onClick: () => {
+      selectedLocale.current = 'auto';
+      SpeechService.setSpeechLocale(selectedLocale.current);
+    },
+  } : undefined;
 
   const toggleTranscription = () => {
     SpeechService.setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED);
@@ -154,6 +172,7 @@ const CaptionsButton = ({
       disabled: true,
       dividerTop: false,
     },
+    autoLanguage,
     ...getAvailableLocales(),
     {
       key: 'divider',
@@ -172,7 +191,7 @@ const CaptionsButton = ({
       disabled: false,
       dividerTop: true,
       onClick: toggleTranscription,
-    }]
+    }].filter((e) => e) // filter undefined elements because of 'autoLanguage'
   );
 
   const onToggleClick = (e) => {
