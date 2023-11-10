@@ -230,6 +230,8 @@ CREATE TABLE "user" (
     "sessionToken" varchar(16),
     "authed" bool,
     "joined" bool,
+    "joinErrorCode" varchar(50),
+    "joinErrorMessage" varchar(400),
     "banned" bool,
     "loggedOut" bool,  -- when user clicked Leave meeting button
     "guest" bool, --used for dialIn
@@ -392,6 +394,8 @@ AS SELECT "user"."userId",
     "user"."role",
     "user"."authed",
     "user"."joined",
+    "user"."joinErrorCode",
+    "user"."joinErrorMessage",
     "user"."disconnected",
     "user"."expired",
     "user"."ejected",

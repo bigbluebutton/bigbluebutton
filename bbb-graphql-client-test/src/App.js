@@ -30,6 +30,7 @@ function App() {
   const [sessionToken, setSessionToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [userAuthToken, setUserAuthToken] = useState(null);
   const [graphqlClient, setGraphqlClient] = useState(null);
   const [enterApiResponse, setEnterApiResponse] = useState('');
 
@@ -46,6 +47,7 @@ function App() {
           if(json?.response?.internalUserID) {
             setUserId(json.response.internalUserID);
             setUserName(json.response.fullname);
+            setUserAuthToken(json.response.authToken);
           }
         });
   }
@@ -110,7 +112,7 @@ function App() {
             <br />
             <PluginDataChannel userId={userId} />
             <br />
-            <MyInfo />
+            <MyInfo userAuthToken={userAuthToken} />
             <br />
             <PresPresentationUploadToken />
             <br />

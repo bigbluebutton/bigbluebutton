@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.InternalEventBus
+import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, OutMsgRouter }
@@ -15,103 +16,79 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   val eventBus: InternalEventBus
 
   def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg, state: MeetingState2x): MeetingState2x = {
-    log.debug("RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
+    log.debug(s"Received ValidateAuthTokenReqMsg msg $msg")
 
-    var failReason = "Invalid auth token."
-    var failReasonCode = EjectReasonCode.VALIDATE_TOKEN
+    val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers)
+    log.info(s"Number of registered users [${RegisteredUsers.numRegisteredUsers(liveMeeting.registeredUsers)}]")
 
-    log.info("Number of registered users [{}]", RegisteredUsers.numRegisteredUsers(liveMeeting.registeredUsers))
-    val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId,
-      liveMeeting.registeredUsers)
-    regUser match {
-      case Some(u) =>
-        // Check if maxParticipants has been reached
-        // User are able to reenter if he already joined previously with the same extId
-        val hasReachedMaxParticipants = liveMeeting.props.usersProp.maxUsers > 0 &&
-          RegisteredUsers.numUniqueJoinedUsers(liveMeeting.registeredUsers) >= liveMeeting.props.usersProp.maxUsers &&
-          RegisteredUsers.checkUserExtIdHasJoined(u.externId, liveMeeting.registeredUsers) == false
+    regUser.fold {
+      sendFailedValidateAuthTokenRespMsg(msg, "Invalid auth token.", EjectReasonCode.VALIDATE_TOKEN)
+    } { user =>
+      val validationResult = for {
+        _ <- checkIfUserGuestStatusIsAllowed(user)
+        _ <- checkIfUserIsBanned(user)
+        _ <- checkIfUserLoggedOut(user)
+        _ <- validateMaxParticipants(user)
+      } yield user
 
-        // Check if banned user is rejoining.
-        // Fail validation if ejected user is rejoining.
-        // ralam april 21, 2020
-        if (u.guestStatus == GuestStatus.ALLOW && !u.banned && !u.loggedOut && !hasReachedMaxParticipants) {
-          userValidated(u, state)
-        } else {
-          if (u.banned) {
-            failReason = "Banned user rejoining"
-            failReasonCode = EjectReasonCode.BANNED_USER_REJOINING
-          } else if (u.loggedOut) {
-            failReason = "User had logged out"
-            failReasonCode = EjectReasonCode.USER_LOGGED_OUT
-          } else if (hasReachedMaxParticipants) {
-            failReason = "The maximum number of participants allowed for this meeting has been reached."
-            failReasonCode = EjectReasonCode.MAX_PARTICIPANTS
-          }
-          validateTokenFailed(
-            outGW,
-            meetingId = liveMeeting.props.meetingProp.intId,
-            userId = msg.header.userId,
-            authToken = msg.body.authToken,
-            valid = false,
-            waitForApproval = false,
-            failReason,
-            failReasonCode,
-            state
-          )
-        }
+      validationResult.fold(
+        reason => sendFailedValidateAuthTokenRespMsg(msg, reason._1, reason._2),
+        validUser => sendSuccessfulValidateAuthTokenRespMsg(validUser)
+      )
+    }
 
-      case None =>
-        validateTokenFailed(
-          outGW,
-          meetingId = liveMeeting.props.meetingProp.intId,
-          userId = msg.header.userId,
-          authToken = msg.body.authToken,
-          valid = false,
-          waitForApproval = false,
-          failReason,
-          failReasonCode,
-          state
-        )
+    state
+  }
 
+  private def validateMaxParticipants(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (liveMeeting.props.usersProp.maxUsers > 0 &&
+      RegisteredUsers.numUniqueJoinedUsers(liveMeeting.registeredUsers) >= liveMeeting.props.usersProp.maxUsers &&
+      RegisteredUsers.checkUserExtIdHasJoined(user.externId, liveMeeting.registeredUsers) == false) {
+      Left(("The maximum number of participants allowed for this meeting has been reached.", EjectReasonCode.MAX_PARTICIPANTS))
+    } else {
+      Right(())
     }
   }
 
-  def validateTokenFailed(
-      outGW:           OutMsgRouter,
-      meetingId:       String,
-      userId:          String,
-      authToken:       String,
-      valid:           Boolean,
-      waitForApproval: Boolean,
-      reason:          String,
-      reasonCode:      String,
-      state:           MeetingState2x
-  ): MeetingState2x = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, 0,
-      0, reasonCode, reason)
-    outGW.send(event)
-
-    // send a system message to force disconnection
-    // Comment out as meteor will disconnect the client. Requested by Tiago (ralam apr 28, 2020)
-    //Sender.sendDisconnectClientSysMsg(meetingId, userId, SystemUser.ID, reasonCode, outGW)
-
-    state
+  private def checkIfUserGuestStatusIsAllowed(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (user.guestStatus != GuestStatus.ALLOW) {
+      Left(("User is not allowed to join", EjectReasonCode.PERMISSION_FAILED))
+    } else {
+      Right(())
+    }
   }
 
-  def sendValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
-                                   valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long,
-                                   reasonCode: String = EjectReasonCode.NOT_EJECT, reason: String = "User not ejected"): Unit = {
-    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval, registeredOn,
-      authTokenValidatedOn, reasonCode, reason)
+  private def checkIfUserIsBanned(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (user.banned) {
+      Left(("Banned user rejoining", EjectReasonCode.BANNED_USER_REJOINING))
+    } else {
+      Right(())
+    }
+  }
+
+  private def checkIfUserLoggedOut(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (user.loggedOut) {
+      Left(("User had logged out", EjectReasonCode.USER_LOGGED_OUT))
+    } else {
+      Right(())
+    }
+  }
+
+  private def sendFailedValidateAuthTokenRespMsg(msg: ValidateAuthTokenReqMsg, failReason: String, failReasonCode: String) = {
+    UserDAO.updateJoinError(msg.body.userId, failReasonCode, failReason)
+
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.authToken, false, false, 0,
+      0, failReasonCode, failReason)
     outGW.send(event)
   }
 
-  def userValidated(user: RegisteredUser, state: MeetingState2x): MeetingState2x = {
+  def sendSuccessfulValidateAuthTokenRespMsg(user: RegisteredUser) = {
     val meetingId = liveMeeting.props.meetingProp.intId
     val updatedUser = RegisteredUsers.updateUserLastAuthTokenValidated(liveMeeting.registeredUsers, user)
 
-    sendValidateAuthTokenRespMsg(meetingId, updatedUser.id, updatedUser.authToken, valid = true, waitForApproval = false, updatedUser.registeredOn, updatedUser.lastAuthTokenValidatedOn)
-    state
+    val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, updatedUser.id, updatedUser.authToken, true, false, updatedUser.registeredOn,
+      updatedUser.lastAuthTokenValidatedOn, EjectReasonCode.NOT_EJECT, "User not ejected")
+    outGW.send(event)
   }
 
   def sendAllUsersInMeeting(requesterId: String): Unit = {
