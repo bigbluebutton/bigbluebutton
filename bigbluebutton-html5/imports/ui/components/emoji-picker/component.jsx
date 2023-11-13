@@ -1,26 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import { Picker } from 'emoji-mart';
-import 'emoji-mart/css/emoji-mart.css';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 const DISABLE_EMOJIS = Meteor.settings.public.chat.disableEmojis;
-const FREQUENT_SORT_ON_CLICK = Meteor.settings.public.chat.emojiPicker.frequentEmojiSortOnClick;
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   onEmojiSelect: PropTypes.func.isRequired,
-  style: PropTypes.shape({}),
-  showPreview: PropTypes.bool,
-  showSkinTones: PropTypes.bool,
-};
-
-const defaultProps = {
-  style: null,
-  showPreview: true,
-  showSkinTones: true,
 };
 
 const emojisToExclude = [
@@ -31,8 +21,6 @@ const EmojiPicker = (props) => {
   const {
     intl,
     onEmojiSelect,
-    showPreview,
-    showSkinTones,
   } = props;
 
   const i18n = {
@@ -65,23 +53,19 @@ const EmojiPicker = (props) => {
 
   return (
     <Picker
-      emoji=""
-      onSelect={(emojiObject, event) => onEmojiSelect(emojiObject, event)}
-      enableFrequentEmojiSort={FREQUENT_SORT_ON_CLICK}
-      native
-      title=""
+      data={data}
+      onEmojiSelect={(emojiObject, event) => onEmojiSelect(emojiObject, event)}
       emojiSize={24}
-      emojiTooltip
       i18n={i18n}
-      showPreview={showPreview}
-      showSkinTones={showSkinTones}
-      useButton
-      emojisToShowFilter={(emoji) => !emojisToExclude.includes(emoji.unified)}
+      previewPosition="none"
+      skinTonePosition="none"
+      theme="light"
+      dynamicWidth
+      exceptEmojis={emojisToExclude}
     />
   );
 };
 
 EmojiPicker.propTypes = propTypes;
-EmojiPicker.defaultProps = defaultProps;
 
 export default injectIntl(EmojiPicker);
