@@ -17,11 +17,12 @@ import ConnectionStatus from '/imports/api/connection-status';
 import Captions from '/imports/api/captions';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
-import Annotations from '/imports/api/annotations';
 import Breakouts from '/imports/api/breakouts';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 import guestUsers from '/imports/api/guest-users';
-import Meetings, { RecordMeetings, ExternalVideoMeetings, MeetingTimeRemaining, Notifications } from '/imports/api/meetings';
+import Meetings, {
+  RecordMeetings, ExternalVideoMeetings, MeetingTimeRemaining, Notifications,
+} from '/imports/api/meetings';
 import { UsersTyping } from '/imports/api/group-chat-msg';
 import Users, { CurrentUser } from '/imports/api/users';
 import { Slides, SlidePositions } from '/imports/api/slides';
@@ -53,7 +54,6 @@ export const localCollectionRegistry = {
   localPadsSessionsSync: new AbstractCollection(PadsSessions, PadsSessions),
   localPadsUpdatesSync: new AbstractCollection(PadsUpdates, PadsUpdates),
   localAuthTokenValidationSync: new AbstractCollection(AuthTokenValidation, AuthTokenValidation),
-  localAnnotationsSync: new AbstractCollection(Annotations, Annotations),
   localRecordMeetingsSync: new AbstractCollection(RecordMeetings, RecordMeetings),
   localExternalVideoMeetingsSync: new AbstractCollection(
     ExternalVideoMeetings,
