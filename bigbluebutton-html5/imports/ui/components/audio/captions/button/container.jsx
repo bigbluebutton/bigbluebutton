@@ -15,7 +15,7 @@ export default withTracker(() => {
   const isVoiceUser = AudioService.isVoiceUser();
   return {
     isRTL,
-    enabled: true || Service.hasAudioCaptions(),
+    enabled: Service.hasAudioCaptions(),
     active: Service.getAudioCaptions(),
     currentSpeechLocale,
     availableVoices,

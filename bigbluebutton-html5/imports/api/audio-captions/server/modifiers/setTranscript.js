@@ -18,13 +18,6 @@ export default async function setTranscript(userId, meetingId, transcriptId, tra
       },
     };
 
-    //const user = await Users.findOneAsync({userId, meetingId});
-
-    //if (user.speechLocale.slice(0,2) !== locale) {
-    //  Logger.info("Skipping transcription for another locale", user.speechLocale, locale);
-    //  return;
-    //}
-
     const numberAffected = await AudioCaptions.upsertAsync(selector, modifier);
 
     if (numberAffected) {

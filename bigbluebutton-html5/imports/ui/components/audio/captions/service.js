@@ -1,6 +1,8 @@
 import AudioCaptions from '/imports/api/audio-captions';
 import Auth from '/imports/ui/services/auth';
 
+const CAPTIONS_ALWAYS_VISIBLE = Meteor.settings.public.app.audioCaptions.alwaysVisible;
+
 const getAudioCaptionsData = () => {
   const audioCaptions = AudioCaptions.findOne({ meetingId: Auth.meetingID });
 
@@ -27,7 +29,7 @@ const hasAudioCaptions = () => {
     { fields: {} },
   );
 
-  return !!audioCaptions;
+  return CAPTIONS_ALWAYS_VISIBLE || !!audioCaptions;
 };
 
 export default {
