@@ -1,31 +1,8 @@
-import axios from 'axios';
 import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
-import addSlide from '/imports/api/slides/server/modifiers/addSlide';
 import setCurrentPresentation from './setCurrentPresentation';
-
-const getSlideText = async (url) => {
-  let content = '';
-  try {
-    const request = await axios(url);
-    content = request.data.toString();
-  } catch (error) {
-    Logger.error(`No file found. ${error}`);
-  }
-  return content;
-};
-
-const addSlides = (meetingId, podId, presentationId, slides) => {
-  slides.forEach(async (slide) => {
-    const content = await getSlideText(slide.txtUri);
-
-    Object.assign(slide, { content });
-
-    await addSlide(meetingId, podId, presentationId, slide);
-  });
-};
 
 export default async function addPresentation(meetingId, podId, presentation) {
   check(meetingId, String);
@@ -76,8 +53,6 @@ export default async function addPresentation(meetingId, podId, presentation) {
 
   try {
     await Presentations.upsertAsync(selector, modifier);
-
-    await addSlides(meetingId, podId, presentation.id, presentation.pages);
 
     if (presentation.current) {
       setCurrentPresentation(meetingId, podId, presentation.id);

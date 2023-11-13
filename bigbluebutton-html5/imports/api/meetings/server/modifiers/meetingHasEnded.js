@@ -8,7 +8,6 @@ import clearUsersSettings from '/imports/api/users-settings/server/modifiers/cle
 import clearGroupChat from '/imports/api/group-chat/server/modifiers/clearGroupChat';
 import clearGuestUsers from '/imports/api/guest-users/server/modifiers/clearGuestUsers';
 import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
-import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
 import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
 import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions';
 import clearPads from '/imports/api/pads/server/modifiers/clearPads';
@@ -46,7 +45,6 @@ export default async function meetingHasEnded(meetingId) {
     clearPresentationPods(meetingId),
     clearBreakouts(meetingId),
     clearPolls(meetingId),
-    clearSlides(meetingId),
     clearUsers(meetingId),
     clearUsersSettings(meetingId),
     clearVoiceUsers(meetingId),

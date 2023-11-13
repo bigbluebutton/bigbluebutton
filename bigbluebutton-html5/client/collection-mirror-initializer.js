@@ -25,14 +25,11 @@ import Meetings, {
 } from '/imports/api/meetings';
 import { UsersTyping } from '/imports/api/group-chat-msg';
 import Users, { CurrentUser } from '/imports/api/users';
-import { Slides, SlidePositions } from '/imports/api/slides';
 
 // Custom Publishers
 export const localCollectionRegistry = {
   localCurrentPollSync: new AbstractCollection(CurrentPoll, CurrentPoll),
   localCurrentUserSync: new AbstractCollection(CurrentUser, CurrentUser),
-  localSlidesSync: new AbstractCollection(Slides, Slides),
-  localSlidePositionsSync: new AbstractCollection(SlidePositions, SlidePositions),
   localPollsSync: new AbstractCollection(Polls, Polls),
   localPresentationsSync: new AbstractCollection(Presentations, Presentations),
   localPresentationPodsSync: new AbstractCollection(PresentationPods, PresentationPods),
