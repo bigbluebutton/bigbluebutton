@@ -15,7 +15,7 @@ const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];
 const DEFAULT_ANIMATION = 'shift-away';
 const ANIMATION_NONE = 'none';
-const TIP_OFFSET = '0, 10';
+const TIP_OFFSET = [0, 10];
 
 const propTypes = {
   title: PropTypes.string,
@@ -62,7 +62,7 @@ class Tooltip extends Component {
     } = this.props;
 
     const { animations } = Settings.application;
-    
+
     const overridePlacement = placement ? placement : position;
     let overrideDelay;
     if (animations) {
@@ -87,7 +87,7 @@ class Tooltip extends Component {
       onHide: this.onHide,
       offset: TIP_OFFSET,
       placement: overridePlacement,
-      touch: 'hold',
+      touch: ['hold', 1000],
       theme: 'bbbtip',
       multiple: false,
     };
