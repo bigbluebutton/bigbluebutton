@@ -236,9 +236,13 @@ class App extends Component {
 
     if (transcriptionSettings) {
       const { partialUtterances, minUtteranceLength } = transcriptionSettings;
-      if (partialUtterances || minUtteranceLength) {
+      if (partialUtterances !== undefined || minUtteranceLength !== undefined) {
         logger.info({ logCode: 'app_component_set_speech_options' }, 'Setting initial speech options');
-        SpeechService.setSpeechOptions(partialUtterances ? true : false, parseInt(minUtteranceLength));
+
+        Settings.transcription.partialUtterances = partialUtterances ? true : false;
+        Settings.transcription.minUtteranceLength = parseInt(minUtteranceLength);
+
+        SpeechService.setSpeechOptions(Settings.transcription.partialUtterances, Settings.transcription.minUtteranceLength);
       }
     }
 
