@@ -111,11 +111,16 @@ public final class SupportedFileTypes {
 	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
 		String mimeType = detectMimeType(pres);
 
+	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
+		String mimeType = detectMimeType(pres);
+
 		if (mimeType.equals("")) {
+			log.error("Not able to detect mimeType.");
 			return false;
 		}
 
 		if (!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) {
+			log.error("MimeType is not valid for this meeting, [{}]", mimeType);
 			return false;
 		}
 
