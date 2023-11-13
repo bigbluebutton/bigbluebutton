@@ -269,7 +269,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
 
   if (audioCaptionsCountData) {
     const hasAudioCaptions = audioCaptionsCountData
-      .audio_caption_aggregate
+      .caption_aggregate
       .aggregate.count > 0;
 
     if (!hasAudioCaptions) return null;

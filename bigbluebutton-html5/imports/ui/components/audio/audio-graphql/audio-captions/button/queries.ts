@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export interface GetAudioCaptionsCountResponse {
-  audio_caption_aggregate: {
+  caption_aggregate: {
     aggregate: {
       count: number;
     }
@@ -10,9 +10,9 @@ export interface GetAudioCaptionsCountResponse {
 
 export const GET_AUDIO_CAPTIONS_COUNT = gql`
   subscription GetAudioCaptionsCount {
-    audio_caption_aggregate {
+    caption_aggregate {
       aggregate {
-        count(columns: transcriptId)
+        count(columns: captionId)
       }
     }
   }

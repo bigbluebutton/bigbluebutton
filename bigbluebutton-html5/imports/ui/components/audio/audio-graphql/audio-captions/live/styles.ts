@@ -22,6 +22,13 @@ interface UserAvatarProps {
 
 const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
+`;
+
+const CaptionWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.05rem;  
 `;
 
 const Captions = styled.div<CaptionsProps>`
@@ -136,4 +143,5 @@ export default {
   VisuallyHidden,
   UserAvatarWrapper,
   UserAvatar,
+  CaptionWrapper,
 };

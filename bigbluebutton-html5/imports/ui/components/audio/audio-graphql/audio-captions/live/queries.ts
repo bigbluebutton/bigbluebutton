@@ -1,4 +1,16 @@
 import { gql } from '@apollo/client';
+import { User } from '/imports/ui/Types/user';
+
+export interface Caption {
+  user: Pick<User, 'avatar' | 'color' | 'isModerator' | 'name'>;
+  captionText: string;
+  captionId: string;
+  createdAt: string;
+}
+
+export interface getCaptions {
+  caption: Caption[];
+}
 
 export interface GetAudioCaptions {
   audio_caption: Array<{
@@ -13,22 +25,22 @@ export interface GetAudioCaptions {
   }>;
 }
 
-export const GET_AUDIO_CAPTIONS = gql`
-  subscription MySubscription {
-    audio_caption {
+export const GET_CAPTIONS = gql`
+  subscription getCaptions {
+    caption {
       user {
         avatar
         color
         isModerator
         name
       }
-      transcript
-      transcriptId
+      captionText
+      captionId
       createdAt
     }
   }
 `;
 
 export default {
-  GET_AUDIO_CAPTIONS,
+  GET_CAPTIONS,
 };
