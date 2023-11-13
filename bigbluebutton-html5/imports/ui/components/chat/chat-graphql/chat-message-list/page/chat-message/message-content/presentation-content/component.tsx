@@ -2,6 +2,10 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - temporary, while meteor exists in the project
+const APP_CONFIG = Meteor.settings.public.app;
+
 interface ChatMessagePresentationContentProps {
   metadata: string;
 }
@@ -39,11 +43,14 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   const intl = useIntl();
   const presentationData = JSON.parse(string) as unknown;
   assertAsMetadata(presentationData);
+
+  const downloadUrl = `${APP_CONFIG.bbbWebBase}/${presentationData.fileURI}`;
+
   return (
-    <Styled.ChatDowloadContainer>
+    <Styled.ChatDowloadContainer data-test="downloadPresentationContainer">
       <span>{presentationData.filename}</span>
       <Styled.ChatLink
-        href={presentationData.fileURI}
+        href={downloadUrl}
         aria-label={intl.formatMessage(intlMessages.notAccessibleWarning)}
         type="application/pdf"
         rel="noopener, noreferrer"

@@ -70,7 +70,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.freeJoin,
         liveMeeting.props.voiceProp.dialNumber,
         breakout.voiceConf,
-        msg.body.durationInMinutes * 60,
+        msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
         presId, presSlide, msg.body.record,

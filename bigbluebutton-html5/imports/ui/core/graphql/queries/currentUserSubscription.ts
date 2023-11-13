@@ -35,8 +35,8 @@ subscription userCurrentSubscription {
       sequence
       shortName
     }
-    localSettings {
-      settingsJson
+    userClientSettings {
+      userClientSettingsJson
     }
     locked
     loggedOut

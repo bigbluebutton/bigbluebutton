@@ -9,6 +9,7 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
+import ExternalVideoPlayerContainer from './external-video-player-graphql/component';
 
 const ExternalVideoContainer = (props) => {
   const fullscreenElementId = 'ExternalVideo';
@@ -36,9 +37,7 @@ const ExternalVideoContainer = (props) => {
   );
 };
 
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
-
-export default withTracker(({ isPresenter }) => {
+withTracker(({ isPresenter }) => {
   const inEchoTest = Session.get('inEchoTest');
   return {
     inEchoTest,
@@ -46,3 +45,5 @@ export default withTracker(({ isPresenter }) => {
     videoUrl: getVideoUrl(),
   };
 })(ExternalVideoContainer);
+
+export default ExternalVideoPlayerContainer;

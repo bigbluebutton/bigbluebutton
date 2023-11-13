@@ -295,7 +295,7 @@
     "app.presentationUploader.export.downloadButtonAvailable": "El botó de descàrrega de la presentació {0} està disponible.",
     "app.presentationUploader.export.notAccessibleWarning": "pot no complir els requisits d'accessibilitat",
     "app.presentationUploader.export.originalLabel": "Original",
-    "app.presentationUploader.export.inCurrentStateLabel": "En estat actual",
+    "app.presentationUploader.export.withWhiteboardAnnotations": "En estat actual",
     "app.presentationUploader.currentPresentationLabel": "Presentació actual",
     "app.presentationUploder.extraHint": "IMPORTANT: cada arxiu no pot superar els {0} MB i les {1} pàgines.",
     "app.presentationUploder.uploadLabel": "Carrega",

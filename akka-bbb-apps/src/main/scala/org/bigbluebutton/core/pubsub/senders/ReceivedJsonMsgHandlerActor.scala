@@ -417,6 +417,10 @@ class ReceivedJsonMsgHandlerActor(
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
+      //Plugin
+      case DispatchPluginDataChannelMessageMsg.NAME =>
+        routeGenericMsg[DispatchPluginDataChannelMessageMsg](envelope, jsonNode)
+
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>
         routeGenericMsg[StartExternalVideoPubMsg](envelope, jsonNode)
@@ -446,6 +450,13 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetTrackReqMsg](envelope, jsonNode)
       case TimerEndedPubMsg.NAME =>
         routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
+
+      // Messages from Graphql Middleware
+      case UserGraphqlConnectionStablishedSysMsg.NAME =>
+        route[UserGraphqlConnectionStablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
+
+      case UserGraphqlConnectionClosedSysMsg.NAME =>
+        route[UserGraphqlConnectionClosedSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

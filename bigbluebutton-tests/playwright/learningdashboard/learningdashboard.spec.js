@@ -1,9 +1,13 @@
 const { test } = require('@playwright/test');
+const { fullyParallel } = require('../playwright.config');
 const { LearningDashboard } = require('./learningdashboard');
 const c = require('../parameters/constants');
 
-test.describe.serial('Learning Dashboard', async () => {
+if (!fullyParallel) test.describe.configure({ mode: 'serial' });
+
+test.describe('Learning Dashboard', async () => {
   const learningDashboard = new LearningDashboard();
+
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();

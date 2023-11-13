@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.TimerModel
-import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getEndedAt, getIsACtive, getRunning, getStartedAt, getStopwatch, getTime, getTrack}
+import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getEndedAt, getIsActive, getRunning, getStartedAt, getStopwatch, getTime, getTrack}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.util.{Failure, Success}
@@ -59,7 +59,7 @@ object TimerDAO {
       TableQuery[TimerDbTableDef]
         .filter(_.meetingId === meetingId)
         .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.endedAt, t.songTrack))
-        .update((getStopwatch(timerModel), getRunning(timerModel), getIsACtive(timerModel), getTime(timerModel), getAccumulated(timerModel), getStartedAt(timerModel), getEndedAt(timerModel), getTrack(timerModel))
+        .update((getStopwatch(timerModel), getRunning(timerModel), getIsActive(timerModel), getTime(timerModel), getAccumulated(timerModel), getStartedAt(timerModel), getEndedAt(timerModel), getTrack(timerModel))
         )
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on Timer table!")

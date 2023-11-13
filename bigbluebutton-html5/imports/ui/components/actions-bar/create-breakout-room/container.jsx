@@ -4,6 +4,10 @@ import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import BreakoutRoomService from '/imports/ui/components/breakout-room/service';
 import CreateBreakoutRoomModal from './component';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
+import { useSubscription } from '@apollo/client';
+import {
+  PROCESSED_PRESENTATIONS_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
@@ -14,6 +18,9 @@ const CreateBreakoutRoomContainer = (props) => {
   const captureSharedNotesByDefault = METEOR_SETTINGS_APP.breakouts.captureSharedNotesByDefault
                                     && isImportSharedNotesFromBreakoutRoomsEnabled();
   const inviteModsByDefault = METEOR_SETTINGS_APP.breakouts.sendInvitationToAssignedModeratorsByDefault;
+
+  const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
+  const presentations = presentationData?.pres_presentation || [];
 
   const { amIModerator } = props;
   return (
@@ -26,6 +33,7 @@ const CreateBreakoutRoomContainer = (props) => {
           captureWhiteboardByDefault,
           captureSharedNotesByDefault,
           inviteModsByDefault,
+          presentations,
         }}
       />
     )

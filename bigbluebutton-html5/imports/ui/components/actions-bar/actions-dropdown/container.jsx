@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import Presentations from '/imports/api/presentations';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
-import PresentationPodService from '/imports/ui/components/presentation-pod/service';
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 import { isCameraAsContentEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { useSubscription } from '@apollo/client';
+import {
+  PROCESSED_PRESENTATIONS_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -22,6 +23,9 @@ const ActionsDropdownContainer = (props) => {
     actionButtonDropdownItems = [...pluginsProvidedAggregatedState.actionButtonDropdownItems];
   }
 
+  const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
+  const presentations = presentationData?.pres_presentation || [];
+
   return (
     <ActionsDropdown
       {...{
@@ -31,20 +35,15 @@ const ActionsDropdownContainer = (props) => {
         isMobile,
         isRTL,
         actionButtonDropdownItems,
+        presentations,
+        isTimerFeatureEnabled: isTimerFeatureEnabled(),
+        isDropdownOpen: Session.get('dropdownOpen'),
+        setPresentation: PresentationUploaderService.setPresentation,
+        isCameraAsContentEnabled: isCameraAsContentEnabled(),
         ...props,
       }}
     />
   );
 };
 
-export default withTracker(() => {
-  const presentations = Presentations.find({ 'conversion.done': true }).fetch();
-  return {
-    presentations,
-    isTimerFeatureEnabled: isTimerFeatureEnabled(),
-    isDropdownOpen: Session.get('dropdownOpen'),
-    setPresentation: PresentationUploaderService.setPresentation,
-    podIds: PresentationPodService.getPresentationPodIds(),
-    isCameraAsContentEnabled: isCameraAsContentEnabled(),
-  };
-})(ActionsDropdownContainer);
+export default ActionsDropdownContainer;

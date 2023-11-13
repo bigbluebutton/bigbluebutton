@@ -20,7 +20,7 @@ case class MeetingDbModel(
     presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
     createdTime:                           Long,
-    duration:                              Int
+    durationInSeconds:                     Int
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -37,7 +37,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     presentationUploadExternalUrl,
     learningDashboardAccessToken,
     createdTime,
-    duration
+    durationInSeconds
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -51,11 +51,11 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
   val createdTime = column[Long]("createdTime")
-  val duration = column[Int]("duration")
+  val durationInSeconds = column[Int]("durationInSeconds")
 }
 
 object MeetingDAO {
-  def insert(meetingProps: DefaultProps) = {
+  def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object]) = {
     DatabaseConnection.db.run(
       TableQuery[MeetingDbTableDef].forceInsert(
         MeetingDbModel(
@@ -71,7 +71,7 @@ object MeetingDAO {
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,
           createdTime = meetingProps.durationProps.createdTime,
-          duration = meetingProps.durationProps.duration
+          durationInSeconds = meetingProps.durationProps.duration * 60
         )
       )
     ).onComplete {
@@ -88,8 +88,26 @@ object MeetingDAO {
           MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
           TimerDAO.insert(meetingProps.meetingProp.intId)
           LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
+          MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
         }
         case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Meeting: $e")
+      }
+  }
+
+  def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {
+    val subqueryBreakoutRooms = TableQuery[BreakoutRoomDbTableDef]
+      .filter(_.parentMeetingId === parentMeetingId)
+      .filter(_.endedAt.isEmpty)
+      .map(_.externalId)
+
+    DatabaseConnection.db.run(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.extId in subqueryBreakoutRooms)
+        .map(u => u.durationInSeconds)
+        .update(newDurationInSeconds)
+    ).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated durationInSeconds on Meeting table")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating durationInSeconds on Meeting: $e")
       }
   }
 

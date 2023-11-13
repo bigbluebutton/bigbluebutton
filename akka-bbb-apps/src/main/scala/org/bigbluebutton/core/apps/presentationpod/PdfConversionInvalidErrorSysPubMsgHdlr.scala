@@ -41,21 +41,21 @@ trait PdfConversionInvalidErrorSysPubMsgHdlr {
       pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
       pres <- pod.getPresentation(msg.body.presentationId)
     } yield {
-      val presWithError = PresentationInPod(pres.id, pres.name, pres.current, pres.pages, pres.downloadable, pres.removable,
-        pres.filenameConverted, pres.uploadCompleted, pres.numPages, msg.body.messageKey, errorDetails)
+      val presWithError = PresentationInPod(pres.id, pres.name, pres.default, pres.current, pres.pages, pres.downloadable,
+        pres.downloadFileExtension, pres.removable, pres.filenameConverted, pres.uploadCompleted, pres.numPages,
+        msg.body.messageKey, errorDetails)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithError)
-      PresPresentationDAO.insertOrUpdate(msg.header.meetingId, presWithError)
+
       state.update(pods)
     }
 
+    PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
     broadcastEvent(msg)
 
     newState match {
       case Some(ns) => ns
-      case None =>
-        PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
-        state
+      case None     => state
     }
   }
 }

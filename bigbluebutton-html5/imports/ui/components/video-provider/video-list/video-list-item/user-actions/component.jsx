@@ -1,12 +1,15 @@
 import React from 'react';
+import { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import VideoService from '/imports/ui/components/video-provider/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -69,6 +72,15 @@ const UserActions = (props) => {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
     isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
   } = props;
+
+  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+
+  let userCameraDropdownItems = [];
+  if (pluginsProvidedAggregatedState.userCameraDropdownItems) {
+    userCameraDropdownItems = [
+      ...pluginsProvidedAggregatedState.userCameraDropdownItems,
+    ];
+  }
 
   const intl = useIntl();
   const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -154,6 +166,27 @@ const UserActions = (props) => {
       });
     }
 
+    userCameraDropdownItems.forEach((pluginItem) => {
+      switch (pluginItem.type) {
+        case PluginSdk.UserCameraDropdownItemType.OPTION:
+          menuItems.push({
+            key: pluginItem.id,
+            label: pluginItem.label,
+            onClick: pluginItem.onClick,
+            icon: pluginItem.icon,
+          });
+          break;
+        case PluginSdk.UserCameraDropdownItemType.SEPARATOR:
+          menuItems.push({
+            key: pluginItem.id,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
+
     return menuItems;
   };
 
@@ -187,6 +220,7 @@ const UserActions = (props) => {
               <Styled.DropdownTrigger
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
+                isRTL={isRTL}
               >
                 {name}
               </Styled.DropdownTrigger>

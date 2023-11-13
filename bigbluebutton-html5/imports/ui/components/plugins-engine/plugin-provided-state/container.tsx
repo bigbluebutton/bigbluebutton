@@ -14,6 +14,8 @@ import PresentationDropdownPluginStateContainer from './presentation-dropdown/co
 import NavBarPluginStateContainer from './nav-bar/container';
 import OptionsDropdownPluginStateContainer from './options-dropdown/container';
 import CameraSettingsDropdownPluginStateContainer from './camera-settings-dropdown/container';
+import UserCameraDropdownPluginStateContainer from './user-camera-dropdown/container';
+import UserListItemAdditionalInformationPluginStateContainer from './user-list-item-additional-information/container';
 
 const pluginProvidedStateMap: PluginsProvidedStateMap = {};
 
@@ -27,6 +29,8 @@ const pluginProvidedStateContainers: PluginProvidedStateContainerChild[] = [
   NavBarPluginStateContainer,
   OptionsDropdownPluginStateContainer,
   CameraSettingsDropdownPluginStateContainer,
+  UserCameraDropdownPluginStateContainer,
+  UserListItemAdditionalInformationPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
@@ -39,11 +43,12 @@ function generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
 const PluginProvidedStateContainer = (props: PluginProvidedStateContainerProps) => {
   const {
     uuid,
+    pluginApi,
   } = props;
   if (!pluginProvidedStateMap[uuid]) {
     pluginProvidedStateMap[uuid] = {} as PluginProvidedState;
   }
-  const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
+
   return (
     <>
       {

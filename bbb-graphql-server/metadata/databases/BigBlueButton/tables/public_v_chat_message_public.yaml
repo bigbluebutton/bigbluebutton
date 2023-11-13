@@ -23,8 +23,7 @@ select_permissions:
         - chatEmphasizedText
         - chatId
         - correlationId
-        - createdTime
-        - createdTimeAsDate
+        - createdAt
         - message
         - messageId
         - messageMetadata

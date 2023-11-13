@@ -50,6 +50,7 @@ class NotesDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
+      presentations,
     } = this.props;
 
     const { converterButtonDisabled } = this.state;
@@ -70,7 +71,7 @@ class NotesDropdown extends PureComponent {
           onClick: () => {
             this.setConverterButtonDisabled(true);
             setTimeout(() => this.setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload();
+            return Service.convertAndUpload(presentations);
           },
         },
       );

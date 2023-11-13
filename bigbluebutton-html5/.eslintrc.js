@@ -28,7 +28,7 @@ module.exports = {
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
-      extends: ['eslint:recommended', 'airbnb', 'plugin:@typescript-eslint/recommended'],
+      extends: ['airbnb', 'eslint:recommended', 'plugin:@typescript-eslint/recommended'],
       parser: '@typescript-eslint/parser',
       plugins: ['@typescript-eslint'],
       rules: {

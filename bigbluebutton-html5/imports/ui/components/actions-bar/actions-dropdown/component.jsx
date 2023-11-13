@@ -337,15 +337,8 @@ class ActionsDropdown extends PureComponent {
     const {
       presentations,
       setPresentation,
-      podIds,
       setPresentationFitToWidth,
     } = this.props;
-
-    if (!podIds || podIds.length < 1) return [];
-
-    // We still have code for other pods from the Flash client. This intentionally only cares
-    // about the first one because it's the default.
-    const { podId } = podIds[0];
 
     const presentationItemElements = presentations
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -360,10 +353,10 @@ class ActionsDropdown extends PureComponent {
             selected: p.current ? true : false,
             label: p.name,
             description: "uploaded presentation file",
-            key: `uploaded-presentation-${p.id}`,
+            key: `uploaded-presentation-${p.presentationId}`,
             onClick: () => {
               setPresentationFitToWidth(false);
-              setPresentation(p.id, podId);
+              setPresentation(p.presentationId);
             },
           }
         );
