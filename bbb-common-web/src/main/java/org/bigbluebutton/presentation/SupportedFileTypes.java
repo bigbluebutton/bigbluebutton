@@ -108,8 +108,10 @@ public final class SupportedFileTypes {
 		return "";
 	}
 
-	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
+	public static String detectFileExtensionBasedOnMimeType(File pres) {
 		String mimeType = detectMimeType(pres);
+		return mimeTypeUtils.getExtensionBasedOnMimeType(mimeType);
+	}
 
 	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
 		String mimeType = detectMimeType(pres);
