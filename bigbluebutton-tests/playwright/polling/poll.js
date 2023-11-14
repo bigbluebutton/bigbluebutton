@@ -251,7 +251,7 @@ class Polling extends MultiUsers {
 
     const lastChatPollMessageTextModerator = await this.modPage.getLocator(e.chatPollMessageText).last();
     if(!pollChatMessage) {
-      return await expect(lastChatPollMessageTextModerator).toBeHidden({ ELEMENT_WAIT_TIME });
+      return expect(lastChatPollMessageTextModerator).toBeHidden({ ELEMENT_WAIT_TIME });
     }
     await expect(lastChatPollMessageTextModerator).toBeVisible();
     const lastChatPollMessageTextUser = await this.userPage.getLocator(e.chatPollMessageText).last();

@@ -6,7 +6,7 @@ async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
 
   if(!chatEnabled) {
-    return await testPage.wasRemoved(e.chatButton);
+    return testPage.wasRemoved(e.chatButton);
   }
 
   await testPage.waitForSelector(e.chatBox);

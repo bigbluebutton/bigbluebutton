@@ -18,7 +18,8 @@ class SharedNotes extends MultiUsers {
   async openSharedNotes() {
     const { sharedNotesEnabled } = getSettings();
     if(!sharedNotesEnabled) {
-      return await this.modPage.wasRemoved(e.sharedNotes);
+      this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
     }
     await startSharedNotes(this.modPage);
     const sharedNotesContent = await getNotesLocator(this.modPage);
@@ -31,7 +32,8 @@ class SharedNotes extends MultiUsers {
   async typeInSharedNotes() {
     const { sharedNotesEnabled } = getSettings();
     if(!sharedNotesEnabled) {
-      return await this.modPage.wasRemoved(e.sharedNotes);
+      this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -57,7 +59,8 @@ class SharedNotes extends MultiUsers {
   async formatTextInSharedNotes() {
     const { sharedNotesEnabled } = getSettings();
     if(!sharedNotesEnabled) {
-      return await this.modPage.wasRemoved(e.sharedNotes);
+      this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -89,7 +92,8 @@ class SharedNotes extends MultiUsers {
   async exportSharedNotes(testInfo) {
     const { sharedNotesEnabled } = getSettings();
     if(!sharedNotesEnabled) {
-      return await this.modPage.wasRemoved(e.sharedNotes);
+      this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -130,7 +134,8 @@ class SharedNotes extends MultiUsers {
   async convertNotesToWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
     if(!sharedNotesEnabled) {
-      return await this.modPage.wasRemoved(e.sharedNotes);
+      this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -153,7 +158,8 @@ class SharedNotes extends MultiUsers {
   async editSharedNotesWithMoreThanOneUSer() {
     const { sharedNotesEnabled } = getSettings();
     if(!sharedNotesEnabled) {
-      return await this.modPage.wasRemoved(e.sharedNotes);
+      this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -175,7 +181,8 @@ class SharedNotes extends MultiUsers {
   async seeNotesWithoutEditPermission() {
     const { sharedNotesEnabled } = getSettings();
     if(!sharedNotesEnabled) {
-      return await this.modPage.wasRemoved(e.sharedNotes);
+      this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
     }
 
     await startSharedNotes(this.modPage);
@@ -208,7 +215,8 @@ class SharedNotes extends MultiUsers {
   async pinAndUnpinNotesOntoWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
     if(!sharedNotesEnabled) {
-      return await this.modPage.wasRemoved(e.sharedNotes);
+      this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
     }
 
     await this.userPage.waitAndClick(e.minimizePresentation);

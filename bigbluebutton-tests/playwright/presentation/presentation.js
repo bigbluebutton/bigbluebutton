@@ -65,7 +65,8 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
     if(!externalVideoPlayer) {
-      return await this.modPage.wasRemoved(e.shareExternalVideoBtn);
+      this.modPage.hasElement(e.managePresentations);
+      return this.modPage.wasRemoved(e.shareExternalVideoBtn);
     }
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
     await this.modPage.waitForSelector(e.closeModal);
@@ -190,7 +191,8 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     if(!originalPresentationDownloadable) {
-      return await this.modPage.wasRemoved(e.enableOriginalPresentationDownloadBtn);
+      this.modPage.hasElement(e.presentationOptionsDownloadBtn);
+      return this.modPage.wasRemoved(e.enableOriginalPresentationDownloadBtn);
     }
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.enableOriginalPresentationDownloadBtn);
@@ -222,7 +224,8 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     if(!presentationWithAnnotationsDownloadable) {
-      return await this.modPage.wasRemoved(e.sendPresentationInCurrentStateBtn);
+      this.modPage.hasElement(e.presentationOptionsDownloadBtn);
+      return this.modPage.wasRemoved(e.sendPresentationInCurrentStateBtn);
     }
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
