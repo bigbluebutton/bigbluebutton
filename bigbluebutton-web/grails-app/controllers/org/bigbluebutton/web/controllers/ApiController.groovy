@@ -21,6 +21,7 @@ package org.bigbluebutton.web.controllers
 import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
+import groovy.xml.MarkupBuilder
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -1521,7 +1522,7 @@ class ApiController {
             fileName = document.@filename.toString();
           }
           downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isDefaultPresentation);
+                  fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter);
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
@@ -1561,7 +1562,7 @@ class ApiController {
     def pres = null
     def presId = null
 
-    if (presFilename == "" || (filenameExt == "" && !isPreUploadedPresentationFromParameter)) {
+    if (presFilename == "" || filenameExt == "") {
         log.debug("Upload failed. Invalid filename " + presOrigFilename)
       uploadFailReasons.add("invalid_filename")
       uploadFailed = true
@@ -1583,21 +1584,6 @@ class ApiController {
         uploadFailReasons.add("failed_to_download_file")
         uploadFailed = true
       }
-      if (isPreUploadedPresentationFromParameter && filenameExt.isEmpty()) {
-          String fileExtension = SupportedFileTypes.detectFileExtensionBasedOnMimeType(pres)
-          newFilename = Util.createNewFilename(presId, fileExtension)
-          newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
-          File destination = new File(newFilePath)
-          filenameExt = fileExtension
-          presFilename = Util.createNewFilename(presFilename, fileExtension)
-          if (pres.renameTo(destination)) {
-            log.info("Presentation coming from URL parameter is at ${destination.getAbsolutePath()}")
-            pres = destination
-          } else {
-            log.error("Error while renaming presentation from URL parameter to ${destination.getAbsolutePath()}, " +
-                    "consider sending it through `/insertDocument`")
-          }
-        }
     }
 
     // Hardcode pre-uploaded presentation to the default presentation window
@@ -1620,7 +1606,8 @@ class ApiController {
     }
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable, isDefaultPresentation) {
+  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
+                                 isDefaultPresentation, isPreUploadedPresentationFromParameter) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
@@ -1645,7 +1632,7 @@ class ApiController {
     def pres = null
     def presId
 
-    if (presFilename == "" || filenameExt == "") {
+    if (presFilename == "" || (filenameExt == "" && !isPreUploadedPresentationFromParameter)) {
       log.debug("presentation is null by default")
       return
     } else {
@@ -1661,6 +1648,22 @@ class ApiController {
           log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
           uploadFailReasons.add("failed_to_download_file")
           uploadFailed = true
+        }
+
+        if (isPreUploadedPresentationFromParameter && filenameExt.isEmpty()) {
+          String fileExtension = SupportedFileTypes.detectFileExtensionBasedOnMimeType(pres)
+          newFilename = Util.createNewFilename(presId, fileExtension)
+          newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
+          File destination = new File(newFilePath)
+          filenameExt = fileExtension
+          presFilename = Util.createNewFilename(presFilename, fileExtension)
+          if (pres.renameTo(destination)) {
+            log.info("Presentation coming from URL parameter is at ${destination.getAbsolutePath()}")
+            pres = destination
+          } else {
+            log.error("Error while renaming presentation from URL parameter to ${destination.getAbsolutePath()}, " +
+                    "consider sending it through `/insertDocument`")
+          }
         }
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
