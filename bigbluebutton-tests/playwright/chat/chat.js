@@ -72,8 +72,9 @@ class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
 
     if(!publicChatOptionsEnabled) {
-      await this.modPage.waitAndClick(e.chatOptions);
-      return await this.modPage.wasRemoved(e.chatCopy);
+      this.modPage.waitAndClick(e.chatOptions);
+      this.modPage.hasElement(e.chatClear);
+      return this.modPage.wasRemoved(e.chatCopy);
     }
     // sending a message
     await this.modPage.type(e.chatBox, e.message);
@@ -161,7 +162,8 @@ class Chat extends MultiUsers {
 
     await openPublicChat(this.modPage);
     if(!emojiPickerEnabled) {
-      return await this.modPage.wasRemoved(e.emojiPickerButton);
+      this.modPage.hasElement(e.chatBox);
+      return this.modPage.wasRemoved(e.emojiPickerButton);
     }
 
     const message = this.modPage.getLocator(e.chatUserMessageText);
