@@ -10,7 +10,7 @@ import ConnectionStatusButton from '/imports/ui/components/connection-status/but
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import OptionsDropdownContainer from './options-dropdown/container';
-import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/container';
+import TimerIndicatorContainer from '/imports/ui/components/timer/timer-graphql/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
