@@ -2,7 +2,6 @@ import AbstractCollection from '/imports/ui/services/LocalCollectionSynchronizer
 
 // Collections
 import Presentations from '/imports/api/presentations';
-import PresentationPods from '/imports/api/presentation-pods';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Screenshare from '/imports/api/screenshare';
 import UserInfos from '/imports/api/users-infos';
@@ -32,7 +31,6 @@ export const localCollectionRegistry = {
   localCurrentUserSync: new AbstractCollection(CurrentUser, CurrentUser),
   localPollsSync: new AbstractCollection(Polls, Polls),
   localPresentationsSync: new AbstractCollection(Presentations, Presentations),
-  localPresentationPodsSync: new AbstractCollection(PresentationPods, PresentationPods),
   localPresentationUploadTokenSync: new AbstractCollection(
     PresentationUploadToken,
     PresentationUploadToken,

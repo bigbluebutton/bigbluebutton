@@ -1,4 +1,3 @@
-import Presentations from '/imports/api/presentations';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
@@ -17,18 +16,6 @@ export default async function switchSlide(slideNumber, podId, presentationId) {
     check(requesterUserId, String);
     check(slideNumber, Number);
     check(podId, String);
-
-    const selector = {
-      meetingId,
-      podId,
-      current: true,
-    };
-
-    const Presentation = await Presentations.findOneAsync(selector);
-
-    if (!Presentation) {
-      throw new Meteor.Error('presentation-not-found', 'You need a presentation to be able to switch slides');
-    }
 
     const payload = {
       podId,
