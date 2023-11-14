@@ -4,7 +4,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
-import RecordingIndicator from './recording-indicator/container';
+import RecordingIndicator from '/imports/ui/components/nav-bar/nav-bar-graphql/recording-indicator/component';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
