@@ -10,7 +10,7 @@ import {
 import logger from '/imports/startup/client/logger';
 import { useReactiveVar } from '@apollo/client';
 import AudioManager from '/imports/ui/services/audio-manager';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 type SpeechRecognitionEvent = {
   resultIndex: number;
@@ -150,7 +150,9 @@ const AudioCaptionsSpeechContainer: React.FC = () => {
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
 
-  const currentUser = useCurrentUser(
+  const {
+    data: currentUser,
+  } = useCurrentUser(
     (user) => ({
       speechLocale: user.speechLocale,
       voice: user.voice,

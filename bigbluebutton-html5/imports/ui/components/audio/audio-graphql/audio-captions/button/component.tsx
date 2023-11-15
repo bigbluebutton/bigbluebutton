@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSubscription } from '@apollo/client';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
@@ -12,6 +12,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import logger from '/imports/startup/client/logger';
+import { User } from '/imports/ui/Types/user';
 
 const intlMessages = defineMessages({
   start: {
@@ -241,8 +242,10 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
 
 const AudioCaptionsButtonContainer: React.FC = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const currentUser = useCurrentUser(
-    (user) => ({
+  const {
+    data: currentUser,
+  } = useCurrentUser(
+    (user: Partial<User>) => ({
       speechLocale: user.speechLocale,
       voice: user.voice,
     }),

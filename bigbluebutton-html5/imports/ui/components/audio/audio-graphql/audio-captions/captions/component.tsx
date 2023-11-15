@@ -6,7 +6,7 @@ import {
   setSpeechLocale,
   useFixedLocale,
 } from '../service';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const intlMessages = defineMessages({
   title: {
@@ -130,7 +130,9 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 };
 
 const AudioCaptionsSelectContainer: React.FC = () => {
-  const currentUser = useCurrentUser(
+  const {
+    data: currentUser,
+  } = useCurrentUser(
     (user) => ({
       speechLocale: user.speechLocale,
       voice: user.voice,
