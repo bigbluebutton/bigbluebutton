@@ -109,21 +109,11 @@ const EmojiButton = styled(Button)`
 `;
 
 const EmojiPickerWrapper = styled.div`
-  .emoji-mart {
-    max-width: 100% !important;
+  em-emoji-picker {
+    width: 100%;
+    max-height: 300px;
   }
-  .emoji-mart-anchor {
-    cursor: pointer;
-  }
-  .emoji-mart-emoji {
-    cursor: pointer !important;
-  }
-  .emoji-mart-category-list {
-    span {
-      cursor: pointer !important;
-      display: inline-block !important;
-    }
-  }
+  padding-bottom: 5px;
 `;
 
 const EmojiPicker = styled(EmojiPickerComponent)``;
