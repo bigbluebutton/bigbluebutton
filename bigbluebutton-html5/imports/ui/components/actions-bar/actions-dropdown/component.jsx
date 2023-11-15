@@ -277,6 +277,7 @@ class ActionsDropdown extends PureComponent {
           : intl.formatMessage(intlMessages.activateTimerStopwatchLabel),
         key: this.timerId,
         onClick: () => this.handleTimerClick(),
+        dataTest: 'timerStopWatchFeature',
       });
     }
 
