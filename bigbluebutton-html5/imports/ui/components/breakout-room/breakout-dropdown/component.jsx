@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import BBBMenu from "/imports/ui/components/common/menu/component";
-import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
-import Trigger from "/imports/ui/components/common/control-header/right/component";
+import BBBMenu from '/imports/ui/components/common/menu/component';
+import CreateBreakoutRoomContainerGraphql from '/imports/ui/components/breakout-room/breakout-room-graphql/create-breakout-room/component';
+import Trigger from '/imports/ui/components/common/control-header/right/component';
 
 const intlMessages = defineMessages({
   options: {
@@ -51,8 +51,8 @@ class BreakoutDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.manageDuration),
         onClick: () => {
           openBreakoutTimeManager();
-        }
-      }
+        },
+      },
     );
 
     this.menuItems.push(
@@ -62,8 +62,8 @@ class BreakoutDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.manageUsers),
         onClick: () => {
           this.setCreateBreakoutRoomModalIsOpen(true);
-        }
-      }
+        },
+      },
     );
 
     if (amIModerator) {
@@ -75,8 +75,8 @@ class BreakoutDropdown extends PureComponent {
           disabled: !isMeteorConnected,
           onClick: () => {
             endAllBreakouts();
-          }
-        }
+          },
+        },
       );
     }
 
@@ -100,35 +100,39 @@ class BreakoutDropdown extends PureComponent {
       <>
         <BBBMenu
           trigger={
-            <Trigger
-              data-test="breakoutOptionsMenu"
-              icon="more"
-              label={intl.formatMessage(intlMessages.options)}
-              aria-label={intl.formatMessage(intlMessages.options)}
-              onClick={() => null}
-            />
+            (
+              <Trigger
+                data-test="breakoutOptionsMenu"
+                icon="more"
+                label={intl.formatMessage(intlMessages.options)}
+                aria-label={intl.formatMessage(intlMessages.options)}
+                onClick={() => null}
+              />
+            )
           }
           opts={{
-            id: "breakoutroom-dropdown-menu",
+            id: 'breakoutroom-dropdown-menu',
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,
             getcontentanchorel: null,
-            fullwidth: "true",
+            fullwidth: 'true',
             anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
             transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
           }}
           actions={this.getAvailableActions()}
         />
-        {isCreateBreakoutRoomModalOpen ? <CreateBreakoutRoomContainer 
-          {...{
-            isUpdate: true,
-            onRequestClose: () => this.setCreateBreakoutRoomModalIsOpen(false),
-            priority: "low",
-            setIsOpen: this.setCreateBreakoutRoomModalIsOpen,
-            isOpen: isCreateBreakoutRoomModalOpen
-          }}
-        /> : null}
+        {isCreateBreakoutRoomModalOpen ? (
+          <CreateBreakoutRoomContainerGraphql
+            {...{
+              isUpdate: true,
+              onRequestClose: () => this.setCreateBreakoutRoomModalIsOpen(false),
+              priority: 'low',
+              setIsOpen: this.setCreateBreakoutRoomModalIsOpen,
+              isOpen: isCreateBreakoutRoomModalOpen,
+            }}
+          />
+        ) : null}
       </>
     );
   }
