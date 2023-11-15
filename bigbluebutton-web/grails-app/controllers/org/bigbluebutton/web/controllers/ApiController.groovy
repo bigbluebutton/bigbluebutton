@@ -130,8 +130,8 @@ class ApiController {
       return
     }
 
-    if(params.isBreakout && !params.parentIdMeetingId) {
-      invalid("parentMeetingIdMissing", "No parent meeting ID was provided for the breakout room")
+    if(params.isBreakout == "true" && !params.parentMeetingID) {
+      invalid("parentMeetingIDMissing", "No parent meeting ID was provided for the breakout room")
       return
     }
 
