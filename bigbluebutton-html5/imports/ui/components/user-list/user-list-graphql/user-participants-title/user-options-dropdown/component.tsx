@@ -339,14 +339,14 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
 const UserTitleOptionsContainer: React.FC = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const meetingInfo = useMeeting((meeting: Partial<Meeting>) => ({
+  const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
     voiceSettings: meeting?.voiceSettings,
     isBreakout: meeting?.isBreakout,
     breakoutPolicies: meeting?.breakoutPolicies,
     name: meeting?.name,
   }));
 
-  const currentUser = useCurrentUser((user: Partial<User>) => ({
+  const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
     userId: user?.userId,
     isModerator: user?.isModerator,
   }));

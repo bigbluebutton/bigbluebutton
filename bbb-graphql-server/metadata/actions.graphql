@@ -23,3 +23,10 @@ type Mutation {
   ): Boolean
 }
 
+type Mutation {
+  userJoin(
+    authToken: String!
+    clientType: String!
+  ): Boolean
+}
+

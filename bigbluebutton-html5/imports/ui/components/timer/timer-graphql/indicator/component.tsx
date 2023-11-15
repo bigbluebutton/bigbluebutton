@@ -143,7 +143,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
 };
 
 const TimerIndicatorContainer: React.FC = () => {
-  const currentUser = useCurrentUser((u) => ({
+  const { data: currentUser } = useCurrentUser((u) => ({
     isModerator: u.isModerator,
   }));
 

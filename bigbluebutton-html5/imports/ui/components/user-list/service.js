@@ -14,7 +14,6 @@ import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import logger from '/imports/startup/client/logger';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
 import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
@@ -155,30 +154,6 @@ const userFindSorting = {
   userId: 1,
 };
 
-const addWhiteboardAccess = (users) => {
-  const whiteboardId = WhiteboardService.getCurrentWhiteboardId();
-
-  if (whiteboardId) {
-    const multiUserWhiteboard = WhiteboardService.getMultiUser(whiteboardId);
-    return users.map((user) => {
-      const whiteboardAccess = multiUserWhiteboard.includes(user.userId);
-
-      return {
-        ...user,
-        whiteboardAccess,
-      };
-    });
-  }
-
-  return users.map((user) => {
-    const whiteboardAccess = false;
-    return {
-      ...user,
-      whiteboardAccess,
-    };
-  });
-};
-
 const addIsSharingWebcam = (users) => {
   const usersId = VideoService.getUsersIdFromVideoStreams();
 
@@ -229,7 +204,7 @@ const getUsers = () => {
     }
   }
 
-  return addIsSharingWebcam(addUserReaction(addWhiteboardAccess(users))).sort(sortUsers);
+  return addIsSharingWebcam(addUserReaction(users)).sort(sortUsers);
 };
 
 const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) => {

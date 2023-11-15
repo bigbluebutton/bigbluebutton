@@ -1,8 +1,6 @@
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-import { removeAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
-import { removeCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { removeExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
@@ -37,8 +35,6 @@ import Metrics from '/imports/startup/server/metrics';
 
 export default async function meetingHasEnded(meetingId) {
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-    removeAnnotationsStreamer(meetingId);
-    removeCursorStreamer(meetingId);
     removeExternalVideoStreamer(meetingId);
   }
 

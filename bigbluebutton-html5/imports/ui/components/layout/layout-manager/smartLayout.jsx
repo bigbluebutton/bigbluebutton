@@ -197,7 +197,7 @@ const SmartLayout = (props) => {
 
     cameraDockBounds.top = navBarHeight;
     cameraDockBounds.left = mediaAreaBounds.left;
-    cameraDockBounds.right = isRTL ? sidebarSize + camerasMargin * 2 : null;
+    cameraDockBounds.right = isRTL ? sidebarSize : null;
     cameraDockBounds.zIndex = 1;
 
     if (mediaBounds.width < mediaAreaBounds.width) {
