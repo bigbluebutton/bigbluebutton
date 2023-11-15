@@ -3,6 +3,7 @@ import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
 import audioManager from '/imports/ui/services/audio-manager';
 import { useReactiveVar } from '@apollo/client';
+import { Session } from 'meteor/session';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { OnProgressProps } from 'react-player/base';
 
@@ -29,6 +30,7 @@ import { ACTIONS } from '../../layout/enums';
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
+import { log } from 'console';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
@@ -315,7 +317,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   /* eslint no-underscore-dangle: "off" */
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isEchoTest = useReactiveVar(audioManager._isEchoTest.value) as boolean;
-
+  const theresNoExternalVideo = useRef(true);
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -324,10 +326,34 @@ const ExternalVideoPlayerContainer: React.FC = () => {
     externalVideo: m.externalVideo,
   }));
 
+  useEffect(() => {
+    if (!currentMeeting?.externalVideo?.externalVideoUrl && !theresNoExternalVideo.current) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+        value: false,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: Session.get('presentationLastState'),
+      });
+    } else if (currentMeeting?.externalVideo?.externalVideoUrl) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
+      theresNoExternalVideo.current = false;
+    }
+  }, [currentMeeting]);
+
   const [timeSync] = useTimeSync();
 
   const fullscreenElementId = 'ExternalVideo';
   const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
+  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
@@ -336,7 +362,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const fullscreenContext = (element === fullscreenElementId);
   const [key, setKey] = React.useState(uniqueId('react-player'));
   if (!currentUser || !currentMeeting) return null;
-
+  if (!hasExternalVideoOnLayout) return null;
   const playerCurrentTime = currentMeeting.externalVideo?.playerCurrentTime ?? 0;
   const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const playerUpdatedAt = currentMeeting.externalVideo?.updatedAt ?? Date.now();
