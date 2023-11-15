@@ -18,6 +18,7 @@ import { Layout } from '../../../layout/layoutTypes';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Chat } from '/imports/ui/Types/chat';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 const DEBUG_CONSOLE = false;
 
@@ -111,7 +112,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
 const TypingIndicatorContainer: React.FC = () => {
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const intl = useIntl();
-  const currentUser = useCurrentUser((user: Partial<User>) => {
+  const { data: currentUser } = useCurrentUser((user: Partial<User>) => {
     return {
       userId: user.userId,
       isModerator: user.isModerator,
@@ -120,15 +121,15 @@ const TypingIndicatorContainer: React.FC = () => {
   });
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:currentUser', currentUser);
-  const chat = useChat((c) => {
+  const { data: chat } = useChat((c) => {
     return {
       participant: c?.participant,
       chatId: c?.chatId,
       public: c?.public,
     };
-  }, idChatOpen) as Partial<Chat>;
+  }, idChatOpen) as GraphqlDataHookSubscriptionResponse<Chat>;
 
-  const meeting = useMeeting((m) => ({
+  const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
   }));
 

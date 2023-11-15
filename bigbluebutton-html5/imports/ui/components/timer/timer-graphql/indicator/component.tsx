@@ -124,6 +124,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
           role="button"
           tabIndex={0}
           onClick={isModerator ? onClick : () => {}}
+          data-test="timeIndicator"
         >
           <Styled.TimerContent>
             <Styled.TimerIcon>
@@ -143,7 +144,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
 };
 
 const TimerIndicatorContainer: React.FC = () => {
-  const currentUser = useCurrentUser((u) => ({
+  const { data: currentUser } = useCurrentUser((u) => ({
     isModerator: u.isModerator,
   }));
 

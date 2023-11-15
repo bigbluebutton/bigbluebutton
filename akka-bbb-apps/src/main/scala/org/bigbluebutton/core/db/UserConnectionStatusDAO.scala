@@ -19,7 +19,7 @@ class UserConnectionStatusDbTableDef(tag: Tag) extends Table[UserConnectionStatu
   val connectionAliveAt = column[Option[java.sql.Timestamp]]("connectionAliveAt")
 }
 
-object UserConnectionStatusdDAO {
+object UserConnectionStatusDAO {
 
   def insert(meetingId: String, userId: String) = {
     DatabaseConnection.db.run(

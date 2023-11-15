@@ -169,7 +169,7 @@ const UserListParticipantsContainer: React.FC = () => {
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
-  const currentUser = useCurrentUser((c: Partial<User>) => ({
+  const { data: currentUser } = useCurrentUser((c: Partial<User>) => ({
     isModerator: c.isModerator,
     userId: c.userId,
     presenter: c.presenter,
