@@ -8,7 +8,7 @@ import React, {
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
-import { useCurrentUser } from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { useSubscription } from '@apollo/client';
 import {
   PINNED_USER, STREAMS_COUNTER,
@@ -30,6 +30,7 @@ import UserStatus from './user-status/component';
 import ViewActions from './view-actions/component';
 import PinAreaContainer from './pin-area/component';
 import useSelfViewDisable from '/imports/ui/core/local-states/useSelfViewDisable';
+import { User } from '/imports/ui/Types/user';
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 175;
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
@@ -416,7 +417,9 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
 
-  const currenUser = useCurrentUser((user) => ({
+  const {
+    data: currentUser,
+  } = useCurrentUser((user: Partial<User>) => ({
     pinned: user.pinned,
     userId: user.userId,
     name: user.name,
@@ -457,22 +460,22 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
     <VideoListItem
       cameraId={cameraId}
       userId={userId}
-      talking={currenUser?.voice?.talking ?? false}
-      listenOnly={currenUser?.voice?.listenOnly ?? false}
-      muted={currenUser?.voice?.muted ?? false}
+      talking={currentUser?.voice?.talking ?? false}
+      listenOnly={currentUser?.voice?.listenOnly ?? false}
+      muted={currentUser?.voice?.muted ?? false}
       onVideoItemMount={onVideoItemMount}
       disabledCams={disabledCams ?? []}
       numOfStreams={streamsCounter?.data?.user_camera_aggregate.aggregate.count ?? 0}
       isStream={isStream}
       focused={focused}
       name={name}
-      isModerator={currenUser?.isModerator ?? false}
-      voiceUser={!!currenUser?.voice ?? false}
-      presenter={currenUser?.presenter ?? false}
-      clientType={currenUser?.clientType ?? ''}
-      color={currenUser?.color ?? ''}
-      avatar={currenUser?.avatar ?? ''}
-      emoji={currenUser?.emoji ?? ''}
+      isModerator={currentUser?.isModerator ?? false}
+      voiceUser={!!currentUser?.voice ?? false}
+      presenter={currentUser?.presenter ?? false}
+      clientType={currentUser?.clientType ?? ''}
+      color={currentUser?.color ?? ''}
+      avatar={currentUser?.avatar ?? ''}
+      emoji={currentUser?.emoji ?? ''}
       isFullscreenContext={isFullscreenContext}
       makeDragOperations={makeDragOperations}
       PinnedUserId={pinnedUser?.data?.user[0]?.userId ?? ''}

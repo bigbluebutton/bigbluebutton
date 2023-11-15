@@ -267,7 +267,9 @@ const UserActionContainer: React.FC<UserActionContainerProps> = ({
   isModerator,
 }) => {
   const focusedId = layoutSelectInput((i: Input) => i.cameraDock.focusedId);
-  const meeting = useMeeting((m) => ({
+  const {
+    data: meeting,
+  } = useMeeting((m) => ({
     isBreakout: m.isBreakout,
   }));
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import { toggleVideoPin } from './service';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   unpinLabel: {
@@ -63,7 +63,9 @@ const PinAreaContainer: React.FC<PinAreaContainerProps> = ({
   isModerator,
   isPinEnabled,
 }) => {
-  const meeting = useMeeting((m) => ({
+  const {
+    data: meeting
+  } = useMeeting((m) => ({
     isBreakout: m.isBreakout,
   }));
 
