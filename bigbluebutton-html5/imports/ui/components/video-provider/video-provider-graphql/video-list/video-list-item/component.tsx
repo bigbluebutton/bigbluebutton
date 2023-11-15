@@ -31,6 +31,7 @@ import ViewActions from './view-actions/component';
 import PinAreaContainer from './pin-area/component';
 import useSelfViewDisable from '/imports/ui/core/local-states/useSelfViewDisable';
 import { User } from '/imports/ui/Types/user';
+import logger from '/imports/startup/client/logger';
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 175;
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
@@ -440,13 +441,13 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
 
   if (streamsCounter.loading) return null;
   if (streamsCounter.error) {
-    console.log('Error in streamsCounter subscription', streamsCounter.error);
+    logger.info('Error in streamsCounter subscription', streamsCounter.error);
     return (<div>{JSON.stringify(streamsCounter.error)}</div>);
   }
 
   if (pinnedUser.loading) return null;
   if (pinnedUser.error) {
-    console.log('Error in pinnedUser subscription', pinnedUser.error);
+    logger.info('Error in pinnedUser subscription', pinnedUser.error);
     return (<div>{JSON.stringify(pinnedUser.error)}</div>);
   }
 

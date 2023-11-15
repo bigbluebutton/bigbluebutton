@@ -64,7 +64,7 @@ const PinAreaContainer: React.FC<PinAreaContainerProps> = ({
   isPinEnabled,
 }) => {
   const {
-    data: meeting
+    data: meeting,
   } = useMeeting((m) => ({
     isBreakout: m.isBreakout,
   }));
