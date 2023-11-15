@@ -30,7 +30,6 @@ import { ACTIONS } from '../../layout/enums';
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
-import { log } from 'console';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
