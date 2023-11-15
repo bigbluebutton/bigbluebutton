@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.pads
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.CaptionDAO
 import org.bigbluebutton.core.models.Pads
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -40,6 +41,7 @@ trait PadPatchSysMsgHdlr {
           broadcastEditCaptionHistoryEvent(msg.body.userId, msg.body.start, msg.body.end, group.name, locale, msg.body.text)
           val tail = liveMeeting.captionModel.getTextTail(group.name)
           broadcastPadTailEvent(group.externalId, tail)
+          CaptionDAO.insertOrUpdatePadCaption(liveMeeting.props.meetingProp.intId, locale, msg.body.userId, tail)
         }
       }
       case _ =>

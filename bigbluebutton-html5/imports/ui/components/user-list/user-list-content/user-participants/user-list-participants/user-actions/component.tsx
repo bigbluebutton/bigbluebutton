@@ -35,6 +35,7 @@ interface UserActionsProps {
   usersPolicies: UsersPolicies;
   isBreakout: boolean;
   children: React.ReactNode;
+  pageId: string;
 }
 
 interface DropdownItem {
@@ -189,6 +190,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   usersPolicies,
   isBreakout,
   children,
+  pageId,
 }) => {
   const intl = useIntl();
   const [showNestedOptions, setShowNestedOptions] = useState(false);
@@ -238,6 +240,8 @@ const UserActions: React.FC<UserActionsProps> = ({
   const userDropdownItems = userListDropdownItems.filter(
     (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
   );
+
+  const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
 
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
@@ -339,11 +343,11 @@ const UserActions: React.FC<UserActionsProps> = ({
         && !user.presenter
         && !isVoiceOnlyUser(user.userId),
       key: 'changeWhiteboardAccess',
-      label: user.whiteboardAccess
+      label: hasWhiteboardAccess
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        changeWhiteboardAccess(user.userId, user.presPagesWritable.length > 0);
+        changeWhiteboardAccess(pageId, user.userId, hasWhiteboardAccess);
         setSelected(false);
       },
       icon: 'pen_tool',

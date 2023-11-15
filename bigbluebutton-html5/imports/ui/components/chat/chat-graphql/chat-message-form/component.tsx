@@ -19,6 +19,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   startUserTyping,
   stopUserTyping,
+  textToMarkdown,
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
@@ -30,6 +31,7 @@ import { useMutation } from '@apollo/client';
 import { SEND_GROUP_CHAT_MSG } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -243,7 +245,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
-      const msg = message.trim();
+      const msg = textToMarkdown(message);
 
       if (msg.length < minMessageLength) return;
 
@@ -293,6 +295,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         handleSubmit(event);
       }
     };
+
+    document.addEventListener('click', (event) => {
+      const chatList = document.getElementById('chat-list');
+      if (chatList?.contains(event.target as Node)) {
+        const selection = window.getSelection()?.toString();
+        if (selection?.length === 0) {
+          textAreaRef.current?.textarea.focus();
+        }
+      }
+    });
 
     if (sendGroupChatMsgError) { return <div>something went wrong</div>; }
 
@@ -383,13 +395,13 @@ const ChatMessageFormContainer: React.FC = ({
   const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
-  const chat = useChat((c: Partial<Chat>) => ({
+  const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
     public: c?.public,
-  }), idChatOpen) as Partial<Chat>;
+  }), idChatOpen) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
 
-  const currentUser = useCurrentUser((c) => ({
+  const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
     locked: c?.locked,
   }));
@@ -398,7 +410,7 @@ const ChatMessageFormContainer: React.FC = ({
     ? intl.formatMessage(messages.titlePrivate, { 0: chat?.participant?.name })
     : intl.formatMessage(messages.titlePublic);
 
-  const meeting = useMeeting((m) => ({
+  const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
   }));
 

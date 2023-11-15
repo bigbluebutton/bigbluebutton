@@ -20,7 +20,7 @@ case class MeetingDbModel(
     presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
     createdTime:                           Long,
-    duration:                              Int
+    durationInSeconds:                     Int
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -37,7 +37,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     presentationUploadExternalUrl,
     learningDashboardAccessToken,
     createdTime,
-    duration
+    durationInSeconds
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -51,7 +51,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
   val createdTime = column[Long]("createdTime")
-  val duration = column[Int]("duration")
+  val durationInSeconds = column[Int]("durationInSeconds")
 }
 
 object MeetingDAO {
@@ -71,18 +71,18 @@ object MeetingDAO {
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,
           createdTime = meetingProps.durationProps.createdTime,
-          duration = meetingProps.durationProps.duration
+          durationInSeconds = meetingProps.durationProps.duration * 60
         )
       )
     ).onComplete {
         case Success(rowsAffected) => {
           DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in Meeting table!")
+          ChatDAO.insert(meetingProps.meetingProp.intId, GroupChatApp.createDefaultPublicGroupChat())
           MeetingUsersPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
           MeetingLockSettingsDAO.insert(meetingProps.meetingProp.intId, meetingProps.lockSettingsProps)
           MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
           MeetingRecordingPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)
           MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
-          ChatDAO.insert(meetingProps.meetingProp.intId, GroupChatApp.createDefaultPublicGroupChat())
           MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
           MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
           MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
@@ -103,11 +103,11 @@ object MeetingDAO {
     DatabaseConnection.db.run(
       TableQuery[MeetingDbTableDef]
         .filter(_.extId in subqueryBreakoutRooms)
-        .map(u => u.duration)
+        .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
     ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated duration on Meeting table")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating duration on Meeting: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated durationInSeconds on Meeting table")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating durationInSeconds on Meeting: $e")
       }
   }
 

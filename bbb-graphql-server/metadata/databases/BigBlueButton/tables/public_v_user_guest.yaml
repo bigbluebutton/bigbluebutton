@@ -32,3 +32,4 @@ select_permissions:
               _eq: X-Hasura-UserId
           - meetingId:
               _eq: X-Hasura-ModeratorInMeeting
+      allow_aggregations: true

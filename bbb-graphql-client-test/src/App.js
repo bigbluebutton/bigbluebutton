@@ -13,21 +13,24 @@ import TotalOfUniqueNames from './TotalOfUniqueNames';
 import ChatMessages from "./ChatMessages";
 import ChatsInfo from "./ChatsInfo";
 import ChatPublicMessages from "./ChatPublicMessages";
+import PluginDataChannel from "./PluginDataChannel";
 import Annotations from "./Annotations";
 import AnnotationsHistory from "./AnnotationsHistory";
 import CursorsStream from "./CursorsStream";
 import CursorsAll from "./CursorsAll";
 import TalkingStream from "./TalkingStream";
 import MyInfo from "./MyInfo";
-import UserLocalSettings from "./UserLocalSettings";
+import UserClientSettings from "./UserClientSettings";
 import UserConnectionStatus from "./UserConnectionStatus";
 import UserConnectionStatusReport from "./UserConnectionStatusReport";
+import PresPresentationUploadToken from "./PresPresentationUploadToken";
 
 
 function App() {
   const [sessionToken, setSessionToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [userAuthToken, setUserAuthToken] = useState(null);
   const [graphqlClient, setGraphqlClient] = useState(null);
   const [enterApiResponse, setEnterApiResponse] = useState('');
 
@@ -44,6 +47,7 @@ function App() {
           if(json?.response?.internalUserID) {
             setUserId(json.response.internalUserID);
             setUserName(json.response.fullname);
+            setUserAuthToken(json.response.authToken);
           }
         });
   }
@@ -106,13 +110,17 @@ function App() {
             Who am I? {userName} ({userId})
             <MeetingInfo />
             <br />
-            <MyInfo />
+            <PluginDataChannel userId={userId} />
+            <br />
+            <MyInfo userAuthToken={userAuthToken} />
+            <br />
+            <PresPresentationUploadToken />
             <br />
             <UserConnectionStatus />
             <br />
             <UserConnectionStatusReport />
             <br />
-            <UserLocalSettings userId={userId} />
+            <UserClientSettings userId={userId} />
             <br />
             <UserList userId={userId} />
             <br />

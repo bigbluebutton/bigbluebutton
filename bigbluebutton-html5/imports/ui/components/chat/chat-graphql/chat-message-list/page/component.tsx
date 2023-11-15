@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
-import { useSubscription } from '@apollo/client';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
-  ChatMessagePrivateSubscriptionResponse,
-  ChatMessagePublicSubscriptionResponse,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
+import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -33,13 +32,6 @@ interface ChatListPageProps {
   markMessageAsSeen: (message: Message)=> void;
   scrollRef: React.RefObject<HTMLDivElement>;
 }
-
-const verifyIfIsPublicChat = (message: unknown):
-// eslint-disable-next-line max-len
-message is ChatMessagePublicSubscriptionResponse => (message as ChatMessagePublicSubscriptionResponse).chat_message_public !== undefined;
-
-// eslint-disable-next-line max-len
-const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined;
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
@@ -84,44 +76,27 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const defaultVariables = { offset: (page) * pageSize, limit: pageSize };
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
+
+  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
   const {
     data: chatMessageData,
-    loading: chatMessageLoading,
-    error: chatMessageError,
-  } = useSubscription<ChatMessagePublicSubscriptionResponse|ChatMessagePrivateSubscriptionResponse>(
-    chatQuery,
-    { variables },
-  );
+  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
-  if (chatMessageError) {
+  if (chatMessageData) {
+    if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
+      setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
+    }
+
     return (
-      <p>
-        chatMessageError:
-        {JSON.stringify(chatMessageError)}
-      </p>
+      <ChatListPage
+        messages={chatMessageData}
+        lastSenderPreviousPage={lastSenderPreviousPage}
+        page={page}
+        markMessageAsSeen={markMessageAsSeen}
+        scrollRef={scrollRef}
+      />
     );
-  }
-  if (chatMessageLoading) return null;
-  let messages: Array<Message> = [];
-  if (verifyIfIsPublicChat(chatMessageData)) {
-    messages = chatMessageData.chat_message_public || [];
-  } else if (verifyIfIsPrivateChat(chatMessageData)) {
-    messages = chatMessageData.chat_message_private || [];
-  }
-
-  if (messages.length > 0) {
-    setLastSender(page, messages[messages.length - 1].user?.userId);
-  }
-
-  return (
-    <ChatListPage
-      messages={messages}
-      lastSenderPreviousPage={lastSenderPreviousPage}
-      page={page}
-      markMessageAsSeen={markMessageAsSeen}
-      scrollRef={scrollRef}
-    />
-  );
+  } return (<></>);
 };
 
 export default ChatListPageContainer;

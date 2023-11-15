@@ -953,10 +953,10 @@ class Poll extends Component {
     const { isPolling } = this.state;
     const {
       currentPoll,
-      currentSlide,
+      currentSlideId,
     } = this.props;
 
-    if (!currentSlide) return this.renderNoSlidePanel();
+    if (!currentSlideId) return this.renderNoSlidePanel();
     if (isPolling || currentPoll) {
       return this.renderActivePollOptions();
     }

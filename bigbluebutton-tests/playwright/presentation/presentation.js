@@ -33,6 +33,20 @@ class Presentation extends MultiUsers {
     await checkSvgIndex(this.modPage, '/svg/1');
   }
 
+  async shareCameraAsContent() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.shareCameraAsContent);
+    await this.modPage.waitForSelector(e.videoPreview);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+
+    const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
+    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-share-camera-as-content.png', {
+      maxDiffPixels: 1000,
+    });
+  }
+
   async hideAndRestorePresentation() {
     const { presentationHidden } = getSettings();
     if (!presentationHidden) {

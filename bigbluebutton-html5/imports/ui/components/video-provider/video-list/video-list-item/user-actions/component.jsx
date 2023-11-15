@@ -220,6 +220,7 @@ const UserActions = (props) => {
               <Styled.DropdownTrigger
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
+                isRTL={isRTL}
               >
                 {name}
               </Styled.DropdownTrigger>

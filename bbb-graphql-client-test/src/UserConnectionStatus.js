@@ -92,14 +92,7 @@ export default function UserConnectionStatus() {
         {data.user_connectionStatus.map((curr) => {
             console.log('user_connectionStatus', curr);
 
-            // if(curr.userClientResponseAt == null) {
-            //     handleUpdateConnectionAliveAt();
-            // }
-
             if(curr.userClientResponseAt == null) {
-                console.log('entrou!');
-                console.log('curr.connectionAliveAt',curr.connectionAliveAt);
-                console.log('curr.userClientResponseAt',curr.userClientResponseAt);
                 // handleUpdateUserClientResponseAt();
                 const delay = 500;
                 setTimeout(() => {

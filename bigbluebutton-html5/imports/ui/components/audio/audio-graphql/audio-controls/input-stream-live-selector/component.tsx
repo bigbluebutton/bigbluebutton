@@ -216,7 +216,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
 };
 
 const InputStreamLiveSelectorContainer: React.FC = () => {
-  const currentUser: Partial<User> = useCurrentUser((u: Partial<User>) => {
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => {
     if (!u.voice) {
       return {
         presenter: u.presenter,
@@ -237,7 +237,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
     };
   });
 
-  const currentMeeting: Partial<Meeting> = useMeeting((m: Partial<Meeting>) => {
+  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
     return {
       lockSettings: m?.lockSettings,
       isBreakout: m?.isBreakout,

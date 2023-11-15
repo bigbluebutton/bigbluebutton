@@ -37,6 +37,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
   },
+  userAway: {
+    id: 'app.chat.away',
+    description: 'message when user is away',
+  },
+  userNotAway: {
+    id: 'app.chat.notAway',
+    description: 'message when user is no longer away',
+  },
 });
 
 function isInViewport(el: HTMLDivElement) {
@@ -137,6 +145,20 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             />
           ),
         };
+      case ChatMessageType.USER_AWAY_STATUS_MSG: {
+        const { away } = JSON.parse(message.messageMetadata);
+        return {
+          name: message.senderName,
+          color: '#0F70D7',
+          isModerator: true,
+          component: (
+            <ChatMessageTextContent
+              emphasizedMessage
+              text={(away) ? intl.formatMessage(intlMessages.userAway) : intl.formatMessage(intlMessages.userNotAway)}
+            />
+          ),
+        };
+      }
       case ChatMessageType.TEXT:
       default:
         return {
@@ -161,7 +183,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           color={messageContent.color}
           moderator={messageContent.isModerator}
         >
-          {!message.user || message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) || 'q' : 'a'}
+          {!message.user || message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) || '' : ''}
         </ChatAvatar>
       )}
       <ChatContent sameSender={message?.user ? sameSender : false}>

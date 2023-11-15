@@ -52,15 +52,6 @@ object_relationships:
         remote_table:
           name: v_user_breakoutRoom
           schema: public
-  - name: localSettings
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_localSettings
-          schema: public
   - name: meeting
     using:
       manual_configuration:
@@ -87,6 +78,15 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_sharedNotes_session
+          schema: public
+  - name: userClientSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_clientSettings
           schema: public
   - name: voice
     using:
@@ -149,6 +149,8 @@ select_permissions:
         - isDialIn
         - isModerator
         - isRunningEchoTest
+        - joinErrorCode
+        - joinErrorMessage
         - joined
         - locked
         - loggedOut
@@ -158,16 +160,39 @@ select_permissions:
         - pinned
         - presenter
         - raiseHand
+        - registeredAt
         - registeredOn
         - role
         - speechLocale
         - userId
       filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
+        userId:
+          _eq: X-Hasura-UserId
+  - role: pre_join_bbb_client
+    permission:
+      columns:
+        - authed
+        - banned
+        - color
+        - disconnected
+        - ejectReason
+        - ejectReasonCode
+        - ejected
+        - expired
+        - extId
+        - guest
+        - joinErrorCode
+        - joinErrorMessage
+        - joined
+        - loggedOut
+        - name
+        - registeredAt
+        - registeredOn
+        - userId
+      filter:
+        userId:
+          _eq: X-Hasura-UserId
+    comment: ""
 update_permissions:
   - role: bbb_client
     permission:

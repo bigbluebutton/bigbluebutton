@@ -6,29 +6,31 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 case class UserDbModel(
-    userId:       String,
-    extId:        String,
-    meetingId:    String,
-    name:         String,
-    role:         String,
-    avatar:       String = "",
-    color:        String = "",
-    sessionToken: String = "",
-    authed: Boolean = false,
-    joined: Boolean = false,
-    banned:       Boolean = false,
-    loggedOut:    Boolean = false,
-    guest: Boolean,
-    guestStatus: String,
-    registeredOn: Long,
-    excludeFromDashboard: Boolean,
+    userId:                 String,
+    extId:                  String,
+    meetingId:              String,
+    name:                   String,
+    role:                   String,
+    avatar:                 String = "",
+    color:                  String = "",
+    sessionToken:           String = "",
+    authed:                 Boolean = false,
+    joined:                 Boolean = false,
+    joinErrorMessage:       Option[String],
+    joinErrorCode:          Option[String],
+    banned:                 Boolean = false,
+    loggedOut:              Boolean = false,
+    guest:                  Boolean,
+    guestStatus:            String,
+    registeredOn:           Long,
+    excludeFromDashboard:   Boolean,
 )
 
 
 
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
-    userId,extId,meetingId,name,role,avatar,color, sessionToken, authed,joined,banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard) <> (UserDbModel.tupled, UserDbModel.unapply)
+    userId,extId,meetingId,name,role,avatar,color, sessionToken, authed,joined,joinErrorCode, joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard) <> (UserDbModel.tupled, UserDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
   val meetingId = column[String]("meetingId")
@@ -39,6 +41,8 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val sessionToken = column[String]("sessionToken")
   val authed = column[Boolean]("authed")
   val joined = column[Boolean]("joined")
+  val joinErrorCode = column[Option[String]]("joinErrorCode")
+  val joinErrorMessage = column[Option[String]]("joinErrorMessage")
   val banned = column[Boolean]("banned")
   val loggedOut = column[Boolean]("loggedOut")
   val guest = column[Boolean]("guest")
@@ -62,6 +66,8 @@ object UserDAO {
           sessionToken = regUser.sessionToken,
           authed = regUser.authed,
           joined = regUser.joined,
+          joinErrorCode = None,
+          joinErrorMessage = None,
           banned = regUser.banned,
           loggedOut = regUser.loggedOut,
           guest = regUser.guest,
@@ -73,10 +79,10 @@ object UserDAO {
     ).onComplete {
         case Success(rowsAffected) => {
           DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in User table!")
-          ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
-          UserConnectionStatusdDAO.insert(meetingId, regUser.id)
+          UserConnectionStatusDAO.insert(meetingId, regUser.id)
           UserCustomParameterDAO.insert(regUser.id, regUser.customParameters)
-          UserLocalSettingsDAO.insert(regUser.id, meetingId)
+          UserClientSettingsDAO.insert(regUser.id, meetingId)
+          ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
         }
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting user: $e")
       }
@@ -94,6 +100,17 @@ object UserDAO {
       }
   }
 
+  def updateJoinError(userId: String, joinErrorCode: String, joinErrorMessage: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[UserDbTableDef]
+        .filter(_.userId === userId)
+        .map(u => (u.joined, u.joinErrorCode, u.joinErrorMessage))
+        .update((false, Some(joinErrorCode), Some(joinErrorMessage)))
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user (Joined) table!")
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user (Joined): $e")
+    }
+  }
 
 
   def delete(intId: String) = {
