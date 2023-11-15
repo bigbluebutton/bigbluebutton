@@ -2,7 +2,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { defineMessages, useIntl } from 'react-intl';
-import { layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
+import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import browserInfo from '/imports/utils/browserInfo';
 import Auth from '/imports/ui/services/auth';
@@ -46,7 +46,7 @@ const intlMessages = defineMessages({
     id: 'app.videoDock.webcamUnpinDesc',
   },
   mirrorLabel: {
-    id: 'app.videoDock.webcamMirrorLabel',
+    id: 'app.videoDock.webcamEnableMirrorLabel',
   },
   mirrorDesc: {
     id: 'app.videoDock.webcamMirrorDesc',
@@ -103,6 +103,7 @@ const UserAction: React.FC<UserActionProps> = ({
   isRTL,
 }) => {
   const intl = useIntl();
+  const dispatch = layoutDispatch();
   const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
   const { isFirefox } = browserInfo;
 
@@ -170,7 +171,7 @@ const UserAction: React.FC<UserActionProps> = ({
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-        onClick: () => handleVideoFocus(cameraId, focusedId),
+        onClick: () => handleVideoFocus(cameraId, focusedId, dispatch),
         dataTest: 'FocusWebcamBtn',
       });
     }

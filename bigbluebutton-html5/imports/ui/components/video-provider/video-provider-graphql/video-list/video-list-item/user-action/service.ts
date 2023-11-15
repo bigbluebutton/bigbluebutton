@@ -4,8 +4,10 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import React from 'react';
 import { makeCall } from '/imports/ui/services/api';
 
-export const handleVideoFocus = (id: string, focusedId: string) => {
-  const dispatch = layoutDispatch();
+export const handleVideoFocus = (id: string, focusedId: string, dispatch: React.Dispatch<{
+  type: string;
+  value: string | boolean;
+}>) => {
   dispatch({
     type: ACTIONS.SET_FOCUSED_CAMERA_ID,
     value: focusedId !== id ? id : false,
