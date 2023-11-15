@@ -497,7 +497,9 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
 }) => {
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
-  const currentMeeting = useMeeting((m) => ({
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => ({
     breakoutPolicies: m.breakoutPolicies,
   }));
 
@@ -540,7 +542,6 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       </div>
     );
   }
-
   return (
     <CreateBreakoutRoom
       isOpen={isOpen}
