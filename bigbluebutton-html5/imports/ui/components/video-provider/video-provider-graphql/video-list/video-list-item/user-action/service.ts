@@ -1,4 +1,3 @@
-import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import React from 'react';
