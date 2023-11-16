@@ -1,3 +1,2 @@
-FROM amazoncorretto:17-alpine
+FROM bigbluebutton/bbb-libreoffice:7.6.2-20231020-161900
 
-RUN apk add fontconfig libreoffice
