@@ -146,7 +146,7 @@ class Join extends Create {
     const { sharedNotesEnabled } = getSettings();
 
     if(!sharedNotesEnabled) {
-      this.modPage.hasElement(e.chatButton);
+      await this.modPage.hasElement(e.chatButton);
       return this.modPage.wasRemoved(e.sharedNotes);
     }
     const breakoutUserPage = await this.joinRoom();
@@ -184,7 +184,7 @@ class Join extends Create {
     const { sharedNotesEnabled } = getSettings();
     
     if(!sharedNotesEnabled) {
-      this.modPage.hasElement(e.chatButton);
+      await this.modPage.hasElement(e.chatButton);
       return this.modPage.wasRemoved(e.sharedNotes);
     }
 

@@ -72,8 +72,8 @@ class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
 
     if(!publicChatOptionsEnabled) {
-      this.modPage.waitAndClick(e.chatOptions);
-      this.modPage.hasElement(e.chatClear);
+      await this.modPage.waitAndClick(e.chatOptions);
+      await this.modPage.hasElement(e.chatClear);
       return this.modPage.wasRemoved(e.chatCopy);
     }
     // sending a message
@@ -96,7 +96,7 @@ class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
     if(!publicChatOptionsEnabled) {
       await this.modPage.waitAndClick(e.chatOptions);
-      return await this.modPage.wasRemoved(e.chatSave);
+      return this.modPage.wasRemoved(e.chatSave);
     }
 
     await this.modPage.type(e.chatBox, e.message);
@@ -162,7 +162,7 @@ class Chat extends MultiUsers {
 
     await openPublicChat(this.modPage);
     if(!emojiPickerEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.wasRemoved(e.emojiPickerButton);
     }
 
@@ -182,7 +182,7 @@ class Chat extends MultiUsers {
 
     await openPublicChat(this);
     if(!emojiPickerEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.wasRemoved(e.emojiPickerButton);
     }
     await this.waitAndClick(e.emojiPickerButton);
@@ -226,7 +226,7 @@ class Chat extends MultiUsers {
 
     await openPublicChat(this.modPage);
     if(!emojiPickerEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.wasRemoved(e.emojiPickerButton);
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
@@ -253,7 +253,7 @@ class Chat extends MultiUsers {
     await sleep(500); // prevent a race condition when running on a deployed server
     // modPage send message
     if(!emojiPickerEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.wasRemoved(e.emojiPickerButton);
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
@@ -295,7 +295,7 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
 
     if(!autoConvertEmojiEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ":)");
     }
 
@@ -310,7 +310,7 @@ class Chat extends MultiUsers {
     await this.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.waitAndClick(e.sendButton);
     if(!autoConvertEmojiEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ":)");
     }
     await this.waitAndClick(e.chatOptions);
@@ -330,7 +330,7 @@ class Chat extends MultiUsers {
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
     if(!autoConvertEmojiEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ':)');
     }
     await this.modPage.waitForSelector(e.chatUserMessageText);
@@ -356,10 +356,10 @@ class Chat extends MultiUsers {
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
     if(!autoConvertEmojiEnabled && !emojiPickerEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.hasText(`${e.chatUserMessageText}>>nth=0`, ":)");
     } else if (!autoConvertEmojiEnabled) {
-      this.modPage.hasElement(e.chatBox);
+      await this.modPage.hasElement(e.chatBox);
       return this.modPage.hasText(`${e.chatUserMessageText}>>nth=2`, ":)");
     }
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);

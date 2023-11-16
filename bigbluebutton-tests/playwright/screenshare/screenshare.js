@@ -14,7 +14,7 @@ class ScreenShare extends Page {
     const { screensharingEnabled } = getSettings();
 
     if(!screensharingEnabled) {
-      this.hasElement(e.joinVideo);
+      await this.hasElement(e.joinVideo);
       return this.wasRemoved(e.startScreenSharing);
     }
     await startScreenshare(this);
@@ -35,7 +35,7 @@ class MultiUserScreenShare extends MultiUsers {
     const { screensharingEnabled } = getSettings();
 
     if(!screensharingEnabled) {
-      this.hasElement(e.joinVideo);
+      await this.hasElement(e.joinVideo);
       return this.wasRemoved(e.startScreenSharing);
     }
     await startScreenshare(page);

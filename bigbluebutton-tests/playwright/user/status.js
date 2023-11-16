@@ -15,7 +15,7 @@ class Status extends Page {
 
     await waitAndClearDefaultPresentationNotification(this);
     if(!userStatusEnabled) {
-      this.waitAndClick(e.currentUser);
+      await this.waitAndClick(e.currentUser);
       return this.wasRemoved(e.setStatus);
     }
     await setStatus(this, e.applaud);
