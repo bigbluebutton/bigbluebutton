@@ -23,10 +23,6 @@ object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg" }
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
 case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageId: String)
 
-object SetPresenterInPodReqMsg { val NAME = "SetPresenterInPodReqMsg" }
-case class SetPresenterInPodReqMsg(header: BbbClientMsgHeader, body: SetPresenterInPodReqMsgBody) extends StandardMsg
-case class SetPresenterInPodReqMsgBody(podId: String, nextPresenterId: String)
-
 object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg" }
 case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
 case class RemovePresentationPubMsgBody(podId: String, presentationId: String)
