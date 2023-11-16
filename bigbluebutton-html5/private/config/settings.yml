@@ -547,6 +547,7 @@ public:
     chatMessage: true
   captions:
     enabled: true
+    showButton: false
     id: captions
     dictation: false
     background: '#000000'

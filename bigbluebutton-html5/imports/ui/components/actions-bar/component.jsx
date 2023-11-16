@@ -113,7 +113,7 @@ class ActionsBar extends PureComponent {
             setPresentationFitToWidth,
           }}
           />
-          { false && isCaptionsAvailable
+          { isCaptionsAvailable
             ? (
               <>
                 <CaptionsButtonContainer {...{ intl,

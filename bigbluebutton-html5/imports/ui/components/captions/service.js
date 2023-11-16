@@ -131,6 +131,10 @@ const setCaptionsActive = (locale) => Session.set('captionsActive', locale);
 const amICaptionsOwner = (ownerId) => ownerId === Auth.userID;
 
 const isCaptionsAvailable = () => {
+  if (!CAPTIONS_CONFIG.showButton) {
+    return false;
+  }
+
   if (isCaptionsEnabled()) {
     const ownedLocales = getOwnedLocales();
 
