@@ -328,7 +328,6 @@ class UserOptions extends PureComponent {
           dataTest: 'writeClosedCaptions',
         });
       }
-
       if (amIModerator) {
         if (isLearningDashboardEnabled()) {
           this.menuItems.push({
