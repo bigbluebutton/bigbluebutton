@@ -94,7 +94,6 @@ const CaptionsButton = ({
   availableVoices,
   isSupported,
   isVoiceUser,
-  mountModal,
 }) => {
   const usePrevious = (value) => {
     const ref = useRef();

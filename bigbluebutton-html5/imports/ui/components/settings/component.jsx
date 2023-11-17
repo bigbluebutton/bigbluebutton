@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
-import Transcription from '/imports/ui/components/settings/submenus/transcription/component.jsx';
+import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
 import { clone } from 'radash';
 import PropTypes from 'prop-types';
 import Styled from './styles';
