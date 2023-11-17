@@ -240,7 +240,7 @@ class App extends Component {
         logger.info({ logCode: 'app_component_set_speech_options' }, 'Setting initial speech options');
 
         Settings.transcription.partialUtterances = partialUtterances ? true : false;
-        Settings.transcription.minUtteranceLength = parseInt(minUtteranceLength);
+        Settings.transcription.minUtteranceLength = parseInt(minUtteranceLength, 10);
 
         SpeechService.setSpeechOptions(Settings.transcription.partialUtterances, Settings.transcription.minUtteranceLength);
       }

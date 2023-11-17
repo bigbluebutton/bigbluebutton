@@ -38,7 +38,7 @@ const updateSettings = (obj, msgDescriptor) => {
 
   if (obj.transcription) {
     const { partialUtterances, minUtteranceLength } = obj.transcription;
-    SpeechService.setSpeechOptions(partialUtterances, parseInt(minUtteranceLength));
+    SpeechService.setSpeechOptions(partialUtterances, parseInt(minUtteranceLength, 10));
   }
 
   if (msgDescriptor) {
