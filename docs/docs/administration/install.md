@@ -333,7 +333,7 @@ You can upgrade in a few steps:
 
   Then run the `bbb-install.sh` script -- it will download and install the latest release of BigBlueButton 2.7 on top of your old 2.5 version.
   
-  Make sure you read through the "what's new in 2.7" document https://docs.bigbluebutton.org/2.7/new and specifically https://docs.bigbluebutton.org/2.7/new#other-notable-changes
+  Make sure you read through the "what's new in 2.7" document https://docs.bigbluebutton.org/2.7/new-features and specifically https://docs.bigbluebutton.org/2.7/new-features#other-notable-changes
 
 ### Upgrading from BigBlueButton 2.4
 
