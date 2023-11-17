@@ -68,6 +68,7 @@ const currentParameters = [
   // TRANSCRIPTION
   'bbb_transcription_partial_utterances',
   'bbb_transcription_min_utterance_length',
+  'bbb_transcription_provider',
 ];
 
 function valueParser(val) {

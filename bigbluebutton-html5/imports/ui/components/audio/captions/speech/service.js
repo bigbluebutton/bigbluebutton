@@ -8,12 +8,12 @@ import AudioService from '/imports/ui/components/audio/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import { unique, throttle } from 'radash';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const THROTTLE_TIMEOUT = 200;
 
 const CONFIG = Meteor.settings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
-const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
 const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 
@@ -39,6 +39,10 @@ const getSpeechVoices = () => {
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
+const getSpeechProvider = () => {
+  return getFromUserSettings("bbb_transcription_provider", CONFIG.provider);
+};
+
 const setSpeechOptions = (partialUtterances, minUtteranceLength) => {
   return makeCall('setSpeechOptions', partialUtterances, minUtteranceLength);
 };
@@ -47,7 +51,7 @@ const setSpeechLocale = (value) => {
   const voices = getSpeechVoices();
 
   if (voices.includes(value) || value === '' || value === 'auto') {
-    makeCall('setSpeechLocale', value, CONFIG.provider);
+    makeCall('setSpeechLocale', value, getSpeechProvider());
   } else {
     logger.error({
       logCode: 'captions_speech_locale',
@@ -132,15 +136,15 @@ const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
 const isEnabled = () => isLiveTranscriptionEnabled();
 
-const isWebSpeechApi = () => PROVIDER === 'webspeech';
+const isWebSpeechApi = () => getSpeechProvider() === 'webspeech';
 
-const isVosk = () => PROVIDER === 'vosk';
+const isVosk = () => getSpeechProvider() === 'vosk';
 
-const isGladia = () => PROVIDER === 'gladia';
+const isGladia = () => getSpeechProvider() === 'gladia';
 
-const isWhispering = () => PROVIDER === 'whisper';
+const isWhispering = () => getSpeechProvider() === 'whisper';
 
-const isDeepSpeech = () => PROVIDER === 'deepSpeech'
+const isDeepSpeech = () => getSpeechProvider() === 'deepSpeech'
 
 const isActive = () => isEnabled() && ((isWebSpeechApi() && hasSpeechLocale()) || isVosk() || isGladia() || isWhispering() || isDeepSpeech());
 
