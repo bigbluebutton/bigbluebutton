@@ -29,7 +29,6 @@ import Header from '/imports/ui/components/common/control-header/component';
 import TextInput from '/imports/ui/components/text-input/component';
 import renderNoUserWaitingItem from './guest-items/noPendingGuestUser';
 import renderPendingUsers from './guest-items/guestPendingUser';
-import { Meeting } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
 
 // @ts-ignore - temporary, while meteor exists in the project
@@ -367,7 +366,7 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
     error: guestWaitingUsersError,
   } = useSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
 
-  const currentMeeting: Partial<Meeting> = useMeeting((meeting) => {
+  const { data: currentMeeting } = useMeeting((meeting) => {
     const a = {
       usersPolicies: meeting.usersPolicies,
     };

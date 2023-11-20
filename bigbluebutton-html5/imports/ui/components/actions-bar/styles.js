@@ -101,28 +101,13 @@ const ReactionsDropdown = styled.div`
 `;
 
 const Wrapper = styled.div`
-  .emoji-mart-bar {
-    display: none;
-  }
-  .emoji-mart-search {
-    display: none;
-  }
-  .emoji-mart-category[aria-label="Frequently Used"] {
-    display: none;
-  }
-  .emoji-mart-category-label{
-    display: none;
-  }
-  .emoji-mart{
-    border: none;
-  }
-  @media(min-width: 600px) {
-    .emoji-mart-scroll{
-      overflow:hidden;
-      padding: 0;
-      height: 270px;
-      width: 280px;
-    }
+  overflow: hidden;
+  margin: 0.2em 0.2em 0.2em 0.2em;
+  text-align: center;
+  max-height: 270px;
+  width: 270px;
+  em-emoji {
+    cursor: pointer;
   }
 `;
 

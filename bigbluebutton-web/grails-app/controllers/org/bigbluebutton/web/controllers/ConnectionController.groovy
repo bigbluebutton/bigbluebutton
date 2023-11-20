@@ -81,12 +81,12 @@ class ConnectionController {
             def builder = new JsonBuilder()
             builder {
               "response" "authorized"
-              "X-Hasura-Role" "bbb_client"
-              "X-Hasura-Locked" u.locked ? "true" : "false"
-              "X-Hasura-LockedInMeeting" u.locked ? userSession.meetingID : ""
-              "X-Hasura-LockedUserId" u.locked ? userSession.internalUserId : ""
-              "X-Hasura-ModeratorInMeeting" u.isModerator() ? userSession.meetingID : ""
-              "X-Hasura-PresenterInMeeting" u.isPresenter() ? userSession.meetingID : ""
+              "X-Hasura-Role" u ? "bbb_client" : "pre_join_bbb_client"
+              "X-Hasura-Locked" u && u.locked ? "true" : "false"
+              "X-Hasura-LockedInMeeting" u && u.locked ? userSession.meetingID : ""
+              "X-Hasura-LockedUserId" u && u.locked ? userSession.internalUserId : ""
+              "X-Hasura-ModeratorInMeeting" u && u.isModerator() ? userSession.meetingID : ""
+              "X-Hasura-PresenterInMeeting" u && u.isPresenter() ? userSession.meetingID : ""
               "X-Hasura-UserId" userSession.internalUserId
               "X-Hasura-MeetingId" userSession.meetingID
             }

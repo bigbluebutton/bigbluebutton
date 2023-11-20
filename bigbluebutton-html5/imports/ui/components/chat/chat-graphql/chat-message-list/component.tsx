@@ -23,6 +23,7 @@ import { Message } from '/imports/ui/Types/message';
 import ChatPopupContainer from '../chat-popup/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { Layout } from '../../../layout/layoutTypes';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -316,14 +317,14 @@ const ChatMessageListContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
-  const currentChat = useChat((chat) => {
+  const { data: currentChat } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       totalMessages: chat.totalMessages,
       totalUnread: chat.totalUnread,
       lastSeenAt: chat.lastSeenAt,
     };
-  }, chatId) as Partial<Chat>;
+  }, chatId) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);
 

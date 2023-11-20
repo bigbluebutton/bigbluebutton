@@ -170,7 +170,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 const TalkingIndicatorContainer: React.FC = (() => {
   if (!enableTalkingIndicator) return () => null;
   return () => {
-    const currentUser: Partial<User> = useCurrentUser((u: Partial<User>) => ({
+    const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
       userId: u?.userId,
       isModerator: u?.isModerator,
     }));

@@ -4,10 +4,13 @@ import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
-import { Emoji } from 'emoji-mart';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
+import data from '@emoji-mart/data';
+import { init } from 'emoji-mart';
 
 import Styled from './styles';
+
+const REACTIONS = Meteor.settings.public.userReaction.reactions;
 
 const ReactionsButton = (props) => {
   const {
@@ -19,6 +22,9 @@ const ReactionsButton = (props) => {
     currentUserReaction,
     autoCloseReactionsBar,
   } = props;
+
+  // initialize emoji-mart data, need for the new version
+  init({ data });
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -74,43 +80,20 @@ const ReactionsButton = (props) => {
   };
 
   const emojiProps = {
-    native: true,
     size: convertRemToPixels(1.5),
     padding: '4px',
   };
 
-  const reactions = [
-    {
-      id: 'smiley',
-      native: '😃',
-    },
-    {
-      id: 'neutral_face',
-      native: '😐',
-    },
-    {
-      id: 'slightly_frowning_face',
-      native: '🙁',
-    },
-    {
-      id: '+1',
-      native: '👍',
-    },
-    {
-      id: '-1',
-      native: '👎',
-    },
-    {
-      id: 'clap',
-      native: '👏',
-    },
-  ];
+  const handReaction = {
+    id: 'hand',
+    native: '✋',
+  };
 
   let actions = [];
 
-  reactions.forEach(({ id, native }) => {
+  REACTIONS.forEach(({ id, native }) => {
     actions.push({
-      label: <Styled.ButtonWrapper active={currentUserReaction === native}><Emoji key={id} emoji={{ id }} {...emojiProps} /></Styled.ButtonWrapper>,
+      label: <Styled.ButtonWrapper active={currentUserReaction === native}><em-emoji key={native} native={native} {...emojiProps} /></Styled.ButtonWrapper>,
       key: id,
       onClick: () => handleReactionSelect(native),
       customStyles: actionCustomStyles,
@@ -118,29 +101,29 @@ const ReactionsButton = (props) => {
   });
 
   actions.push({
-    label: <Styled.RaiseHandButtonWrapper isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
+    label: <Styled.RaiseHandButtonWrapper isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><em-emoji key={handReaction.id} native={handReaction.native} emoji={{ id: handReaction.id }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
     key: 'hand',
     onClick: () => handleRaiseHandButtonClick(),
     customStyles: {...actionCustomStyles, width: 'auto'},
   });
 
   const icon = !raiseHand && currentUserReaction === 'none' ? 'hand' : null;
-  const currentUserReactionEmoji = reactions.find(({ native }) => native === currentUserReaction);
+  const currentUserReactionEmoji = REACTIONS.find(({ native }) => native === currentUserReaction);
 
   let customIcon = null;
 
   if (raiseHand) {
-    customIcon = <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />;
+    customIcon = <em-emoji key={handReaction.id} native={handReaction.native} emoji={handReaction} {...emojiProps} />;
   } else {
     if (!icon) {
-      customIcon = <Emoji key={currentUserReactionEmoji?.id} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
+      customIcon = <em-emoji key={currentUserReactionEmoji?.id} native={currentUserReactionEmoji?.native} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
     }
   }
 
   return (
     <BBBMenu
       trigger={(
-        <Styled.ReactionsDropdown>
+        <Styled.ReactionsDropdown id="interactionsButton">
           <Styled.RaiseHandButton
             data-test="reactionsButton"
             icon={icon}
