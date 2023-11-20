@@ -136,7 +136,7 @@ const CaptionsButton = ({
         iconRight: selectedLocale.current === availableVoice ? 'check' : null,
         customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
         disabled: isTranscriptionDisabled(),
-        dividerTop: false,
+        dividerTop: !SpeechService.isGladia() && availableVoice === availableVoices[0],
         onClick: () => {
           selectedLocale.current = availableVoice;
           SpeechService.setSpeechLocale(selectedLocale.current);
