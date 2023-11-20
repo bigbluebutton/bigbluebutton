@@ -16,6 +16,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import { isEqual } from 'radash';
+import LeaveMeetingButton from './leave-meeting-button/component';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -37,6 +38,10 @@ const intlMessages = defineMessages({
   defaultBreakoutName: {
     id: 'app.createBreakoutRoom.room',
     description: 'default breakout room name',
+  },
+  leaveMeetingLabel: {
+    id: 'app.navBar.leaveMeetingBtnLabel',
+    description: 'Leave meeting button label',
   },
 });
 
@@ -269,6 +274,8 @@ class NavBar extends Component {
       isPinned,
       sidebarNavigation,
       currentUserId,
+      isDirectLeaveButtonEnabled,
+      isMeteorConnected,
     } = this.props;
 
     const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
@@ -349,7 +356,13 @@ class NavBar extends Component {
           <Styled.Right>
             {renderPluginItems(rightPluginItems)}
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
-            <OptionsDropdownContainer amIModerator={amIModerator} />
+            {isDirectLeaveButtonEnabled && isMeteorConnected
+              ? <LeaveMeetingButton label={intl.formatMessage(intlMessages.leaveMeetingLabel)} />
+              : null}
+            <OptionsDropdownContainer
+              amIModerator={amIModerator}
+              isDirectLeaveButtonEnabled={isDirectLeaveButtonEnabled}
+            />
           </Styled.Right>
         </Styled.Top>
         <Styled.Bottom>

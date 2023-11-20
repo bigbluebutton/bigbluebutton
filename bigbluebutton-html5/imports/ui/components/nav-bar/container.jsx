@@ -124,6 +124,11 @@ export default withTracker(() => {
     }
   }
 
+  const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
+    'bbb_direct_leave_button',
+    PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
+  );
+
   return {
     isPinned: NotesService.isSharedNotesPinned(),
     currentUserId: Auth.userID,
@@ -133,5 +138,7 @@ export default withTracker(() => {
     breakoutName,
     meetingName,
     unread,
+    isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(NavBarContainer);
