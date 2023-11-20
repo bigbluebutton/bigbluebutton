@@ -9,6 +9,8 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import OldCaptionsService from '/imports/ui/components/captions/service';
 
+const TRANSCRIPTION_DEFAULT_PAD = Meteor.settings.public.captions.defaultPad;
+
 const intlMessages = defineMessages({
   start: {
     id: 'app.audio.captions.button.start',
@@ -122,7 +124,7 @@ const CaptionsButton = ({
 
   if (!enabled) return null;
   if (!prevEnabled && enabled) {
-    OldCaptionsService.createCaptions('en');
+    OldCaptionsService.createCaptions(TRANSCRIPTION_DEFAULT_PAD);
   }
 
   const shouldRenderChevron = isSupported && isVoiceUser;

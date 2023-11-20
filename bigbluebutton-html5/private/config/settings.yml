@@ -553,6 +553,8 @@ public:
     showButton: false
     id: captions
     dictation: false
+    # Default pad which will store automatically generated captions
+    defaultPad: en
     background: '#000000'
     font:
       color: '#ffffff'

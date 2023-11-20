@@ -2,6 +2,8 @@ import setTranscript from '/imports/api/audio-captions/server/modifiers/setTrans
 import updatePad from '/imports/api/pads/server/methods/updatePad';
 import Users from '/imports/api/users';
 
+const TRANSCRIPTION_DEFAULT_PAD = Meteor.settings.public.captions.defaultPad;
+
 const formatDate = (dStr) => {
   return ("00" + dStr).substr(-2,2);
 };
@@ -29,7 +31,7 @@ export default async function transcriptUpdated({ header, body }) {
           seconds = formatDate(dt.getSeconds());
 
     const userSpoke = `\n ${userName} (${hours}:${minutes}:${seconds}): ${transcript}`;
-    updatePad(meetingId, userId, 'en', userSpoke);
+    updatePad(meetingId, userId, TRANSCRIPTION_DEFAULT_PAD, userSpoke);
   }
 
   await setTranscript(userId, meetingId, transcriptId, transcript, locale);
