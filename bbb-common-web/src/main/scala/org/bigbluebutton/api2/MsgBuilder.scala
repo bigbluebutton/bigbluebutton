@@ -44,7 +44,7 @@ object MsgBuilder {
   }
 
   def buildRegisterUserRequestToAkkaApps(msg: RegisterUser): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-webe")
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(RegisterUserReqMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
