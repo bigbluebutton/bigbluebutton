@@ -70,6 +70,7 @@ const AppContainer = (props) => {
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
     isSharedNotesPinned,
+    enforceLayout,
     ...otherProps
   } = props;
 
@@ -185,6 +186,7 @@ const AppContainer = (props) => {
           setMountRandomUserModal,
           isPresenter,
           numCameras: cameraDockInput.numCameras,
+          enforceLayout,
         }}
         {...otherProps}
       />
@@ -231,7 +233,7 @@ export default withTracker(() => {
     {
       fields:
       {
-        approved: 1, emoji: 1, raiseHand: 1, away: 1, userId: 1, presenter: 1, role: 1,
+        approved: 1, emoji: 1, raiseHand: 1, away: 1, userId: 1, presenter: 1, role: 1, name: 1,
       },
     },
   );
@@ -281,6 +283,9 @@ export default withTracker(() => {
 
   const isPresenter = currentUser?.presenter;
 
+  // TODO: get this from backend
+  const enforceLayout = currentUser?.name === 'enforceLayout' ? 'videoFocus' : null;
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     audioCaptions: AudioCaptionsService.getAudioCaptions() ? <AudioCaptionsLiveContainer /> : null,
@@ -325,5 +330,6 @@ export default withTracker(() => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
     isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
+    enforceLayout,
   };
 })(AppContainer);

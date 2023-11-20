@@ -43,6 +43,7 @@ const propTypes = {
   setPushLayout: PropTypes.func,
   shouldShowScreenshare: PropTypes.bool,
   shouldShowExternalVideo: PropTypes.bool,
+  enforceLayout: PropTypes.string,
 };
 
 class PushLayoutEngine extends React.Component {
@@ -63,10 +64,11 @@ class PushLayoutEngine extends React.Component {
       meetingPresentationIsOpen,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      enforceLayout,
     } = this.props;
 
     const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
-    Settings.application.selectedLayout = userLayout || meetingLayout;
+    Settings.application.selectedLayout = enforceLayout || userLayout || meetingLayout;
 
     let selectedLayout = Settings.application.selectedLayout;
     if (isMobile()) {
@@ -142,7 +144,25 @@ class PushLayoutEngine extends React.Component {
       selectedLayout,
       setMeetingLayout,
       setPushLayout,
+      enforceLayout,
     } = this.props;
+
+    if (enforceLayout) {
+      if (enforceLayout !== prevProps.enforceLayout) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_LAYOUT_TYPE,
+          value: enforceLayout,
+        });
+
+        updateSettings({
+          application: {
+            ...Settings.application,
+            selectedLayout: enforceLayout,
+          },
+        });
+      }
+      return;
+    }
 
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
     const pushLayoutMeetingDidChange = pushLayoutMeeting !== prevProps.pushLayoutMeeting;
