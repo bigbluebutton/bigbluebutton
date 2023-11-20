@@ -417,6 +417,10 @@ class ApiController {
       us.defaultLayout = params.defaultLayout;
     }
 
+    if (!StringUtils.isEmpty(params.enforceLayout)) {
+      us.enforceLayout = params.enforceLayout;
+    }
+
     if (!StringUtils.isEmpty(params.avatarURL)) {
       us.avatarURL = params.avatarURL;
     } else {
@@ -459,6 +463,7 @@ class ApiController {
         guestStatusVal,
         us.excludeFromDashboard,
         us.leftGuestLobby,
+        us.enforceLayout,
         meeting.getUserCustomData(us.externUserID)
     )
 
