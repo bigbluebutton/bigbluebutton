@@ -248,6 +248,7 @@ const getFontStyle = (style) => {
 const getMeasurementDiv = (font) => {
   // A div used for measurement
   const pre = document.getElementById('text-measure');
+  if (!pre) return ({});
   pre.style.font = font;
 
   return pre;

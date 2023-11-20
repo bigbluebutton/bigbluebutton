@@ -34,10 +34,10 @@ const PresentationSvg = styled.svg`
   cursor: default;
 
   //double click on the whiteboard shouldn't change the cursor
-  -moz-user-select: -moz-none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  // -moz-user-select: -moz-none;
+  // -webkit-user-select: none;
+  // -ms-user-select: none;
+  // user-select: none;
 `;
 
 const PresentationFullscreenButton = styled(FullscreenButtonContainer)`

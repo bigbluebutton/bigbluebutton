@@ -162,24 +162,37 @@ const notifyShapeNumberExceeded = (intl, limit) => {
   if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { 0: limit }), 'warning', 'whiteboard');
 };
 
-const toggleToolsAnimations = (activeAnim, anim, time) => {
-  const tdTools = document.querySelector('#TD-Tools');
-  const topToolbar = document.getElementById('TD-Styles')?.parentElement;
-  const optionsDropdown = document.getElementById('WhiteboardOptionButton');
-  if (tdTools && topToolbar) {
-    tdTools.classList.remove(activeAnim);
-    topToolbar.classList.remove(activeAnim);
-    topToolbar.style.transition = `opacity ${time} ease-in-out`;
-    tdTools.style.transition = `opacity ${time} ease-in-out`;
-    tdTools?.classList?.add(anim);
-    topToolbar?.classList?.add(anim);
+const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
+  const handleOptionsDropdown = () => {
+    const optionsDropdown = document.getElementById('WhiteboardOptionButton');
+    if (optionsDropdown) {
+      optionsDropdown.classList.remove(activeAnim);
+      optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
+      optionsDropdown.classList.add(anim);
+    }
   }
-  if (optionsDropdown) {
-    optionsDropdown.classList.remove(activeAnim);
-    optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
-    optionsDropdown?.classList?.add(anim);
+
+  if (hasWBAccess === false) {
+    return handleOptionsDropdown();
   }
-}
+
+  const checkElementsAndRun = () => {
+    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper');
+    if (tlEls.length) {
+      tlEls?.forEach(el => {
+        el.classList.remove(activeAnim);
+        el.style.transition = `opacity ${time} ease-in-out`;
+        el.classList.add(anim);
+      });
+      handleOptionsDropdown();
+    } else {
+      // If the elements are not yet in the DOM, wait for 50ms and try again
+      setTimeout(checkElementsAndRun, 300);
+    }
+  };
+
+  checkElementsAndRun();
+};
 
 const formatAnnotations = (annotations, intl, curPageId, pollResults) => {
   const result = {};

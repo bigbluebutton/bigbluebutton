@@ -17,7 +17,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" viewport-fit=cover">
   <style>
     html {
       box-sizing: border-box;
@@ -150,6 +150,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 <body style="background-color: #06172A">
   <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
+  
+  <svg style="display: none;">
+    <symbol id="newCursor" viewBox="0 0 1 1">
+      <circle cx="0.035" cy="0.035" r="0.035" fill="#FF0000" />
+    </symbol>
+  </svg>
+
   <main>
     <div id="app" role="document">
   </main>
@@ -159,3 +166,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </audio>
   <div id="modals-container"></div>
 </body>
+
