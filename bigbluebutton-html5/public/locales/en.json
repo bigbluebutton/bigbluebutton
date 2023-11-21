@@ -82,6 +82,7 @@
     "app.timer.track2": "Calm",
     "app.timer.track3": "Happy",
     "app.captions.label": "Captions",
+    "app.captions.title": "Transcription",
     "app.captions.menu.close": "Close",
     "app.captions.menu.start": "Start",
     "app.captions.menu.ariaStart": "Start writing captions",

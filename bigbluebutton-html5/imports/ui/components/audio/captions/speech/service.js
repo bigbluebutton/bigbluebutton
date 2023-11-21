@@ -50,7 +50,7 @@ const setSpeechOptions = (partialUtterances, minUtteranceLength) => {
 const setSpeechLocale = (value) => {
   const voices = getSpeechVoices();
 
-  if (voices.includes(value) || value === '' || value === 'auto') {
+  if (voices.includes(value) || value === '' || (value === 'auto' && isGladia())) {
     makeCall('setSpeechLocale', value, getSpeechProvider());
   } else {
     logger.error({

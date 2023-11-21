@@ -5,6 +5,7 @@ import Captions from './component';
 import Auth from '/imports/ui/services/auth';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 
 const Container = (props) => {
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
@@ -33,5 +34,6 @@ export default withTracker(() => {
     isRTL,
     hasPermission: Service.hasPermission(),
     amIModerator: Service.amIModerator(),
+    autoTranscription: SpeechService.isEnabled(),
   };
 })(Container);
