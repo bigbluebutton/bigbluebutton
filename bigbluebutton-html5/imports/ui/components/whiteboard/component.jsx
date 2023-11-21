@@ -793,7 +793,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           false
         );
       }
-    }, 150);
+    }, 250);
 
     setTimeout(() => {
       setIsMounting(false);
