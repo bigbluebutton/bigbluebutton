@@ -78,7 +78,7 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent(dataChannelIdentifier, {
-        detail: { hook: PluginSdk.Internal.BbbDataChannel.UseDataChannel, data },
+        detail: { hook: PluginSdk.Hooks.DATA_CHANNEL, data },
       }),
     );
   }, [data]);

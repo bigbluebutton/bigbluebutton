@@ -1,0 +1,18 @@
+import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk';
+import React from 'react';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface HookWithArgumentsContainerProps {
+  key: string;
+  hookArguments: CustomSubscriptionArguments;
+}
+
+export interface ObjectToCustomHookContainerMap {
+  count: number;
+  hookArguments: CustomSubscriptionArguments;
+}
+
+export interface HookWithArgumentContainerToRender{
+  componentToRender: React.FunctionComponent<HookWithArgumentsContainerProps>;
+  hookArguments: CustomSubscriptionArguments;
+}

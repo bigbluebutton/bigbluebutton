@@ -104,14 +104,18 @@ const renderPluginItems = (pluginItems) => {
                   returnComponent = (
                     <>
                       {returnComponent}
-                      <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                      <Styled.PluginSeparatorWrapper key={pluginItem.id}>
+                        |
+                      </Styled.PluginSeparatorWrapper>
                     </>
                   );
                   break;
                 default:
                   returnComponent = (
                     <>
-                      <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                      <Styled.PluginSeparatorWrapper key={pluginItem.id}>
+                        |
+                      </Styled.PluginSeparatorWrapper>
                       {returnComponent}
                     </>
                   );

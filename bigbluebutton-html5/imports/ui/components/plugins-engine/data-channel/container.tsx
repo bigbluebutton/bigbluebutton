@@ -30,31 +30,34 @@ const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelMana
     });
   };
 
+  // Alterar aqui
   useEffect(() => {
     const subscribeHandler: EventListener = (
-      (event: PluginSdk.CustomEventHookWrapper<void>) => {
-        if (event.detail.hook === PluginSdk.Internal.BbbDataChannel.UseDataChannel) {
-          const eventDetails = event.detail as PluginSdk.DataChannelPluginHookEventDetail<void>;
-          if (eventDetails.parameters.channelName && eventDetails.parameters.pluginName) {
-            updateHookUsage(eventDetails.parameters.channelName, eventDetails.parameters.pluginName, 1);
+      (event: PluginSdk.HookEventWrapper<void>) => {
+        if (event.detail.hook === PluginSdk.Hooks.DATA_CHANNEL) {
+          const eventDetails = event.detail as PluginSdk.SubscribedEventDetails;
+          const hookArguments = eventDetails?.hookArguments as PluginSdk.DataChannelArguments | undefined;
+          if (hookArguments?.channelName && hookArguments?.pluginName) {
+            updateHookUsage(hookArguments.channelName, hookArguments.pluginName, 1);
           }
         }
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
-      (event: PluginSdk.CustomEventHookWrapper<void>) => {
-        if (event.detail.hook === PluginSdk.Internal.BbbDataChannel.UseDataChannel) {
-          const eventDetails = event.detail as PluginSdk.DataChannelPluginHookEventDetail<void>;
-          if (eventDetails.parameters.channelName && eventDetails.parameters.pluginName) {
-            updateHookUsage(eventDetails.parameters.channelName, eventDetails.parameters.pluginName, -1);
+      (event: PluginSdk.HookEventWrapper<void>) => {
+        if (event.detail.hook === PluginSdk.Hooks.DATA_CHANNEL) {
+          const eventDetails = event.detail as PluginSdk.UnsubscribedEventDetails;
+          const hookArguments = eventDetails?.hookArguments as PluginSdk.DataChannelArguments | undefined;
+          if (hookArguments?.channelName && hookArguments?.pluginName) {
+            updateHookUsage(hookArguments.channelName, hookArguments.pluginName, 1);
           }
         }
       }) as EventListener;
 
-    window.addEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, subscribeHandler);
-    window.addEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler);
+    window.addEventListener(PluginSdk.HookEvents.SUBSCRIBED, subscribeHandler);
+    window.addEventListener(PluginSdk.HookEvents.UNSUBSCRIBED, unsubscribeHandler);
     return () => {
-      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Subscribe, subscribeHandler);
-      window.removeEventListener(PluginSdk.Internal.BbbHookEvents.Unsubscribe, unsubscribeHandler);
+      window.removeEventListener(PluginSdk.HookEvents.SUBSCRIBED, subscribeHandler);
+      window.removeEventListener(PluginSdk.HookEvents.UNSUBSCRIBED, unsubscribeHandler);
     };
   }, []);
 
