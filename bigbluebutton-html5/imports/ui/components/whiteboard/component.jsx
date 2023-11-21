@@ -594,6 +594,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
             return null;
           }
           const currentPageId = tlEditorRef.current?.currentPageId;
+
           const cursor = {
             x: xPercent,
             y: yPercent,
@@ -635,7 +636,18 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   // set current tldraw page when presentation id updates
   React.useEffect(() => {
     if (tlEditor && curPageId !== "0") {
-      tlEditor?.setCurrentPage(`page:${curPageId}`);
+      // Check if the page exists
+      const pageExists =
+        tlEditorRef.current.currentPageId === `page:${curPageId}`;
+
+      // If the page does not exist, create it
+      if (!pageExists) {
+        tlEditorRef.current.createPage({ id: `page:${curPageId}` });
+      }
+
+      // Set the current page
+      tlEditor.setCurrentPage(`page:${curPageId}`);
+
       whiteboardToolbarAutoHide &&
         toggleToolsAnimations(
           "fade-in",
@@ -875,13 +887,15 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     );
 
     if (editor && curPageId) {
-      const pages = [{
-        meta: {},
-        id: `page:${curPageId}`,
-        name: `Slide ${curPageId}`,
-        index: `a1`,
-        typeName: "page",
-      }]
+      const pages = [
+        {
+          meta: {},
+          id: `page:${curPageId}`,
+          name: `Slide ${curPageId}`,
+          index: `a1`,
+          typeName: "page",
+        },
+      ];
 
       editor.store.mergeRemoteChanges(() => {
         editor.batch(() => {
@@ -998,20 +1012,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   };
 
   const editableWB = (
-    <Tldraw
-      key={`editableWB-${curPageId}`}
-      forceMobile
-      onMount={handleTldrawMount}
-    />
+    <Tldraw key={`editableWB-${curPageId}`} forceMobile onMount={handleTldrawMount} />
   );
 
   const readOnlyWB = (
-    <Tldraw
-      key={`readOnlyWB-${curPageId}`}
-      forceMobile
-      hideUi
-      onMount={handleTldrawMount}
-    />
+    <Tldraw key={`readOnlyWB-${curPageId}`} forceMobile hideUi onMount={handleTldrawMount} />
   );
 
   return (
