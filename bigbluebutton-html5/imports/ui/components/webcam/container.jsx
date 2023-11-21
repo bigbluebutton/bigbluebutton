@@ -46,20 +46,6 @@ const WebcamContainer = ({
     hideOverlay = true;
   }
 
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
-  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
-  const hasPresentation = !!presentationPage?.presentationId;
-
-  const swapLayout = !hasPresentation || isLayoutSwapped;
-
-  let floatingOverlay = false;
-  let hideOverlay = false;
-
-  if (swapLayout) {
-    floatingOverlay = true;
-    hideOverlay = true;
-  }
-
   const { cameraOptimalGridSize } = cameraDockInput;
   const { display: displayPresentation } = presentation;
 
