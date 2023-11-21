@@ -1252,7 +1252,7 @@ class ApiController {
         String query = "fullName=${fullName}&meetingID=${extId}&role=${us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE}&redirect=true&userID=${us.getExternUserID()}"
 
         if (!StringUtils.isEmpty(params.enforceLayout)) {
-          query += "&enforceLayout=${ParamsUtil.stripSpecialChars(params.enforceLayout)}";
+          query += "&enforceLayout=${validationService.encodeString(params.enforceLayout)}";
         }
 
         String checksum = DigestUtils.sha1Hex(method + query + validationService.getSecuritySalt())
