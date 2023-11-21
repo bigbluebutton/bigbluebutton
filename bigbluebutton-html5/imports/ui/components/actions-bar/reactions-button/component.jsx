@@ -6,6 +6,7 @@ import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import data from '@emoji-mart/data';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { init } from 'emoji-mart';
 
 import Styled from './styles';
@@ -19,6 +20,7 @@ const ReactionsButton = (props) => {
     userId,
     raiseHand,
     isMobile,
+    shortcuts,
     currentUserReaction,
     autoCloseReactionsBar,
   } = props;
@@ -101,7 +103,7 @@ const ReactionsButton = (props) => {
   });
 
   actions.push({
-    label: <Styled.RaiseHandButtonWrapper isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><em-emoji key={handReaction.id} native={handReaction.native} emoji={{ id: handReaction.id }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
+    label: <Styled.RaiseHandButtonWrapper accessKey={shortcuts.raisehand} isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><em-emoji key={handReaction.id} native={handReaction.native} emoji={{ id: handReaction.id }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
     key: 'hand',
     onClick: () => handleRaiseHandButtonClick(),
     customStyles: {...actionCustomStyles, width: 'auto'},
@@ -176,4 +178,4 @@ const propTypes = {
 
 ReactionsButton.propTypes = propTypes;
 
-export default ReactionsButton;
+export default withShortcutHelper(ReactionsButton, ['raiseHand']);
