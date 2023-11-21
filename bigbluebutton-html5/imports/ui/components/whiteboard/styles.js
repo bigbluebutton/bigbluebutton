@@ -72,15 +72,14 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     width: auto !important;
   }
 
+  [data-testid="main.page-menu"],
+  [data-testid="main.menu"],
   [data-testid="tools.laser"],
   [data-testid="tools.asset"],
-  [data-testid="tools.frame"],
   .tlui-menu-zone__controls > :nth-child(1),
   .tlui-menu-zone__controls > :nth-child(2),
   .tlui-menu-zone__controls > :nth-child(3),
-  .tlui-menu-zone__controls > :nth-child(4),
-  .tlui-buttons__horizontal > :nth-child(1),
-  .tlui-buttons__horizontal > :nth-child(2) {
+  .tlui-menu-zone__controls > :nth-child(4) {
     display: none;
   }
 `;
