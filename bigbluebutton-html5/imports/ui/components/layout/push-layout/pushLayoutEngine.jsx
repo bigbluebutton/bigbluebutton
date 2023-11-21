@@ -147,34 +147,19 @@ class PushLayoutEngine extends React.Component {
       enforceLayout,
     } = this.props;
 
-    if (enforceLayout) {
-      if (enforceLayout !== prevProps.enforceLayout) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_LAYOUT_TYPE,
-          value: enforceLayout,
-        });
-
-        updateSettings({
-          application: {
-            ...Settings.application,
-            selectedLayout: enforceLayout,
-          },
-        });
-      }
-      return;
-    }
-
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
     const pushLayoutMeetingDidChange = pushLayoutMeeting !== prevProps.pushLayoutMeeting;
+    const enforceLayoutDidChange = enforceLayout !== prevProps.enforceLayout;
     const shouldSwitchLayout = isPresenter
-      ? meetingLayoutDidChange
-      : (meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting;
+      ? meetingLayoutDidChange || enforceLayoutDidChange
+      : ((meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting) || enforceLayoutDidChange;
 
     if (shouldSwitchLayout) {
-
-      let contextLayout = meetingLayout;
+      let contextLayout = enforceLayout || meetingLayout;
       if (isMobile()) {
-        contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
+        if (contextLayout === 'custom') {
+          contextLayout = 'smart';
+        }
       }
 
       layoutContextDispatch({
@@ -190,7 +175,7 @@ class PushLayoutEngine extends React.Component {
       });
     }
 
-    if (pushLayoutMeetingDidChange) {
+    if (!enforceLayout && pushLayoutMeetingDidChange) {
       updateSettings({
         application: {
           ...Settings.application,
@@ -264,6 +249,7 @@ class PushLayoutEngine extends React.Component {
       || cameraIsResizing !== prevProps.cameraIsResizing
       || cameraPosition !== prevProps.cameraPosition
       || focusedCamera !== prevProps.focusedCamera
+      || enforceLayout !== prevProps.enforceLayout
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
     if (pushLayout !== prevProps.pushLayout) { // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
