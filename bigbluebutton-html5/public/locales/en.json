@@ -615,6 +615,7 @@
     "app.settings.dataSavingTab.webcam": "Enable other participants webcams",
     "app.settings.dataSavingTab.screenShare": "Enable other participants desktop sharing",
     "app.settings.dataSavingTab.description": "To save your bandwidth adjust what's currently being displayed.",
+    "app.settings.transcriptionTab.label": "Transcription",
     "app.settings.transcriptionTab.partialUtterances": "Show partial utterances",
     "app.settings.transcriptionTab.minUtteranceLength": "Minimum utterances length (seconds)",
     "app.settings.save-notification.label": "Settings have been saved",

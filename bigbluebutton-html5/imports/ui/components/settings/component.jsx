@@ -55,6 +55,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
   },
+  transcriptionLabel: {
+    id: 'app.settings.transcriptionTab.label',
+    description: 'label for transcriptions tab',
+  },
   savedAlertLabel: {
     id: 'app.settings.save-notification.label',
     description: 'label shown in toast when settings are saved',
@@ -228,11 +232,11 @@ class Settings extends Component {
           {isGladiaEnabled
             ? (
               <Styled.SettingsTabSelector
-                aria-labelledby="gladiaTab"
+                aria-labelledby="transcriptionTab"
                 selectedClassName="is-selected"
               >
                 <Styled.SettingsIcon iconName="closed_caption" />
-                <span id="gladiaTab">Gladia</span>
+                <span id="transcriptionTab">{intl.formatMessage(intlMessages.transcriptionLabel)}</span>
               </Styled.SettingsTabSelector>
               )
               : null}
