@@ -316,11 +316,11 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isEchoTest = useReactiveVar(audioManager._isEchoTest.value) as boolean;
 
-  const currentUser = useCurrentUser((user) => ({
+  const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
 
-  const currentMeeting = useMeeting((m) => ({
+  const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
   }));
 

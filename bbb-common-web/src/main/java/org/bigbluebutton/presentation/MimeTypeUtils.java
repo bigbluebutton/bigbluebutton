@@ -1,5 +1,7 @@
 package org.bigbluebutton.presentation;
 
+import org.bigbluebutton.api.domain.Extension;
+
 import java.util.*;
 
 import static org.bigbluebutton.presentation.FileTypeConstants.*;
@@ -43,6 +45,15 @@ public class MimeTypeUtils {
             put(FileTypeConstants.SVG, Arrays.asList(SVG));
         }
     };
+
+    public String getExtensionBasedOnMimeType(String mimeType) {
+        return EXTENSIONS_MIME.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().contains(mimeType))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    }
     
     public Boolean extensionMatchMimeType(String mimeType, String finalExtension) {
         finalExtension = finalExtension.toLowerCase();

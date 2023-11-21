@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets
 import java.util.stream.Collectors
 import javax.imageio.ImageIO
 import scala.io.Source
+import scala.util.{ Failure, Success, Try, Using }
 import scala.xml.XML
 
 object MsgBuilder {
@@ -49,7 +50,7 @@ object MsgBuilder {
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken, sessionToken = msg.sessionToken,
       avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
-      excludeFromDashboard = msg.excludeFromDashboard, customParameters = msg.customParameters)
+      excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout, customParameters = msg.customParameters)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -83,7 +84,12 @@ object MsgBuilder {
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
-    try {
+    val result = Using.Manager { use =>
+      val contentUrl = new URL(txtUrl)
+      val stream = use(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
+      val reader = use(new BufferedReader(stream))
+      val content = reader.lines().collect(Collectors.joining("\n"))
+
       val svgSource = Source.fromURL(new URL(svgUrl))
       val svgContent = svgSource.mkString
       svgSource.close()
@@ -100,10 +106,6 @@ object MsgBuilder {
       val width = w.toDouble
       val height = h.toDouble
 
-      val contentUrl = new URL(txtUrl)
-      val reader = new BufferedReader(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
-      val content = reader.lines().collect(Collectors.joining("\n"))
-
       PresentationPageConvertedVO(
         id = id,
         num = page,
@@ -113,7 +115,7 @@ object MsgBuilder {
         width = width,
         height = height
       )
-    } catch {
+    } recover {
       case e: Exception =>
         e.printStackTrace()
         PresentationPageConvertedVO(
@@ -124,6 +126,18 @@ object MsgBuilder {
           current = current
         )
     }
+
+    val presentationPage = result.getOrElse(
+      PresentationPageConvertedVO(
+        id = id,
+        num = page,
+        urls = urls,
+        content = "",
+        current = current
+      )
+    )
+
+    presentationPage
   }
 
   def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {

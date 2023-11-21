@@ -24,7 +24,7 @@ const projectCurrentPresentation = (
 const CurrentPresentationHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
 
-  const currentPresentation = useCurrentPresentation(
+  const { data: currentPresentation } = useCurrentPresentation(
     (currentPres: Partial<CurrentPresentation>) => currentPres,
   );
 

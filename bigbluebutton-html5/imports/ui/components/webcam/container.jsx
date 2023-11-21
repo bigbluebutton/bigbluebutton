@@ -17,7 +17,6 @@ import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-s
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
-
 const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const WebcamContainer = ({
@@ -33,6 +32,19 @@ const WebcamContainer = ({
   const presentation = layoutSelectOutput((i) => i.presentation);
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
+  const hasPresentation = !!presentationPage?.presentationId;
+
+  const swapLayout = !hasPresentation || isLayoutSwapped;
+
+  let floatingOverlay = false;
+  let hideOverlay = false;
+
+  if (swapLayout) {
+    floatingOverlay = true;
+    hideOverlay = true;
+  }
 
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
