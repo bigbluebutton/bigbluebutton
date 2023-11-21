@@ -1,5 +1,5 @@
 package org.bigbluebutton.core.db
-import org.bigbluebutton.core.models.{RegisteredUser}
+import org.bigbluebutton.core.models.{RegisteredUser, VoiceUserState}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -106,6 +106,19 @@ object UserDAO {
       }
   }
 
+  def updateVoiceUserJoined(voiceUserState: VoiceUserState) = {
+
+    DatabaseConnection.db.run(
+      TableQuery[UserDbTableDef]
+        .filter(_.userId === voiceUserState.intId)
+        .map(u => (u.guest, u.guestStatus, u.authed, u.joined))
+        .update((false, "ALLOW", true, true))
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user voice table!")
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user voice: $e")
+    }
+  }
+
   def updateJoinError(userId: String, joinErrorCode: String, joinErrorMessage: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
@@ -120,15 +133,6 @@ object UserDAO {
 
 
   def delete(intId: String) = {
-//    DatabaseConnection.db.run(
-//      TableQuery[UserDbTableDef]
-//        .filter(_.userId === intId)
-//        .delete
-//    ).onComplete {
-//      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"User ${intId} deleted")
-//      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting user ${intId}: $e")
-//    }
-
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
         .filter(_.userId === intId)

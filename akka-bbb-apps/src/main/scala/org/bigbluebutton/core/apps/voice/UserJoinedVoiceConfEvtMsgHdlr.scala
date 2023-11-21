@@ -57,7 +57,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
         color = userColor,
-        clientType = "",
+        clientType = if (isDialInUser) "dial-in-user" else "",
         pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)
       )

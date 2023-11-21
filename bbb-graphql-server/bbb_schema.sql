@@ -250,8 +250,8 @@ CREATE TABLE "user" (
 	"guestLobbyMessage" text,
 	"mobile" bool,
 	"clientType" varchar(50),
-	"disconnected" bool, -- this is the old leftFlag (that was renamed), set when the user just closed the client
-	"expired" bool, -- when it is been some time the user is disconnected
+	"disconnected" bool default false, -- this is the old leftFlag (that was renamed), set when the user just closed the client
+	"expired" bool default false, -- when it is been some time the user is disconnected
 	"ejected" bool,
 	"ejectReason" varchar(255),
 	"ejectReasonCode" varchar(50),
@@ -487,7 +487,7 @@ join meeting_welcome w USING("meetingId");
 
 
 CREATE TABLE "user_voice" (
-	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
+	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE,
 	"voiceUserId" varchar(100),
 	"callerName" varchar(100),
 	"callerNum" varchar(100),
@@ -500,6 +500,9 @@ CREATE TABLE "user_voice" (
 	"floor" boolean,
 	"lastFloorTime" varchar(25),
 	"voiceConf" varchar(100),
+	"voiceConfCallSession" varchar(50),
+	"voiceConfClientSession" varchar(10),
+	"voiceConfCallState" varchar(30),
 	"endTime" bigint,
 	"startTime" bigint
 );
@@ -519,7 +522,8 @@ SELECT
 FROM "user" u
 JOIN "user_voice" ON "user_voice"."userId" = u."userId"
 LEFT JOIN "user_voice" user_talking ON (user_talking."userId" = u."userId" and user_talking."talking" IS TRUE)
-                                       OR (user_talking."userId" = u."userId" and user_talking."hideTalkingIndicatorAt" > now());
+                                       OR (user_talking."userId" = u."userId" and user_talking."hideTalkingIndicatorAt" > now())
+WHERE "user_voice"."joined" is true;
 
 CREATE TABLE "user_camera" (
 	"streamId" varchar(100) PRIMARY KEY,
