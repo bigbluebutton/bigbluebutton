@@ -11,7 +11,7 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with PresentationConversionCompletedSysPubMsgHdlr
   with PdfConversionInvalidErrorSysPubMsgHdlr
   with SetCurrentPagePubMsgHdlr
-  with SetPresenterInPodReqMsgHdlr
+  with SetPresenterInDefaultPodInternalMsgHdlr
   with RemovePresentationPubMsgHdlr
   with SetPresentationDownloadablePubMsgHdlr
   with PresentationConversionUpdatePubMsgHdlr

@@ -13,9 +13,10 @@ object TestDataGen {
     val sessionToken = RandomStringGenerator.randomAlphanumericString(16)
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
+    val color = "#ff6242"
 
     val ru = RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, sessionToken, avatarURL, guest, authed, GuestStatus.ALLOW, false)
+      authToken, sessionToken, avatarURL, color, guest, authed, GuestStatus.ALLOW, false, "", Map(), false)
 
     RegisteredUsers.add(users, ru, meetingId = "test")
     ru
