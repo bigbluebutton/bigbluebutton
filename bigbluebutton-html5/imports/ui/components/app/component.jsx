@@ -29,6 +29,7 @@ import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
+import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
 import {
@@ -521,6 +522,7 @@ class App extends Component {
       setPushLayout,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      enforceLayout,
     } = this.props;
 
     return (
@@ -551,6 +553,7 @@ class App extends Component {
           setPushLayout,
           shouldShowScreenshare,
           shouldShowExternalVideo: !!shouldShowExternalVideo,
+          enforceLayout,
         }}
       />
     );
@@ -663,6 +666,7 @@ class App extends Component {
           <PadsSessionsContainer />
           <WakeLockContainer />
           {this.renderActionsBar()}
+          <EmojiRainContainer />
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
           {isRandomUserSelectModalOpen ? <RandomUserSelectContainer

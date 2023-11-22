@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
-import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import CreateBreakoutRoomContainerGraphql from '../../../../breakout-room/breakout-room-graphql/create-breakout-room/component';
 import WriterMenuContainer from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
@@ -305,7 +305,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         isOpen: isCreateBreakoutRoomModalOpen,
         setIsOpen: setCreateBreakoutRoomModalIsOpen,
         priority: 'medium',
-        Component: CreateBreakoutRoomContainer,
+        Component: CreateBreakoutRoomContainerGraphql,
         otherOptions: {},
       })}
 
@@ -339,14 +339,14 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
 const UserTitleOptionsContainer: React.FC = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const meetingInfo = useMeeting((meeting: Partial<Meeting>) => ({
+  const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
     voiceSettings: meeting?.voiceSettings,
     isBreakout: meeting?.isBreakout,
     breakoutPolicies: meeting?.breakoutPolicies,
     name: meeting?.name,
   }));
 
-  const currentUser = useCurrentUser((user: Partial<User>) => ({
+  const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
     userId: user?.userId,
     isModerator: user?.isModerator,
   }));

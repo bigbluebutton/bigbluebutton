@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import { Meeting } from '/imports/ui/Types/meeting';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import { useSubscription } from '@apollo/client';
 import { GET_GUESTS_COUNT, GuestUsersCountResponse } from './queries';
@@ -86,7 +85,7 @@ const GuestPanelOpener: React.FC<GuestPanelOpenerProps> = ({
 };
 
 const GuestPanelOpenerContainer: React.FC = () => {
-  const currentMeeting: Partial<Meeting> = useMeeting((meeting) => {
+  const { data: currentMeeting } = useMeeting((meeting) => {
     const a = {
       usersPolicies: meeting.usersPolicies,
     };
