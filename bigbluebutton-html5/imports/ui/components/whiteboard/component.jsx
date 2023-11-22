@@ -85,13 +85,6 @@ const determineViewerFitToWidth = (slidePosition) => {
   );
 };
 
-const updateSvgCursor = () => {
-  const svgUseElement = document.querySelector(".tl-cursor use");
-  if (svgUseElement) {
-    svgUseElement.setAttribute("href", "#newCursor");
-  }
-};
-
 const cleanArrowShapeProps = (shapeProp) => {
   if (!shapeProp) return;
 
@@ -167,8 +160,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
   clearTldrawCache();
 
-  const isMultiUser = isMultiUserActive;
-
   if (curPageId === "0" || !curPageId) return null;
 
   const [tlEditor, setTlEditor] = React.useState(null);
@@ -198,6 +189,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const THRESHOLD = 0.1;
   const lastKnownHeight = React.useRef(presentationHeight);
   const lastKnownWidth = React.useRef(presentationWidth);
+
 
   // handles mouse events
   React.useEffect(() => {
@@ -583,6 +575,13 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   // Updating presences in tldraw store based on changes in cursors
   React.useEffect(() => {
     if (tlEditorRef.current) {
+      const useElement = document.querySelector('.tl-cursor use');
+      if ((useElement && !isMultiUserActive)) {
+        useElement.setAttribute('href', '#redPointer');
+      } else if (useElement) {
+        useElement.setAttribute('href', '#cursor');
+      }
+
       const updatedPresences = otherCursors
         .map(({ userId, user, xPercent, yPercent }) => {
           const { presenter, name } = user;
@@ -1031,7 +1030,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     >
       {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
       <Styled.TldrawV2GlobalStyle
-        {...{ hasWBAccess, isPresenter, isRTL, isMultiUser }}
+        {...{ hasWBAccess, isPresenter, isRTL, isMultiUserActive }}
       />
     </div>
   );

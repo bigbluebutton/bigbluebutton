@@ -13,13 +13,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
-  ${({ isMultiUser }) => !isMultiUser && `
-    // .tl-cursor use {
-    //   href: "#newCursor";
-    //   transform: scale(0.5) translate(-228px, -77px);
-    //   transform-origin: center;
-    // }
-
+  ${({ isMultiUserActive }) => !isMultiUserActive && `
     .tl-nametag {
       display: none;
     }
@@ -71,6 +65,18 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     height: auto !important;
     width: auto !important;
   }
+
+  ${({ isPresenter, isMultiUserActive }) => !isPresenter && !isMultiUserActive && `
+    .tl-cursor use {
+      transform: scale(0.05)!important;
+    }
+
+    .tl-collaborator__cursor {
+      position: absolute !important;
+      left: -7px !important;
+      top: -6px !important;
+    }
+  `}
 
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
