@@ -191,6 +191,7 @@ For full details on what is new in BigBlueButton 2.6, see the release notes.
 
 ### Recent releases:
 
+- [2.6.15](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.15)
 - [2.6.14](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.14)
 - [2.6.12](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.12)
 - [2.6.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.11)
