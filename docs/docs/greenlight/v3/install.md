@@ -138,12 +138,13 @@ SMTP configuration requires following the guidelines provided by your SMTP serve
 
 ### OpenID Connect Setup
 
-| Variable Name | Description                                                                                                                           | Default Value |
-|---------------|---------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| OPENID_CONNECT_CLIENT_ID | The client ID of the OpenID issuer  | - |
-| OPENID_CONNECT_CLIENT_SECRET | The secret to use to authenticate to the OpenID issuer  | - |
-| OPENID_CONNECT_ISSUER | The URL for the OpenID issuer. It is required to be HTTPS URL using the default HTTPS port (TCP 443)  | - |
-| OPENID_CONNECT_REDIRECT | The Redirect URI after successful authentication. It should be the URL to Greenlight  | - |
+| Variable Name | Description                                                                                         | Default Value |
+|---------------|-----------------------------------------------------------------------------------------------------|--------------|
+| OPENID_CONNECT_CLIENT_ID | The client ID of the OpenID issuer                                                                  | -            |
+| OPENID_CONNECT_CLIENT_SECRET | The secret to use to authenticate to the OpenID issuer                                              | -            |
+| OPENID_CONNECT_ISSUER | The URL for the OpenID issuer. It is required to be HTTPS URL using the default HTTPS port (TCP 443) | -            |
+| OPENID_CONNECT_REDIRECT | The Redirect URI after successful authentication. It should be the URL to Greenlight                | -            |
+| OPENID_CONNECT_UID_FIELD | The field of the user info response to be used as the unique identifier in Greenlight               | 'sub'        |
 
 ### HCaptcha Setup
 
