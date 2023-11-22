@@ -589,6 +589,7 @@ class Presentation extends PureComponent {
       multiUser,
       fitToWidth,
       totalPages,
+      userIsPresenter,
     } = this.props;
     const { zoom, isPanning } = this.state;
 
@@ -612,6 +613,7 @@ class Presentation extends PureComponent {
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
+          userIsPresenter,
         }}
         setIsPanning={this.setIsPanning}
         isPanning={isPanning}
