@@ -39,6 +39,19 @@ The migration system consists of multiples **rake tasks** and **a restful API**:
 
 Before the migration process, make sure that the Greenlight v3 server is running and accessible through your network.
 
+### Updating v2 to the latest version
+
+Before begin your upgrade, it is crucial that you update Greenlight v2 to the latest version. This ensures that you are using the latest version of the migration scripts.
+
+To do so, run the following commands on your v2 machine:
+
+```bash
+cd ~/greenlight
+docker-compose pull
+docker-compose down
+docker-compose up -d
+```
+
 ### Configuring the Environment
 
 In Greenlight v2 **.env** file, add the following variables:
@@ -47,47 +60,9 @@ In Greenlight v2 **.env** file, add the following variables:
 
 ![env_migration_endpoints.png](/img/greenlight/v3/migration/env_migration_endpoints.png)
 
-### The rake migration task file
-
-**If your Greenlight v2 deployment is up to date with the official latest release, you can skip to [Migration Steps](#migration-steps).**
-
-Else, you will need to to load the rake migration task file into your directory.
-
-To do so, follow the steps below:
-
-1) Navigate to your Greenlight v2 directory
-
-2) Download the migration rake tasks with the following command:
-
-```bash
-wget -P lib/tasks/migrations https://raw.githubusercontent.com/bigbluebutton/greenlight/v2/lib/tasks/migrations/migrations.rake
-```
-
-The file **migrations.rake** should now be present in your **/lib/tasks/migrations** directory.
-
-**To include our changes directly in the Docker container:**
-
-3) Edit the volumes partition in the **docker-compose.yaml** to add the new migration file as follow:
-
-```yaml
-services:
-  app:
-    volumes:
-      - ./log:/usr/src/app/log
-      - ./storage:/usr/src/app/storage
-      - ./lib/tasks/migrations:/usr/src/app/lib/tasks/migrations
-```
-
-
-4) Save the changes and restart Greenlight v2 by running:
-
-```bash
-sudo docker-compose down && sudo docker-compose up -d
-```
-
 ## Migration Steps
 
-**It is required to run the migrations in the following order: roles, users, rooms, settings.**
+**The migrations must be run in the following order: roles, users, rooms, settings.**
 
 The logs will indicate the status of the migrated resources in real-time, in the console.
 
@@ -125,8 +100,35 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:roles
 The Users will be migrated with their corresponding role.
 
 Important notes:
-- **The accounts passwords can't be migrated from Greenlight v2. A rake task that sends an email to all the users and prompts them to reset their password is provided for Greenlight v3. When the migration is completed, please jump to [After the Migration](#after-the-migration). Please note that if you are using external accounts, like Google or Microsoft, this is not applicable.**- Pending, denied and deleted users will not be migrated to Greenlight v3.
 - Both local and external users will be migrated.
+
+#### Local Accounts 
+When migrating local accounts from GLv2 to GLv3, the password_digest field will be securely transferred from v2 to v3. This ensures that local customers can seamlessly sign in using the exact same password as in v2.
+
+To enable this, it's crucial that both GLv2 and GLv3 share the same value for the SECRET_KEY_BASE environment variable, which is set in the .env file.
+
+Follow these steps:
+
+1. **Retrieve GLv2's `SECRET_KEY_BASE`:**
+
+On your GLv2 machine, execute the following command in the terminal:
+```bash
+cd ~/greenlight
+cat .env | grep SECRET_KEY_BASE
+```
+Copy the value that is returned.
+
+2. **Update GLv2 `.env` file:**
+
+Edit the .env file on your GLv2 machine and replace the value of `V3_SECRET_KEY_BASE` with the copied value.
+
+3. **Update GLv3 `.env` file:**
+
+On your GLv3 machine, replace the `SECRET_KEY_BASE` in your .env file with the same value that you copied from GLv2.
+
+Ensure that the `SECRET_KEY_BASE` values for GLv2, GLv3, and the `V3_SECRET_KEY_BASE` variable in GLv2's `.env` file are now synchronized.
+
+#### Migrating Users
 
 **To migrate all of your v2 users to v3, run the following command:**
 ```bash
@@ -134,12 +136,6 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:users
 ```
 
 **To migrate only a portion of the users starting from *FIRST_USER_ID* to *LAST_USER_ID*, run this command instead:**
-
-```bash
-sudo docker exec -it greenlight-v2 bundle exec rake migrations:users\[<FIRST_USER_ID>,<LAST_USER_ID>]
-```
-
-*Administrators can use the last command to migrate resources in parallel, the same migration task can be run in separate processes each migrating a portion of the resources class simultaneously.*
 
 **If you have an error, try re-running the migration task to resolve any failed resources migration.**
 **Also, make sure that the Roles migration has been successful.**
@@ -158,16 +154,6 @@ Important notes:
 ```bash
 sudo docker exec -it greenlight-v2 bundle exec rake migrations:rooms
 ```
-
-**To migrate only a portion of users starting from **FIRST_ROOM_ID** to **LAST_ROOM_ID**, run this command instead**:**
-
-```bash
-sudo docker exec -it greenlight-v2 bundle exec rake migrations:rooms\[<FIRST_ROOM_ID>,<LAST_ROOM_ID>]
-```
-
-*Note: The partitioning is based on resources id value and not there position in the database, so calling **rake migrations:rooms[1, 100]** will not migrate the first 100 active users rooms but rather active users rooms having an id of 1 to 100 if existed.*
-
-*Administrators can use the last command to migrate resources in parallel, the same migration task can be run in separate processes each migrating a portion of the resources class simultaneously.*
 
 **If you have an error, try re-running the migration task to resolve any failed resources migration.**
 **Also, make sure that the Users migration has been successful.**
@@ -192,21 +178,9 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:settings
 **If you have an error, try re-running the migration task to resolve any failed resources migration.**
 
 ## After the Migration
-Having completed the migration successfully, it is now imperative to inform users of the need to reset their Greenlight account passwords.
-This can be achieved through the utilization of the rake task available in Greenlight v3.
-**It is important to note, however, that this is not applicable for users who utilize external accounts such as Google or Microsoft.**
+Having completed the migration successfully, the final step is to import the recordings into v3.
 
-To send a reset password email to all your users, run the following command:
-
-```bash
-sudo docker exec -it greenlight-v3 bundle exec rake migration:reset_password_email\[<BASE URL>]
-```
-
-The &lt;BASE URL&gt; in the command above should be replaced with your Greenlight domain name.
-
-Also, please note that the BigBlueButton recordings list will now be empty.
-
-To re-sync the list of recordings, run the following command:
+To re-sync the list of recordings, run the following command **on the v3 machine**:
 
 ```bash 
 sudo docker exec -it greenlight-v3 bundle exec rake server_recordings_sync
