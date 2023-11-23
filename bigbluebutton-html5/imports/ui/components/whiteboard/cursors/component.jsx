@@ -238,7 +238,7 @@ const Cursors = (props) => {
       currentCursor?.removeEventListener('mousemove', moved);
       currentCursor?.removeEventListener('touchmove', moved);
     };
-  }, [cursorWrapper, whiteboardId, currentUser.presenter, whiteboardToolbarAutoHide]);
+  }, [cursorWrapper, whiteboardId, currentUser?.presenter, whiteboardToolbarAutoHide]);
 
   let cursorType = hasWBAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] : 'default';
 
@@ -270,7 +270,7 @@ const Cursors = (props) => {
       {otherCursors
         .filter((c) => c?.xPercent && c.xPercent !== -1.0 && c?.yPercent && c.yPercent !== -1.0)
         .map((c) => {
-          if (c && currentUser.userId !== c?.userId) {
+          if (c && currentUser?.userId !== c?.userId) {
             if (c.user.presenter) {
               return (
                 <Cursor

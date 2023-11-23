@@ -8,12 +8,9 @@ import clearUsersSettings from '/imports/api/users-settings/server/modifiers/cle
 import clearGroupChat from '/imports/api/group-chat/server/modifiers/clearGroupChat';
 import clearGuestUsers from '/imports/api/guest-users/server/modifiers/clearGuestUsers';
 import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
-import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
-import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
 import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
 import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions';
 import clearPads from '/imports/api/pads/server/modifiers/clearPads';
-import clearPresentationPods from '/imports/api/presentation-pods/server/modifiers/clearPresentationPods';
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
 import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
@@ -44,11 +41,8 @@ export default async function meetingHasEnded(meetingId) {
     clearPads(meetingId),
     clearGroupChat(meetingId),
     clearGuestUsers(meetingId),
-    clearPresentationPods(meetingId),
     clearBreakouts(meetingId),
     clearPolls(meetingId),
-    clearAnnotations(meetingId),
-    clearSlides(meetingId),
     clearUsers(meetingId),
     clearUsersSettings(meetingId),
     clearVoiceUsers(meetingId),

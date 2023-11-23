@@ -1,4 +1,3 @@
-import Presentations from '/imports/api/presentations';
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -15,16 +14,6 @@ import Auth from '/imports/ui/services/auth/index';
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
-
-const getPresentationInfo = () => {
-  const currentPresentation = Presentations.findOne({
-    current: true,
-  });
-
-  return {
-    current_presentation: (currentPresentation != null),
-  };
-};
 
 function shouldShowWhiteboard() {
   return true;
@@ -80,7 +69,6 @@ const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch) => {
 
 export default {
   buildLayoutWhenPresentationAreaIsDisabled,
-  getPresentationInfo,
   shouldShowWhiteboard,
   shouldShowScreenshare,
   shouldShowExternalVideo,

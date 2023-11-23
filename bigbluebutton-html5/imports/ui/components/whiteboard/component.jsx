@@ -416,7 +416,7 @@ export default function Whiteboard(props) {
         );
         setZoom(HUNDRED_PERCENT);
         zoomChanger(HUNDRED_PERCENT);
-        zoomSlide(parseInt(curPageId, 10), HUNDRED_PERCENT, viewedRegionH, 0, 0);
+        zoomSlide(parseInt(curPageId, 10), HUNDRED_PERCENT, viewedRegionH, 0, 0, presentationId);
       } else {
         const currentAspectRatio = Math.round((presentationWidth / presentationHeight) * 100) / 100;
         const previousAspectRatio = Math.round(
@@ -516,7 +516,7 @@ export default function Whiteboard(props) {
           const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
             tldrawAPI?.viewport.height, slidePosition.height,
           );
-          zoomSlide(parseInt(curPageId, 10), HUNDRED_PERCENT, viewedRegionH, 0, 0);
+          zoomSlide(parseInt(curPageId, 10), HUNDRED_PERCENT, viewedRegionH, 0, 0, presentationId);
           setZoom(HUNDRED_PERCENT);
           zoomChanger(HUNDRED_PERCENT);
         } else if (!isMounting) {
@@ -538,6 +538,7 @@ export default function Whiteboard(props) {
             viewedRegionH,
             camera.point[0],
             camera.point[1],
+            presentationId,
           );
           const zoomToolbar = Math.round(
             ((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100,
@@ -821,6 +822,7 @@ export default function Whiteboard(props) {
         viewedRegionH,
         camera.point[0],
         camera.point[1],
+        presentationId,
       );
     }
     // don't allow non-presenters to pan&zoom

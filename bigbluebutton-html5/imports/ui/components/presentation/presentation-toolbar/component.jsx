@@ -148,12 +148,12 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleSkipToSlideChange(event) {
-    const { skipToSlide } = this.props;
+    const { skipToSlide, presentationId } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    skipToSlide(requestedSlideNum);
+    skipToSlide(requestedSlideNum, presentationId);
   }
 
   handleSwitchWhiteboardMode() {
@@ -193,24 +193,28 @@ class PresentationToolbar extends PureComponent {
 
   nextSlideHandler(event) {
     const {
-      nextSlide, currentSlideNum, numberOfSlides, endCurrentPoll
+      nextSlide,
+      currentSlideNum,
+      numberOfSlides,
+      endCurrentPoll,
+      presentationId,
     } = this.props;
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
-    nextSlide(currentSlideNum, numberOfSlides);
+    nextSlide(currentSlideNum, numberOfSlides, presentationId);
   }
 
   previousSlideHandler(event) {
     const {
-      previousSlide, currentSlideNum, endCurrentPoll
+      previousSlide, currentSlideNum, endCurrentPoll, presentationId
     } = this.props;
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
-    previousSlide(currentSlideNum);
+    previousSlide(currentSlideNum, presentationId);
   }
 
   switchSlide(event) {
