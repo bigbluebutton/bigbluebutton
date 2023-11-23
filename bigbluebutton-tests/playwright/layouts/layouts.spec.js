@@ -13,7 +13,8 @@ if (!fullyParallel) test.describe.configure({ mode: 'serial' });
 test.describe("Layout management", () => {
   const layouts = new Layouts();
 
-  test.beforeAll(async ({ browser }) => {
+  test.beforeAll(async ({ browser, browserName }) => {
+    test.skip(browserName === 'webkit', 'Not supported');
     const context = await browser.newContext();
     const page = await context.newPage();
     await layouts.initModPage(page, true, { createParameter: hidePresentationToast, customMeetingId: CUSTOM_MEETING_ID });

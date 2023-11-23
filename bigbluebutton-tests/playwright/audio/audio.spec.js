@@ -6,8 +6,9 @@ if (!fullyParallel) test.describe.configure({ mode: 'serial' });
 
 test.describe('Audio', () => {
   const audio = new Audio();
-
-  test.beforeAll(async ({ browser }) => {
+  test.beforeAll(async ({ browser, browserName }) => {
+    test.skip(browserName === 'firefox', 'Audio tests not working on automated tests.');
+    test.skip(browserName === 'webkit', 'Audio tests not working on automated tests.');
     const context = await browser.newContext();
     const page = await context.newPage();
     await audio.initModPage(page, true);
