@@ -1152,6 +1152,11 @@ public class ParamsProcessorUtil {
 		return true;
 	}
 
+    public boolean parentMeetingExists(String parentMeetingId) {
+        Meeting meeting = ServiceUtils.findMeetingFromMeetingID(parentMeetingId);
+        return meeting != null;
+    }
+
 	/*************************************************
 	 * Setters
 	 ************************************************/

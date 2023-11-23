@@ -248,25 +248,26 @@ class MeetingActor(
     //=============================
 
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg             => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg                 => handleBbbCommonEnvCoreMsg(msg)
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg                => usersApp.handleRegisterUserReqMsg(m)
-    case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
-    case m: GetRunningMeetingStateReqMsg      => handleGetRunningMeetingStateReqMsg(m)
-    case m: ValidateConnAuthTokenSysMsg       => handleValidateConnAuthTokenSysMsg(m)
+    case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
+    case m: GetAllMeetingsReqMsg                  => handleGetAllMeetingsReqMsg(m)
+    case m: GetRunningMeetingStateReqMsg          => handleGetRunningMeetingStateReqMsg(m)
+    case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg           => handleDestroyMeetingSysCmdMsg(m)
+    case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
 
     //======================================
 
     //=======================================
     // internal messages
-    case msg: MonitorNumberOfUsersInternalMsg => handleMonitorNumberOfUsers(msg)
+    case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
+    case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
 
-    case msg: ExtendMeetingDuration           => handleExtendMeetingDuration(msg)
+    case msg: ExtendMeetingDuration               => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
       if (!liveMeeting.props.meetingProp.isBreakout) {
         // Update users of meeting remaining time.
@@ -531,7 +532,6 @@ class MeetingActor(
       case m: PresentationConversionCompletedSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PdfConversionInvalidErrorSysPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg                           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetPresenterInPodReqMsg                        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg                       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresentationDownloadablePubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)

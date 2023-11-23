@@ -437,6 +437,7 @@
     "app.muteWarning.disableMessage": "Η σίγαση των ειδοποιήσεων απενεργοποιήθηκε μέχρι την άρση της σίγασης",
     "app.muteWarning.tooltip": "Κάντε κλικ για κλείσιμο και απενεργοποίηση των προειδοποιήσεων έως την άρση της σίγασης",
     "app.navBar.settingsDropdown.optionsLabel": "Επιλογές",
+    "app.navBar.leaveMeetingBtnLabel": "Έξοδος",
     "app.navBar.settingsDropdown.fullscreenLabel": "Εφαρμογή πλήρους οθόνης",
     "app.navBar.settingsDropdown.settingsLabel": "Ρυθμίσεις",
     "app.navBar.settingsDropdown.aboutLabel": "Περί",
