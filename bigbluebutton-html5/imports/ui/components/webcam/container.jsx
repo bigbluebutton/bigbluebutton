@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 
 import { withTracker } from 'meteor/react-meteor-data';
-import MediaService from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { useSubscription } from '@apollo/client';
 import { UsersContext } from '../components-data/users-context/context';
 import {
   layoutSelect,
@@ -14,14 +14,16 @@ import {
 import WebcamComponent from '/imports/ui/components/webcam/component';
 import { LAYOUT_TYPE } from '../layout/enums';
 import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
-
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const WebcamContainer = ({
   audioModalIsOpen,
-  swapLayout,
   usersVideo,
   layoutType,
+  isLayoutSwapped,
 }) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -30,6 +32,19 @@ const WebcamContainer = ({
   const presentation = layoutSelectOutput((i) => i.presentation);
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
+  const hasPresentation = !!presentationPage?.presentationId;
+
+  const swapLayout = !hasPresentation || isLayoutSwapped;
+
+  let floatingOverlay = false;
+  let hideOverlay = false;
+
+  if (swapLayout) {
+    floatingOverlay = true;
+    hideOverlay = true;
+  }
 
   const { cameraOptimalGridSize } = cameraDockInput;
   const { display: displayPresentation } = presentation;
@@ -56,14 +71,15 @@ const WebcamContainer = ({
           displayPresentation,
           isRTL,
           isGridEnabled,
+          floatingOverlay,
+          hideOverlay,
         }}
       />
     )
     : null;
 };
 
-export default withTracker((props) => {
-  const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
+export default withTracker(() => {
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
     isMeteorConnected: Meteor.status().connected,
@@ -76,12 +92,6 @@ export default withTracker((props) => {
     data.usersVideo = sortVideoStreams(items, DEFAULT_SORTING);
   } else {
     data.usersVideo = usersVideo;
-  }
-  data.swapLayout = !hasPresentation || props.isLayoutSwapped;
-
-  if (data.swapLayout) {
-    data.floatingOverlay = true;
-    data.hideOverlay = true;
   }
 
   return data;

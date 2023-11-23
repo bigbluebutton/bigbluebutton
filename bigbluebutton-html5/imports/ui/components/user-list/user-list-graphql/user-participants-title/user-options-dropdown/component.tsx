@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
-import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import CreateBreakoutRoomContainerGraphql from '../../../../breakout-room/breakout-room-graphql/create-breakout-room/component';
 import WriterMenuContainer from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
@@ -305,7 +305,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         isOpen: isCreateBreakoutRoomModalOpen,
         setIsOpen: setCreateBreakoutRoomModalIsOpen,
         priority: 'medium',
-        Component: CreateBreakoutRoomContainer,
+        Component: CreateBreakoutRoomContainerGraphql,
         otherOptions: {},
       })}
 
