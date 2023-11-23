@@ -17,7 +17,7 @@ const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const pluginsContext = useContext(PluginsContext);
   const { users } = usingUsersContext;
-  const { pluginsProvidedAggregatedState } = pluginsContext;
+  const { pluginsExtensibleAreasAggregatedState } = pluginsContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const userIsPresenter = currentUser.presenter;
 
@@ -35,7 +35,7 @@ const PresentationToolbarContainer = (props) => {
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
-    const pluginProvidedPresentationToolbarItems = pluginsProvidedAggregatedState
+    const pluginProvidedPresentationToolbarItems = pluginsExtensibleAreasAggregatedState
       ?.presentationToolbarItems;
 
     return (

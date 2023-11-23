@@ -1,4 +1,6 @@
-import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk';
+import {
+  CustomSubscriptionArguments,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
 import React from 'react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

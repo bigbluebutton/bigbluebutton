@@ -3,6 +3,7 @@ import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
@@ -153,7 +154,7 @@ const makeDropdownPluginItem: (
         allowed: undefined,
       };
       switch (userDropdownItem.type) {
-        case PluginSdk.UserListDropdownItemType.OPTION: {
+        case UserListDropdownItemType.OPTION: {
           const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownOption;
           returnValue.label = dropdownButton.label;
           returnValue.tooltip = dropdownButton.tooltip;
@@ -162,7 +163,7 @@ const makeDropdownPluginItem: (
           returnValue.onClick = dropdownButton.onClick;
           break;
         }
-        case PluginSdk.UserListDropdownItemType.INFORMATION: {
+        case UserListDropdownItemType.INFORMATION: {
           const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownInformation;
           returnValue.label = dropdownButton.label;
           returnValue.icon = dropdownButton.icon;
@@ -171,7 +172,7 @@ const makeDropdownPluginItem: (
           returnValue.allowed = dropdownButton.allowed;
           break;
         }
-        case PluginSdk.UserListDropdownItemType.SEPARATOR: {
+        case UserListDropdownItemType.SEPARATOR: {
           returnValue.allowed = true;
           returnValue.isSeparator = true;
           break;
@@ -197,7 +198,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const actionsnPermitions = generateActionsPermissions(
     user,
     currentUser,
@@ -231,9 +232,9 @@ const UserActions: React.FC<UserActionsProps> = ({
     && !user.isModerator;
 
   let userListDropdownItems = [] as PluginSdk.UserListDropdownItem[];
-  if (pluginsProvidedAggregatedState.userListDropdownItems) {
+  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
     userListDropdownItems = [
-      ...pluginsProvidedAggregatedState.userListDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
     ];
   }
 
@@ -245,7 +246,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownItem) => (item?.type === PluginSdk.UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownItem) => (item?.type === UserListDropdownItemType.INFORMATION),
     )),
     {
       allowed: allowedToChangeStatus,
@@ -445,7 +446,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: 'time',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownItem) => (item?.type !== PluginSdk.UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownItem) => (item?.type !== UserListDropdownItemType.INFORMATION),
     )),
   ];
 

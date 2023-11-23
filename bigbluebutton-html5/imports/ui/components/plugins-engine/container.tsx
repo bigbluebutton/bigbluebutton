@@ -10,9 +10,9 @@ import * as uuidLib from 'uuid';
 import PluginHooksHandlerContainer from './data-consumption/state-manager/manager';
 import PluginsEngineComponent from './component';
 import { PluginConfig, EffectivePluginConfig } from './types';
-import PluginLoaderContainer from './plugin-loader/container';
-import PluginProvidedStateContainer from './plugin-provided-state/container';
-import PluginDataChannelManagerContainer from './data-channel/container';
+import PluginLoaderContainer from './loader/manager';
+import ExtensibleAreaStateManager from './extensible-areas/state-manager/manager';
+import PluginDataChannelManagerContainer from './data-channel/manager';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -70,7 +70,7 @@ const PluginsEngineContainer = () => {
                   pluginApi,
                 }}
               />
-              <PluginProvidedStateContainer
+              <ExtensibleAreaStateManager
                 {...{
                   pluginApi,
                   uuid,
