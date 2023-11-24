@@ -181,11 +181,15 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     } return '';
   };
 
+  const isVoiceOnly = user.isDialIn;
+
   const iconUser = getIconUser();
+  const iconVoiceOnlyUser = (<Icon iconName="volume_level_2" />);
+  const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
 
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
-    : iconUser;
+    : userIcon;
 
   const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
 

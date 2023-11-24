@@ -47,6 +47,7 @@ export interface Reaction {
 }
 
 export interface User {
+  isDialIn: boolean;
   userId: string;
   extId: string;
   name: string;
