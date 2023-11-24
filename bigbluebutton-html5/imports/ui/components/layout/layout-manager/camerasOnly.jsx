@@ -164,8 +164,8 @@ const CamerasOnlyLayout = (props) => {
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
       value: {
         display: false,
-        minWidth: sidebarNavWidth.minWidth,
-        width: sidebarNavWidth.width,
+        minWidth: 0,
+        width: 0,
         maxWidth: sidebarNavWidth.maxWidth,
         height: sidebarNavHeight,
         top: sidebarNavBounds.top,
@@ -191,8 +191,8 @@ const CamerasOnlyLayout = (props) => {
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: false,
-        minWidth: sidebarContentWidth.minWidth,
-        width: sidebarContentWidth.width,
+        minWidth: 0,
+        width: 0,
         maxWidth: sidebarContentWidth.maxWidth,
         minHeight: sidebarContentHeight.minHeight,
         height: sidebarContentHeight.height,
@@ -338,9 +338,13 @@ const CamerasOnlyLayout = (props) => {
         {
           sidebarNavigation: {
             isOpen: false,
+            width: 0,
+            height: 0,
           },
           sidebarContent: {
             isOpen: false,
+            width: 0,
+            height: 0,
           },
           SidebarContentHorizontalResizer: {
             isOpen: false,

@@ -42,19 +42,48 @@ const ParticipantsChatOnlyLayout = (props) => {
 
   const prevDeviceType = usePrevious(deviceType);
 
-  const calculatesSidebarContentHeight = () => {
+  const calculatesSidebarNavHeight = (navbarHeight, actionbarHeight) => {
+    let sidebarNavHeight = 0;
+    if (isMobile) {
+      sidebarNavHeight = windowHeight() - navbarHeight - bannerAreaHeight() - actionbarHeight;
+    } else {
+      sidebarNavHeight = windowHeight() - bannerAreaHeight() - navbarHeight - actionbarHeight;
+    }
+    return sidebarNavHeight;
+  };
+
+  const calculatesSidebarContentHeight = (navbarHeight, actionbarHeight) => {
     let height = 0;
     let minHeight = 0;
     let maxHeight = 0;
-    if (sidebarContentInput.isOpen) {
-      height = windowHeight() - bannerAreaHeight();
-      minHeight = height;
-      maxHeight = height;
-    }
+    height = windowHeight() - bannerAreaHeight() - navbarHeight - actionbarHeight;
+    minHeight = height;
+    maxHeight = height;
     return {
       height,
       minHeight,
       maxHeight,
+    };
+  };
+
+  const calculatesSidebarContentWidth = (sidebarNavWidth) => {
+    let minWidth = 0;
+    let width = 0;
+    let maxWidth = 0;
+
+    if (isMobile) {
+      minWidth = windowWidth();
+      width = windowWidth();
+      maxWidth = windowWidth();
+    } else {
+      minWidth = windowWidth() - sidebarNavWidth;
+      width = windowWidth() - sidebarNavWidth;
+      maxWidth = windowWidth() - sidebarNavWidth;
+    }
+    return {
+      minWidth,
+      width,
+      maxWidth,
     };
   };
 
@@ -111,29 +140,28 @@ const ParticipantsChatOnlyLayout = (props) => {
       calculatesNavbarBounds,
       calculatesActionbarBounds,
       calculatesSidebarNavWidth,
-      calculatesSidebarNavHeight,
       calculatesSidebarNavBounds,
-      calculatesSidebarContentWidth,
       calculatesSidebarContentBounds,
-      calculatesMediaAreaBounds,
       isTablet,
     } = props;
     const { captionsMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = calculatesSidebarNavWidth();
-    const sidebarNavHeight = calculatesSidebarNavHeight();
-    const sidebarContentWidth = calculatesSidebarContentWidth();
+    const sidebarContentWidth = calculatesSidebarContentWidth(sidebarNavWidth.width);
     const sidebarNavBounds = calculatesSidebarNavBounds();
     const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
-    const mediaAreaBounds = calculatesMediaAreaBounds(
-      sidebarNavWidth.width,
-      sidebarContentWidth.width,
-    );
+    const mediaAreaBounds = {
+      width: sidebarNavWidth.width + sidebarContentWidth.width,
+      left: 0,
+    };
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
+    const sidebarNavHeight = calculatesSidebarNavHeight(navbarBounds.height,
+      actionbarBounds.height);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
     const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
-    const sidebarContentHeight = calculatesSidebarContentHeight();
+    const sidebarContentHeight = calculatesSidebarContentHeight(navbarBounds.height,
+      actionbarBounds.height);
     const cameraDockBounds = calculatesCameraDockBounds(
       mediaBounds,
       mediaAreaBounds,
@@ -188,7 +216,7 @@ const ParticipantsChatOnlyLayout = (props) => {
         width: sidebarNavWidth.width,
         maxWidth: sidebarNavWidth.maxWidth,
         height: sidebarNavHeight,
-        top: sidebarNavBounds.top,
+        top: navbarBounds.height,
         left: sidebarNavBounds.left,
         right: sidebarNavBounds.right,
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
@@ -217,7 +245,7 @@ const ParticipantsChatOnlyLayout = (props) => {
         minHeight: sidebarContentHeight.minHeight,
         height: sidebarContentHeight.height,
         maxHeight: sidebarContentHeight.maxHeight,
-        top: sidebarContentBounds.top,
+        top: navbarBounds.height,
         left: sidebarContentBounds.left,
         right: sidebarContentBounds.right,
         currentPanelType,
