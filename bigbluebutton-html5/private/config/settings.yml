@@ -92,7 +92,7 @@ public:
       alwaysVisible: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
       mobile: false
-      # provider: [webspeech, vosk, whisper, deepspeech]
+      # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
         available:
