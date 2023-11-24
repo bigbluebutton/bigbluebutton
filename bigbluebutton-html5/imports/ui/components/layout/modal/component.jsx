@@ -80,7 +80,7 @@ const LayoutModalComponent = (props) => {
   const handleUpdateLayout = (updateAll) => {
     const obj = {
       application:
-      { ...application, selectedLayout, pushLayout: updateAll },
+        { ...application, selectedLayout, pushLayout: updateAll },
     };
     updateSettings(obj, intlMessages.layoutToastLabel);
     setIsOpen(false);
@@ -107,6 +107,11 @@ const LayoutModalComponent = (props) => {
   const renderLayoutButtons = () => (
     <Styled.ButtonsContainer>
       {Object.values(LAYOUT_TYPE)
+        .filter((layout) => (
+          layout !== LAYOUT_TYPE.CAMERAS_ONLY
+          && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
+          && layout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY
+        ))
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
             <Styled.LayoutBtn
@@ -116,7 +121,7 @@ const LayoutModalComponent = (props) => {
                   src={`${LAYOUTS_PATH}${layout}.svg`}
                   alt={`${layout} ${intl.formatMessage(intlMessages.layoutSingular)}`}
                 />
-                )}
+              )}
               onClick={() => {
                 handleSwitchLayout(layout);
                 if (layout === LAYOUT_TYPE.CUSTOM_LAYOUT && application.selectedLayout !== layout) {
