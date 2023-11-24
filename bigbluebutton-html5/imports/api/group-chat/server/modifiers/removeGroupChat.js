@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import GroupChat from '/imports/api/group-chat';
-import clearGroupChatMsg from '/imports/api/group-chat-msg/server/modifiers/clearGroupChatMsg';
 
 export default async function removeGroupChat(meetingId, chatId) {
   check(meetingId, String);
@@ -17,7 +16,6 @@ export default async function removeGroupChat(meetingId, chatId) {
 
     if (numberAffected) {
       Logger.info(`Removed group-chat id=${chatId} meeting=${meetingId}`);
-      clearGroupChatMsg(meetingId, chatId);
     }
   } catch (err) {
     Logger.error(`Removing group-chat from collection: ${err}`);

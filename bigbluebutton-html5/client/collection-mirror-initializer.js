@@ -10,7 +10,6 @@ import UserSettings from '/imports/api/users-settings';
 import VideoStreams from '/imports/api/video-streams';
 import VoiceUsers from '/imports/api/voice-users';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
-import GroupChat from '/imports/api/group-chat';
 import ConnectionStatus from '/imports/api/connection-status';
 import Captions from '/imports/api/captions';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
@@ -40,7 +39,6 @@ export const localCollectionRegistry = {
   localVideoStreamsSync: new AbstractCollection(VideoStreams, VideoStreams),
   localVoiceUsersSync: new AbstractCollection(VoiceUsers, VoiceUsers),
   localWhiteboardMultiUserSync: new AbstractCollection(WhiteboardMultiUser, WhiteboardMultiUser),
-  localGroupChatSync: new AbstractCollection(GroupChat, GroupChat),
   localConnectionStatusSync: new AbstractCollection(ConnectionStatus, ConnectionStatus),
   localCaptionsSync: new AbstractCollection(Captions, Captions),
   localPadsSync: new AbstractCollection(Pads, Pads),

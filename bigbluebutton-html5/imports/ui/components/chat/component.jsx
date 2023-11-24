@@ -7,7 +7,7 @@ import { Meteor } from 'meteor/meteor';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Styled from './styles';
 import MessageFormContainer from './message-form/container';
-import TimeWindowList from './time-window-list/container';
+import ChatList from '/imports/ui/components/chat/chat-graphql/chat-message-list/component';
 import ChatDropdownContainer from './chat-dropdown/container';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { UserSentMessageCollection } from './service';
@@ -84,7 +84,7 @@ const Chat = (props) => {
       data-test={isPublicChat ? 'publicChat' : 'privateChat'}
     >
       <ChatHeader />
-      <TimeWindowList
+      <ChatList
         id={ELEMENT_ID}
         chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
