@@ -11,7 +11,8 @@ export const USER_LIST_SUBSCRIPTION = gql`subscription Users($offset: Int!, $lim
                   {hasDrawPermissionOnCurrentPage: desc},
                   {nameSortable: asc},
                   {userId: asc}
-                ]) {
+                ]) {     
+    isDialIn
     userId
     extId
     name
