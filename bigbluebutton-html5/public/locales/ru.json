@@ -879,7 +879,7 @@
     "app.toast.meetingMuteOn.label": "Всем пользователям выключены микрофоны",
     "app.toast.meetingMuteOnViewers.label": "Всем пользователям выключены микрофоны",
     "app.toast.meetingMuteOff.label": "Блокировка микрофонов отменена",
-    "app.toast.wakeLock.acquireSuccess": "Экран не будет гаситься. Это можно выключить в настройках.",
+    "app.toast.wakeLock.acquireSuccess": "Экран не будет гаснуть. Это можно выключить в настройках.",
     "app.toast.wakeLock.acquireFailed": "Ошибка функции \"не гасить экран\"",
     "app.toast.wakeLock.notSupported": "Ваш браузер не поддерживает функцию \"не гасить экран\"",
     "app.toast.wakeLock.disclaimer": "{0}. Вы будете отключены после того, как экран телефона погаснет.",
