@@ -136,8 +136,8 @@ const WhiteboardContainer = (props) => {
     type: 'image',
     meta: {},
     props: {
-      w: currentPresentationPage?.width,
-      h: currentPresentationPage?.height,
+      w: currentPresentationPage?.scaledWidth,
+      h: currentPresentationPage?.scaledHeight,
       src: currentPresentationPage?.svgUrl,
       name: "",
       isAnimated: false,
@@ -168,8 +168,8 @@ const WhiteboardContainer = (props) => {
     id: `shape:${curPageId}`,
     type: "image",
     props: {
-      w: currentPresentationPage?.width || 1,
-      h: currentPresentationPage?.height || 1,
+      w: currentPresentationPage?.scaledWidth || 1,
+      h: currentPresentationPage?.scaledHeight || 1,
       assetId: assetId,
       playing: true,
       url: "",
