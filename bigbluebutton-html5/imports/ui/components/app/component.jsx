@@ -522,6 +522,7 @@ class App extends Component {
       setPushLayout,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      enforceLayout,
     } = this.props;
 
     return (
@@ -552,6 +553,7 @@ class App extends Component {
           setPushLayout,
           shouldShowScreenshare,
           shouldShowExternalVideo: !!shouldShowExternalVideo,
+          enforceLayout,
         }}
       />
     );

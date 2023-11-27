@@ -346,8 +346,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateNewPresentationPodPubMsg](envelope, jsonNode)
       case RemovePresentationPodPubMsg.NAME =>
         routeGenericMsg[RemovePresentationPodPubMsg](envelope, jsonNode)
-      case SetPresenterInPodReqMsg.NAME =>
-        routeGenericMsg[SetPresenterInPodReqMsg](envelope, jsonNode)
 
       // Caption
       case EditCaptionHistoryPubMsg.NAME =>

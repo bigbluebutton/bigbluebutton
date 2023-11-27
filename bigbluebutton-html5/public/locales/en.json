@@ -1172,6 +1172,7 @@
     "app.videoDock.webcamDisableLabelAllCams": "Disable self-view (all cameras)",
     "app.videoDock.webcamEnableLabel": "Enable self-view",
     "app.videoDock.webcamDisableDesc": "Self-view disabled",
+    "app.videoDock.webcamDisableWarning": "Your webcam is still visible to others! Only your local view is disabled.",
     "app.videoDock.webcamPinLabel": "Pin",
     "app.videoDock.webcamPinDesc": "Pin the selected webcam",
     "app.videoDock.webcamFullscreenLabel": "Fullscreen webcam",

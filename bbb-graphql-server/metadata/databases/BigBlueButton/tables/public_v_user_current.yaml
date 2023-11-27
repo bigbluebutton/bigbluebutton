@@ -135,6 +135,7 @@ select_permissions:
         - away
         - banned
         - clientType
+        - enforceLayout
         - color
         - disconnected
         - echoTestRunningAt

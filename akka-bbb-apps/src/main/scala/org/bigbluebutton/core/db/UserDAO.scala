@@ -1,5 +1,5 @@
 package org.bigbluebutton.core.db
-import org.bigbluebutton.core.models.{RegisteredUser}
+import org.bigbluebutton.core.models.{RegisteredUser, VoiceUserState}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -24,13 +24,14 @@ case class UserDbModel(
     guestStatus:            String,
     registeredOn:           Long,
     excludeFromDashboard:   Boolean,
+    enforceLayout:          Option[String],
 )
 
 
 
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
-    userId,extId,meetingId,name,role,avatar,color, sessionToken, authed,joined,joinErrorCode, joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard) <> (UserDbModel.tupled, UserDbModel.unapply)
+    userId,extId,meetingId,name,role,avatar,color, sessionToken, authed,joined,joinErrorCode, joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
   val meetingId = column[String]("meetingId")
@@ -49,6 +50,7 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val guestStatus = column[String]("guestStatus")
   val registeredOn = column[Long]("registeredOn")
   val excludeFromDashboard = column[Boolean]("excludeFromDashboard")
+  val enforceLayout = column[Option[String]]("enforceLayout")
 }
 
 object UserDAO {
@@ -73,7 +75,11 @@ object UserDAO {
           guest = regUser.guest,
           guestStatus = regUser.guestStatus,
           registeredOn = regUser.registeredOn,
-          excludeFromDashboard = regUser.excludeFromDashboard
+          excludeFromDashboard = regUser.excludeFromDashboard,
+          enforceLayout = regUser.enforceLayout match {
+            case "" => None
+            case enforceLayout: String => Some(enforceLayout)
+          }
         )
       )
     ).onComplete {
@@ -100,6 +106,19 @@ object UserDAO {
       }
   }
 
+  def updateVoiceUserJoined(voiceUserState: VoiceUserState) = {
+
+    DatabaseConnection.db.run(
+      TableQuery[UserDbTableDef]
+        .filter(_.userId === voiceUserState.intId)
+        .map(u => (u.guest, u.guestStatus, u.authed, u.joined))
+        .update((false, "ALLOW", true, true))
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user voice table!")
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user voice: $e")
+    }
+  }
+
   def updateJoinError(userId: String, joinErrorCode: String, joinErrorMessage: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
@@ -114,15 +133,6 @@ object UserDAO {
 
 
   def delete(intId: String) = {
-//    DatabaseConnection.db.run(
-//      TableQuery[UserDbTableDef]
-//        .filter(_.userId === intId)
-//        .delete
-//    ).onComplete {
-//      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"User ${intId} deleted")
-//      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting user ${intId}: $e")
-//    }
-
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
         .filter(_.userId === intId)

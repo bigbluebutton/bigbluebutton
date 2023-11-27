@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useQuery, useSubscription } from '@apollo/client';
 import {
   ColorStyle, DashStyle, SizeStyle, TDShapeType,
@@ -21,7 +21,6 @@ import {
 } from './service';
 import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import SettingsService from '/imports/ui/services/settings';
-import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import {
   layoutSelect,
@@ -31,8 +30,8 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
 import POLL_RESULTS_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollResultsSubscription';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 
 let annotations = [];
@@ -59,6 +58,12 @@ const WhiteboardContainer = (props) => {
 
   const { data: pollData } = useSubscription(POLL_RESULTS_SUBSCRIPTION);
   const pollResults = pollData?.poll[0] || null;
+
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    isModerator: user.isModerator,
+    userId: user.userId,
+  }));
 
   const {
     loading: annotationsLoading,
@@ -121,17 +126,14 @@ const WhiteboardContainer = (props) => {
     type: 'image',
   };
 
-  const usingUsersContext = useContext(UsersContext);
   const isRTL = layoutSelect((i) => i.isRTL);
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const isPresenter = currentUser.presenter;
-  const isModerator = currentUser.role === ROLE_MODERATOR;
+  const isPresenter = currentUser?.presenter;
+  const isModerator = currentUser?.isModerator;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);

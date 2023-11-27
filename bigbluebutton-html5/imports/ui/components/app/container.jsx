@@ -22,6 +22,8 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import { isEqual } from 'radash';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -147,6 +149,16 @@ const AppContainer = (props) => {
     MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)
   });
 
+  const validateEnforceLayout = (currentUserData) => {
+    const layoutTypes = Object.values(LAYOUT_TYPE);
+    const enforceLayout = currentUserData?.enforceLayout;
+    return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
+  };
+
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    enforceLayout: user.enforceLayout,
+  }));
+
   return currentUserId
     ? (
       <App
@@ -185,6 +197,7 @@ const AppContainer = (props) => {
           setMountRandomUserModal,
           isPresenter,
           numCameras: cameraDockInput.numCameras,
+          enforceLayout: validateEnforceLayout(currentUserData),
         }}
         {...otherProps}
       />
