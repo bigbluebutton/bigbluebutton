@@ -23,7 +23,8 @@ test.describe('Learning Dashboard', async () => {
     await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls @ci', async ({ context }) => {
+  test('Polls @ci', async ({ browserName, context }) => {
+    test.skip(browserName === 'webkit', "Failed to load the plugin pw.")
     await learningDashboard.initUserPage(true, context, { isRecording: true });
     await learningDashboard.polls();
   });
@@ -32,7 +33,8 @@ test.describe('Learning Dashboard', async () => {
     await learningDashboard.basicInfos();
   });
 
-  test('Overview', async () => {
+  test('Overview', async ({ browserName }) => {
+    test.skip(browserName === 'webkit', "Webcam not supported on Webkit")
     await learningDashboard.overview();
   });
 
