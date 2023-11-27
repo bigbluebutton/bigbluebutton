@@ -73,7 +73,7 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton
+            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
     steps:
       - uses: actions/checkout@v3
       - name: Merge branches
