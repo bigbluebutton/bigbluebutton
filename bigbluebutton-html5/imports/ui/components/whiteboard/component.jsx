@@ -650,25 +650,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     }
   }, [curPageId]);
 
-  // need to update the slide position in tldraw
-  React.useEffect(() => {
-    if (tlEditor && curPageId) {
-      tlEditor?.updateAssets([
-        {
-          id: `asset:${whiteboardId}`,
-          props: {
-            w: currentPresentationPage?.scaledWidth,
-            h: currentPresentationPage?.scaledHeight,
-            name: "bg",
-            isAnimated: false,
-            mimeType: null,
-            src: tlEditor.store?.get(`asset:${whiteboardId}`)?.props?.src,
-          },
-        },
-      ]);
-    }
-  }, [currentPresentationPage?.scaledWidth, currentPresentationPage?.scaledHeight]);
-
   // eslint-disable-next-line arrow-body-style
   React.useEffect(() => {
     return () => {
