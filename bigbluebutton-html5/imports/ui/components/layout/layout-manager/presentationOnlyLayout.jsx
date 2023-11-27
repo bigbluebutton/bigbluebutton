@@ -115,13 +115,7 @@ const PresentationOnlyLayout = (props) => {
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
     const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = calculatesSidebarContentHeight();
-    const cameraDockBounds = calculatesCameraDockBounds(
-      mediaBounds,
-      mediaAreaBounds,
-      sidebarNavWidth.width,
-      sidebarContentWidth.width,
-      sidebarContentHeight.height,
-    );
+    const cameraDockBounds = calculatesCameraDockBounds();
     const { isOpen } = presentationInput;
 
     layoutContextDispatch({

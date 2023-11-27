@@ -162,13 +162,7 @@ const ParticipantsChatOnlyLayout = (props) => {
     const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = calculatesSidebarContentHeight(navbarBounds.height,
       actionbarBounds.height);
-    const cameraDockBounds = calculatesCameraDockBounds(
-      mediaBounds,
-      mediaAreaBounds,
-      sidebarNavWidth.width,
-      sidebarContentWidth.width,
-      sidebarContentHeight.height,
-    );
+    const cameraDockBounds = calculatesCameraDockBounds();
     const { isOpen } = presentationInput;
 
     layoutContextDispatch({

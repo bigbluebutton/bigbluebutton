@@ -115,13 +115,7 @@ const CamerasOnlyLayout = (props) => {
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
     const cameraDockBounds = calculatesCameraDockBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = calculatesSidebarContentHeight();
-    const mediaBounds = calculatesMediaBounds(
-      mediaAreaBounds,
-      cameraDockBounds,
-      sidebarNavWidth.width,
-      sidebarContentWidth.width,
-      sidebarContentHeight.height,
-    );
+    const mediaBounds = calculatesMediaBounds();
 
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
