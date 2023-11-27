@@ -16,7 +16,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import { isEqual } from 'radash';
-import Right from '../common/control-header/right/component';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
