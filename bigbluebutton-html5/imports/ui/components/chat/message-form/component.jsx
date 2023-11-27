@@ -23,7 +23,6 @@ const propTypes = {
   connected: PropTypes.bool.isRequired,
   locked: PropTypes.bool.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
-  stopUserTyping: PropTypes.func.isRequired,
   startUserTyping: PropTypes.func.isRequired,
 };
 

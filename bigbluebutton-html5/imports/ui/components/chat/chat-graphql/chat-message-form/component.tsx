@@ -18,7 +18,6 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   startUserTyping,
-  stopUserTyping,
   textToMarkdown,
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
@@ -273,7 +272,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       updateUnreadMessages(chatId, '');
       setHasErrors(false);
       setShowEmojiPicker(false);
-      if (ENABLE_TYPING_INDICATOR) stopUserTyping();
       const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
       window.dispatchEvent(sentMessageEvent);
 
