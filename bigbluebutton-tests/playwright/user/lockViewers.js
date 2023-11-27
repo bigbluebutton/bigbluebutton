@@ -23,7 +23,7 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.userPage.checkElementCount(e.webcamContainer, 1);
     
     await this.initUserPage2(true);
