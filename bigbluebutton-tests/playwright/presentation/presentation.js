@@ -61,10 +61,13 @@ class Presentation extends MultiUsers {
 
   async startExternalVideo() {
     const { externalVideoPlayer } = getSettings();
-    test.fail(!externalVideoPlayer, 'External video is disabled');
 
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
+    if(!externalVideoPlayer) {
+      await this.modPage.hasElement(e.managePresentations);
+      return this.modPage.wasRemoved(e.shareExternalVideoBtn);
+    }
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
     await this.modPage.waitForSelector(e.closeModal);
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
@@ -182,12 +185,15 @@ class Presentation extends MultiUsers {
 
   async enableAndDisablePresentationDownload(testInfo) {
     const { originalPresentationDownloadable } = getSettings();
-    test.fail(!originalPresentationDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     // enable original presentation download
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
+    if(!originalPresentationDownloadable) {
+      await this.modPage.hasElement(e.presentationOptionsDownloadBtn);
+      return this.modPage.wasRemoved(e.enableOriginalPresentationDownloadBtn);
+    }
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.enableOriginalPresentationDownloadBtn);
     await this.userPage.hasElement(e.smallToastMsg);
@@ -212,12 +218,15 @@ class Presentation extends MultiUsers {
 
   async sendPresentationToDownload(testInfo) {
     const { presentationWithAnnotationsDownloadable } = getSettings();
-    test.fail(!presentationWithAnnotationsDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    if(!presentationWithAnnotationsDownloadable) {
+      await this.modPage.hasElement(e.presentationOptionsDownloadBtn);
+      return this.modPage.wasRemoved(e.sendPresentationInCurrentStateBtn);
+    }
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
     await this.modPage.hasElement(e.smallToastMsg, 20000);

@@ -5,13 +5,13 @@ import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { NavBarItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/nav-bar-item/enums';
 import Styled from './styles';
-import RecordingIndicator from './recording-indicator/container';
-import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import RecordingIndicator from './nav-bar-graphql/recording-indicator/component';
+import TalkingIndicator from '/imports/ui/components/nav-bar/nav-bar-graphql/talking-indicator/component';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import OptionsDropdownContainer from './options-dropdown/container';
-import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/container';
+import TimerIndicatorContainer from '/imports/ui/components/timer/timer-graphql/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -322,6 +322,7 @@ class NavBar extends Component {
             {!isExpanded && document.dir === 'rtl'
               && <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
+              tooltipplacement="right"
               onClick={this.handleToggleUserList}
               color={isPhone && isExpanded ? 'primary' : 'dark'}
               size='md'
@@ -359,7 +360,7 @@ class NavBar extends Component {
           </Styled.Right>
         </Styled.Top>
         <Styled.Bottom>
-          <TalkingIndicatorContainer amIModerator={amIModerator} />
+          <TalkingIndicator amIModerator={amIModerator} />
           <TimerIndicatorContainer />
         </Styled.Bottom>
       </Styled.Navbar>

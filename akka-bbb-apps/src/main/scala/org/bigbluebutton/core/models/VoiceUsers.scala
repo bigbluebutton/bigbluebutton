@@ -39,7 +39,7 @@ object VoiceUsers {
   }
 
   def removeWithIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
-    UserVoiceDAO.deleteUser(intId)
+    UserVoiceDAO.deleteUserVoice(intId)
     users.remove(intId)
   }
 
