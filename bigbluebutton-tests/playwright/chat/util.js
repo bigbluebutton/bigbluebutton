@@ -4,7 +4,10 @@ const { getSettings } = require('../core/settings');
 
 async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
-  test.fail(!chatEnabled, 'Chat is disabled');
+
+  if(!chatEnabled) {
+    return testPage.wasRemoved(e.chatButton);
+  }
 
   await testPage.waitForSelector(e.chatBox);
   await testPage.waitForSelector(e.chatMessages);
@@ -20,9 +23,11 @@ async function openPublicChat(testPage) {
 
 async function openPrivateChat(testPage) {
   const { chatEnabled } = getSettings();
-  test.fail(!chatEnabled, 'Chat is disabled');
 
   await testPage.waitAndClick(e.userListItem);
+  if(!chatEnabled) {
+    return await testPage.wasRemoved(e.startPrivateChat);
+  }
   await testPage.waitAndClick(e.startPrivateChat);
 }
 

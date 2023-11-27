@@ -130,9 +130,20 @@ class ApiController {
       return
     }
 
-    if(params.isBreakout == "true" && !params.parentMeetingID) {
-      invalid("parentMeetingIDMissing", "No parent meeting ID was provided for the breakout room")
-      return
+    Boolean isBreakoutRoom = false
+    if (!StringUtils.isEmpty(params.isBreakout)) {
+      isBreakoutRoom = Boolean.parseBoolean(params.isBreakout)
+    }
+
+    if(isBreakoutRoom) {
+      if(StringUtils.isEmpty(params.parentMeetingID)) {
+        invalid("parentMeetingIDMissing", "No parent meeting ID was provided for the breakout room")
+        return
+      }
+      if(!paramsProcessorUtil.parentMeetingExists(params.parentMeetingID)) {
+        invalid("parentMeetingDoesNotExist", "No parent meeting exists for the breakout room")
+        return
+      }
     }
 
     // Ensure unique TelVoice. Uniqueness is not guaranteed by paramsProcessorUtil.
@@ -406,6 +417,10 @@ class ApiController {
       us.defaultLayout = params.defaultLayout;
     }
 
+    if (!StringUtils.isEmpty(params.enforceLayout)) {
+      us.enforceLayout = params.enforceLayout;
+    }
+
     if (!StringUtils.isEmpty(params.avatarURL)) {
       us.avatarURL = params.avatarURL;
     } else {
@@ -448,6 +463,7 @@ class ApiController {
         guestStatusVal,
         us.excludeFromDashboard,
         us.leftGuestLobby,
+        us.enforceLayout,
         meeting.getUserCustomData(us.externUserID)
     )
 
@@ -1234,6 +1250,11 @@ class ApiController {
         String extId = validationService.encodeString(meeting.getExternalId())
         String fullName = validationService.encodeString(us.fullname)
         String query = "fullName=${fullName}&meetingID=${extId}&role=${us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE}&redirect=true&userID=${us.getExternUserID()}"
+
+        if (!StringUtils.isEmpty(params.enforceLayout)) {
+          query += "&enforceLayout=${validationService.encodeString(params.enforceLayout)}";
+        }
+
         String checksum = DigestUtils.sha1Hex(method + query + validationService.getSecuritySalt())
         String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
         response.addHeader("Cache-Control", "no-cache")

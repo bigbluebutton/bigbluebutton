@@ -284,6 +284,7 @@ const Avatar = styled.div<AvatarProps>`
       opacity: 1;
       width: 1.2rem;
       height: 1.2rem;
+      background-color: ${colorSuccess};
     }
   `}
 
