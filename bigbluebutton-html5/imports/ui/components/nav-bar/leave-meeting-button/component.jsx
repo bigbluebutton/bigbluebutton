@@ -20,7 +20,7 @@ const LeaveMeetingButton = ({ label }) => {
 
   return (
     <Styled.LeaveButton
-      label={label}
+      tooltipLabel={label}
       color="danger"
       size="lg"
       onClick={() => leaveSession()}
