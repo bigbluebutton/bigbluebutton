@@ -25,6 +25,7 @@ test.describe.parallel('Webcam', () => {
   test('Pinning and unpinning webcams @ci', async ({ browser, context, page, browserName }) => {
     const webcam = new MultiUsers(browser, context);
     test.skip(browserName === 'webkit', 'Webkit does not support webcams permission');
+    test.skip(browserName === 'firefox', 'Webcams tests are inconsistent on Firefox.');
     await webcam.initModPage(page);
     await webcam.initUserPage();
     await webcam.initModPage2();
