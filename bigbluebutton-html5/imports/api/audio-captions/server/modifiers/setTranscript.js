@@ -9,21 +9,22 @@ export default async function setTranscript(userId, meetingId, transcriptId, tra
     check(transcriptId, String);
     check(transcript, String);
 
-    const selector = { meetingId };
+    const selector = { meetingId, transcriptId };
 
     const modifier = {
       $set: {
-        transcriptId,
         transcript,
+        lastUpdated: Math.floor(new Date().getTime()/1000),
+        locale,
       },
     };
 
     const numberAffected = await AudioCaptions.upsertAsync(selector, modifier);
 
     if (numberAffected) {
-      Logger.debug(`Set transcriptId=${transcriptId} transcript=${transcript} meeting=${meetingId}`);
+      Logger.debug(`Set transcriptId=${transcriptId} transcript=${transcript} meeting=${meetingId} locale=${locale}`);
     } else {
-      Logger.debug(`Upserted transcriptId=${transcriptId} transcript=${transcript} meeting=${meetingId}`);
+      Logger.debug(`Upserted transcriptId=${transcriptId} transcript=${transcript} meeting=${meetingId} locale=${locale}`);
     }
   } catch (err) {
     Logger.error(`Setting audio captions transcript to the collection: ${err}`);
