@@ -7,6 +7,7 @@ import ChatListItem from './chat-list-item/component';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import Service from '/imports/ui/components/user-list/service';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -81,10 +82,12 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
 };
 
 const ChatListContainer: React.FC = () => {
-  const chats = useChat((chat) => chat) as Chat[];
-  return (
-    <ChatList chats={chats} />
-  );
+  const { data: chats } = useChat((chat) => chat) as GraphqlDataHookSubscriptionResponse<Chat[]>;
+  if (chats) {
+    return (
+      <ChatList chats={chats} />
+    );
+  } return <></>;
 };
 
 export default ChatListContainer;

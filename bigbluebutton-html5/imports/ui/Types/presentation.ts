@@ -1,7 +1,12 @@
 export interface CurrentPage {
     num: number;
     pageId: string;
-    urls: string;
+    urlsJson: {
+        thumbnail: string;
+        png: string;
+        svg: string;
+        text: string;
+    };
 }
 
 export interface CurrentPresentation {

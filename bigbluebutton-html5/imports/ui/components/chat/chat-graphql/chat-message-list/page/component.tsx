@@ -7,6 +7,7 @@ import {
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
 import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -76,22 +77,26 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
 
-  const useChatMessageSubscription = useCreateUseSubscription<Partial<Message>>(chatQuery, variables, true);
-  const chatMessageData = useChatMessageSubscription((msg) => msg) as Array<Message>;
+  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
+  const {
+    data: chatMessageData,
+  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
-  if (chatMessageData.length > 0) {
-    setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
-  }
+  if (chatMessageData) {
+    if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
+      setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
+    }
 
-  return (
-    <ChatListPage
-      messages={chatMessageData}
-      lastSenderPreviousPage={lastSenderPreviousPage}
-      page={page}
-      markMessageAsSeen={markMessageAsSeen}
-      scrollRef={scrollRef}
-    />
-  );
+    return (
+      <ChatListPage
+        messages={chatMessageData}
+        lastSenderPreviousPage={lastSenderPreviousPage}
+        page={page}
+        markMessageAsSeen={markMessageAsSeen}
+        scrollRef={scrollRef}
+      />
+    );
+  } return (<></>);
 };
 
 export default ChatListPageContainer;

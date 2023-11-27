@@ -37,16 +37,13 @@ export default function Whiteboard(props) {
     shapes,
     assets,
     currentUser,
-    curPres,
     whiteboardId,
-    podId,
     zoomSlide,
     skipToSlide,
     slidePosition,
     curPageId,
     presentationWidth,
     presentationHeight,
-    isViewersCursorLocked,
     zoomChanger,
     isMultiUserActive,
     isRTL,
@@ -66,7 +63,6 @@ export default function Whiteboard(props) {
     setTldrawIsMounting,
     width,
     height,
-    hasMultiUserAccess,
     tldrawAPI,
     setTldrawAPI,
     whiteboardToolbarAutoHide,
@@ -79,8 +75,14 @@ export default function Whiteboard(props) {
     fullscreenRef,
     fullscreenElementId,
     layoutContextDispatch,
+    currentPresentationPage,
+    numberOfPages,
+    presentationId,
+    hasWBAccess,
+    whiteboardWriters,
   } = props;
-  const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
+
+  const { pages, pageStates } = initDefaultPages(numberOfPages || 1);
   const rDocument = React.useRef({
     name: 'test',
     version: TldrawApp.version,
@@ -279,7 +281,7 @@ export default function Whiteboard(props) {
     const currentDoc = rDocument.current;
 
     // update document if the number of pages has changed
-    if (currentDoc.id !== whiteboardId && currentDoc?.pages.length !== curPres?.pages.length) {
+    if (currentDoc.id !== whiteboardId && currentDoc?.pages.length !== numberOfPages) {
       const currentPageShapes = currentDoc?.pages[curPageId]?.shapes;
       currentDoc.id = whiteboardId;
       currentDoc.pages = pages;
@@ -414,7 +416,7 @@ export default function Whiteboard(props) {
         );
         setZoom(HUNDRED_PERCENT);
         zoomChanger(HUNDRED_PERCENT);
-        zoomSlide(parseInt(curPageId, 10), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
+        zoomSlide(parseInt(curPageId, 10), HUNDRED_PERCENT, viewedRegionH, 0, 0, presentationId);
       } else {
         const currentAspectRatio = Math.round((presentationWidth / presentationHeight) * 100) / 100;
         const previousAspectRatio = Math.round(
@@ -514,7 +516,7 @@ export default function Whiteboard(props) {
           const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
             tldrawAPI?.viewport.height, slidePosition.height,
           );
-          zoomSlide(parseInt(curPageId, 10), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
+          zoomSlide(parseInt(curPageId, 10), HUNDRED_PERCENT, viewedRegionH, 0, 0, presentationId);
           setZoom(HUNDRED_PERCENT);
           zoomChanger(HUNDRED_PERCENT);
         } else if (!isMounting) {
@@ -532,11 +534,11 @@ export default function Whiteboard(props) {
           }
           zoomSlide(
             parseInt(curPageId, 10),
-            podId,
             viewedRegionW,
             viewedRegionH,
             camera.point[0],
             camera.point[1],
+            presentationId,
           );
           const zoomToolbar = Math.round(
             ((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100,
@@ -549,8 +551,6 @@ export default function Whiteboard(props) {
       }
     }
   }, [isPresenter]);
-
-  const hasWBAccess = hasMultiUserAccess(whiteboardId, currentUser.userId);
 
   React.useEffect(() => {
     if (tldrawAPI) {
@@ -573,7 +573,7 @@ export default function Whiteboard(props) {
       setHistory(null);
       tldrawAPI?.resetHistory();
     }
-  }, [curPres?.id]);
+  }, [presentationId]);
 
   React.useEffect(() => {
     const currentZoom = tldrawAPI?.getPageState()?.camera?.zoom;
@@ -606,14 +606,14 @@ export default function Whiteboard(props) {
     const { nextSlide, numberOfSlides } = props;
 
     if (event) event.currentTarget.blur();
-    nextSlide(+curPageId, numberOfSlides, podId);
+    nextSlide(+curPageId, numberOfSlides);
   };
 
   const previousSlideHandler = (event) => {
     const { previousSlide } = props;
 
     if (event) event.currentTarget.blur();
-    previousSlide(+curPageId, podId);
+    previousSlide(+curPageId);
   };
 
   const handleOnKeyDown = (event) => {
@@ -818,11 +818,11 @@ export default function Whiteboard(props) {
 
       zoomSlide(
         parseInt(curPageId, 10),
-        podId,
         viewedRegionW,
         viewedRegionH,
         camera.point[0],
         camera.point[1],
+        presentationId,
       );
     }
     // don't allow non-presenters to pan&zoom
@@ -910,7 +910,7 @@ export default function Whiteboard(props) {
     if (app.currentPageId !== curPageId) {
       if (isPresenter) {
         // change slide for others
-        skipToSlide(Number.parseInt(app.currentPageId, 10), podId);
+        skipToSlide(Number.parseInt(app.currentPageId, 10));
       } else {
         // ignore, stay on same page
         app.changePage(curPageId);
@@ -931,7 +931,7 @@ export default function Whiteboard(props) {
     if (app.currentPageId !== curPageId) {
       if (isPresenter) {
         // change slide for others
-        skipToSlide(Number.parseInt(app.currentPageId, 10), podId);
+        skipToSlide(Number.parseInt(app.currentPageId, 10));
       } else {
         // ignore, stay on same page
         app.changePage(curPageId);
@@ -964,10 +964,7 @@ export default function Whiteboard(props) {
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
-      const currentPage = curPres.pages.find(
-        (page) => page.num === Number.parseInt(app.currentPageId, 10),
-      );
-      if (!currentPage) return;
+      if (!currentPresentationPage) return;
       const newWhiteboardId = currentPage.id;
       // remove from previous page and persist on new
       if (changedShapes) {
@@ -982,7 +979,7 @@ export default function Whiteboard(props) {
       }
       if (isPresenter) {
         // change slide for others
-        skipToSlide(Number.parseInt(app.currentPageId, 10), podId);
+        skipToSlide(Number.parseInt(app.currentPageId, 10));
       } else {
         // ignore, stay on same page
         app.changePage(curPageId);
@@ -1021,8 +1018,8 @@ export default function Whiteboard(props) {
         onMount={onMount}
         showPages={false}
         showZoom={false}
-        showUI={curPres ? (isPresenter || hasWBAccess) : true}
-        showMenu={!curPres}
+        showUI={presentationId ? (isPresenter || hasWBAccess) : true}
+        showMenu={!presentationId}
         showMultiplayerMenu={false}
         readOnly={false}
         onPatch={onPatch}
@@ -1075,15 +1072,15 @@ export default function Whiteboard(props) {
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
-        hasMultiUserAccess={hasMultiUserAccess}
         whiteboardId={whiteboardId}
-        isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning || panSelected}
         isMoving={isMoving}
         currentTool={currentTool}
         whiteboardToolbarAutoHide={whiteboardToolbarAutoHide}
         toggleToolsAnimations={toggleToolsAnimations}
+        hasWBAccess={hasWBAccess}
+        whiteboardWriters={whiteboardWriters}
       >
         {(hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <Styled.TldrawGlobalStyle
@@ -1130,12 +1127,7 @@ Whiteboard.propTypes = {
   currentUser: PropTypes.shape({
     userId: PropTypes.string.isRequired,
   }).isRequired,
-  curPres: PropTypes.shape({
-    pages: PropTypes.arrayOf(PropTypes.shape({})),
-    id: PropTypes.string.isRequired,
-  }),
   whiteboardId: PropTypes.string,
-  podId: PropTypes.string.isRequired,
   zoomSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
   slidePosition: PropTypes.shape({
@@ -1149,9 +1141,7 @@ Whiteboard.propTypes = {
   curPageId: PropTypes.string.isRequired,
   presentationWidth: PropTypes.number.isRequired,
   presentationHeight: PropTypes.number.isRequired,
-  isViewersCursorLocked: PropTypes.bool.isRequired,
   zoomChanger: PropTypes.func.isRequired,
-  isMultiUserActive: PropTypes.func.isRequired,
   isRTL: PropTypes.bool.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
   zoomValue: PropTypes.number.isRequired,
@@ -1171,7 +1161,6 @@ Whiteboard.propTypes = {
   setTldrawIsMounting: PropTypes.func.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  hasMultiUserAccess: PropTypes.func.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
@@ -1182,13 +1171,14 @@ Whiteboard.propTypes = {
   numberOfSlides: PropTypes.number.isRequired,
   previousSlide: PropTypes.func.isRequired,
   sidebarNavigationWidth: PropTypes.number,
+  presentationId: PropTypes.string,
 };
 
 Whiteboard.defaultProps = {
-  curPres: undefined,
   fullscreenRef: undefined,
   slidePosition: undefined,
   svgUri: undefined,
   whiteboardId: undefined,
   sidebarNavigationWidth: 0,
+  presentationId: undefined,
 };

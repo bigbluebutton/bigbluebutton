@@ -16,6 +16,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasActiveLockSetting
           hideUserList
           hideViewersCursor
+          hideViewersAnnotation
           webcamsOnlyForModerator
         }
         maxPinnedCameras
@@ -73,6 +74,16 @@ const MEETING_SUBSCRIPTION = gql`
           muteOnStart
           voiceConf
           telVoice
+        }
+        externalVideo {
+          externalVideoId
+          playerCurrentTime
+          playerPlaybackRate
+          playerPlaying
+          externalVideoUrl
+          startedSharingAt
+          stoppedSharingAt
+          updatedAt
         }
       }
   }

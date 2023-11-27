@@ -50,6 +50,7 @@ const SidebarContent = (props) => {
     sidebarContentPanel,
     amIPresenter,
     isSharedNotesPinned,
+    currentSlideId,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -150,7 +151,11 @@ const SidebarContent = (props) => {
           style={{ minWidth, top: '0', display: pollDisplay }}
           id="pollPanel"
         >
-          <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
+          <PollContainer
+            smallSidebar={smallSidebar}
+            amIPresenter={amIPresenter}
+            currentSlideId={currentSlideId}
+          />
         </Styled.Poll>
       )}
     </Resizable>

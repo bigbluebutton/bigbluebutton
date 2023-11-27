@@ -54,7 +54,7 @@ const projectCurrentUser = (
 const CurrentUserHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
 
-  const currentUser = useCurrentUser(
+  const { data: currentUser } = useCurrentUser(
     (currentUser: Partial<User>) => currentUser,
   );
 

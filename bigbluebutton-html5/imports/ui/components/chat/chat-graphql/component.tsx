@@ -13,6 +13,7 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import browserInfo from '/imports/utils/browserInfo';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface ChatProps {
 
@@ -43,16 +44,16 @@ const ChatContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
-  const chats = useChat((chat) => {
+  const { data: chats } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       participant: chat.participant,
     };
-  }) as Partial<ChatType>[];
+  }) as GraphqlDataHookSubscriptionResponse<Partial<ChatType>[]>;
 
   const [pendingChat, setPendingChat] = usePendingChat();
 
-  if (pendingChat) {
+  if (pendingChat && chats) {
     const chat = chats.find((c) => {
       return c.participant?.userId === pendingChat;
     });
