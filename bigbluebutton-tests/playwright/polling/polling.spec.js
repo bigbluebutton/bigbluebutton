@@ -60,7 +60,8 @@ test.describe('Polling', () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard @ci', async () => {
+  test('Poll results on whiteboard @ci', async ({ browserName }) => {
+    test.skip(browserName === 'firefox', 'Poll results inconsistent on firefox nightly');
     await polling.pollResultsOnWhiteboard();
   });
 

@@ -6,9 +6,7 @@ if (!fullyParallel) test.describe.configure({ mode: 'serial' });
 
 test.describe('Audio', () => {
   const audio = new Audio();
-  test.beforeAll(async ({ browser, browserName }) => {
-    test.skip(browserName === 'firefox', 'Audio tests not working on automated tests.');
-    test.skip(browserName === 'webkit', 'Audio tests not working on automated tests.');
+  test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await audio.initModPage(page, true);
@@ -21,7 +19,8 @@ test.describe('Audio', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#join-audio-automated
-  test('Join audio with Microphone @ci', async () => {
+  test('Join audio with Microphone @ci', async ({ browserName }) => {
+    test.skip(browserName === 'firefox', 'Audio tests not working properly on automated tests.');
     await audio.joinMicrophone();
   });
 
@@ -35,7 +34,8 @@ test.describe('Audio', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#choosing-different-sources
-  test('Keep the last mute state after rejoining audio @ci', async () => {
+  test('Keep the last mute state after rejoining audio @ci', async ({ browserName }) => {
+    test.skip(browserName === 'firefox', 'Audio tests not working properly on automated tests.');
     await audio.keepMuteStateOnRejoin();
   });
 

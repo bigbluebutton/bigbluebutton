@@ -73,7 +73,8 @@ test.describe.parallel('Presentation', () => {
 
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
-    test('Upload single presentation @ci', async ({ browser, context, page }) => {
+    test('Upload single presentation @ci', async ({ browser, context, page, browserName }) => {
+      test.skip(browserName === 'firefox', 'Toast messages not working properly on firefox nightly');
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
