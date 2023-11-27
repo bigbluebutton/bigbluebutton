@@ -20,7 +20,6 @@ import guestUsers from '/imports/api/guest-users';
 import Meetings, {
   RecordMeetings, ExternalVideoMeetings, MeetingTimeRemaining, Notifications,
 } from '/imports/api/meetings';
-import { UsersTyping } from '/imports/api/group-chat-msg';
 import Users, { CurrentUser } from '/imports/api/users';
 
 // Custom Publishers
@@ -51,7 +50,6 @@ export const localCollectionRegistry = {
     ExternalVideoMeetings,
   ),
   localMeetingTimeRemainingSync: new AbstractCollection(MeetingTimeRemaining, MeetingTimeRemaining),
-  localUsersTypingSync: new AbstractCollection(UsersTyping, UsersTyping),
   localBreakoutsSync: new AbstractCollection(Breakouts, Breakouts),
   localBreakoutsHistorySync: new AbstractCollection(BreakoutsHistory, BreakoutsHistory),
   localGuestUsersSync: new AbstractCollection(guestUsers, guestUsers),
