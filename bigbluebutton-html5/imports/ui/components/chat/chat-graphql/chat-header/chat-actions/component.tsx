@@ -17,10 +17,7 @@ import { getDateString } from '/imports/utils/string-utils';
 
 import { isEmpty } from 'ramda';
 import { ChatCommands } from '/imports/ui/core/enums/chat';
-
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const intlMessages = defineMessages({
   clear: {
@@ -54,6 +51,9 @@ const intlMessages = defineMessages({
 });
 
 const ChatActions: React.FC = () => {
+  const [MeetingSettings] = useMeetingSettings();
+  const chatConfig = MeetingSettings.public.chat;
+  const { enableSaveAndCopyPublicChat } = chatConfig;
   const intl = useIntl();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const uniqueIdsRef = useRef<string[]>([uid(1), uid(2), uid(3), uid(4)]);
@@ -115,7 +115,7 @@ const ChatActions: React.FC = () => {
     const dropdownActions = [
       {
         key: uniqueIdsRef.current[0],
-        enable: ENABLE_SAVE_AND_COPY_PUBLIC_CHAT,
+        enable: enableSaveAndCopyPublicChat,
         icon: 'download',
         dataTest: 'chatSave',
         label: intl.formatMessage(intlMessages.save),
@@ -126,7 +126,7 @@ const ChatActions: React.FC = () => {
       },
       {
         key: uniqueIdsRef.current[1],
-        enable: ENABLE_SAVE_AND_COPY_PUBLIC_CHAT,
+        enable: enableSaveAndCopyPublicChat,
         icon: 'copy',
         id: 'clipboardButton',
         dataTest: 'chatCopy',
