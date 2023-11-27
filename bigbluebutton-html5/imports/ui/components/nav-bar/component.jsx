@@ -316,6 +316,7 @@ class NavBar extends Component {
             {!isExpanded && document.dir === 'rtl'
               && <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
+              tooltipplacement="right"
               onClick={this.handleToggleUserList}
               color={isPhone && isExpanded ? 'primary' : 'dark'}
               size='md'
