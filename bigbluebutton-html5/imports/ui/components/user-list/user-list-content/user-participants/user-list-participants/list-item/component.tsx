@@ -10,7 +10,6 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
 import { uniqueId } from '/imports/utils/string-utils';
-import { Emoji } from 'emoji-mart';
 import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -54,6 +53,20 @@ const LABEL = Meteor.settings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
+interface EmojiProps {
+  emoji: { id: string; native: string; };
+  native: string;
+  size: number;
+}
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      'em-emoji': EmojiProps;
+    }
+  }
+}
+
 interface UserListItemProps {
   user: User;
   lockSettings: LockSettings;
@@ -73,6 +86,10 @@ const renderUserListItemIconsFromPlugin = (
     </Styled.IconRightContainer>
   );
 });
+
+const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
+  <em-emoji emoji={emoji} native={native} size={size} />
+);
 
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
@@ -133,16 +150,27 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const userAvatarFiltered = user.avatar;
 
+  const emojiIcons = [
+    {
+      id: 'hand',
+      native: '✋',
+    },
+    {
+      id: 'clock7',
+      native: '⏰',
+    },
+  ];
+
   const getIconUser = () => {
     const emojiSize = convertRemToPixels(1.3);
 
     if (user.raiseHand === true) {
       return reactionsEnabled
-        ? <Emoji key="hand" emoji="hand" native size={emojiSize} />
+        ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
     } if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji="clock7" native size={emojiSize} />
+        ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('away')} />;
     } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
@@ -159,8 +187,10 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     ? user.lastBreakoutRoom?.sequence
     : iconUser;
 
+  const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
+
   return (
-    <Styled.UserItemContents data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
+    <Styled.UserItemContents tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
         data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
@@ -173,7 +203,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         voice={voiceUser?.joined}
         noVoice={!voiceUser?.joined}
         color={user.color}
-        whiteboardAccess={user?.presPagesWritable?.length > 0}
+        whiteboardAccess={hasWhiteboardAccess}
         animations
         emoji={user.emoji !== 'none'}
         avatar={userAvatarFiltered}

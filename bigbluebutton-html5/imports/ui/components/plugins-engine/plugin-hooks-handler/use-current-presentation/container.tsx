@@ -14,7 +14,7 @@ const projectCurrentPresentation = (
       currentPage: {
         id: currentPage.pageId,
         num: currentPage.num,
-        urls: JSON.parse(currentPage.urls),
+        urls: currentPage.urlsJson,
       },
     };
   }
@@ -24,7 +24,7 @@ const projectCurrentPresentation = (
 const CurrentPresentationHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
 
-  const currentPresentation = useCurrentPresentation(
+  const { data: currentPresentation } = useCurrentPresentation(
     (currentPres: Partial<CurrentPresentation>) => currentPres,
   );
 

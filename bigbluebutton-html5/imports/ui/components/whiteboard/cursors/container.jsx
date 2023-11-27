@@ -1,22 +1,29 @@
-import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
+import { useSubscription } from '@apollo/client';
 import SettingsService from '/imports/ui/services/settings';
 import Cursors from './component';
 import Service from './service';
+import { CURSOR_SUBSCRIPTION } from './queries';
 import { omit } from 'radash';
 
-const CursorsContainer = (props) => <Cursors {...omit(props, ['tldrawAPI'])} />;
+const CursorsContainer = (props) => {
+  const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
+  const { pres_page_cursor: cursorArray } = (cursorData || []);
 
-export default withTracker((params) => (
-  {
-    application: SettingsService?.application,
-    currentUser: params.currentUser,
-    publishCursorUpdate: Service.publishCursorUpdate,
-    otherCursors: Service.getCurrentCursors(params.whiteboardId),
-    currentPoint: params.tldrawAPI?.currentPoint,
-    tldrawCamera: params.tldrawAPI?.getPageState().camera,
-    isViewersCursorLocked: params.isViewersCursorLocked,
-    hasMultiUserAccess: params.hasMultiUserAccess,
-    isMultiUserActive: params.isMultiUserActive,
-  }
-))(CursorsContainer);
+  if (!cursorData) return null;
+
+  return (
+    <Cursors 
+      {...{
+        application: SettingsService?.application,
+        publishCursorUpdate: Service.publishCursorUpdate,
+        otherCursors: cursorArray,
+        currentPoint: props.tldrawAPI?.currentPoint,
+        tldrawCamera: props.tldrawAPI?.getPageState().camera,
+      }}
+      {...omit(props, ['tldrawAPI'])}
+    />
+  )
+};
+
+export default CursorsContainer;

@@ -66,8 +66,8 @@ test.describe('Chat', () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji @ci', async () => {
-    await chat.emojiSaveChat();
+  test('Save chat with emoji @ci', async ({}, testInfo) => {
+    await chat.emojiSaveChat(testInfo);
   });
 
   test('Send emoji on private chat', async () => {
