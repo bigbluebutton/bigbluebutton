@@ -13,7 +13,7 @@ This issue tracker is only for bbb development or docs related issues.-->
 **Link to the portion of the docs that is out of date**
 If applicable, link to the section of the docs that is out of date.
 
-**Describe what you belive the correct version should be**
+**Describe what you believe the correct version should be**
 
 **Screenshots**
 If applicable, add screenshots to help explain your concern.

@@ -10,7 +10,7 @@ keywords:
 
 ## Introduction
 
-`bbb-conf` is BigBlueButton's configuration tool.  It makes it easi for you to modify parts of BigBlueButton's configuration, manage the BigBlueButton system (start/stop/reset), and troubleshoot potential problems with your setup.
+`bbb-conf` is BigBlueButton's configuration tool.  It makes it easy for you to modify parts of BigBlueButton's configuration, manage the BigBlueButton system (start/stop/reset), and troubleshoot potential problems with your setup.
 
 As a historical note, this tool was created early in the development of BigBlueButton. The core developers wrote this tool to quickly update BigBlueButton's configuration files for setup and testing.
 
