@@ -322,9 +322,10 @@ class NavBar extends Component {
               && <Styled.ArrowLeft iconName="left_arrow" />}
             {shouldShowNavBarToggleButton && (
               <Styled.NavbarToggleButton
+                tooltipplacement="right"
                 onClick={this.handleToggleUserList}
                 color={isPhone && isExpanded ? 'primary' : 'dark'}
-                size="md"
+                size='md'
                 circle
                 hideLabel
                 data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
