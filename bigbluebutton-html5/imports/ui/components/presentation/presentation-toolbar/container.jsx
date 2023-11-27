@@ -13,10 +13,7 @@ import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription
 
 const PresentationToolbarContainer = (props) => {
   const pluginsContext = useContext(PluginsContext);
-  const { users } = usingUsersContext;
   const { pluginsExtensibleAreasAggregatedState } = pluginsContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const userIsPresenter = currentUser.presenter;
 
   const { userIsPresenter, layoutSwapped } = props;
 
