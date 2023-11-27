@@ -567,9 +567,9 @@ class Presentation extends PureComponent {
   }
 
   panAndZoomChanger(w, h, x, y) {
-    const { currentSlide, zoomSlide } = this.props;
+    const { currentSlide, zoomSlide, presentationId } = this.props;
 
-    zoomSlide(currentSlide.num, w, h, x, y);
+    zoomSlide(currentSlide.num, w, h, x, y, presentationId);
   }
 
   renderPresentationToolbar(svgWidth = 0) {
@@ -589,6 +589,7 @@ class Presentation extends PureComponent {
       multiUser,
       fitToWidth,
       totalPages,
+      userIsPresenter,
     } = this.props;
     const { zoom, isPanning } = this.state;
 
@@ -612,6 +613,7 @@ class Presentation extends PureComponent {
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
+          userIsPresenter,
         }}
         setIsPanning={this.setIsPanning}
         isPanning={isPanning}
