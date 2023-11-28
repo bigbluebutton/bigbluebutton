@@ -16,7 +16,7 @@ const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const VideoFocusLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -167,6 +167,7 @@ const VideoFocusLayout = (props) => {
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
+    const navBarHeight = calculatesNavbarHeight();
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff =
       !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
@@ -176,7 +177,7 @@ const VideoFocusLayout = (props) => {
     let maxHeight = 0;
     if (sidebarContentInput.isOpen) {
       if (isMobile) {
-        height = windowHeight() - DEFAULT_VALUES.navBarHeight - bannerAreaHeight();
+        height = windowHeight() - navBarHeight - bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
       } else if (isOpen && !isGeneralMediaOff) {
@@ -220,7 +221,7 @@ const VideoFocusLayout = (props) => {
       return baseBounds;
     }
 
-    const { navBarHeight } = DEFAULT_VALUES;
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
