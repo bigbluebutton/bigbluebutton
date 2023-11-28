@@ -3,6 +3,9 @@ export const LAYOUT_TYPE = {
   SMART_LAYOUT: 'smart',
   PRESENTATION_FOCUS: 'presentationFocus',
   VIDEO_FOCUS: 'videoFocus',
+  CAMERAS_ONLY: 'camerasOnly',
+  PRESENTATION_ONLY: 'presentationOnly',
+  PARTICIPANTS_CHAT_ONLY: 'participantsChatOnly',
 };
 
 export const DEVICE_TYPE = {

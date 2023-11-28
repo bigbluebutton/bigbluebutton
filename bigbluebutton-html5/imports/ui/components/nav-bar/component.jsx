@@ -13,9 +13,10 @@ import OptionsDropdownContainer from './options-dropdown/container';
 import TimerIndicatorContainer from '/imports/ui/components/timer/timer-graphql/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { PANELS, ACTIONS } from '../layout/enums';
+import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import { isEqual } from 'radash';
+import Settings from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -131,8 +132,8 @@ class NavBar extends Component {
     super(props);
 
     this.state = {
-        acs: props.activeChats,
-    }
+      acs: props.activeChats,
+    };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
@@ -179,7 +180,7 @@ class NavBar extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (!isEqual(prevProps.activeChats, this.props.activeChats)) {
-      this.setState({ acs: this.props.activeChats})
+      this.setState({ acs: this.props.activeChats });
     }
   }
 
@@ -279,7 +280,6 @@ class NavBar extends Component {
     const isExpanded = sidebarNavigation.isOpen;
     const { isPhone } = deviceInfo;
 
-
     const { acs } = this.state;
 
     activeChats.map((c, i) => {
@@ -289,6 +289,11 @@ class NavBar extends Component {
     });
 
     const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
+
+    const { selectedLayout } = Settings.application;
+    const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY;
 
     return (
       <Styled.Navbar
@@ -311,29 +316,31 @@ class NavBar extends Component {
       >
         <Styled.Top>
           <Styled.Left>
-            {isExpanded && document.dir === 'ltr'
+            {shouldShowNavBarToggleButton && isExpanded && document.dir === 'ltr'
               && <Styled.ArrowLeft iconName="left_arrow" />}
-            {!isExpanded && document.dir === 'rtl'
+            {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'rtl'
               && <Styled.ArrowLeft iconName="left_arrow" />}
-            <Styled.NavbarToggleButton
-              tooltipplacement="right"
-              onClick={this.handleToggleUserList}
-              color={isPhone && isExpanded ? 'primary' : 'dark'}
-              size='md'
-              circle
-              hideLabel
-              data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
-              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              aria-label={ariaLabel}
-              icon="user"
-              aria-expanded={isExpanded}
-              accessKey={TOGGLE_USERLIST_AK}
-              hasNotification={hasNotification}
-            />
-            {!isExpanded && document.dir === 'ltr'
+            {shouldShowNavBarToggleButton && (
+              <Styled.NavbarToggleButton
+                tooltipplacement="right"
+                onClick={this.handleToggleUserList}
+                color={isPhone && isExpanded ? 'primary' : 'dark'}
+                size='md'
+                circle
+                hideLabel
+                data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
+                label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                aria-label={ariaLabel}
+                icon="user"
+                aria-expanded={isExpanded}
+                accessKey={TOGGLE_USERLIST_AK}
+                hasNotification={hasNotification}
+              />
+            )}
+            {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'ltr'
               && <Styled.ArrowRight iconName="right_arrow" />}
-            {isExpanded && document.dir === 'rtl'
+            {shouldShowNavBarToggleButton && isExpanded && document.dir === 'rtl'
               && <Styled.ArrowRight iconName="right_arrow" />}
             {renderPluginItems(leftPluginItems)}
           </Styled.Left>

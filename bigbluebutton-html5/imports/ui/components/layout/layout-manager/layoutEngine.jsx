@@ -8,6 +8,9 @@ import CustomLayout from '/imports/ui/components/layout/layout-manager/customLay
 import SmartLayout from '/imports/ui/components/layout/layout-manager/smartLayout';
 import PresentationFocusLayout from '/imports/ui/components/layout/layout-manager/presentationFocusLayout';
 import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/videoFocusLayout';
+import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
+import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
+import ParticipantsChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsChatOnlyLayout';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
@@ -62,8 +65,9 @@ const LayoutEngine = ({ layoutType }) => {
       return cameraDockBounds;
     }
 
-    const hasPresentation = isPresentationEnabled() && slidesLength !== 0
-    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+    const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
+    const isGeneralMediaOff = !hasPresentation
+      && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
 
     if (!isOpen || isGeneralMediaOff) {
       cameraDockBounds.width = mediaAreaBounds.width;
@@ -292,24 +296,33 @@ const LayoutEngine = ({ layoutType }) => {
     isMobile,
     isTablet,
   };
-  
+
   const layout = document.getElementById('layout');
 
   switch (layoutType) {
     case LAYOUT_TYPE.CUSTOM_LAYOUT:
-      layout?.setAttribute("data-layout", LAYOUT_TYPE.CUSTOM_LAYOUT);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} />;
     case LAYOUT_TYPE.SMART_LAYOUT:
-      layout?.setAttribute("data-layout", LAYOUT_TYPE.SMART_LAYOUT);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.SMART_LAYOUT);
       return <SmartLayout {...common} />;
     case LAYOUT_TYPE.PRESENTATION_FOCUS:
-      layout?.setAttribute("data-layout", LAYOUT_TYPE.PRESENTATION_FOCUS);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_FOCUS);
       return <PresentationFocusLayout {...common} />;
     case LAYOUT_TYPE.VIDEO_FOCUS:
-      layout?.setAttribute("data-layout",LAYOUT_TYPE.VIDEO_FOCUS);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.VIDEO_FOCUS);
       return <VideoFocusLayout {...common} />;
+    case LAYOUT_TYPE.CAMERAS_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.CAMERAS_ONLY);
+      return <CamerasOnlyLayout {...common} />;
+    case LAYOUT_TYPE.PRESENTATION_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_ONLY);
+      return <PresentationOnlyLayout {...common} />;
+    case LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY);
+      return <ParticipantsChatOnlyLayout {...common} />;
     default:
-      layout?.setAttribute("data-layout", LAYOUT_TYPE.CUSTOM_LAYOUT);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} />;
   }
 };
