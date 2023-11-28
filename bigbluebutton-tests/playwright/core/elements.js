@@ -73,7 +73,7 @@ exports.breakoutBox1 = 'div[id="breakoutBox-1"]';
 exports.breakoutBox2 = 'div[id="breakoutBox-2"]';
 exports.breakoutOptionsMenu = 'button[data-test="breakoutOptionsMenu"]';
 exports.openUpdateBreakoutUsersModal = 'li[data-test="openUpdateBreakoutUsersModal"]';
-exports.userTest = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
+exports.attendeeNotAssigned = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
 exports.moveUser = 'div[id="breakoutBox-1"] >> p:nth-child(1)';
 exports.openBreakoutTimeManager = 'li[data-test="openBreakoutTimeManager"]';
 exports.inputSetTimeSelector = 'input[id="inputSetTimeSelector"]';
