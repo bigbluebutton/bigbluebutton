@@ -16,13 +16,13 @@ if [ "$hasura_status" = "active" ]; then
 fi
 
 echo "Restarting database bbb_graphql"
-sudo -u postgres psql -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname = 'bbb_graphql'"
-sudo -u postgres psql -c "drop database if exists bbb_graphql with (force)"
-sudo -u postgres psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
-sudo -u postgres psql -c "alter database bbb_graphql set timezone to 'UTC'"
+runuser -u postgres psql -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname = 'bbb_graphql'"
+runuser -u postgres psql -c "drop database if exists bbb_graphql with (force)"
+runuser -u postgres psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
+runuser -u postgres psql -c "alter database bbb_graphql set timezone to 'UTC'"
 
 echo "Creating tables in bbb_graphql"
-sudo -u postgres psql -U postgres -d bbb_graphql -q -f bbb_schema.sql --set ON_ERROR_STOP=on
+runuser -u postgres psql -U postgres -d bbb_graphql -q -f bbb_schema.sql --set ON_ERROR_STOP=on
 
 if [ "$hasura_status" = "active" ]; then
   echo "Starting Hasura"
