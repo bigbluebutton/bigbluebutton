@@ -14,7 +14,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
-  //case class RespondToPollReqMsgBody(requesterId: String, pollId: String, questionId: Int, answerIds: Seq[Int])
   const body = {
     requesterId: routing.userId,
     pollId: input.pollId,

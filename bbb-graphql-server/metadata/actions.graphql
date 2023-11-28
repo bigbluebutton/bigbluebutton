@@ -9,8 +9,37 @@ type Mutation {
 }
 
 type Mutation {
+  pollCancel: Boolean
+}
+
+type Mutation {
+  pollCreate(
+    pollId: String!
+    pollType: String!
+    secretPoll: Boolean!
+    question: String!
+    isMultipleResponse: Boolean!
+    answers: [String]
+  ): Boolean
+}
+
+type Mutation {
   pollPublishResult(
     pollId: String!
+  ): Boolean
+}
+
+type Mutation {
+  pollSubmitUserTypedVote(
+    pollId: String!
+    answer: String!
+  ): Boolean
+}
+
+type Mutation {
+  pollSubmitUserVote(
+    pollId: String!
+    answerIds: [Int]
   ): Boolean
 }
 
@@ -33,35 +62,6 @@ type Mutation {
   userJoin(
     authToken: String!
     clientType: String!
-  ): Boolean
-}
-
-type Mutation {
-  pollCreate(
-    pollId: String!
-    pollType: String!
-    secretPoll: Boolean!
-    question: String!
-    isMultipleResponse: Boolean!
-    answers: [String]
-  ): Boolean
-}
-
-type Mutation {
-  pollCancel: Boolean
-}
-
-type Mutation {
-  pollSubmitUserTypedVote(
-    pollId: String!
-    answer: String!
-  ): Boolean
-}
-
-type Mutation {
-  pollSubmitUserVote(
-    pollId: String!
-    answerIds: [Int]
   ): Boolean
 }
 
