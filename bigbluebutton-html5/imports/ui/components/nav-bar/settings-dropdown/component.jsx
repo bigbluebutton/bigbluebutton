@@ -355,7 +355,7 @@ class SettingsDropdown extends PureComponent {
       );
     }
 
-    if (allowedToEndMeeting && isMeteorConnected) {
+    if (allowedToEndMeeting && isMeteorConnected && !isDirectLeaveButtonEnabled) {
       const customStyles = { background: colorDanger, color: colorWhite };
 
       this.menuItems.push(
