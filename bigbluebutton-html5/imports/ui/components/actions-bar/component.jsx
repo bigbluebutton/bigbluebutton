@@ -131,9 +131,9 @@ class ActionsBar extends PureComponent {
 
     const { selectedLayout } = Settings.application;
     const shouldShowPresentationButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
     const shouldShowVideoButton = selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
     const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation)
       || isSharingVideo || hasScreenshare || isSharedNotesPinned;

@@ -285,7 +285,7 @@ class ActionsDropdown extends PureComponent {
     const { selectedLayout } = Settings.application;
     const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
     if (shouldShowManageLayoutButton && isLayoutsEnabled()) {
       actions.push({

@@ -13,7 +13,7 @@ import { defaultsDeep } from '/imports/utils/array-utils';
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
-const ParticipantsChatOnlyLayout = (props) => {
+const ParticipantsAndChatOnlyLayout = (props) => {
   const { bannerAreaHeight, isMobile } = props;
 
   function usePrevious(value) {
@@ -425,4 +425,4 @@ const ParticipantsChatOnlyLayout = (props) => {
   return null;
 };
 
-export default ParticipantsChatOnlyLayout;
+export default ParticipantsAndChatOnlyLayout;

@@ -10,7 +10,7 @@ import PresentationFocusLayout from '/imports/ui/components/layout/layout-manage
 import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/videoFocusLayout';
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
-import ParticipantsChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsChatOnlyLayout';
+import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
@@ -318,9 +318,9 @@ const LayoutEngine = ({ layoutType }) => {
     case LAYOUT_TYPE.PRESENTATION_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_ONLY);
       return <PresentationOnlyLayout {...common} />;
-    case LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY);
-      return <ParticipantsChatOnlyLayout {...common} />;
+    case LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY);
+      return <ParticipantsAndChatOnlyLayout {...common} />;
     default:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} />;

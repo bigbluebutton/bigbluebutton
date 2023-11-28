@@ -110,7 +110,7 @@ const LayoutModalComponent = (props) => {
         .filter((layout) => (
           layout !== LAYOUT_TYPE.CAMERAS_ONLY
           && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
-          && layout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY
+          && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
         ))
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
