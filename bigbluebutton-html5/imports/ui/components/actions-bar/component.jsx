@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import deviceInfo from '/imports/utils/deviceInfo';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
@@ -40,10 +40,10 @@ class ActionsBar extends PureComponent {
     return (
       <>
         {
-          actionBarItems.filter((plugin) => plugin.position === position).map((plugin, index) => {
+          actionBarItems.filter((plugin) => plugin.position === position).map((plugin) => {
             let actionBarItemToReturn;
             switch (plugin.type) {
-              case PluginSdk.ActionsBarItemType.BUTTON:
+              case ActionsBarItemType.BUTTON:
                 actionBarItemToReturn = (
                   <Button
                     key={`${plugin.type}-${plugin.id}`}
@@ -57,7 +57,7 @@ class ActionsBar extends PureComponent {
                   />
                 );
                 break;
-              case PluginSdk.ActionsBarItemType.SEPARATOR:
+              case ActionsBarItemType.SEPARATOR:
                 actionBarItemToReturn = (
                   <Styled.Separator
                     key={`${plugin.type}-${plugin.id}`}
@@ -199,7 +199,7 @@ class ActionsBar extends PureComponent {
             : null}
         </Styled.Left>
         <Styled.Center>
-          {this.renderPluginsActionBarItems(PluginSdk.ActionsBarPosition.LEFT)}
+          {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
           <AudioControlsContainer />
           {shouldShowVideoButton && enableVideo
             ? (
@@ -214,7 +214,7 @@ class ActionsBar extends PureComponent {
             />
           )}
           {isRaiseHandButtonCentered && this.renderRaiseHand()}
-          {this.renderPluginsActionBarItems(PluginSdk.ActionsBarPosition.RIGHT)}
+          {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
         </Styled.Center>
         <Styled.Right>
           {shouldShowPresentationButton && shouldShowOptionsButton

@@ -6,7 +6,7 @@ import ExternalVideoModal from '/imports/ui/components/external-video-player/mod
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
 import TimerService from '/imports/ui/components/timer/service';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
@@ -316,7 +316,7 @@ class ActionsDropdown extends PureComponent {
 
     actionButtonDropdownItems.forEach((actionButtonItem) => {
       switch (actionButtonItem.type) {
-        case PluginSdk.ActionButtonDropdownItemType.OPTION:
+        case ActionButtonDropdownItemType.OPTION:
           actions.push({
             icon: actionButtonItem.icon,
             label: actionButtonItem.label,
@@ -325,7 +325,7 @@ class ActionsDropdown extends PureComponent {
             allowed: actionButtonItem.allowed,
           });
           break;
-        case PluginSdk.ActionButtonDropdownItemType.SEPARATOR:
+        case ActionButtonDropdownItemType.SEPARATOR:
           actions.push({
             key: actionButtonItem.id,
             allowed: actionButtonItem.allowed,

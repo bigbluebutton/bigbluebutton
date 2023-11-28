@@ -20,11 +20,11 @@ const PresentationMenuContainer = (props) => {
   const { elementId } = props;
   const isFullscreen = currentElement === elementId;
   const isRTL = layoutSelect((i) => i.isRTL);
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let presentationDropdownItems = [];
-  if (pluginsProvidedAggregatedState.presentationDropdownItems) {
+  if (pluginsExtensibleAreasAggregatedState.presentationDropdownItems) {
     presentationDropdownItems = [
-      ...pluginsProvidedAggregatedState.presentationDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.presentationDropdownItems,
     ];
   }
 
