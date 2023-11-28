@@ -54,8 +54,10 @@ export const ACTIONS = {
   SET_HAS_BANNER_BAR: 'setHasBannerBar',
   SET_HAS_NOTIFICATIONS_BAR: 'setHasNotificationsBar',
 
+  SET_HAS_NAVBAR: 'setHasNavBar',
   SET_NAVBAR_OUTPUT: 'setNavBarOutput',
 
+  SET_HAS_ACTIONBAR: 'setHasActionBar',
   SET_ACTIONBAR_OUTPUT: 'setActionBarOutput',
 
   SET_SIDEBAR_NAVIGATION_IS_OPEN: 'setSidebarNavigationIsOpen',

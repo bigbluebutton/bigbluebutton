@@ -253,6 +253,8 @@ class App extends Component {
       layoutContextDispatch,
       numCameras,
       presentationIsOpen,
+      hideActionsBar,
+      hideNavBar,
     } = this.props;
 
     this.renderDarkMode();
@@ -322,6 +324,15 @@ class App extends Component {
         });
       }, 0);
     }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_ACTIONBAR,
+      value: !hideActionsBar,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_NAVBAR,
+      value: !hideNavBar,
+    });
   }
 
   componentWillUnmount() {
