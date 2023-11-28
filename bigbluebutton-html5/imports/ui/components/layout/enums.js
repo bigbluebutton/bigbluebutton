@@ -26,6 +26,13 @@ export const CAMERADOCK_POSITION = {
   SIDEBAR_CONTENT_BOTTOM: 'sidebarContentBottom',
 };
 
+// list of layouts that are only available through join parameters
+export const HIDDEN_LAYOUTS = [
+  LAYOUT_TYPE.CAMERAS_ONLY,
+  LAYOUT_TYPE.PRESENTATION_ONLY,
+  LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+];
+
 export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
   SET_IS_RTL: 'setIsRTL',

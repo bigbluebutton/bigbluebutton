@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { LAYOUT_TYPE, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import { LAYOUT_TYPE, CAMERADOCK_POSITION, HIDDEN_LAYOUTS } from '/imports/ui/components/layout/enums';
 import SettingsService from '/imports/ui/components/settings/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
@@ -107,11 +107,7 @@ const LayoutModalComponent = (props) => {
   const renderLayoutButtons = () => (
     <Styled.ButtonsContainer>
       {Object.values(LAYOUT_TYPE)
-        .filter((layout) => (
-          layout !== LAYOUT_TYPE.CAMERAS_ONLY
-          && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
-          && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-        ))
+        .filter((layout) => !HIDDEN_LAYOUTS.includes(layout))
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
             <Styled.LayoutBtn
