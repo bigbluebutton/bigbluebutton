@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { ACTIONS, PANELS } from '../layout/enums';
-import ChatContainer from '/imports/ui/components/chat/container';
+import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
 import NotesContainer from '/imports/ui/components/notes/container';
 import PollContainer from '/imports/ui/components/poll/container';
 import CaptionsContainer from '/imports/ui/components/captions/container';
