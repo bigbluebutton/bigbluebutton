@@ -10,13 +10,13 @@ cd "$(dirname "$0")"
 # Install Postgresql
 apt update
 apt install postgresql postgresql-contrib -y
-sudo -u postgres psql -c "alter user postgres password 'bbb_graphql'"
-sudo -u postgres psql -c "drop database if exists bbb_graphql with (force)"
-sudo -u postgres psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
-sudo -u postgres psql -c "alter database bbb_graphql set timezone to 'UTC'"
-sudo -u postgres psql -U postgres -d bbb_graphql -a -f bbb_schema.sql --set ON_ERROR_STOP=on
-sudo -u postgres psql -c "drop database if exists hasura_app with (force)"
-sudo -u postgres psql -c "create database hasura_app"
+runuser -u postgres -- psql -c "alter user postgres password 'bbb_graphql'"
+runuser -u postgres -- psql -c "drop database if exists bbb_graphql with (force)"
+runuser -u postgres -- psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
+runuser -u postgres -- psql -c "alter database bbb_graphql set timezone to 'UTC'"
+runuser -u postgres -- psql -U postgres -d bbb_graphql -a -f bbb_schema.sql --set ON_ERROR_STOP=on
+runuser -u postgres -- psql -c "drop database if exists hasura_app with (force)"
+runuser -u postgres -- psql -c "create database hasura_app"
 
 echo "Postgresql installed!"
 
