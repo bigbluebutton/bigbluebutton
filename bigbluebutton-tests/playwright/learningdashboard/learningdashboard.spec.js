@@ -24,7 +24,7 @@ test.describe('Learning Dashboard', async () => {
   });
 
   test('Polls @ci', async ({ browserName, context }) => {
-    test.skip(browserName === 'webkit', "Failed to load the plugin pw.")
+    test.skip(browserName === 'webkit', "Failed to load the plugin pw")
     await learningDashboard.initUserPage(true, context, { isRecording: true });
     await learningDashboard.polls();
   });
