@@ -90,7 +90,7 @@ class Create extends MultiUsers {
 
     //Reset assignments
     await this.modPage.waitAndClick(e.randomlyAssign);
-    await this.modPage.hasText(e.breakoutBox1, /Attendee/);
+    await this.modPage.hasText(e.breakoutBox2, /Attendee/);
     await this.modPage.waitAndClick(e.resetAssignments);
     await this.modPage.hasText(e.breakoutBox0, /Attendee/);
 

@@ -79,7 +79,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.uploadSinglePresentationTest();
     });
 
-    test.only('Upload Other Presentations Format @ci @flaky', async ({ browser, context, page }) => {
+    test('Upload Other Presentations Format @ci', async ({ browser, context, page }) => {
       linkIssue(18971);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);

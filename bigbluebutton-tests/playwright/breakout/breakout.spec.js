@@ -28,7 +28,7 @@ test.describe.parallel('Breakout', () => {
       await create.changeRoomsName();
     });
 
-    test('Remove and reset assignments @ci @flaky', async ({ browser, context, page }) => {
+    test.only('Remove and reset assignments @ci @flaky', async ({ browser, context, page }) => {
       const create = new Create(browser, context);
       await create.initPages(page);
       await create.removeAndResetAssignments();
