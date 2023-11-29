@@ -88,6 +88,12 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   .tlui-menu-zone__controls > :nth-child(4) {
     display: none;
   }
+
+  .tl-collaborator__cursor {
+    height: auto !important;
+    width: auto !important;
+    transition: transform 0.5s ease-out !important;
+  }
 `;
 
 const EditableWBWrapper = styled.div`
