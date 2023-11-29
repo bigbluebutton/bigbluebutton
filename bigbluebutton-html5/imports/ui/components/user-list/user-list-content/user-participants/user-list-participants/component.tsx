@@ -14,7 +14,6 @@ import {
 } from './queries';
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
-import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
@@ -23,6 +22,8 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import Service from '/imports/ui/components/user-list/service';
+import useLoadedUserList from '/imports/ui/core/hooks/useLoadedUserList';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -148,16 +149,6 @@ const UserListParticipantsContainer: React.FC = () => {
   const [limit, setLimit] = React.useState(0);
 
   const {
-    data: usersData,
-  } = useSubscription(USER_LIST_SUBSCRIPTION, {
-    variables: {
-      offset,
-      limit,
-    },
-  });
-  const { user: users } = (usersData || {});
-
-  const {
     data: meetingData,
   } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION);
   const { meeting: meetingArray } = (meetingData || {});
@@ -168,6 +159,10 @@ const UserListParticipantsContainer: React.FC = () => {
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
+
+  const {
+    data: users,
+  } = useLoadedUserList((u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
 
   const { data: currentUser } = useCurrentUser((c: Partial<User>) => ({
     isModerator: c.isModerator,

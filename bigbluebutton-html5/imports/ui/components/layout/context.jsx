@@ -189,6 +189,24 @@ const reducer = (state, action) => {
     }
 
     // NAV BAR
+
+    case ACTIONS.SET_HAS_NAVBAR: {
+      const { navBar } = state.input;
+      if (navBar.hasNavBar === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          navBar: {
+            ...navBar,
+            hasNavBar: action.value,
+          },
+        },
+      };
+    }
+
     case ACTIONS.SET_NAVBAR_OUTPUT: {
       const {
         display, width, height, top, left, tabOrder, zIndex,
@@ -222,6 +240,23 @@ const reducer = (state, action) => {
     }
 
     // ACTION BAR
+    case ACTIONS.SET_HAS_ACTIONBAR: {
+      const { actionBar } = state.input;
+      if (actionBar.hasActionBar === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          actionBar: {
+            ...actionBar,
+            hasActionBar: action.value,
+          },
+        },
+      };
+    }
+
     case ACTIONS.SET_ACTIONBAR_OUTPUT: {
       const {
         display, width, height, innerHeight, top, left, padding, tabOrder, zIndex,

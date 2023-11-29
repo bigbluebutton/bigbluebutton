@@ -5,7 +5,6 @@ import { removeExternalVideoStreamer } from '/imports/api/external-videos/server
 
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearUsersSettings from '/imports/api/users-settings/server/modifiers/clearUsersSettings';
-import clearGroupChat from '/imports/api/group-chat/server/modifiers/clearGroupChat';
 import clearGuestUsers from '/imports/api/guest-users/server/modifiers/clearGuestUsers';
 import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
 import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
@@ -39,7 +38,6 @@ export default async function meetingHasEnded(meetingId) {
   await Promise.all([
     clearCaptions(meetingId),
     clearPads(meetingId),
-    clearGroupChat(meetingId),
     clearGuestUsers(meetingId),
     clearBreakouts(meetingId),
     clearPolls(meetingId),

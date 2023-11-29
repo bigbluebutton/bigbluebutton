@@ -11,7 +11,7 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 
 const CamerasOnlyLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -43,7 +43,7 @@ const CamerasOnlyLayout = (props) => {
       return baseBounds;
     }
 
-    const { navBarHeight } = DEFAULT_VALUES;
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
@@ -110,6 +110,7 @@ const CamerasOnlyLayout = (props) => {
       sidebarNavWidth.width,
       sidebarContentWidth.width,
     );
+    console.log({mediaAreaBounds})
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;

@@ -13,7 +13,7 @@ const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const PresentationOnlyLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+  const { bannerAreaHeight, calculatesNavbarHeight, isMobile } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -41,6 +41,8 @@ const PresentationOnlyLayout = (props) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
+    const navBarHeight = calculatesNavbarHeight();
+
     if (
       fullscreenElement === 'Presentation'
       || fullscreenElement === 'Screenshare'
@@ -57,7 +59,7 @@ const PresentationOnlyLayout = (props) => {
 
     mediaBounds.height = mediaAreaBounds.height;
     mediaBounds.width = mediaAreaBounds.width;
-    mediaBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
+    mediaBounds.top = navBarHeight + bannerAreaHeight();
     mediaBounds.left = !isRTL ? mediaAreaBounds.left : null;
     mediaBounds.right = isRTL ? sidebarSize : null;
     mediaBounds.zIndex = 1;

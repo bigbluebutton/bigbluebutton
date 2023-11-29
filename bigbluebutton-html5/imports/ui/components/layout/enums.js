@@ -5,7 +5,7 @@ export const LAYOUT_TYPE = {
   VIDEO_FOCUS: 'videoFocus',
   CAMERAS_ONLY: 'camerasOnly',
   PRESENTATION_ONLY: 'presentationOnly',
-  PARTICIPANTS_CHAT_ONLY: 'participantsChatOnly',
+  PARTICIPANTS_AND_CHAT_ONLY: 'participantsAndChatOnly',
 };
 
 export const DEVICE_TYPE = {
@@ -25,6 +25,13 @@ export const CAMERADOCK_POSITION = {
   CONTENT_LEFT: 'contentLeft',
   SIDEBAR_CONTENT_BOTTOM: 'sidebarContentBottom',
 };
+
+// list of layouts that are only available through join parameters
+export const HIDDEN_LAYOUTS = [
+  LAYOUT_TYPE.CAMERAS_ONLY,
+  LAYOUT_TYPE.PRESENTATION_ONLY,
+  LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+];
 
 export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
@@ -47,8 +54,10 @@ export const ACTIONS = {
   SET_HAS_BANNER_BAR: 'setHasBannerBar',
   SET_HAS_NOTIFICATIONS_BAR: 'setHasNotificationsBar',
 
+  SET_HAS_NAVBAR: 'setHasNavBar',
   SET_NAVBAR_OUTPUT: 'setNavBarOutput',
 
+  SET_HAS_ACTIONBAR: 'setHasActionBar',
   SET_ACTIONBAR_OUTPUT: 'setActionBarOutput',
 
   SET_SIDEBAR_NAVIGATION_IS_OPEN: 'setSidebarNavigationIsOpen',

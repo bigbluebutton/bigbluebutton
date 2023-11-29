@@ -31,12 +31,12 @@ const ActionsBarContainer = (props) => {
 
   const usingUsersContext = useContext(UsersContext);
   const {
-    pluginsProvidedAggregatedState,
+    pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   let actionBarItems = [];
-  if (pluginsProvidedAggregatedState.actionsBarItems) {
+  if (pluginsExtensibleAreasAggregatedState.actionsBarItems) {
     actionBarItems = [
-      ...pluginsProvidedAggregatedState.actionsBarItems,
+      ...pluginsExtensibleAreasAggregatedState.actionsBarItems,
     ];
   }
 
