@@ -2,7 +2,6 @@ import { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
-import GroupChat from '/imports/api/group-chat';
 import Users from '/imports/api/users';
 import { localCollectionRegistry } from '/client/collection-mirror-initializer';
 import SubscriptionRegistry, {
@@ -24,7 +23,6 @@ const SUBSCRIPTIONS = [
   'users-infos',
   'meeting-time-remaining',
   'local-settings',
-  'users-typing',
   'record-meetings',
   'video-streams',
   'connection-status',
@@ -40,7 +38,6 @@ const SUBSCRIPTIONS = [
   'layout-meetings',
   'user-reaction',
   'timer',
-  // 'group-chat'
 ];
 const {
   localBreakoutsSync,
@@ -96,6 +93,7 @@ export default withTracker(() => {
         },
         'Error while subscribing to collections'
       );
+      console.log('-------------------------', {error});
       Session.set('codeError', error.error);
     },
   };
@@ -151,15 +149,6 @@ export default withTracker(() => {
 
   subscriptionsHandlers = subscriptionsHandlers.filter((obj) => obj);
   const ready = subscriptionsHandlers.every((handler) => handler.ready());
-  let groupChatMessageHandler = {};
-
-  // if (isChatEnabled() && ready) {
-  //   const subHandler = {
-  //     ...subscriptionErrorHandler,
-  //   };
-
-  //   groupChatMessageHandler = Meteor.subscribe('group-chat-msg', subHandler);
-  // }
 
   // TODO: Refactor all the late subscribers
   let usersPersistentDataHandler = {};

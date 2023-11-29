@@ -10,7 +10,7 @@ import PresentationFocusLayout from '/imports/ui/components/layout/layout-manage
 import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/videoFocusLayout';
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
-import ParticipantsChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsChatOnlyLayout';
+import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
@@ -23,6 +23,7 @@ const LayoutEngine = ({ layoutType }) => {
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
+  const navBarInput = layoutSelectInput((i) => i.navBar);
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
@@ -65,6 +66,7 @@ const LayoutEngine = ({ layoutType }) => {
       return cameraDockBounds;
     }
 
+    const navBarHeight = calculatesNavbarHeight();
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation
       && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
@@ -74,7 +76,7 @@ const LayoutEngine = ({ layoutType }) => {
       cameraDockBounds.maxWidth = mediaAreaBounds.width;
       cameraDockBounds.height = mediaAreaBounds.height - bannerAreaHeight();
       cameraDockBounds.maxHeight = mediaAreaBounds.height;
-      cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
+      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
       cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
       cameraDockBounds.right = isRTL ? sidebarSize : null;
     }
@@ -97,8 +99,26 @@ const LayoutEngine = ({ layoutType }) => {
     return cameraDockBounds;
   };
 
+  const calculatesNavbarHeight = () => {
+    const { navBarHeight } = DEFAULT_VALUES;
+
+    return navBarInput.hasNavBar ? navBarHeight : 0;
+  };
+
   const calculatesNavbarBounds = (mediaAreaBounds) => {
-    const { navBarHeight, navBarTop } = DEFAULT_VALUES;
+    const { navBarTop } = DEFAULT_VALUES;
+
+    const navBarHeight = calculatesNavbarHeight();
+
+    if (!navBarInput.hasNavBar) {
+      return {
+        width: 0,
+        height: 0,
+        top: 0,
+        left: 0,
+        zIndex: 0,
+      };
+    }
 
     return {
       width: mediaAreaBounds.width,
@@ -110,6 +130,14 @@ const LayoutEngine = ({ layoutType }) => {
   };
 
   const calculatesActionbarHeight = () => {
+    if (!actionbarInput.hasActionBar) {
+      return {
+        height: 0,
+        innerHeight: 0,
+        padding: 0,
+      };
+    }
+
     const { actionBarHeight, actionBarPadding } = DEFAULT_VALUES;
 
     const BASE_FONT_SIZE = 14; // 90% font size
@@ -262,8 +290,9 @@ const LayoutEngine = ({ layoutType }) => {
   };
 
   const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth) => {
-    const { navBarHeight } = DEFAULT_VALUES;
     const { height: actionBarHeight } = calculatesActionbarHeight();
+    const navBarHeight = calculatesNavbarHeight();
+
     let left = 0;
     let width = 0;
     if (isMobile) {
@@ -284,6 +313,7 @@ const LayoutEngine = ({ layoutType }) => {
   const common = {
     bannerAreaHeight,
     baseCameraDockBounds,
+    calculatesNavbarHeight,
     calculatesNavbarBounds,
     calculatesActionbarHeight,
     calculatesActionbarBounds,
@@ -318,9 +348,9 @@ const LayoutEngine = ({ layoutType }) => {
     case LAYOUT_TYPE.PRESENTATION_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_ONLY);
       return <PresentationOnlyLayout {...common} />;
-    case LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY);
-      return <ParticipantsChatOnlyLayout {...common} />;
+    case LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY);
+      return <ParticipantsAndChatOnlyLayout {...common} />;
     default:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} />;

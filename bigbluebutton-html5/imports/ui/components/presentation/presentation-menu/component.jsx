@@ -4,13 +4,16 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { toPng } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
+import {
+  PresentationDropdownItemType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-dropdown-item/enums';
+
 import Styled from './styles';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -306,7 +309,7 @@ const PresentationMenu = (props) => {
 
     presentationDropdownItems.forEach((item, index) => {
       switch (item.type) {
-        case PluginSdk.PresentationDropdownItemType.OPTION:
+        case PresentationDropdownItemType.OPTION:
           menuItems.push({
             key: `${item.id}-${index}`,
             label: item.label,
@@ -314,7 +317,7 @@ const PresentationMenu = (props) => {
             onClick: item.onClick,
           });
           break;
-        case PluginSdk.PresentationDropdownItemType.SEPARATOR:
+        case PresentationDropdownItemType.SEPARATOR:
           menuItems.push({
             key: `${item.id}-${index}`,
             isSeparator: true,

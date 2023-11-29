@@ -32,7 +32,7 @@ const checkUnreadMessages = ({
 const NavBarContainer = ({ children, ...props }) => {
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const usingGroupChatContext = useContext(GroupChatContext);
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
@@ -65,9 +65,9 @@ const NavBarContainer = ({ children, ...props }) => {
   if (hideNavBar || navBar.display === false) return null;
 
   let pluginNavBarItems = [];
-  if (pluginsProvidedAggregatedState.navBarItems) {
+  if (pluginsExtensibleAreasAggregatedState.navBarItems) {
     pluginNavBarItems = [
-      ...pluginsProvidedAggregatedState.navBarItems,
+      ...pluginsExtensibleAreasAggregatedState.navBarItems,
     ];
   }
 
