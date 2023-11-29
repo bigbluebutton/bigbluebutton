@@ -1,4 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
+const useCursor = (publishCursorUpdate, whiteboardId) => {
+    const [cursorPosition, setCursorPosition] = useState({ x: -1, y: -1 });
+
+    const updateCursorPosition = (newX, newY) => {
+        setCursorPosition({ x: newX, y: newY });
+    };
+
+    useEffect(() => {
+        publishCursorUpdate({
+            xPercent: cursorPosition?.x,
+            yPercent: cursorPosition?.y,
+            whiteboardId,
+        });
+    }, [cursorPosition, publishCursorUpdate, whiteboardId]);
+
+    return [cursorPosition, updateCursorPosition];
+};
 
 const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
     isPresenter,
@@ -8,15 +26,15 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
     animations,
     publishCursorUpdate,
     whiteboardId,
-    cursorXRef,
-    cursorYRef
+    cursorPosition,
+    updateCursorPosition
 }) => {
 
     const timeoutIdRef = React.useRef();
 
     const handleMouseUp = () => {
         if (!isPresenter && !hasWBAccess) {
-            tlEditor?.updateInstanceState({ isReadonly: false });
+            tlEditorRef?.current?.updateInstanceState({ isReadonly: false });
         }
 
         if (timeoutIdRef.current) {
@@ -31,7 +49,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
     const handleMouseDown = () => {
         !isPresenter &&
             !hasWBAccess &&
-            tlEditor?.updateInstanceState({ isReadonly: true });
+            tlEditorRef?.current?.updateInstanceState({ isReadonly: true });
 
         isMouseDownRef.current = true;
     };
@@ -57,11 +75,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
         }
 
         setTimeout(() => {
-            publishCursorUpdate({
-                xPercent: -1,
-                yPercent: -1,
-                whiteboardId,
-            });
+            updateCursorPosition(-1, -1);
         }, 150);
     };
 
@@ -88,7 +102,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
             zoom = Math.max(cz - ZOOM_OUT_FACTOR, MIN_ZOOM);
         }
 
-        const { x, y } = { x: cursorXRef.current, y: cursorYRef.current };
+        const { x, y } = { x: cursorPosition?.x, y: cursorPosition?.y };
         const nextCamera = {
             x: cx + (x / zoom - x) - (x / cz - x),
             y: cy + (y / zoom - y) - (y / cz - y),
@@ -126,4 +140,5 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
 
 export {
     useMouseEvents,
+    useCursor,
 };

@@ -38,7 +38,7 @@ import { PageRecordType } from "@tldraw/editor";
 import { useRef } from "react";
 import { debounce, throttle } from "radash";
 
-import { useMouseEvents } from "./hooks";
+import { useMouseEvents, useCursor } from "./hooks";
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_DOCK_HEIGHT = 475;
@@ -181,8 +181,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const slideChanged = React.useRef(false);
   const slideNext = React.useRef(null);
   const prevZoomValueRef = React.useRef(zoomValue);
-  const cursorXRef = React.useRef(-1);
-  const cursorYRef = React.useRef(-1);
   const initialZoomRef = useRef(null);
   const isFirstZoomActionRef = useRef(true);
   const isMouseDownRef = useRef(false);
@@ -196,8 +194,9 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     return mapLanguage(Settings?.application?.locale?.toLowerCase() || "en");
   }, [Settings?.application?.locale]);
 
+  const [cursorPosition, updateCursorPosition] = useCursor(publishCursorUpdate, whiteboardId);
+
   const { shapesToAdd, shapesToUpdate, shapesToRemove } = React.useMemo(() => {
-    console.log('test')
     if (isEqual(prevShapesRef.current, shapes) || isMouseDownRef.current) {
       return { shapesToAdd: [], shapesToUpdate: [], shapesToRemove: [] };
     }
@@ -296,8 +295,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       animations,
       publishCursorUpdate,
       whiteboardId,
-      cursorXRef,
-      cursorYRef
+      cursorPosition,
+      updateCursorPosition
     }
   );
 
@@ -490,7 +489,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   ]);
 
   React.useEffect(() => {
-    console.log('YUP')
     if (shapesToAdd.length || shapesToUpdate.length || shapesToRemove.length) {
       tlEditor?.store?.mergeRemoteChanges(() => {
         if (shapesToRemove.length > 0) {
@@ -556,15 +554,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       }
     }
   }, [otherCursors]);
-
-  // propogate user tldraw cursor position
-  React.useEffect(() => {
-    publishCursorUpdate({
-      xPercent: cursorXRef.current,
-      yPercent: cursorYRef.current,
-      whiteboardId,
-    });
-  }, [cursorXRef, cursorYRef]);
 
   // set current tldraw page when presentation id updates
   React.useEffect(() => {
@@ -759,13 +748,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         const { "pointer:pointer": pointers } = updated;
         if (pointers) {
           const [prevPointer, nextPointer] = pointers;
-          cursorXRef.current = nextPointer?.x;
-          cursorYRef.current = nextPointer?.y;
-          publishCursorUpdate({
-            xPercent: cursorXRef.current,
-            yPercent: cursorYRef.current,
-            whiteboardId,
-          });
+          updateCursorPosition(nextPointer?.x, nextPointer?.y);
         }
 
         const camKey = `camera:page:${curPageId}`;
