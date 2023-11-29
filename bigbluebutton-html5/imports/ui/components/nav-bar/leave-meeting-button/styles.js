@@ -10,8 +10,9 @@ const LeaveButton = styled(Button)`
   `}
 
   ${({ state }) => state === 'closed' && `
+    margin-left: 1.0rem;
+    margin-right: 0.5rem;
     border-radius: 1.1rem;
-    margin: 0.5rem;
     font-size: 1rem;
     line-height: 1.1rem;
     font-weight: 400;
