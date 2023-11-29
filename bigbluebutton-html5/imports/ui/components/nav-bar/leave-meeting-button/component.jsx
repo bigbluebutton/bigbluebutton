@@ -107,7 +107,7 @@ class LeaveMeetingButton extends PureComponent {
       this.menuItems.push(
         {
           key: 'list-item-end-meeting',
-          icon: 'application',
+          icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
           customStyles,
