@@ -208,7 +208,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     const ZOOM_OUT_FACTOR = 0.1;
 
     const handleWheelEvent = (event) => {
-      if (!tlEditorRef.current && isPresenter) return;
+      if (!tlEditorRef.current || !isPresenter) {
+        event.preventDefault();
+        event.stopPropagation();
+        return
+      };
 
       const { x: cx, y: cy, z: cz } = tlEditorRef.current.camera;
 
