@@ -34,7 +34,11 @@ const GraphqlProvider = ({ children }: Props): React.ReactNode => {
       }),
     );
     // setLink(wsLink);
-    const client = new ApolloClient({ link: wsLink, cache: new InMemoryCache() });
+    const client = new ApolloClient({
+      link: wsLink,
+      cache: new InMemoryCache(),
+      connectToDevTools: Meteor.isDevelopment,
+    });
     setApolloClient(client);
   }, []);
   return (
