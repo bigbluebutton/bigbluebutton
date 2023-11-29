@@ -22,7 +22,7 @@ async function getCurrentPresentationHeight(locator) {
   });
 }
 
-async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
+async function uploadSinglePresentation(test, fileName, uploadTimeout = 40000) {
   const firstSlideSrc = await test.page.evaluate(selector => document.querySelector(selector).src, [e.currentSlideImg]);
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.managePresentations);
