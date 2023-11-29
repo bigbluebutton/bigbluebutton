@@ -14,7 +14,7 @@ import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -23,6 +23,7 @@ import {
 } from '../layout/context';
 import { isEqual } from 'radash';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -145,9 +146,17 @@ const AppContainer = (props) => {
     });
   };
 
+  const { data: currentMeeting } = useMeeting((m) => ({
+    externalVideo: m.externalVideo,
+  }));
+
+  const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
+
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo);
   });
+
+  const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
   const validateEnforceLayout = (currentUserData) => {
     const layoutTypes = Object.values(LAYOUT_TYPE);
@@ -192,7 +201,8 @@ const AppContainer = (props) => {
           sidebarNavigationIsOpen,
           sidebarContentPanel,
           sidebarContentIsOpen,
-          shouldShowPresentation,
+          shouldShowPresentation: shouldShowPresentation && !shouldShowExternalVideo,
+          shouldShowExternalVideo,
           mountRandomUserModal,
           setMountRandomUserModal,
           isPresenter,
@@ -281,7 +291,6 @@ export default withTracker(() => {
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
-  const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || currentUser?.presenter);
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
@@ -326,8 +335,7 @@ export default withTracker(() => {
     pushAlertEnabled: AppSettings.chatPushAlerts,
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo && !shouldShowSharedNotes,
-    shouldShowExternalVideo,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowSharedNotes,
     shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(

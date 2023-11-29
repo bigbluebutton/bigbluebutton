@@ -20,6 +20,7 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -28,6 +29,12 @@ const ActionsBarContainer = (props) => {
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const isThereCurrentPresentation = !!presentationPage?.presentationId;
+
+  const { data: currentMeeting } = useMeeting((m) => ({
+    externalVideo: m.externalVideo,
+  }));
+
+  const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
 
   const usingUsersContext = useContext(UsersContext);
   const {
@@ -58,6 +65,7 @@ const ActionsBarContainer = (props) => {
         amIPresenter,
         actionBarItems,
         isThereCurrentPresentation,
+        isSharingVideo,
       }
     }
     />
@@ -81,7 +89,6 @@ export default withTracker(() => ({
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   handleTakePresenter: Service.takePresenterRole,
-  isSharingVideo: Service.isSharingVideo(),
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),

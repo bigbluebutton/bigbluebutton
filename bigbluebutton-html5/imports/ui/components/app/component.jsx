@@ -28,7 +28,7 @@ import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
-import ExternalVideoContainer from '../external-video-player/container';
+import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
@@ -600,7 +600,7 @@ class App extends Component {
       darkTheme,
       intl,
     } = this.props;
-
+console.log({shouldShowExternalVideo})
     const {
       isAudioModalOpen,
       isRandomUserSelectModalOpen,
@@ -640,7 +640,7 @@ class App extends Component {
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo
-              ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
+              ? <ExternalVideoPlayerContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
           {shouldShowSharedNotes

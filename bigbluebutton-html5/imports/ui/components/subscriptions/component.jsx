@@ -27,7 +27,6 @@ const SUBSCRIPTIONS = [
   'video-streams',
   'connection-status',
   'voice-call-states',
-  'external-video-meetings',
   'breakouts',
   'breakouts-history',
   'pads',
