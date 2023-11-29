@@ -80,8 +80,10 @@ const calculateEffectiveZoom = (initViewboxWidth, curViewboxWidth) => {
 
 const determineViewerFitToWidth = (currentPresentationPage) => {
   return (
-    currentPresentationPage?.scaledViewBoxWidth === currentPresentationPage?.scaledWidth &&
-    currentPresentationPage?.scaledViewBoxHeight !== currentPresentationPage?.scaledHeight
+    currentPresentationPage?.scaledViewBoxWidth ===
+      currentPresentationPage?.scaledWidth &&
+    currentPresentationPage?.scaledViewBoxHeight !==
+      currentPresentationPage?.scaledHeight
   );
 };
 
@@ -181,6 +183,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const cursorYRef = React.useRef(-1);
   const initialZoomRef = useRef(null);
   const isFirstZoomActionRef = useRef(true);
+  const isMouseDownRef = useRef(false);
+  const timeoutIdRef = useRef();
 
   const THRESHOLD = 0.1;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
@@ -279,28 +283,29 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
       // Compare the current zoom value with the previous one
       if (zoomValue !== prevZoomValueRef.current) {
-          tlEditor?.setCamera(
-            {
-              z: zoomCamera,
-            },
-            false
-          );
+        tlEditor?.setCamera(
+          {
+            z: zoomCamera,
+          },
+          false
+        );
 
-          let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
-            tlEditor?.viewportPageBounds.width,
-            currentPresentationPage.scaledWidth
-          );
-          let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
-            tlEditor?.viewportPageBounds.height,
-            currentPresentationPage.scaledHeight
-          );
-          zoomSlide(
-            parseInt(curPageId, 10),
-            viewedRegionW,
-            viewedRegionH,
-            tlEditor.camera.x,
-            tlEditor.camera.y
-          );
+        let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
+          tlEditor?.viewportPageBounds.width,
+          currentPresentationPage.scaledWidth
+        );
+        let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
+          tlEditor?.viewportPageBounds.height,
+          currentPresentationPage.scaledHeight
+        );
+        zoomSlide(
+          parseInt(curPageId, 10),
+          viewedRegionW,
+          viewedRegionH,
+          tlEditor.camera.x,
+          tlEditor.camera.y,
+          presentationId
+        );
       }
     }
 
@@ -345,10 +350,14 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
           if (fitToWidth && currentPresentationPage) {
             const currentAspectRatio =
-              Math.round((presentationAreaWidth / presentationAreaHeight) * 100) / 100;
+              Math.round(
+                (presentationAreaWidth / presentationAreaHeight) * 100
+              ) / 100;
             const previousAspectRatio =
               Math.round(
-                (currentPresentationPage.scaledViewBoxWidth / currentPresentationPage.scaledViewBoxHeight) * 100
+                (currentPresentationPage.scaledViewBoxWidth /
+                  currentPresentationPage.scaledViewBoxHeight) *
+                  100
               ) / 100;
 
             if (currentAspectRatio !== previousAspectRatio) {
@@ -435,29 +444,31 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     }
 
     if (!isPresenter && tlEditorRef.current && initialViewBoxWidth) {
-        const viewerFitToWidth = determineViewerFitToWidth(currentPresentationPage);
+      const viewerFitToWidth = determineViewerFitToWidth(
+        currentPresentationPage
+      );
 
-        // Calculate the effective zoom based on the change in viewBoxWidth
-        const effectiveZoom = calculateEffectiveZoom(
-          initialViewBoxWidth,
-          currentPresentationPage.scaledViewBoxWidth
-        );
+      // Calculate the effective zoom based on the change in viewBoxWidth
+      const effectiveZoom = calculateEffectiveZoom(
+        initialViewBoxWidth,
+        currentPresentationPage.scaledViewBoxWidth
+      );
 
-        const zoomFitSlide = calculateViewerZoom(
-          currentPresentationPage.scaledWidth,
-          currentPresentationPage.scaledHeight,
-          viewerFitToWidth
-        );
-        const zoomCamera = (zoomFitSlide * effectiveZoom) / HUNDRED_PERCENT;
+      const zoomFitSlide = calculateViewerZoom(
+        currentPresentationPage.scaledWidth,
+        currentPresentationPage.scaledHeight,
+        viewerFitToWidth
+      );
+      const zoomCamera = (zoomFitSlide * effectiveZoom) / HUNDRED_PERCENT;
 
-        tlEditorRef.current?.setCamera(
-          {
-            x: currentPresentationPage?.xOffset,
-            y: currentPresentationPage?.yOffset,
-            z: zoomCamera,
-          },
-          false
-        );
+      tlEditorRef.current?.setCamera(
+        {
+          x: currentPresentationPage?.xOffset,
+          y: currentPresentationPage?.yOffset,
+          z: zoomCamera,
+        },
+        false
+      );
     }
   }, [
     currentPresentationPage?.xOffset,
@@ -468,7 +479,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
   // handles adding shapes to tldraw using it's api's
   React.useEffect(() => {
-    if (isEqual(prevShapesRef.current, shapes)) {
+    if (isEqual(prevShapesRef.current, shapes) || isMouseDownRef.current) {
       return;
     }
 
@@ -566,11 +577,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   // Updating presences in tldraw store based on changes in cursors
   React.useEffect(() => {
     if (tlEditorRef.current) {
-      const useElement = document.querySelector('.tl-cursor use');
-      if ((useElement && !isMultiUserActive)) {
-        useElement.setAttribute('href', '#redPointer');
+      const useElement = document.querySelector(".tl-cursor use");
+      if (useElement && !isMultiUserActive) {
+        useElement.setAttribute("href", "#redPointer");
       } else if (useElement) {
-        useElement.setAttribute('href', '#cursor');
+        useElement.setAttribute("href", "#cursor");
       }
 
       const updatedPresences = otherCursors
@@ -928,11 +939,21 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         const zoomed = next?.id?.includes("camera") && prev.z !== next.z;
         if (panned && isPresenter) {
           // // limit bounds
-          if (editor?.viewportPageBounds?.maxX > currentPresentationPage?.scaledWidth) {
-            next.x += editor.viewportPageBounds.maxX - currentPresentationPage?.scaledWidth;
+          if (
+            editor?.viewportPageBounds?.maxX >
+            currentPresentationPage?.scaledWidth
+          ) {
+            next.x +=
+              editor.viewportPageBounds.maxX -
+              currentPresentationPage?.scaledWidth;
           }
-          if (editor?.viewportPageBounds?.maxY > currentPresentationPage?.scaledHeight) {
-            next.y += editor.viewportPageBounds.maxY - currentPresentationPage?.scaledHeight;
+          if (
+            editor?.viewportPageBounds?.maxY >
+            currentPresentationPage?.scaledHeight
+          ) {
+            next.y +=
+              editor.viewportPageBounds.maxY -
+              currentPresentationPage?.scaledHeight;
           }
           if (next.x > 0 || editor.viewportPageBounds.minX < 0) {
             next.x = 0;
@@ -947,14 +968,25 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   };
 
   const handleMouseUp = () => {
-    !isPresenter &&
-      !hasWBAccess &&
+    if (!isPresenter && !hasWBAccess) {
       tlEditor?.updateInstanceState({ isReadonly: false });
+    }
+
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current);
+    }
+
+    timeoutIdRef.current = setTimeout(() => {
+      isMouseDownRef.current = false;
+    }, 1000);
   };
+
   const handleMouseDown = () => {
     !isPresenter &&
       !hasWBAccess &&
       tlEditor?.updateInstanceState({ isReadonly: true });
+
+    isMouseDownRef.current = true;
   };
 
   const handleMouseEnter = () => {
@@ -978,11 +1010,20 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   };
 
   const editableWB = (
-    <Tldraw key={`editableWB-${curPageId}`} forceMobile onMount={handleTldrawMount} />
+    <Tldraw
+      key={`editableWB-${curPageId}-${presentationId}`}
+      forceMobile
+      onMount={handleTldrawMount}
+    />
   );
 
   const readOnlyWB = (
-    <Tldraw key={`readOnlyWB-${curPageId}`} forceMobile hideUi onMount={handleTldrawMount} />
+    <Tldraw
+      key={`readOnlyWB-${curPageId}-${presentationId}`}
+      forceMobile
+      hideUi
+      onMount={handleTldrawMount}
+    />
   );
 
   return (
