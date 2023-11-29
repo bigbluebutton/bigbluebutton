@@ -338,7 +338,7 @@ class SettingsDropdown extends PureComponent {
         icon: 'manage_layout',
         label: intl.formatMessage(intlMessages.layoutModal),
         onClick: () => this.setLayoutModalIsOpen(true),
-        divider: true,
+        divider: isDirectLeaveButtonEnabled ? false : true,
       },
     );
 
