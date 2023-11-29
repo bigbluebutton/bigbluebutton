@@ -8,9 +8,13 @@ import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-componen
 import Styled from './styles';
 
 const intlMessages = defineMessages({
-  leaveMeetingLabel: {
+  leaveMeetingBtnLabel: {
     id: 'app.navBar.leaveMeetingBtnLabel',
     description: 'Leave meeting button label',
+  },
+  leaveMeetingBtnDesc: {
+    id: 'app.navBar.leaveMeetingBtnDesc',
+    description: 'Describes the leave meeting button',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
@@ -146,7 +150,9 @@ class LeaveMeetingButton extends PureComponent {
           trigger={(
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
-              tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingLabel)}
+              aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
+              tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
+              description={intl.formatMessage(intlMessages.leaveMeetingBtnDesc)}
               icon="logout"
               color="danger"
               size="lg"
