@@ -283,8 +283,9 @@ jobs:
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command: npm run test-chromium-ci -- --shard ${{ matrix.shard }}
-        working-directory: ./bigbluebutton-tests/playwright
+          command: |
+            cd ./bigbluebutton-tests/playwright
+            npm run test-chromium-ci -- --shard ${{ matrix.shard }}
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
