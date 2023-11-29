@@ -59,6 +59,51 @@ type Mutation {
 }
 
 type Mutation {
+  timerActivate(
+    stopwatch: Boolean!
+    running: Boolean!
+    time: Int!
+    track: String
+  ): Boolean
+}
+
+type Mutation {
+  timerDeactivate: Boolean
+}
+
+type Mutation {
+  timerReset: Boolean
+}
+
+type Mutation {
+  timerSetSongTrack(
+    track: String!
+  ): Boolean
+}
+
+type Mutation {
+  timerSetTime(
+    time: Int!
+  ): Boolean
+}
+
+type Mutation {
+  timerStart: Boolean
+}
+
+type Mutation {
+  timerStop(
+    accumulated: Float!
+  ): Boolean
+}
+
+type Mutation {
+  timerSwitchMode(
+    stopwatch: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userJoin(
     authToken: String!
     clientType: String!

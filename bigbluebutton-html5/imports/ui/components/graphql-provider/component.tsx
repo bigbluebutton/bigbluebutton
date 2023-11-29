@@ -6,6 +6,7 @@ import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import React, { useEffect } from 'react';
 import Auth from '/imports/ui/services/auth';
+import {Meteor} from "meteor/meteor";
 
 interface Props {
   children: React.ReactNode;
@@ -27,7 +28,7 @@ const GraphqlProvider = ({ children }: Props): React.ReactNode => {
       }),
     );
     // setLink(wsLink);
-    const client = new ApolloClient({ link: wsLink, cache: new InMemoryCache() });
+    const client = new ApolloClient({ link: wsLink, cache: new InMemoryCache(), connectToDevTools: Meteor.isDevelopment });
     setApolloClient(client);
   }, []);
   return (
