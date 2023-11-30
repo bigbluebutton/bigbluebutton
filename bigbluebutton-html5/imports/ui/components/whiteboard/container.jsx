@@ -165,7 +165,7 @@ const WhiteboardContainer = (props) => {
     isLocked: true,
     opacity: 1,
     meta: {},
-    id: `shape:${curPageId}`,
+    id: `shape:BG-${curPageId}`,
     type: "image",
     props: {
       w: currentPresentationPage?.scaledWidth || 1,
@@ -181,25 +181,14 @@ const WhiteboardContainer = (props) => {
   });
 
   const hasShapeAccess = (id) => {
-    const owner = shapes[id]?.userId;
-    const isBackgroundShape = id?.includes('slide-background');
-    const isPollsResult = shapes[id]?.name?.includes('poll-result');
-    const hasAccess = (!isBackgroundShape && !isPollsResult)
-      || (isPresenter
-        && ((owner && owner === currentUser?.userId)
-          || !owner
-          || isPresenter
-          || isModerator));
+    const owner = shapes[id]?.meta?.createdBy;
+    const isBackgroundShape = id?.includes(':BG-');
+    const isPollsResult = shapes[id]?.id?.includes('poll-result');
+    const hasAccess = (!isBackgroundShape && !isPollsResult) 
+      && ((owner && owner === currentUser?.userId) || (isPresenter) || (isModerator));
 
     return hasAccess;
   };
-  // set shapes as locked for those who aren't allowed to edit it
-  Object.entries(shapes).forEach(([shapeId, shape]) => {
-    if (!shape.isLocked && !hasShapeAccess(shapeId) && !shape.name?.includes('poll-result')) {
-      const modShape = shape;
-      modShape.isLocked = true;
-    }
-  });
 
   return (
     <Whiteboard

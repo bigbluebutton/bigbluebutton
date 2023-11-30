@@ -165,22 +165,19 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
   const [tlEditor, setTlEditor] = React.useState(null);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
-  const [tldrawZoom, setTldrawZoom] = React.useState(1);
   const [isMounting, setIsMounting] = React.useState(true);
   const [initialViewBoxWidth, setInitialViewBoxWidth] = React.useState(null);
 
-  const prevShapes = usePrevious(shapes);
   const prevFitToWidth = usePrevious(fitToWidth);
-  const prevPageId = usePrevious(curPageId);
+  const prevPageId = usePrevious(null);
 
   const whiteboardRef = React.useRef(null);
-  const zoomValueRef = React.useRef(zoomValue);
-  const prevShapesRef = React.useRef(shapes);
+  const zoomValueRef = React.useRef(null);
+  const prevShapesRef = React.useRef({});
   const tlEditorRef = React.useRef(tlEditor);
-  const isCanvasPos = React.useRef(false);
   const slideChanged = React.useRef(false);
   const slideNext = React.useRef(null);
-  const prevZoomValueRef = React.useRef(zoomValue);
+  const prevZoomValueRef = React.useRef(null);
   const initialZoomRef = useRef(null);
   const isFirstZoomActionRef = useRef(true);
   const isMouseDownRef = useRef(false);
@@ -296,7 +293,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       publishCursorUpdate,
       whiteboardId,
       cursorPosition,
-      updateCursorPosition
+      updateCursorPosition,
+      toggleToolsAnimations,
     }
   );
 
@@ -582,8 +580,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     }
   }, [curPageId]);
 
-  // eslint-disable-next-line arrow-body-style
   React.useEffect(() => {
+    setTldrawIsMounting(true);
     return () => {
       isMountedRef.current = false;
     };
@@ -633,29 +631,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     curPageId,
     isMultiUserActive,
     isPresenter,
+    animations
   ]);
-
-  React.useEffect(() => {
-    if (whiteboardToolbarAutoHide) {
-      toggleToolsAnimations(
-        "fade-in",
-        "fade-out",
-        animations ? "3s" : "0s",
-        hasWBAccess || isPresenter
-      );
-    } else {
-      toggleToolsAnimations(
-        "fade-out",
-        "fade-in",
-        animations ? ".3s" : "0s",
-        hasWBAccess || isPresenter
-      );
-    }
-  }, [whiteboardToolbarAutoHide]);
-
-  React.useEffect(() => {
-    setTldrawIsMounting(true);
-  }, []);
 
   React.useEffect(() => {
     if (isMounting) {
@@ -663,7 +640,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       /// brings presentation toolbar back
       setTldrawIsMounting(false);
     }
-  }, [tlEditor?.camera, presentationAreaWidth, presentationAreaHeight]);
+  }, [tlEditorRef?.current?.camera, presentationAreaWidth, presentationAreaHeight]);
 
   const calculateZoomValue = (localWidth, localHeight, isViewer = false) => {
     let calcedZoom;
@@ -690,28 +667,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       : calcedZoom;
   };
 
-  const shouldKeepShape = (id) => {
-    if (
-      isPresenter ||
-      (isModerator && hasWBAccess) ||
-      (hasWBAccess && hasShapeAccess(id))
-    ) {
-      return true;
-    }
-    return false;
-  };
-
-  const shouldResetShape = (shapeId) => {
-    if (
-      isPresenter ||
-      (isModerator && hasWBAccess) ||
-      (hasWBAccess && hasShapeAccess(shapeId))
-    ) {
-      return false;
-    }
-    return true;
-  };
-
   const handleTldrawMount = (editor) => {
     setTlEditor(editor);
 
@@ -723,17 +678,31 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
     editor.store.listen(
       (entry) => {
-        const { changes, source } = entry;
+        const { changes } = entry;
         const { added, updated, removed } = changes;
-
+    
         Object.values(added).forEach((record) => {
-          debouncePersistShape(record, whiteboardId, isModerator);
+          const updatedRecord = {
+            ...record,
+            meta: {
+              ...record.meta,
+              createdBy: currentUser?.userId,
+            }
+          };
+          persistShape(updatedRecord, whiteboardId, isModerator);
         });
-
+    
         Object.values(updated).forEach(([_, record]) => {
-          debouncePersistShape(record, whiteboardId, isModerator);
+          const updatedRecord = {
+            ...record,
+            meta: {
+              updatedBy: currentUser?.userId,
+              createdBy: shapes[record?.id]?.meta?.createdBy,
+            }
+          };
+          persistShape(updatedRecord, whiteboardId, isModerator);
         });
-
+    
         Object.values(removed).forEach((record) => {
           removeShapes([record.id], whiteboardId);
         });
@@ -834,22 +803,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       });
 
       editor.store.onBeforeChange = (prev, next, source) => {
-        // console.log('Before Change - Prev:', prev, 'Next:', next)
-        if (next?.typeName === "instance_page_state") {
-          if (!isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
-            // Filter the selectedShapeIds
-            next.selectedShapeIds =
-              next.selectedShapeIds.filter(shouldKeepShape);
-          }
-          if (!isEqual(prev.hoveredShapeId, next.hoveredShapeId)) {
-            // Check hoveredShapeId
-            if (shouldResetShape(next.hoveredShapeId)) {
-              next.hoveredShapeId = null;
-            }
-          }
-          return next;
-        }
-
         const camera = editor?.camera;
         const panned =
           next?.id?.includes("camera") &&
@@ -894,7 +847,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       key={`animations=-${animations}-${hasWBAccess}-${isPresenter}-${isModerator}-${whiteboardToolbarAutoHide}-${language}`}
     >
       <Tldraw
-        key={`readOnlyWB-${curPageId}-${presentationId}`}
+        key={`tldrawv2-${curPageId}-${presentationId}-${animations}-${shapes}`}
         forceMobile={true}
         hideUi={hasWBAccess || isPresenter ? false : true}
         onMount={handleTldrawMount}

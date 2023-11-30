@@ -27,7 +27,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
     publishCursorUpdate,
     whiteboardId,
     cursorPosition,
-    updateCursorPosition
+    updateCursorPosition,
+    toggleToolsAnimations
 }) => {
 
     const timeoutIdRef = React.useRef();
@@ -114,6 +115,24 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
         event.preventDefault();
         event.stopPropagation();
     };
+
+    React.useEffect(() => {
+        if (whiteboardToolbarAutoHide) {
+            toggleToolsAnimations(
+                "fade-in",
+                "fade-out",
+                animations ? "3s" : "0s",
+                hasWBAccess || isPresenter
+            );
+        } else {
+            toggleToolsAnimations(
+                "fade-out",
+                "fade-in",
+                animations ? ".3s" : "0s",
+                hasWBAccess || isPresenter
+            );
+        }
+    }, [whiteboardToolbarAutoHide]);
 
     React.useEffect(() => {
         const whiteboardElement = whiteboardRef.current;
