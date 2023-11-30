@@ -1,4 +1,12 @@
 type Mutation {
+  allUsersClearEmoji: Boolean
+}
+
+type Mutation {
+  allUsersClearReaction: Boolean
+}
+
+type Mutation {
   dispatchPluginDataChannelMessageMsg(
     pluginName: String!
     dataChannel: String!
@@ -6,6 +14,10 @@ type Mutation {
     toRoles: [String]!
     toUserIds: [String]!
   ): Boolean
+}
+
+type Mutation {
+  pickRandomViewer: Boolean
 }
 
 type Mutation {
@@ -104,9 +116,87 @@ type Mutation {
 }
 
 type Mutation {
+  userEjectFromMeeting(
+    userId: String!
+    banUser: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userJoin(
     authToken: String!
     clientType: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetAway(
+    away: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetCameraPinned(
+    userId: String!
+    pinned: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetEmojiStatus(
+    emoji: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetExitReason(
+    exitReason: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetLocked(
+    userId: String!
+    locked: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetMobileFlag(
+    mobile: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetPresenter(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetRaiseHand(
+    raiseHand: Boolean!
+    userId: String
+  ): Boolean
+}
+
+type Mutation {
+  userSetReactionEmoji(
+    reactionEmoji: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetRole(
+    userId: String!
+    role: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetSpeechLocale(
+    locale: String!
+    provider: String!
   ): Boolean
 }
 

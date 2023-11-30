@@ -49,7 +49,6 @@ app.post('/', async (req: Request, res: Response) => {
 
   } catch (error) {
     if (error instanceof ValidationError) {
-      console.error(error.message);
       res.status(error.status).send({message: error.message});
     } else {
       console.error(error);
