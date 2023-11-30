@@ -14,7 +14,7 @@
     "lint": "eslint . --ext .jsx,.js",
     "lint:file": "eslint",
     "preinstall": "npx npm-force-resolutions",
-    "postinstall": "mkdir -p public/files; cp node_modules/@fontsource/*/files/*.woff public/files/; cp node_modules/@fontsource/*/files/*.woff2 public/files/"
+    "postinstall": "mkdir -p public/files"
   },
   "meteor": {
     "mainModule": {
