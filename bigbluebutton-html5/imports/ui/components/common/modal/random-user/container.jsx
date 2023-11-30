@@ -7,6 +7,7 @@ import { makeCall } from '/imports/ui/services/api';
 import RandomUserSelect from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import logger from '/imports/startup/client/logger';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 
@@ -23,12 +24,15 @@ const RandomUserSelectContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const { randomlySelectedUser } = props;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
 
   let mappedRandomlySelectedUsers = [];
 
   const currentUser = {
     userId: Auth.userID,
-    presenter: users[Auth.meetingID][Auth.userID].presenter
+    presenter: currentUserData?.presenter,
   };
 
   try {

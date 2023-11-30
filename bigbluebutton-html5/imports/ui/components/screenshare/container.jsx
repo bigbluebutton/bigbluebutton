@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Auth from '/imports/ui/services/auth';
 import {
   getSharingContentType,
   getBroadcastContentType,
@@ -8,15 +7,16 @@ import {
   isCameraAsContentGloballyBroadcasting,
   isScreenBroadcasting,
   isCameraAsContentBroadcasting,
+  shouldEnableVolumeControl,
 } from './service';
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import AudioService from '/imports/ui/components/audio/service';
-import { shouldEnableVolumeControl } from './service';
 import MediaService from '/imports/ui/components/media/service';
 import { defineMessages } from 'react-intl';
+import NotesService from '/imports/ui/components/notes/service';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -87,7 +87,6 @@ const cameraAsContentIntlMessages = defineMessages({
     description: 'toast to show when camera as content has ended by changing data savings option',
   },
 });
-import NotesService from '/imports/ui/components/notes/service';
 
 const ScreenshareContainer = (props) => {
   const screenShare = layoutSelectOutput((i) => i.screenShare);
@@ -98,10 +97,10 @@ const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
   const fullscreenContext = (element === fullscreenElementId);
 
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const isPresenter = currentUser.presenter;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+  const isPresenter = currentUserData?.presenter;
 
   const info = {
     screenshare: {

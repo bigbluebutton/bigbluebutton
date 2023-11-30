@@ -600,7 +600,7 @@ class App extends Component {
       darkTheme,
       intl,
     } = this.props;
-console.log({shouldShowExternalVideo})
+
     const {
       isAudioModalOpen,
       isRandomUserSelectModalOpen,
