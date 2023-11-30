@@ -41,9 +41,7 @@
     "@mui/material": "^5.12.2",
     "@mui/system": "^5.12.3",
     "@tldraw/tldraw": "^2.0.0-alpha.17",
-    "@types/node": "^20.5.7",
     "@types/ramda": "^0.29.2",
-    "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.4",
     "axios": "^1.6.0",
     "babel-runtime": "~6.26.0",
@@ -113,6 +111,8 @@
   "devDependencies": {
     "@types/emoji-mart": "^3.0.9",
     "@types/meteor": "^2.9.3",
+    "@types/node": "^20.10.1",
+    "@types/react": "^18.2.39",
     "@types/react-dom": "^18.2.7",
     "@types/react-virtualized": "^9.21.22",
     "@types/styled-components": "^5.1.26",
