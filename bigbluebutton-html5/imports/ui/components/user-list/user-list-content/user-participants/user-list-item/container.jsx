@@ -6,6 +6,7 @@ import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import { layoutDispatch } from '../../../../layout/context';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const UserListItemContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -43,12 +44,19 @@ const UserListItemContainer = (props) => {
 const isMe = (intId) => intId === Auth.userID;
 
 export default withTracker(({ user }) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const userConfig = MeetingSettings.public.user;
+  const roleModerator = userConfig.role_moderator;
+  const { label } = userConfig;
+
   const findUserInBreakout = user ? BreakoutService.getBreakoutUserIsIn(user.userId) : false;
   const findUserLastBreakout = user ? BreakoutService.getBreakoutUserWasIn(user.userId, null) : null;
   const breakoutSequence = (findUserInBreakout || {}).sequence;
 
   return {
+    roleModerator,
     isMe,
+    label,
     userInBreakout: !!findUserInBreakout,
     userLastBreakout: findUserLastBreakout,
     breakoutSequence,

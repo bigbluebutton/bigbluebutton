@@ -125,6 +125,7 @@ class ActionsBar extends PureComponent {
 
     const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation)
       || isSharingVideo || hasScreenshare || isSharedNotesPinned;
+
     return (
       <Styled.ActionsBar
         ref={this.actionsBarRef}

@@ -17,6 +17,7 @@ import {
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled, isCaptionsEnabled } from '/imports/ui/services/features';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -105,10 +106,6 @@ const intlMessages = defineMessages({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const { dynamicGuestPolicy } = Meteor.settings.public.app;
-
 interface RenderModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isOpen: boolean;
@@ -154,6 +151,10 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   hasBreakoutRooms,
   meetingName,
 }) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const appConfig = MeetingSettings.public.app;
+  const dynamicGuestPolicy = appConfig;
+
   const intl = useIntl();
   const { locale } = intl;
   const uuids = useRef<string[]>([

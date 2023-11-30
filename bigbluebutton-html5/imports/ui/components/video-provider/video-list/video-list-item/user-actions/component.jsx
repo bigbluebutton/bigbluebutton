@@ -11,6 +11,7 @@ import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -87,7 +88,9 @@ const UserActions = (props) => {
   }
 
   const intl = useIntl();
-  const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
+  const [MeetingSettings] = useMeetingSettings();
+  const kurentoConfig = MeetingSettings.public.kurento;
+  const enableVideoMenu = kurentoConfig.enableVideoMenu || false;
   const { isFirefox } = browserInfo;
 
   const getAvailableActions = () => {

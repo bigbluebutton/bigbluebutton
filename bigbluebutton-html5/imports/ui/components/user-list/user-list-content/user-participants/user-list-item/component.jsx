@@ -179,9 +179,6 @@ const propTypes = {
   isMe: PropTypes.func.isRequired,
 };
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const LABEL = Meteor.settings.public.user.label;
-
 class UserListItem extends PureComponent {
   /**
    * Return true if the content fit on the screen, false otherwise.
@@ -304,6 +301,7 @@ class UserListItem extends PureComponent {
       meetingIsBreakout,
       usersProp,
       layoutContextDispatch,
+      roleModerator,
     } = this.props;
     const { showNestedOptions } = this.state;
 
@@ -313,7 +311,7 @@ class UserListItem extends PureComponent {
     const isDialInUser = clientType === 'dial-in-user';
 
     const amIPresenter = currentUser.presenter;
-    const amIModerator = currentUser.role === ROLE_MODERATOR;
+    const amIModerator = currentUser.role === roleModerator;
     const actionPermissions = getAvailableActions(
       amIModerator, meetingIsBreakout, user, voiceUser, usersProp, amIPresenter,
     );
@@ -336,15 +334,15 @@ class UserListItem extends PureComponent {
 
     const { disablePrivateChat } = lockSettingsProps;
 
-    const enablePrivateChat = currentUser.role === ROLE_MODERATOR
+    const enablePrivateChat = currentUser.role === roleModerator
       ? allowedToChatPrivately
       : allowedToChatPrivately
       && (!(currentUser.locked && disablePrivateChat)
         || hasPrivateChatBetweenUsers(currentUser.userId, user.userId)
-        || user.role === ROLE_MODERATOR) && isMeteorConnected;
+        || user.role === roleModerator) && isMeteorConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
-    const userLocked = user.locked && user.role !== ROLE_MODERATOR;
+    const userLocked = user.locked && user.role !== roleModerator;
 
     const availableActions = [
       {
@@ -635,6 +633,7 @@ class UserListItem extends PureComponent {
       meetingIsBreakout,
       voiceUser,
       isReactionsEnabled,
+      roleModerator,
     } = this.props;
 
     const emojiProps = {
@@ -682,7 +681,7 @@ class UserListItem extends PureComponent {
 
     return (
       <Styled.UserAvatarComponent
-        moderator={user.role === ROLE_MODERATOR}
+        moderator={user.role === roleModerator}
         presenter={user.presenter}
         talking={voiceUser.isTalking}
         muted={voiceUser.isMuted}
@@ -722,6 +721,8 @@ class UserListItem extends PureComponent {
       isRTL,
       selectedUserId,
       removeUser,
+      roleModerator,
+      label,
     } = this.props;
 
     const {
@@ -778,7 +779,7 @@ class UserListItem extends PureComponent {
 
     const userNameSub = [];
 
-    if (user.isSharingWebcam && LABEL.sharingWebcam) {
+    if (user.isSharingWebcam && label.sharingWebcam) {
       userNameSub.push(
         <span key={uniqueId('video-')}>
           { user.pin === true
@@ -790,7 +791,7 @@ class UserListItem extends PureComponent {
       );
     }
 
-    if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
+    if (isThisMeetingLocked && user.locked && user.role !== roleModerator) {
       userNameSub.push(
         <span key={uniqueId('lock-')}>
           <Icon iconName="lock" />
@@ -800,16 +801,16 @@ class UserListItem extends PureComponent {
       );
     }
 
-    if (user.role === ROLE_MODERATOR) {
-      if (LABEL.moderator) userNameSub.push(intl.formatMessage(messages.moderator));
+    if (user.role === roleModerator) {
+      if (label.moderator) userNameSub.push(intl.formatMessage(messages.moderator));
     }
 
     if (user.mobile) {
-      if (LABEL.mobile) userNameSub.push(intl.formatMessage(messages.mobile));
+      if (label.mobile) userNameSub.push(intl.formatMessage(messages.mobile));
     }
 
     if (user.guest) {
-      if (LABEL.guest) userNameSub.push(intl.formatMessage(messages.guest));
+      if (label.guest) userNameSub.push(intl.formatMessage(messages.guest));
     }
 
     if (userInBreakout && userLastBreakout) {

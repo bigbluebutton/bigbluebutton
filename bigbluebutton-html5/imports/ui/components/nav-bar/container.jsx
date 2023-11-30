@@ -14,9 +14,10 @@ import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
-const PUBLIC_CONFIG = Meteor.settings.public;
-const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
+//const PUBLIC_CONFIG = Meteor.settings.public;
+//const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
 
 const checkUnreadMessages = ({
   groupChatsMessages, groupChats, users, idChatOpen,
@@ -38,7 +39,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
   const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
-  const { unread, ...rest } = props;
+  const { unread, roleModerator, ...rest } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
@@ -58,7 +59,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const isExpanded = !!sidebarContentPanel || !!sidebarNavPanel;
 
   const currentUser = users[Auth.meetingID][Auth.userID];
-  const amIModerator = currentUser.role === ROLE_MODERATOR;
+  const amIModerator = currentUser.role === roleModerator;
 
   const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
 
@@ -96,7 +97,10 @@ const NavBarContainer = ({ children, ...props }) => {
 };
 
 export default withTracker(() => {
-  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
+  const [MeetingSettings] = useMeetingSettings();
+  const publicConfig = MeetingSettings.public;
+  const roleModerator = publicConfig.user.role_moderator;
+  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', publicConfig.app.clientTitle);
   const unread = NotesService.hasUnreadNotes();
 
   let meetingTitle, breakoutNum, breakoutName, meetingName;
@@ -133,5 +137,6 @@ export default withTracker(() => {
     breakoutName,
     meetingName,
     unread,
+    roleModerator,
   };
 })(NavBarContainer);

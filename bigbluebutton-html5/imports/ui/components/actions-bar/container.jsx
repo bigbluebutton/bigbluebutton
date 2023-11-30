@@ -20,6 +20,7 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -64,10 +65,6 @@ const ActionsBarContainer = (props) => {
   );
 };
 
-const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
-const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButton.enabled;
-const RAISE_HAND_BUTTON_CENTERED = Meteor.settings.public.app.raiseHandActionButton.centered;
-
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = Meteor.settings.public.userReaction.enabled;
   const REACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.reactionsButton.enabled;
@@ -75,25 +72,34 @@ const isReactionsButtonEnabled = () => {
   return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
 };
 
-export default withTracker(() => ({
-  amIModerator: Service.amIModerator(),
-  stopExternalVideoShare: ExternalVideoService.stopWatching,
-  enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
-  setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  handleTakePresenter: Service.takePresenterRole,
-  isSharingVideo: Service.isSharingVideo(),
-  isSharedNotesPinned: Service.isSharedNotesPinned(),
-  hasScreenshare: isScreenBroadcasting(),
-  hasCameraAsContent: isCameraAsContentBroadcasting(),
-  isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
-  isTimerActive: TimerService.isActive(),
-  isTimerEnabled: TimerService.isEnabled(),
-  isMeteorConnected: Meteor.status().connected,
-  isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
-  isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
-  isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
-  isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
-  isReactionsButtonEnabled: isReactionsButtonEnabled(),
-  allowExternalVideo: isExternalVideoEnabled(),
-  setEmojiStatus: UserListService.setEmojiStatus,
-}))(injectIntl(ActionsBarContainer));
+export default withTracker(() => {
+  const [MeetingSettings] = useMeetingSettings();
+  const appConfig = MeetingSettings.public.app;
+  const publicConfig = MeetingSettings.public;
+  const selectRandomUserEnabled = publicConfig.selectRandomUser.enabled;
+  const raiseHandButtonEnabled = appConfig.raiseHandActionButton.enabled;
+  const raiseHandButtonCentered = appConfig.raiseHandActionButton.centered;
+
+  return {
+    amIModerator: Service.amIModerator(),
+    stopExternalVideoShare: ExternalVideoService.stopWatching,
+    enableVideo: getFromUserSettings('bbb_enable_video', publicConfig.kurento.enableVideo),
+    setPresentationIsOpen: MediaService.setPresentationIsOpen,
+    handleTakePresenter: Service.takePresenterRole,
+    isSharingVideo: Service.isSharingVideo(),
+    isSharedNotesPinned: Service.isSharedNotesPinned(),
+    hasScreenshare: isScreenBroadcasting(),
+    hasCameraAsContent: isCameraAsContentBroadcasting(),
+    isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
+    isTimerActive: TimerService.isActive(),
+    isTimerEnabled: TimerService.isEnabled(),
+    isMeteorConnected: Meteor.status().connected,
+    isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
+    isSelectRandomUserEnabled: selectRandomUserEnabled,
+    isRaiseHandButtonEnabled: raiseHandButtonEnabled,
+    isRaiseHandButtonCentered: raiseHandButtonCentered,
+    isReactionsButtonEnabled: isReactionsButtonEnabled(),
+    allowExternalVideo: isExternalVideoEnabled(),
+    setEmojiStatus: UserListService.setEmojiStatus,
+  };
+})(injectIntl(ActionsBarContainer));

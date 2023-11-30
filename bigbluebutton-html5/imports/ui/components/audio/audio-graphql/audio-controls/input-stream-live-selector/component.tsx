@@ -20,10 +20,7 @@ import Mutetoggle from './buttons/muteToggle';
 import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
 
-// @ts-ignore - temporary, while meteor exists in the project
-const { enableDynamicAudioDeviceSelection } = Meteor.settings.public.app;
-// @ts-ignore - temporary, while meteor exists in the project
-const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 // @ts-ignore - temporary while settings are still in .js
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,8 +29,6 @@ const { animations } = Settings.application;
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
 const DEFAULT_DEVICE = 'default';
-
-const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
 const intlMessages = defineMessages({
   changeAudioDevice: {
@@ -95,17 +90,24 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   inputStream,
   meetingIsBreakout,
 }) => {
-  const intl = useIntl();
-  // eslint-disable-next-line no-undef
   const [inputDevices, setInputDevices] = React.useState<InputDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = React.useState<MediaDeviceInfo[]>([]);
   const { isMobile } = deviceInfo;
 
+  const [MeetingSettings] = useMeetingSettings();
+  const appConfig = MeetingSettings.public.app;
+  const enableDynamicAudioDeviceSelection = appConfig;
+  const muteAlertConfig = appConfig.mutedAlert;
+  const { enabled: muteAlertEnabled } = muteAlertConfig;
+
+  const intl = useIntl();
+
   const updateDevices = (isAudioConnected: boolean) => {
     navigator.mediaDevices.enumerateDevices()
       .then((devices) => {
-        const audioInputDevices = devices.filter((i) => i.kind === AUDIO_INPUT);
-        const audioOutputDevices = devices.filter((i) => i.kind === AUDIO_OUTPUT);
+        const audioInputDevices = devices.filter((i) => i.kind === AUDIO_INPUT) as InputDeviceInfo[];
+        const audioOutputDevices = devices.filter((i) => i.kind === AUDIO_OUTPUT) as MediaDeviceInfo[];
+
         setInputDevices(audioInputDevices);
         setOutputDevices(audioOutputDevices);
       });
@@ -127,7 +129,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
     liveChangeInputDevice(fallbackDevice.deviceId).catch(() => {
       notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
     });
-  }, []);
+  }, [inputDevices]); // Include inputDevices as a dependency
 
   const fallbackOutputDevice = useCallback((fallbackDevice: MediaDeviceInfo) => {
     if (!fallbackDevice || !fallbackDevice.deviceId) return;
@@ -141,7 +143,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
     liveChangeOutputDevice(fallbackDevice.deviceId, true).catch(() => {
       notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
     });
-  }, []);
+  }, [outputDevices]); // Include outputDevices as a dependency
 
   const updateRemovedDevices = useCallback((
     audioInputDevices: MediaDeviceInfo[],
@@ -158,7 +160,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
       && !audioOutputDevices.find((d) => d.deviceId === outputDeviceId)) {
       fallbackOutputDevice(audioOutputDevices[0]);
     }
-  }, [inputDeviceId]);
+  }, [inputDeviceId, outputDeviceId, fallbackInputDevice, fallbackOutputDevice]);
 
   useEffect(() => {
     if (enableDynamicAudioDeviceSelection && !isMobile) {

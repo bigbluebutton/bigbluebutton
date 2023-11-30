@@ -10,6 +10,7 @@ import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const { isIphone } = deviceInfo;
 const { isSafari, isValidSafariVersion } = browserInfo;
@@ -37,6 +38,10 @@ const OptionsDropdownContainer = (props) => {
 };
 
 export default withTracker((props) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const publicConfig = MeetingSettings.public.app;
+  const bbbTabletAppConfig = publicConfig.bbbTabletApp;
+  const { allowFullscreen } = publicConfig.allowFullscreen;
   const handleToggleFullscreen = () => FullscreenService.toggleFullScreen();
   return {
     amIModerator: props.amIModerator,
@@ -49,5 +54,8 @@ export default withTracker((props) => {
     isMeteorConnected: Meteor.status().connected,
     isBreakoutRoom: meetingIsBreakout(),
     isDropdownOpen: Session.get('dropdownOpen'),
+    publicConfig,
+    bbbTabletAppConfig,
+    allowFullscreen,
   };
 })(OptionsDropdownContainer);

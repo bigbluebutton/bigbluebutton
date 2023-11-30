@@ -128,10 +128,8 @@ const defaultProps = {
   isDropdownOpen: false,
 };
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
 const { isSafari, isTabletApp } = browserInfo;
-const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
+const fullscreenChangeEvent = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class OptionsDropdown extends PureComponent {
   constructor(props) {
@@ -159,11 +157,11 @@ class OptionsDropdown extends PureComponent {
   }
 
   componentDidMount() {
-    document.documentElement.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    document.documentElement.addEventListener(fullscreenChangeEvent, this.onFullscreenChange);
   }
 
   componentWillUnmount() {
-    document.documentElement.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    document.documentElement.removeEventListener(fullscreenChangeEvent, this.onFullscreenChange);
   }
 
   onFullscreenChange() {
@@ -179,10 +177,11 @@ class OptionsDropdown extends PureComponent {
       intl,
       noIOSFullscreen,
       handleToggleFullscreen,
+      allowFullscreen,
     } = this.props;
     const { isFullscreen } = this.state;
 
-    if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
+    if (noIOSFullscreen || !allowFullscreen) return null;
 
     let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
@@ -237,7 +236,8 @@ class OptionsDropdown extends PureComponent {
   renderMenuItems() {
     const {
       intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
-      audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
+      audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems, bbbTabletAppConfig,
+      publicConfig,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -248,7 +248,7 @@ class OptionsDropdown extends PureComponent {
       showHelpButton: helpButton,
       helpLink,
       allowLogout: allowLogoutSetting,
-    } = Meteor.settings.public.app;
+    } = publicConfig;
 
     this.menuItems = [];
 
@@ -289,8 +289,8 @@ class OptionsDropdown extends PureComponent {
 
     if (isIos &&
       !isTabletApp &&
-      BBB_TABLET_APP_CONFIG.enabled == true &&
-      BBB_TABLET_APP_CONFIG.iosAppStoreUrl !== '') {
+      bbbTabletAppConfig.enabled == true &&
+      bbbTabletAppConfig.iosAppStoreUrl !== '') {
       this.menuItems.push(
         {
           key: 'list-item-help',

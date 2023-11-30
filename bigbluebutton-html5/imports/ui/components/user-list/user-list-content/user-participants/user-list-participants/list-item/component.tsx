@@ -14,6 +14,7 @@ import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { isReactionsEnabled } from '/imports/ui/services/features';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const messages = defineMessages({
   moderator: {
@@ -45,11 +46,6 @@ const messages = defineMessages({
     description: 'Text for identifying your user',
   },
 });
-
-// @ts-ignore - temporary, while meteor exists in the project
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-// @ts-ignore - temporary, while meteor exists in the project
-const LABEL = Meteor.settings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
@@ -92,6 +88,12 @@ const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
 );
 
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const userConfig = MeetingSettings.public.user;
+  const roleModerator = userConfig.role_moderator;
+  // eslint-disable-next-line prefer-destructuring
+  const label = userConfig.label;
+
   const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
   let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformation[];
   if (pluginsProvidedAggregatedState.userListItemAdditionalInformation) {
@@ -104,9 +106,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const intl = useIntl();
   const voiceUser = user.voice;
   const subs = [
-    (user.role === ROLE_MODERATOR && LABEL.moderator) && intl.formatMessage(messages.moderator),
-    (user.guest && LABEL.guest) && intl.formatMessage(messages.guest),
-    (user.mobile && LABEL.mobile) && intl.formatMessage(messages.mobile),
+    (user.role === roleModerator && label.moderator) && intl.formatMessage(messages.moderator),
+    (user.guest && label.guest) && intl.formatMessage(messages.guest),
+    (user.mobile && label.mobile) && intl.formatMessage(messages.mobile),
     (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) && (
       <span key={uniqueId('lock-')}>
         <Icon iconName="lock" />
@@ -123,7 +125,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           : user.lastBreakoutRoom?.shortName}
       </span>
     ),
-    (user.cameras.length > 0 && LABEL.sharingWebcam) && (
+    (user.cameras.length > 0 && label.sharingWebcam) && (
       <span key={uniqueId('breakout-')}>
         {user.pinned === true
           ? <Icon iconName="pin-video_on" />
@@ -133,7 +135,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
       </span>
     ),
     ...userItemsFromPlugin.filter(
-      (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.LABEL,
+      (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.label,
     ).map((item) => {
       const itemToRender = item as PluginSdk.UserListItemLabel;
       return (
@@ -192,10 +194,10 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   return (
     <Styled.UserItemContents tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
-        data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
+        data-test={user.role === roleModerator ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
         data-test-avatar="userAvatar"
-        moderator={user.role === ROLE_MODERATOR}
+        moderator={user.role === roleModerator}
         presenter={user.presenter}
         talking={voiceUser?.talking}
         muted={voiceUser?.muted}
