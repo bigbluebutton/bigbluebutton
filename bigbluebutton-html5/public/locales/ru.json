@@ -136,7 +136,7 @@
     "app.userList.captionsTitle": "Субтитры",
     "app.userList.presenter": "Ведущий",
     "app.userList.you": "Вы",
-    "app.userList.locked": "Заблокировано",
+    "app.userList.locked": "Ограничено",
     "app.userList.byModerator": "(Модератором)",
     "app.userList.label": "Список пользователей",
     "app.userList.toggleCompactView.label": "Включить/Выключить компактный вид",
