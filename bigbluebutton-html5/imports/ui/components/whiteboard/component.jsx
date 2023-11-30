@@ -803,6 +803,16 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       });
 
       editor.store.onBeforeChange = (prev, next, source) => {
+        if (next?.typeName === "instance_page_state") {
+          if (!isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
+            // Filter the selectedShapeIds
+            next.selectedShapeIds =
+              next.selectedShapeIds.filter(hasShapeAccess);
+          }
+
+          return next;
+        }
+
         const camera = editor?.camera;
         const panned =
           next?.id?.includes("camera") &&

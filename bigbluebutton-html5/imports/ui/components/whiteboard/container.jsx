@@ -185,7 +185,7 @@ const WhiteboardContainer = (props) => {
     const isBackgroundShape = id?.includes(':BG-');
     const isPollsResult = shapes[id]?.id?.includes('poll-result');
     const hasAccess = (!isBackgroundShape && !isPollsResult) 
-      && ((owner && owner === currentUser?.userId) || (isPresenter) || (isModerator));
+      && ((owner && owner === currentUser?.userId) || (isPresenter) || (isModerator)) || !shapes[id];
 
     return hasAccess;
   };
