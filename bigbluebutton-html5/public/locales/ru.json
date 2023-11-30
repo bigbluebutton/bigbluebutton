@@ -117,7 +117,7 @@
     "app.notes.pinnedNotification": "Общие заметки теперь закреплены на доске.",
     "app.notes.label": "Заметки",
     "app.notes.hide": "Скрыть заметки",
-    "app.notes.locked": "Заблокировано",
+    "app.notes.locked": "Ограничено",
     "app.notes.disabled": "Закреплено в медиа части",
     "app.notes.notesDropdown.covertAndUpload": "Конвертировать заметки в файл",
     "app.notes.notesDropdown.pinNotes": "Закрепить окно заметок на доске",
