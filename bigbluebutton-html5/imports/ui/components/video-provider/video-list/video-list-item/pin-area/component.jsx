@@ -20,7 +20,7 @@ const PinArea = (props) => {
   const pinned = user?.pin;
   const userId = user?.userId;
   const shouldRenderPinButton = pinned && userId;
-  const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser();
+  const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser(user);
 
   if (!shouldRenderPinButton) return <Styled.PinButtonWrapper />;
 
