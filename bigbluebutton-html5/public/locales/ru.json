@@ -967,7 +967,7 @@
     "app.lock-viewers.ariaTitle": "Окно настройки ограничений для пользователей",
     "app.lock-viewers.button.apply": "Применить",
     "app.lock-viewers.button.cancel": "Отмена",
-    "app.lock-viewers.locked": "Заблокировано",
+    "app.lock-viewers.locked": "Ограничено",
     "app.lock-viewers.hideViewersCursor": "Просмотр курсоров пользователей",
     "app.lock-viewers.hideAnnotationsLabel": "Посмотреть аннотации других участников",
     "app.guest-policy.ariaTitle": "Окно настроек для правил входа гостей в вебинар",
