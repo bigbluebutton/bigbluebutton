@@ -1067,7 +1067,7 @@
     "app.video.inactiveError": "Ваша веб-камера выключилась из-за ошибки. Проверьте её доступность",
     "app.video.mediaTimedOutError": "Трансляция Вашей веб-камеры прервана. Попробуйте включить трансляцию ещё раз",
     "app.video.mediaFlowTimeout1020": "Медиа не удалось связаться с сервером (error 1020)",
-    "app.video.suggestWebcamLock": "Принудительно заблокировать веб-камеры пользователям?",
+    "app.video.suggestWebcamLock": "Принудительно ограничить веб-камеры пользователям?",
     "app.video.suggestWebcamLockReason": "(это повысит стабильность вебинара)",
     "app.video.enable": "Включить",
     "app.video.cancel": "Отмена",
