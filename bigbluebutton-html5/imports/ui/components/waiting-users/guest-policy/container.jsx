@@ -4,13 +4,11 @@ import GuestPolicyComponent from './component';
 import Service from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
 const GuestPolicyContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
-    role: user.role,
+    isModerator: user.isModerator,
   }));
-  const amIModerator = currentUserData?.role === ROLE_MODERATOR;
+  const amIModerator = currentUserData?.isModerator;
 
   return amIModerator && <GuestPolicyComponent {...props} />;
 };

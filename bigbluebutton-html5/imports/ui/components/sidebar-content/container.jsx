@@ -14,8 +14,10 @@ const SidebarContentContainer = () => {
   const { sidebarContentPanel } = sidebarContentInput;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
+    isModerator: user.isModerator,
   }));
   const amIPresenter = currentUserData?.presenter;
+  const amIModerator = currentUserData?.isModerator;
 
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
@@ -28,6 +30,7 @@ const SidebarContentContainer = () => {
       contextDispatch={layoutContextDispatch}
       sidebarContentPanel={sidebarContentPanel}
       amIPresenter={amIPresenter}
+      amIModerator={amIModerator}
       currentSlideId={currentSlideId}
     />
   );

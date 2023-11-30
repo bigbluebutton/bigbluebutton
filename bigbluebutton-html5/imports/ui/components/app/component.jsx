@@ -599,6 +599,7 @@ class App extends Component {
       presentationIsOpen,
       darkTheme,
       intl,
+      isModerator,
     } = this.props;
 
     const {
@@ -655,8 +656,8 @@ class App extends Component {
           {this.renderAudioCaptions()}
           <PresentationUploaderToastContainer intl={intl} />
           <UploaderContainer />
-          <CaptionsSpeechContainer />
-          <BreakoutRoomInvitation />
+          <CaptionsSpeechContainer isModerator={isModerator} />
+          <BreakoutRoomInvitation isModerator={isModerator} />
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,

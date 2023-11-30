@@ -49,9 +49,11 @@ const ActionsBarContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
     emoji: user.emoji,
+    isModerator: user.isModerator,
   }));
   const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
   const amIPresenter = currentUserData?.presenter;
+  const amIModerator = currentUserData?.isModerator;
 
   if (actionsBarStyle.display === false) return null;
 
@@ -60,6 +62,7 @@ const ActionsBarContainer = (props) => {
       ...{
         ...props,
         currentUser,
+        amIModerator,
         layoutContextDispatch,
         actionsBarStyle,
         amIPresenter,
@@ -84,7 +87,6 @@ const isReactionsButtonEnabled = () => {
 };
 
 export default withTracker(() => ({
-  amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,

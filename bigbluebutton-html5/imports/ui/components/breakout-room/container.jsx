@@ -16,13 +16,15 @@ const BreakoutContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
+    isModerator: user.isModerator,
   }));
   const amIPresenter = currentUserData?.presenter;
+  const amIModerator = currentUserData?.isModerator;
   const isRTL = layoutSelect((i) => i.isRTL);
 
   return <BreakoutComponent
     amIPresenter={amIPresenter}
-    {...{ layoutContextDispatch, isRTL, ...props }}
+    {...{ layoutContextDispatch, isRTL, amIModerator, ...props }}
   />;
 };
 
@@ -38,7 +40,6 @@ export default withTracker((props) => {
     transferUserToMeeting,
     transferToBreakout,
     meetingId,
-    amIModerator,
     isUserInBreakoutRoom,
   } = Service;
 
@@ -89,7 +90,6 @@ export default withTracker((props) => {
     transferToBreakout,
     isMicrophoneUser,
     meetingId: meetingId(),
-    amIModerator: amIModerator(),
     isMeteorConnected,
     isUserInBreakoutRoom,
     forceExitAudio: () => AudioManager.forceExitAudio(),

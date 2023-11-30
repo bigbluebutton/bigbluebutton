@@ -5,11 +5,11 @@ import Speech from './component';
 
 const Container = (props) => <Speech {...props} />;
 
-export default withTracker(() => {
+export default withTracker(({ isModerator }) => {
   const {
     locale,
     dictating,
-  } = CaptionsService.getDictationStatus();
+  } = CaptionsService.getDictationStatus(isModerator);
 
   return {
     locale,

@@ -5,15 +5,13 @@ import WriterMenu from './component';
 import { layoutDispatch } from '../../layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
 const WriterMenuContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
-    role: user.role,
+    isModerator: user.isModerator,
   }));
-  const amIModerator = currentUserData?.role === ROLE_MODERATOR;
+  const amIModerator = currentUserData?.isModerator;
 
   return amIModerator && <WriterMenu {...{ layoutContextDispatch, ...props }} />;
 };

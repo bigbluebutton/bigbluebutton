@@ -6,15 +6,13 @@ import LockViewersComponent from './component';
 import { updateLockSettings, updateWebcamsOnlyForModerator } from './service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
 const LockViewersContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
-    role: user.role,
+    isModerator: user.isModerator,
   }));
-  const amIModerator = currentUserData?.role === ROLE_MODERATOR;
+  const amIModerator = currentUserData?.isModerator;
 
-  return amIModerator && <LockViewersComponent {...props} />
+  return amIModerator && <LockViewersComponent {...props} />;
 };
 
 export default withTracker(({ setIsOpen }) => ({
