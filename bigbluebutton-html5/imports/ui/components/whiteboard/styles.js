@@ -92,7 +92,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   .tl-collaborator__cursor {
     height: auto !important;
     width: auto !important;
-    transition: transform 0.5s ease-out !important;
+    transition: transform 0.1s ease-out !important;
   }
 `;
 

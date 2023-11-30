@@ -1,9 +1,6 @@
 import React from 'react';
 import { useQuery, useSubscription } from '@apollo/client';
 import {
-  ColorStyle, DashStyle, SizeStyle, TDShapeType,
-} from '@tldraw/tldraw';
-import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_ANNOTATIONS_STREAM,

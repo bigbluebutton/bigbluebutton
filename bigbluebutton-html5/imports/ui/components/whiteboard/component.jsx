@@ -26,15 +26,6 @@ import {
 // import { throttle } from "/imports/utils/throttle";
 import { isEqual, clone } from "radash";
 import { InstancePresenceRecordType } from "@tldraw/tldraw";
-import {
-  AssetRecordType,
-  createShapeId,
-  TLAsset,
-  TLExternalAssetContent,
-  getHashForString,
-  DefaultColorStyle,
-} from "@tldraw/tldraw";
-import { PageRecordType } from "@tldraw/editor";
 import { useRef } from "react";
 import { debounce, throttle } from "radash";
 
