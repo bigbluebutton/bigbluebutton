@@ -700,6 +700,8 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
       userIsPresenter,
+      currentSlide,
+      currentUser,
     } = this.props;
     const { tldrawAPI, isToolbarVisible } = this.state;
 
@@ -713,6 +715,9 @@ class Presentation extends PureComponent {
         setIsToolbarVisible={this.setIsToolbarVisible}
         isToolbarVisible={isToolbarVisible}
         amIPresenter={userIsPresenter}
+        slideNum={currentSlide?.num}
+        currentUser={currentUser}
+        whiteboardId={currentSlide?.id}
       />
     );
   }

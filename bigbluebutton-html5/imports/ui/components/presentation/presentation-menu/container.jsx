@@ -13,6 +13,10 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
+import {
+  persistShape,
+} from '/imports/ui/components/whiteboard/service';
+
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element: currentElement, group: currentGroup } = fullscreen;
@@ -54,6 +58,7 @@ const PresentationMenuContainer = (props) => {
         handleToggleFullscreen,
         isIphone,
         allowSnapshotOfCurrentSlide: isSnapshotOfCurrentSlideEnabled(),
+        persistShape
       }}
     />
   );

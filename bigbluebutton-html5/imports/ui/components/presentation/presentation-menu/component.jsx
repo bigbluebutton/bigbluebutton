@@ -133,6 +133,10 @@ const PresentationMenu = (props) => {
     setIsToolbarVisible,
     allowSnapshotOfCurrentSlide,
     presentationDropdownItems,
+    slideNum,
+    currentUser,
+    whiteboardId,
+    persistShape
   } = props;
 
   const [state, setState] = useState({
@@ -153,6 +157,68 @@ const PresentationMenu = (props) => {
     ? intl.formatMessage(intlMessages.hideToolsDesc)
     : intl.formatMessage(intlMessages.showToolsDesc)
   );
+
+  const extractShapes = (savedState) => {
+    let data;
+  
+    // Check if savedState is a string (JSON) or an object
+    if (typeof savedState === 'string') {
+      try {
+        data = JSON.parse(savedState);
+      } catch (e) {
+        console.error('Error parsing JSON:', e);
+        return {};
+      }
+    } else if (typeof savedState === 'object' && savedState !== null) {
+      data = savedState;
+    } else {
+      console.error('Invalid savedState type:', typeof savedState);
+      return {};
+    }
+  
+    // Check if 'records' key exists and extract shapes into an object keyed by shape ID
+    if (data && data.records) {
+      return data.records.reduce((acc, record) => {
+        if (record.typeName === 'shape') {
+          acc[record.id] = record;
+        }
+        return acc;
+      }, {});
+    }
+  
+    return {};
+  };
+
+  const handleFileInput = (event) => {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const fileContent = e.target.result;
+        const dataObj = extractShapes(JSON.parse(fileContent));
+        const dataArray = Object.values(dataObj);
+        dataArray.forEach(shape => {
+          shape.parentId = `page:${slideNum}`;
+          shape.meta.createdBy = currentUser.userId;
+          persistShape(shape, whiteboardId, currentUser.isModerator);
+        });
+      };
+      reader.readAsText(file);
+  
+      // Reset the file input
+      fileInput.value = '';
+    }
+  };
+  
+  const handleFileClick = () => {
+    const fileInput = document.getElementById('hiddenFileInput');
+    if (fileInput) {
+      fileInput.click();
+    } else {
+      console.error('File input not found');
+    }
+  };
 
   function renderToastContent() {
     const { loading, hasError } = state;
@@ -307,6 +373,16 @@ const PresentationMenu = (props) => {
       );
     }
 
+    if (props.amIPresenter) {
+      menuItems.push({
+        key: 'list-item-load-shapes',
+        dataTest: 'loadShapes',
+        label: 'Load Shapes',
+        icon: isToolbarVisible ? 'close' : 'pen_tool',
+        onClick: handleFileClick,
+      });
+    }
+
     presentationDropdownItems.forEach((item, index) => {
       switch (item.type) {
         case PresentationDropdownItemType.OPTION:
@@ -395,6 +471,12 @@ const PresentationMenu = (props) => {
           container: fullscreenRef,
         }}
         actions={options}
+      />
+      <input
+        type="file"
+        id="hiddenFileInput"
+        style={{ display: 'none' }}
+        onChange={handleFileInput}
       />
     </Styled.Left>
   );
