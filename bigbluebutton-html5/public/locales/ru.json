@@ -953,7 +953,7 @@
     "app.shortcut-help.selectAll": "Выбрать всё",
     "app.shortcut-help.delete": "Удалить",
     "app.shortcut-help.duplicate": "Дублировать",
-    "app.lock-viewers.title": "Заблокировать пользователей",
+    "app.lock-viewers.title": "Настройки ограничений пользователей",
     "app.lock-viewers.description": "Данные настройки позволяют запретить пользователям использовать определенные функции",
     "app.lock-viewers.featuresLable": "Функция",
     "app.lock-viewers.lockStatusLabel": "Статус",
