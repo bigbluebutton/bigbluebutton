@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"sync"
 
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
@@ -18,7 +19,7 @@ import (
 )
 
 var lastHasuraConnectionId int
-var hasuraEndpoint = "ws://127.0.0.1:8080/v1/graphql"
+var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 
 // Hasura client connection
 func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserChannel chan interface{}, toBrowserChannel chan interface{}) error {
