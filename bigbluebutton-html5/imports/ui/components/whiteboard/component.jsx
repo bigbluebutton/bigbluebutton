@@ -401,7 +401,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
               HUNDRED_PERCENT,
               viewedRegionH,
               0,
-              0
+              0,
+              presentationId,
             );
           } else {
             setCamera(adjustedZoom);
@@ -437,7 +438,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         HUNDRED_PERCENT,
         HUNDRED_PERCENT,
         0,
-        0
+        0,
+        presentationId
       );
     }
   }, [fitToWidth, isPresenter]);
@@ -733,7 +735,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
               viewedRegionW,
               viewedRegionH,
               nextCam.x,
-              nextCam.y
+              nextCam.y,
+              presentationId
             );
           }
         }
