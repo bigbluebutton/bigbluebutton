@@ -1,14 +1,12 @@
 import React from 'react';
 import { useQuery, useSubscription } from '@apollo/client';
 import {
-  ColorStyle, DashStyle, SizeStyle, TDShapeType,
-} from '@tldraw/tldraw';
-import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from './queries';
+import { CURSOR_SUBSCRIPTION } from './cursors/queries';
 import {
   initDefaultPages,
   persistShape,
@@ -19,6 +17,7 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
+import CursorService from './cursors/service';
 import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import SettingsService from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
@@ -30,7 +29,12 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
 import POLL_RESULTS_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollResultsSubscription';
+
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+
+import {
+  AssetRecordType,
+} from "@tldraw/tldraw";
 
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 
@@ -64,6 +68,9 @@ const WhiteboardContainer = (props) => {
     isModerator: user.isModerator,
     userId: user.userId,
   }));
+
+  const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
+  const { pres_page_cursor: cursorArray } = (cursorData || []);
 
   const {
     loading: annotationsLoading,
@@ -107,6 +114,7 @@ const WhiteboardContainer = (props) => {
     }
   }
   let shapes = {};
+  let bgShape = [];
 
   if (!annotationsLoading && history) {
     const pageAnnotations = history
@@ -118,13 +126,21 @@ const WhiteboardContainer = (props) => {
 
   const { isIphone } = deviceInfo;
 
-  const assets = {};
-  assets[`slide-background-asset-${curPageId}`] = {
-    id: `slide-background-asset-${curPageId}`,
-    size: [slidePosition?.width || 0, slidePosition?.height || 0],
-    src: svgUri,
+  const assetId = AssetRecordType.createId(curPageId);
+  const assets = [{
+    id: assetId,
+    typeName: "asset",
     type: 'image',
-  };
+    meta: {},
+    props: {
+      w: currentPresentationPage?.scaledWidth,
+      h: currentPresentationPage?.scaledHeight,
+      src: currentPresentationPage?.svgUrl,
+      name: "",
+      isAnimated: false,
+      mimeType: null,
+    }
+  }];
 
   const isRTL = layoutSelect((i) => i.isRTL);
   const width = layoutSelect((i) => i?.output?.presentation?.width);
@@ -139,43 +155,37 @@ const WhiteboardContainer = (props) => {
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const layoutContextDispatch = layoutDispatch();
 
-  shapes['slide-background-shape'] = {
-    assetId: `slide-background-asset-${curPageId}`,
-    childIndex: -1,
-    id: 'slide-background-shape',
-    name: 'Image',
-    type: TDShapeType.Image,
-    parentId: `${curPageId}`,
-    point: [0, 0],
+  bgShape.push({
+    x: 1,
+    y: 1,
+    rotation: 0,
     isLocked: true,
-    size: [slidePosition?.width || 0, slidePosition?.height || 0],
-    style: {
-      dash: DashStyle.Draw,
-      size: SizeStyle.Medium,
-      color: ColorStyle.Blue,
+    opacity: 1,
+    meta: {},
+    id: `shape:BG-${curPageId}`,
+    type: "image",
+    props: {
+      w: currentPresentationPage?.scaledWidth || 1,
+      h: currentPresentationPage?.scaledHeight || 1,
+      assetId: assetId,
+      playing: true,
+      url: "",
+      crop: null,
     },
-  };
+    parentId: `page:${curPageId}`,
+    index: "a0",
+    typeName: "shape",
+  });
 
   const hasShapeAccess = (id) => {
-    const owner = shapes[id]?.userId;
-    const isBackgroundShape = id?.includes('slide-background');
-    const isPollsResult = shapes[id]?.name?.includes('poll-result');
-    const hasAccess = (!isBackgroundShape && !isPollsResult)
-      || (isPresenter
-        && ((owner && owner === currentUser?.userId)
-          || !owner
-          || isPresenter
-          || isModerator));
+    const owner = shapes[id]?.meta?.createdBy;
+    const isBackgroundShape = id?.includes(':BG-');
+    const isPollsResult = shapes[id]?.id?.includes('poll-result');
+    const hasAccess = (!isBackgroundShape && !isPollsResult) 
+      && ((owner && owner === currentUser?.userId) || (isPresenter) || (isModerator)) || !shapes[id];
 
     return hasAccess;
   };
-  // set shapes as locked for those who aren't allowed to edit it
-  Object.entries(shapes).forEach(([shapeId, shape]) => {
-    if (!shape.isLocked && !hasShapeAccess(shapeId) && !shape.name?.includes('poll-result')) {
-      const modShape = shape;
-      modShape.isLocked = true;
-    }
-  });
 
   return (
     <Whiteboard
@@ -198,6 +208,7 @@ const WhiteboardContainer = (props) => {
         isMultiUserActive,
         changeCurrentSlide,
         shapes,
+        bgShape,
         assets,
         removeShapes,
         zoomSlide: PresentationToolbarService.zoomSlide,
@@ -220,6 +231,8 @@ const WhiteboardContainer = (props) => {
       }}
       {...props}
       meetingId={Auth.meetingID}
+      publishCursorUpdate={CursorService.publishCursorUpdate}
+      otherCursors={cursorArray}
     />
   );
 };
