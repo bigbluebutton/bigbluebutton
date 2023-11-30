@@ -165,7 +165,7 @@
     "app.userList.menu.promoteUser.label": "Повысить до модератора",
     "app.userList.menu.demoteUser.label": "Понизить до пользователя",
     "app.userList.menu.unlockUser.label": "Разблокировать {0}",
-    "app.userList.menu.lockUser.label": "Заблокировать {0}",
+    "app.userList.menu.lockUser.label": "Ограничить {0}",
     "app.userList.menu.directoryLookup.label": "Поиск в каталоге",
     "app.userList.menu.makePresenter.label": "Сделать ведущим",
     "app.userList.userOptions.manageUsersLabel": "Управление пользователями",
