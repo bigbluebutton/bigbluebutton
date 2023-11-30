@@ -236,7 +236,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   if (deviceInfo.isMobile && showHoverToolBar) {
     toolbarStyle = 'showMobileHoverToolbar';
   }
-  console.log({videoUrl})
 
   return (
     <Styled.Container
