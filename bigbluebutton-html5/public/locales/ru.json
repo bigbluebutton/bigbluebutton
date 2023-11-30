@@ -179,7 +179,7 @@
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Выключить микрофоны всем, кроме ведущего",
     "app.userList.userOptions.unmuteAllLabel": "Отменить блокировку микрофонов",
     "app.userList.userOptions.unmuteAllDesc": "Снять блокировку микрофонов",
-    "app.userList.userOptions.lockViewersLabel": "Заблокировать пользователей",
+    "app.userList.userOptions.lockViewersLabel": "Настройки ограничений пользователей",
     "app.userList.userOptions.lockViewersDesc": "Заблокировать определенные функции для пользователей",
     "app.userList.userOptions.guestPolicyLabel": "Правила подключения гостей",
     "app.userList.userOptions.guestPolicyDesc": "Изменить правила подключения гостей",
