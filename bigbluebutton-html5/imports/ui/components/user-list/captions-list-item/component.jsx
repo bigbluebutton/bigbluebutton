@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.captions.label',
     description: 'used for captions button aria label',
   },
+  captionTitle: {
+    id: 'app.captions.title',
+    description: 'title for the transcription pad button on the sidebar',
+  },
 });
 
 const CaptionsListItem = (props) => {
@@ -70,7 +74,7 @@ const CaptionsListItem = (props) => {
       onKeyPress={() => {}}
     >
       <Icon iconName="closed_caption" />
-      <span aria-hidden>{name}</span>
+      <span aria-hidden>{intl.formatMessage(intlMessages.captionTitle)}</span>
     </Styled.ListItem>
   );
 };

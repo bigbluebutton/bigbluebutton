@@ -26,6 +26,7 @@ import BBBStorage from '/imports/ui/services/storage';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const USER_WAS_EJECTED = 'userWasEjected';
+const CAPTIONS_ALWAYS_VISIBLE = Meteor.settings.public.app.audioCaptions.alwaysVisible;
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -98,6 +99,7 @@ class Base extends Component {
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, this.handleFullscreenChange);
     });
+    Session.set('audioCaptions', CAPTIONS_ALWAYS_VISIBLE);
     Session.set('isFullscreen', false);
   }
 

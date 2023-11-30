@@ -8,12 +8,12 @@ import AudioService from '/imports/ui/components/audio/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import { unique, throttle } from 'radash';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const THROTTLE_TIMEOUT = 200;
 
 const CONFIG = Meteor.settings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
-const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
 const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 
@@ -39,11 +39,19 @@ const getSpeechVoices = () => {
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
+const getSpeechProvider = () => {
+  return getFromUserSettings("bbb_transcription_provider", CONFIG.provider);
+};
+
+const setSpeechOptions = (partialUtterances, minUtteranceLength) => {
+  return makeCall('setSpeechOptions', partialUtterances, minUtteranceLength);
+};
+
 const setSpeechLocale = (value) => {
   const voices = getSpeechVoices();
 
-  if (voices.includes(value) || value === '') {
-    makeCall('setSpeechLocale', value, CONFIG.provider);
+  if (voices.includes(value) || value === '' || (value === 'auto' && isGladia())) {
+    makeCall('setSpeechLocale', value, getSpeechProvider());
   } else {
     logger.error({
       logCode: 'captions_speech_locale',
@@ -128,15 +136,17 @@ const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
 const isEnabled = () => isLiveTranscriptionEnabled();
 
-const isWebSpeechApi = () => PROVIDER === 'webspeech';
+const isWebSpeechApi = () => getSpeechProvider() === 'webspeech';
 
-const isVosk = () => PROVIDER === 'vosk';
+const isVosk = () => getSpeechProvider() === 'vosk';
 
-const isWhispering = () => PROVIDER === 'whisper';
+const isGladia = () => getSpeechProvider() === 'gladia';
 
-const isDeepSpeech = () => PROVIDER === 'deepSpeech'
+const isWhispering = () => getSpeechProvider() === 'whisper';
 
-const isActive = () => isEnabled() && ((isWebSpeechApi() && hasSpeechLocale()) || isVosk() || isWhispering() || isDeepSpeech());
+const isDeepSpeech = () => getSpeechProvider() === 'deepSpeech'
+
+const isActive = () => isEnabled() && ((isWebSpeechApi() && hasSpeechLocale()) || isVosk() || isGladia() || isWhispering() || isDeepSpeech());
 
 const getStatus = () => {
   const active = isActive();
@@ -163,7 +173,7 @@ const getLocale = () => {
   return locale;
 };
 
-const stereoUnsupported = () => isActive() && isVosk() && !!getSpeechLocale();
+const stereoUnsupported = () => isActive() && (isVosk() || isGladia()) && !!getSpeechLocale();
 
 export default {
   LANGUAGES,
@@ -174,6 +184,7 @@ export default {
   getSpeechVoices,
   getSpeechLocale,
   setSpeechLocale,
+  setSpeechOptions,
   hasSpeechLocale,
   isLocaleValid,
   isEnabled,
@@ -182,4 +193,5 @@ export default {
   generateId,
   useFixedLocale,
   stereoUnsupported,
+  isGladia,
 };
