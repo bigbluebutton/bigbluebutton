@@ -455,7 +455,7 @@ exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 
 // Whiteboard
-exports.whiteboard = 'div[id="canvas"]';
+exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
 exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
 exports.wbShapesButton = 'button[id="TD-PrimaryTools-Shapes"]';
