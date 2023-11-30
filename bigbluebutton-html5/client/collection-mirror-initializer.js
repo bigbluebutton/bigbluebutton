@@ -18,7 +18,7 @@ import Breakouts from '/imports/api/breakouts';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 import guestUsers from '/imports/api/guest-users';
 import Meetings, {
-  RecordMeetings, ExternalVideoMeetings, MeetingTimeRemaining, Notifications,
+  RecordMeetings, MeetingTimeRemaining, Notifications,
 } from '/imports/api/meetings';
 import Users, { CurrentUser } from '/imports/api/users';
 
@@ -45,10 +45,6 @@ export const localCollectionRegistry = {
   localPadsUpdatesSync: new AbstractCollection(PadsUpdates, PadsUpdates),
   localAuthTokenValidationSync: new AbstractCollection(AuthTokenValidation, AuthTokenValidation),
   localRecordMeetingsSync: new AbstractCollection(RecordMeetings, RecordMeetings),
-  localExternalVideoMeetingsSync: new AbstractCollection(
-    ExternalVideoMeetings,
-    ExternalVideoMeetings,
-  ),
   localMeetingTimeRemainingSync: new AbstractCollection(MeetingTimeRemaining, MeetingTimeRemaining),
   localBreakoutsSync: new AbstractCollection(Breakouts, Breakouts),
   localBreakoutsHistorySync: new AbstractCollection(BreakoutsHistory, BreakoutsHistory),
