@@ -164,7 +164,7 @@
     "app.userList.userAriaLabel": "{0} {1} {2}  Статус {3}",
     "app.userList.menu.promoteUser.label": "Повысить до модератора",
     "app.userList.menu.demoteUser.label": "Понизить до пользователя",
-    "app.userList.menu.unlockUser.label": "Разблокировать {0}",
+    "app.userList.menu.unlockUser.label": "Снять ограничения у {0}",
     "app.userList.menu.lockUser.label": "Ограничить {0}",
     "app.userList.menu.directoryLookup.label": "Поиск в каталоге",
     "app.userList.menu.makePresenter.label": "Сделать ведущим",
