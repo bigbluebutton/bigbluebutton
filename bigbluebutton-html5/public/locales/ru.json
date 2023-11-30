@@ -964,7 +964,7 @@
     "app.lock-viewers.PrivateChatLable": "Отправлять личные сообщения",
     "app.lock-viewers.notesLabel": "Редактрировать Общие Заметки",
     "app.lock-viewers.userListLabel": "Видеть список всех пользователей в списке пользователей",
-    "app.lock-viewers.ariaTitle": "Окно настройки блокировки пользователей",
+    "app.lock-viewers.ariaTitle": "Окно настройки ограничений для пользователей",
     "app.lock-viewers.button.apply": "Применить",
     "app.lock-viewers.button.cancel": "Отмена",
     "app.lock-viewers.locked": "Заблокировано",
