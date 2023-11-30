@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import UserParticipantsContainer from './user-participants/container';
+import UserListParticipants from './user-participants/user-list-participants/component';
 import ChatList from './user-messages/chat-list/component';
 import UserNotesContainer from './user-notes/container';
 import TimerContainer from './timer/container';
@@ -46,7 +46,7 @@ class UserContent extends PureComponent {
         <UserPollsContainer isPresenter={currentUser.presenter} />
         <BreakoutRoomContainer />
         <UserTitleContainer />
-        <UserParticipantsContainer compact={compact} />
+        <UserListParticipants compact={compact} />
       </Styled.Content>
     );
   }
