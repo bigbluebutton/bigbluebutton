@@ -16,7 +16,6 @@ import AudioService from '/imports/ui/components/audio/service';
 import MediaService from '/imports/ui/components/media/service';
 import { defineMessages } from 'react-intl';
 import NotesService from '/imports/ui/components/notes/service';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -97,10 +96,7 @@ const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
   const fullscreenContext = (element === fullscreenElementId);
 
-  const { data: currentUserData } = useCurrentUser((user) => ({
-    presenter: user.presenter,
-  }));
-  const isPresenter = currentUserData?.presenter;
+  const { isPresenter } = props;
 
   const info = {
     screenshare: {
@@ -134,7 +130,6 @@ const ScreenshareContainer = (props) => {
           ...screenShare,
           fullscreenContext,
           fullscreenElementId,
-          isPresenter,
           ...selectedInfo,
         }
         }
