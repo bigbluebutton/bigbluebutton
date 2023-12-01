@@ -609,7 +609,7 @@
     "app.settings.main.save.label.description": "Сохраняет изменения и закрывает меню настроек",
     "app.settings.dataSavingTab.label": "Экономия Интернета",
     "app.settings.dataSavingTab.webcam": "Отображать веб-камеры",
-    "app.settings.dataSavingTab.screenShare": "Отображать демонстрацию экрана других пользователей",
+    "app.settings.dataSavingTab.screenShare": "Отображать демонстрацию экрана",
     "app.settings.dataSavingTab.description": "Чтобы сохранить устойчивую скорость соединения, выберите, что будет отображаться",
     "app.settings.save-notification.label": "Настройки сохранены",
     "app.statusNotifier.lowerHands": "Опустить руки",
