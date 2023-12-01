@@ -457,7 +457,7 @@ exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 // Whiteboard
 exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
-exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
+exports.wbToolbar = 'div[class="tlui-toolbar__tools"]';
 exports.wbShapesButton = 'button[data-testid="tools.more"]';
 exports.wbRectangleShape = 'span[data-testid="tools.more.rectangle"]';
 exports.wbEllipseShape = 'span[data-testid="tools.more.ellipse"]';
