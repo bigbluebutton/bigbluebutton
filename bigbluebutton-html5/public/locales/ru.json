@@ -317,7 +317,7 @@
     "app.presentationUploder.browseImagesLabel": "или выберите/захватите картинку",
     "app.presentationUploder.externalUploadTitle": "Добавить контент из стороннего приложения",
     "app.presentationUploder.externalUploadLabel": "Выбрать файлы",
-    "app.presentationUploder.fileToUpload": "чтобы ее загрузить",
+    "app.presentationUploder.fileToUpload": "Будет загружено",
     "app.presentationUploder.currentBadge": "Текущий",
     "app.presentationUploder.rejectedError": "Загрузка выбранных файлов была отменена. Пожалуйста проверьте тип файла (файлов)",
     "app.presentationUploder.connectionClosedError": "Прервано из-за нестабильного соединения. Пожалуйста, попробуйте снова.",
