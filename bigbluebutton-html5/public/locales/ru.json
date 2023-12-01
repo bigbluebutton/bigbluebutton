@@ -148,7 +148,7 @@
     "app.userList.chatListItem.unreadSingular": "Одно новое сообщение",
     "app.userList.chatListItem.unreadPlural": "{0} новых сообщений",
     "app.userList.menu.away": "Установить статус \"отошел\"",
-    "app.userList.menu.notAway": "Установить статус активен",
+    "app.userList.menu.notAway": "Установить статус \"активен\"",
     "app.userList.menu.chat.label": "Начать приватный чат",
     "app.userList.menu.clearStatus.label": "Очистить статус",
     "app.userList.menu.removeUser.label": "Исключить пользователя",
