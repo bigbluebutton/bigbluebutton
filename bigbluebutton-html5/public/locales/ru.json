@@ -215,7 +215,7 @@
     "app.media.screenshare.autoplayAllowLabel": "Показать демонстрируемый экран",
     "app.media.cameraAsContent.start": "Текущая веб-камера включена",
     "app.media.cameraAsContent.end": "Текущая веб-камера выключена",
-    "app.media.cameraAsContent.endDueToDataSaving": "Текущая веб-камера выключена из-за настроек использования сетевых данных",
+    "app.media.cameraAsContent.endDueToDataSaving": "Текущая веб-камера выключена из-за настроек экономии Интернета",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Нам нужно ваше разрешения для демонстрации вам веб-камеры ведущего",
     "app.media.cameraAsContent.autoplayAllowLabel": "Просмотр текущей веб-камеры",
     "app.screenshare.presenterLoadingLabel": "Демонстрация Вашего экрана загружается",
