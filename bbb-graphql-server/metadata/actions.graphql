@@ -123,10 +123,14 @@ type Mutation {
 }
 
 type Mutation {
-  userJoin(
+  userJoinMeeting(
     authToken: String!
     clientType: String!
   ): Boolean
+}
+
+type Mutation {
+  userLeaveMeeting: Boolean
 }
 
 type Mutation {
