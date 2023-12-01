@@ -454,7 +454,7 @@
     "app.navBar.settingsDropdown.openAppLabel": "Открыть в мобильном приложении BigBlueButton",
     "app.navBar.settingsDropdown.helpDesc": "Ссылает пользователей на видеоуроки ( в новой вкладке)",
     "app.navBar.settingsDropdown.endMeetingDesc": "Прервать текущий вебинар",
-    "app.navBar.settingsDropdown.endMeetingLabel": "Закончить вебинар",
+    "app.navBar.settingsDropdown.endMeetingLabel": "Завершить вебинар",
     "app.navBar.userListToggleBtnLabel": "Включить/Выключить список пользователей",
     "app.navBar.toggleUserList.ariaLabel": "Включить/Выключить Пользователей и Сообщения",
     "app.navBar.toggleUserList.newMessages": "с уведомлением о новых сообщениях",
