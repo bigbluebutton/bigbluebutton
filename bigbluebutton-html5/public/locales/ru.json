@@ -233,7 +233,7 @@
     "app.meeting.meetingTimeRemaining": "До окончания вебинара осталось: {0}",
     "app.meeting.meetingTimeHasEnded": "Время вышло. Вебинар скоро завершится.",
     "app.meeting.endedByUserMessage": "Этот вебинар был завершен {0}",
-    "app.meeting.endedByNoModeratorMessageSingular": "Встреча завершилась, так как ни один модератор не присутствовал в течение одной минуты",
+    "app.meeting.endedByNoModeratorMessageSingular": "Вебинар завершился, так как ни один модератор не присутствовал в течение одной минуты",
     "app.meeting.endedByNoModeratorMessagePlural": "Совещание завершено, так как ни один модератор не присутствовал в течение {0} минут.",
     "app.meeting.endedMessage": "Вы будете перенаправлены назад на главный экран",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Вебинар завершится в течение минуты.",
