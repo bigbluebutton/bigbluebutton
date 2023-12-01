@@ -27,7 +27,7 @@
     "app.chat.emptyLogLabel": "Журнал чата пуст",
     "app.chat.away": "Отошел",
     "app.chat.notAway": "Теперь снова с вами",
-    "app.chat.clearPublicChatMessage": "Журнал общего чата был очищен модератором",
+    "app.chat.clearPublicChatMessage": "Общий чат был очищен модератором",
     "app.chat.multi.typing": "Несколько пользователей печатают",
     "app.chat.someone.typing": "Кто-то печатает",
     "app.chat.one.typing": "{0} печатает",
