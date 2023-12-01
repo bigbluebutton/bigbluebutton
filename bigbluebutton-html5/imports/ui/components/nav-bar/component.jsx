@@ -14,7 +14,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { isEqual } from 'radash';
-import LeaveMeetingButton from './leave-meeting-button/component';
+import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -36,10 +36,6 @@ const intlMessages = defineMessages({
   defaultBreakoutName: {
     id: 'app.createBreakoutRoom.room',
     description: 'default breakout room name',
-  },
-  leaveMeetingLabel: {
-    id: 'app.navBar.leaveMeetingBtnLabel',
-    description: 'Leave meeting button label',
   },
 });
 
@@ -253,7 +249,7 @@ class NavBar extends Component {
           <Styled.Right>
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
             {isDirectLeaveButtonEnabled && isMeteorConnected
-              ? <LeaveMeetingButton label={intl.formatMessage(intlMessages.leaveMeetingLabel)}/>
+              ? <LeaveMeetingButtonContainer amIModerator={amIModerator} />
               : null}
             <SettingsDropdownContainer
               amIModerator={amIModerator}

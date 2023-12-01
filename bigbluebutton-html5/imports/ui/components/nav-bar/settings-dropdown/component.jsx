@@ -338,7 +338,7 @@ class SettingsDropdown extends PureComponent {
         icon: 'manage_layout',
         label: intl.formatMessage(intlMessages.layoutModal),
         onClick: () => this.setLayoutModalIsOpen(true),
-        divider: true,
+        divider: isDirectLeaveButtonEnabled ? false : true,
       },
     );
 
@@ -355,7 +355,7 @@ class SettingsDropdown extends PureComponent {
       );
     }
 
-    if (allowedToEndMeeting && isMeteorConnected) {
+    if (allowedToEndMeeting && isMeteorConnected && !isDirectLeaveButtonEnabled) {
       const customStyles = { background: colorDanger, color: colorWhite };
 
       this.menuItems.push(
