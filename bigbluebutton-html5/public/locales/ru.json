@@ -172,7 +172,7 @@
     "app.userList.userOptions.muteAllLabel": "Выключить микрофон всем",
     "app.userList.userOptions.muteAllDesc": "Выключить микрофоны у всех",
     "app.userList.userOptions.clearAllLabel": "Сбросить все иконки статуса",
-    "app.userList.userOptions.clearAllDesc": "Убрать все иконки статуса у пользователей",
+    "app.userList.userOptions.clearAllDesc": "Сбросить все иконки статуса у пользователей",
     "app.userList.userOptions.clearAllReactionsLabel": "Сбросить все реакции",
     "app.userList.userOptions.clearAllReactionsDesc": "Сбросить все реакции пользователей",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "Выключить микрофоны всем, кроме ведущего",
