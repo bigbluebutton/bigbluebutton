@@ -208,7 +208,7 @@
     "app.media.autoplayAlertDesc": "Разрешить доступ",
     "app.media.screenshare.start": "Демонстрация экрана началась",
     "app.media.screenshare.end": "Демонстрация экрана завершилась",
-    "app.media.screenshare.endDueToDataSaving": "Демонстрация экрана выключена по причине экономии Интернета",
+    "app.media.screenshare.endDueToDataSaving": "Демонстрация экрана выключена из-за настроек экономии Интернета",
     "app.media.screenshare.unavailable": "Демонстрация экрана недоступна",
     "app.media.screenshare.notSupported": "Демонстрация экрана не поддерживается этим браузером",
     "app.media.screenshare.autoplayBlockedDesc": "Нам требуется ваше разрешение, чтобы показать вам экран ведущего.",
