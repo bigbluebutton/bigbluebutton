@@ -499,7 +499,7 @@
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Свернуть презентацию",
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Кнопка для сворачивания презентации",
     "app.actionsBar.actionsDropdown.layoutModal": "Настройки компоновки",
-    "app.actionsBar.actionsDropdown.shareCameraAsContent": "Включить веб-камеру вместо презентации",
+    "app.actionsBar.actionsDropdown.shareCameraAsContent": "Вывести веб-камеру вместо презентации",
     "app.actionsBar.actionsDropdown.unshareCameraAsContent": "Отключить веб-камеру вместо презентации",
     "app.screenshare.screenShareLabel" : "Демонстрация экрана",
     "app.cameraAsContent.cameraAsContentLabel" : "Текущая веб-камера",
