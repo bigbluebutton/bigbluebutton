@@ -812,31 +812,31 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           next?.id?.includes("camera") &&
           (prev.x !== next.x || prev.y !== next.y);
         const zoomed = next?.id?.includes("camera") && prev.z !== next.z;
-        if (panned && isPresenter) {
-          // // limit bounds
-          if (
-            editor?.viewportPageBounds?.maxX >
-            currentPresentationPage?.scaledWidth
-          ) {
-            next.x +=
-              editor.viewportPageBounds.maxX -
-              currentPresentationPage?.scaledWidth;
-          }
-          if (
-            editor?.viewportPageBounds?.maxY >
-            currentPresentationPage?.scaledHeight
-          ) {
-            next.y +=
-              editor.viewportPageBounds.maxY -
-              currentPresentationPage?.scaledHeight;
-          }
-          if (next.x > 0 || editor.viewportPageBounds.minX < 0) {
-            next.x = 0;
-          }
-          if (next.y > 0 || editor.viewportPageBounds.minY < 0) {
-            next.y = 0;
-          }
-        }
+        // if (panned && isPresenter) {
+        //   // // limit bounds
+        //   if (
+        //     editor?.viewportPageBounds?.maxX >
+        //     currentPresentationPage?.scaledWidth
+        //   ) {
+        //     next.x +=
+        //       editor.viewportPageBounds.maxX -
+        //       currentPresentationPage?.scaledWidth;
+        //   }
+        //   if (
+        //     editor?.viewportPageBounds?.maxY >
+        //     currentPresentationPage?.scaledHeight
+        //   ) {
+        //     next.y +=
+        //       editor.viewportPageBounds.maxY -
+        //       currentPresentationPage?.scaledHeight;
+        //   }
+        //   if (next.x > 0 || editor.viewportPageBounds.minX < 0) {
+        //     next.x = 0;
+        //   }
+        //   if (next.y > 0 || editor.viewportPageBounds.minY < 0) {
+        //     next.y = 0;
+        //   }
+        // }
         return next;
       };
     }
