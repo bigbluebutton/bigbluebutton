@@ -607,7 +607,7 @@
     "app.settings.main.cancel.label.description": "Отменяет изменения и закрывает меню настроек",
     "app.settings.main.save.label": "Сохранить",
     "app.settings.main.save.label.description": "Сохраняет изменения и закрывает меню настроек",
-    "app.settings.dataSavingTab.label": "Сохранение данных",
+    "app.settings.dataSavingTab.label": "Экономия Интернета",
     "app.settings.dataSavingTab.webcam": "Отображать веб-камеры",
     "app.settings.dataSavingTab.screenShare": "Отображать демонстрацию экрана других пользователей",
     "app.settings.dataSavingTab.description": "Чтобы сохранить устойчивую скорость соединения, выберите, что будет отображаться",
