@@ -187,7 +187,7 @@
     "app.userList.userOptions.disableMic": "Микрофоны пользователей отключены",
     "app.userList.userOptions.disablePrivChat": "Приватный чат отключен",
     "app.userList.userOptions.disablePubChat": "Общий чат отключен",
-    "app.userList.userOptions.disableNotes": "Общие заметки заблокированы",
+    "app.userList.userOptions.disableNotes": "Общие заметки ограничены",
     "app.userList.userOptions.hideUserList": "Список пользователей скрыт от пользователей",
     "app.userList.userOptions.webcamsOnlyForModerator": "Только модераторы могут видеть веб-камеры пользователей (из-за настроек блокировки)",
     "app.userList.content.participants.options.clearedStatus": "Все иконки статуса у пользователя очищены",
