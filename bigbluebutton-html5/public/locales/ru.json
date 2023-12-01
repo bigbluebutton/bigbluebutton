@@ -1146,7 +1146,7 @@
     "app.whiteboard.toolbar.color.silver": "Серый",
     "app.whiteboard.toolbar.undo": "Отменить пометку",
     "app.whiteboard.toolbar.clear": "Очистить все пометки",
-    "app.whiteboard.toolbar.clearConfirmation": "Вы уверены, что хотите очистить все заметки?",
+    "app.whiteboard.toolbar.clearConfirmation": "Вы уверены, что хотите очистить все пометки?",
     "app.whiteboard.toolbar.multiUserOn": "Дать право рисования на доске всем пользователям",
     "app.whiteboard.toolbar.multiUserOff": "Забрать право рисования на доске у всех пользователей",
     "app.whiteboard.toolbar.palmRejectionOn": "Включить предотвращение случайного рисования ладонью",
