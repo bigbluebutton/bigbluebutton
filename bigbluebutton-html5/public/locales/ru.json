@@ -1253,7 +1253,7 @@
     "app.debugWindow.windowTitle": "Отладка",
     "app.debugWindow.form.userAgentLabel": "Пользовательский агент",
     "app.debugWindow.form.button.copy": "Копировать",
-    "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Включить автоматическое упорядочение макета",
+    "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Включить автоматический макет",
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(будет отключено, если вы переместите или измените размер области для веб-камер)",
     "app.debugWindow.form.chatLoggerLabel": "Уровень логирования теста чата",
     "app.debugWindow.form.button.apply": "Применить",
