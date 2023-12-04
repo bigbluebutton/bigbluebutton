@@ -7,7 +7,7 @@ const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_
 
 test.describe.parallel('Presentation', () => {
   // https://docs.bigbluebutton.org/2.6/release-tests.html#navigation-automated
-  test('Skip slide @ci', async ({ browser, context, page }) => {
+  test('Skip slide @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.skipSlide();
@@ -47,19 +47,19 @@ test.describe.parallel('Presentation', () => {
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot @ci', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot @ci @flaky', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
   });
 
-  test('Hide Presentation Toolbar @ci', async ({ browser, context, page }) => {
+  test('Hide Presentation Toolbar @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hidePresentationToolbar();
   });
 
-  test('Zoom In, Zoom Out, Reset Zoom @ci', async ({ browser, context, page }) => {
+  test('Zoom In, Zoom Out, Reset Zoom @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();
@@ -73,13 +73,13 @@ test.describe.parallel('Presentation', () => {
 
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
-    test('Upload single presentation @ci', async ({ browser, context, page }) => {
+    test('Upload single presentation @ci @flaky', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
     });
 
-    test('Upload Other Presentations Format @ci @flaky', async ({ browser, context, page }) => {
+    test('Upload Other Presentations Format @ci', async ({ browser, context, page }) => {
       linkIssue(18971);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);

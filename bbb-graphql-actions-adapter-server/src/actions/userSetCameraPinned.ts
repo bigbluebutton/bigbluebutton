@@ -3,8 +3,8 @@ import {throwErrorIfNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotModerator(sessionVariables);
-  const eventName = `DeactivateTimerReqMsg`;
 
+  const eventName = `ChangeUserPinStateReqMsg`;
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
     userId: sessionVariables['x-hasura-userid'] as String
@@ -16,7 +16,11 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
-  const body = {};
+  const body = {
+    changedBy: routing.userId,
+    userId: input.userId,
+    pin: input.pinned
+  };
 
   return { eventName, routing, header, body };
 }

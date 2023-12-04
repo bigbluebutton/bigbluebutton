@@ -26,10 +26,8 @@ export default async function assignPresenter(userId) { // TODO-- send username 
     }
 
     const payload = {
-      newPresenterId: userId,
-      newPresenterName: User.name,
       assignedBy: requesterUserId,
-      requesterId: requesterUserId,
+      newPresenterId: userId,
     };
 
     Logger.verbose('User set as presenter', { userId, meetingId, setBy: requesterUserId });

@@ -1,9 +1,7 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotModerator(sessionVariables);
-  const eventName = `StopTimerReqMsg`;
+  const eventName = `SetUserSpeechLocaleReqMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -17,10 +15,20 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    accumulated: input.accumulated
+    locale: input.locale,
+    provider: input.provider,
   };
 
-  //TODO calculate accumulated on the backend
+  //TODO move validations to Akka-apps
+  // const payload = {
+  //   locale,
+  //   provider: provider !== 'webspeech' ? provider : '',
+  // };
+  //
+  // const LANGUAGES = Meteor.settings.public.app.audioCaptions.language.available;
+  // if (LANGUAGES.includes(locale) || locale === '') {
+  //   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  // }
 
   return { eventName, routing, header, body };
 }
