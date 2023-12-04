@@ -10,29 +10,28 @@ import { PluginConfig, EffectivePluginConfig } from './types';
 import PluginLoaderContainer from './plugin-loader/container';
 import PluginProvidedStateContainer from './plugin-provided-state/container';
 import PluginDataChannelManagerContainer from './plugin-data-channel/container';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const PLUGINS_CONFIG = Meteor.settings.public.plugins;
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const PluginsEngineContainer = () => {
+  const [MeetingSettings] = useMeetingSettings();
+  const pluginsConfig: PluginConfig[] | undefined = MeetingSettings.public.plugins;
   // If there is no plugin to load, the engine simply returns null
-  if (!PLUGINS_CONFIG) return null;
+  if (!pluginsConfig) return null;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [lastLoadedPlugin, setLastLoadedPlugin] = useState<HTMLScriptElement | undefined>();
   const loadedPlugins = useRef<number>(0);
 
   const effectivePluginsConfig: EffectivePluginConfig[] = useMemo<EffectivePluginConfig[]>(
-    () => PLUGINS_CONFIG.map((p: PluginConfig) => ({
+    () => pluginsConfig.map((p: PluginConfig) => ({
       ...p,
       uuid: uuidLib.v4(),
     } as EffectivePluginConfig)), [
-      PLUGINS_CONFIG,
+      pluginsConfig,
     ],
   );
 
-  const totalNumberOfPlugins = PLUGINS_CONFIG?.length;
+  const totalNumberOfPlugins = pluginsConfig?.length;
   window.React = React;
 
   useEffect(() => {
