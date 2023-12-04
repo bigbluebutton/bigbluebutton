@@ -4,6 +4,8 @@ import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
+import { useMutation } from '@apollo/client';
+import { SET_AWAY } from './mutations';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
@@ -244,6 +246,8 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
 
+  const [setAway] = useMutation(SET_AWAY);
+
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
       (item: PluginSdk.UserListDropdownItem) => (item?.type === UserListDropdownItemType.INFORMATION),
@@ -440,7 +444,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'setAway',
       label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
       onClick: () => {
-        makeCall('changeAway', !user.away);
+        setAway({
+          variables: {
+            away: !user.away,
+          },
+        });
         setSelected(false);
       },
       icon: 'time',

@@ -489,10 +489,6 @@ const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
     : makeCall('setEmojiStatus', userId, 'none');
 });
 
-const setUserAway = throttle({ interval: 1000 }, (userId, away) => {
-  return makeCall('changeAway', away);
-}, 250, { leading: false, trailing: true });
-
 const setUserRaiseHand = throttle({ interval: 1000 }, (userId, raiseHand) => {
   return makeCall('changeRaiseHand', raiseHand);
 }, 250, { leading: false, trailing: true });
@@ -744,7 +740,6 @@ export default {
   sortUsersByName,
   sortUsers,
   setEmojiStatus,
-  setUserAway,
   setUserRaiseHand,
   clearAllEmojiStatus,
   clearAllReactions,
