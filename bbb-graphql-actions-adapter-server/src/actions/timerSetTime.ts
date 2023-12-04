@@ -1,6 +1,8 @@
 import { RedisMessage } from '../types';
+import {throwErrorIfNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfNotModerator(sessionVariables);
   const eventName = `SetTimerReqMsg`;
 
   const routing = {
