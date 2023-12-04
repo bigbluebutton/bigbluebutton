@@ -16,6 +16,7 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const POLL_RESULT_KEY = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const EXPORTED_PRESENTATION_KEY = CHAT_CONFIG.system_messages_keys.chat_exported_presentation;
 
 const propTypes = {
   pushAlertEnabled: PropTypes.bool.isRequired,
@@ -66,6 +67,10 @@ const intlMessages = defineMessages({
     id: 'app.toast.chat.pollClick',
     description: 'chat toast click message for polls',
   },
+  exportedPresentation: {
+    id: 'app.toast.chat.exportedPresentation',
+    description: 'chat toast message for exportedPresentation',
+  }
 });
 
 const ALERT_INTERVAL = 5000; // 5 seconds
@@ -189,6 +194,13 @@ const ChatAlert = (props) => {
     </Styled.PushMessageContent>
   );
 
+  const createExportedPresentationMessage = (filename) => (
+    <Styled.PushMessageContent>
+      <Styled.UserNameMessage>{intl.formatMessage(intlMessages.exportedPresentation)}</Styled.UserNameMessage>
+      <Styled.ContentMessageExportedPresentation>{filename}</Styled.ContentMessageExportedPresentation>
+    </Styled.PushMessageContent>
+  );
+
   if (isEqual(prevUnreadMessages, unreadMessages)) {
     return null;
   }
@@ -203,6 +215,8 @@ const ChatAlert = (props) => {
         if (mappedMessage.id.includes(POLL_RESULT_KEY)) {
           content = createPollMessage();
           isPollResult = true;
+        } else if (mappedMessage.id.includes(EXPORTED_PRESENTATION_KEY)) {
+          content = createExportedPresentationMessage(mappedMessage.extra.filename);
         } else {
           content = createMessage(mappedMessage.sender.name, mappedMessage.content.slice(-5));
         }
