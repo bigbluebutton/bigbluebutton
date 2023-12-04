@@ -11,6 +11,36 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: chatCreateWithUser
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: chatPublicClearHistory
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: chatRemove
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: chatSendMessage
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: chatSetTyping
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: dispatchPluginDataChannelMessageMsg
     definition:
       kind: synchronous
@@ -54,12 +84,6 @@ actions:
     permissions:
       - role: bbb_client
   - name: requestPresentationUploadToken
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
-  - name: sendGroupChatMsg
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'

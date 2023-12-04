@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client';
 
 // Define the GraphQL mutation
-export const SEND_GROUP_CHAT_MSG = gql`
-  mutation SendGroupChatMsg($chatId: String!, $chatMessageInMarkdownFormat: String!) {
-    sendGroupChatMsg(
+export const CHAT_SEND_MESSAGE = gql`
+  mutation ChatSendMessage($chatId: String!, $chatMessageInMarkdownFormat: String!) {
+    chatSendMessage(
       chatId: $chatId,
       chatMessageInMarkdownFormat: $chatMessageInMarkdownFormat
     )
   }
 `;
 
-export default { SEND_GROUP_CHAT_MSG };
+export default { CHAT_SEND_MESSAGE };

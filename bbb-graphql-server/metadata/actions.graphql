@@ -7,6 +7,35 @@ type Mutation {
 }
 
 type Mutation {
+  chatCreateWithUser(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatPublicClearHistory: Boolean
+}
+
+type Mutation {
+  chatRemove(
+    chatId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatSendMessage(
+    chatId: String!
+    chatMessageInMarkdownFormat: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatSetTyping(
+    chatId: String
+  ): Boolean
+}
+
+type Mutation {
   dispatchPluginDataChannelMessageMsg(
     pluginName: String!
     dataChannel: String!
@@ -60,13 +89,6 @@ type Mutation {
     podId: String!
     filename: String!
     uploadTemporaryId: String!
-  ): Boolean
-}
-
-type Mutation {
-  sendGroupChatMsg(
-    chatId: String!
-    chatMessageInMarkdownFormat: String!
   ): Boolean
 }
 
