@@ -28,6 +28,8 @@ const RandomUserSelectContainer = (props) => {
     presenter: user.presenter,
   }));
 
+  if (!users || !currentUserData) return null;
+
   let mappedRandomlySelectedUsers = [];
 
   const currentUser = {
