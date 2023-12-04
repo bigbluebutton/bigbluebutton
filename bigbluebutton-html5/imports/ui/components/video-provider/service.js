@@ -695,8 +695,7 @@ class VideoService {
   }
 
   // In user-list it is necessary to check if the user is sharing his webcam
-  isVideoPinEnabledForCurrentUser(user) {
-    const isModerator = user?.role === 'MODERATOR';
+  isVideoPinEnabledForCurrentUser(isModerator) {
     const isBreakout = meetingIsBreakout();
     const isPinEnabled = this.isPinEnabled();
 
