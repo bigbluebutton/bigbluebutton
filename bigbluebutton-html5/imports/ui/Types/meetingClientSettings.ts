@@ -1,9 +1,12 @@
+import { PluginConfig } from '../components/plugins-engine/types';
+
 export interface MeetingClientSettings {
   public: Public
   private: Private
 }
 
 export interface Public {
+  plugins: PluginConfig[] | undefined
   app: App
   externalVideoPlayer: ExternalVideoPlayer
   kurento: Kurento
