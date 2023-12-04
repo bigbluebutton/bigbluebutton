@@ -218,6 +218,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       // Create a deep clone of remoteShape and remove the isModerator property
       const comparisonRemoteShape = deepCloneUsingShallow(remoteShape);
       delete comparisonRemoteShape.isModerator;
+      delete comparisonRemoteShape.questionType;
 
       if (!localShape) {
         // If the shape does not exist in local, add it to toAdd
@@ -257,8 +258,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       }
     });
 
-    toAdd.forEach((shape) => delete shape.isModerator);
-    toUpdate.forEach((shape) => delete shape.isModerator);
+    toAdd.forEach((shape) => { delete shape.isModerator; delete shape.questionType; });
+    toUpdate.forEach((shape) => { delete shape.isModerator; delete shape.questionType; });
 
     return {
       shapesToAdd: toAdd,
@@ -791,6 +792,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         if (shapesToAdd && shapesToAdd.length) {
           shapesToAdd.forEach((shape) => {
             delete shape.isModerator;
+            delete shape.questionType;
           });
           editor.store.put(shapesToAdd);
         }

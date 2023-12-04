@@ -121,7 +121,7 @@ const WhiteboardContainer = (props) => {
       .concat(annotations)
       .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
 
-    shapes = formatAnnotations(pageAnnotations, intl, curPageId, pollResults);
+    shapes = formatAnnotations(pageAnnotations, intl, curPageId, pollResults, currentPresentationPage);
   }
 
   const { isIphone } = deviceInfo;
