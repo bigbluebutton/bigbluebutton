@@ -144,7 +144,7 @@ Learn more about [how to enable generating MP4 (h264 video) output](https://docs
 
 The whiteboard has been updated with TLdraw, a small application which supports improved drawing features.
 
-For more details see <https://github.com/tldraw/tldraw>.
+For more details see [tl;draw](https://github.com/tldraw/tldraw).
 
 ![BigBlueButton whiteboard using tldraw](/img/26-tldraw.png)
 
