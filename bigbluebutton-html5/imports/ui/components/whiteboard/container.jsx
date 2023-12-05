@@ -31,7 +31,7 @@ import Whiteboard from './component';
 import POLL_RESULTS_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollResultsSubscription';
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   AssetRecordType,
 } from "@tldraw/tldraw";
@@ -47,6 +47,10 @@ const WhiteboardContainer = (props) => {
     slidePosition,
     svgUri,
   } = props;
+
+  const meeting = useMeeting((m) => ({
+    lockSettings: m?.lockSettings,
+  }));
 
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
@@ -233,6 +237,7 @@ const WhiteboardContainer = (props) => {
       meetingId={Auth.meetingID}
       publishCursorUpdate={CursorService.publishCursorUpdate}
       otherCursors={cursorArray}
+      hideViewersCursor={meeting?.data?.lockSettings?.hideViewersCursor}
     />
   );
 };

@@ -148,6 +148,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     otherCursors,
     isShapeOwner,
     ShapeStylesContext,
+    hideViewersCursor,
   } = props;
 
   clearTldrawCache();
@@ -512,10 +513,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           const id = InstancePresenceRecordType.createId(userId);
           const active = yPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
-          if (!active) {
+          if (!active || (hideViewersCursor && user.role === 'VIEWER' && !currentUser?.presenter)) {
             tlEditorRef.current?.store.remove([id]);
             return null;
           }
+
           const currentPageId = tlEditorRef.current?.currentPageId;
 
           const cursor = {
