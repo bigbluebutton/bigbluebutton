@@ -116,7 +116,7 @@ export const isVideoPinEnabledForCurrentUser = (
   currentUser: User,
   isBreakout: boolean,
 ) => {
-  const isModerator = currentUser;
+  const { isModerator } = currentUser;
   const isPinEnabled = PIN_WEBCAM;
 
   return !!(isModerator

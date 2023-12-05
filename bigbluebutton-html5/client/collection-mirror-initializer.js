@@ -20,12 +20,11 @@ import guestUsers from '/imports/api/guest-users';
 import Meetings, {
   RecordMeetings, MeetingTimeRemaining, Notifications,
 } from '/imports/api/meetings';
-import Users, { CurrentUser } from '/imports/api/users';
+import Users from '/imports/api/users';
 
 // Custom Publishers
 export const localCollectionRegistry = {
   localCurrentPollSync: new AbstractCollection(CurrentPoll, CurrentPoll),
-  localCurrentUserSync: new AbstractCollection(CurrentUser, CurrentUser),
   localPollsSync: new AbstractCollection(Polls, Polls),
   localPresentationUploadTokenSync: new AbstractCollection(
     PresentationUploadToken,
@@ -61,4 +60,3 @@ const collectionMirrorInitializer = () => {
 };
 
 export default collectionMirrorInitializer;
-// const localUsersSync = new AbstractCollection(CurrentUser, CurrentUser);
