@@ -1,7 +1,5 @@
 import { defineMessages } from 'react-intl';
-import ConnectionStatus from '/imports/api/connection-status';
 import Users from '/imports/api/users';
-import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
@@ -143,85 +141,10 @@ const sortLevel = (a, b) => {
   if (indexOfA > indexOfB) return -1;
 };
 
-const sortOffline = (a, b) => {
-  if (a.offline && !b.offline) return 1;
-  if (a.offline === b.offline) return 0;
-  if (!a.offline && b.offline) return -1;
-};
-
-const getConnectionStatus = () => {
-  const selector = {
-    meetingId: Auth.meetingID,
-    $or: [
-      { status: { $exists: true } },
-      { clientNotResponding: true },
-    ],
-  };
-
-  if (!isModerator()) {
-    selector.userId = Auth.userID;
-  }
-
-  const connectionStatus = ConnectionStatus.find(selector).fetch().map((userStatus) => {
-    const {
-      userId,
-      status,
-      statusUpdatedAt,
-      clientNotResponding,
-    } = userStatus;
-
-    return {
-      userId,
-      status,
-      statusUpdatedAt,
-      clientNotResponding,
-    };
-  });
-
-  return UsersPersistentData.find(
-    { meetingId: Auth.meetingID },
-    {
-      fields:
-      {
-        userId: 1,
-        name: 1,
-        role: 1,
-        avatar: 1,
-        color: 1,
-        loggedOut: 1,
-      },
-    },
-  ).fetch().reduce((result, user) => {
-    const {
-      userId,
-      name,
-      role,
-      avatar,
-      color,
-      loggedOut,
-    } = user;
-
-    const userStatus = connectionStatus.find((userConnStatus) => userConnStatus.userId === userId);
-
-    if (userStatus) {
-      if (userStatus.status || (!loggedOut && userStatus.clientNotResponding)) {
-        result.push({
-          userId,
-          name,
-          avatar,
-          offline: loggedOut,
-          notResponding: userStatus.clientNotResponding,
-          you: Auth.userID === userId,
-          moderator: role === ROLE_MODERATOR,
-          color,
-          status: userStatus.clientNotResponding ? 'critical' : userStatus.status,
-          timestamp: userStatus.statusUpdatedAt,
-        });
-      }
-    }
-
-    return result;
-  }, []).sort(sortLevel).sort(sortOffline);
+const sortOnline = (a, b) => {
+  if (!a.user.isOnline && b.user.isOnline) return 1;
+  if (a.user.isOnline === b.user.isOnline) return 0;
+  if (a.user.isOnline && !b.user.isOnline) return -1;
 };
 
 const isEnabled = () => STATS.enabled;
@@ -545,9 +468,10 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
   return result;
 };
 
+const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
+
 export default {
   isModerator,
-  getConnectionStatus,
   getStats,
   getHelp,
   isEnabled,
@@ -558,4 +482,5 @@ export default {
   calculateBitsPerSecond,
   calculateBitsPerSecondFromMultipleData,
   getDataType,
+  sortConnectionData,
 };

@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
-import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';
+import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/component';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   label: {
@@ -39,12 +40,17 @@ class ConnectionStatusButton extends PureComponent {
   setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
 
   renderModal(isModalOpen) {
+    const {
+      connectionData,
+    } = this.props;
+
     return (
       isModalOpen ?
-      <ConnectionStatusModalContainer
+      <ConnectionStatusModalComponent
         {...{
           isModalOpen,
-          setModalIsOpen: this.setModalIsOpen
+          setModalIsOpen: this.setModalIsOpen,
+          connectionData,
         }}
       /> : null
     )
@@ -79,11 +85,17 @@ class ConnectionStatusButton extends PureComponent {
     }
 
     const {
-      stats,
+      connectionData,
     } = this.props;
 
+    const ownConnectionData = connectionData.filter((curr) => curr.user.userId === Auth.userID);
+
+    const currentStatus = ownConnectionData && ownConnectionData.length > 0
+      ? ownConnectionData[0].currentStatus
+      : 'normal';
+
     let color;
-    switch (stats) {
+    switch (currentStatus) {
       case 'warning':
         color = 'success';
         break;
@@ -98,8 +110,6 @@ class ConnectionStatusButton extends PureComponent {
       default:
         color = 'success';
     }
-
-    const currentStatus = stats ? stats : 'normal';
 
     return (
       <Styled.ButtonWrapper>
