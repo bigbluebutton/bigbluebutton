@@ -17,14 +17,14 @@ Disclaimer: the following documentation is neither legal advice, nor complete. T
 
 ## BigBlueButton
 
-This section documents privacy related settings, defaults, and configuration options in BigBlueButton itself. Keep in mind that your configration changes here may be silently overwritten upon upgrades via apt, see <https://github.com/bigbluebutton/bigbluebutton/issues/9111>
+This section documents privacy related settings, defaults, and configuration options in BigBlueButton itself. Keep in mind that your configration changes here may be silently overwritten upon upgrades via apt, see [issue 9111](https://github.com/bigbluebutton/bigbluebutton/issues/9111)
 To prevent this, make sure to use the [`apply-config.sh` script](/administration/customize#automatically-apply-configuration-changes-on-restart) to ensure changes are retained upon upgrades and restarts.
 
 ### Recordings
 
 #### BigBlueButton either records all of a session or does not record at all
 
-When a room is created in BigBlueButton that allows recordings (i.e., the recording button is visible) BigBlueButton will record the entire session. This is independent of the recording-button actually being pressed or not. The technical reason behind this is that parts of the recordings (esp. the SVG files for the Whiteboard) depend on earlier state to be properly processed, see: </development/recording>
+When a room is created in BigBlueButton that allows recordings (i.e., the recording button is visible) BigBlueButton will record the entire session. This is independent of the recording-button actually being pressed or not. The technical reason behind this is that parts of the recordings (esp. the SVG files for the Whiteboard) depend on earlier state to be properly processed, see: [Recording](/development/recording)
 By default these files are stored for two weeks (see 'Retention of Cache Files' below). Furthermore, depending on the use-case and jurisdiction it might be prudent to retain the
 option to create 'retroactive' recordings, e.g., when users forgot to click the recording button.
 
@@ -53,7 +53,7 @@ and
 ` system('sudo', 'bbb-record', '--delete', "#{meeting_id}") || raise('Failed to delete local recording')`
 
 For a more complete version that also explicitly deletes cache files of recordings for freeswitch/kurento, please see:
-<https://github.com/Kalagon/bbb-recording-archive-workaround>
+[bbb-recording-archive-workaround](https://github.com/Kalagon/bbb-recording-archive-workaround)
 
 #### BigBlueButton stores presentations uploaded during sessions
 
@@ -84,13 +84,13 @@ This data can also be removed periodically, see `Retention of cache files`
 
 #### All recordings are always accessible
 
-By default, BigBlueButton recordings are accessible, see e.g., <https://github.com/bigbluebutton/bigbluebutton/issues/8505>
+By default, BigBlueButton recordings are accessible, see e.g., [issue 8505](https://github.com/bigbluebutton/bigbluebutton/issues/8505)
 
-Additionally, the URLs for recordings are easily enumerable, see <https://github.com/bigbluebutton/greenlight/issues/1466> and <https://github.com/bigbluebutton/bigbluebutton/issues/9443>
+Additionally, the URLs for recordings are easily enumerable, see [issue 1466](https://github.com/bigbluebutton/greenlight/issues/1466) and [issue 9443](https://github.com/bigbluebutton/bigbluebutton/issues/9443)
 
 ##### Resolution
 
-Server administrators can change the nginx configuration to restrict access to the recording URLs. Depending on the use-case, the auth statement in nginx can interact with the used frontend to enforce further restrictions (e.g., requesting the same credentials as the frontend). For example configuration options and an authentication callback to a Greenlight frontend, see: <https://github.com/ichdasich/bbb-rec-perm>
+Server administrators can change the nginx configuration to restrict access to the recording URLs. Depending on the use-case, the auth statement in nginx can interact with the used frontend to enforce further restrictions (e.g., requesting the same credentials as the frontend). For example configuration options and an authentication callback to a Greenlight frontend, see: [bbb-rec-perm](https://github.com/ichdasich/bbb-rec-perm)
 
 #### Cache files
 
@@ -186,7 +186,7 @@ The default installation of FreeSWITCH by default logs with loglevel DEBUG. This
 
 #### kurento
 
-Logs session names and timestamps, as well as user IP addresses. This also includes user IP addresses behind NATs, i.e., the actual client addresses, potentially making users identifiable accross sessions. This can be configured in `/etc/default/kurento-media-server`, see <https://doc-kurento.readthedocs.io/en/latest/features/logging.html>
+Logs session names and timestamps, as well as user IP addresses. This also includes user IP addresses behind NATs, i.e., the actual client addresses, potentially making users identifiable accross sessions. This can be configured in `/etc/default/kurento-media-server`, see [Kurento logging](https://doc-kurento.readthedocs.io/en/latest/features/logging.html)
 
 Note that this can most likely be overridden by kurento's systemd unit file. Hence, `--gst-debug-level=1` should also be set in `/usr/lib/systemd/system/kurento-media-server.service`.
 
@@ -217,7 +217,7 @@ By default, when Greenlight creates a conference, the value 'record=true' is pas
 
 #### Resolution
 
-You can disable the recording globally in the Greenlight room settings for everyone or optinally for everyone in their room. see: <https://github.com/bigbluebutton/greenlight/pull/1296> Alternatively, if necessary, completely disable the recording feature in the BigBlueButton server configuration.
+You can disable the recording globally in the Greenlight room settings for everyone or optinally for everyone in their room. see: [pull request 1296](https://github.com/bigbluebutton/greenlight/pull/1296) Alternatively, if necessary, completely disable the recording feature in the BigBlueButton server configuration.
 
 ### Greenlight does not request consent to a privacy policy and/or recording of a session when joining a room as a guest.
 
@@ -225,32 +225,32 @@ BigBlueButton has no feature that forces participants to consent to a privacy po
 
 #### Resolution
 
-In <https://github.com/bigbluebutton/greenlight/issues/1163> it is discussed how the required changed can be addressed.
-<https://github.com/bigbluebutton/greenlight/blob/52ed7150f68c6c66c0488374ccc3457d30fd09d4/app/views/rooms/components/_room_event.html.erb#L21>
+In [issue 1163](https://github.com/bigbluebutton/greenlight/issues/1163) it is discussed how the required changed can be addressed.
+[line 21](https://github.com/bigbluebutton/greenlight/blob/52ed7150f68c6c66c0488374ccc3457d30fd09d4/app/views/rooms/components/_room_event.html.erb#L21)
 adds a disclaimer. The code could be extended to provide a link to the privacy policy, and a checkbox which users have to press to acknowledge that the meeting they are about to join will be recorded, and that they consent to this; The join button should only be enabled when that checkmark is set.
 
 A more substantial change to BigBlueButton and Greenlight would be selective recording, i.e., excluding video, audio, chat and drawing input from users that did not consent to a recording.
 
 ### Greenlight includes user-names in room URLs
 
-In Greenlight, room URLs contain the username of the owner, which might also be private data depending on local laws. Solving this depends on <https://github.com/bigbluebutton/greenlight/issues/1057>
+In Greenlight, room URLs contain the username of the owner, which might also be private data depending on local laws. Solving this depends on [issue 1057](https://github.com/bigbluebutton/greenlight/issues/1057)
 
 ### Terms of Service
 
-Greenlight supports displaying of terms and conditions for registered users or upon registration. See </greenlight/config#adding-terms-and-conditions>
+Greenlight supports displaying of terms and conditions for registered users or upon registration. See [adding-terms-and-conditions](/greenlight/config#adding-terms-and-conditions)
 
 ### All recordings are always accessible
 
 By default, BigBlueButton recordings are accessible, see e.g.,
-<https://github.com/bigbluebutton/bigbluebutton/issues/8505> . Additionally, the URLs for recordings are easily enumerable, see <https://github.com/bigbluebutton/greenlight/issues/1466> and <https://github.com/bigbluebutton/bigbluebutton/issues/9443> .
+[issue 8505](https://github.com/bigbluebutton/bigbluebutton/issues/8505) . Additionally, the URLs for recordings are easily enumerable, see [issue 1466](https://github.com/bigbluebutton/greenlight/issues/1466) and [issue 9443](https://github.com/bigbluebutton/bigbluebutton/issues/9443) .
 
 Greenlight, by default provides two settings for recordings: public, i.e., the recording is listed on the room page, and unlisted, i.e., the recording is only accessible via the (enumerable) direct link.
 
 ##### Resolution
 
-Greenlight can be patched to allow more fine-grained control of recording visibility and publications. With <https://github.com/ichdasich/greenlight/tree/rec_restrictions> a third value is added to the recording visibility pull-down menu (public/unlisted/private), which leads to corresponding recording metadata being set (gl-listed=true/unlisted/false) in the recording either in scalelite or on the BigBlueButton host.
+Greenlight can be patched to allow more fine-grained control of recording visibility and publications. With [rec_restrictions](https://github.com/ichdasich/greenlight/tree/rec_restrictions) a third value is added to the recording visibility pull-down menu (public/unlisted/private), which leads to corresponding recording metadata being set (gl-listed=true/unlisted/false) in the recording either in scalelite or on the BigBlueButton host.
 
-<https://github.com/ichdasich/bbb-rec-perm> can then be used to check requests for recordings against that metadata, returning a 403 if the recording is set to private, and returning the recording if it is set to unlisted or public.
+[bbb-rec-perm](https://github.com/ichdasich/bbb-rec-perm) can then be used to check requests for recordings against that metadata, returning a 403 if the recording is set to private, and returning the recording if it is set to unlisted or public.
 
 ### Logs
 
