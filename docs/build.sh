@@ -22,8 +22,8 @@ for branch in "${BRANCHES[@]}"; do
   git checkout "$branch"
   if [ -f docusaurus.config.js ]; then
     version=${branch:1:3}
-    echo "Adding documentation for $version"
-    yarn docusaurus docs:version "${version}"
+    echo "Adding 25 documentation for $version"
+    npm run build docs:version "${version}"
   else
     echo "Warning: branch $(branch) does not contain a docusaurus.config.js!"
   fi
