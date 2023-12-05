@@ -455,17 +455,17 @@ exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 
 // Whiteboard
-exports.whiteboard = 'div[id="canvas"]';
+exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
-exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
-exports.wbShapesButton = 'button[id="TD-PrimaryTools-Shapes"]';
-exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
-exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
-exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
-exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
-exports.wbPencilShape = 'button[id="TD-PrimaryTools-Pencil"]';
-exports.wbStickyNoteShape = 'button[id="TD-PrimaryTools-Pencil2"]';
-exports.wbTextShape = 'button[id="TD-PrimaryTools-Text"]';
+exports.wbToolbar = 'div[class="tlui-toolbar__tools"]';
+exports.wbShapesButton = 'button[data-testid="tools.more"]';
+exports.wbRectangleShape = 'span[data-testid="tools.more.rectangle"]';
+exports.wbEllipseShape = 'span[data-testid="tools.more.ellipse"]';
+exports.wbTriangleShape = 'span[data-testid="tools.more.triangle"]';
+exports.wbLineShape = 'span[data-testid="tools.more.line"]';
+exports.wbPencilShape = 'button[data-testid="tools.draw"]';
+exports.wbStickyNoteShape = 'button[data-testid="tools.note"]';
+exports.wbTextShape = 'button[data-testid="tools.text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape="sticky"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
