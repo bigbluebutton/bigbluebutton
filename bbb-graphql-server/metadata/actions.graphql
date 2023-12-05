@@ -7,6 +7,47 @@ type Mutation {
 }
 
 type Mutation {
+  breakoutRoomCreate(
+    record: Boolean!
+    captureNotes: Boolean!
+    captureSlides: Boolean!
+    durationInMinutes: Int!
+    sendInviteToModerators: Boolean!
+    rooms: [BreakoutRoom]!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomEndAll: Boolean
+}
+
+type Mutation {
+  breakoutRoomMoveUser(
+    userId: String!
+    fromBreakoutRoomId: String!
+    toBreakoutRoomId: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomRequestJoinUrl(
+    breakoutRoomId: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomSendMessageToAll(
+    msg: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomSetTime(
+    timeInMinutes: Int!
+  ): Boolean
+}
+
+type Mutation {
   chatCreateWithUser(
     userId: String!
   ): Boolean
@@ -277,5 +318,23 @@ type Mutation {
     locale: String!
     provider: String!
   ): Boolean
+}
+
+type Mutation {
+  userTransferVoiceToMeeting(
+    fromMeetingId: String!
+    toMeetingId: String!
+  ): Boolean
+}
+
+input BreakoutRoom {
+  captureNotesFilename: String!
+  captureSlidesFilename: String!
+  freeJoin: Boolean!
+  isDefaultName: Boolean!
+  name: String!
+  sequence: Int!
+  shortName: String!
+  users: [String]!
 }
 
