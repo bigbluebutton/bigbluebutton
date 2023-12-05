@@ -38,7 +38,16 @@ trait DeleteWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
         PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       }
     } else {
-      val deletedAnnotations = deleteWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotationsIds, liveMeeting, isUserAmongPresenters, isUserModerator)
+
+      val annotationsIds = {
+        if (msg.body.annotationsIds.size > 0) {
+          msg.body.annotationsIds
+        } else {
+          getWhiteboardAnnotations(msg.body.whiteboardId, liveMeeting).map(a => a.id)
+        }
+      }
+
+      val deletedAnnotations = deleteWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, annotationsIds, liveMeeting, isUserAmongPresenters, isUserModerator)
       if (!deletedAnnotations.isEmpty) {
         broadcastEvent(msg, deletedAnnotations)
       }

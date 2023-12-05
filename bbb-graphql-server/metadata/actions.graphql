@@ -85,10 +85,63 @@ type Mutation {
 }
 
 type Mutation {
-  requestPresentationUploadToken(
+  presAnnotationDelete(
+    pageId: String!
+    annotationsIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  presAnnotationDeleteAll(
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presAnnotationSubmit(
+    pageId: String!
+    annotations: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  presentationRemove(
+    presentationId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationRequestUploadToken(
     podId: String!
     filename: String!
     uploadTemporaryId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetCurrent(
+    presentationId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetDownloadable(
+    presentationId: String!
+    downloadable: Boolean!
+    fileStateType: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetPage(
+    presentationId: String!
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetRenderedInToast(
+    presentationId: String!
   ): Boolean
 }
 
