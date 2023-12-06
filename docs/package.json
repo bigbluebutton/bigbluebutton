@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": false,
   "scripts": {
-￼   "start": "npm run start",
-￼   "build": "npm run build",
+    "start": "npm run start",
+    "build": "npm run build",
     "deploy": "npm run deploy",
     "serve": "npm run serve"
   },
