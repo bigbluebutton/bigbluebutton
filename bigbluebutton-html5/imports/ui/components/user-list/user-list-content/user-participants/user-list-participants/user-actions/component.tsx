@@ -5,7 +5,11 @@ import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import { useMutation } from '@apollo/client';
-import { SET_AWAY, SET_ROLE } from './mutations';
+import {
+  SET_AWAY,
+  SET_ROLE,
+} from './mutations';
+import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
@@ -248,6 +252,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
+  const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
@@ -271,7 +276,12 @@ const UserActions: React.FC<UserActionsProps> = ({
         : intl.formatMessage(messages.PinUserWebcam),
       onClick: () => {
         // toggle user pinned status
-        makeCall('changePin', user.userId, !user.pinned);
+        setCameraPinned({
+          variables: {
+            userId: user.userId,
+            pinned: !user.pinned,
+          },
+        });
       },
       icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
     },
