@@ -21,22 +21,5 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     webcamsOnlyForModerator: input.webcamsOnlyForModerator
   };
 
-  //TODO check if backend velidate it
-
-  // const recordObject = await RecordMeetings.findOneAsync({ meetingId });
-  //
-  // if (recordObject != null) {
-  //   const {
-  //     allowStartStopRecording,
-  //     recording,
-  //     record,
-  //   } = recordObject;
-  //
-  //   meetingRecorded = recording;
-  //   allowedToRecord = record && allowStartStopRecording; // TODO-- remove some day
-  // }
-  //
-  // if (allowedToRecord) {}
-
   return { eventName, routing, header, body };
 }
