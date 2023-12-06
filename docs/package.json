@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "private": false,
   "scripts": {
+￼   "start": "npm run start",
+￼   "build": "npm run build",
+    "deploy": "npm run deploy",
+    "serve": "npm run serve"
   },
   "dependencies": {
     "@cmfcmf/docusaurus-search-local": "^1.1.0",
