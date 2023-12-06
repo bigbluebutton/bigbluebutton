@@ -87,6 +87,25 @@ type Mutation {
 }
 
 type Mutation {
+  externalVideoStart(
+    externalVideoUrl: String!
+  ): Boolean
+}
+
+type Mutation {
+  externalVideoStop: Boolean
+}
+
+type Mutation {
+  externalVideoUpdate(
+    status: String!
+    rate: Float!
+    time: Float!
+    state: Float!
+  ): Boolean
+}
+
+type Mutation {
   guestUsersSetLobbyMessage(
     message: String!
   ): Boolean
@@ -165,10 +184,6 @@ type Mutation {
   meetingSetWebcamOnlyForModerator(
     webcamsOnlyForModerator: Boolean!
   ): Boolean
-}
-
-type Mutation {
-  pickRandomViewer: Boolean
 }
 
 type Mutation {
@@ -265,6 +280,10 @@ type Mutation {
   presentationSetRenderedInToast(
     presentationId: String!
   ): Boolean
+}
+
+type Mutation {
+  randomViewerPick: Boolean
 }
 
 type Mutation {
