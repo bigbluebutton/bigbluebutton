@@ -3,7 +3,6 @@ import validateAuthToken from './methods/validateAuthToken';
 import setSpeechLocale from './methods/setSpeechLocale';
 import setMobileUser from './methods/setMobileUser';
 import setEmojiStatus from './methods/setEmojiStatus';
-import changeRaiseHand from './methods/changeRaiseHand';
 import assignPresenter from './methods/assignPresenter';
 import removeUser from './methods/removeUser';
 import toggleUserLock from './methods/toggleUserLock';
@@ -19,7 +18,6 @@ Meteor.methods({
   setMobileUser,
   setEmojiStatus,
   clearAllUsersEmoji,
-  changeRaiseHand,
   assignPresenter,
   removeUser,
   validateAuthToken,

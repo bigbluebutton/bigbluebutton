@@ -9,4 +9,13 @@ export const SET_CAMERA_PINNED = gql`
   }
 `;
 
-export default { SET_CAMERA_PINNED };
+export const SET_RAISE_HAND = gql`
+  mutation SetRaiseHand($userId: String!, $raiseHand: Boolean!) {
+    userSetRaiseHand(
+      userId: $userId,
+      raiseHand: $raiseHand,
+    )
+  }
+`;
+
+export default { SET_CAMERA_PINNED, SET_RAISE_HAND };

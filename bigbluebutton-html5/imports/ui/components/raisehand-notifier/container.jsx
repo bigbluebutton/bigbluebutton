@@ -4,8 +4,9 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import { makeCall } from '/imports/ui/services/api';
+import { useMutation } from '@apollo/client';
 import RaiseHandNotifier from './component';
+import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
@@ -15,11 +16,24 @@ const StatusNotifierContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isViewer = currentUser.role === ROLE_VIEWER;
   const isPresenter = currentUser.presenter;
+
+  const [setRaiseHand] = useMutation(SET_RAISE_HAND);
+
+  const lowerUserHands = (userId) => {
+    setRaiseHand({
+      variables: {
+        userId,
+        raiseHand: false,
+      },
+    });
+  };
+
   return (
     <RaiseHandNotifier {...{
       ...props,
       isViewer,
       isPresenter,
+      lowerUserHands,
     }}
     />
   );
@@ -36,10 +50,8 @@ export default withTracker(() => {
     },
     sort: { raiseHandTime: 1 },
   }).fetch();
-  const lowerUserHands = (userId) => makeCall('changeRaiseHand', false, userId);
 
   return {
-    lowerUserHands,
     raiseHandUsers,
     raiseHandAudioAlert: AppSettings.raiseHandAudioAlerts,
     raiseHandPushAlert: AppSettings.raiseHandPushAlerts,

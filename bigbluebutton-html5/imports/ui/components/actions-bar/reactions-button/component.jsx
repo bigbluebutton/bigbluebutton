@@ -3,11 +3,12 @@ import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
-import UserListService from '/imports/ui/components/user-list/service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import data from '@emoji-mart/data';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { init } from 'emoji-mart';
+import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
+import { useMutation } from '@apollo/client';
 
 import Styled from './styles';
 
@@ -27,6 +28,8 @@ const ReactionsButton = (props) => {
 
   // initialize emoji-mart data, need for the new version
   init({ data });
+
+  const [setRaiseHand] = useMutation(SET_RAISE_HAND);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -58,7 +61,12 @@ const ReactionsButton = (props) => {
   };
 
   const handleRaiseHandButtonClick = () => {
-    UserListService.setUserRaiseHand(userId, !raiseHand);
+    setRaiseHand({
+      variables: {
+        userId,
+        raiseHand: !raiseHand,
+      },
+    });
   };
 
   const RaiseHandButtonLabel = () => {
