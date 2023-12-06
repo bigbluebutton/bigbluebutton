@@ -237,7 +237,7 @@ In Greenlight, room URLs contain the username of the owner, which might also be 
 
 ### Terms of Service
 
-Greenlight supports displaying of terms and conditions for registered users or upon registration. See [adding-terms-and-conditions](/greenlight/config#adding-terms-and-conditions)
+Greenlight supports displaying of terms and conditions for registered users or upon registration.
 
 ### All recordings are always accessible
 
