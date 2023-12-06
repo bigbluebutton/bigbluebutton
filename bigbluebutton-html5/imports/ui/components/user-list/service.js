@@ -542,8 +542,6 @@ const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
 
 const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
 
-const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
-
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
   if (!dropdownContent) return;
@@ -748,7 +746,6 @@ export default {
   toggleVoice,
   muteAllUsers,
   muteAllExceptPresenter,
-  changeRole,
   getUsers,
   formatUsers,
   getActiveChats,

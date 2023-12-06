@@ -5,7 +5,7 @@ import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import { useMutation } from '@apollo/client';
-import { SET_AWAY } from './mutations';
+import { SET_AWAY, SET_ROLE } from './mutations';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
@@ -247,6 +247,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
 
   const [setAway] = useMutation(SET_AWAY);
+  const [setRole] = useMutation(SET_ROLE);
 
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
@@ -376,7 +377,12 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'promote',
       label: intl.formatMessage(messages.PromoteUserLabel),
       onClick: () => {
-        makeCall('changeRole', user.userId, 'MODERATOR');
+        setRole({
+          variables: {
+            userId: user.userId,
+            role: 'MODERATOR',
+          },
+        });
         setSelected(false);
       },
       icon: 'promote',
@@ -387,7 +393,12 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'demote',
       label: intl.formatMessage(messages.DemoteUserLabel),
       onClick: () => {
-        makeCall('changeRole', user.userId, 'VIEWER');
+        setRole({
+          variables: {
+            userId: user.userId,
+            role: 'VIEWER',
+          },
+        });
         setSelected(false);
       },
       icon: 'user',
