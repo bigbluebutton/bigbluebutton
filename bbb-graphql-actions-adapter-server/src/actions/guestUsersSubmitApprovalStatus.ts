@@ -20,9 +20,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     approvedBy: routing.userId,
     guests: input.guests
   };
-  // guestUsersSubmitApprovalStatus
-  //guest = {guest: "userId", status: "ALLOW"}
-  //guest = {guest: "userId", status: "DENY"}
 
   return { eventName, routing, header, body };
 }
