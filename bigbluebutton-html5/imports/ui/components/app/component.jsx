@@ -40,7 +40,6 @@ import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineContainer from '../plugins-engine/container';
-import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
@@ -175,6 +174,7 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
+      setMobileUser,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -226,7 +226,7 @@ class App extends Component {
       };
     }
 
-    if (deviceInfo.isMobile) makeCall('setMobileUser');
+    if (deviceInfo.isMobile) setMobileUser(true);
 
     ConnectionStatusService.startRoundTripTime();
 
