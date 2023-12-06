@@ -87,6 +87,31 @@ type Mutation {
 }
 
 type Mutation {
+  guestUsersSetLobbyMessage(
+    message: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSetLobbyMessagePrivate(
+    guestId: String!
+    message: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSetPolicy(
+    guestPolicy: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSubmitApprovalStatus(
+    guests: [GuestUserApprovalStatus]!
+  ): Boolean
+}
+
+type Mutation {
   pickRandomViewer: Boolean
 }
 
@@ -336,5 +361,10 @@ input BreakoutRoom {
   sequence: Int!
   shortName: String!
   users: [String]!
+}
+
+input GuestUserApprovalStatus {
+  guest: String!
+  status: String!
 }
 
