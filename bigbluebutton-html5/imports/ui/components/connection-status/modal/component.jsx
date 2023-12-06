@@ -5,7 +5,7 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Service from '../service';
 import Styled from './styles';
-import ConnectionStatusHelper from '../status-helper/container';
+import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
 
 const NETWORK_MONITORING_INTERVAL_MS = 2000;
@@ -404,7 +404,7 @@ class ConnectionStatusComponent extends PureComponent {
       videoDownloadLabel,
     } = this;
 
-    const { intl, setModalIsOpen } = this.props;
+    const { intl, setModalIsOpen, connectionData } = this.props;
 
     const { networkData } = this.state;
 
@@ -443,7 +443,10 @@ class ConnectionStatusComponent extends PureComponent {
       >
         <Styled.HelperWrapper>
           <Styled.Helper>
-            <ConnectionStatusHelper closeModal={() => setModalIsOpen(false)} />
+            <ConnectionStatusHelper
+              connectionData={connectionData}
+              closeModal={() => setModalIsOpen(false)}
+            />
           </Styled.Helper>
         </Styled.HelperWrapper>
         <Styled.NetworkDataContent>
