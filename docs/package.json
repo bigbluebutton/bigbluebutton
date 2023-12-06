@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": false,
   "scripts": {
+    "docusaurus": "npx docusaurus",
     "start": "npx docusaurus start",
     "build": "npx docusaurus build",
     "deploy": "npx docusaurus deploy",
