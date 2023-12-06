@@ -31,7 +31,7 @@ const VideoListItem = (props) => {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
-    disabledCams,
+    disabledCams, amIModerator,
   } = props;
 
   const intl = useIntl();
@@ -134,6 +134,7 @@ const VideoListItem = (props) => {
       isStream={isStream}
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
       isSelfViewDisabled={isSelfViewDisabled}
+      amIModerator={amIModerator}
     />
   );
 
@@ -162,6 +163,7 @@ const VideoListItem = (props) => {
           isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
           isSelfViewDisabled={isSelfViewDisabled}
+          amIModerator={amIModerator}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -189,6 +191,7 @@ const VideoListItem = (props) => {
       <Styled.TopBar>
         <PinArea
           user={user}
+          amIModerator={amIModerator}
         />
         <ViewActions
           videoContainer={videoContainer}
@@ -213,6 +216,7 @@ const VideoListItem = (props) => {
           isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
           isSelfViewDisabled={isSelfViewDisabled}
+          amIModerator={amIModerator}
         />
         <UserStatus
           voiceUser={voiceUser}

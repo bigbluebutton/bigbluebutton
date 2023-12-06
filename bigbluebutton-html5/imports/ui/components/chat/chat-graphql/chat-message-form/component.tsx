@@ -27,7 +27,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useMutation } from '@apollo/client';
-import { SEND_GROUP_CHAT_MSG } from './mutations';
+import { CHAT_SEND_MESSAGE } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
@@ -237,9 +237,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
 
-    const [sendGroupChatMsg, {
-      loading: sendGroupChatMsgLoading, error: sendGroupChatMsgError,
-    }] = useMutation(SEND_GROUP_CHAT_MSG);
+    const [chatSendMessage, {
+      loading: chatSendMessageLoading, error: chatSendMessageError,
+    }] = useMutation(CHAT_SEND_MESSAGE);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -254,7 +254,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      sendGroupChatMsg({
+      chatSendMessage({
         variables: {
           chatMessageInMarkdownFormat: msg,
           chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
@@ -304,7 +304,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     });
 
-    if (sendGroupChatMsgError) { return <div>something went wrong</div>; }
+    if (chatSendMessageError) { return <div>something went wrong</div>; }
 
     return (
       <Styled.Form
@@ -330,7 +330,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
-            disabled={disabled || partnerIsLoggedOut || sendGroupChatMsgLoading}
+            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             value={message}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}
@@ -357,7 +357,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             circle
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
-            disabled={disabled || partnerIsLoggedOut || sendGroupChatMsgLoading}
+            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"

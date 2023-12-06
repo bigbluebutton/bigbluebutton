@@ -20,6 +20,13 @@ app.post('/', async (req: Request, res: Response) => {
     // Destructure relevant information from the request body.
     const { action: { name: actionName }, input, session_variables: sessionVariables } = req.body;
 
+
+    if(DEBUG) {
+      console.debug('-------------------------------------------');
+      console.debug(actionName);
+      console.debug(sessionVariables);
+    }
+
     // Build message using received information.
     const { eventName, routing, header, body } = await redisMessageFactory.buildMessage(sessionVariables, actionName, input);
 
@@ -70,6 +77,10 @@ const startServer = () => {
 // Redis Client Event Listeners
 redisClient.on('connect', () => console.info("Connected with Redis"));
 redisClient.on('disconnect', () => console.info("Disconnected from Redis"));
+
+if(DEBUG) {
+  console.log('Debug mode Enabled!');
+}
 
 // Start the Server and Redis client.
 startServer();

@@ -1,10 +1,7 @@
-import React, { useContext } from 'react';
-
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Auth from '/imports/ui/services/auth';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { useSubscription } from '@apollo/client';
-import { UsersContext } from '../components-data/users-context/context';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -18,6 +15,7 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const WebcamContainer = ({
   audioModalIsOpen,
@@ -49,9 +47,9 @@ const WebcamContainer = ({
   const { cameraOptimalGridSize } = cameraDockInput;
   const { display: displayPresentation } = presentation;
 
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
 
   const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
 
@@ -67,7 +65,7 @@ const WebcamContainer = ({
           cameraOptimalGridSize,
           layoutContextDispatch,
           fullscreen,
-          isPresenter: currentUser.presenter,
+          isPresenter: currentUserData?.presenter,
           displayPresentation,
           isRTL,
           isGridEnabled,
@@ -87,7 +85,7 @@ export default withTracker(() => {
 
   const { streams: usersVideo, gridUsers } = VideoService.getVideoStreams();
 
-  if(gridUsers.length > 0) {
+  if (gridUsers.length > 0) {
     const items = usersVideo.concat(gridUsers);
     data.usersVideo = sortVideoStreams(items, DEFAULT_SORTING);
   } else {

@@ -76,6 +76,7 @@ const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
     isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
+    amIModerator,
   } = props;
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -164,7 +165,7 @@ const UserActions = (props) => {
       });
     }
 
-    if (VideoService.isVideoPinEnabledForCurrentUser() && isStream) {
+    if (VideoService.isVideoPinEnabledForCurrentUser(amIModerator) && isStream) {
       menuItems.push({
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),

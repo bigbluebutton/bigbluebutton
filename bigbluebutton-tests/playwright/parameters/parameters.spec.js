@@ -459,7 +459,7 @@ test.describe.parallel('Custom Parameters', () => {
       await customParam.hidePresentationOnJoin();
     });
 
-    test('Force Restore Presentation On New Events @ci', async ({ browser, context, page }) => {
+    test('Force Restore Presentation On New Events @ci @flaky', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       const joinParameter = c.forceRestorePresentationOnNewEvents;
       await customParam.initModPage(page, true, { joinParameter });

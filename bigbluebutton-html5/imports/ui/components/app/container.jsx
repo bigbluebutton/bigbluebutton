@@ -26,8 +26,6 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
 import {
   getFontSize,
   getBreakoutRooms,
@@ -60,9 +58,9 @@ const AppContainer = (props) => {
     pushLayout,
     pushLayoutMeeting,
     currentUserId,
-    shouldShowPresentation: propsShouldShowPresentation,
+    shouldShowScreenshare: propsShouldShowScreenshare,
+    shouldShowSharedNotes,
     presentationRestoreOnUpdate,
-    isPresenter,
     randomlySelectedUser,
     isModalOpen,
     meetingLayout,
@@ -73,6 +71,7 @@ const AppContainer = (props) => {
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
     isSharedNotesPinned,
+    viewScreenshare,
     ...otherProps
   } = props;
 
@@ -86,13 +85,19 @@ const AppContainer = (props) => {
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    enforceLayout: user.enforceLayout,
+    isModerator: user.isModerator,
+    presenter: user.presenter,
+  }));
+
+  const isModerator = currentUserData?.isModerator;
+  const isPresenter = currentUserData?.presenter;
+
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
   const { isOpen } = presentation;
   const presentationIsOpen = isOpen;
-
-  const shouldShowPresentation = (propsShouldShowPresentation
-    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   const { focusedId } = cameraDock;
 
@@ -158,15 +163,15 @@ const AppContainer = (props) => {
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
-  const validateEnforceLayout = (currentUserData) => {
+  const validateEnforceLayout = (currentUser) => {
     const layoutTypes = Object.values(LAYOUT_TYPE);
-    const enforceLayout = currentUserData?.enforceLayout;
+    const enforceLayout = currentUser?.enforceLayout;
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };
 
-  const { data: currentUserData } = useCurrentUser((user) => ({
-    enforceLayout: user.enforceLayout,
-  }));
+  const shouldShowScreenshare = propsShouldShowScreenshare && (viewScreenshare || isPresenter);
+  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes && !shouldShowExternalVideo
+    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   return currentUserId
     ? (
@@ -201,13 +206,16 @@ const AppContainer = (props) => {
           sidebarNavigationIsOpen,
           sidebarContentPanel,
           sidebarContentIsOpen,
-          shouldShowPresentation: shouldShowPresentation && !shouldShowExternalVideo,
           shouldShowExternalVideo,
           mountRandomUserModal,
           setMountRandomUserModal,
           isPresenter,
           numCameras: cameraDockInput.numCameras,
           enforceLayout: validateEnforceLayout(currentUserData),
+          isModerator,
+          shouldShowScreenshare,
+          shouldShowSharedNotes,
+          shouldShowPresentation,
         }}
         {...otherProps}
       />
@@ -254,7 +262,7 @@ export default withTracker(() => {
     {
       fields:
       {
-        approved: 1, emoji: 1, raiseHand: 1, away: 1, userId: 1, presenter: 1, role: 1,
+        approved: 1, emoji: 1, raiseHand: 1, away: 1, userId: 1, role: 1,
       },
     },
   );
@@ -291,8 +299,7 @@ export default withTracker(() => {
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
-  const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || currentUser?.presenter);
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare();
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
@@ -300,8 +307,6 @@ export default withTracker(() => {
   }
 
   const LAYOUT_CONFIG = Meteor.settings.public.layout;
-
-  const isPresenter = currentUser?.presenter;
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -319,8 +324,6 @@ export default withTracker(() => {
     currentUserRaiseHand: currentUser.raiseHand,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
-    isPresenter,
-    isModerator: currentUser?.role === ROLE_MODERATOR,
     meetingLayout,
     meetingLayoutUpdatedAt,
     meetingPresentationIsOpen,
@@ -335,7 +338,7 @@ export default withTracker(() => {
     pushAlertEnabled: AppSettings.chatPushAlerts,
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare && !shouldShowSharedNotes,
+    viewScreenshare,
     shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
