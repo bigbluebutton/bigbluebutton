@@ -52,6 +52,14 @@ export const SET_PRESENTER = gql`
   }
 `;
 
+export const SET_EMOJI_STATUS = gql`
+  mutation SetEmojiStatus($emoji: String!) {
+    userSetEmojiStatus(
+      emoji: $emoji,
+    )
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
@@ -59,4 +67,5 @@ export default {
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
   SET_PRESENTER,
+  SET_EMOJI_STATUS,
 };

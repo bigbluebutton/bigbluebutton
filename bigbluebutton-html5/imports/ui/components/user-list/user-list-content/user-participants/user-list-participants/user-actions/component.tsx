@@ -14,11 +14,11 @@ import {
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
   SET_PRESENTER,
+  SET_EMOJI_STATUS,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
-  setEmojiStatus,
   toggleVoice,
   changeWhiteboardAccess,
   isMe,
@@ -260,6 +260,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [setPresenter] = useMutation(SET_PRESENTER);
+  const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -350,7 +351,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'clearStatus',
       label: intl.formatMessage(messages.ClearStatusLabel),
       onClick: () => {
-        setEmojiStatus(user.userId, 'none');
+        setEmojiStatus({
+          variables: {
+            emoji: 'none',
+          },
+        });
         setSelected(false);
       },
       icon: 'clear_status',
@@ -526,7 +531,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key,
       label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${key}Label` }),
       onClick: () => {
-        setEmojiStatus(user.userId, key);
+        setEmojiStatus({
+          variables: {
+            emoji: key,
+          },
+        });
         setSelected(false);
         setShowNestedOptions(false);
       },

@@ -18,7 +18,7 @@ import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
-import { isEmpty, throttle } from 'radash';
+import { isEmpty } from 'radash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -480,13 +480,6 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
-  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
-  return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, emoji)
-    : makeCall('setEmojiStatus', userId, 'none');
-});
-
 const clearAllEmojiStatus = () => {
   makeCall('clearAllUsersEmoji');
 };
@@ -721,7 +714,6 @@ const UserLeftMeetingAlert = (obj) => {
 export default {
   sortUsersByName,
   sortUsers,
-  setEmojiStatus,
   clearAllEmojiStatus,
   clearAllReactions,
   toggleVoice,
