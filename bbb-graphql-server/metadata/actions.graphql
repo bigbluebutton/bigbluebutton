@@ -456,3 +456,27 @@ input GuestUserApprovalStatus {
   status: String!
 }
 
+type Mutation {
+  userSetMuted(
+    userId: String
+    muted: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  cameraBroadcastStart(
+    stream: String!
+  ): Boolean
+}
+
+type Mutation {
+  cameraBroadcastStop(
+    stream: String!
+  ): Boolean
+}
+
+type Mutation {
+  userThirdPartyInfoResquest(
+    externalUserId: String!
+  ): Boolean
+}
