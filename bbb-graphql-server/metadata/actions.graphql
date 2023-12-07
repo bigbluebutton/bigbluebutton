@@ -48,6 +48,30 @@ type Mutation {
 }
 
 type Mutation {
+  cameraBroadcastStart(
+    stream: String!
+  ): Boolean
+}
+
+type Mutation {
+  cameraBroadcastStop(
+    stream: String!
+  ): Boolean
+}
+
+type Mutation {
+  captionSubmitText(
+    transcriptId: String!
+    start: Int!
+    end: Int!
+    text: String!
+    transcript: String!
+    locale: String!
+    isFinal: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   chatCreateWithUser(
     userId: String!
   ): Boolean
@@ -87,6 +111,25 @@ type Mutation {
 }
 
 type Mutation {
+  externalVideoStart(
+    externalVideoUrl: String!
+  ): Boolean
+}
+
+type Mutation {
+  externalVideoStop: Boolean
+}
+
+type Mutation {
+  externalVideoUpdate(
+    status: String!
+    rate: Float!
+    time: Float!
+    state: Float!
+  ): Boolean
+}
+
+type Mutation {
   guestUsersSetLobbyMessage(
     message: String!
   ): Boolean
@@ -112,7 +155,59 @@ type Mutation {
 }
 
 type Mutation {
-  pickRandomViewer: Boolean
+  meetingEnd: Boolean
+}
+
+type Mutation {
+  meetingLayoutSetProps(
+    layout: String!
+    syncWithPresenterLayout: Boolean!
+    presentationIsOpen: Boolean!
+    isResizing: Boolean!
+    cameraPosition: String
+    focusedCamera: String!
+    presentationVideoRate: Float!
+  ): Boolean
+}
+
+type Mutation {
+  meetingLayoutSetSyncWithPresenterLayout(
+    syncWithPresenterLayout: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingLockSettingsSetProps(
+    disableCam: Boolean!
+    disableMic: Boolean!
+    disablePrivChat: Boolean!
+    disablePubChat: Boolean!
+    disableNotes: Boolean!
+    hideUserList: Boolean!
+    lockOnJoin: Boolean!
+    lockOnJoinConfigurable: Boolean!
+    hideViewersCursor: Boolean!
+    hideViewersAnnotation: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingRecordingSetStatus(
+    recording: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingSetMuted(
+    muted: Boolean!
+    exceptPresenter: Boolean
+  ): Boolean
+}
+
+type Mutation {
+  meetingSetWebcamOnlyForModerator(
+    webcamsOnlyForModerator: Boolean!
+  ): Boolean
 }
 
 type Mutation {
@@ -212,6 +307,23 @@ type Mutation {
 }
 
 type Mutation {
+  randomViewerPick: Boolean
+}
+
+type Mutation {
+  sharedNotesCreateSession(
+    sharedNotesExtId: String!
+  ): Boolean
+}
+
+type Mutation {
+  sharedNotesSetPinned(
+    sharedNotesExtId: String!
+    pinned: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   timerActivate(
     stopwatch: Boolean!
     running: Boolean!
@@ -257,9 +369,22 @@ type Mutation {
 }
 
 type Mutation {
+  userEjectCameras(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
   userEjectFromMeeting(
     userId: String!
     banUser: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userEjectFromVoice(
+    userId: String!
+    banUser: Boolean
   ): Boolean
 }
 
@@ -313,6 +438,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetMuted(
+    userId: String
+    muted: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userSetPresenter(
     userId: String!
   ): Boolean
@@ -342,6 +474,12 @@ type Mutation {
   userSetSpeechLocale(
     locale: String!
     provider: String!
+  ): Boolean
+}
+
+type Mutation {
+  userThirdPartyInfoResquest(
+    externalUserId: String!
   ): Boolean
 }
 

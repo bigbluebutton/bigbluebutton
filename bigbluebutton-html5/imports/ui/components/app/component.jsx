@@ -40,7 +40,6 @@ import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineContainer from '../plugins-engine/container';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -228,8 +227,6 @@ class App extends Component {
 
     if (deviceInfo.isMobile) setMobileUser(true);
 
-    ConnectionStatusService.startRoundTripTime();
-
     if (this.isTimerEnabled) {
       TimerService.fetchTimeOffset();
       this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
@@ -338,7 +335,6 @@ class App extends Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
     window.onbeforeunload = null;
-    ConnectionStatusService.stopRoundTripTime();
 
     if (this.timeOffsetInterval) {
       clearInterval(this.timeOffsetInterval);
