@@ -13,7 +13,7 @@ TAGS=(
 BRANCHES=(
   v2.6.x-release
   v2.7.x-release
-  # v2.8.x-release
+  v3.0.x-release
 )
 REMOTE="origin"
 
