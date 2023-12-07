@@ -1,4 +1,3 @@
-import { throttle } from '/imports/utils/throttle';
 import { diff } from '@mconf/bbb-diff';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
@@ -8,9 +7,9 @@ import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
-import { unique } from 'radash';
+import { unique, throttle } from 'radash';
 
-const THROTTLE_TIMEOUT = 1000;
+const THROTTLE_TIMEOUT = 200;
 
 const CONFIG = Meteor.settings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
@@ -105,17 +104,13 @@ const updateTranscript = (id, transcript, locale, isFinal) => {
   makeCall('updateTranscript', id, start, end, text, transcript, locale, isFinal);
 };
 
-const throttledTranscriptUpdate = throttle(updateTranscript, THROTTLE_TIMEOUT, {
-  leading: false,
-  trailing: true,
-});
+const throttledTranscriptUpdate = throttle({ interval: THROTTLE_TIMEOUT }, updateTranscript);
 
 const updateInterimTranscript = (id, transcript, locale) => {
   throttledTranscriptUpdate(id, transcript, locale, false);
 };
 
 const updateFinalTranscript = (id, transcript, locale) => {
-  throttledTranscriptUpdate.cancel();
   updateTranscript(id, transcript, locale, true);
 };
 

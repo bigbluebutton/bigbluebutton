@@ -46,6 +46,10 @@ const Option = styled.div`
     margin-left: 1.65rem;
   }
 
+  ${({ textColor }) => textColor && `
+    color: ${textColor};
+  `}
+
   ${({ isHorizontal, isMobile }) => (isHorizontal || isMobile) && `
     margin-right: 0;
     margin-left: 0;
@@ -78,6 +82,11 @@ const IconRight = styled(Icon)`
   display: flex;
   justify-content: flex-end;
   flex: 1;
+`;
+
+const BBBMenuInformation = styled.div`
+  padding: 12px 16px;
+  margin: 0;
 `;
 
 const BBBMenuItem = styled(MenuItem)`
@@ -126,4 +135,5 @@ export default {
   CloseButton,
   IconRight,
   BBBMenuItem,
+  BBBMenuInformation,
 };

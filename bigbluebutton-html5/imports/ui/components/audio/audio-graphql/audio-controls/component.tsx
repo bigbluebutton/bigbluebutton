@@ -113,7 +113,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 };
 
 export const AudioControlsContainer: React.FC = () => {
-  const currentUser: Partial<User> = useCurrentUser((u: Partial<User>) => {
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => {
     return {
       presenter: u.presenter,
       isModerator: u.isModerator,
@@ -122,7 +122,7 @@ export const AudioControlsContainer: React.FC = () => {
     };
   });
 
-  const currentMeeting: Partial<Meeting> = useMeeting((m: Partial<Meeting>) => {
+  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
     return {
       lockSettings: m.lockSettings,
     };

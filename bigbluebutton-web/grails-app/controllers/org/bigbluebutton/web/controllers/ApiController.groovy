@@ -21,6 +21,7 @@ package org.bigbluebutton.web.controllers
 import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
+import groovy.xml.MarkupBuilder
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -42,7 +43,9 @@ import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
 import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.RemoteIceCandidate
+import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
+
 
 import javax.servlet.ServletRequest
 
@@ -62,6 +65,7 @@ class ApiController {
   HTML5LoadBalancingService html5LoadBalancingService
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
+
 
   def initResponseBuilder = {
     String protocol = this.getClass().getResource("").getProtocol();
@@ -127,9 +131,20 @@ class ApiController {
       return
     }
 
-    if(params.isBreakout && !params.parentIdMeetingId) {
-      invalid("parentMeetingIdMissing", "No parent meeting ID was provided for the breakout room")
-      return
+    Boolean isBreakoutRoom = false
+    if (!StringUtils.isEmpty(params.isBreakout)) {
+      isBreakoutRoom = Boolean.parseBoolean(params.isBreakout)
+    }
+
+    if(isBreakoutRoom) {
+      if(StringUtils.isEmpty(params.parentMeetingID)) {
+        invalid("parentMeetingIDMissing", "No parent meeting ID was provided for the breakout room")
+        return
+      }
+      if(!paramsProcessorUtil.parentMeetingExists(params.parentMeetingID)) {
+        invalid("parentMeetingDoesNotExist", "No parent meeting exists for the breakout room")
+        return
+      }
     }
 
     // Ensure unique TelVoice. Uniqueness is not guaranteed by paramsProcessorUtil.
@@ -150,11 +165,25 @@ class ApiController {
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
+    String requestBody = request.inputStream == null ? null : request.inputStream.text
+    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
+
+    def xmlModules = processRequestXmlModules(requestBody)
+
+    // Set Client Settings Override
+    if(xmlModules.containsKey("clientSettingsOverride")) {
+      if(paramsProcessorUtil.getAllowOverrideClientSettingsOnCreateCall()) {
+        newMeeting.setOverrideClientSettings(xmlModules.get("clientSettingsOverride").text())
+      } else {
+        log.warn("Module `clientSettingsOverride` provided but this options is disabled by `allowOverrideClientSettingsOnCreateCall=false` config.");
+      }
+    }
+
     ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(newMeeting, false);  //
+      uploadDocuments(xmlModules, newMeeting, false);  //
       respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
@@ -389,6 +418,10 @@ class ApiController {
       us.defaultLayout = params.defaultLayout;
     }
 
+    if (!StringUtils.isEmpty(params.enforceLayout)) {
+      us.enforceLayout = params.enforceLayout;
+    }
+
     if (!StringUtils.isEmpty(params.avatarURL)) {
       us.avatarURL = params.avatarURL;
     } else {
@@ -431,6 +464,7 @@ class ApiController {
         guestStatusVal,
         us.excludeFromDashboard,
         us.leftGuestLobby,
+        us.enforceLayout,
         meeting.getUserCustomData(us.externUserID)
     )
 
@@ -1106,8 +1140,12 @@ class ApiController {
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
-    if (meeting != null){
-      if (uploadDocuments(meeting, true)) {
+    if (meeting != null) {
+      String requestBody = request.inputStream == null ? null : request.inputStream.text
+      requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
+
+      def xmlModules = processRequestXmlModules(requestBody)
+      if (uploadDocuments(xmlModules, meeting, true)) {
         withFormat {
           xml {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
@@ -1203,17 +1241,36 @@ class ApiController {
         logData.put("userid", us.internalUserId);
         logData.put("sessionToken", sessionToken);
         logData.put("logCode", "getJoinUrl");
-        logData.put("description", "Request join URL.");
+        logData.put("description", "Request join URL");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
 
         log.info(" --analytics-- data=" + logStr);
 
         String method = 'join'
-        String extId = validationService.encodeString(meeting.getExternalId())
+        String externalMeetingId = validationService.encodeString(meeting.getExternalId())
         String fullName = validationService.encodeString(us.fullname)
-        String query = "fullName=${fullName}&meetingID=${extId}&role=${us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE}&redirect=true&userID=${us.getExternUserID()}"
-        String checksum = DigestUtils.sha1Hex(method + query + validationService.getSecuritySalt())
+        ListHashMap<String, String> queryParameters = new ListHashMap<>();
+        queryParameters.put("fullName", fullName);
+        queryParameters.put("meetingID", externalMeetingId);
+        queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
+        queryParameters.put("redirect", "true");
+        queryParameters.put("userID", us.getExternUserID());
+
+        // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
+        if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
+          request.getParameterMap()
+            .findAll { key, value -> ["enforceLayout", "role", "fullName", "userID", "avatarURL", "redirect", "excludeFromDashboard"].contains(key) || key.startsWith("userdata-") }
+            .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+            .each { key, value -> queryParameters.put(key, value[-1]) };
+        }
+
+        String httpQueryString = "";
+        for(String parameterName : queryParameters.keySet()) {
+          httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + parameterName + "=" + validationService.encodeString(queryParameters.get(parameterName));
+        }
+
+        String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
         String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
@@ -1222,7 +1279,7 @@ class ApiController {
             builder.response {
               returncode RESP_CODE_SUCCESS
               message "Join URL provided successfully."
-              url "${defaultServerUrl}/bigbluebutton/api/${method}?${query}&checksum=${checksum}"
+              url "${defaultServerUrl}/bigbluebutton/api/${method}?${httpQueryString}&checksum=${checksum}"
             }
             render(contentType: "application/json", text: builder.toPrettyString())
           }
@@ -1345,7 +1402,7 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(conf, isFromInsertAPI) {
+  def uploadDocuments(xmlModules, conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains("presentation")) {
       log.warn("Presentation feature is disabled.")
       return false
@@ -1365,49 +1422,89 @@ class ApiController {
     }
 
     Boolean isDefaultPresentationUsed = false;
-    String requestBody = request.inputStream == null ? null : request.inputStream.text;
-    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
     Boolean isDefaultPresentationCurrent = false;
     def listOfPresentation = []
     def presentationListHasCurrent = false
 
+    Boolean hasPresentationUrlInParameter = false
+
+
+    String[] pu = request.getParameterMap().get("preUploadedPresentation")
+    String[] puName = request.getParameterMap().get("preUploadedPresentationName")
+    if (pu != null) {
+      String preUploadedPresentation = pu[0]
+      hasPresentationUrlInParameter = true
+      def xmlString = new StringWriter()
+      def xml = new MarkupBuilder(xmlString)
+      String filename
+      if (puName == null) {
+        filename = Util.extractFilenameFromUrl(preUploadedPresentation)
+        if (filename == null) {
+          filename = "untitled"
+        }
+      } else {
+        filename = puName[0]
+      }
+      xml.document (
+        removable: "true",
+        downloadable: "false",
+        url: preUploadedPresentation,
+        filename: filename,
+        isPreUploadedPresentationFromParameter: "true"
+      )
+
+      def parsedXml = new XmlSlurper().parseText(xmlString.toString())
+
+      listOfPresentation << parsedXml
+    }
+
     // This part of the code is responsible for organize the presentations in a certain order
     // It selects the one that has the current=true, and put it in the 0th place.
     // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
-    if (requestBody == null) {
+    if (!xmlModules.containsKey("presentation")) {
       if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
-      listOfPresentation << [name: "default", current: true];
-    } else {
-      def xml = new XmlSlurper().parseText(requestBody);
-      Boolean hasCurrent = false;
-      xml.children().each { module ->
-        log.debug("module config found: [${module.@name}]");
 
-        if ("presentation".equals(module.@name.toString())) {
-          for (document in module.children()) {
-            if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
-                    document.@current.toString()) && !hasCurrent) {
-              listOfPresentation.add(0, document)
-              hasCurrent = true;
-            } else {
-              listOfPresentation << document
-            }
-          }
-          Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
-          if (uploadDefault) {
-            isDefaultPresentationCurrent = !hasCurrent;
-            hasCurrent = true
-            isDefaultPresentationUsed = true
-            if (isDefaultPresentationCurrent) {
-              listOfPresentation.add(0, [name: "default", current: true])
-            } else {
-              listOfPresentation << [name: "default", current: false];
-            }
+     if (hasPresentationUrlInParameter) {
+        if (!preUploadedPresentationOverrideDefault) {
+          listOfPresentation << [name: "default", current: true]
+        }
+      } else {
+        listOfPresentation << [name: "default", current: true]
+      }
+    } else {
+      Boolean hasCurrent = hasPresentationUrlInParameter;
+      Boolean hasPresentationModule = false;
+      if (xmlModules.containsKey("presentation")) {
+        def modulePresentation = xmlModules.get("presentation")
+        hasPresentationModule = true
+        for (document in modulePresentation.children()) {
+          if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
+                  document.@current.toString()) && !hasCurrent) {
+            listOfPresentation.add(0, document)
+            hasCurrent = true;
+          } else {
+            listOfPresentation << document
           }
         }
+
+        Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
+        if (uploadDefault) {
+          isDefaultPresentationCurrent = !hasCurrent;
+          hasCurrent = true
+          isDefaultPresentationUsed = true
+          if (isDefaultPresentationCurrent) {
+            listOfPresentation.add(0, [name: "default", current: true])
+          } else {
+            listOfPresentation << [name: "default", current: false];
+          }
+        }
+      }
+      if (!hasPresentationModule) {
+        hasCurrent = true
+        listOfPresentation.add(0, [name: "default", current: true])
       }
       presentationListHasCurrent = hasCurrent;
     }
@@ -1416,20 +1513,25 @@ class ApiController {
       def Boolean isCurrent = false;
       def Boolean isRemovable = true;
       def Boolean isDownloadable = false;
-      def Boolean isInitialPresentation = false;
+      def Boolean isDefaultPresentation = false;
+      def Boolean isPreUploadedPresentationFromParameter = false;
 
       if (document.name != null && "default".equals(document.name)) {
         if (presentationService.defaultUploadedPresentation) {
           if (document.current) {
-            isInitialPresentation = true
+            isDefaultPresentation = true
           }
           downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
                   document.current /* default presentation */, '', false,
-                  true, isInitialPresentation);
+                  true, isDefaultPresentation, isPreUploadedPresentationFromParameter);
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
       } else {
+        if (!StringUtils.isEmpty(document.@isPreUploadedPresentationFromParameter.toString())) {
+          isPreUploadedPresentationFromParameter = java.lang.Boolean.parseBoolean(
+                  document.@isPreUploadedPresentationFromParameter.toString());
+        }
         // Extracting all properties inside the xml
         if (!StringUtils.isEmpty(document.@removable.toString())) {
           isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
@@ -1444,7 +1546,7 @@ class ApiController {
             isCurrent = true
           }
         } else if (index == 0 && !isFromInsertAPI) {
-          isInitialPresentation = true
+          isDefaultPresentation = true
           isCurrent = true
         }
 
@@ -1456,12 +1558,12 @@ class ApiController {
             fileName = document.@filename.toString();
           }
           downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isInitialPresentation);
+                  fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter);
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
           processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isInitialPresentation);
+                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation);
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }
@@ -1470,8 +1572,22 @@ class ApiController {
     return true
   }
 
+  def processRequestXmlModules(String requestBody) {
+    def xmlModules = [:]
+
+    if (requestBody != null && requestBody != "") {
+      def xml = new XmlSlurper().parseText(requestBody)
+      xml.children().each { module ->
+        log.debug("module found: [${module.@name}]")
+        xmlModules.put(module.@name.toString(), module);
+      }
+    }
+
+    return xmlModules
+  }
+
   def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
-                                  isInitialPresentation) {
+                                  isDefaultPresentation) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
 
@@ -1483,7 +1599,7 @@ class ApiController {
     def presId = null
 
     if (presFilename == "" || filenameExt == "") {
-      log.debug("Upload failed. Invalid filename " + presOrigFilename)
+        log.debug("Upload failed. Invalid filename " + presOrigFilename)
       uploadFailReasons.add("invalid_filename")
       uploadFailed = true
     } else {
@@ -1519,14 +1635,15 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable,
-              isInitialPresentation
+              isDefaultPresentation
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
     }
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable, isInitialPresentation) {
+  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
+                                 isDefaultPresentation, isPreUploadedPresentationFromParameter) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
@@ -1551,7 +1668,7 @@ class ApiController {
     def pres = null
     def presId
 
-    if (presFilename == "" || filenameExt == "") {
+    if (presFilename == "" || (filenameExt == "" && !isPreUploadedPresentationFromParameter)) {
       log.debug("presentation is null by default")
       return
     } else {
@@ -1567,6 +1684,22 @@ class ApiController {
           log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
           uploadFailReasons.add("failed_to_download_file")
           uploadFailed = true
+        }
+
+        if (isPreUploadedPresentationFromParameter && filenameExt.isEmpty()) {
+          String fileExtension = SupportedFileTypes.detectFileExtensionBasedOnMimeType(pres)
+          newFilename = Util.createNewFilename(presId, fileExtension)
+          newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
+          File destination = new File(newFilePath)
+          filenameExt = fileExtension
+          presFilename = Util.createNewFilename(presFilename, fileExtension)
+          if (pres.renameTo(destination)) {
+            log.info("Presentation coming from URL parameter is at ${destination.getAbsolutePath()}")
+            pres = destination
+          } else {
+            log.error("Error while renaming presentation from URL parameter to ${destination.getAbsolutePath()}, " +
+                    "consider sending it through `/insertDocument`")
+          }
         }
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
@@ -1589,7 +1722,7 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable,
-              isInitialPresentation
+              isDefaultPresentation
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
@@ -1599,7 +1732,7 @@ class ApiController {
 
 
   def processUploadedFile(podId, meetingId, presId, filename, presFile, current,
-                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable, isInitialPresentation ) {
+                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable, isDefaultPresentation ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
     UploadedPresentation uploadedPres = new UploadedPresentation(podId,
@@ -1611,7 +1744,7 @@ class ApiController {
             authzToken,
             uploadFailed,
             uploadFailReasons,
-            isInitialPresentation
+            isDefaultPresentation
     )
     uploadedPres.setUploadedFile(presFile);
     if (isRemovable != null) {

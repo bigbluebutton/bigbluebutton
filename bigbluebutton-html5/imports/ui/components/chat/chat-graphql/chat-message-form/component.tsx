@@ -10,16 +10,15 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
 import ClickOutside from '/imports/ui/components/click-outside/component';
-import Styled from './styles';
 import { checkText } from 'smile2emoji';
+import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
-  handleSendMessage,
   startUserTyping,
-  stopUserTyping,
+  textToMarkdown,
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
@@ -27,6 +26,18 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import { useMutation } from '@apollo/client';
+import { CHAT_SEND_MESSAGE } from './mutations';
+import Storage from '/imports/ui/services/storage/session';
+import { indexOf, without } from '/imports/utils/array-utils';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+
+// @ts-ignore - temporary, while meteor exists in the project
+const CHAT_CONFIG = Meteor.settings.public.chat;
+
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -95,8 +106,6 @@ const messages = defineMessages({
   },
 });
 
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
 // @ts-ignore - temporary, while meteor exists in the project
 const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
 // @ts-ignore - temporary, while meteor exists in the project
@@ -183,29 +192,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setError(chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null);
   };
 
-  const handleSubmit = (e:React.FormEvent<HTMLFormElement>|React.KeyboardEvent<HTMLInputElement>|Event) => {
-    e.preventDefault();
-
-    const msg = message.trim();
-
-    if (msg.length < minMessageLength) return;
-
-    if (disabled
-      || msg.length > maxMessageLength) {
-      setHasErrors(true);
-      return;
-    }
-
-    handleSendMessage(msg, chatId);
-    setMessage('');
-    updateUnreadMessages(chatId, '');
-    setHasErrors(false);
-    setShowEmojiPicker(false);
-    if (ENABLE_TYPING_INDICATOR) stopUserTyping();
-    const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
-    window.dispatchEvent(sentMessageEvent);
-  };
-
   const handleEmojiSelect = (emojiObject: { native: string }): void => {
     const txtArea = textAreaRef?.current?.textarea;
     if (!txtArea) return;
@@ -248,22 +234,77 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     handleUserTyping(newError != null);
   };
 
-  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
-    if (e.keyCode === 13 && !e.shiftKey) {
+  const renderForm = () => {
+    const formRef = useRef<HTMLFormElement | null>(null);
+
+    const [chatSendMessage, {
+      loading: chatSendMessageLoading, error: chatSendMessageError,
+    }] = useMutation(CHAT_SEND_MESSAGE);
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
-      const event = new Event('submit', {
-        bubbles: true,
-        cancelable: true,
+      const msg = textToMarkdown(message);
+
+      if (msg.length < minMessageLength) return;
+
+      if (disabled
+        || msg.length > maxMessageLength) {
+        setHasErrors(true);
+        return;
+      }
+
+      chatSendMessage({
+        variables: {
+          chatMessageInMarkdownFormat: msg,
+          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+        },
       });
 
-      handleSubmit(event);
-    }
-  };
+      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
-  const renderForm = () => {
-    const formRef = useRef<HTMLFormElement | null >(null);
+      // Remove the chat that user send messages from the session.
+      if (indexOf(currentClosedChats, chatId) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
+      }
+
+      setMessage('');
+      updateUnreadMessages(chatId, '');
+      setHasErrors(false);
+      setShowEmojiPicker(false);
+      const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
+      window.dispatchEvent(sentMessageEvent);
+
+      setTimeout(() => {
+        textAreaRef.current?.textarea.focus();
+      }, 100);
+    };
+
+    const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
+      if (e.keyCode === 13 && !e.shiftKey) {
+        e.preventDefault();
+
+        const event = new Event('submit', {
+          bubbles: true,
+          cancelable: true,
+        });
+
+        handleSubmit(event);
+      }
+    };
+
+    document.addEventListener('click', (event) => {
+      const chatList = document.getElementById('chat-list');
+      if (chatList?.contains(event.target as Node)) {
+        const selection = window.getSelection()?.toString();
+        if (selection?.length === 0) {
+          textAreaRef.current?.textarea.focus();
+        }
+      }
+    });
+
+    if (chatSendMessageError) { return <div>something went wrong</div>; }
 
     return (
       <Styled.Form
@@ -289,7 +330,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
-            disabled={disabled || partnerIsLoggedOut}
+            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             value={message}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}
@@ -316,7 +357,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             circle
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
-            disabled={disabled || partnerIsLoggedOut}
+            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"
@@ -352,13 +393,13 @@ const ChatMessageFormContainer: React.FC = ({
   const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
-  const chat = useChat((c: Partial<Chat>) => ({
+  const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
     public: c?.public,
-  }), idChatOpen) as Partial<Chat>;
+  }), idChatOpen) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
 
-  const currentUser = useCurrentUser((c) => ({
+  const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
     locked: c?.locked,
   }));
@@ -367,7 +408,7 @@ const ChatMessageFormContainer: React.FC = ({
     ? intl.formatMessage(messages.titlePrivate, { 0: chat?.participant?.name })
     : intl.formatMessage(messages.titlePublic);
 
-  const meeting = useMeeting((m) => ({
+  const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
   }));
 

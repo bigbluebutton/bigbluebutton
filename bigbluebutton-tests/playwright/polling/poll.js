@@ -181,7 +181,7 @@ class Polling extends MultiUsers {
   async smartSlidesQuestions() {
     await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await utilPresentation.uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.hasElement(e.currentUser);
+    await this.userPage.hasElement(e.userListItem);
 
     // Type Response
     await this.modPage.waitAndClick(e.quickPoll);
@@ -244,13 +244,15 @@ class Polling extends MultiUsers {
 
   async pollResultsOnChat() {
     const { pollChatMessage } = getSettings();
-    test.fail(!pollChatMessage, 'Poll results on chat is disabled');
-
+    
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage, true);
     await this.modPage.waitAndClick(e.chatButton);
 
     const lastChatPollMessageTextModerator = await this.modPage.getLocator(e.chatPollMessageText).last();
+    if(!pollChatMessage) {
+      return expect(lastChatPollMessageTextModerator).toBeHidden({ ELEMENT_WAIT_TIME });
+    }
     await expect(lastChatPollMessageTextModerator).toBeVisible();
     const lastChatPollMessageTextUser = await this.userPage.getLocator(e.chatPollMessageText).last();
     await expect(lastChatPollMessageTextUser).toBeVisible();

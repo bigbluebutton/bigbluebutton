@@ -11,7 +11,6 @@ import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
-import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -687,8 +686,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   getCaptureFilename(position, slides = true) {
-    const { intl } = this.props;
-    const presentations = PresentationUploaderService.getPresentations();
+    const { intl, presentations } = this.props;
 
     const captureType = slides
       ? intl.formatMessage(intlMessages.captureSlidesType)
@@ -1219,6 +1217,7 @@ class BreakoutRoom extends PureComponent {
           </span>
           {room !== user.from ? (
             <span
+              data-test="removeAssignedUserButton"
               className="close"
               role="button"
               aria-label={intl.formatMessage(intlMessages.resetUserRoom)}

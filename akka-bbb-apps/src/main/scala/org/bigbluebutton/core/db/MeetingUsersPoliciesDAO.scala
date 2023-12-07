@@ -73,8 +73,8 @@ object MeetingUsersPoliciesDAO {
         .map(u => u.guestPolicy)
         .update(policy.policy)
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on meeting_usersPolicies table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating meeting_usersPolicies: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated guestPolicy on meeting_usersPolicies table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating guestPolicy on meeting_usersPolicies: $e")
     }
   }
 
@@ -90,8 +90,20 @@ object MeetingUsersPoliciesDAO {
           }
         )
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on meeting_usersPolicies table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating meeting_usersPolicies: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated guestLobbyMessage on meeting_usersPolicies table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating guestLobbyMessage on meeting_usersPolicies: $e")
+    }
+  }
+
+  def updateWebcamsOnlyForModerator(meetingId: String, webcamsOnlyForModerator: Boolean) = {
+    DatabaseConnection.db.run(
+      TableQuery[MeetingUsersPoliciesDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(u => u.webcamsOnlyForModerator)
+        .update(webcamsOnlyForModerator)
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated webcamsOnlyForModerator on meeting_usersPolicies table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating webcamsOnlyForModerator on meeting_usersPolicies: $e")
     }
   }
 

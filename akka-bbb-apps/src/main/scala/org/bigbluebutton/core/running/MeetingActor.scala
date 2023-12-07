@@ -39,6 +39,7 @@ import org.bigbluebutton.common2.msgs
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
+import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.db.UserStateDAO
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
@@ -137,6 +138,7 @@ class MeetingActor(
   val webcamApp2x = new WebcamApp2x
   val wbApp = new WhiteboardApp2x
   val timerApp2x = new TimerApp2x
+  val pluginHdlrs = new PluginHdlrs
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -246,25 +248,26 @@ class MeetingActor(
     //=============================
 
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg             => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg                 => handleBbbCommonEnvCoreMsg(msg)
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg                => usersApp.handleRegisterUserReqMsg(m)
-    case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
-    case m: GetRunningMeetingStateReqMsg      => handleGetRunningMeetingStateReqMsg(m)
-    case m: ValidateConnAuthTokenSysMsg       => handleValidateConnAuthTokenSysMsg(m)
+    case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
+    case m: GetAllMeetingsReqMsg                  => handleGetAllMeetingsReqMsg(m)
+    case m: GetRunningMeetingStateReqMsg          => handleGetRunningMeetingStateReqMsg(m)
+    case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg           => handleDestroyMeetingSysCmdMsg(m)
+    case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
 
     //======================================
 
     //=======================================
     // internal messages
-    case msg: MonitorNumberOfUsersInternalMsg => handleMonitorNumberOfUsers(msg)
+    case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
+    case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
 
-    case msg: ExtendMeetingDuration           => handleExtendMeetingDuration(msg)
+    case msg: ExtendMeetingDuration               => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
       if (!liveMeeting.props.meetingProp.isBreakout) {
         // Update users of meeting remaining time.
@@ -529,7 +532,6 @@ class MeetingActor(
       case m: PresentationConversionCompletedSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PdfConversionInvalidErrorSysPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg                           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetPresenterInPodReqMsg                        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg                       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresentationDownloadablePubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -590,6 +592,9 @@ class MeetingActor(
       case m: SendGroupChatMessageMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.body.msg.sender.id)
+
+      // Plugin
+      case m: DispatchPluginDataChannelMessageMsg => pluginHdlrs.handle(m, state, liveMeeting)
 
       // Webcams
       case m: UserBroadcastCamStartMsg            => webcamApp2x.handle(m, liveMeeting, msgBus)
@@ -867,6 +872,7 @@ class MeetingActor(
       val hasModeratorLeftRecently = (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs) < state.expiryTracker.lastModeratorLeftOnInMs
       if (!hasModeratorLeftRecently) {
         log.info("Meeting will end due option endWhenNoModerator is enabled and all moderators have left the meeting. meetingId=" + props.meetingProp.intId)
+        endAllBreakoutRooms(eventBus, liveMeeting, state, MeetingEndReason.ENDED_DUE_TO_NO_MODERATOR)
         sendEndMeetingDueToExpiry(
           MeetingEndReason.ENDED_DUE_TO_NO_MODERATOR,
           eventBus, outGW, liveMeeting,

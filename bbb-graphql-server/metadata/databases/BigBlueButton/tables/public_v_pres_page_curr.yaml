@@ -10,19 +10,27 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - content
+        - downloadFileUri
         - downloadable
+        - downloadFileExtension
         - height
         - heightRatio
         - isCurrentPage
+        - isDefaultPresentation
         - num
+        - totalPages
         - pageId
+        - presentationFilenameConverted
+        - presentationId
+        - presentationName
         - removable
         - scaledHeight
         - scaledViewBoxHeight
         - scaledViewBoxWidth
         - scaledWidth
         - slideRevealed
-        - urls
+        - urlsJson
         - viewBoxHeight
         - viewBoxWidth
         - width

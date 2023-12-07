@@ -2,8 +2,8 @@ package org.bigbluebutton.core.apps.audiocaptions
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.AudioCaptionDAO
-import org.bigbluebutton.core.models.AudioCaptions
+import org.bigbluebutton.core.db.CaptionDAO
+import org.bigbluebutton.core.models.{AudioCaptions, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
 
 import java.sql.Timestamp
@@ -66,7 +66,12 @@ trait UpdateTranscriptPubMsgHdlr {
 
       val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
 
-      AudioCaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, new Timestamp(System.currentTimeMillis()))
+
+      for {
+        u <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
+      } yield {
+        CaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, u.speechLocale)
+      }
 
       broadcastEvent(
         msg.header.userId,

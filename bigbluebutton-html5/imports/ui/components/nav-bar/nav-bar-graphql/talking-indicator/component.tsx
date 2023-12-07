@@ -12,7 +12,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import muteUser from './service';
+import { muteUser } from './service';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -66,7 +66,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     const {
       talking,
       muted,
-      user: { color, speechLocale, userId } = {} as Partial<User>,
+      user: { color, speechLocale } = {} as Partial<User>,
     } = talkingUser;
 
     const name = talkingUser.user?.name;
@@ -97,7 +97,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - call signature is misse due the function being wrapped
-            muteUser(userId, muted, isBreakout, isModerator);
+            muteUser(talkingUser.userId, muted, isBreakout, isModerator);
           }}
           label={name}
           tooltipLabel={!muted && isModerator
@@ -170,7 +170,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 const TalkingIndicatorContainer: React.FC = (() => {
   if (!enableTalkingIndicator) return () => null;
   return () => {
-    const currentUser: Partial<User> = useCurrentUser((u: Partial<User>) => ({
+    const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
       userId: u?.userId,
       isModerator: u?.isModerator,
     }));

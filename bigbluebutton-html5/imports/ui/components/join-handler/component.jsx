@@ -7,7 +7,7 @@ import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/component
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
-import { CurrentUser } from '/imports/api/users';
+import Users from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -184,7 +184,7 @@ class JoinHandler extends Component {
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;
 
-    setLogoutURL(response);
+    setLogoutURL(response.logoutUrl);
     logUserInfo();
 
     if (response.returncode !== 'FAILED') {
@@ -195,7 +195,7 @@ class JoinHandler extends Component {
       setModOnlyMessage(response);
 
       Tracker.autorun(async (cd) => {
-        const user = CurrentUser
+        const user = Users
           .findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
         if (user) {
           await setCustomData(response);

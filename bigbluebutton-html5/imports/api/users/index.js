@@ -5,7 +5,6 @@ const collectionOptions = Meteor.isClient ? {
 } : {};
 
 const Users = new Mongo.Collection('users', collectionOptions);
-export const CurrentUser = new Mongo.Collection('current-user', { connection: null });
 
 if (Meteor.isServer) {
   // types of queries for the users:

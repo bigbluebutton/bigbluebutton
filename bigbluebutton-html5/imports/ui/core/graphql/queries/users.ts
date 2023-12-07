@@ -53,6 +53,9 @@ export const USER_LIST_SUBSCRIPTION = gql`subscription Users($offset: Int!, $lim
       shortName
       currentlyInRoom
     }
+    reaction {
+      reactionEmoji
+    }
   }
 }`;
 
@@ -66,7 +69,17 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
   }
 `;
 
+export const USERS_OVERVIEW = gql`
+subscription Users {
+  user {
+    userId
+    name
+    role
+  }
+}`;
+
 export default {
   USER_LIST_SUBSCRIPTION,
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
+  USERS_OVERVIEW,
 };

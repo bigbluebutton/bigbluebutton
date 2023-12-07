@@ -295,7 +295,7 @@
     "app.presentationUploader.export.downloadButtonAvailable": "可用的簡報 {0} 下載按鈕。",
     "app.presentationUploader.export.notAccessibleWarning": "可能不符合可訪問性標準",
     "app.presentationUploader.export.originalLabel": "原始",
-    "app.presentationUploader.export.inCurrentStateLabel": "目前狀態",
+    "app.presentationUploader.export.withWhiteboardAnnotations": "目前狀態",
     "app.presentationUploader.currentPresentationLabel": "目前簡報",
     "app.presentationUploder.extraHint": "重要提示：每個檔案不得超過 {0} MB 和 {1} 頁。",
     "app.presentationUploder.uploadLabel": "上傳",

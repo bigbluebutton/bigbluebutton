@@ -73,7 +73,7 @@ exports.breakoutBox1 = 'div[id="breakoutBox-1"]';
 exports.breakoutBox2 = 'div[id="breakoutBox-2"]';
 exports.breakoutOptionsMenu = 'button[data-test="breakoutOptionsMenu"]';
 exports.openUpdateBreakoutUsersModal = 'li[data-test="openUpdateBreakoutUsersModal"]';
-exports.userTest = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
+exports.attendeeNotAssigned = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
 exports.moveUser = 'div[id="breakoutBox-1"] >> p:nth-child(1)';
 exports.openBreakoutTimeManager = 'li[data-test="openBreakoutTimeManager"]';
 exports.inputSetTimeSelector = 'input[id="inputSetTimeSelector"]';
@@ -97,7 +97,7 @@ exports.chatBox = 'textarea[id="message-input"]';
 exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
 exports.chatButton = 'button[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
-exports.chatPollMessageText = 'p[data-test="chatPollMessageText"]';
+exports.chatPollMessageText = 'div[data-test="chatPollMessageText"]';
 exports.chatMessages = 'div[data-test="chatMessages"]';
 exports.chatOptions = 'button[data-test="chatOptionsMenu"]';
 exports.chatClear = 'li[data-test="chatClear"]';
@@ -114,7 +114,7 @@ exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.errorTypingIndicator = 'div[data-test="errorTypingIndicator"]';
 exports.chatUserMessageText = 'div[data-test="messageContent"] p';
 exports.secondChatUserMessageText = 'p[data-test="chatUserMessageText"]>>nth=1';
-exports.chatWelcomeMessageText = 'button[data-test="closePopup"]';
+exports.chatWelcomeMessageText = 'div[data-test="welcomeMessage"]';
 exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
 exports.sendLobbyMessage = 'div[data-test="lobbyMessage"] >> button';
 exports.lobbyMessage = 'div[data-test="lobbyMessage"] >> p';
@@ -160,6 +160,18 @@ exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 
+// Timer
+exports.timerStopwatchFeature = 'li[data-test="timerStopWatchFeature"]';
+exports.timerCurrent = 'span[data-test="timerCurrent"]';
+exports.startStopTimer = 'button[data-test="startStopTimer"]';
+exports.resetTimerStopwatch = 'button[data-test="resetTimerStopWatch"]';
+exports.timerButton = 'button[data-test="timer"]';
+exports.timerIndicator = 'div[data-test="timeIndicator"]';
+exports.stopwatch = 'button[data-test="stopwatch"]';
+exports.hoursInput = 'input[data-test="hoursInput"]';
+exports.minutesInput = 'input[data-test="minutesInput"]';
+exports.secondsInput = 'input[data-test="secondsInput"]';
+
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
 exports.hideNotesLabel = 'button[data-test="hideNotesLabel"]';
@@ -187,7 +199,7 @@ const currentPresentationToast = 'div[data-test="currentPresentationToast"]';
 exports.currentPresentationToast = currentPresentationToast
 exports.notificationsTab = 'span[id="notificationTab"]';
 exports.chatPopupAlertsBtn = 'input[data-test="chatPopupAlertsBtn"]';
-exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
+exports.hasUnreadMessages = 'div[data-test="unreadMessages"]';
 exports.userJoinPushAlerts = 'input[data-test="userJoinPopupAlerts"]';
 exports.toastContainer = 'div[data-test="toastContainer"]';
 exports.presentationStatusInfo = 'span[data-test="presentationStatusInfo"]';
@@ -297,7 +309,7 @@ exports.presentationsList = 'div[id="upload-modal"] tbody';
 exports.enableOriginalPresentationDownloadBtn = 'li[data-test="enableOriginalPresentationDownload"]';
 exports.disableOriginalPresentationDownloadBtn = 'li[data-test="disableOriginalPresentationDownload"]';
 exports.sendPresentationInCurrentStateBtn = 'li[data-test="sendCurrentStateDocument"]';
-exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
+exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > a';
 exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
@@ -306,7 +318,7 @@ exports.toolVisibility = 'li[data-test="toolVisibility"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
-exports.youtubeFrame = 'iframe[title~="GreenLight"]';
+exports.youtubeFrame = 'div[data-test="videoPlayer"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';
@@ -434,6 +446,7 @@ exports.dropAreaLeft = 'div[data-test="dropArea-contentLeft"]';
 exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
 exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
 exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]';
+exports.selfViewDisableBtn = 'li[data-test="selfViewDisableBtn"]';
 
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
@@ -442,17 +455,17 @@ exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 
 // Whiteboard
-exports.whiteboard = 'div[id="canvas"]';
+exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
-exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
-exports.wbShapesButton = 'button[id="TD-PrimaryTools-Shapes"]';
-exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
-exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
-exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
-exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
-exports.wbPencilShape = 'button[id="TD-PrimaryTools-Pencil"]';
-exports.wbStickyNoteShape = 'button[id="TD-PrimaryTools-Pencil2"]';
-exports.wbTextShape = 'button[id="TD-PrimaryTools-Text"]';
+exports.wbToolbar = 'div[class="tlui-toolbar__tools"]';
+exports.wbShapesButton = 'button[data-testid="tools.more"]';
+exports.wbRectangleShape = 'span[data-testid="tools.more.rectangle"]';
+exports.wbEllipseShape = 'span[data-testid="tools.more.ellipse"]';
+exports.wbTriangleShape = 'span[data-testid="tools.more.triangle"]';
+exports.wbLineShape = 'span[data-testid="tools.more.line"]';
+exports.wbPencilShape = 'button[data-testid="tools.draw"]';
+exports.wbStickyNoteShape = 'button[data-testid="tools.note"]';
+exports.wbTextShape = 'button[data-testid="tools.text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape="sticky"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';

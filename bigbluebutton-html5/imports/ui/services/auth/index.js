@@ -3,10 +3,7 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
-import { initCursorStreamListener } from '/imports/ui/components/whiteboard/cursors/service';
-import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
 import { ValidationStates } from '/imports/api/auth-token-validation';
 import logger from '/imports/startup/client/logger';
 
@@ -232,7 +229,6 @@ class Auth {
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
-      SubscriptionRegistry.createSubscription('current-user');
       const validationTimeout = setTimeout(() => {
         reject({
           error: 408,
@@ -249,8 +245,6 @@ class Auth {
               reject({ error: 403, description: authenticationTokenValidation.reason });
               break;
             case ValidationStates.VALIDATED:
-              initCursorStreamListener();
-              initAnnotationsStreamListener();
               clearTimeout(validationTimeout);
               this.connectionID = authenticationTokenValidation.connectionId;
               this.connectionAuthTime = new Date().getTime();

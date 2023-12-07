@@ -1,7 +1,6 @@
 import React from 'react';
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
-import GroupChat from '/imports/api/group-chat';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
 import UserReaction from '/imports/api/user-reaction';
@@ -14,7 +13,6 @@ import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import logger from '/imports/startup/client/logger';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
 import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
@@ -155,30 +153,6 @@ const userFindSorting = {
   userId: 1,
 };
 
-const addWhiteboardAccess = (users) => {
-  const whiteboardId = WhiteboardService.getCurrentWhiteboardId();
-
-  if (whiteboardId) {
-    const multiUserWhiteboard = WhiteboardService.getMultiUser(whiteboardId);
-    return users.map((user) => {
-      const whiteboardAccess = multiUserWhiteboard.includes(user.userId);
-
-      return {
-        ...user,
-        whiteboardAccess,
-      };
-    });
-  }
-
-  return users.map((user) => {
-    const whiteboardAccess = false;
-    return {
-      ...user,
-      whiteboardAccess,
-    };
-  });
-};
-
 const addIsSharingWebcam = (users) => {
   const usersId = VideoService.getUsersIdFromVideoStreams();
 
@@ -229,7 +203,7 @@ const getUsers = () => {
     }
   }
 
-  return addIsSharingWebcam(addUserReaction(addWhiteboardAccess(users))).sort(sortUsers);
+  return addIsSharingWebcam(addUserReaction(users)).sort(sortUsers);
 };
 
 const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) => {
@@ -645,29 +619,6 @@ const roving = (...args) => {
   }
 };
 
-const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
-  .findOne({ users: { $all: [receiverId, senderId] } });
-
-const getGroupChatPrivate = (senderUserId, receiver) => {
-  const chat = hasPrivateChatBetweenUsers(senderUserId, receiver.userId);
-  if (!chat) {
-    makeCall('createGroupChat', receiver);
-  } else {
-    const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
-    if (indexOf(startedChats, chat.chatId) < 0) {
-      startedChats.push(chat.chatId);
-      Session.set(STARTED_CHAT_LIST_KEY, startedChats);
-    }
-
-    const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-
-    if (ChatService.isChatClosed(chat.chatId)) {
-      const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chat.chatId);
-      Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
-    }
-  }
-};
-
 const toggleUserLock = (userId, lockStatus) => {
   makeCall('toggleUserLock', userId, lockStatus);
 };
@@ -813,11 +764,9 @@ export default {
   isPublicChat,
   roving,
   getCustomLogoUrl,
-  getGroupChatPrivate,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji,
-  hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
   focusFirstDropDownItem,
