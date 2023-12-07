@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from 'ramda';
-import { Meteor } from 'meteor/meteor';
 import { uniqueId } from '/imports/utils/string-utils';
 import { isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, isImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -26,12 +25,7 @@ import {
   moveUserRegistery,
 } from './room-managment-state/types';
 import { createBreakoutRoom, moveUser } from './service';
-
-const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
-const MIN_BREAKOUT_ROOMS = 2;
-const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
-const MIN_BREAKOUT_TIME = 5;
-const DEFAULT_BREAKOUT_TIME = 15;
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 interface CreateBreakoutRoomContainerProps {
   isOpen: boolean
@@ -222,6 +216,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   users,
   runningRooms,
 }) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const appConfig = MeetingSettings.public.app;
+  const breakoutLim = appConfig.breakouts.breakoutRoomLimit;
+  const minBreakoutRooms = 2;
+  const maxBreakoutRooms = breakoutLim > minBreakoutRooms ? breakoutLim : minBreakoutRooms;
+  const minBreakoutTime = 5;
+  const defaultBreakoutTime = 15;
+
   const { isMobile } = deviceInfo;
   const intl = useIntl();
 
@@ -233,8 +235,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const [leastOneUserIsValid, setLeastOneUserIsValid] = React.useState(false);
   const [captureNotes, setCaptureNotes] = React.useState(false);
   const [inviteMods, setInviteMods] = React.useState(false);
-  const [numberOfRooms, setNumberOfRooms] = React.useState(MIN_BREAKOUT_ROOMS);
-  const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
+  const [numberOfRooms, setNumberOfRooms] = React.useState(minBreakoutRooms);
+  const [durationTime, setDurationTime] = React.useState(defaultBreakoutTime);
 
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
@@ -381,7 +383,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
               aria-label={intl.formatMessage(intlMessages.numberOfRooms)}
             >
               {
-                range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={uniqueId('value-')}>{item}</option>))
+                range(minBreakoutRooms, maxBreakoutRooms + 1).map((item) => (<option key={uniqueId('value-')}>{item}</option>))
               }
             </Styled.InputRooms>
           </div>
@@ -398,12 +400,12 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                   const { value } = e.target;
                   const v = Number.parseInt(value, 10);
                   setDurationTime(v);
-                  setDurationIsValid(v >= MIN_BREAKOUT_TIME);
+                  setDurationIsValid(v >= minBreakoutTime);
                 }}
                 onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                   const { value } = e.target;
                   const v = Number.parseInt(value, 10);
-                  setDurationTime((v && !(v <= 0)) ? v : MIN_BREAKOUT_TIME);
+                  setDurationTime((v && !(v <= 0)) ? v : minBreakoutTime);
                   setDurationIsValid(true);
                 }}
                 aria-label={intl.formatMessage(intlMessages.duration)}
@@ -414,7 +416,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
               {
                 intl.formatMessage(
                   intlMessages.minimumDurationWarnBreakout,
-                  { 0: MIN_BREAKOUT_TIME },
+                  { 0: minBreakoutTime },
                 )
               }
             </Styled.SpanWarn>

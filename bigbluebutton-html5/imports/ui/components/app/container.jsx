@@ -24,8 +24,9 @@ import {
 import { isEqual } from 'radash';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+// const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 import {
   getFontSize,
@@ -33,8 +34,6 @@ import {
 } from './service';
 
 import App from './component';
-
-const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
 const endMeeting = (code, ejectedReason) => {
   Session.set('codeError', code);
@@ -277,6 +276,15 @@ export default withTracker(() => {
     requesterUserId: Auth.userID,
   }).fetch();
 
+
+  const [MeetingSettings] = useMeetingSettings();
+  const userConfig = MeetingSettings.public.user;
+  const publicConfig = MeetingSettings.public;
+
+  const roleModerator = userConfig.role_moderator;
+  const customStyleUrlConfig = publicConfig.app.customStyleUrl;
+  const layoutConfig = publicConfig.layout;
+
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
@@ -286,11 +294,9 @@ export default withTracker(() => {
     && (viewScreenshare || currentUser?.presenter);
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
-  if (!customStyleUrl && CUSTOM_STYLE_URL) {
-    customStyleUrl = CUSTOM_STYLE_URL;
+  if (!customStyleUrl && customStyleUrlConfig) {
+    customStyleUrl = customStyleUrlConfig;
   }
-
-  const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
   const isPresenter = currentUser?.presenter;
 
@@ -311,7 +317,7 @@ export default withTracker(() => {
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,
-    isModerator: currentUser?.role === ROLE_MODERATOR,
+    isModerator: currentUser?.role === roleModerator,
     meetingLayout,
     meetingLayoutUpdatedAt,
     meetingPresentationIsOpen,
@@ -334,7 +340,7 @@ export default withTracker(() => {
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
-    hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
+    hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', layoutConfig.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
     isSharedNotesPinned: MediaService.shouldShowSharedNotes(),

@@ -8,10 +8,7 @@ import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
 import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 interface ChatListPageContainerProps {
   page: number;
@@ -69,7 +66,11 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   markMessageAsSeen,
   scrollRef,
 }) => {
-  const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
+  const [MeetingSettings] = useMeetingSettings();
+  const chatConfig = MeetingSettings.public.chat;
+  const publicGroupChatKey = chatConfig.public_group_id;
+
+  const isPublicChat = chatId === publicGroupChatKey;
   const chatQuery = isPublicChat
     ? CHAT_MESSAGE_PUBLIC_SUBSCRIPTION
     : CHAT_MESSAGE_PRIVATE_SUBSCRIPTION;

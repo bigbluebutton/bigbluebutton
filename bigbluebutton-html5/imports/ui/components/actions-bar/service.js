@@ -6,10 +6,9 @@ import Breakouts from '/imports/api/breakouts';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import NotesService from '/imports/ui/components/notes/service';
 import BreakoutsHistory from '/imports/api/breakouts-history';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
-const USER_CONFIG = Meteor.settings.public.user;
-const ROLE_MODERATOR = USER_CONFIG.role_moderator;
-const DIAL_IN_USER = 'dial-in-user';
+const dialInUser = 'dial-in-user';
 
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
@@ -36,6 +35,9 @@ const getUsersNotJoined = filterBreakoutUsers(currentBreakoutUsers);
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
 const amIModerator = () => {
+  const [MeetingSettings] = useMeetingSettings();
+  const userConfig = MeetingSettings.public.user;
+  const roleModerator = userConfig.role_moderator;
   const currentUser = Users.findOne({ userId: Auth.userID },
     { fields: { role: 1 } });
 
@@ -43,7 +45,7 @@ const amIModerator = () => {
     return false;
   }
 
-  return currentUser.role === ROLE_MODERATOR;
+  return currentUser.role === roleModerator;
 };
 
 const isMe = (intId) => intId === Auth.userID;
@@ -64,7 +66,7 @@ export default {
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
     meetingId: Auth.meetingID,
-    clientType: { $ne: DIAL_IN_USER },
+    clientType: { $ne: dialInUser },
   }).fetch(),
   groups: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { groups: 1 } }).groups,

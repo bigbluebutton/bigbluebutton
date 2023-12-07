@@ -2,8 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Service from '/imports/ui/components/captions/service';
 
-const CAPTIONS_CONFIG = Meteor.settings.public.captions;
-
 class LiveCaptions extends PureComponent {
   constructor(props) {
     super(props);
@@ -14,7 +12,7 @@ class LiveCaptions extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { clear } = this.state;
+    const { clear, captionsConfig } = this.state;
 
     if (clear) {
       const { data } = this.props;
@@ -24,7 +22,7 @@ class LiveCaptions extends PureComponent {
       }
     } else {
       this.resetTimer();
-      this.timer = setTimeout(() => this.setState({ clear: true }), CAPTIONS_CONFIG.time);
+      this.timer = setTimeout(() => this.setState({ clear: true }), captionsConfig.time);
     }
   }
 
