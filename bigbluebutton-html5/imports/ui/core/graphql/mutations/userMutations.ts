@@ -112,6 +112,12 @@ export const PICK_RANDOM_VIEWER = gql`
   }
 `;
 
+export const USER_LEAVE_MEETING = gql`
+  mutation UserLeaveMeeting {
+    userLeaveMeeting
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
@@ -127,4 +133,5 @@ export default {
   SET_EXIT_REASON,
   SET_SPEECH_LOCALE,
   PICK_RANDOM_VIEWER,
+  USER_LEAVE_MEETING,
 };
