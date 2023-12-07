@@ -307,6 +307,25 @@ type Mutation {
 }
 
 type Mutation {
+  presentationSetWriters(
+    pageId: String!
+    usersIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetZoom(
+    presentationId: String!
+    pageId: String!
+    pageNum: Int!
+    xOffset: Float!
+    yOffset: Float!
+    widthRatio: Float!
+    heightRatio: Float!
+  ): Boolean
+}
+
+type Mutation {
   randomViewerPick: Boolean
 }
 
