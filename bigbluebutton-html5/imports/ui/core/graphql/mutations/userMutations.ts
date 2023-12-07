@@ -97,6 +97,15 @@ export const SET_EXIT_REASON = gql`
   }
 `;
 
+export const SET_SPEECH_LOCALE = gql`
+  mutation SetSpeechLocale($locale: String!, $provider: String!) {
+    userSetSpeechLocale(
+      locale: $locale,
+      provider: $provider,
+    )
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
@@ -110,4 +119,5 @@ export default {
   CLEAR_ALL_EMOJI,
   CLEAR_ALL_REACTION,
   SET_EXIT_REASON,
+  SET_SPEECH_LOCALE,
 };
