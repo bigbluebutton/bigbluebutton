@@ -28,7 +28,12 @@ app.post('/', async (req: Request, res: Response) => {
     }
 
     // Build message using received information.
-    const { eventName, routing, header, body } = await redisMessageFactory.buildMessage(sessionVariables, actionName, input);
+    const {
+      eventName,
+      routing,
+      header,
+      body
+    } = await redisMessageFactory.buildMessage(sessionVariables, actionName, input);
 
     // Construct payload to be sent to Redis.
     const redisPayload = {
@@ -49,7 +54,11 @@ app.post('/', async (req: Request, res: Response) => {
     }
 
     // Publish the constructed payload to Redis.
-    await redisClient.publish('to-akka-apps-redis-channel', JSON.stringify(redisPayload));
+    if(actionName == 'userThirdPartyInfoResquest') {
+      await redisClient.publish('to-third-party-redis-channel', JSON.stringify(redisPayload));
+    } else {
+      await redisClient.publish('to-akka-apps-redis-channel', JSON.stringify(redisPayload));
+    }
 
     // Send a success response.
     res.status(200).json(true);
