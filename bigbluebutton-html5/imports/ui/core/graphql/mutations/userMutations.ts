@@ -60,6 +60,14 @@ export const SET_EMOJI_STATUS = gql`
   }
 `;
 
+export const SET_REACTION_EMOJI = gql`
+  mutation SetReactionEmoji($reactionEmoji: String!) {
+    userSetReactionEmoji(
+      reactionEmoji: $reactionEmoji,
+    )
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
@@ -68,4 +76,5 @@ export default {
   EJECT_FROM_VOICE,
   SET_PRESENTER,
   SET_EMOJI_STATUS,
+  SET_REACTION_EMOJI,
 };
