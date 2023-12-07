@@ -18,9 +18,7 @@ import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
-import { indexOf } from '/imports/utils/array-utils';
 import { isEmpty, throttle } from 'radash';
-import ChatService from '/imports/ui/components/chat/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -499,14 +497,6 @@ const clearAllReactions = () => {
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
-const removeUser = (userId, banUser) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId, banUser);
-  } else {
-    makeCall('removeUser', userId, banUser);
-  }
-};
-
 const toggleVoice = (userId) => {
   if (userId === Auth.userID) {
     AudioService.toggleMuteMicrophone();
@@ -737,7 +727,6 @@ export default {
   clearAllEmojiStatus,
   clearAllReactions,
   assignPresenter,
-  removeUser,
   toggleVoice,
   muteAllUsers,
   muteAllExceptPresenter,

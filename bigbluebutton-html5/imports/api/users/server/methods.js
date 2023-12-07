@@ -3,7 +3,6 @@ import validateAuthToken from './methods/validateAuthToken';
 import setSpeechLocale from './methods/setSpeechLocale';
 import setEmojiStatus from './methods/setEmojiStatus';
 import assignPresenter from './methods/assignPresenter';
-import removeUser from './methods/removeUser';
 import toggleUserLock from './methods/toggleUserLock';
 import setUserEffectiveConnectionType from './methods/setUserEffectiveConnectionType';
 import userActivitySign from './methods/userActivitySign';
@@ -17,7 +16,6 @@ Meteor.methods({
   setEmojiStatus,
   clearAllUsersEmoji,
   assignPresenter,
-  removeUser,
   validateAuthToken,
   toggleUserLock,
   setUserEffectiveConnectionType,

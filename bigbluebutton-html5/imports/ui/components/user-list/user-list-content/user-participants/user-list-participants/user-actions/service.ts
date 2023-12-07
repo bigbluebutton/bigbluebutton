@@ -156,11 +156,3 @@ export const toggleVoice = (userId: string) => {
 export const changeWhiteboardAccess = (pageId: string, userId: string, whiteboardAccess: boolean) => {
   WhiteboardService.changeWhiteboardAccess(pageId, userId, !whiteboardAccess);
 };
-
-export const removeUser = (userId: string, banUser: boolean) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId, banUser);
-  } else {
-    makeCall('removeUser', userId, banUser);
-  }
-};

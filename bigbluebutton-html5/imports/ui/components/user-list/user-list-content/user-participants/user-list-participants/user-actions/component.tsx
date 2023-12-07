@@ -9,7 +9,11 @@ import {
   SET_AWAY,
   SET_ROLE,
 } from './mutations';
-import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
+import {
+  SET_CAMERA_PINNED,
+  EJECT_FROM_MEETING,
+  EJECT_FROM_VOICE,
+} from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
@@ -17,7 +21,6 @@ import {
   toggleVoice,
   changeWhiteboardAccess,
   isMe,
-  removeUser,
   generateActionsPermissions,
   isVoiceOnlyUser,
 } from './service';
@@ -253,6 +256,26 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
+  const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
+  const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
+
+  const removeUser = (userId: string, banUser: boolean) => {
+    if (isVoiceOnlyUser(user.userId)) {
+      ejectFromVoice({
+        variables: {
+          userId,
+          banUser,
+        },
+      });
+    } else {
+      ejectFromMeeting({
+        variables: {
+          userId,
+          banUser,
+        },
+      });
+    }
+  };
 
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
