@@ -89,6 +89,14 @@ export const CLEAR_ALL_REACTION = gql`
   }
 `;
 
+export const SET_EXIT_REASON = gql`
+  mutation SetExitReason($exitReason: String!) {
+    userSetExitReason(
+      exitReason: $exitReason,
+    )
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
@@ -101,4 +109,5 @@ export default {
   SET_LOCKED,
   CLEAR_ALL_EMOJI,
   CLEAR_ALL_REACTION,
+  SET_EXIT_REASON,
 };

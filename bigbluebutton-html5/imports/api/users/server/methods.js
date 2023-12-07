@@ -5,7 +5,6 @@ import setUserEffectiveConnectionType from './methods/setUserEffectiveConnection
 import userActivitySign from './methods/userActivitySign';
 import userLeftMeeting from './methods/userLeftMeeting';
 import setRandomUser from './methods/setRandomUser';
-import setExitReason from './methods/setExitReason';
 
 Meteor.methods({
   setSpeechLocale,
@@ -14,5 +13,4 @@ Meteor.methods({
   userActivitySign,
   userLeftMeeting,
   setRandomUser,
-  setExitReason,
 });
