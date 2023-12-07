@@ -48,6 +48,7 @@ export interface UsersPolicies {
   meetingLayout: string;
   userCameraCap: number;
   webcamsOnlyForModerator: boolean;
+  guestLobbyMessage: string | null;
 }
 
 export interface VoiceSettings {
@@ -72,6 +73,17 @@ export interface BreakoutPolicies {
   sequence: number;
 }
 
+export interface ExternalVideo {
+  externalVideoId: string;
+  playerCurrentTime: number;
+  playerPlaybackRate: number;
+  playerPlaying: boolean;
+  externalVideoUrl: string;
+  startedSharingAt: number;
+  stoppedSharingAt: number;
+  updatedAt: Date;
+}
+
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
@@ -91,4 +103,5 @@ export interface Meeting {
   lockSettings: LockSettings;
   voiceSettings: VoiceSettings;
   breakoutPolicies: BreakoutPolicies;
+  externalVideo: ExternalVideo;
 }

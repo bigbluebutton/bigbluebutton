@@ -2,8 +2,11 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
-import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.db.ChatMessageDAO
+import org.bigbluebutton.core.models.{ GroupChatFactory, GroupChatMessage, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
@@ -30,6 +33,8 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
       outGW.send(msgEventChange)
     }
 
+    val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
       newUserState <- Users2x.setUserAway(liveMeeting.users2x, user.intId, msg.body.away)
@@ -42,6 +47,14 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
       if (msg.body.away == false && user.emoji == "away") {
         Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "none")
         outGW.send(MsgBuilder.buildUserEmojiChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId, "none"))
+      }
+
+      val msgMeta = Map(
+        "away" -> msg.body.away
+      )
+
+      if (!(user.role == Roles.VIEWER_ROLE && user.locked && permissions.disablePubChat) && ((user.away && !msg.body.away) || (!user.away && msg.body.away))) {
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_AWAY_STATUS_MSG, msgMeta, user.name)
       }
 
       broadcast(newUserState, msg.body.away)

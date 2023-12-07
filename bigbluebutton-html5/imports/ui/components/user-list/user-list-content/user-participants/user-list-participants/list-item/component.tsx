@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React from 'react';
+import React, { useContext } from 'react';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import {
+  UserListItemAdditionalInformationType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
@@ -9,9 +13,9 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
 import { uniqueId } from '/imports/utils/string-utils';
-import { Emoji } from 'emoji-mart';
 import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { isReactionsEnabled } from '/imports/ui/services/features';
 
 const messages = defineMessages({
@@ -52,12 +56,54 @@ const LABEL = Meteor.settings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
+interface EmojiProps {
+  emoji: { id: string; native: string; };
+  native: string;
+  size: number;
+}
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      'em-emoji': EmojiProps;
+    }
+  }
+}
+
 interface UserListItemProps {
   user: User;
   lockSettings: LockSettings;
 }
 
+const renderUserListItemIconsFromPlugin = (
+  userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformation[],
+) => userItemsFromPlugin.filter(
+  (item) => item.type === UserListItemAdditionalInformationType.ICON,
+).map((item: PluginSdk.UserListItemAdditionalInformation) => {
+  const itemToRender = item as PluginSdk.UserListItemIcon;
+  return (
+    <Styled.IconRightContainer
+      key={item.id}
+    >
+      <Icon iconName={itemToRender.icon} />
+    </Styled.IconRightContainer>
+  );
+});
+
+const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
+  <em-emoji emoji={emoji} native={native} size={size} />
+);
+
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformation[];
+  if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
+    userItemsFromPlugin = pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
+      const userListItem = item as PluginSdk.UserListItemAdditionalInformation;
+      return userListItem.userId === user.userId;
+    }) as PluginSdk.UserListItemAdditionalInformation[];
+  }
+
   const intl = useIntl();
   const voiceUser = user.voice;
   const subs = [
@@ -89,25 +135,50 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         {intl.formatMessage(messages.sharingWebcam)}
       </span>
     ),
+    ...userItemsFromPlugin.filter(
+      (item) => item.type === UserListItemAdditionalInformationType.LABEL,
+    ).map((item) => {
+      const itemToRender = item as PluginSdk.UserListItemLabel;
+      return (
+        <span key={itemToRender.id}>
+          { itemToRender.icon
+            && <Icon iconName={itemToRender.icon} /> }
+          {itemToRender.label}
+        </span>
+      );
+    }),
   ].filter(Boolean);
 
   const reactionsEnabled = isReactionsEnabled();
 
   const userAvatarFiltered = user.avatar;
 
+  const emojiIcons = [
+    {
+      id: 'hand',
+      native: '✋',
+    },
+    {
+      id: 'clock7',
+      native: '⏰',
+    },
+  ];
+
   const getIconUser = () => {
     const emojiSize = convertRemToPixels(1.3);
 
     if (user.raiseHand === true) {
       return reactionsEnabled
-        ? <Emoji key="hand" emoji="hand" native size={emojiSize} />
+        ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
     } if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji="clock7" native size={emojiSize} />
+        ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('away')} />;
     } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
+    } if (user.reaction && user.reaction.reactionEmoji !== 'none') {
+      return user.reaction.reactionEmoji;
     } if (user.name && userAvatarFiltered.length === 0) {
       return user.name.toLowerCase().slice(0, 2);
     } return '';
@@ -119,8 +190,10 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     ? user.lastBreakoutRoom?.sequence
     : iconUser;
 
+  const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
+
   return (
-    <Styled.UserItemContents data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
+    <Styled.UserItemContents tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
         data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
@@ -133,7 +206,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         voice={voiceUser?.joined}
         noVoice={!voiceUser?.joined}
         color={user.color}
-        whiteboardAccess={user?.presPagesWritable?.length > 0}
+        whiteboardAccess={hasWhiteboardAccess}
         animations
         emoji={user.emoji !== 'none'}
         avatar={userAvatarFiltered}
@@ -155,6 +228,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
+      {renderUserListItemIconsFromPlugin(userItemsFromPlugin)}
     </Styled.UserItemContents>
   );
 };

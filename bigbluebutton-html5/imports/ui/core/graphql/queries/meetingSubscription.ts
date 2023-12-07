@@ -5,7 +5,7 @@ const MEETING_SUBSCRIPTION = gql`
       meeting {
         createdTime
         disabledFeatures
-        duration
+        durationInSeconds
         extId
         lockSettings {
           disableCam
@@ -16,6 +16,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasActiveLockSetting
           hideUserList
           hideViewersCursor
+          hideViewersAnnotation
           webcamsOnlyForModerator
         }
         maxPinnedCameras
@@ -52,6 +53,7 @@ const MEETING_SUBSCRIPTION = gql`
           moderatorsCanUnmuteAudio
           userCameraCap
           webcamsOnlyForModerator
+          guestLobbyMessage
         }
         isBreakout
         breakoutPolicies {
@@ -73,7 +75,18 @@ const MEETING_SUBSCRIPTION = gql`
           voiceConf
           telVoice
         }
+        externalVideo {
+          externalVideoId
+          playerCurrentTime
+          playerPlaybackRate
+          playerPlaying
+          externalVideoUrl
+          startedSharingAt
+          stoppedSharingAt
+          updatedAt
+        }
       }
   }
 `;
+
 export default MEETING_SUBSCRIPTION;

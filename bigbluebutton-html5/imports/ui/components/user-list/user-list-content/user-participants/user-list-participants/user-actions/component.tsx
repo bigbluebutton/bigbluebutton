@@ -3,6 +3,7 @@ import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
@@ -35,6 +36,7 @@ interface UserActionsProps {
   usersPolicies: UsersPolicies;
   isBreakout: boolean;
   children: React.ReactNode;
+  pageId: string;
 }
 
 interface DropdownItem {
@@ -44,6 +46,7 @@ interface DropdownItem {
   tooltip: string | undefined;
   allowed: boolean | undefined;
   iconRight: string | undefined;
+  textColor: string | undefined;
   isSeparator: boolean | undefined;
   onClick: (() => void) | undefined;
 }
@@ -134,6 +137,52 @@ const messages = defineMessages({
     description: 'Text for identifying not away user',
   },
 });
+const makeDropdownPluginItem: (
+  userDropdownItems: PluginSdk.UserListDropdownItem[]) => DropdownItem[] = (
+    userDropdownItems: PluginSdk.UserListDropdownItem[],
+  ) => userDropdownItems.map(
+    (userDropdownItem: PluginSdk.UserListDropdownItem) => {
+      const returnValue: DropdownItem = {
+        isSeparator: false,
+        key: userDropdownItem.id,
+        iconRight: undefined,
+        onClick: undefined,
+        label: undefined,
+        icon: undefined,
+        tooltip: undefined,
+        textColor: undefined,
+        allowed: undefined,
+      };
+      switch (userDropdownItem.type) {
+        case UserListDropdownItemType.OPTION: {
+          const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownOption;
+          returnValue.label = dropdownButton.label;
+          returnValue.tooltip = dropdownButton.tooltip;
+          returnValue.icon = dropdownButton.icon;
+          returnValue.allowed = dropdownButton.allowed;
+          returnValue.onClick = dropdownButton.onClick;
+          break;
+        }
+        case UserListDropdownItemType.INFORMATION: {
+          const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownInformation;
+          returnValue.label = dropdownButton.label;
+          returnValue.icon = dropdownButton.icon;
+          returnValue.iconRight = dropdownButton.iconRight;
+          returnValue.textColor = dropdownButton.textColor;
+          returnValue.allowed = dropdownButton.allowed;
+          break;
+        }
+        case UserListDropdownItemType.SEPARATOR: {
+          returnValue.allowed = true;
+          returnValue.isSeparator = true;
+          break;
+        }
+        default:
+          break;
+      }
+      return returnValue;
+    },
+  );
 
 const UserActions: React.FC<UserActionsProps> = ({
   user,
@@ -142,13 +191,14 @@ const UserActions: React.FC<UserActionsProps> = ({
   usersPolicies,
   isBreakout,
   children,
+  pageId,
 }) => {
   const intl = useIntl();
   const [showNestedOptions, setShowNestedOptions] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const actionsnPermitions = generateActionsPermissions(
     user,
     currentUser,
@@ -182,13 +232,22 @@ const UserActions: React.FC<UserActionsProps> = ({
     && !user.isModerator;
 
   let userListDropdownItems = [] as PluginSdk.UserListDropdownItem[];
-  if (pluginsProvidedAggregatedState.userListDropdownItems) {
+  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
     userListDropdownItems = [
-      ...pluginsProvidedAggregatedState.userListDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
     ];
   }
 
+  const userDropdownItems = userListDropdownItems.filter(
+    (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
+  );
+
+  const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
+
   const dropdownOptions = [
+    ...makeDropdownPluginItem(userDropdownItems.filter(
+      (item: PluginSdk.UserListDropdownItem) => (item?.type === UserListDropdownItemType.INFORMATION),
+    )),
     {
       allowed: allowedToChangeStatus,
       key: 'setstatus',
@@ -278,17 +337,18 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'unmute',
+      dataTest: 'unmuteUser',
     },
     {
       allowed: allowedToChangeWhiteboardAccess
         && !user.presenter
         && !isVoiceOnlyUser(user.userId),
       key: 'changeWhiteboardAccess',
-      label: user.whiteboardAccess
+      label: hasWhiteboardAccess
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        changeWhiteboardAccess(user.userId, user.presPagesWritable.length > 0);
+        changeWhiteboardAccess(pageId, user.userId, hasWhiteboardAccess);
         setSelected(false);
       },
       icon: 'pen_tool',
@@ -373,6 +433,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setSelected(false);
       },
       icon: 'video_off',
+      dataTest: 'ejectCamera',
     },
     {
       allowed: allowedToSetAway,
@@ -384,39 +445,9 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'time',
     },
-    ...userListDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
-    ).map((userListDropdownItem: PluginSdk.UserListDropdownItem) => {
-      const returnValue: DropdownItem = {
-        isSeparator: false,
-        key: userListDropdownItem.id,
-        iconRight: undefined,
-        onClick: undefined,
-        label: undefined,
-        icon: undefined,
-        tooltip: undefined,
-        allowed: undefined,
-      };
-      switch (userListDropdownItem.type) {
-        case PluginSdk.UserListDropdownItemType.OPTION: {
-          const dropdownButton = userListDropdownItem as PluginSdk.UserListDropdownOption;
-          returnValue.label = dropdownButton.label;
-          returnValue.tooltip = dropdownButton.tooltip;
-          returnValue.icon = dropdownButton.icon;
-          returnValue.allowed = dropdownButton.allowed;
-          returnValue.onClick = dropdownButton.onClick;
-          break;
-        }
-        case PluginSdk.UserListDropdownItemType.SEPARATOR: {
-          returnValue.allowed = true;
-          returnValue.isSeparator = true;
-          break;
-        }
-        default:
-          break;
-      }
-      return returnValue;
-    }),
+    ...makeDropdownPluginItem(userDropdownItems.filter(
+      (item: PluginSdk.UserListDropdownItem) => (item?.type !== UserListDropdownItemType.INFORMATION),
+    )),
   ];
 
   const nestedOptions = [

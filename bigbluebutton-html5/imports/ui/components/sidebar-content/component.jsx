@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { ACTIONS, PANELS } from '../layout/enums';
-import ChatContainer from '/imports/ui/components/chat/container';
+import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
 import NotesContainer from '/imports/ui/components/notes/container';
 import PollContainer from '/imports/ui/components/poll/container';
 import CaptionsContainer from '/imports/ui/components/captions/container';
@@ -50,6 +50,8 @@ const SidebarContent = (props) => {
     sidebarContentPanel,
     amIPresenter,
     isSharedNotesPinned,
+    currentSlideId,
+    amIModerator,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -141,7 +143,7 @@ const SidebarContent = (props) => {
           isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
         />
       )}
-      {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
+      {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer amIModerator={amIModerator} />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
@@ -150,7 +152,11 @@ const SidebarContent = (props) => {
           style={{ minWidth, top: '0', display: pollDisplay }}
           id="pollPanel"
         >
-          <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
+          <PollContainer
+            smallSidebar={smallSidebar}
+            amIPresenter={amIPresenter}
+            currentSlideId={currentSlideId}
+          />
         </Styled.Poll>
       )}
     </Resizable>

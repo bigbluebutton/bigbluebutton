@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
-	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/invalidator"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -13,15 +12,22 @@ import (
 
 func main() {
 	// Configure logger
-	log.SetLevel(log.InfoLevel)
+	if logLevelFromEnvVar, err := log.ParseLevel(os.Getenv("BBB_GRAPHQL_MIDDLEWARE_LOG_LEVEL")); err == nil {
+		log.SetLevel(logLevelFromEnvVar)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+
 	log.SetFormatter(&log.JSONFormatter{})
-	log := log.WithField("_routine", "SessionTokenReader")
+	log := log.WithField("_routine", "main")
+
+	log.Infof("Logger level=%v", log.Logger.Level)
 
 	//Clear cache from last exec
 	msgpatch.ClearAllCaches()
 
-	// Connection invalidator
-	go invalidator.BrowserConnectionInvalidator()
+	// Listen msgs from akka (for example to invalidate connection)
+	go websrv.StartRedisListener()
 
 	// Websocket listener
 	// set default port

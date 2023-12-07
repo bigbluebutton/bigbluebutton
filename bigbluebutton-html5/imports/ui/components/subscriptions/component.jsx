@@ -2,10 +2,7 @@ import { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
-import GroupChat from '/imports/api/group-chat';
-import Annotations from '/imports/api/annotations';
 import Users from '/imports/api/users';
-import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 import { localCollectionRegistry } from '/client/collection-mirror-initializer';
 import SubscriptionRegistry, {
   subscriptionReactivity,
@@ -18,25 +15,17 @@ const SUBSCRIPTIONS = [
   'users',
   'meetings',
   'polls',
-  'presentations',
-  'slides',
-  'slide-positions',
   'captions',
   'voiceUsers',
-  'whiteboard-multi-user',
   'screenshare',
-  'presentation-pods',
   'users-settings',
   'guestUser',
   'users-infos',
   'meeting-time-remaining',
   'local-settings',
-  'users-typing',
   'record-meetings',
   'video-streams',
-  'connection-status',
   'voice-call-states',
-  'external-video-meetings',
   'breakouts',
   'breakouts-history',
   'pads',
@@ -47,7 +36,6 @@ const SUBSCRIPTIONS = [
   'layout-meetings',
   'user-reaction',
   'timer',
-  // 'group-chat'
 ];
 const {
   localBreakoutsSync,
@@ -103,6 +91,7 @@ export default withTracker(() => {
         },
         'Error while subscribing to collections'
       );
+      console.log('-------------------------', {error});
       Session.set('codeError', error.error);
     },
   };
@@ -147,7 +136,6 @@ export default withTracker(() => {
         SubscriptionRegistry.getSubscription('users'),
         SubscriptionRegistry.getSubscription('breakouts'),
         SubscriptionRegistry.getSubscription('breakouts-history'),
-        SubscriptionRegistry.getSubscription('connection-status'),
         SubscriptionRegistry.getSubscription('guestUser'),
       ].forEach((item) => {
         if (item) item.stop();
@@ -158,35 +146,11 @@ export default withTracker(() => {
 
   subscriptionsHandlers = subscriptionsHandlers.filter((obj) => obj);
   const ready = subscriptionsHandlers.every((handler) => handler.ready());
-  let groupChatMessageHandler = {};
-
-  // if (isChatEnabled() && ready) {
-  //   const subHandler = {
-  //     ...subscriptionErrorHandler,
-  //   };
-
-  //   groupChatMessageHandler = Meteor.subscribe('group-chat-msg', subHandler);
-  // }
 
   // TODO: Refactor all the late subscribers
   let usersPersistentDataHandler = {};
   if (ready) {
     usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
-    const annotationsHandler = Meteor.subscribe('annotations', {
-      onReady: () => {
-        AnnotationsLocal.remove({});
-        Annotations.find({}, { reactive: false }).forEach((a) => {
-          try {
-            AnnotationsLocal.insert(a);
-          } catch (e) {
-            // TODO
-          }
-        });
-        annotationsHandler.stop();
-      },
-      ...subscriptionErrorHandler,
-    });
-
     Object.values(localCollectionRegistry).forEach((localCollection) =>
       localCollection.checkForStaleData()
     );

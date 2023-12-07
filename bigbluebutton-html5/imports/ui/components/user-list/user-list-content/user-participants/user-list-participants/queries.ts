@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export const MEETING_PERMISSIONS_SUBSCRIPTION = gql`subscription {
   meeting {
     meetingId
+    isBreakout
     lockSettings {
       disableCam
       disableMic

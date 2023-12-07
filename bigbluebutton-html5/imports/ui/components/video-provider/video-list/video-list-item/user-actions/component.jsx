@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import VideoService from '/imports/ui/components/video-provider/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
+import { UserCameraDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-camera-dropdown-item/enums';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -62,13 +65,26 @@ const intlMessages = defineMessages({
   disableDesc: {
     id: 'app.videoDock.webcamDisableDesc',
   },
+  disableWarning: {
+    id: 'app.videoDock.webcamDisableWarning',
+  },
 });
 
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
     isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
+    amIModerator,
   } = props;
+
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+
+  let userCameraDropdownItems = [];
+  if (pluginsExtensibleAreasAggregatedState.userCameraDropdownItems) {
+    userCameraDropdownItems = [
+      ...pluginsExtensibleAreasAggregatedState.userCameraDropdownItems,
+    ];
+  }
 
   const intl = useIntl();
   const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -89,6 +105,7 @@ const UserActions = (props) => {
     const toggleDisableCam = () => {
       if (!isCameraDisabled) {
         Session.set('disabledCams', [...disabledCams, cameraId]);
+        notify(intl.formatMessage(intlMessages.disableWarning), 'info', 'warning');
       } else {
         Session.set('disabledCams', disabledCams.filter((cId) => cId !== cameraId));
       }
@@ -144,7 +161,7 @@ const UserActions = (props) => {
       });
     }
 
-    if (VideoService.isVideoPinEnabledForCurrentUser() && isStream) {
+    if (VideoService.isVideoPinEnabledForCurrentUser(amIModerator) && isStream) {
       menuItems.push({
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
@@ -153,6 +170,27 @@ const UserActions = (props) => {
         dataTest: 'pinWebcamBtn',
       });
     }
+
+    userCameraDropdownItems.forEach((pluginItem) => {
+      switch (pluginItem.type) {
+        case UserCameraDropdownItemType.OPTION:
+          menuItems.push({
+            key: pluginItem.id,
+            label: pluginItem.label,
+            onClick: pluginItem.onClick,
+            icon: pluginItem.icon,
+          });
+          break;
+        case UserCameraDropdownItemType.SEPARATOR:
+          menuItems.push({
+            key: pluginItem.id,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
 
     return menuItems;
   };
@@ -187,6 +225,7 @@ const UserActions = (props) => {
               <Styled.DropdownTrigger
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
+                isRTL={isRTL}
               >
                 {name}
               </Styled.DropdownTrigger>

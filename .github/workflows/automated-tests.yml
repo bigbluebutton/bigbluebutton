@@ -13,6 +13,7 @@ on:
     paths-ignore:
       - "docs/**"
       - "**/*.md"
+      - "bigbluebutton-html5/public/locales/*.json"
 permissions:
   contents: read
 concurrency:
@@ -53,7 +54,7 @@ jobs:
             build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
           - package: bbb-graphql-server
             build-name: bbb-graphql-server
-            build-list: bbb-graphql-server bbb-graphql-middleware
+            build-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions-adapter-server
           - package: bbb-etherpad
             cache-files-list: bbb-etherpad.placeholder.sh
             cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
@@ -72,7 +73,7 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton
+            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
     steps:
       - uses: actions/checkout@v3
       - name: Merge branches
@@ -252,7 +253,7 @@ jobs:
           apt --purge -y remove apache2-bin
           '
       - name: Install BBB
-        timeout-minutes: 15
+        timeout-minutes: 25
         run: |
           sudo -i <<EOF
           set -e
@@ -263,6 +264,12 @@ jobs:
           sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
           bbb-conf --restart
           EOF
+      - name: List systemctl services
+        timeout-minutes: 1
+        run: |
+          sudo -i <<EOF
+          systemctl --type=service --state=running,exited,failed --all --no-pager --no-legend
+          EOF
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         run: |
@@ -272,13 +279,18 @@ jobs:
           npx playwright install
           '
       - name: Run tests
-        working-directory: ./bigbluebutton-tests/playwright
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: |
+            cd ./bigbluebutton-tests/playwright
+            npm run test-chromium-ci -- --shard ${{ matrix.shard }}
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/api
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci -- --shard ${{ matrix.shard }}
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
         if: |

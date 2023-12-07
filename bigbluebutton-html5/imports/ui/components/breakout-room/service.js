@@ -2,12 +2,9 @@ import Breakouts from '/imports/api/breakouts';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UploadingPresentations } from '/imports/api/presentations';
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const findBreakouts = () => {
   const BreakoutRooms = Breakouts.find(
@@ -143,11 +140,6 @@ const transferToBreakout = (breakoutId) => {
   transferUserToMeeting(Auth.meetingID, breakoutMeeting.meetingId);
 };
 
-const amIModerator = () => {
-  const User = Users.findOne({ intId: Auth.userID }, { fields: { role: 1 } });
-  return User.role === ROLE_MODERATOR;
-};
-
 const getBreakoutByUserId = (userId) =>
   Breakouts.find(
     { [`url_${userId}`]: { $exists: true } },
@@ -234,7 +226,6 @@ export default {
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
-  amIModerator,
   getLastBreakoutByUserId,
   getBreakouts,
   getBreakoutsNoTime,

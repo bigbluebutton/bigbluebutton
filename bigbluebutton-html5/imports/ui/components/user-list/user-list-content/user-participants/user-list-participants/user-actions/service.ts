@@ -116,7 +116,7 @@ export const isVideoPinEnabledForCurrentUser = (
   currentUser: User,
   isBreakout: boolean,
 ) => {
-  const isModerator = currentUser;
+  const { isModerator } = currentUser;
   const isPinEnabled = PIN_WEBCAM;
 
   return !!(isModerator
@@ -153,8 +153,8 @@ export const toggleVoice = (userId: string) => {
   }
 };
 
-export const changeWhiteboardAccess = (userId: string, whiteboardAccess: boolean) => {
-  WhiteboardService.changeWhiteboardAccess(userId, !whiteboardAccess);
+export const changeWhiteboardAccess = (pageId: string, userId: string, whiteboardAccess: boolean) => {
+  WhiteboardService.changeWhiteboardAccess(pageId, userId, !whiteboardAccess);
 };
 
 export const removeUser = (userId: string, banUser: boolean) => {

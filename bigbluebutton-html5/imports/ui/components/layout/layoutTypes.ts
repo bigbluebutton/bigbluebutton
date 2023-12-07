@@ -50,7 +50,7 @@ interface CameraDock {
     tabOrder?: number;
 }
 
-interface ExternalVideo {
+export interface ExternalVideo {
     browserHeight?: number;
     browserWidth?: number;
     hasExternalVideo?: boolean;
@@ -61,6 +61,7 @@ interface ExternalVideo {
     tabOrder?: number;
     top?: number;
     zIndex?: number;
+    right?: number;
 }
 interface NavBar {
     hasNavBar?: boolean;
@@ -251,4 +252,4 @@ interface Layout {
     output: Output;
 }
 
-export { Input, Layout };
+export { Input, Layout, Output };

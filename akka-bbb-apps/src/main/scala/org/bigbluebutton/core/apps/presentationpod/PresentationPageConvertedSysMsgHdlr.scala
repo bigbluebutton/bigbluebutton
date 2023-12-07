@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.presentationpod
 import org.bigbluebutton.common2.domain.PresentationPageVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.PresPresentationDAO
+import org.bigbluebutton.core.db.{ PresPageDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage }
 import org.bigbluebutton.core.running.LiveMeeting
@@ -55,6 +55,7 @@ trait PresentationPageConvertedSysMsgHdlr {
       msg.body.page.id,
       msg.body.page.num,
       msg.body.page.urls,
+      msg.body.page.content,
       msg.body.page.current,
       width = msg.body.page.width,
       height = msg.body.page.height,
@@ -69,7 +70,7 @@ trait PresentationPageConvertedSysMsgHdlr {
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, newPres)
 
-      PresPresentationDAO.insertOrUpdate(msg.header.meetingId, newPres)
+      PresPageDAO.insert(pres.id, page)
       state.update(pods)
     }
 

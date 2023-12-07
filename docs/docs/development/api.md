@@ -104,9 +104,11 @@ Updated in 2.6:
 
 Updated in 2.7:
 
-- **create** - **Added:**  Added `timer`, added `disabledFeatures` options`cameraAsContent` and `snapshotOfCurrentSlide`.
-
+- **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`.
 - **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
+
+Updated in 3.0:
+
 
 ## API Data Types
 

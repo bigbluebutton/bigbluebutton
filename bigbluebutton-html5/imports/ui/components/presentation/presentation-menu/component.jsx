@@ -4,6 +4,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { toPng } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
+import {
+  PresentationDropdownItemType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-dropdown-item/enums';
+
 import Styled from './styles';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -43,7 +47,7 @@ const intlMessages = defineMessages({
     defaultMessage: 'Minimize',
   },
   optionsLabel: {
-    id: 'app.navBar.settingsDropdown.optionsLabel',
+    id: 'app.navBar.optionsDropdown.optionsLabel',
     description: 'Options button label',
     defaultMessage: 'Options',
   },
@@ -88,6 +92,10 @@ const propTypes = {
     getShapes: PropTypes.func.isRequired,
     currentPageId: PropTypes.string.isRequired,
   }),
+  presentationDropdownItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    type: PropTypes.string,
+  })).isRequired,
 };
 
 const defaultProps = {
@@ -124,6 +132,11 @@ const PresentationMenu = (props) => {
     isToolbarVisible,
     setIsToolbarVisible,
     allowSnapshotOfCurrentSlide,
+    presentationDropdownItems,
+    slideNum,
+    currentUser,
+    whiteboardId,
+    persistShape
   } = props;
 
   const [state, setState] = useState({
@@ -144,6 +157,68 @@ const PresentationMenu = (props) => {
     ? intl.formatMessage(intlMessages.hideToolsDesc)
     : intl.formatMessage(intlMessages.showToolsDesc)
   );
+
+  const extractShapes = (savedState) => {
+    let data;
+
+    // Check if savedState is a string (JSON) or an object
+    if (typeof savedState === 'string') {
+      try {
+        data = JSON.parse(savedState);
+      } catch (e) {
+        console.error('Error parsing JSON:', e);
+        return {};
+      }
+    } else if (typeof savedState === 'object' && savedState !== null) {
+      data = savedState;
+    } else {
+      console.error('Invalid savedState type:', typeof savedState);
+      return {};
+    }
+
+    // Check if 'records' key exists and extract shapes into an object keyed by shape ID
+    if (data && data.records) {
+      return data.records.reduce((acc, record) => {
+        if (record.typeName === 'shape') {
+          acc[record.id] = record;
+        }
+        return acc;
+      }, {});
+    }
+
+    return {};
+  };
+
+  const handleFileInput = (event) => {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const fileContent = e.target.result;
+        const dataObj = extractShapes(JSON.parse(fileContent));
+        const dataArray = Object.values(dataObj);
+        dataArray.forEach(shape => {
+          shape.parentId = `page:${slideNum}`;
+          shape.meta.createdBy = currentUser.userId;
+          persistShape(shape, whiteboardId, currentUser.isModerator);
+        });
+      };
+      reader.readAsText(file);
+
+      // Reset the file input
+      fileInput.value = '';
+    }
+  };
+
+  const handleFileClick = () => {
+    const fileInput = document.getElementById('hiddenFileInput');
+    if (fileInput) {
+      fileInput.click();
+    } else {
+      console.error('File input not found');
+    }
+  };
 
   function renderToastContent() {
     const { loading, hasError } = state;
@@ -298,6 +373,37 @@ const PresentationMenu = (props) => {
       );
     }
 
+    if (props.amIPresenter) {
+      menuItems.push({
+        key: 'list-item-load-shapes',
+        dataTest: 'loadShapes',
+        label: 'Load .tldr Data',
+        icon: 'pen_tool',
+        onClick: handleFileClick,
+      });
+    }
+
+    presentationDropdownItems.forEach((item, index) => {
+      switch (item.type) {
+        case PresentationDropdownItemType.OPTION:
+          menuItems.push({
+            key: `${item.id}-${index}`,
+            label: item.label,
+            icon: item.icon,
+            onClick: item.onClick,
+          });
+          break;
+        case PresentationDropdownItemType.SEPARATOR:
+          menuItems.push({
+            key: `${item.id}-${index}`,
+            isSeparator: true,
+          });
+          break;
+        default:
+          break;
+      }
+    });
+
     return menuItems;
   }
 
@@ -344,6 +450,7 @@ const PresentationMenu = (props) => {
               state={isDropdownOpen ? 'open' : 'closed'}
               aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
               data-test="whiteboardOptionsButton"
+              data-state={isDropdownOpen ? 'open' : 'closed'}
               onClick={() => {
                 setIsDropdownOpen((isOpen) => !isOpen);
               }}
@@ -364,6 +471,12 @@ const PresentationMenu = (props) => {
           container: fullscreenRef,
         }}
         actions={options}
+      />
+      <input
+        type="file"
+        id="hiddenFileInput"
+        style={{ display: 'none' }}
+        onChange={handleFileInput}
       />
     </Styled.Left>
   );

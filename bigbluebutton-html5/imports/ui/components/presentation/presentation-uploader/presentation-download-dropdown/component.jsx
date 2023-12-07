@@ -41,6 +41,7 @@ const propTypes = {
   handleDownloadableChange: PropTypes.func.isRequired,
   isDownloadable: PropTypes.bool.isRequired,
   allowDownloadOriginal: PropTypes.bool.isRequired,
+  allowDownloadConverted: PropTypes.bool.isRequired,
   allowDownloadWithAnnotations: PropTypes.bool.isRequired,
   item: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -89,6 +90,7 @@ class PresentationDownloadDropdown extends PureComponent {
       handleDownloadableChange,
       isDownloadable,
       allowDownloadOriginal,
+      allowDownloadConverted,
       allowDownloadWithAnnotations,
       item,
       closeModal,
@@ -96,9 +98,10 @@ class PresentationDownloadDropdown extends PureComponent {
 
     this.menuItems = [];
 
-    const { filenameConverted, filename, downloadableExtension } = item;
+    const { filenameConverted, name, downloadFileUri } = item;
     const convertedFileExtension = filenameConverted?.split('.').slice(-1)[0];
-    const originalFileExtension = filename?.split('.').slice(-1)[0];
+    const downloadableExtension = downloadFileUri?.split('.').slice(-1)[0];
+    const originalFileExtension = name?.split('.').slice(-1)[0];
     const changeDownloadOriginalOrConvertedPresentation = (enableDownload, fileStateType) => {
       handleDownloadableChange(item, fileStateType, enableDownload);
       if (enableDownload) {
@@ -126,6 +129,8 @@ class PresentationDownloadDropdown extends PureComponent {
           onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Original'),
         });
       }
+    }
+    if (allowDownloadConverted) {
       if ((!!filenameConverted && filenameConverted !== '')
         && convertedFileExtension !== originalFileExtension) {
         if (isDownloadable && !!downloadableExtension

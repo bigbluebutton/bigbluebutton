@@ -6,9 +6,13 @@ import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPage
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
 
-import java.io.IOException
+import java.io.{ BufferedReader, IOException, InputStreamReader }
 import java.net.URL
+import java.nio.charset.StandardCharsets
+import java.util.stream.Collectors
 import javax.imageio.ImageIO
+import scala.io.Source
+import scala.util.{ Failure, Success, Try, Using }
 import scala.xml.XML
 
 object MsgBuilder {
@@ -46,7 +50,7 @@ object MsgBuilder {
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken, sessionToken = msg.sessionToken,
       avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
-      excludeFromDashboard = msg.excludeFromDashboard, customParameters = msg.customParameters)
+      excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout, customParameters = msg.customParameters)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -80,34 +84,60 @@ object MsgBuilder {
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
-    try {
-      val imgUrl = new URL(svgUrl)
-      val imgContent = XML.load(imgUrl)
+    val result = Using.Manager { use =>
+      val contentUrl = new URL(txtUrl)
+      val stream = use(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
+      val reader = use(new BufferedReader(stream))
+      val content = reader.lines().collect(Collectors.joining("\n"))
 
-      val w = (imgContent \ "@width").text.replaceAll("[^\\d]", "")
-      val h = (imgContent \ "@height").text.replaceAll("[^\\d]", "")
+      val svgSource = Source.fromURL(new URL(svgUrl))
+      val svgContent = svgSource.mkString
+      svgSource.close()
 
-      val width = w.toInt
-      val height = h.toInt
+      // XML parser configuration in use disallows the DOCTYPE declaration within the XML document
+      // Sanitize the XML content removing DOCTYPE
+      val sanitizedSvgContent = "(?i)<!DOCTYPE[^>]*>".r.replaceAllIn(svgContent, "")
+
+      val xmlContent = XML.loadString(sanitizedSvgContent)
+
+      val w = (xmlContent \ "@width").text.replaceAll("[^.0-9]", "")
+      val h = (xmlContent \ "@height").text.replaceAll("[^.0-9]", "")
+
+      val width = w.toDouble
+      val height = h.toDouble
 
       PresentationPageConvertedVO(
         id = id,
         num = page,
         urls = urls,
+        content = content,
         current = current,
         width = width,
         height = height
       )
-    } catch {
+    } recover {
       case e: Exception =>
         e.printStackTrace()
         PresentationPageConvertedVO(
           id = id,
           num = page,
           urls = urls,
+          content = "",
           current = current
         )
     }
+
+    val presentationPage = result.getOrElse(
+      PresentationPageConvertedVO(
+        id = id,
+        num = page,
+        urls = urls,
+        content = "",
+        current = current
+      )
+    )
+
+    presentationPage
   }
 
   def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {
@@ -177,7 +207,7 @@ object MsgBuilder {
     val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
       current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(),
       msg.removable.booleanValue(),
-      isInitialPresentation = msg.isInitialPresentation, msg.filenameConverted)
+      defaultPresentation = msg.defaultPresentation, msg.filenameConverted)
 
     val body = PresentationConversionCompletedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentation)
@@ -265,7 +295,9 @@ object MsgBuilder {
       podId = msg.podId,
       presentationId = msg.presId,
       current = msg.current,
+      default = msg.defaultPresentation,
       presName = msg.filename,
+      presFilenameConverted = msg.filenameConverted,
       downloadable = msg.downloadable,
       removable = msg.removable,
       numPages = msg.numPages,

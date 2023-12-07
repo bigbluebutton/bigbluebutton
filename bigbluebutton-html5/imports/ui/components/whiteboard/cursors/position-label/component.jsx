@@ -59,7 +59,7 @@ const PositionLabel = (props) => {
           y={y}
           currentPoint={currentPoint}
           tldrawCamera={tldrawCamera}
-          isMultiUserActive={isMultiUserActive(whiteboardId)}
+          isMultiUserActive={isMultiUserActive}
         />
       </div>
     </>
@@ -83,7 +83,7 @@ PositionLabel.propTypes = {
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
   }).isRequired,
-  isMultiUserActive: PropTypes.func.isRequired,
+  isMultiUserActive: PropTypes.bool.isRequired,
 };
 
 PositionLabel.defaultProps = {

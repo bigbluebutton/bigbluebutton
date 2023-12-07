@@ -2,11 +2,9 @@ import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
+import { useSubscription } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
-import PresentationService from '/imports/ui/components/presentation/service';
-import Presentations from '/imports/api/presentations';
-import { UsersContext } from '../components-data/users-context/context';
 import ActionsBar from './component';
 import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
@@ -16,19 +14,46 @@ import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
-
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
 
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
+  const isThereCurrentPresentation = !!presentationPage?.presentationId;
 
-  const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
+  const { data: currentMeeting } = useMeeting((m) => ({
+    externalVideo: m.externalVideo,
+  }));
 
-  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
+  const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
+
+  const {
+    pluginsExtensibleAreasAggregatedState,
+  } = useContext(PluginsContext);
+  let actionBarItems = [];
+  if (pluginsExtensibleAreasAggregatedState.actionsBarItems) {
+    actionBarItems = [
+      ...pluginsExtensibleAreasAggregatedState.actionsBarItems,
+    ];
+  }
+
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    emoji: user.emoji,
+    isModerator: user.isModerator,
+  }));
+  const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
+  const amIPresenter = currentUserData?.presenter;
+  const amIModerator = currentUserData?.isModerator;
 
   if (actionsBarStyle.display === false) return null;
 
@@ -37,9 +62,13 @@ const ActionsBarContainer = (props) => {
       ...{
         ...props,
         currentUser,
+        amIModerator,
         layoutContextDispatch,
         actionsBarStyle,
         amIPresenter,
+        actionBarItems,
+        isThereCurrentPresentation,
+        isSharingVideo,
       }
     }
     />
@@ -58,14 +87,10 @@ const isReactionsButtonEnabled = () => {
 };
 
 export default withTracker(() => ({
-  amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   handleTakePresenter: Service.takePresenterRole,
-  currentSlidHasContent: PresentationService.currentSlidHasContent(),
-  parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
-  isSharingVideo: Service.isSharingVideo(),
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
@@ -78,8 +103,6 @@ export default withTracker(() => ({
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
   isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
-  isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
-    { fields: {} }),
   allowExternalVideo: isExternalVideoEnabled(),
   setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

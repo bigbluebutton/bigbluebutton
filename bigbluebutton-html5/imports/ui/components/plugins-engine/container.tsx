@@ -2,12 +2,17 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import logger from '/imports/startup/client/logger';
+import {
+  BbbPluginSdk,
+} from 'bigbluebutton-html-plugin-sdk';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import * as uuidLib from 'uuid';
-import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
+import PluginHooksHandlerContainer from './data-consumption/state-manager/manager';
 import PluginsEngineComponent from './component';
 import { PluginConfig, EffectivePluginConfig } from './types';
-import PluginLoaderContainer from './plugin-loader/container';
-import PluginProvidedStateContainer from './plugin-provided-state/container';
+import PluginLoaderContainer from './loader/manager';
+import ExtensibleAreaStateManager from './extensible-areas/state-manager/manager';
+import PluginDataChannelManagerContainer from './data-channel/manager';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -47,7 +52,8 @@ const PluginsEngineContainer = () => {
       />
       {
         effectivePluginsConfig.map((effectivePluginConfig: EffectivePluginConfig) => {
-          const { uuid } = effectivePluginConfig;
+          const { uuid, name: pluginName } = effectivePluginConfig;
+          const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName);
           return (
             <div key={uuid}>
               <PluginLoaderContainer
@@ -59,8 +65,14 @@ const PluginsEngineContainer = () => {
                   pluginConfig: effectivePluginConfig,
                 }}
               />
-              <PluginProvidedStateContainer
+              <PluginDataChannelManagerContainer
                 {...{
+                  pluginApi,
+                }}
+              />
+              <ExtensibleAreaStateManager
+                {...{
+                  pluginApi,
                   uuid,
                 }}
               />

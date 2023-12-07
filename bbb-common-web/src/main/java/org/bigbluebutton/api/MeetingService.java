@@ -122,13 +122,19 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, Boolean guest,
-                           Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby, Map<String, String> customParameters) {
-    handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, sessionToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard, leftGuestLobby, customParameters));
+                           Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
+                           String enforceLayout, Map<String, String> customParameters) {
+    handle(
+            new RegisterUser(meetingID, internalUserId, fullname, role,
+                            externUserID, authToken, sessionToken, avatarURL, guest, authed, guestStatus,
+                            excludeFromDashboard, leftGuestLobby, enforceLayout, customParameters
+            )
+    );
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
-      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus, excludeFromDashboard, leftGuestLobby);
+      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus,
+                                                excludeFromDashboard, leftGuestLobby, enforceLayout);
       m.userRegistered(ruser);
     }
   }
@@ -407,7 +413,8 @@ public class MeetingService implements MessageListener {
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getHtml5InstanceId(),
             m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl());
+            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(),
+            m.getOverrideClientSettings());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -422,7 +429,7 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.guest,
-            message.authed, message.guestStatus, message.excludeFromDashboard, message.customParameters);
+      message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.customParameters);
   }
 
     public Meeting getMeeting(String meetingId) {
@@ -733,7 +740,7 @@ public class MeetingService implements MessageListener {
     uploadAuthzTokens.put(message.authzToken, message);
   }
 
-  private void expirePresentationUploadToken(String usedToken) {
+  public void expirePresentationUploadToken(String usedToken) {
     uploadAuthzTokens.remove(usedToken);
   }
 

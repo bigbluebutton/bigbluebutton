@@ -284,6 +284,7 @@ const Avatar = styled.div<AvatarProps>`
       opacity: 1;
       width: 1.2rem;
       height: 1.2rem;
+      background-color: ${colorSuccess};
     }
   `}
 
@@ -401,6 +402,12 @@ const UserNameSub = styled.span`
   }
 `;
 
+// ======================== Icon Right Container ========================
+
+const IconRightContainer = styled.div`
+  margin: .25rem;  
+`;
+
 export default {
   Avatar,
   Skeleton,
@@ -408,4 +415,5 @@ export default {
   UserNameContainer,
   UserNameSub,
   UserName,
+  IconRightContainer,
 };

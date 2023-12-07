@@ -24,7 +24,7 @@ export default async function requestPresentationUploadToken(
     const payload = {
       podId,
       filename,
-      temporaryPresentationId,
+      uploadTemporaryId: temporaryPresentationId,
     };
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

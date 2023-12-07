@@ -11,7 +11,7 @@ const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const SmartLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -184,7 +184,8 @@ const SmartLayout = (props) => {
       return baseBounds;
     }
 
-    const { camerasMargin, presentationToolbarMinWidth, navBarHeight } = DEFAULT_VALUES;
+    const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
@@ -197,7 +198,7 @@ const SmartLayout = (props) => {
 
     cameraDockBounds.top = navBarHeight;
     cameraDockBounds.left = mediaAreaBounds.left;
-    cameraDockBounds.right = isRTL ? sidebarSize + camerasMargin * 2 : null;
+    cameraDockBounds.right = isRTL ? sidebarSize : null;
     cameraDockBounds.zIndex = 1;
 
     if (mediaBounds.width < mediaAreaBounds.width) {

@@ -11,6 +11,7 @@ public class DocConversionRequestReceived implements IDocConversionMsg {
     public final Boolean removable;
     public final Boolean current;
 
+
     public DocConversionRequestReceived(String podId,
                                         String meetingId,
                                         String presId,
@@ -19,7 +20,8 @@ public class DocConversionRequestReceived implements IDocConversionMsg {
                                         String authzToken,
                                         Boolean downloadable,
                                         Boolean removable,
-                                        Boolean current) {
+                                        Boolean current
+                                        ) {
         this.podId = podId;
         this.meetingId = meetingId;
         this.presId = presId;

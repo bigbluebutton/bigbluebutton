@@ -6,6 +6,7 @@ subscription userCurrentSubscription {
     authed
     avatar
     banned
+    enforceLayout
     cameras {
     streamId
   }
@@ -35,8 +36,8 @@ subscription userCurrentSubscription {
       sequence
       shortName
     }
-    localSettings {
-      settingsJson
+    userClientSettings {
+      userClientSettingsJson
     }
     locked
     loggedOut
