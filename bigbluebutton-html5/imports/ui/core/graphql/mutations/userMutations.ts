@@ -83,6 +83,12 @@ export const CLEAR_ALL_EMOJI = gql`
   }
 `;
 
+export const CLEAR_ALL_REACTION = gql`
+  mutation ClearAllUsersReaction {
+    allUsersClearReaction
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
@@ -94,4 +100,5 @@ export default {
   SET_REACTION_EMOJI,
   SET_LOCKED,
   CLEAR_ALL_EMOJI,
+  CLEAR_ALL_REACTION,
 };

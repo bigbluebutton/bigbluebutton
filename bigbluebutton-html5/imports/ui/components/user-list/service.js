@@ -480,10 +480,6 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const clearAllReactions = () => {
-  makeCall('clearAllUsersReaction');
-};
-
 const toggleVoice = (userId) => {
   if (userId === Auth.userID) {
     AudioService.toggleMuteMicrophone();
@@ -706,7 +702,6 @@ const UserLeftMeetingAlert = (obj) => {
 export default {
   sortUsersByName,
   sortUsers,
-  clearAllReactions,
   toggleVoice,
   muteAllUsers,
   muteAllExceptPresenter,
