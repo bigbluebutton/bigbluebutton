@@ -4,6 +4,7 @@ import { AutoSizer } from 'react-virtualized';
 import { debounce } from 'radash';
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { findDOMNode } from 'react-dom';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import ListItem from './list-item/component';
 import Skeleton from './list-item/skeleton/component';
@@ -102,6 +103,13 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
     const fourthChild = firstChild?.firstChild?.firstChild?.firstChild;
     if (fourthChild && fourthChild instanceof HTMLElement) fourthChild.focus();
   }, [selectedUser]);
+
+  useEffect(() => {
+    window.dispatchEvent(new Event(PluginSdk.UserListEventsNames.USER_LIST_OPENED));
+    return () => {
+      window.dispatchEvent(new Event(PluginSdk.UserListEventsNames.USER_LIST_CLOSED));
+    };
+  }, []);
 
   const rove = (event: React.KeyboardEvent) => {
     // eslint-disable-next-line react/no-find-dom-node
