@@ -514,7 +514,7 @@ CREATE TABLE "user_voice" (
 );
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
 ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
-GENERATED ALWAYS AS (to_timestamp(COALESCE("endTime","startTime")::double precision / 1000)) STORED;
+GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
 
 CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","talking");
 CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("userId","hideTalkingIndicatorAt");
