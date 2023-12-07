@@ -38,7 +38,7 @@ const config = {
                     lastVersion: '2.7',
                     includeCurrentVersion: false,
                     versions: {
-                        '2.5': {
+                        '2.5-legacy': {
                             banner: 'none'
                         },
                         '2.6': {
@@ -111,6 +111,11 @@ const config = {
                         // creates new routes /dev/something pointing to /development
                         redirect_list.push( path.replace("/development", "/dev") );
                     }
+                    // redirect old links to the now modified url (includes -legacy)
+                    if ( path.startsWith("/2.5") ) {
+                        redirect_list.push( path.replace("/2.5", "/2.5-legacy") );
+                    }
+
                     return redirect_list;
                 },
             }
