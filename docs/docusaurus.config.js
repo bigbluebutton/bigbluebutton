@@ -47,6 +47,9 @@ const config = {
                         '2.7': {
                             banner: 'none'
                         },
+			'3.0': {
+			    banner: 'none'
+			}
                     }
                 },
                 theme: {
