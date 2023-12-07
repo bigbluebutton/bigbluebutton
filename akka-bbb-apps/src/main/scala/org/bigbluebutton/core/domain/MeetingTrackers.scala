@@ -40,6 +40,11 @@ case class MeetingExpiryTracker(
     copy(lastModeratorLeftOnInMs = timestampInMs)
   }
 
+  def modifyMeetingDuration(seconds: Int): MeetingExpiryTracker = {
+    val modifiedDuration: Long = durationInMs + (seconds * 1000)
+    copy(durationInMs = modifiedDuration)
+  }
+
   def hasMeetingExpiredAfterLastUserLeft(timestampInMs: Long): Boolean = {
     val expire = for {
       lastUserLeftOn <- lastUserLeftOnInMs

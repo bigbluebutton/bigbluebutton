@@ -22,6 +22,8 @@ case class RegisterUser(meetingId: String, intUserId: String, name: String, role
 
 case class CreateMeetingMsg(defaultProps: DefaultProps)
 
+case class ModifyMeetingDurationMsg(meetingId: String, seconds: Int)
+
 object MeetingsManagerActor {
   def props(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus): Props =
     Props(classOf[MeetingsManagerActor], msgToAkkaAppsEventBus)

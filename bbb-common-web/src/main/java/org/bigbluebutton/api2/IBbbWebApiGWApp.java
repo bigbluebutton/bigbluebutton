@@ -61,4 +61,5 @@ public interface IBbbWebApiGWApp {
   void unpublishedRecording(UnpublishedRecordingMessage msg);
   void deletedRecording(DeletedRecordingMessage msg);
   void sendDocConversionMsg(IDocConversionMsg msg);
+  void modifyMeetingDuration(String meetingId, Integer seconds);
 }

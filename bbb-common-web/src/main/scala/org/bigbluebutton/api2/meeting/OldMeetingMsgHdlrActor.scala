@@ -24,6 +24,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: MeetingCreatedEvtMsg              => handleMeetingCreatedEvtMsg(m)
       case m: MeetingEndedEvtMsg                => handleMeetingEndedEvtMsg(m)
       case m: MeetingDestroyedEvtMsg            => handleMeetingDestroyedEvtMsg(m)
+      case m: MeetingDurationModifiedEvtMsg     => handleMeetingDurationModifiedEvtMsg(m)
       case m: CheckAlivePongSysMsg              => handleCheckAlivePongSysMsg(m)
       case m: UserEmojiChangedEvtMsg            => handleUserEmojiChangedEvtMsg(m)
       case m: PresenterUnassignedEvtMsg         => handlePresenterUnassignedEvtMsg(m)
@@ -84,6 +85,10 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleMeetingDestroyedEvtMsg(msg: MeetingDestroyedEvtMsg): Unit = {
     olgMsgGW.handle(new MeetingDestroyed(msg.body.meetingId))
+  }
+
+  def handleMeetingDurationModifiedEvtMsg(msg: MeetingDurationModifiedEvtMsg): Unit = {
+    olgMsgGW.handle(new MeetingDurationModified(msg.body.meetingId, msg.body.duration))
   }
 
   def handleCreateBreakoutRoomSysCmdMsg(msg: CreateBreakoutRoomSysCmdMsg): Unit = {

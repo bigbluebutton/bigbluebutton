@@ -1345,6 +1345,47 @@ class ApiController {
     }
   }
 
+  /***********************************
+   * MODIFYMEETINGDURATION (API)
+   ***********************************/
+  def modifyMeetingDuration = {
+    String API_CALL = 'modifyMeetingDuration'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    log.debug request.getParameterMap().toMapString()
+    log.debug request.getQueryString()
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.MODIFY_MEETING_DURATION,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
+
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    } else if(ParamsUtil.sanitizeString(params.meetingID) != params.meetingID) {
+      invalid("validationError", "Invalid meeting ID")
+      return
+    }
+
+    Meeting meeting = meetingService.getMeeting(params.meetingID)
+    String response = ""
+    if(meeting != null) {
+      if(meeting.getDuration() == 0) {
+        response = "The specified meeting has no duration to be modified"
+      } else {
+        meetingService.modifyMeetingDuration(params.meetingID, params.seconds)
+        response = "Meeting duration modified"
+      }
+    }
+
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildModifyMeetingDurationResponse(response, RESP_CODE_SUCCESS), contentType: "text/xml")
+      }
+    }
+  }
+
   def uploadDocuments(conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains("presentation")) {
       log.warn("Presentation feature is disabled.")

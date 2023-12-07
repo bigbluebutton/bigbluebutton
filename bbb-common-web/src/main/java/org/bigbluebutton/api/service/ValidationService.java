@@ -4,7 +4,6 @@ import org.bigbluebutton.api.model.request.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.ChecksumValidationGroup;
 import org.bigbluebutton.api.model.shared.GetChecksum;
-import org.bigbluebutton.api.model.shared.PostChecksum;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,8 @@ public class ValidationService {
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
         GET_JOIN_URL("getJoinUrl", RequestType.GET),
-        INSERT_DOCUMENT("insertDocument", RequestType.GET);
+        INSERT_DOCUMENT("insertDocument", RequestType.GET),
+        MODIFY_MEETING_DURATION("modifyMeetingDuration", RequestType.GET);
 
         private final String name;
         private final RequestType requestType;
@@ -122,6 +122,9 @@ public class ValidationService {
                         break;
                     case INSERT_DOCUMENT:
                         request = new InsertDocument(checksum);
+                        break;
+                    case MODIFY_MEETING_DURATION:
+                        request = new ModifyMeetingDuration(checksum);
                         break;
                     case GUEST_WAIT:
                         request = new GuestWait();

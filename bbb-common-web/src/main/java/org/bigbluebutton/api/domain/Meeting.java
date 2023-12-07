@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.api.domain;
 
+import scala.Int;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -341,6 +343,13 @@ public class Meeting {
 	public void setCaptureSlidesFilename(String filename) {
 		this.captureSlidesFilename = filename;
 	}
+
+	public void setDuration(Long duration) {
+    	try {
+    		Integer newDuration = duration == null ? null: Math.toIntExact(duration / 60000);
+    		if(newDuration != null) this.duration = newDuration;
+		} catch(ArithmeticException ignored) {}
+    }
 
 	public Integer getDuration() {
 		return duration;

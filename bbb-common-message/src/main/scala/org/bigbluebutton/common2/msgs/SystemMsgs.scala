@@ -30,6 +30,16 @@ case class EndMeetingSysCmdMsg(
 ) extends StandardMsg
 case class EndMeetingSysCmdMsgBody(meetingId: String)
 
+/**
+ * Sent by bbb-web
+ */
+object ModifyMeetingDurationSysCmdMsg { val NAME = "ModifyMeetingDurationSysCmdMsg" }
+case class ModifyMeetingDurationSysCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   ModifyMeetingDurationSysCmdMsgBody
+) extends StandardMsg
+case class ModifyMeetingDurationSysCmdMsgBody(meetingId: String, seconds: Int)
+
 object GetAllMeetingsReqMsg { val NAME = "GetAllMeetingsReqMsg" }
 case class GetAllMeetingsReqMsg(
     header: BbbCoreBaseHeader,
@@ -82,6 +92,16 @@ case class MeetingEndedEvtMsg(
     body:   MeetingEndedEvtMsgBody
 ) extends BbbCoreMsg
 case class MeetingEndedEvtMsgBody(meetingId: String)
+
+/**
+ * Sent from akka-apps to bbb-web to inform about modification of meeting duration
+ */
+object MeetingDurationModifiedEvtMsg { val NAME = "MeetingDurationModifiedEvtMsg" }
+case class MeetingDurationModifiedEvtMsg(
+    header: BbbCoreBaseHeader,
+    body:   MeetingDurationModifiedEvtMsgBody
+) extends BbbCoreMsg
+case class MeetingDurationModifiedEvtMsgBody(meetingId: String, duration: Long)
 
 /**
  * Sent from akka-apps to clients to inform them of end of meeting
