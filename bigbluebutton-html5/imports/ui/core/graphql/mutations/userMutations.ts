@@ -69,11 +69,17 @@ export const SET_REACTION_EMOJI = gql`
 `;
 
 export const SET_LOCKED = gql`
-  mutation SetEmojiStatus($userId: String!, $locked: Boolean!) {
+  mutation SetUserLocked($userId: String!, $locked: Boolean!) {
     userSetLocked(
       userId: $userId,
       locked: $locked,
     )
+  }
+`;
+
+export const CLEAR_ALL_EMOJI = gql`
+  mutation ClearAllUsersEmoji {
+    allUsersClearEmoji
   }
 `;
 
@@ -87,4 +93,5 @@ export default {
   SET_EMOJI_STATUS,
   SET_REACTION_EMOJI,
   SET_LOCKED,
+  CLEAR_ALL_EMOJI,
 };

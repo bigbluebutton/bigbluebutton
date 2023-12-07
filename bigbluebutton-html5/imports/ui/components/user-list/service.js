@@ -480,10 +480,6 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const clearAllEmojiStatus = () => {
-  makeCall('clearAllUsersEmoji');
-};
-
 const clearAllReactions = () => {
   makeCall('clearAllUsersReaction');
 };
@@ -710,7 +706,6 @@ const UserLeftMeetingAlert = (obj) => {
 export default {
   sortUsersByName,
   sortUsers,
-  clearAllEmojiStatus,
   clearAllReactions,
   toggleVoice,
   muteAllUsers,
