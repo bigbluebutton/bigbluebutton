@@ -60,6 +60,18 @@ type Mutation {
 }
 
 type Mutation {
+  captionSubmitText(
+    transcriptId: String!
+    start: Int!
+    end: Int!
+    text: String!
+    transcript: String!
+    locale: String!
+    isFinal: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   chatCreateWithUser(
     userId: String!
   ): Boolean
