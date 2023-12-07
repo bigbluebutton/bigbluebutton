@@ -106,6 +106,12 @@ export const SET_SPEECH_LOCALE = gql`
   }
 `;
 
+export const PICK_RANDOM_VIEWER = gql`
+  mutation PickRandomViewer {
+    pickRandomViewer
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
@@ -120,4 +126,5 @@ export default {
   CLEAR_ALL_REACTION,
   SET_EXIT_REASON,
   SET_SPEECH_LOCALE,
+  PICK_RANDOM_VIEWER,
 };
