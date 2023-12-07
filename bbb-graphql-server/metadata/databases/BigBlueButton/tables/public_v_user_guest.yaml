@@ -25,6 +25,7 @@ select_permissions:
         - isAllowed
         - isDenied
         - isWaiting
+        - positionInWaitingQueue
         - userId
       filter:
         _or:
