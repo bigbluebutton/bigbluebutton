@@ -28,25 +28,5 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     heightRatio: input.heightRatio
   };
 
-  // check(meetingId, String);
-  // check(requesterUserId, String);
-  // check(slideNumber, Number);
-  // check(podId, String);
-  // check(widthRatio, Number);
-  // check(heightRatio, Number);
-  // check(x, Number);
-  // check(y, Number);
-  //
-  // const payload = {
-  //   podId,
-  //   presentationId,
-  //   pageId: `${presentationId}/${slideNumber}`,
-  //   xOffset: x,
-  //   yOffset: y,
-  //   widthRatio,
-  //   heightRatio,
-  //   slideNumber,
-  // };
-
   return { eventName, routing, header, body };
 }
