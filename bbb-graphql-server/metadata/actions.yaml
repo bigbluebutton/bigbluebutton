@@ -47,6 +47,18 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: cameraBroadcastStart
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: cameraBroadcastStop
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: chatCreateWithUser
     definition:
       kind: synchronous
@@ -257,6 +269,18 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: sharedNotesCreateSession
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: sharedNotesSetPinned
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: timerActivate
     definition:
       kind: synchronous
@@ -372,6 +396,12 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: userSetMuted
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: userSetPresenter
     definition:
       kind: synchronous
@@ -402,31 +432,13 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: userTransferVoiceToMeeting
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
-  - name: userSetMuted
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
-  - name: cameraBroadcastStart
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
-  - name: cameraBroadcastStop
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
   - name: userThirdPartyInfoResquest
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: userTransferVoiceToMeeting
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
