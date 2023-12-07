@@ -44,10 +44,19 @@ export const EJECT_FROM_VOICE = gql`
   }
 `;
 
+export const SET_PRESENTER = gql`
+  mutation SetPresenter($userId: String!) {
+    userSetPresenter(
+      userId: $userId,
+    )
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
   SET_MOBILE_FLAG,
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
+  SET_PRESENTER,
 };

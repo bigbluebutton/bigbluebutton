@@ -495,8 +495,6 @@ const clearAllReactions = () => {
   makeCall('clearAllUsersReaction');
 };
 
-const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
-
 const toggleVoice = (userId) => {
   if (userId === Auth.userID) {
     AudioService.toggleMuteMicrophone();
@@ -726,7 +724,6 @@ export default {
   setEmojiStatus,
   clearAllEmojiStatus,
   clearAllReactions,
-  assignPresenter,
   toggleVoice,
   muteAllUsers,
   muteAllExceptPresenter,

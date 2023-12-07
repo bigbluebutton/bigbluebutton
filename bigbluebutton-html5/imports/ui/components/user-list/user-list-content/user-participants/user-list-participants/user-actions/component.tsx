@@ -13,6 +13,7 @@ import {
   SET_CAMERA_PINNED,
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
+  SET_PRESENTER,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
@@ -258,6 +259,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
+  const [setPresenter] = useMutation(SET_PRESENTER);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -399,7 +401,11 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.takePresenterLabel)
         : intl.formatMessage(messages.makePresenterLabel),
       onClick: () => {
-        makeCall('assignPresenter', user.userId);
+        setPresenter({
+          variables: {
+            userId: user.userId,
+          },
+        });
         setSelected(false);
       },
       icon: 'presentation',
