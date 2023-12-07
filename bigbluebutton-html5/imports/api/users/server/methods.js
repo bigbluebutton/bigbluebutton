@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import validateAuthToken from './methods/validateAuthToken';
 import setSpeechLocale from './methods/setSpeechLocale';
-import toggleUserLock from './methods/toggleUserLock';
 import setUserEffectiveConnectionType from './methods/setUserEffectiveConnectionType';
 import userActivitySign from './methods/userActivitySign';
 import userLeftMeeting from './methods/userLeftMeeting';
@@ -13,7 +12,6 @@ Meteor.methods({
   setSpeechLocale,
   clearAllUsersEmoji,
   validateAuthToken,
-  toggleUserLock,
   setUserEffectiveConnectionType,
   userActivitySign,
   userLeftMeeting,

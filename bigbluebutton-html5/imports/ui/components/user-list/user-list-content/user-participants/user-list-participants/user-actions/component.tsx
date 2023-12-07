@@ -15,6 +15,7 @@ import {
   EJECT_FROM_VOICE,
   SET_PRESENTER,
   SET_EMOJI_STATUS,
+  SET_LOCKED,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
@@ -261,6 +262,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
+  const [setLocked] = useMutation(SET_LOCKED);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -454,7 +456,12 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: userLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
         : intl.formatMessage(messages.LockUserLabel, { 0: user.name }),
       onClick: () => {
-        makeCall('toggleUserLock', user.userId, !userLocked);
+        setLocked({
+          variables: {
+            userId: user.userId,
+            locked: !userLocked,
+          },
+        });
         setSelected(false);
       },
       icon: userLocked ? 'unlock' : 'lock',

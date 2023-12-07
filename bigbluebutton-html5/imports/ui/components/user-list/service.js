@@ -590,10 +590,6 @@ const roving = (...args) => {
   }
 };
 
-const toggleUserLock = (userId, lockStatus) => {
-  makeCall('toggleUserLock', userId, lockStatus);
-};
-
 const requestUserInformation = (userId) => {
   makeCall('requestUserInformation', userId);
 };
@@ -732,7 +728,6 @@ export default {
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji,
-  toggleUserLock,
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
