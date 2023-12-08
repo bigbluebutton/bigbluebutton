@@ -35,22 +35,6 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
-                    lastVersion: '2.7',
-                    includeCurrentVersion: false,
-                    versions: {
-                        '2.5-legacy': {
-                            banner: 'none'
-                        },
-                        '2.6': {
-                            banner: 'none'
-                        },
-                        '2.7': {
-                            banner: 'none'
-                        },
-                        '3.0': {
-                            banner: 'none'
-                        },
-                    }
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
