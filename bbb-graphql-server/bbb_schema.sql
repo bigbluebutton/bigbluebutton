@@ -1458,9 +1458,15 @@ WHERE "currentRoomIsOnline" IS TRUE;
 --JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
 --User to update "inviteDismissedAt" via Mutation
-CREATE VIEW "v_breakoutRoom_user" AS
-SELECT *
-FROM "breakoutRoom_user";
+CREATE OR REPLACE VIEW "v_breakoutRoom_user" AS
+SELECT bu.*
+FROM "breakoutRoom_user" bu
+where bu."breakoutRoomId" in (
+    select b."breakoutRoomId"
+    from "user" u
+    join "breakoutRoom" b on b."parentMeetingId" = u."meetingId" and b."endedAt" is null
+    where u."userId" = bu."userId"
+);
 
 ------------------------------------
 ----sharedNotes
