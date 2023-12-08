@@ -8,8 +8,9 @@ import PresentationToolbarService from './service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useSubscription } from '@apollo/client';
+import { useSubscription, useMutation } from '@apollo/client';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
+import { POLL_CANCEL } from '/imports/ui/components/poll/mutations';
 
 const PresentationToolbarContainer = (props) => {
   const pluginsContext = useContext(PluginsContext);
@@ -22,8 +23,10 @@ const PresentationToolbarContainer = (props) => {
 
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
+  const [stopPoll] = useMutation(POLL_CANCEL);
+
   const endCurrentPoll = () => {
-    if (hasPoll) makeCall('stopPoll');
+    if (hasPoll) stopPoll();
   };
 
   if (userIsPresenter && !layoutSwapped) {

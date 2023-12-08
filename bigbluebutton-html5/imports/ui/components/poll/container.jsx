@@ -8,7 +8,7 @@ import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
-import { POLL_PUBLISH_RESULT } from './mutations';
+import { POLL_PUBLISH_RESULT, POLL_CANCEL } from './mutations';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -28,6 +28,7 @@ const PollContainer = ({ ...props }) => {
   });
 
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
+  const [stopPoll] = useMutation(POLL_CANCEL);
 
   const publishPoll = (pollId) => {
     pollPublishResult({
@@ -39,7 +40,7 @@ const PollContainer = ({ ...props }) => {
 
   return (
     <Poll
-      {...{ layoutContextDispatch, sidebarContentPanel, publishPoll, ...props }}
+      {...{ layoutContextDispatch, sidebarContentPanel, publishPoll, stopPoll, ...props }}
       usernames={usernames}
     />
   );
@@ -58,15 +59,12 @@ export default withTracker(({ amIPresenter, currentSlideId }) => {
 
   const startCustomPoll = (type, secretPoll, question = '', isMultipleResponse, answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse, answers);
 
-  const stopPoll = () => makeCall('stopPoll');
-
   return {
     isPollSecret,
     currentSlideId,
     pollTypes,
     startPoll,
     startCustomPoll,
-    stopPoll,
     currentPoll: Service.currentPoll(),
     isDefaultPoll: Service.isDefaultPoll,
     checkPollType: Service.checkPollType,

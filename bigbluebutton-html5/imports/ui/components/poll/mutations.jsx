@@ -26,8 +26,15 @@ export const POLL_SUBMIT_VOTE = gql`
   }
 `;
 
+export const POLL_CANCEL = gql`
+  mutation PollCancel {
+    pollCancel
+  }
+`;
+
 export default {
   POLL_PUBLISH_RESULT,
   POLL_SUBMIT_TYPED_VOTE,
   POLL_SUBMIT_VOTE,
+  POLL_CANCEL,
 };
