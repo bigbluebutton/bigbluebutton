@@ -3,10 +3,12 @@ import { makeCall } from '/imports/ui/services/api';
 import { withTracker } from 'meteor/react-meteor-data';
 import Poll from '/imports/ui/components/poll/component';
 import { Session } from 'meteor/session';
+import { useMutation } from '@apollo/client';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
+import { POLL_PUBLISH_RESULT } from './mutations';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -25,9 +27,19 @@ const PollContainer = ({ ...props }) => {
     usernames[user.userId] = { userId: user.userId, name: user.name };
   });
 
+  const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
+
+  const publishPoll = (pollId) => {
+    pollPublishResult({
+      variables: {
+        pollId,
+      },
+    });
+  };
+
   return (
     <Poll
-      {...{ layoutContextDispatch, sidebarContentPanel, ...props }}
+      {...{ layoutContextDispatch, sidebarContentPanel, publishPoll, ...props }}
       usernames={usernames}
     />
   );
@@ -55,7 +67,6 @@ export default withTracker(({ amIPresenter, currentSlideId }) => {
     startPoll,
     startCustomPoll,
     stopPoll,
-    publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
     isDefaultPoll: Service.isDefaultPoll,
     checkPollType: Service.checkPollType,
