@@ -17,7 +17,17 @@ export const POLL_SUBMIT_TYPED_VOTE = gql`
   }
 `;
 
+export const POLL_SUBMIT_VOTE = gql`
+  mutation PollSubmitVote($pollId: String!, $answerIds: [Int]!) {
+    pollSubmitUserVote(
+      pollId: $pollId,
+      answerIds: $answerIds,
+    )
+  }
+`;
+
 export default {
   POLL_PUBLISH_RESULT,
   POLL_SUBMIT_TYPED_VOTE,
+  POLL_SUBMIT_VOTE,
 };

@@ -1,12 +1,6 @@
-import { makeCall } from '/imports/ui/services/api';
 import Polls from '/imports/api/polls';
-import { debounce } from '/imports/utils/debounce';
 
 const MAX_CHAR_LENGTH = 5;
-
-const handleVote = (pollId, answerIds) => {
-  makeCall('publishVote', pollId, answerIds);
-};
 
 const mapPolls = () => {
   const poll = Polls.findOne({});
@@ -39,7 +33,6 @@ const mapPolls = () => {
     },
     pollExists: true,
     amIRequester,
-    handleVote: debounce(handleVote, 500, { leading: true, trailing: false }),
   };
 };
 
