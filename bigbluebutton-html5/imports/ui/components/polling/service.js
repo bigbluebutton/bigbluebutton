@@ -8,10 +8,6 @@ const handleVote = (pollId, answerIds) => {
   makeCall('publishVote', pollId, answerIds);
 };
 
-const handleTypedVote = (pollId, answer) => {
-  makeCall('publishTypedVote', pollId, answer);
-};
-
 const mapPolls = () => {
   const poll = Polls.findOne({});
   if (!poll) {
@@ -44,7 +40,6 @@ const mapPolls = () => {
     pollExists: true,
     amIRequester,
     handleVote: debounce(handleVote, 500, { leading: true, trailing: false }),
-    handleTypedVote: debounce(handleTypedVote, 500, { leading: true, trailing: false }),
   };
 };
 
