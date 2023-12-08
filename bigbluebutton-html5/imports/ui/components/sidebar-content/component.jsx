@@ -51,6 +51,7 @@ const SidebarContent = (props) => {
     amIPresenter,
     isSharedNotesPinned,
     currentSlideId,
+    amIModerator,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -142,7 +143,7 @@ const SidebarContent = (props) => {
           isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
         />
       )}
-      {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
+      {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer amIModerator={amIModerator} />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}

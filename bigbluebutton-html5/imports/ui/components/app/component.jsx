@@ -28,7 +28,7 @@ import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
-import ExternalVideoContainer from '../external-video-player/container';
+import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
@@ -41,7 +41,6 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineContainer from '../plugins-engine/container';
 import { makeCall } from '/imports/ui/services/api';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -228,8 +227,6 @@ class App extends Component {
 
     if (deviceInfo.isMobile) makeCall('setMobileUser');
 
-    ConnectionStatusService.startRoundTripTime();
-
     if (this.isTimerEnabled) {
       TimerService.fetchTimeOffset();
       this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
@@ -338,7 +335,6 @@ class App extends Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
     window.onbeforeunload = null;
-    ConnectionStatusService.stopRoundTripTime();
 
     if (this.timeOffsetInterval) {
       clearInterval(this.timeOffsetInterval);
@@ -599,6 +595,7 @@ class App extends Component {
       presentationIsOpen,
       darkTheme,
       intl,
+      isModerator,
     } = this.props;
 
     const {
@@ -637,10 +634,10 @@ class App extends Component {
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
-          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
           {
             shouldShowExternalVideo
-              ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
+              ? <ExternalVideoPlayerContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
           {shouldShowSharedNotes
@@ -655,8 +652,8 @@ class App extends Component {
           {this.renderAudioCaptions()}
           <PresentationUploaderToastContainer intl={intl} />
           <UploaderContainer />
-          <CaptionsSpeechContainer />
-          <BreakoutRoomInvitation />
+          <CaptionsSpeechContainer isModerator={isModerator} />
+          <BreakoutRoomInvitation isModerator={isModerator} />
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,

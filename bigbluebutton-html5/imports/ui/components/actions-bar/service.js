@@ -3,12 +3,9 @@ import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
-import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import NotesService from '/imports/ui/components/notes/service';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 
-const USER_CONFIG = Meteor.settings.public.user;
-const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const DIAL_IN_USER = 'dial-in-user';
 
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
@@ -35,31 +32,10 @@ const getUsersNotJoined = filterBreakoutUsers(currentBreakoutUsers);
 
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
-const amIModerator = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1 } });
-
-  if (!currentUser) {
-    return false;
-  }
-
-  return currentUser.role === ROLE_MODERATOR;
-};
-
 const isMe = (intId) => intId === Auth.userID;
 
 export default {
-  amIModerator,
   isMe,
-  currentUser: () => Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
-    {
-      fields: {
-        userId: 1,
-        emoji: 1,
-        away: 1,
-        raiseHand: 1,
-      },
-    }),
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
@@ -82,5 +58,4 @@ export default {
   getUsersNotJoined,
   takePresenterRole,
   isSharedNotesPinned: () => NotesService.isSharedNotesPinned(),
-  isSharingVideo: () => getVideoUrl(),
 };

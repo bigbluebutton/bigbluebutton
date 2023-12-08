@@ -205,6 +205,16 @@ create table "meeting_clientSettings" (
 
 CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings";
 
+create view "v_meeting_clientPluginSettings" as
+select "meetingId",
+       plugin->>'name' as "name",
+       plugin->>'url' as "url",
+       (plugin->>'settings')::jsonb as "settings",
+       (plugin->>'dataChannels')::jsonb as "dataChannels"
+from (
+    select "meetingId", jsonb_array_elements("clientSettingsJson"->'public'->'plugins') AS plugin
+    from "meeting_clientSettings"
+) settings;
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -279,7 +289,8 @@ ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestSta
 ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestStatus" = 'ALLOW') STORED;
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
 
-ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp(("registeredOn" + 6000) / 1000)) STORED;
+ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
+
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
@@ -421,11 +432,16 @@ CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
 u."isWaiting",
+rank() OVER (
+    PARTITION BY u."meetingId"
+    ORDER BY u."registeredOn" ASC, u."userId" ASC
+) as "positionInWaitingQueue",
 u."isAllowed",
 u."isDenied",
 COALESCE(u."guestLobbyMessage",mup."guestLobbyMessage") AS "guestLobbyMessage"
 FROM "user" u
-JOIN "meeting_usersPolicies" mup using("meetingId");
+JOIN "meeting_usersPolicies" mup using("meetingId")
+where u."guestStatus" != 'ALLOW';
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"

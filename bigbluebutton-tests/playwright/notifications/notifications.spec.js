@@ -74,7 +74,7 @@ test.describe.parallel('Notifications', () => {
       await presenterNotifications.publishPollResults();
     });
 
-    test('Presentation upload notification', async ({ browser, context, page }) => {
+    test('Presentation upload notification @flaky', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page, true);
       await presenterNotifications.fileUploaderNotification();

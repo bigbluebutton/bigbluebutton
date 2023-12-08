@@ -10,21 +10,19 @@ import UserSettings from '/imports/api/users-settings';
 import VideoStreams from '/imports/api/video-streams';
 import VoiceUsers from '/imports/api/voice-users';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
-import ConnectionStatus from '/imports/api/connection-status';
 import Captions from '/imports/api/captions';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Breakouts from '/imports/api/breakouts';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 import Meetings, {
-  RecordMeetings, ExternalVideoMeetings, MeetingTimeRemaining, Notifications,
+  RecordMeetings, MeetingTimeRemaining, Notifications,
 } from '/imports/api/meetings';
-import Users, { CurrentUser } from '/imports/api/users';
+import Users from '/imports/api/users';
 
 // Custom Publishers
 export const localCollectionRegistry = {
   localCurrentPollSync: new AbstractCollection(CurrentPoll, CurrentPoll),
-  localCurrentUserSync: new AbstractCollection(CurrentUser, CurrentUser),
   localPollsSync: new AbstractCollection(Polls, Polls),
   localPresentationUploadTokenSync: new AbstractCollection(
     PresentationUploadToken,
@@ -37,17 +35,12 @@ export const localCollectionRegistry = {
   localVideoStreamsSync: new AbstractCollection(VideoStreams, VideoStreams),
   localVoiceUsersSync: new AbstractCollection(VoiceUsers, VoiceUsers),
   localWhiteboardMultiUserSync: new AbstractCollection(WhiteboardMultiUser, WhiteboardMultiUser),
-  localConnectionStatusSync: new AbstractCollection(ConnectionStatus, ConnectionStatus),
   localCaptionsSync: new AbstractCollection(Captions, Captions),
   localPadsSync: new AbstractCollection(Pads, Pads),
   localPadsSessionsSync: new AbstractCollection(PadsSessions, PadsSessions),
   localPadsUpdatesSync: new AbstractCollection(PadsUpdates, PadsUpdates),
   localAuthTokenValidationSync: new AbstractCollection(AuthTokenValidation, AuthTokenValidation),
   localRecordMeetingsSync: new AbstractCollection(RecordMeetings, RecordMeetings),
-  localExternalVideoMeetingsSync: new AbstractCollection(
-    ExternalVideoMeetings,
-    ExternalVideoMeetings,
-  ),
   localMeetingTimeRemainingSync: new AbstractCollection(MeetingTimeRemaining, MeetingTimeRemaining),
   localBreakoutsSync: new AbstractCollection(Breakouts, Breakouts),
   localBreakoutsHistorySync: new AbstractCollection(BreakoutsHistory, BreakoutsHistory),
@@ -63,4 +56,3 @@ const collectionMirrorInitializer = () => {
 };
 
 export default collectionMirrorInitializer;
-// const localUsersSync = new AbstractCollection(CurrentUser, CurrentUser);
