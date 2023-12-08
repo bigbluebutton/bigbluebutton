@@ -1,6 +1,5 @@
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { makeCall } from '/imports/ui/services/api';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
 

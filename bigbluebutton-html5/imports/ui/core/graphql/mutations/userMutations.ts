@@ -108,7 +108,7 @@ export const SET_SPEECH_LOCALE = gql`
 
 export const PICK_RANDOM_VIEWER = gql`
   mutation PickRandomViewer {
-    pickRandomViewer
+    randomViewerPick
   }
 `;
 
