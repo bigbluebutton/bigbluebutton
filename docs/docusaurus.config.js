@@ -44,10 +44,10 @@ const config = {
                         '2.6': {
                             banner: 'none'
                         },
-                        '2.7': {
+                        '3.0': {
                             banner: 'none'
                         },
-                        '3.0': {
+                        '2.7': {
                             banner: 'none'
                         },
                     }
