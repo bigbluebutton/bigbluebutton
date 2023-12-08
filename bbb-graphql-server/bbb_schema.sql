@@ -226,7 +226,6 @@ create table "meeting_group" (
 create index "idx_meeting_group_meetingId" on "meeting_group"("meetingId");
 create view "v_meeting_group" as select * from meeting_group;
 
-
 -- ========== User tables
 
 CREATE TABLE "user" (
@@ -1592,3 +1591,51 @@ JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
 				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
 				)
 ORDER BY m."createdAt";
+
+------------------------
+
+
+create view "v_meeting_componentsFlags" as
+select "meeting"."meetingId",
+        exists (
+            select 1
+            from "breakoutRoom"
+            where "breakoutRoom"."parentMeetingId" = "meeting"."meetingId"
+            and "endedAt" is null
+        ) as "hasBreakoutRoom",
+        exists (
+            select 1
+            from "poll"
+            where "poll"."meetingId" = "meeting"."meetingId"
+            and "ended" is false
+            and "published" is false
+        ) as "hasPoll",
+        exists (
+            select 1
+            from "timer"
+            where "timer"."meetingId" = "meeting"."meetingId"
+            and "active" is true
+        ) as "hasTimer",
+        exists (
+            select 1
+            from "v_screenshare"
+            where "v_screenshare"."meetingId" = "meeting"."meetingId"
+        ) as "hasScreenshare",
+        exists (
+            select 1
+            from "v_externalVideo"
+            where "v_externalVideo"."meetingId" = "meeting"."meetingId"
+        ) as "hasExternalVideo",
+        (
+            select array_agg(distinct "speechLocale")
+            from "user"
+            where "user"."meetingId" = "meeting"."meetingId"
+            and NULLIF("speechLocale",'') is not null
+        ) as "audioTranscriptionCaption",
+        (
+            select array_agg(distinct "name")
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "model" = 'captions'
+        ) as "typedCaption"
+from "meeting";
