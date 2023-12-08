@@ -88,7 +88,7 @@ object BreakoutRoomUserDAO {
 
   def insertBreakoutRoom(userId: String, room: BreakoutRoom2x, liveMeeting: LiveMeeting) = {
       for {
-        (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, liveMeeting.props.meetingProp.extId, room.sequence.toString)
+        (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString)
       } yield {
         DatabaseConnection.db.run(BreakoutRoomUserDAO.prepareInsert(room.id, userId, redirectToHtml5JoinURL))
           .onComplete {
