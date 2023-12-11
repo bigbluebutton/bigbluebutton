@@ -67,7 +67,7 @@
     "app.timer.title": "Temps",
     "app.timer.stopwatch.title": "Chronomètre",
     "app.timer.timer.title": "Minuteur",
-    "app.timer.hideTimerLabel": "Cacher le temps",
+    "app.timer.hideTimerLabel": "Occulter le temps écoulé",
     "app.timer.button.stopwatch": "Chronomètre",
     "app.timer.button.timer": "Minuterie",
     "app.timer.button.start": "Démarrer",
