@@ -241,7 +241,7 @@
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "Les sessions en groupes de travail se terminent dans {0} minutes.",
     "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Les sessions en groupes de travail se terminent dans une minute.",
     "app.presentation.hide": "Masquer la présentation",
-    "app.presentation.notificationLabel": "Présentation courante",
+    "app.presentation.notificationLabel": "Présentation en cours",
     "app.presentation.downloadLabel": "Télécharger",
     "app.presentation.actionsLabel": "Actions",
     "app.presentation.slideContent": "Diaporama",
