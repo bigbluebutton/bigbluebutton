@@ -1165,7 +1165,7 @@
     "app.videoDock.webcamUnfocusLabel": "Arrêter le centrage",
     "app.videoDock.webcamUnfocusDesc": "Arrêter de centrer sur la webcam sélectionnée",
     "app.videoDock.webcamDisableLabel": "Désactiver son retour caméra",
-    "app.videoDock.webcamDisableLabelAllCams": "Désactiver l'affichage de sa caméra (toutes les caméras)",
+    "app.videoDock.webcamDisableLabelAllCams": "Désactiver le retour caméra (toutes les caméras)",
     "app.videoDock.webcamEnableLabel": "Retour caméra activé",
     "app.videoDock.webcamDisableDesc": "Retour caméra désactivé",
     "app.videoDock.webcamDisableWarning": "Votre webcam est toujours visible des autres! Son affichage est désactivé seulement localement.",
