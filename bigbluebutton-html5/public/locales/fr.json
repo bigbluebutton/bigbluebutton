@@ -516,7 +516,7 @@
     "app.submenu.application.languageOptionLabel": "Choisir la langue",
     "app.submenu.application.noLocaleOptionLabel": "Aucune langue d'application détectée",
     "app.submenu.application.paginationEnabledLabel": "Mise en page de la vidéo",
-    "app.submenu.application.wakeLockEnabledLabel": "Verrouillage du réveil",
+    "app.submenu.application.wakeLockEnabledLabel": "Verrouillage de la mise en veille activé",
     "app.submenu.application.layoutOptionLabel": "Type de mise en page",
     "app.submenu.application.pushLayoutLabel": "Appliquer la mise en page",
     "app.submenu.application.localeDropdown.af": "Afrikaans",
