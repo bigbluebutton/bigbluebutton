@@ -38,7 +38,7 @@
     "app.timer.toolTipTimerRunning": "Le minuteur est déclenché",
     "app.timer.toolTipStopwatchStopped": "Le chronomètre est arrêté",
     "app.timer.toolTipStopwatchRunning": "Le chronomètre est déclenché",
-    "app.timer.toolTipTimerStoppedMod": "Appuyez pour relancer la minuterie",
+    "app.timer.toolTipTimerStoppedMod": "Appuyez pour relancer le minuteur",
     "app.timer.toolTipTimerRunningMod": "Appuyez pour mettre la minuterie en pause",
     "app.timer.toolTipStopwatchStoppedMod": "Appuyez pour relancer le chronomètre",
     "app.timer.toolTipStopwatchRunningMod": "Appuyez pour mettre le chronomètre en pause",
