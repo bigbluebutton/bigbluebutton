@@ -217,7 +217,7 @@
     "app.media.cameraAsContent.end": "L'affichage de la caméra comme présentation a cessé ",
     "app.media.cameraAsContent.endDueToDataSaving": "L'affichage de la caméra comme présentation a cessé pour  économiser des données",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Nous avons besoin de votre autorisation pour vous montrer la caméra du présentateur.",
-    "app.media.cameraAsContent.autoplayAllowLabel": "Voir la caméra partagée comme contenu",
+    "app.media.cameraAsContent.autoplayAllowLabel": "Afficher la caméra comme une présentation",
     "app.screenshare.presenterLoadingLabel": "Votre partage d'écran est en cours de chargement",
     "app.screenshare.viewerLoadingLabel": "L'écran du présentateur est en cours de chargement",
     "app.screenshare.presenterSharingLabel": "Vous partagez désormais votre écran",
