@@ -147,7 +147,7 @@
     "app.userList.menuTitleContext": "Options disponibles",
     "app.userList.chatListItem.unreadSingular": "Un nouveau message",
     "app.userList.chatListItem.unreadPlural": "{0} nouveaux messages",
-    "app.userList.menu.away": "Se définir comme parti",
+    "app.userList.menu.away": "Se définir comme absent",
     "app.userList.menu.notAway": "Se définir comme actif",
     "app.userList.menu.chat.label": "Démarrer une discussion privée",
     "app.userList.menu.clearStatus.label": "Effacer le statut",
