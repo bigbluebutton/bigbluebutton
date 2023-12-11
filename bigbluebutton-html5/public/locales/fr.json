@@ -424,7 +424,7 @@
     "app.polling.submitLabel": "Soumettre",
     "app.polling.submitAriaLabel": "Soumettre votre réponse au sondage",
     "app.polling.responsePlaceholder": "Entrez votre réponse",
-    "app.polling.responseSecret": "Sondage anonyme - le présentateur ne vois pas qui répond.",
+    "app.polling.responseSecret": "Sondage anonyme - le présentateur ne voit pas qui répond.",
     "app.polling.responseNotSecret": "Sondage normal - le présentateur peut voir votre réponse.",
     "app.polling.pollAnswerLabel": "Réponse au sondage {0}",
     "app.polling.pollAnswerDesc": "Choisir cette option afin de voter pour {0}",
