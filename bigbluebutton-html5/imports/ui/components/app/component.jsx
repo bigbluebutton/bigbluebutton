@@ -55,6 +55,7 @@ import AppService from '/imports/ui/components/app/service';
 import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
+import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -656,7 +657,7 @@ console.log({shouldShowExternalVideo})
           <PresentationUploaderToastContainer intl={intl} />
           <UploaderContainer />
           <CaptionsSpeechContainer />
-          <BreakoutRoomInvitation />
+          <BreakoutJoinConfirmationContainerGraphQL />
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,

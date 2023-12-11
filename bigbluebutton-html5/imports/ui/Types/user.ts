@@ -46,6 +46,30 @@ export interface Reaction {
   reactionEmoji: string;
 }
 
+export interface BreakoutRooms {
+  currentRoomJoined: boolean;
+  assignedAt: string;
+  breakoutRoomId: string;
+  currentRoomIsOnline: boolean | null;
+  currentRoomPriority: number;
+  currentRoomRegisteredAt: string | null; 
+  durationInSeconds: number;
+  endedAt: string | null;
+  freeJoin: boolean;
+  inviteDismissedAt: string | null;
+  isDefaultName: boolean;
+  joinURL: string;
+  lastRoomIsOnline: boolean;
+  lastRoomJoinedAt: string;
+  lastRoomJoinedId: string;
+  name: string;
+  sendInvitationToModerators: boolean;
+  sequence: number;
+  shortName: string;
+  showInvitation: boolean;
+  startedAt: string;
+}
+
 export interface User {
   userId: string;
   extId: string;
@@ -72,4 +96,5 @@ export interface User {
   away: boolean;
   raiseHand: boolean;
   reaction: Reaction;
+  breakoutRooms: BreakoutRooms;
 }

@@ -29,6 +29,29 @@ subscription userCurrentSubscription {
   isDialIn
   isModerator
   joined
+  breakoutRooms {
+    currentRoomJoined
+    assignedAt
+    breakoutRoomId
+    currentRoomIsOnline
+    currentRoomPriority
+    currentRoomRegisteredAt
+    durationInSeconds
+    endedAt
+    freeJoin
+    inviteDismissedAt
+    isDefaultName
+    joinURL
+    lastRoomIsOnline
+    lastRoomJoinedAt
+    lastRoomJoinedId
+    name
+    sendInvitationToModerators
+    sequence
+    shortName
+    showInvitation
+    startedAt
+  }
   lastBreakoutRoom {
       breakoutRoomId
       currentlyInRoom
