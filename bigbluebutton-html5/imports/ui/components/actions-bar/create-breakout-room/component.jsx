@@ -13,8 +13,6 @@ import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAn
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import { uniqueId } from '/imports/utils/string-utils';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
 const intlMessages = defineMessages({
   breakoutRoomTitle: {
     id: 'app.createBreakoutRoom.title',
@@ -276,7 +274,7 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutJoinedUsers, getLastBreakouts, groups, isUpdate,
       allowUserChooseRoomByDefault, captureSharedNotesByDefault,
-      captureWhiteboardByDefault, inviteModsByDefault,
+      captureWhiteboardByDefault, inviteModsByDefault, roleModerator,
     } = this.props;
     setPresentationVisibility('none');
     this.setRoomUsers();
@@ -289,7 +287,7 @@ class BreakoutRoom extends PureComponent {
             userName: user.name,
             from: breakout.sequence,
             room: breakout.sequence,
-            isModerator: user.role === ROLE_MODERATOR,
+            isModerator: user.role === roleModerator,
             joined: true,
           });
         });
@@ -613,7 +611,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   setRoomUsers() {
-    const { users, getUsersNotJoined } = this.props;
+    const { users, getUsersNotJoined, roleModerator } = this.props;
     const { users: stateUsers } = this.state;
     const stateUsersId = stateUsers.map((user) => user.userId);
     const roomUsers = getUsersNotJoined(users)
@@ -622,7 +620,7 @@ class BreakoutRoom extends PureComponent {
         userId: user.userId,
         extId: user.extId,
         userName: user.name,
-        isModerator: user.role === ROLE_MODERATOR,
+        isModerator: user.role === roleModerator,
         from: 0,
         room: 0,
       }));

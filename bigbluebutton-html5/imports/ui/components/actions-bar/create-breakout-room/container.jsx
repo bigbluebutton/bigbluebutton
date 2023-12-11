@@ -8,21 +8,26 @@ import { useSubscription } from '@apollo/client';
 import {
   PROCESSED_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
-
-const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const CreateBreakoutRoomContainer = (props) => {
-  const { allowUserChooseRoomByDefault } = METEOR_SETTINGS_APP.breakouts;
-  const captureWhiteboardByDefault = METEOR_SETTINGS_APP.breakouts.captureWhiteboardByDefault
-                                    && isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
-  const captureSharedNotesByDefault = METEOR_SETTINGS_APP.breakouts.captureSharedNotesByDefault
-                                    && isImportSharedNotesFromBreakoutRoomsEnabled();
-  const inviteModsByDefault = METEOR_SETTINGS_APP.breakouts.sendInvitationToAssignedModeratorsByDefault;
+  const [MeetingSettings] = useMeetingSettings();
+  const appConfig = MeetingSettings.public.app;
+  const publicConfig = MeetingSettings.public.public;
+  // eslint-disable-next-line no-unused-vars
+  const roleModerator = publicConfig.user.role_moderator;
+
+  const { allowUserChooseRoomByDefault } = appConfig.breakouts;
+  const captureWhiteboardByDefault = appConfig.breakouts.captureWhiteboardByDefault
+    && isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
+  const captureSharedNotesByDefault = appConfig.breakouts.captureSharedNotesByDefault
+    && isImportSharedNotesFromBreakoutRoomsEnabled();
+  const inviteModsByDefault = appConfig.breakouts.sendInvitationToAssignedModeratorsByDefault;
 
   const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
 
-  const { amIModerator } = props;
+  const { amIModerator, } = props;
   return (
     amIModerator
     && (
@@ -41,6 +46,7 @@ const CreateBreakoutRoomContainer = (props) => {
 };
 
 export default withTracker(() => ({
+  roleModerator,
   createBreakoutRoom: ActionsBarService.createBreakoutRoom,
   getBreakouts: ActionsBarService.getBreakouts,
   getLastBreakouts: ActionsBarService.getLastBreakouts,

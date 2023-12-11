@@ -22,9 +22,7 @@ import {
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 import Settings from '/imports/ui/services/settings';
-
-const APP_CONFIG = Meteor.settings.public.app;
-const KURENTO_CONFIG = Meteor.settings.public.kurento;
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -133,7 +131,7 @@ class AudioContainer extends PureComponent {
 
   render() {
     const { isAudioModalOpen, setAudioModalIsOpen,
-            setVideoPreviewModalIsOpen, isVideoPreviewModalOpen } = this.props;
+     setVideoPreviewModalIsOpen, isVideoPreviewModalOpen } = this.props;
     return <>
       {isAudioModalOpen ? <AudioModalContainer 
         {...{
@@ -184,10 +182,13 @@ const messages = {
 
 export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks, isAudioModalOpen, setAudioModalIsOpen,
                           setVideoPreviewModalIsOpen, isVideoPreviewModalOpen }) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const appConfig = MeetingSettings.public.app;
+  const kurentoConfig = MeetingSettings.public.kurento;
   const { microphoneConstraints } = Settings.application;
-  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
-  const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
-  const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
+  const autoJoin = getFromUserSettings('bbb_auto_join_audio', appConfig.autoJoin);
+  const enableVideo = getFromUserSettings('bbb_enable_video', kurentoConfig.enableVideo);
+  const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', kurentoConfig.autoShareWebcam);
   const { userWebcam, userMic } = userLocks;
 
   const userSelectedMicrophone = didUserSelectedMicrophone();
@@ -245,8 +246,8 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks, i
     setAudioModalIsOpen,
     init: async () => {
       await Service.init(messages, intl);
-      const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
-      const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
+      const enableVideo = getFromUserSettings('bbb_enable_video', kurentoConfig.enableVideo);
+      const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', kurentoConfig.autoShareWebcam);
       if ((!autoJoin || didMountAutoJoin)) {
         if (enableVideo && autoShareWebcam) {
           openVideoPreviewModal();

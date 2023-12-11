@@ -32,13 +32,7 @@ import { SEND_GROUP_CHAT_MSG } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
-
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -107,12 +101,6 @@ const messages = defineMessages({
   },
 });
 
-// @ts-ignore - temporary, while meteor exists in the project
-const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
-// @ts-ignore - temporary, while meteor exists in the project
-const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.emojiPicker.enable;
-const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
-
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   handleClickOutside,
   title,
@@ -124,6 +112,15 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   connected,
   locked,
 }) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const chatConfig = MeetingSettings.public.chat;
+  const publicChatId = chatConfig.public_id;
+  const publicGroupChatId = chatConfig.public_group_id;
+  const closedChatListKey = 'closedChatList';
+  const AUTO_CONVERT_EMOJI = chatConfig.autoConvertEmoji;
+  const ENABLE_EMOJI_PICKER = chatConfig.emojiPicker.enable;
+  const ENABLE_TYPING_INDICATOR = chatConfig.typingIndicator.enabled;
+
   if (!isChatEnabled()) return null;
   const intl = useIntl();
   const [hasErrors, setHasErrors] = React.useState(false);
@@ -258,15 +255,15 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       sendGroupChatMsg({
         variables: {
           chatMessageInMarkdownFormat: msg,
-          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+          chatId: chatId === publicChatId ? publicGroupChatId : chatId,
         },
       });
 
-      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+      const currentClosedChats = Storage.getItem(closedChatListKey);
 
       // Remove the chat that user send messages from the session.
       if (indexOf(currentClosedChats, chatId) > -1) {
-        Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
+        Storage.setItem(closedChatListKey, without(currentClosedChats, chatId));
       }
 
       setMessage('');
@@ -392,6 +389,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 const ChatMessageFormContainer: React.FC = ({
   // connected, move to network status
 }) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const chatConfig = MeetingSettings.public.chat;
   const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
@@ -443,8 +442,8 @@ const ChatMessageFormContainer: React.FC = ({
   return (
     <ChatMessageForm
       {...{
-        minMessageLength: CHAT_CONFIG.min_message_length,
-        maxMessageLength: CHAT_CONFIG.max_message_length,
+        minMessageLength: chatConfig.min_message_length,
+        maxMessageLength: chatConfig.max_message_length,
         idChatOpen,
         handleClickOutside,
         chatId: idChatOpen,

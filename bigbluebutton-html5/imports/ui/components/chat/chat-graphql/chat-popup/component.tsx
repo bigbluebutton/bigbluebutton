@@ -7,17 +7,15 @@ import PopupContent from './popup-content/component';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
 import { ChatCommands } from '/imports/ui/core/enums/chat';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 interface ChatPopupProps {
   welcomeMessage: string | null;
   welcomeMsgForModerators: string | null;
 }
 
-const WELCOME_MSG_KEY = 'welcomeMsg';
-const WELCOME_MSG_FOR_MODERATORS_KEY = 'welcomeMsgForModerators';
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+const welcomeMsgKey = 'welcomeMsg';
+const welcomeMsgForModeratorsKey = 'welcomeMsgForModerators';
 
 const setWelcomeMsgsOnSession = (key: string, value: boolean) => {
   sessionStorage.setItem(key, String(value));
@@ -38,20 +36,20 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
   welcomeMsgForModerators,
 }) => {
   const [showWelcomeMessage, setShowWelcomeMessage] = React.useState(
-    welcomeMessage && isBoolean(sessionStorage.getItem(WELCOME_MSG_KEY)),
+    welcomeMessage && isBoolean(sessionStorage.getItem(welcomeMsgKey)),
   );
   const [showWelcomeMessageForModerators, setShowWelcomeMessageForModerators] = React.useState(
-    welcomeMsgForModerators && isBoolean(sessionStorage.getItem(WELCOME_MSG_FOR_MODERATORS_KEY)),
+    welcomeMsgForModerators && isBoolean(sessionStorage.getItem(welcomeMsgForModeratorsKey)),
   );
   useEffect(() => {
     const eventCallback = () => {
       if (welcomeMessage) {
         setShowWelcomeMessage(true);
-        setWelcomeMsgsOnSession(WELCOME_MSG_KEY, true);
+        setWelcomeMsgsOnSession(welcomeMsgKey, true);
       }
       if (welcomeMsgForModerators) {
         setShowWelcomeMessageForModerators(true);
-        setWelcomeMsgsOnSession(WELCOME_MSG_FOR_MODERATORS_KEY, true);
+        setWelcomeMsgsOnSession(welcomeMsgForModeratorsKey, true);
       }
     };
     window.addEventListener(ChatCommands.RESTORE_WELCOME_MESSAGES, eventCallback);
@@ -70,7 +68,7 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
             message={welcomeMessage}
             closePopup={() => {
               setShowWelcomeMessage(false);
-              setWelcomeMsgsOnSession(WELCOME_MSG_KEY, false);
+              setWelcomeMsgsOnSession(welcomeMsgKey, false);
             }}
           />
         )}
@@ -79,7 +77,7 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
             message={welcomeMsgForModerators}
             closePopup={() => {
               setShowWelcomeMessageForModerators(false);
-              setWelcomeMsgsOnSession(WELCOME_MSG_FOR_MODERATORS_KEY, false);
+              setWelcomeMsgsOnSession(welcomeMsgForModeratorsKey, false);
             }}
           />
         )}
@@ -90,13 +88,17 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
 };
 
 const ChatPopupContainer: React.FC = () => {
+  const [MeetingSettings] = useMeetingSettings();
+  const chatConfig = MeetingSettings.public.chat;
+  const publicGroupChatKey = chatConfig.public_group_id;
+
   const {
     data: welcomeData,
     loading: welcomeLoading,
     error: welcomeError,
   } = useQuery<WelcomeMsgsResponse>(GET_WELCOME_MESSAGE);
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
-  if (idChatOpen !== PUBLIC_GROUP_CHAT_KEY) return null;
+  if (idChatOpen !== publicGroupChatKey) return null;
 
   if (welcomeLoading) return null;
   if (welcomeError) return <div>{JSON.stringify(welcomeError)}</div>;

@@ -5,7 +5,6 @@ import React, {
   useState,
   useMemo,
 } from 'react';
-import { Meteor } from 'meteor/meteor';
 import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import LAST_SEEN_MUTATION from './queries';
@@ -24,11 +23,7 @@ import ChatPopupContainer from '../chat-popup/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
-const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const PAGE_SIZE = 50;
 
@@ -314,9 +309,14 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 };
 
 const ChatMessageListContainer: React.FC = () => {
+  const [MeetingSettings] = useMeetingSettings();
+  const chatConfig = MeetingSettings.public.chat;
+  const publicChatKey = chatConfig.public_id;
+  const publicGroupChatKey = chatConfig.public_group_id;
+
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
-  const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
-  const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
+  const isPublicChat = idChatOpen === publicChatKey;
+  const chatId = !isPublicChat ? idChatOpen : publicGroupChatKey;
   const { data: currentChat } = useChat((chat) => {
     return {
       chatId: chat.chatId,

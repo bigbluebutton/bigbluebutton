@@ -5,17 +5,19 @@ import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
 import AudioManager from '/imports/ui/services/audio-manager';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const MUTED_KEY = 'muted';
-// @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = Meteor.settings.public.app;
-// @ts-ignore - temporary, while meteor exists in the project
-const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
 const DEVICE_LABEL_MAX_LENGTH = 40;
 const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
 const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
 
 export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
+  const [MeetingSettings] = useMeetingSettings();
+  const appConfig = MeetingSettings.public.app;
+  const publicConfig = MeetingSettings.public;
+  const { toggleMuteThrottleTime } = publicConfig.media;
+
   if (!meetingIsBreakout) {
     Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, !!false);
     Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, !!false);
@@ -23,7 +25,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
 
   const skipOnFistJoin = getFromUserSettings(
     'bbb_skip_check_audio_on_first_join',
-    APP_CONFIG.skipCheckOnJoin,
+    appConfig.skipCheckOnJoin,
   );
   if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
     Storage.setItem('getEchoTest', true);

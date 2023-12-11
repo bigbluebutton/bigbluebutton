@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import Styled from './styles';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 interface ChatMessageTextContentProps {
   text: string;
@@ -10,9 +11,9 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   text,
   emphasizedMessage,
 }) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - temporary, while meteor exists in the project
-  const { allowedElements } = Meteor.settings.public.chat;
+  const [MeetingSettings] = useMeetingSettings();
+  const chatConfig = MeetingSettings.public.chat;
+  const { allowedElements } = chatConfig;
 
   return (
     <Styled.ChatMessage emphasizedMessage={emphasizedMessage} data-test="messageContent">
