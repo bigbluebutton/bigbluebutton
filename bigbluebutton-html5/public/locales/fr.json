@@ -311,7 +311,7 @@
     "app.presentationUploder.confirmDesc": "Enregistrez vos modifications et lancez la présentation",
     "app.presentationUploder.dismissLabel": "Annuler",
     "app.presentationUploder.dismissDesc": "Ferme la fenêtre de dialogue et supprime vos modifications",
-    "app.presentationUploder.dropzoneLabel": "Faites glisser les fichiers ici pour les charger",
+    "app.presentationUploder.dropzoneLabel": "Faites glisser les fichiers ici pour les téléverser",
     "app.presentationUploder.dropzoneImagesLabel": "Faites glisser les images ici pour les charger",
     "app.presentationUploder.browseFilesLabel": "ou recherchez dans vos fichiers",
     "app.presentationUploder.browseImagesLabel": "ou recherchez/capturez des images",
