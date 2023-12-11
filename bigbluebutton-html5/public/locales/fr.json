@@ -254,7 +254,7 @@
     "app.presentation.options.minimize": "Réduire",
     "app.presentation.options.snapshot": "Capture de la diapositive courante",
     "app.presentation.options.downloading": "Téléchargement en cours...",
-    "app.presentation.options.downloaded": "La présentation courante a été téléchargée",
+    "app.presentation.options.downloaded": "La présentation en cours a été téléchargée",
     "app.presentation.options.downloadFailed": "Impossible de télécharger la présentation courante",
     "app.presentation.presentationToolbar.noNextSlideDesc": "Fin de présentation",
     "app.presentation.presentationToolbar.noPrevSlideDesc": "Début de présentation",
