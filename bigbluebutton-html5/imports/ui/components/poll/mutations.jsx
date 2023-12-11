@@ -32,9 +32,23 @@ export const POLL_CANCEL = gql`
   }
 `;
 
+export const POLL_CREATE = gql`
+  mutation PollCreate($pollType: String!, $pollId: String!, $secretPoll: Boolean!, $question: String!, $isMultipleResponse: Boolean!, $answers: [String]!) {
+    pollCreate(
+      pollType: $pollType,
+      pollId: $pollId,
+      secretPoll: $secretPoll,
+      question: $question,
+      isMultipleResponse: $isMultipleResponse,
+      answers: $answers,
+    )
+  }
+`;
+
 export default {
   POLL_PUBLISH_RESULT,
   POLL_SUBMIT_TYPED_VOTE,
   POLL_SUBMIT_VOTE,
   POLL_CANCEL,
+  POLL_CREATE,
 };

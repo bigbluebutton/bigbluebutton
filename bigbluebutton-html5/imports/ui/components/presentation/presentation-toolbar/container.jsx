@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import PollService from '/imports/ui/components/poll/service';
-import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
@@ -10,7 +8,7 @@ import { isPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useSubscription, useMutation } from '@apollo/client';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
-import { POLL_CANCEL } from '/imports/ui/components/poll/mutations';
+import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
 
 const PresentationToolbarContainer = (props) => {
   const pluginsContext = useContext(PluginsContext);
@@ -24,9 +22,27 @@ const PresentationToolbarContainer = (props) => {
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
   const [stopPoll] = useMutation(POLL_CANCEL);
+  const [createPoll] = useMutation(POLL_CREATE);
 
   const endCurrentPoll = () => {
     if (hasPoll) stopPoll();
+  };
+
+  const startPoll = (pollType, pollId, answers = [], question, isMultipleResponse = false) => {
+    Session.set('openPanel', 'poll');
+    Session.set('forcePollOpen', true);
+    window.dispatchEvent(new Event('panelChanged'));
+
+    createPoll({
+      variables: {
+        pollType,
+        pollId: `${pollId}/${new Date().getTime()}`,
+        secretPoll: false,
+        question,
+        isMultipleResponse,
+        answers,
+      },
+    });
   };
 
   if (userIsPresenter && !layoutSwapped) {
@@ -43,6 +59,7 @@ const PresentationToolbarContainer = (props) => {
         {...{
           pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,
+          startPoll,
         }}
       />
     );
@@ -51,21 +68,12 @@ const PresentationToolbarContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const startPoll = (type, id, answers = [], question = '', multiResp = false) => {
-    Session.set('openPanel', 'poll');
-    Session.set('forcePollOpen', true);
-    window.dispatchEvent(new Event('panelChanged'));
-
-    makeCall('startPoll', PollService.pollTypes, type, id, false, question, multiResp, answers);
-  };
-
   return {
     nextSlide: PresentationToolbarService.nextSlide,
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     isMeteorConnected: Meteor.status().connected,
     isPollingEnabled: isPollingEnabled(),
-    startPoll,
   };
 })(PresentationToolbarContainer);
 

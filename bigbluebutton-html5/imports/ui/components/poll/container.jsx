@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { makeCall } from '/imports/ui/services/api';
 import { withTracker } from 'meteor/react-meteor-data';
 import Poll from '/imports/ui/components/poll/component';
 import { Session } from 'meteor/session';
@@ -8,12 +7,12 @@ import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
-import { POLL_PUBLISH_RESULT, POLL_CANCEL } from './mutations';
+import { POLL_PUBLISH_RESULT, POLL_CANCEL, POLL_CREATE } from './mutations';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-const PollContainer = ({ ...props }) => {
+const PollContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
@@ -29,6 +28,24 @@ const PollContainer = ({ ...props }) => {
 
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
   const [stopPoll] = useMutation(POLL_CANCEL);
+  const [createPoll] = useMutation(POLL_CREATE);
+
+  const { currentSlideId } = props;
+
+  const startPoll = (pollType, secretPoll, question, isMultipleResponse, answers = []) => {
+    const pollId = currentSlideId || PUBLIC_CHAT_KEY;
+
+    createPoll({
+      variables: {
+        pollType,
+        pollId: `${pollId}/${new Date().getTime()}`,
+        secretPoll,
+        question,
+        isMultipleResponse,
+        answers,
+      },
+    });
+  };
 
   const publishPoll = (pollId) => {
     pollPublishResult({
@@ -40,7 +57,14 @@ const PollContainer = ({ ...props }) => {
 
   return (
     <Poll
-      {...{ layoutContextDispatch, sidebarContentPanel, publishPoll, stopPoll, ...props }}
+      {...{
+        layoutContextDispatch,
+        sidebarContentPanel,
+        publishPoll,
+        stopPoll,
+        startPoll,
+        ...props,
+      }}
       usernames={usernames}
     />
   );
@@ -51,20 +75,12 @@ export default withTracker(({ amIPresenter, currentSlideId }) => {
 
   Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
 
-  const pollId = currentSlideId || PUBLIC_CHAT_KEY;
-
   const { pollTypes } = Service;
-
-  const startPoll = (type, secretPoll, question = '', isMultipleResponse) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse);
-
-  const startCustomPoll = (type, secretPoll, question = '', isMultipleResponse, answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse, answers);
 
   return {
     isPollSecret,
     currentSlideId,
     pollTypes,
-    startPoll,
-    startCustomPoll,
     currentPoll: Service.currentPoll(),
     isDefaultPoll: Service.isDefaultPoll,
     checkPollType: Service.checkPollType,
