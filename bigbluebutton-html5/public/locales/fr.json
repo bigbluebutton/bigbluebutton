@@ -499,7 +499,7 @@
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Réduire la fenêtre de présentation",
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Bouton utilisé pour réduire la fenêtre de présentation",
     "app.actionsBar.actionsDropdown.layoutModal": "Fenêtre de paramétrage de la mise en page",
-    "app.actionsBar.actionsDropdown.shareCameraAsContent": "Partager la caméra en tant que contenu",
+    "app.actionsBar.actionsDropdown.shareCameraAsContent": "Afficher la caméra comme une présentation",
     "app.actionsBar.actionsDropdown.unshareCameraAsContent": "Cesser de partager l'appareil photo en tant que contenu",
     "app.screenshare.screenShareLabel" : "Partage d'écran",
     "app.cameraAsContent.cameraAsContentLabel" : "Caméra comme présentation",
