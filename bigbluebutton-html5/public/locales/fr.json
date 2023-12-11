@@ -319,7 +319,7 @@
     "app.presentationUploder.externalUploadLabel": "Parcourir les fichiers",
     "app.presentationUploder.fileToUpload": "Prêt à être téléversé ...",
     "app.presentationUploder.currentBadge": "En cours",
-    "app.presentationUploder.rejectedError": "Le(s) fichier(s) sélectionné(s) a (ont) été rejeté()s. Veuillez vérifier leur format.",
+    "app.presentationUploder.rejectedError": "Le(s) fichier(s) sélectionné(s) a (ont) été rejeté(s). Veuillez vérifier leur format.",
     "app.presentationUploder.connectionClosedError": "Interruption due à une connectivité faible. Veuillez essayer à nouveau.",
     "app.presentationUploder.upload.progress": "Chargement ({0}%)",
     "app.presentationUploder.conversion.204": "Pas de contenu a capturer",
