@@ -228,7 +228,7 @@
     "app.screenshare.screensharePermissionError": "Code {0}. L'autorisation de capturer d'écran doit être accordée.",
     "app.cameraAsContent.presenterLoadingLabel": "Votre caméra est en cours de chargement",
     "app.cameraAsContent.viewerLoadingLabel": "La caméra du présentateur est en cours de chargement",
-    "app.cameraAsContent.presenterSharingLabel": "Vous présentez maintenant votre caméra",
+    "app.cameraAsContent.presenterSharingLabel": "Votre caméra est désormais partagée",
     "app.meeting.ended": "Cette réunion est terminée",
     "app.meeting.meetingTimeRemaining": "Temps de réunion restant : {0}",
     "app.meeting.meetingTimeHasEnded": "Le temps s'est écoulé. La réunion sera bientôt close",
