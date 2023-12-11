@@ -6,6 +6,8 @@ import React, {
   useRef,
 } from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
+import { ChatFormEventPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-events/chat/form/types';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
@@ -229,6 +231,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       startUserTyping(chatId);
     };
 
+    window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED, {
+      detail: {
+        text: newMessage,
+      } as ChatFormEventPayloads[PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED],
+    }));
     setMessage(newMessage);
     setError(newError);
     handleUserTyping(newError != null);
@@ -332,6 +339,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             spellCheck="true"
             disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             value={message}
+            onFocus={() => {
+              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_FOCUSED));
+            }}
+            onBlur={() => {
+              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_UNFOCUSED));
+            }}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}
             onPaste={(e) => { e.stopPropagation(); }}
