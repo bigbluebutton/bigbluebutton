@@ -502,7 +502,7 @@
     "app.actionsBar.actionsDropdown.shareCameraAsContent": "Partager la caméra en tant que contenu",
     "app.actionsBar.actionsDropdown.unshareCameraAsContent": "Cesser de partager l'appareil photo en tant que contenu",
     "app.screenshare.screenShareLabel" : "Partage d'écran",
-    "app.cameraAsContent.cameraAsContentLabel" : "Caméra actuelle",
+    "app.cameraAsContent.cameraAsContentLabel" : "Caméra comme présentation",
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.animationsLabel": "Animations",
     "app.submenu.application.audioFilterLabel": "Filtres audios pour microphone",
