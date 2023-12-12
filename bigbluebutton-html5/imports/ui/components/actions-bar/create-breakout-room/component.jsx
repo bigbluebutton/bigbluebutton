@@ -1215,6 +1215,7 @@ class BreakoutRoom extends PureComponent {
           </span>
           {room !== user.from ? (
             <span
+              data-test="removeAssignedUserButton"
               className="close"
               role="button"
               aria-label={intl.formatMessage(intlMessages.resetUserRoom)}

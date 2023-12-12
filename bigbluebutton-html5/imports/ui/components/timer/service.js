@@ -3,12 +3,10 @@ import Timer from '/imports/api/timer';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 import { Session } from 'meteor/session';
-import Users from '/imports/api/users';
 import Logger from '/imports/startup/client/logger';
 import { ACTIONS, PANELS } from '../layout/enums';
 
 const TIMER_CONFIG = Meteor.settings.public.timer;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const OFFSET_INTERVAL = TIMER_CONFIG.interval.offset;
 
 const MILLI_IN_HOUR = 3600000;
@@ -263,11 +261,6 @@ const togglePanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
-const isModerator = () => Users.findOne(
-  { userId: Auth.userID },
-  { fields: { role: 1 } },
-).role === ROLE_MODERATOR;
-
 const setHours = (hours, time) => {
   if (!Number.isNaN(hours) && hours >= 0 && hours <= MAX_HOURS) {
     const currentHours = Math.floor(time / MILLI_IN_HOUR);
@@ -343,6 +336,5 @@ export default {
   getTimeAsString,
   closePanel,
   togglePanel,
-  isModerator,
   timerEnded,
 };

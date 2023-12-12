@@ -13,7 +13,7 @@ import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription
 
 const PresentationToolbarContainer = (props) => {
   const pluginsContext = useContext(PluginsContext);
-  const { pluginsProvidedAggregatedState } = pluginsContext;
+  const { pluginsExtensibleAreasAggregatedState } = pluginsContext;
 
   const { userIsPresenter, layoutSwapped } = props;
 
@@ -29,7 +29,7 @@ const PresentationToolbarContainer = (props) => {
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
-    const pluginProvidedPresentationToolbarItems = pluginsProvidedAggregatedState
+    const pluginProvidedPresentationToolbarItems = pluginsExtensibleAreasAggregatedState
       ?.presentationToolbarItems;
 
     return (

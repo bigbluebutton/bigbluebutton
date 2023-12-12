@@ -30,7 +30,6 @@ import IntlStartup from '/imports/startup/client/intl';
 import ContextProviders from '/imports/ui/components/context-providers/component';
 import ChatAdapter from '/imports/ui/components/components-data/chat-context/adapter';
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
-import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
 import GraphqlProvider from '/imports/ui/components/graphql-provider/component';
 import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 // The adapter import is "unused" as far as static code is concerned, but it
@@ -98,7 +97,6 @@ Meteor.startup(() => {
         </JoinHandler>
         <UsersAdapter />
         <ChatAdapter />
-        <GroupChatAdapter />
       </>
     </ContextProviders>,
     document.getElementById('app'),

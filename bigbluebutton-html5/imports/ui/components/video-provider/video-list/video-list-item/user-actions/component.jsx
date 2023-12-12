@@ -1,12 +1,11 @@
-import React from 'react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import VideoService from '/imports/ui/components/video-provider/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { UserCameraDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-camera-dropdown-item/enums';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -75,14 +74,15 @@ const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
     isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
+    amIModerator,
   } = props;
 
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
   let userCameraDropdownItems = [];
-  if (pluginsProvidedAggregatedState.userCameraDropdownItems) {
+  if (pluginsExtensibleAreasAggregatedState.userCameraDropdownItems) {
     userCameraDropdownItems = [
-      ...pluginsProvidedAggregatedState.userCameraDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.userCameraDropdownItems,
     ];
   }
 
@@ -161,7 +161,7 @@ const UserActions = (props) => {
       });
     }
 
-    if (VideoService.isVideoPinEnabledForCurrentUser() && isStream) {
+    if (VideoService.isVideoPinEnabledForCurrentUser(amIModerator) && isStream) {
       menuItems.push({
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
@@ -173,7 +173,7 @@ const UserActions = (props) => {
 
     userCameraDropdownItems.forEach((pluginItem) => {
       switch (pluginItem.type) {
-        case PluginSdk.UserCameraDropdownItemType.OPTION:
+        case UserCameraDropdownItemType.OPTION:
           menuItems.push({
             key: pluginItem.id,
             label: pluginItem.label,
@@ -181,7 +181,7 @@ const UserActions = (props) => {
             icon: pluginItem.icon,
           });
           break;
-        case PluginSdk.UserCameraDropdownItemType.SEPARATOR:
+        case UserCameraDropdownItemType.SEPARATOR:
           menuItems.push({
             key: pluginItem.id,
             isSeparator: true,

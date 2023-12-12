@@ -20,12 +20,12 @@ const JoinVideoOptionsContainer = (props) => {
   } = props;
 
   const {
-    pluginsProvidedAggregatedState,
+    pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   let cameraSettingsDropdownItems = [];
-  if (pluginsProvidedAggregatedState.cameraSettingsDropdownItems) {
+  if (pluginsExtensibleAreasAggregatedState.cameraSettingsDropdownItems) {
     cameraSettingsDropdownItems = [
-      ...pluginsProvidedAggregatedState.cameraSettingsDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.cameraSettingsDropdownItems,
     ];
   }
   return (

@@ -20,11 +20,11 @@ const OptionsDropdownContainer = (props) => {
   const { width: browserWidth } = layoutSelectInput((i) => i.browser);
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const isRTL = layoutSelect((i) => i.isRTL);
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let optionsDropdownItems = [];
-  if (pluginsProvidedAggregatedState.optionsDropdownItems) {
+  if (pluginsExtensibleAreasAggregatedState.optionsDropdownItems) {
     optionsDropdownItems = [
-      ...pluginsProvidedAggregatedState.optionsDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.optionsDropdownItems,
     ];
   }
 

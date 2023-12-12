@@ -11,6 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"nhooyr.io/websocket"
+	"os"
 	"sync"
 	"time"
 )
@@ -41,6 +42,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	// Add sub-protocol
 	var acceptOptions websocket.AcceptOptions
 	acceptOptions.Subprotocols = append(acceptOptions.Subprotocols, "graphql-ws")
+	bbbOrigin := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ORIGIN")
+	if bbbOrigin != "" {
+		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, bbbOrigin)
+	}
 
 	c, err := websocket.Accept(w, r, &acceptOptions)
 	if err != nil {

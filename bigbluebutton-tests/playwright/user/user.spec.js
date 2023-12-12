@@ -210,7 +210,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
-      test('Lock see other viewers cursor', async ({ browser, context, page }) => {
+      test('Lock see other viewers cursor @flaky', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersCursor();

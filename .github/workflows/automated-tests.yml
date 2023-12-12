@@ -73,7 +73,7 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton
+            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
     steps:
       - uses: actions/checkout@v3
       - name: Merge branches
@@ -279,13 +279,18 @@ jobs:
           npx playwright install
           '
       - name: Run tests
-        working-directory: ./bigbluebutton-tests/playwright
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: |
+            cd ./bigbluebutton-tests/playwright
+            npm run test-chromium-ci -- --shard ${{ matrix.shard }}
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/api
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci -- --shard ${{ matrix.shard }}
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
         if: |

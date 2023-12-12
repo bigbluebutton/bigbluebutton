@@ -2,15 +2,18 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import logger from '/imports/startup/client/logger';
+import {
+  BbbPluginSdk,
+} from 'bigbluebutton-html-plugin-sdk';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import * as uuidLib from 'uuid';
-import PluginHooksHandlerContainer from './plugin-hooks-handler/container';
+import PluginHooksHandlerContainer from './data-consumption/state-manager/manager';
 import PluginsEngineComponent from './component';
 import { PluginConfig, EffectivePluginConfig } from './types';
 import PluginLoaderContainer from './plugin-loader/container';
-import PluginProvidedStateContainer from './plugin-provided-state/container';
 import PluginDataChannelManagerContainer from './plugin-data-channel/container';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
+import ExtensibleAreaStateManager from './extensible-areas/state-manager/manager';
 
 const PluginsEngineContainer = () => {
   const [MeetingSettings] = useMeetingSettings();
@@ -49,7 +52,7 @@ const PluginsEngineContainer = () => {
       {
         effectivePluginsConfig.map((effectivePluginConfig: EffectivePluginConfig) => {
           const { uuid, name: pluginName } = effectivePluginConfig;
-          const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid, pluginName);
+          const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName);
           return (
             <div key={uuid}>
               <PluginLoaderContainer
@@ -66,7 +69,7 @@ const PluginsEngineContainer = () => {
                   pluginApi,
                 }}
               />
-              <PluginProvidedStateContainer
+              <ExtensibleAreaStateManager
                 {...{
                   pluginApi,
                   uuid,

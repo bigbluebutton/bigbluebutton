@@ -302,7 +302,7 @@ case class UserMobileFlagChangedEvtMsgBody(userId: String, mobile: Boolean)
 
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg" }
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg
-case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
+case class AssignPresenterReqMsgBody(assignedBy: String, newPresenterId: String)
 
 /**
  * Sent from client to change the video pin of the user in the meeting.

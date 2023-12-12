@@ -3,7 +3,6 @@ import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
-import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import NotesService from '/imports/ui/components/notes/service';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
@@ -51,17 +50,7 @@ const amIModerator = () => {
 const isMe = (intId) => intId === Auth.userID;
 
 export default {
-  amIModerator,
   isMe,
-  currentUser: () => Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
-    {
-      fields: {
-        userId: 1,
-        emoji: 1,
-        away: 1,
-        raiseHand: 1,
-      },
-    }),
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
@@ -84,5 +73,4 @@ export default {
   getUsersNotJoined,
   takePresenterRole,
   isSharedNotesPinned: () => NotesService.isSharedNotesPinned(),
-  isSharingVideo: () => getVideoUrl(),
 };

@@ -13,7 +13,6 @@ export const startUserTyping = throttle(
   START_TYPING_THROTTLE_INTERVAL,
   { leading: true, trailing: false },
 );
-export const stopUserTyping = () => makeCall('stopUserTyping');
 
 export const textToMarkdown = (message: string) => {
   let parsedMessage = message || '';
@@ -31,6 +30,5 @@ export const textToMarkdown = (message: string) => {
 
 export default {
   startUserTyping,
-  stopUserTyping,
   textToMarkdown,
 };

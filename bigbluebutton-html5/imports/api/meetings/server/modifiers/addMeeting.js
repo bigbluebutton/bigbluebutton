@@ -6,7 +6,6 @@ import {
 import SanitizeHTML from 'sanitize-html';
 import Meetings, {
   RecordMeetings,
-  ExternalVideoMeetings,
   LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
@@ -16,25 +15,6 @@ import { initCaptions } from '/imports/api/captions/server/helpers';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import addUserReactionsObserver from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-
-const addExternalVideo = async (meetingId) => {
-  const selector = { meetingId };
-
-  const modifier = {
-    meetingId,
-    externalVideoUrl: null,
-  };
-
-  try {
-    const { numberAffected } = await ExternalVideoMeetings.upsertAsync(selector, modifier);
-
-    if (numberAffected) {
-      Logger.verbose(`Added external video meetingId=${meetingId}`);
-    }
-  } catch (err) {
-    Logger.error(`Adding external video: ${err}`);
-  }
-};
 
 const addLayout = async (meetingId, layout) => {
   const selector = { meetingId };
@@ -254,7 +234,6 @@ export default async function addMeeting(meeting) {
     Logger.error(`Adding record prop to collection: ${err}`);
   }
 
-  await addExternalVideo(meetingId);
   await addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
   try {
