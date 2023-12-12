@@ -25,6 +25,15 @@ object_relationships:
         remote_table:
           name: v_meeting_clientSettings
           schema: public
+  - name: componentsFlags
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_componentsFlags
+          schema: public
   - name: externalVideo
     using:
       manual_configuration:

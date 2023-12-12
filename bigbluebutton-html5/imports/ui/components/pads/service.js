@@ -4,7 +4,6 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import {
-  getVideoUrl,
   stopWatching,
 } from '/imports/ui/components/external-video-player/service';
 import {
@@ -117,7 +116,7 @@ const getPinnedPad = () => {
 const pinPad = (externalId, pinned) => {
   if (pinned) {
     // Stop external video sharing if it's running.
-    if (getVideoUrl()) stopWatching();
+    stopWatching();
 
     // Stop screen sharing if it's running.
     if (isScreenBroadcasting()) screenshareHasEnded();

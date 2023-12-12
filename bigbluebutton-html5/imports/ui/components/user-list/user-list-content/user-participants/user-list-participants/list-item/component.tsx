@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import {
+  UserListItemAdditionalInformationType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
@@ -10,7 +13,6 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
 import { uniqueId } from '/imports/utils/string-utils';
-import { Emoji } from 'emoji-mart';
 import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -54,6 +56,20 @@ const LABEL = Meteor.settings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
+interface EmojiProps {
+  emoji: { id: string; native: string; };
+  native: string;
+  size: number;
+}
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      'em-emoji': EmojiProps;
+    }
+  }
+}
+
 interface UserListItemProps {
   user: User;
   lockSettings: LockSettings;
@@ -62,7 +78,7 @@ interface UserListItemProps {
 const renderUserListItemIconsFromPlugin = (
   userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformation[],
 ) => userItemsFromPlugin.filter(
-  (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.ICON,
+  (item) => item.type === UserListItemAdditionalInformationType.ICON,
 ).map((item: PluginSdk.UserListItemAdditionalInformation) => {
   const itemToRender = item as PluginSdk.UserListItemIcon;
   return (
@@ -74,11 +90,15 @@ const renderUserListItemIconsFromPlugin = (
   );
 });
 
+const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
+  <em-emoji emoji={emoji} native={native} size={size} />
+);
+
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformation[];
-  if (pluginsProvidedAggregatedState.userListItemAdditionalInformation) {
-    userItemsFromPlugin = pluginsProvidedAggregatedState.userListItemAdditionalInformation.filter((item) => {
+  if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
+    userItemsFromPlugin = pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
       const userListItem = item as PluginSdk.UserListItemAdditionalInformation;
       return userListItem.userId === user.userId;
     }) as PluginSdk.UserListItemAdditionalInformation[];
@@ -116,7 +136,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
       </span>
     ),
     ...userItemsFromPlugin.filter(
-      (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.LABEL,
+      (item) => item.type === UserListItemAdditionalInformationType.LABEL,
     ).map((item) => {
       const itemToRender = item as PluginSdk.UserListItemLabel;
       return (
@@ -133,16 +153,27 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const userAvatarFiltered = user.avatar;
 
+  const emojiIcons = [
+    {
+      id: 'hand',
+      native: '✋',
+    },
+    {
+      id: 'clock7',
+      native: '⏰',
+    },
+  ];
+
   const getIconUser = () => {
     const emojiSize = convertRemToPixels(1.3);
 
     if (user.raiseHand === true) {
       return reactionsEnabled
-        ? <Emoji key="hand" emoji="hand" native size={emojiSize} />
+        ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
     } if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji="clock7" native size={emojiSize} />
+        ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('away')} />;
     } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;

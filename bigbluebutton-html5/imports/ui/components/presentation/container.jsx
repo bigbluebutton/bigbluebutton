@@ -1,9 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import PresentationToolbarService from './presentation-toolbar/service';
-import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
@@ -22,6 +21,7 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
@@ -122,10 +122,12 @@ const PresentationContainer = (props) => {
 
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const userIsPresenter = currentUser.presenter;
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    userId: user.userId,
+    isModerator: user.isModerator,
+  }));
+  const userIsPresenter = currentUser?.presenter;
 
   const presentationAreaSize = {
     presentationAreaWidth: presentation?.width,
@@ -168,6 +170,7 @@ const PresentationContainer = (props) => {
         isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
         presentationName: currentPresentationPage?.presentationName,
         presentationAreaSize,
+        currentUser,
       }
       }
     />

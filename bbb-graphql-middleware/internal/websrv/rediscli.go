@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"strings"
 	"time"
 )
 
 var redisClient = redis.NewClient(&redis.Options{
-	Addr:     "127.0.0.1:6379",
-	Password: "",
+	Addr:     os.Getenv("BBB_GRAPHQL_MIDDLEWARE_REDIS_ADDRESS"),
+	Password: os.Getenv("BBB_GRAPHQL_MIDDLEWARE_REDIS_PASSWORD"),
 	DB:       0,
 })
 

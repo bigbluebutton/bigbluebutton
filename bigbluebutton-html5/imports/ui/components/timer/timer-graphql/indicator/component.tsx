@@ -124,6 +124,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
           role="button"
           tabIndex={0}
           onClick={isModerator ? onClick : () => {}}
+          data-test="timeIndicator"
         >
           <Styled.TimerContent>
             <Styled.TimerIcon>

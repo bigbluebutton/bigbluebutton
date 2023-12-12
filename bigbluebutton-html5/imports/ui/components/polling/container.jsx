@@ -1,20 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import Users from '/imports/api/users';
-import Auth from '/imports/ui/services/auth';
 import PollingService from './service';
 import PollService from '/imports/ui/components/poll/service';
 import PollingComponent from './component';
 import { isPollingEnabled } from '/imports/ui/services/features';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const propTypes = {
   pollExists: PropTypes.bool.isRequired,
 };
 
 const PollingContainer = ({ pollExists, ...props }) => {
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
-  const showPolling = pollExists && !currentUser.presenter && isPollingEnabled();
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+  const showPolling = pollExists && !currentUserData?.presenter && isPollingEnabled();
 
   if (showPolling) {
     return (

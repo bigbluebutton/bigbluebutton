@@ -3,19 +3,22 @@ import PropTypes from 'prop-types';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { NavBarItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/nav-bar-item/enums';
 import Styled from './styles';
-import RecordingIndicator from './recording-indicator/container';
-import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import RecordingIndicator from './nav-bar-graphql/recording-indicator/component';
+import TalkingIndicator from '/imports/ui/components/nav-bar/nav-bar-graphql/talking-indicator/component';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
+import ConnectionStatus from '/imports/ui/components/connection-status/component';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import OptionsDropdownContainer from './options-dropdown/container';
-import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/container';
+import TimerIndicatorContainer from '/imports/ui/components/timer/timer-graphql/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { PANELS, ACTIONS } from '../layout/enums';
+import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import { isEqual } from 'radash';
+import Settings from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -66,12 +69,13 @@ const renderPluginItems = (pluginItems) => {
           pluginItems.map((pluginItem) => {
             let returnComponent;
             switch (pluginItem.type) {
-              case PluginSdk.NavBarItemType.BUTTON:
+              case NavBarItemType.BUTTON:
                 returnComponent = (
                   <Styled.PluginComponentWrapper
-                    key={pluginItem.id}
+                    key={`${pluginItem.id}-${pluginItem.type}`}
                   >
                     <Button
+                      disabled={pluginItem.disabled}
                       icon={pluginItem.icon}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
@@ -82,10 +86,10 @@ const renderPluginItems = (pluginItems) => {
                   </Styled.PluginComponentWrapper>
                 );
                 break;
-              case PluginSdk.NavBarItemType.INFO:
+              case NavBarItemType.INFO:
                 returnComponent = (
                   <Styled.PluginComponentWrapper
-                    key={pluginItem.id}
+                    key={`${pluginItem.id}-${pluginItem.type}`}
                     tooltip={pluginItem.tooltip}
                   >
                     <Styled.PluginInfoComponent>
@@ -104,14 +108,18 @@ const renderPluginItems = (pluginItems) => {
                   returnComponent = (
                     <>
                       {returnComponent}
-                      <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                      <Styled.PluginSeparatorWrapper key={`${pluginItem.id}-${pluginItem.type}-separator`}>
+                        |
+                      </Styled.PluginSeparatorWrapper>
                     </>
                   );
                   break;
                 default:
                   returnComponent = (
                     <>
-                      <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                      <Styled.PluginSeparatorWrapper key={`${pluginItem.id}-${pluginItem.type}-separator`}>
+                        |
+                      </Styled.PluginSeparatorWrapper>
                       {returnComponent}
                     </>
                   );
@@ -131,8 +139,8 @@ class NavBar extends Component {
     super(props);
 
     this.state = {
-        acs: props.activeChats,
-    }
+      acs: props.activeChats,
+    };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
@@ -179,7 +187,7 @@ class NavBar extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (!isEqual(prevProps.activeChats, this.props.activeChats)) {
-      this.setState({ acs: this.props.activeChats})
+      this.setState({ acs: this.props.activeChats });
     }
   }
 
@@ -279,7 +287,6 @@ class NavBar extends Component {
     const isExpanded = sidebarNavigation.isOpen;
     const { isPhone } = deviceInfo;
 
-
     const { acs } = this.state;
 
     activeChats.map((c, i) => {
@@ -289,6 +296,11 @@ class NavBar extends Component {
     });
 
     const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
+
+    const { selectedLayout } = Settings.application;
+    const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
     return (
       <Styled.Navbar
@@ -311,28 +323,31 @@ class NavBar extends Component {
       >
         <Styled.Top>
           <Styled.Left>
-            {isExpanded && document.dir === 'ltr'
+            {shouldShowNavBarToggleButton && isExpanded && document.dir === 'ltr'
               && <Styled.ArrowLeft iconName="left_arrow" />}
-            {!isExpanded && document.dir === 'rtl'
+            {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'rtl'
               && <Styled.ArrowLeft iconName="left_arrow" />}
-            <Styled.NavbarToggleButton
-              onClick={this.handleToggleUserList}
-              color={isPhone && isExpanded ? 'primary' : 'dark'}
-              size='md'
-              circle
-              hideLabel
-              data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
-              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              aria-label={ariaLabel}
-              icon="user"
-              aria-expanded={isExpanded}
-              accessKey={TOGGLE_USERLIST_AK}
-              hasNotification={hasNotification}
-            />
-            {!isExpanded && document.dir === 'ltr'
+            {shouldShowNavBarToggleButton && (
+              <Styled.NavbarToggleButton
+                tooltipplacement="right"
+                onClick={this.handleToggleUserList}
+                color={isPhone && isExpanded ? 'primary' : 'dark'}
+                size='md'
+                circle
+                hideLabel
+                data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
+                label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                aria-label={ariaLabel}
+                icon="user"
+                aria-expanded={isExpanded}
+                accessKey={TOGGLE_USERLIST_AK}
+                hasNotification={hasNotification}
+              />
+            )}
+            {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'ltr'
               && <Styled.ArrowRight iconName="right_arrow" />}
-            {isExpanded && document.dir === 'rtl'
+            {shouldShowNavBarToggleButton && isExpanded && document.dir === 'rtl'
               && <Styled.ArrowRight iconName="right_arrow" />}
             {renderPluginItems(leftPluginItems)}
           </Styled.Left>
@@ -349,11 +364,12 @@ class NavBar extends Component {
           <Styled.Right>
             {renderPluginItems(rightPluginItems)}
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
+            {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
             <OptionsDropdownContainer amIModerator={amIModerator} />
           </Styled.Right>
         </Styled.Top>
         <Styled.Bottom>
-          <TalkingIndicatorContainer amIModerator={amIModerator} />
+          <TalkingIndicator amIModerator={amIModerator} />
           <TimerIndicatorContainer />
         </Styled.Bottom>
       </Styled.Navbar>

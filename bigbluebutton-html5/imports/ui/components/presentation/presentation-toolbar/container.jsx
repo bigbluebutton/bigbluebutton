@@ -5,8 +5,6 @@ import PollService from '/imports/ui/components/poll/service';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import Auth from '/imports/ui/services/auth';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -14,14 +12,10 @@ import { useSubscription } from '@apollo/client';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 
 const PresentationToolbarContainer = (props) => {
-  const usingUsersContext = useContext(UsersContext);
   const pluginsContext = useContext(PluginsContext);
-  const { users } = usingUsersContext;
-  const { pluginsProvidedAggregatedState } = pluginsContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const userIsPresenter = currentUser.presenter;
+  const { pluginsExtensibleAreasAggregatedState } = pluginsContext;
 
-  const { layoutSwapped } = props;
+  const { userIsPresenter, layoutSwapped } = props;
 
   const { data: pollData } = useSubscription(POLL_SUBSCRIPTION);
   const hasPoll = pollData?.poll?.length > 0;
@@ -35,7 +29,7 @@ const PresentationToolbarContainer = (props) => {
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
-    const pluginProvidedPresentationToolbarItems = pluginsProvidedAggregatedState
+    const pluginProvidedPresentationToolbarItems = pluginsExtensibleAreasAggregatedState
       ?.presentationToolbarItems;
 
     return (

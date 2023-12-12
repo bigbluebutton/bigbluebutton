@@ -8,7 +8,7 @@ case class RegisterUserReqMsg(
 case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
                                   extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                                   guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean,
-                                  customParameters: Map[String, String])
+                                  enforceLayout: String, customParameters: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -302,7 +302,7 @@ case class UserMobileFlagChangedEvtMsgBody(userId: String, mobile: Boolean)
 
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg" }
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg
-case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
+case class AssignPresenterReqMsgBody(assignedBy: String, newPresenterId: String)
 
 /**
  * Sent from client to change the video pin of the user in the meeting.

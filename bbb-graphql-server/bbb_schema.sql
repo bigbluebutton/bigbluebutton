@@ -205,6 +205,16 @@ create table "meeting_clientSettings" (
 
 CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings";
 
+create view "v_meeting_clientPluginSettings" as
+select "meetingId",
+       plugin->>'name' as "name",
+       plugin->>'url' as "url",
+       (plugin->>'settings')::jsonb as "settings",
+       (plugin->>'dataChannels')::jsonb as "dataChannels"
+from (
+    select "meetingId", jsonb_array_elements("clientSettingsJson"->'public'->'plugins') AS plugin
+    from "meeting_clientSettings"
+) settings;
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -215,7 +225,6 @@ create table "meeting_group" (
 );
 create index "idx_meeting_group_meetingId" on "meeting_group"("meetingId");
 create view "v_meeting_group" as select * from meeting_group;
-
 
 -- ========== User tables
 
@@ -230,12 +239,15 @@ CREATE TABLE "user" (
     "sessionToken" varchar(16),
     "authed" bool,
     "joined" bool,
+    "joinErrorCode" varchar(50),
+    "joinErrorMessage" varchar(400),
     "banned" bool,
     "loggedOut" bool,  -- when user clicked Leave meeting button
     "guest" bool, --used for dialIn
     "guestStatus" varchar(50),
     "registeredOn" bigint,
     "excludeFromDashboard" bool,
+    "enforceLayout" varchar(50),
     --columns of user state bellow
     "raiseHand" bool default false,
     "raiseHandTime" timestamp with time zone,
@@ -247,8 +259,8 @@ CREATE TABLE "user" (
 	"guestLobbyMessage" text,
 	"mobile" bool,
 	"clientType" varchar(50),
-	"disconnected" bool, -- this is the old leftFlag (that was renamed), set when the user just closed the client
-	"expired" bool, -- when it is been some time the user is disconnected
+	"disconnected" bool default false, -- this is the old leftFlag (that was renamed), set when the user just closed the client
+	"expired" bool default false, -- when it is been some time the user is disconnected
 	"ejected" bool,
 	"ejectReason" varchar(255),
 	"ejectReasonCode" varchar(50),
@@ -276,7 +288,8 @@ ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestSta
 ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestStatus" = 'ALLOW') STORED;
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
 
-ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp(("registeredOn" + 6000) / 1000)) STORED;
+ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
+
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
@@ -388,10 +401,13 @@ AS SELECT "user"."userId",
 --    "user"."guestStatus",
     "user"."mobile",
     "user"."clientType",
+    "user"."enforceLayout",
     "user"."isDialIn",
     "user"."role",
     "user"."authed",
     "user"."joined",
+    "user"."joinErrorCode",
+    "user"."joinErrorMessage",
     "user"."disconnected",
     "user"."expired",
     "user"."ejected",
@@ -415,11 +431,16 @@ CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
 u."isWaiting",
+rank() OVER (
+    PARTITION BY u."meetingId"
+    ORDER BY u."registeredOn" ASC, u."userId" ASC
+) as "positionInWaitingQueue",
 u."isAllowed",
 u."isDenied",
 COALESCE(u."guestLobbyMessage",mup."guestLobbyMessage") AS "guestLobbyMessage"
 FROM "user" u
-JOIN "meeting_usersPolicies" mup using("meetingId");
+JOIN "meeting_usersPolicies" mup using("meetingId")
+where u."guestStatus" != 'ALLOW';
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
@@ -481,7 +502,7 @@ join meeting_welcome w USING("meetingId");
 
 
 CREATE TABLE "user_voice" (
-	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
+	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE,
 	"voiceUserId" varchar(100),
 	"callerName" varchar(100),
 	"callerNum" varchar(100),
@@ -494,6 +515,9 @@ CREATE TABLE "user_voice" (
 	"floor" boolean,
 	"lastFloorTime" varchar(25),
 	"voiceConf" varchar(100),
+	"voiceConfCallSession" varchar(50),
+	"voiceConfClientSession" varchar(10),
+	"voiceConfCallState" varchar(30),
 	"endTime" bigint,
 	"startTime" bigint
 );
@@ -513,7 +537,8 @@ SELECT
 FROM "user" u
 JOIN "user_voice" ON "user_voice"."userId" = u."userId"
 LEFT JOIN "user_voice" user_talking ON (user_talking."userId" = u."userId" and user_talking."talking" IS TRUE)
-                                       OR (user_talking."userId" = u."userId" and user_talking."hideTalkingIndicatorAt" > now());
+                                       OR (user_talking."userId" = u."userId" and user_talking."hideTalkingIndicatorAt" > now())
+WHERE "user_voice"."joined" is true;
 
 CREATE TABLE "user_camera" (
 	"streamId" varchar(100) PRIMARY KEY,
@@ -1432,9 +1457,15 @@ WHERE "currentRoomIsOnline" IS TRUE;
 --JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
 --User to update "inviteDismissedAt" via Mutation
-CREATE VIEW "v_breakoutRoom_user" AS
-SELECT *
-FROM "breakoutRoom_user";
+CREATE OR REPLACE VIEW "v_breakoutRoom_user" AS
+SELECT bu.*
+FROM "breakoutRoom_user" bu
+where bu."breakoutRoomId" in (
+    select b."breakoutRoomId"
+    from "user" u
+    join "breakoutRoom" b on b."parentMeetingId" = u."meetingId" and b."endedAt" is null
+    where u."userId" = bu."userId"
+);
 
 ------------------------------------
 ----sharedNotes
@@ -1560,3 +1591,51 @@ JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
 				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
 				)
 ORDER BY m."createdAt";
+
+------------------------
+
+
+create view "v_meeting_componentsFlags" as
+select "meeting"."meetingId",
+        exists (
+            select 1
+            from "breakoutRoom"
+            where "breakoutRoom"."parentMeetingId" = "meeting"."meetingId"
+            and "endedAt" is null
+        ) as "hasBreakoutRoom",
+        exists (
+            select 1
+            from "poll"
+            where "poll"."meetingId" = "meeting"."meetingId"
+            and "ended" is false
+            and "published" is false
+        ) as "hasPoll",
+        exists (
+            select 1
+            from "timer"
+            where "timer"."meetingId" = "meeting"."meetingId"
+            and "active" is true
+        ) as "hasTimer",
+        exists (
+            select 1
+            from "v_screenshare"
+            where "v_screenshare"."meetingId" = "meeting"."meetingId"
+        ) as "hasScreenshare",
+        exists (
+            select 1
+            from "v_externalVideo"
+            where "v_externalVideo"."meetingId" = "meeting"."meetingId"
+        ) as "hasExternalVideo",
+        (
+            select array_agg(distinct "speechLocale")
+            from "user"
+            where "user"."meetingId" = "meeting"."meetingId"
+            and NULLIF("speechLocale",'') is not null
+        ) as "audioTranscriptionCaption",
+        (
+            select array_agg(distinct "name")
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "model" = 'captions'
+        ) as "typedCaption"
+from "meeting";

@@ -73,7 +73,7 @@ exports.breakoutBox1 = 'div[id="breakoutBox-1"]';
 exports.breakoutBox2 = 'div[id="breakoutBox-2"]';
 exports.breakoutOptionsMenu = 'button[data-test="breakoutOptionsMenu"]';
 exports.openUpdateBreakoutUsersModal = 'li[data-test="openUpdateBreakoutUsersModal"]';
-exports.userTest = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
+exports.attendeeNotAssigned = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
 exports.moveUser = 'div[id="breakoutBox-1"] >> p:nth-child(1)';
 exports.openBreakoutTimeManager = 'li[data-test="openBreakoutTimeManager"]';
 exports.inputSetTimeSelector = 'input[id="inputSetTimeSelector"]';
@@ -159,6 +159,18 @@ exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
+
+// Timer
+exports.timerStopwatchFeature = 'li[data-test="timerStopWatchFeature"]';
+exports.timerCurrent = 'span[data-test="timerCurrent"]';
+exports.startStopTimer = 'button[data-test="startStopTimer"]';
+exports.resetTimerStopwatch = 'button[data-test="resetTimerStopWatch"]';
+exports.timerButton = 'button[data-test="timer"]';
+exports.timerIndicator = 'div[data-test="timeIndicator"]';
+exports.stopwatch = 'button[data-test="stopwatch"]';
+exports.hoursInput = 'input[data-test="hoursInput"]';
+exports.minutesInput = 'input[data-test="minutesInput"]';
+exports.secondsInput = 'input[data-test="secondsInput"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -443,17 +455,17 @@ exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 
 // Whiteboard
-exports.whiteboard = 'div[id="canvas"]';
+exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
-exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
-exports.wbShapesButton = 'button[id="TD-PrimaryTools-Shapes"]';
-exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
-exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
-exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
-exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
-exports.wbPencilShape = 'button[id="TD-PrimaryTools-Pencil"]';
-exports.wbStickyNoteShape = 'button[id="TD-PrimaryTools-Pencil2"]';
-exports.wbTextShape = 'button[id="TD-PrimaryTools-Text"]';
+exports.wbToolbar = 'div[class="tlui-toolbar__tools"]';
+exports.wbShapesButton = 'button[data-testid="tools.more"]';
+exports.wbRectangleShape = 'span[data-testid="tools.more.rectangle"]';
+exports.wbEllipseShape = 'span[data-testid="tools.more.ellipse"]';
+exports.wbTriangleShape = 'span[data-testid="tools.more.triangle"]';
+exports.wbLineShape = 'span[data-testid="tools.more.line"]';
+exports.wbPencilShape = 'button[data-testid="tools.draw"]';
+exports.wbStickyNoteShape = 'button[data-testid="tools.note"]';
+exports.wbTextShape = 'button[data-testid="tools.text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape="sticky"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';

@@ -1,20 +1,21 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { makeCall } from '/imports/ui/services/api';
 import RaiseHandNotifier from './component';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const StatusNotifierContainer = (props) => {
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const isViewer = currentUser.role === ROLE_VIEWER;
-  const isPresenter = currentUser.presenter;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    role: user.role,
+  }));
+  const isViewer = currentUserData?.role === ROLE_VIEWER;
+  const isPresenter = currentUserData?.presenter;
   return (
     <RaiseHandNotifier {...{
       ...props,

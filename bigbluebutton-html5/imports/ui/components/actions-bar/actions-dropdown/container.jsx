@@ -17,10 +17,10 @@ const ActionsDropdownContainer = (props) => {
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i) => i.isRTL);
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let actionButtonDropdownItems = [];
-  if (pluginsProvidedAggregatedState.actionButtonDropdownItems) {
-    actionButtonDropdownItems = [...pluginsProvidedAggregatedState.actionButtonDropdownItems];
+  if (pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems) {
+    actionButtonDropdownItems = [...pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems];
   }
 
   const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);

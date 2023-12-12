@@ -86,7 +86,7 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
-    await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
@@ -144,8 +144,11 @@ class Join extends Create {
 
   async exportBreakoutNotes() {
     const { sharedNotesEnabled } = getSettings();
-    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
 
+    if(!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
+    }
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle);
     await breakoutUserPage.waitAndClick(e.sharedNotes);
@@ -179,7 +182,11 @@ class Join extends Create {
 
   async exportBreakoutWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
-    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
+    
+    if(!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.chatButton);
+      return this.modPage.wasRemoved(e.sharedNotes);
+    }
 
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle);
