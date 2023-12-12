@@ -63,6 +63,7 @@ class Base extends Component {
     };
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
+    this.setUserExitReason = this.setUserExitReason.bind(this);
   }
 
   handleFullscreenChange() {
@@ -228,6 +229,14 @@ class Base extends Component {
     });
   }
 
+  setUserExitReason(exitReason, callback) {
+    const { setExitReason } = this.props;
+
+    setExitReason({ variables: { exitReason } }).then(() => {
+      if (callback) callback();
+    });
+  }
+
   setMeetingExisted(meetingExisted) {
     this.setState({ meetingExisted });
   }
@@ -254,7 +263,6 @@ class Base extends Component {
       meetingIsBreakout,
       subscriptionsReady,
       userWasEjected,
-      setUserExitReason,
     } = this.props;
 
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
@@ -262,7 +270,7 @@ class Base extends Component {
     }
     
     if (( meetingHasEnded || ejected || userRemoved ) && meetingIsBreakout) {
-      setUserExitReason('breakoutEnded', () => {
+      this.setUserExitReason('breakoutEnded', () => {
         Meteor.disconnect();
         window.close();
       });
@@ -274,7 +282,7 @@ class Base extends Component {
         <MeetingEnded
           code="403"
           ejectedReason={ejectedReason}
-          callback={() => setUserExitReason('ejected')}
+          callback={() => this.setUserExitReason('ejected')}
         />
       );
     }
@@ -284,7 +292,7 @@ class Base extends Component {
         <MeetingEnded
           code={codeError}
           endedReason={meetingEndedReason}
-          callback={() => setUserExitReason('meetingEnded')}
+          callback={() => this.setUserExitReason('meetingEnded')}
         />
       );
     }
@@ -292,9 +300,9 @@ class Base extends Component {
     if ((codeError && !meetingHasEnded) || userWasEjected) {
       // 680 is set for the codeError when the user requests a logout.
       if (codeError !== '680') {
-        return (<ErrorScreen code={codeError} callback={setUserExitReason} endedReason="error" />);
+        return (<ErrorScreen code={codeError} callback={this.setUserExitReason} endedReason="error" />);
       }
-      return (<MeetingEnded code={codeError} callback={setUserExitReason} endedReason="logout" />);
+      return (<MeetingEnded code={codeError} callback={this.setUserExitReason} endedReason="logout" />);
     }
 
     return (<AppContainer {...this.props} />);
@@ -330,13 +338,7 @@ const BaseContainer = (props) => {
 
   const [setExitReason] = useMutation(SET_EXIT_REASON);
 
-  const setUserExitReason = (exitReason, callback) => {
-    setExitReason({ variables: { exitReason } }).then(() => {
-      if (callback) callback();
-    });
-  };
-
-  return <Base {...{ sidebarContentPanel, layoutContextDispatch, setUserExitReason, ...props }} />;
+  return <Base {...{ sidebarContentPanel, layoutContextDispatch, setExitReason, ...props }} />;
 };
 
 export default withTracker(() => {
