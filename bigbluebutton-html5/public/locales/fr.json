@@ -434,7 +434,7 @@
     "app.waitingMessage": "Déconnecté. Essayez de vous reconnecter dans {0} secondes...",
     "app.retryNow": "Réessayer maintenant",
     "app.muteWarning.label": "Cliquez sur {0} pour réactiver votre micro.",
-    "app.muteWarning.disableMessage": "Les alertes de micro éteint sont désactivées jusqu'à la réactivation du micro.",
+    "app.muteWarning.disableMessage": "Les alertes pour micro éteint sont désactivées jusqu'à la réactivation du micro.",
     "app.muteWarning.tooltip": "Cliquez pour fermer et désactiver les alertes jusqu'à la prochaine activation du micro",
     "app.navBar.leaveMeetingBtnLabel": "Quitter",
     "app.navBar.settingsDropdown.optionsLabel": "Options",
