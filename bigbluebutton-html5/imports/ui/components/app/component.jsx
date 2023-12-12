@@ -628,7 +628,7 @@ class App extends Component {
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
-          <ExternalVideoContainer />
+          <ExternalVideoPlayerContainer />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
           {
