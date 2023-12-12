@@ -41,7 +41,6 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineContainer from '../plugins-engine/container';
 import { makeCall } from '/imports/ui/services/api';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -63,7 +62,6 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
-const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -229,8 +227,6 @@ class App extends Component {
 
     if (deviceInfo.isMobile) makeCall('setMobileUser');
 
-    ConnectionStatusService.startRoundTripTime();
-
     if (this.isTimerEnabled) {
       TimerService.fetchTimeOffset();
       this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
@@ -339,7 +335,6 @@ class App extends Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
     window.onbeforeunload = null;
-    ConnectionStatusService.stopRoundTripTime();
 
     if (this.timeOffsetInterval) {
       clearInterval(this.timeOffsetInterval);
@@ -600,21 +595,18 @@ class App extends Component {
       presentationIsOpen,
       darkTheme,
       intl,
+      isModerator,
     } = this.props;
-console.log({shouldShowExternalVideo})
+
     const {
       isAudioModalOpen,
       isRandomUserSelectModalOpen,
       isVideoPreviewModalOpen,
       presentationFitToWidth,
-      allPluginsLoaded,
     } = this.state;
     return (
       <>
-        <PluginsEngineContainer onReady={() => {
-          this.setState({ allPluginsLoaded: true });
-        }}
-        />
+        <PluginsEngineContainer />
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}
@@ -638,7 +630,7 @@ console.log({shouldShowExternalVideo})
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
-          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
           {
             shouldShowExternalVideo
               ? <ExternalVideoPlayerContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
@@ -656,8 +648,8 @@ console.log({shouldShowExternalVideo})
           {this.renderAudioCaptions()}
           <PresentationUploaderToastContainer intl={intl} />
           <UploaderContainer />
-          <CaptionsSpeechContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
+          <CaptionsSpeechContainer isModerator={isModerator} />
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,

@@ -28,7 +28,7 @@ test.describe.parallel('Breakout', () => {
       await create.changeRoomsName();
     });
 
-    test('Remove and reset assignments @ci @flaky', async ({ browser, context, page }) => {
+    test('Remove and reset assignments @ci', async ({ browser, context, page }) => {
       const create = new Create(browser, context);
       await create.initPages(page);
       await create.removeAndResetAssignments();
@@ -41,7 +41,7 @@ test.describe.parallel('Breakout', () => {
     });
   });
 
-  test.describe.parallel('After creating @flaky', () => {
+  test.describe.parallel('After creating', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#moderators-creating-breakout-rooms-and-assiging-users-automated
     test('Join Breakout room @ci', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
@@ -106,7 +106,7 @@ test.describe.parallel('Breakout', () => {
       await join.endAllBreakoutRooms();
     });
 
-    test('Invite user after creating rooms @ci', async ({ browser, context, page }) => {
+    test('Invite user after creating rooms @ci @flaky', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
@@ -120,14 +120,14 @@ test.describe.parallel('Breakout', () => {
       await join.moveUserToOtherRoom();
     });
 
-    test('Export breakout room shared notes', async ({ browser, context, page }) => {
+    test('Export breakout room shared notes @flaky', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(true); // capture breakout notes
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
+    test('Export breakout room whiteboard annotations @flaky', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true); // capture breakout whiteboard

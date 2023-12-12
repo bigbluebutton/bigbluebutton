@@ -4,7 +4,6 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
-import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
 import { ValidationStates } from '/imports/api/auth-token-validation';
 import logger from '/imports/startup/client/logger';
 
@@ -230,7 +229,6 @@ class Auth {
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
-      SubscriptionRegistry.createSubscription('current-user');
       const validationTimeout = setTimeout(() => {
         reject({
           error: 408,

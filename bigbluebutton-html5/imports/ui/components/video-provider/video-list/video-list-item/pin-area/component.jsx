@@ -16,11 +16,11 @@ const intlMessages = defineMessages({
 const PinArea = (props) => {
   const intl = useIntl();
 
-  const { user } = props;
+  const { user, amIModerator } = props;
   const pinned = user?.pin;
   const userId = user?.userId;
   const shouldRenderPinButton = pinned && userId;
-  const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser();
+  const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser(amIModerator);
 
   if (!shouldRenderPinButton) return <Styled.PinButtonWrapper />;
 

@@ -162,26 +162,39 @@ const notifyShapeNumberExceeded = (intl, limit) => {
   if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { 0: limit }), 'warning', 'whiteboard');
 };
 
-const toggleToolsAnimations = (activeAnim, anim, time) => {
-  const tdTools = document.querySelector('#TD-Tools');
-  const topToolbar = document.getElementById('TD-Styles')?.parentElement;
-  const optionsDropdown = document.getElementById('WhiteboardOptionButton');
-  if (tdTools && topToolbar) {
-    tdTools.classList.remove(activeAnim);
-    topToolbar.classList.remove(activeAnim);
-    topToolbar.style.transition = `opacity ${time} ease-in-out`;
-    tdTools.style.transition = `opacity ${time} ease-in-out`;
-    tdTools?.classList?.add(anim);
-    topToolbar?.classList?.add(anim);
+const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
+  const handleOptionsDropdown = () => {
+    const optionsDropdown = document.getElementById('WhiteboardOptionButton');
+    if (optionsDropdown) {
+      optionsDropdown.classList.remove(activeAnim);
+      optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
+      optionsDropdown.classList.add(anim);
+    }
   }
-  if (optionsDropdown) {
-    optionsDropdown.classList.remove(activeAnim);
-    optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
-    optionsDropdown?.classList?.add(anim);
-  }
-}
 
-const formatAnnotations = (annotations, intl, curPageId, pollResults) => {
+  if (hasWBAccess === false) {
+    return handleOptionsDropdown();
+  }
+
+  const checkElementsAndRun = () => {
+    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper');
+    if (tlEls.length) {
+      tlEls?.forEach(el => {
+        el.classList.remove(activeAnim);
+        el.style.transition = `opacity ${time} ease-in-out`;
+        el.classList.add(anim);
+      });
+      handleOptionsDropdown();
+    } else {
+      // If the elements are not yet in the DOM, wait for 50ms and try again
+      setTimeout(checkElementsAndRun, 300);
+    }
+  };
+
+  checkElementsAndRun();
+};
+
+const formatAnnotations = (annotations, intl, curPageId, pollResults, currentPresentationPage) => {
   const result = {};
 
   if (pollResults) {
@@ -238,30 +251,52 @@ const formatAnnotations = (annotations, intl, curPageId, pollResults) => {
         return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
       }).join('\n');
 
-      const style = {
-        color: 'white',
-        dash: 'solid',
-        font: 'mono',
-        isFilled: true,
-        size: 'small',
-        scale: 1,
-      };
+      // Text measurement estimation
+      const averageCharWidth = 16;
+      const lineHeight = 32;
 
-      const padding = 20;
-      const textSize = getTextSize(pollResult, style, padding);
+      const annotationWidth = longestLine * averageCharWidth; // Estimate width
+      const annotationHeight = lines.length * lineHeight; // Estimate height
+
+      const slideWidth = currentPresentationPage?.scaledWidth;
+      const slideHeight = currentPresentationPage?.scaledHeight;
+      const xPosition = slideWidth - annotationWidth;
+      const yPosition = slideHeight - annotationHeight;
+
+      let cpg = parseInt(annotationInfo?.id?.split('/')[1]);
+      if (cpg !== parseInt(curPageId)) return;
 
       annotationInfo = {
-        childIndex: 0,
-        id: annotationInfo.id,
-        name: `poll-result-${annotationInfo.id}`,
-        type: 'rectangle',
-        label: pollResult,
-        labelPoint: [0.5, 0.5],
-        parentId: `${curPageId}`,
-        point: [0, 0],
-        size: textSize,
-        style,
-      };
+        "x": xPosition,
+        "isLocked": false,
+        "y": yPosition,
+        "rotation": 0,
+        "typeName": "shape",
+        "opacity": 1,
+        "parentId": `page:${curPageId}`,
+        "index": "a1",
+        "id": `shape:poll-result-${annotationInfo.id}`,
+        "meta": {
+        },
+        "type": "geo",
+        "props": {
+          "url": "",
+          "text": `${pollResult}`,
+          "color": "black",
+          "font": "mono",
+          "fill": "semi",
+          "dash": "draw",
+          "h": annotationHeight,
+          "w": annotationWidth,
+          "size": "m",
+          "growY": 0,
+          "align": "middle",
+          "geo": "rectangle",
+          "verticalAlign": "middle",
+          "labelColor": "black"
+        }
+      }
+
       annotationInfo.questionType = false;
     }
     result[annotationInfo.id] = annotationInfo;

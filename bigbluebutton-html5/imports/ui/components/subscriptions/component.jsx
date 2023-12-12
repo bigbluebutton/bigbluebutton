@@ -25,7 +25,6 @@ const SUBSCRIPTIONS = [
   'local-settings',
   'record-meetings',
   'video-streams',
-  'connection-status',
   'voice-call-states',
   'breakouts',
   'breakouts-history',
@@ -137,7 +136,6 @@ export default withTracker(() => {
         SubscriptionRegistry.getSubscription('users'),
         SubscriptionRegistry.getSubscription('breakouts'),
         SubscriptionRegistry.getSubscription('breakouts-history'),
-        SubscriptionRegistry.getSubscription('connection-status'),
         SubscriptionRegistry.getSubscription('guestUser'),
       ].forEach((item) => {
         if (item) item.stop();

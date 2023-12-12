@@ -124,6 +124,8 @@ const PresentationContainer = (props) => {
 
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
+    userId: user.userId,
+    isModerator: user.isModerator,
   }));
   const userIsPresenter = currentUser?.presenter;
 
@@ -168,6 +170,7 @@ const PresentationContainer = (props) => {
         isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
         presentationName: currentPresentationPage?.presentationName,
         presentationAreaSize,
+        currentUser,
       }
       }
     />
