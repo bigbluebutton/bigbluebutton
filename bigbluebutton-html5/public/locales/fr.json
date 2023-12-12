@@ -462,7 +462,7 @@
     "app.navBar.recording": "Cette session est enregistrée",
     "app.navBar.recording.on": "Enregistrement en cours",
     "app.navBar.recording.off": "Pas d'enregistrement en cours",
-    "app.navBar.emptyAudioBrdige": "Le microphone n'est pas actif. Activez votre microphone pour ajouter du son à cet enregistrement.",
+    "app.navBar.emptyAudioBrdige": "Le microphone n'est pas actif. Activez votre microphone pour l'audio de cet enregistrement.",
     "app.leaveConfirmation.confirmLabel": "Quitter",
     "app.leaveConfirmation.confirmDesc": "Vous déconnecte de la réunion",
     "app.endMeeting.title": "Mettre fin à {0}",
