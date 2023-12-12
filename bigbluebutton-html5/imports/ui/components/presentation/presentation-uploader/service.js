@@ -1,7 +1,6 @@
 import { UploadingPresentations } from '/imports/api/presentations';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
-import Poll from '/imports/api/polls/';
 import { Meteor } from 'meteor/meteor';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
@@ -189,8 +188,6 @@ const setPresentation = (presentationId) => {
 };
 
 const removePresentation = (presentationId) => {
-  const hasPoll = Poll.find({}, { fields: {} }).count();
-  if (hasPoll) makeCall('stopPoll');
   makeCall('removePresentation', presentationId, POD_ID);
 };
 
