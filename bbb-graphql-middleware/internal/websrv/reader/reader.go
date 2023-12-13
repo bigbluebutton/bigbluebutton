@@ -37,12 +37,6 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 		err := wsjson.Read(ctx, c, &v)
 		if err != nil {
 			log.Debugf("Browser is disconnected, skiping reading of ws message: %v", err)
-
-			//Dec 13 15:00:51 bbb30.bbb.imdt.dev bbb-graphql-middleware[20317]: {"_routine":"BrowserConnectionReader","browserConnectionId":"BC0000000007","level":"error","msg":"error on read (browser is disconnected):
-			//failed to read JSON message: failed to get reader: received close frame: status = StatusGoingAway and reason = \"\"","time":"2023-12-13T15:00:51-03:00"}
-			//Dec 13 15:00:51 bbb30.bbb.imdt.dev bbb-graphql-middleware[20317]: {"_routine":"BrowserConnectionWriter","browserConnectionId":"BC0000000007","level":"error","msg":"error on write (browser is disconnected):
-			//failed to write JSON message: failed to marshal JSON: failed to write msg: use of closed network connection","time":"2023-12-13T15:00:51-03:00"}
-
 			return
 		}
 
