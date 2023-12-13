@@ -14,6 +14,16 @@ export const PRESENTATION_SET_ZOOM = gql`
   }
 `;
 
+export const PRESENTATION_SET_WRITERS = gql`
+  mutation PresentationSetWriters($pageId: String!, $usersIds: [String]!) {
+    presentationSetWriters(
+      pageId: $pageId,
+      usersIds: $usersIds,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
+  PRESENTATION_SET_WRITERS,
 };

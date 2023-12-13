@@ -87,10 +87,6 @@ const getMultiUser = (whiteboardId) => {
   return data.multiUser;
 };
 
-const addGlobalAccess = (whiteboardId) => {
-  makeCall('addGlobalAccess', whiteboardId);
-};
-
 const addIndividualAccess = (whiteboardId, userId) => {
   makeCall('addIndividualAccess', whiteboardId, userId);
 };
@@ -309,7 +305,6 @@ export {
   sendAnnotation,
   getMultiUser,
   changeWhiteboardAccess,
-  addGlobalAccess,
   addIndividualAccess,
   removeGlobalAccess,
   removeIndividualAccess,

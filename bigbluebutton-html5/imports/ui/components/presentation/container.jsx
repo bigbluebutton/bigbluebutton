@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
@@ -13,7 +13,7 @@ import {
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 import MediaService from '../media/service';
-import { useSubscription, useMutation } from '@apollo/client';
+import { useSubscription, useMutation, useLazyQuery } from '@apollo/client';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
@@ -21,7 +21,8 @@ import {
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { PRESENTATION_SET_ZOOM } from './mutations';
+import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
+import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
@@ -37,6 +38,29 @@ const PresentationContainer = (props) => {
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
+  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
+
+  const [getUsers, { data: usersData }] = useLazyQuery(GET_USER_IDS, { fetchPolicy: 'no-cache' });
+  const users = usersData?.user || [];
+
+  const addWhiteboardGlobalAccess = () => {
+    const usersIds = users.map((user) => user.userId);
+    const { pageId } = currentPresentationPage;
+
+    presentationSetWriters({
+      variables: {
+        pageId,
+        usersIds,
+      },
+    });
+  };
+
+  // users will only be fetched when getUsers is called
+  useEffect(() => {
+    if (users.length > 0) {
+      addWhiteboardGlobalAccess();
+    }
+  }, [users]);
 
   const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
     const { presentationId, pageId, num } = currentPresentationPage;
@@ -180,7 +204,7 @@ const PresentationContainer = (props) => {
           'bbb_force_restore_presentation_on_new_events',
           Meteor.settings.public.presentation.restoreOnUpdate,
         ),
-        addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
+        addWhiteboardGlobalAccess: getUsers,
         removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
         multiUserSize: multiUserData.size,
         isViewersAnnotationsLocked,
