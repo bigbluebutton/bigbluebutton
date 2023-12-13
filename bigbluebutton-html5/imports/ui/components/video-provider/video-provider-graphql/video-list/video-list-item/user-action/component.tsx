@@ -116,13 +116,13 @@ const UserAction: React.FC<UserActionProps> = ({
 
     const toggleDisableCam = () => {
       const disabledCams = Session.get('disabledCams') || [];
-      const isDisabled = disabledCams && disabledCams?.includes(cameraId);
+      const isDisabled = disabledCams && disabledCams?.includes(userId);
       if (!isDisabled) {
-        Session.set('disabledCams', [...disabledCams, cameraId]);
-        setSelfViewDisable([...disabledCams, cameraId]);
+        Session.set('disabledCams', [...disabledCams, userId]);
+        setSelfViewDisable([...disabledCams, userId]);
       } else {
-        Session.set('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
-        setSelfViewDisable(disabledCams.filter((cId: string) => cId !== cameraId));
+        Session.set('disabledCams', disabledCams.filter((cId: string) => cId !== userId));
+        setSelfViewDisable(disabledCams.filter((cId: string) => cId !== userId));
       }
     };
 

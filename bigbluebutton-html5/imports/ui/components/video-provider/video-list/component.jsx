@@ -299,6 +299,7 @@ class VideoList extends Component {
       handleVideoFocus,
       focusedId,
       makeDragOperations,
+      isSelfviewDisabled,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -327,6 +328,7 @@ class VideoList extends Component {
             focused={isFocused}
             name={name}
             userId={userId}
+            isSelfviewDisabled={isSelfviewDisabled}
           />
         </Styled.VideoListItem>
       );

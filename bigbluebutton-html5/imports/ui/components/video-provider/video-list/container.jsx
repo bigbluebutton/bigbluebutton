@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../../layout/context';
+import Settings from '/imports/ui/services/settings';
 import Users from '/imports/api/users';
 
 const VideoListContainer = ({ children, ...props }) => {
@@ -30,9 +31,10 @@ const VideoListContainer = ({ children, ...props }) => {
 
 export default withTracker((props) => {
   const { streams } = props;
-
+  const isSelfviewDisabled = Settings.application.selfViewDisable;
   return {
     ...props,
+    isSelfviewDisabled,
     numberOfPages: VideoService.getNumberOfPages(),
     streams: streams.filter((stream) => Users.findOne({ userId: stream.userId },
       {

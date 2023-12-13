@@ -57,6 +57,7 @@ export interface VideoListItemContainerProps {
   userId: string;
   dragging: boolean;
   draggingOver: boolean,
+  isSelfviewDisabled: boolean,
 }
 
 interface VideoListItemProps extends VideoListItemContainerProps {
@@ -160,7 +161,6 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   const videoContainer = useRef<HTMLDivElement | null>(null);
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
-
   // @ts-ignore: Singleton with auto-generated Fields
   const { animations } = Settings.application;
 
@@ -173,7 +173,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
     setIsStreamHealthy(newHealthState);
   }, []);
 
-  const onLoadedData = useCallback(() => {
+  const onLoadedData = () => {
     setVideoDataLoaded(true);
     window.dispatchEvent(new Event('resize'));
 
@@ -184,7 +184,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
 
     // ts-ignore: Meteor global variable, mantained until all code is migrated to typescript
     Session.set('canConnect', true);
-  }, []);
+  };
 
   useEffect(() => {
     subscribeToStreamStateChange(cameraId, onStreamStateChange as EventListener);
@@ -220,12 +220,12 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
     if (!isSelfViewDisabled && videoDataLoaded) {
       playElement(videoTag.current);
     }
-    if ((isSelfViewDisabled && userId === Auth.userID) || disabledCams?.includes(cameraId)) {
+    if ((isSelfViewDisabled && userId === Auth.userID) || disabledCams?.includes(userId)) {
       if (videoTag?.current?.pause) {
         videoTag?.current?.pause();
       }
     }
-  }, [isSelfViewDisabled, videoDataLoaded]);
+  }, [isSelfViewDisabled, videoDataLoaded, disabledCams]);
 
   useEffect(() => {
     setIsSelfViewDisabled(settingsSelfViewDisable);
@@ -383,7 +383,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
       </Styled.VideoContainer>
 
       {isStream && ((isSelfViewDisabled && userId === Auth.userID)
-        || disabledCams.includes(cameraId)) && (
+        || disabledCams.includes(userId)) && (
           <Styled.VideoDisabled>
             {intl.formatMessage(intlMessages.disableDesc)}
           </Styled.VideoDisabled>
@@ -391,13 +391,13 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
 
       {/* eslint-disable-next-line no-nested-ternary */}
 
-      {(videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId))) && (
+      {(videoIsReady || (isSelfViewDisabled || disabledCams.includes(userId))) && (
         isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
       )}
       {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
-      {((isSelfViewDisabled && userId === Auth.userID) || disabledCams.includes(cameraId))
+      {((isSelfViewDisabled && userId === Auth.userID) || disabledCams.includes(userId))
         && renderWebcamConnecting()}
     </Styled.Content>
   );
@@ -413,11 +413,11 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
   userId,
   dragging,
   draggingOver,
+  isSelfviewDisabled,
 }) => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
-
   const {
     data: currentUser,
   } = useCurrentUser((user: Partial<User>) => ({
@@ -483,7 +483,8 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
       dragging={dragging}
       draggingOver={draggingOver}
       // @ts-ignore: Singleton with auto-generated Fields
-      settingsSelfViewDisable={Settings.application.selfViewDisable}
+      settingsSelfViewDisable={isSelfviewDisabled}
+      isSelfviewDisabled={isSelfviewDisabled}
     />
   );
 };
