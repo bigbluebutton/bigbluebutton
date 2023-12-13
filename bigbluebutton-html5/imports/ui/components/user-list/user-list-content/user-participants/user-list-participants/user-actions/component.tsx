@@ -215,9 +215,9 @@ const UserActions: React.FC<UserActionsProps> = ({
   const changeWhiteboardAccess = () => {
     if (pageId) {
       const { userId } = user;
-      const usersIds = writers.map((writer) => writer.userId);
-      const hasAccess = writers?.some((writer) => writer.userId === userId),
-      const newUsersIds = hasAccess ? usersIds.filter(id => id !== userId) : [...usersIds, userId];
+      const usersIds = writers.map((writer: { userId: string }) => writer.userId);
+      const hasAccess = writers?.some((writer: { userId: string }) => writer.userId === userId);
+      const newUsersIds = hasAccess ? usersIds.filter((id: string) => id !== userId) : [...usersIds, userId];
 
       presentationSetWriters({
         variables: {
