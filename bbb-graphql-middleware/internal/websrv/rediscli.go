@@ -3,7 +3,6 @@ package websrv
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -89,17 +88,17 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 
 	messageJSON, err := json.Marshal(message)
 	if err != nil {
-		fmt.Printf("Error while marshaling message to json: %v\n", err)
+		log.Tracef("Error while marshaling message to json: %v\n", err)
 		return
 	}
 
 	err = GetRedisConn().Publish(context.Background(), channelName, messageJSON).Err()
 	if err != nil {
-		fmt.Printf("Error while sending msg to redis channel: %v\n", err)
+		log.Tracef("Error while sending msg to redis channel: %v\n", err)
 		return
 	}
 
-	fmt.Printf("JSON message sent to channel %s:\n%s\n", channelName, messageJSON)
+	log.Tracef("JSON message sent to channel %s:\n%s\n", channelName, messageJSON)
 }
 
 func SendUserGraphqlConnectionInvalidatedEvtMsg(sessionToken string) {

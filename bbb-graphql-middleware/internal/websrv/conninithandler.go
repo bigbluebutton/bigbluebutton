@@ -35,7 +35,7 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 				var sessionToken = headersAsMap["X-Session-Token"]
 				if sessionToken != nil {
 					sessionToken := headersAsMap["X-Session-Token"].(string)
-					log.Infof("[SessionTokenReader] intercepted session token %v", sessionToken)
+					log.Debugf("[SessionTokenReader] intercepted session token %v", sessionToken)
 					BrowserConnectionsMutex.Lock()
 					browserConnection.SessionToken = sessionToken
 					BrowserConnectionsMutex.Unlock()

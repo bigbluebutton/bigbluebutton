@@ -78,9 +78,9 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	log.Infof("connection accepted")
 
 	// Create channels
-	fromBrowserChannel1 := make(chan interface{}, bufferSize)
-	fromBrowserChannel2 := common.NewSafeChannel(bufferSize)
-	toBrowserChannel := make(chan interface{}, bufferSize)
+	fromBrowserToHasuraChannel1 := common.NewSafeChannel(bufferSize)
+	fromBrowserToHasuraChannel2 := common.NewSafeChannel(bufferSize)
+	fromHasuraToBrowserChannel := common.NewSafeChannel(bufferSize)
 
 	// Ensure a hasura client is running while the browser is connected
 	go func() {
@@ -99,7 +99,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					BrowserConnectionsMutex.RUnlock()
 					log.Debugf("created hasura client")
 					if thisBrowserConnection != nil {
-						hascli.HasuraClient(thisBrowserConnection, r.Cookies(), fromBrowserChannel1, toBrowserChannel)
+						hascli.HasuraClient(thisBrowserConnection, r.Cookies(), fromBrowserToHasuraChannel1, fromHasuraToBrowserChannel)
 					}
 					time.Sleep(100 * time.Millisecond)
 				}
@@ -114,17 +114,17 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	var wgReader sync.WaitGroup
 	wgReader.Add(1)
 
-	// Reads from browser connection, writes into fromBrowserChannel1 and fromBrowserChannel2
-	go reader.BrowserConnectionReader(browserConnectionId, browserConnectionContext, c, fromBrowserChannel1, fromBrowserChannel2, []*sync.WaitGroup{&wgAll, &wgReader})
+	// Reads from browser connection, writes into fromBrowserToHasuraChannel1 and fromBrowserToHasuraChannel2
+	go reader.BrowserConnectionReader(browserConnectionId, browserConnectionContext, c, fromBrowserToHasuraChannel1, fromBrowserToHasuraChannel2, []*sync.WaitGroup{&wgAll, &wgReader})
 	go func() {
 		wgReader.Wait()
 		thisConnection.Disconnected = true
 	}()
 
-	// Reads from toBrowserChannel, writes to browser connection
-	go writer.BrowserConnectionWriter(browserConnectionId, browserConnectionContext, c, toBrowserChannel, &wgAll)
+	// Reads from fromHasuraToBrowserChannel, writes to browser connection
+	go writer.BrowserConnectionWriter(browserConnectionId, browserConnectionContext, c, fromHasuraToBrowserChannel, &wgAll)
 
-	go ConnectionInitHandler(browserConnectionId, browserConnectionContext, fromBrowserChannel2, &wgAll)
+	go ConnectionInitHandler(browserConnectionId, browserConnectionContext, fromBrowserToHasuraChannel2, &wgAll)
 
 	// Wait until all routines are finished
 	wgAll.Wait()

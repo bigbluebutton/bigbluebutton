@@ -22,7 +22,7 @@ var lastHasuraConnectionId int
 var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 
 // Hasura client connection
-func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserChannel chan interface{}, toBrowserChannel chan interface{}) error {
+func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserChannel *common.SafeChannel, toBrowserChannel *common.SafeChannel) error {
 	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
 
 	// Obtain id for this connection
@@ -97,7 +97,7 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 
 	// if it's a reconnect, inject authentication
 	if !browserConnection.Disconnected && browserConnection.ConnectionInitMessage != nil {
-		fromBrowserChannel <- browserConnection.ConnectionInitMessage
+		fromBrowserChannel.Send(browserConnection.ConnectionInitMessage)
 	}
 
 	// Wait
