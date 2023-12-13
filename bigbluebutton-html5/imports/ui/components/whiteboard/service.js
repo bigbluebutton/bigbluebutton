@@ -91,10 +91,6 @@ const addIndividualAccess = (whiteboardId, userId) => {
   makeCall('addIndividualAccess', whiteboardId, userId);
 };
 
-const removeGlobalAccess = (whiteboardId) => {
-  makeCall('removeGlobalAccess', whiteboardId);
-};
-
 const removeIndividualAccess = (whiteboardId, userId) => {
   makeCall('removeIndividualAccess', whiteboardId, userId);
 };
@@ -306,7 +302,6 @@ export {
   getMultiUser,
   changeWhiteboardAccess,
   addIndividualAccess,
-  removeGlobalAccess,
   removeIndividualAccess,
   persistShape,
   removeShapes,

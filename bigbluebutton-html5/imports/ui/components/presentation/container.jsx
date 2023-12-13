@@ -10,7 +10,6 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 import MediaService from '../media/service';
 import { useSubscription, useMutation, useLazyQuery } from '@apollo/client';
@@ -61,6 +60,17 @@ const PresentationContainer = (props) => {
       addWhiteboardGlobalAccess();
     }
   }, [users]);
+
+  const removeWhiteboardGlobalAccess = () => {
+    const { pageId } = currentPresentationPage;
+
+    presentationSetWriters({
+      variables: {
+        pageId,
+        usersIds: [],
+      },
+    });
+  };
 
   const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
     const { presentationId, pageId, num } = currentPresentationPage;
@@ -205,7 +215,7 @@ const PresentationContainer = (props) => {
           Meteor.settings.public.presentation.restoreOnUpdate,
         ),
         addWhiteboardGlobalAccess: getUsers,
-        removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
+        removeWhiteboardGlobalAccess,
         multiUserSize: multiUserData.size,
         isViewersAnnotationsLocked,
         setPresentationIsOpen: MediaService.setPresentationIsOpen,
