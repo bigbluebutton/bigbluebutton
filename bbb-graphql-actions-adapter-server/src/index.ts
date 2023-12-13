@@ -20,8 +20,20 @@ app.post('/', async (req: Request, res: Response) => {
     // Destructure relevant information from the request body.
     const { action: { name: actionName }, input, session_variables: sessionVariables } = req.body;
 
+
+    if(DEBUG) {
+      console.debug('-------------------------------------------');
+      console.debug(actionName);
+      console.debug(sessionVariables);
+    }
+
     // Build message using received information.
-    const { eventName, routing, header, body } = await redisMessageFactory.buildMessage(sessionVariables, actionName, input);
+    const {
+      eventName,
+      routing,
+      header,
+      body
+    } = await redisMessageFactory.buildMessage(sessionVariables, actionName, input);
 
     // Construct payload to be sent to Redis.
     const redisPayload = {
@@ -42,7 +54,11 @@ app.post('/', async (req: Request, res: Response) => {
     }
 
     // Publish the constructed payload to Redis.
-    await redisClient.publish('to-akka-apps-redis-channel', JSON.stringify(redisPayload));
+    if(actionName == 'userThirdPartyInfoResquest') {
+      await redisClient.publish('to-third-party-redis-channel', JSON.stringify(redisPayload));
+    } else {
+      await redisClient.publish('to-akka-apps-redis-channel', JSON.stringify(redisPayload));
+    }
 
     // Send a success response.
     res.status(200).json(true);
@@ -70,6 +86,10 @@ const startServer = () => {
 // Redis Client Event Listeners
 redisClient.on('connect', () => console.info("Connected with Redis"));
 redisClient.on('disconnect', () => console.info("Disconnected from Redis"));
+
+if(DEBUG) {
+  console.log('Debug mode Enabled!');
+}
 
 // Start the Server and Redis client.
 startServer();

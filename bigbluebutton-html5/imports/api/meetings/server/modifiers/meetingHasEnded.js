@@ -12,7 +12,6 @@ import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions'
 import clearPads from '/imports/api/pads/server/modifiers/clearPads';
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
-import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearTimer from '/imports/api/timer/server/modifiers/clearTimer';
 import clearAudioCaptions from '/imports/api/audio-captions/server/modifiers/clearAudioCaptions';
@@ -44,7 +43,6 @@ export default async function meetingHasEnded(meetingId) {
     clearUsersSettings(meetingId),
     clearVoiceUsers(meetingId),
     clearUserInfo(meetingId),
-    clearConnectionStatus(meetingId),
     clearTimer(meetingId),
     clearAudioCaptions(meetingId),
     clearLocalSettings(meetingId),

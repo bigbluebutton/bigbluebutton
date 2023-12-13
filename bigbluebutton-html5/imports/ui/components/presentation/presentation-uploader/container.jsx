@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { makeCall } from '/imports/ui/services/api';
@@ -7,8 +7,6 @@ import FallbackModal from '/imports/ui/components/common/fallback-errors/fallbac
 import Service from './service';
 import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import Auth from '/imports/ui/services/auth';
 import {
   isDownloadPresentationWithAnnotationsEnabled,
   isDownloadPresentationOriginalFileEnabled,
@@ -19,14 +17,15 @@ import { useSubscription } from '@apollo/client';
 import {
   PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const PresentationUploaderContainer = (props) => {
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const userIsPresenter = currentUser.presenter;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+  const userIsPresenter = currentUserData?.presenter;
 
   const { data: presentationData } = useSubscription(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];

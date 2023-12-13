@@ -7,6 +7,100 @@ type Mutation {
 }
 
 type Mutation {
+  breakoutRoomCreate(
+    record: Boolean!
+    captureNotes: Boolean!
+    captureSlides: Boolean!
+    durationInMinutes: Int!
+    sendInviteToModerators: Boolean!
+    rooms: [BreakoutRoom]!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomEndAll: Boolean
+}
+
+type Mutation {
+  breakoutRoomMoveUser(
+    userId: String!
+    fromBreakoutRoomId: String!
+    toBreakoutRoomId: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomRequestJoinUrl(
+    breakoutRoomId: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomSendMessageToAll(
+    msg: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomSetTime(
+    timeInMinutes: Int!
+  ): Boolean
+}
+
+type Mutation {
+  cameraBroadcastStart(
+    stream: String!
+  ): Boolean
+}
+
+type Mutation {
+  cameraBroadcastStop(
+    stream: String!
+  ): Boolean
+}
+
+type Mutation {
+  captionSubmitText(
+    transcriptId: String!
+    start: Int!
+    end: Int!
+    text: String!
+    transcript: String!
+    locale: String!
+    isFinal: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  chatCreateWithUser(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatPublicClearHistory: Boolean
+}
+
+type Mutation {
+  chatRemove(
+    chatId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatSendMessage(
+    chatId: String!
+    chatMessageInMarkdownFormat: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatSetTyping(
+    chatId: String
+  ): Boolean
+}
+
+type Mutation {
   dispatchPluginDataChannelMessageMsg(
     pluginName: String!
     dataChannel: String!
@@ -17,7 +111,103 @@ type Mutation {
 }
 
 type Mutation {
-  pickRandomViewer: Boolean
+  externalVideoStart(
+    externalVideoUrl: String!
+  ): Boolean
+}
+
+type Mutation {
+  externalVideoStop: Boolean
+}
+
+type Mutation {
+  externalVideoUpdate(
+    status: String!
+    rate: Float!
+    time: Float!
+    state: Float!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSetLobbyMessage(
+    message: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSetLobbyMessagePrivate(
+    guestId: String!
+    message: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSetPolicy(
+    guestPolicy: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSubmitApprovalStatus(
+    guests: [GuestUserApprovalStatus]!
+  ): Boolean
+}
+
+type Mutation {
+  meetingEnd: Boolean
+}
+
+type Mutation {
+  meetingLayoutSetProps(
+    layout: String!
+    syncWithPresenterLayout: Boolean!
+    presentationIsOpen: Boolean!
+    isResizing: Boolean!
+    cameraPosition: String
+    focusedCamera: String!
+    presentationVideoRate: Float!
+  ): Boolean
+}
+
+type Mutation {
+  meetingLayoutSetSyncWithPresenterLayout(
+    syncWithPresenterLayout: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingLockSettingsSetProps(
+    disableCam: Boolean!
+    disableMic: Boolean!
+    disablePrivChat: Boolean!
+    disablePubChat: Boolean!
+    disableNotes: Boolean!
+    hideUserList: Boolean!
+    lockOnJoin: Boolean!
+    lockOnJoinConfigurable: Boolean!
+    hideViewersCursor: Boolean!
+    hideViewersAnnotation: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingRecordingSetStatus(
+    recording: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingSetMuted(
+    muted: Boolean!
+    exceptPresenter: Boolean
+  ): Boolean
+}
+
+type Mutation {
+  meetingSetWebcamOnlyForModerator(
+    webcamsOnlyForModerator: Boolean!
+  ): Boolean
 }
 
 type Mutation {
@@ -56,7 +246,33 @@ type Mutation {
 }
 
 type Mutation {
-  requestPresentationUploadToken(
+  presAnnotationDelete(
+    pageId: String!
+    annotationsIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  presAnnotationDeleteAll(
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presAnnotationSubmit(
+    pageId: String!
+    annotations: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  presentationRemove(
+    presentationId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationRequestUploadToken(
     podId: String!
     filename: String!
     uploadTemporaryId: String!
@@ -64,9 +280,65 @@ type Mutation {
 }
 
 type Mutation {
-  sendGroupChatMsg(
-    chatId: String!
-    chatMessageInMarkdownFormat: String!
+  presentationSetCurrent(
+    presentationId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetDownloadable(
+    presentationId: String!
+    downloadable: Boolean!
+    fileStateType: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetPage(
+    presentationId: String!
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetRenderedInToast(
+    presentationId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetWriters(
+    pageId: String!
+    usersIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetZoom(
+    presentationId: String!
+    pageId: String!
+    pageNum: Int!
+    xOffset: Float!
+    yOffset: Float!
+    widthRatio: Float!
+    heightRatio: Float!
+  ): Boolean
+}
+
+type Mutation {
+  randomViewerPick: Boolean
+}
+
+type Mutation {
+  sharedNotesCreateSession(
+    sharedNotesExtId: String!
+  ): Boolean
+}
+
+type Mutation {
+  sharedNotesSetPinned(
+    sharedNotesExtId: String!
+    pinned: Boolean!
   ): Boolean
 }
 
@@ -116,9 +388,22 @@ type Mutation {
 }
 
 type Mutation {
+  userEjectCameras(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
   userEjectFromMeeting(
     userId: String!
     banUser: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userEjectFromVoice(
+    userId: String!
+    banUser: Boolean
   ): Boolean
 }
 
@@ -172,6 +457,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetMuted(
+    userId: String
+    muted: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userSetPresenter(
     userId: String!
   ): Boolean
@@ -202,5 +494,34 @@ type Mutation {
     locale: String!
     provider: String!
   ): Boolean
+}
+
+type Mutation {
+  userThirdPartyInfoResquest(
+    externalUserId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userTransferVoiceToMeeting(
+    fromMeetingId: String!
+    toMeetingId: String!
+  ): Boolean
+}
+
+input BreakoutRoom {
+  captureNotesFilename: String!
+  captureSlidesFilename: String!
+  freeJoin: Boolean!
+  isDefaultName: Boolean!
+  name: String!
+  sequence: Int!
+  shortName: String!
+  users: [String]!
+}
+
+input GuestUserApprovalStatus {
+  guest: String!
+  status: String!
 }
 

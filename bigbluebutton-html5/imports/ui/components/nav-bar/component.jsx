@@ -8,6 +8,7 @@ import Styled from './styles';
 import RecordingIndicator from './nav-bar-graphql/recording-indicator/component';
 import TalkingIndicator from '/imports/ui/components/nav-bar/nav-bar-graphql/talking-indicator/component';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
+import ConnectionStatus from '/imports/ui/components/connection-status/component';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import OptionsDropdownContainer from './options-dropdown/container';
@@ -363,6 +364,7 @@ class NavBar extends Component {
           <Styled.Right>
             {renderPluginItems(rightPluginItems)}
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
+            {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
             <OptionsDropdownContainer amIModerator={amIModerator} />
           </Styled.Right>
         </Styled.Top>

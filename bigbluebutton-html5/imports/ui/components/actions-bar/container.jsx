@@ -5,7 +5,6 @@ import { injectIntl } from 'react-intl';
 import { useSubscription } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
-import { UsersContext } from '../components-data/users-context/context';
 import ActionsBar from './component';
 import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
@@ -21,6 +20,7 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -36,7 +36,6 @@ const ActionsBarContainer = (props) => {
 
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
 
-  const usingUsersContext = useContext(UsersContext);
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
@@ -47,11 +46,14 @@ const ActionsBarContainer = (props) => {
     ];
   }
 
-  const { users } = usingUsersContext;
-
-  const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
-
-  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    emoji: user.emoji,
+    isModerator: user.isModerator,
+  }));
+  const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
+  const amIPresenter = currentUserData?.presenter;
+  const amIModerator = currentUserData?.isModerator;
 
   if (actionsBarStyle.display === false) return null;
 
@@ -60,6 +62,7 @@ const ActionsBarContainer = (props) => {
       ...{
         ...props,
         currentUser,
+        amIModerator,
         layoutContextDispatch,
         actionsBarStyle,
         amIPresenter,
@@ -84,7 +87,6 @@ const isReactionsButtonEnabled = () => {
 };
 
 export default withTracker(() => ({
-  amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
