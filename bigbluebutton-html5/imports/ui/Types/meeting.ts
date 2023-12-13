@@ -84,6 +84,16 @@ export interface ExternalVideo {
   updatedAt: Date;
 }
 
+export interface ComponentsFlags {
+  audioTranscriptionCaption: string[];
+  hasBreakoutRoom: boolean;
+  hasExternalVideo: boolean;
+  hasPoll: boolean;
+  hasScreenshare: boolean;
+  hasTimer: boolean;
+  typedCaption: string[];
+}
+
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
@@ -104,4 +114,5 @@ export interface Meeting {
   voiceSettings: VoiceSettings;
   breakoutPolicies: BreakoutPolicies;
   externalVideo: ExternalVideo;
+  componentsFlags: ComponentsFlags;
 }

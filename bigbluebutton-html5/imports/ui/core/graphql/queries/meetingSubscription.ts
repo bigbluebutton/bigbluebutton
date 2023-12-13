@@ -85,6 +85,15 @@ const MEETING_SUBSCRIPTION = gql`
           stoppedSharingAt
           updatedAt
         }
+        componentsFlags {
+          audioTranscriptionCaption
+          hasBreakoutRoom
+          hasExternalVideo
+          hasPoll
+          hasScreenshare
+          hasTimer
+          typedCaption
+        }
       }
   }
 `;

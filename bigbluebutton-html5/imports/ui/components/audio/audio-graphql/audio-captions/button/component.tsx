@@ -7,12 +7,11 @@ import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/Butto
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getSpeechVoices, setAudioCaptions, setSpeechLocale } from '../service';
-import { GET_AUDIO_CAPTIONS_COUNT, GetAudioCaptionsCountResponse } from './queries';
 import { defineMessages, useIntl } from 'react-intl';
 import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
-import logger from '/imports/startup/client/logger';
 import { User } from '/imports/ui/Types/user';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   start: {
@@ -244,6 +243,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const {
     data: currentUser,
+    loading: currentUserLoading,
   } = useCurrentUser(
     (user: Partial<User>) => ({
       speechLocale: user.speechLocale,
@@ -252,36 +252,28 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   );
 
   const {
-    data: audioCaptionsCountData,
-    loading: audioCaptionsCountLoading,
-    error: audioCaptionsCountError,
-  } = useSubscription<GetAudioCaptionsCountResponse>(GET_AUDIO_CAPTIONS_COUNT);
-
-  if (!currentUser || audioCaptionsCountLoading) return null;
-
-  if (audioCaptionsCountError) {
-    logger.error(audioCaptionsCountError);
-    return (
-      <div>
-        {
-          JSON.stringify(audioCaptionsCountError)
-        }
-      </div>
-    );
-  }
-
-  if (audioCaptionsCountData) {
-    const hasAudioCaptions = audioCaptionsCountData
-      .caption_aggregate
-      .aggregate.count > 0;
-
-    if (!hasAudioCaptions) return null;
-  }
+    data: currentMeeting,
+    loading: componentsFlagsLoading,
+  } = useMeeting((m) => {
+    return {
+      componentsFlags: m.componentsFlags,
+    };
+  });
+  console.log('currentMeeting', currentMeeting);
+  if (currentUserLoading || componentsFlagsLoading) return null;
+  if (!currentUser || !currentMeeting) return null;
 
   const availableVoices = getSpeechVoices();
   const currentSpeechLocale = currentUser.speechLocale || '';
   const isSupported = availableVoices.length > 0;
   const isVoiceUser = !!currentUser.voice;
+
+  const { componentsFlags } = currentMeeting;
+
+  const hasCaptions = (componentsFlags?.audioTranscriptionCaption?.length ?? 0) > 0
+    || (componentsFlags?.typedCaption?.length ?? 0) > 0;
+
+  if (!hasCaptions) return null;
 
   return (
     <AudioCaptionsButton
