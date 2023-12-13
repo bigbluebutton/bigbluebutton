@@ -44,7 +44,7 @@ const FloatingWindowPluginStateContainer = ((
     );
   }, [floatingWindowItems]);
 
-  pluginApi.setFloatingWindowItems = (items: PluginSdk.FloatingWindowItem[]) => {
+  pluginApi.setFloatingWindows = (items: PluginSdk.FloatingWindowItem[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.FloatingWindowItem[];
     return setFloatingWindowItems(itemsWithId);
   };
