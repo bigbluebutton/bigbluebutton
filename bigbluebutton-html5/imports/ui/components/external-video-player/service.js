@@ -1,4 +1,3 @@
-import { ExternalVideoMeetings } from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 
 import { getStreamer } from '/imports/api/external-videos';
@@ -76,14 +75,6 @@ const removeAllListeners = (eventType) => {
   streamer.removeAllListeners(eventType);
 };
 
-const getVideoUrl = () => {
-  const meetingId = Auth.meetingID;
-  const externalVideo = ExternalVideoMeetings
-    .findOne({ meetingId }, { fields: { externalVideoUrl: 1 } });
-
-  return externalVideo && externalVideo.externalVideoUrl;
-};
-
 // Convert state (Number) to playing (Boolean)
 const getPlayingState = (state) => {
   if (state === 1) return true;
@@ -95,7 +86,6 @@ export {
   sendMessage,
   onMessage,
   removeAllListeners,
-  getVideoUrl,
   isUrlValid,
   startWatching,
   stopWatching,

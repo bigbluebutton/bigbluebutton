@@ -182,6 +182,11 @@ bbb-webrtc-recorder-build:
   script:
     - build/setup-inside-docker.sh bbb-webrtc-recorder
 
+bbb-livekit:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-livekit
+
 bbb-transcription-controller-build:
   extends: .build_job
   script:

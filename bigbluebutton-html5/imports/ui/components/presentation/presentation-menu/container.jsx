@@ -13,6 +13,11 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
+import {
+  persistShape,
+} from '/imports/ui/components/whiteboard/service';
+
+
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element: currentElement, group: currentGroup } = fullscreen;
@@ -20,11 +25,11 @@ const PresentationMenuContainer = (props) => {
   const { elementId } = props;
   const isFullscreen = currentElement === elementId;
   const isRTL = layoutSelect((i) => i.isRTL);
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let presentationDropdownItems = [];
-  if (pluginsProvidedAggregatedState.presentationDropdownItems) {
+  if (pluginsExtensibleAreasAggregatedState.presentationDropdownItems) {
     presentationDropdownItems = [
-      ...pluginsProvidedAggregatedState.presentationDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.presentationDropdownItems,
     ];
   }
 
@@ -54,6 +59,7 @@ const PresentationMenuContainer = (props) => {
         handleToggleFullscreen,
         isIphone,
         allowSnapshotOfCurrentSlide: isSnapshotOfCurrentSlideEnabled(),
+        persistShape,
       }}
     />
   );

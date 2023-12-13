@@ -6,6 +6,7 @@ subscription userCurrentSubscription {
     authed
     avatar
     banned
+    enforceLayout
     cameras {
     streamId
   }

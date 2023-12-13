@@ -106,7 +106,7 @@ test.describe.parallel('Breakout', () => {
       await join.endAllBreakoutRooms();
     });
 
-    test('Invite user after creating rooms @ci', async ({ browser, context, page }) => {
+    test('Invite user after creating rooms @ci @flaky', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
@@ -120,14 +120,14 @@ test.describe.parallel('Breakout', () => {
       await join.moveUserToOtherRoom();
     });
 
-    test('Export breakout room shared notes', async ({ browser, context, page }) => {
+    test('Export breakout room shared notes @flaky', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(true); // capture breakout notes
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
+    test('Export breakout room whiteboard annotations @flaky', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true); // capture breakout whiteboard

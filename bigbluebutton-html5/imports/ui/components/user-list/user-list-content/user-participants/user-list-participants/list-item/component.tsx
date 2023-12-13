@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import {
+  UserListItemAdditionalInformationType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
@@ -75,7 +78,7 @@ interface UserListItemProps {
 const renderUserListItemIconsFromPlugin = (
   userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformation[],
 ) => userItemsFromPlugin.filter(
-  (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.ICON,
+  (item) => item.type === UserListItemAdditionalInformationType.ICON,
 ).map((item: PluginSdk.UserListItemAdditionalInformation) => {
   const itemToRender = item as PluginSdk.UserListItemIcon;
   return (
@@ -92,10 +95,10 @@ const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
 );
 
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformation[];
-  if (pluginsProvidedAggregatedState.userListItemAdditionalInformation) {
-    userItemsFromPlugin = pluginsProvidedAggregatedState.userListItemAdditionalInformation.filter((item) => {
+  if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
+    userItemsFromPlugin = pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
       const userListItem = item as PluginSdk.UserListItemAdditionalInformation;
       return userListItem.userId === user.userId;
     }) as PluginSdk.UserListItemAdditionalInformation[];
@@ -133,7 +136,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
       </span>
     ),
     ...userItemsFromPlugin.filter(
-      (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.LABEL,
+      (item) => item.type === UserListItemAdditionalInformationType.LABEL,
     ).map((item) => {
       const itemToRender = item as PluginSdk.UserListItemLabel;
       return (

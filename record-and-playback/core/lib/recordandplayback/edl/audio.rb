@@ -120,20 +120,17 @@ module BigBlueButton
 
             # Check for and handle audio files with mismatched lengths (generated
             # by buggy versions of freeswitch in old BigBlueButton
-            if (audioinfo[audio[:filename]][:format][:format_name] == 'wav' ||
-              audioinfo[audio[:filename]][:audio][:codec_name] == 'vorbis') &&
-             entry[:original_duration] &&
-             (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
-             ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
-                    entry[:original_duration]).abs < 0.05
-            BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
-            @@ -141,9 +144,9 @@ def self.render(edl, output_basename)
-            ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
-          end
+            if ((audioinfo[audio[:filename]][:format][:format_name] == 'wav' ||
+                 audioinfo[audio[:filename]][:audio][:codec_name] == 'vorbis') &&
+                 entry[:original_duration] &&
+                 (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
+                 ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
+                   entry[:original_duration]).abs < 0.05)
 
-          ffmpeg_filter << ',asetpts=N'
-
-          ffmpeg_filter << ",atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])}" if speed != 1
+              speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
+              seek = 0
+              BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
+            end
 
             # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
             # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.

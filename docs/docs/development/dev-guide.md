@@ -1,21 +1,10 @@
----
-id: guide
-slug: /development/guide
-title: Development Guide
-sidebar_position: 2
-description: BigBlueButton Development Guide
-keywords:
-- development
-- developer
----
+Welcome to the BigBlueButton Developer's Guide for BigBlueButton 3.0.
 
-Welcome to the BigBlueButton Developer's Guide for BigBlueButton 2.7.
-
-This document gives you an overview of how to set up a development environment for BigBlueButton 2.7.
+This document gives you an overview of how to set up a development environment for BigBlueButton 3.0.
 
 ## Before you begin
 
-You first need to set up a BigBlueButton 2.7 server. See the instructions at [Install BigBlueButton 2.7](/administration/install).
+You first need to set up a BigBlueButton 3.0 server. See the instructions at [Install BigBlueButton 3.0](/administration/install).
 
 ## Overview
 

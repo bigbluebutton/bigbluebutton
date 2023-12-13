@@ -695,11 +695,7 @@ class VideoService {
   }
 
   // In user-list it is necessary to check if the user is sharing his webcam
-  isVideoPinEnabledForCurrentUser() {
-    const currentUser = Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } });
-
-    const isModerator = currentUser?.role === 'MODERATOR';
+  isVideoPinEnabledForCurrentUser(isModerator) {
     const isBreakout = meetingIsBreakout();
     const isPinEnabled = this.isPinEnabled();
 
@@ -1077,7 +1073,7 @@ export default {
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
   toggleVideoPin: (userId, pin) => videoService.toggleVideoPin(userId, pin),
   getVideoPinByUser: (userId) => videoService.getVideoPinByUser(userId),
-  isVideoPinEnabledForCurrentUser: () => videoService.isVideoPinEnabledForCurrentUser(),
+  isVideoPinEnabledForCurrentUser: (user) => videoService.isVideoPinEnabledForCurrentUser(user),
   isPinEnabled: () => videoService.isPinEnabled(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
   getStats: () => videoService.getStats(),

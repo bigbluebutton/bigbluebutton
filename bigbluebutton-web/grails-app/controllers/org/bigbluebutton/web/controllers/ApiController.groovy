@@ -43,6 +43,7 @@ import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
 import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.RemoteIceCandidate
+import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
 
@@ -130,9 +131,20 @@ class ApiController {
       return
     }
 
-    if(params.isBreakout == "true" && !params.parentMeetingID) {
-      invalid("parentMeetingIDMissing", "No parent meeting ID was provided for the breakout room")
-      return
+    Boolean isBreakoutRoom = false
+    if (!StringUtils.isEmpty(params.isBreakout)) {
+      isBreakoutRoom = Boolean.parseBoolean(params.isBreakout)
+    }
+
+    if(isBreakoutRoom) {
+      if(StringUtils.isEmpty(params.parentMeetingID)) {
+        invalid("parentMeetingIDMissing", "No parent meeting ID was provided for the breakout room")
+        return
+      }
+      if(!paramsProcessorUtil.parentMeetingExists(params.parentMeetingID)) {
+        invalid("parentMeetingDoesNotExist", "No parent meeting exists for the breakout room")
+        return
+      }
     }
 
     // Ensure unique TelVoice. Uniqueness is not guaranteed by paramsProcessorUtil.
@@ -406,6 +418,10 @@ class ApiController {
       us.defaultLayout = params.defaultLayout;
     }
 
+    if (!StringUtils.isEmpty(params.enforceLayout)) {
+      us.enforceLayout = params.enforceLayout;
+    }
+
     if (!StringUtils.isEmpty(params.avatarURL)) {
       us.avatarURL = params.avatarURL;
     } else {
@@ -448,6 +464,7 @@ class ApiController {
         guestStatusVal,
         us.excludeFromDashboard,
         us.leftGuestLobby,
+        us.enforceLayout,
         meeting.getUserCustomData(us.externUserID)
     )
 
@@ -1224,17 +1241,36 @@ class ApiController {
         logData.put("userid", us.internalUserId);
         logData.put("sessionToken", sessionToken);
         logData.put("logCode", "getJoinUrl");
-        logData.put("description", "Request join URL.");
+        logData.put("description", "Request join URL");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
 
         log.info(" --analytics-- data=" + logStr);
 
         String method = 'join'
-        String extId = validationService.encodeString(meeting.getExternalId())
+        String externalMeetingId = validationService.encodeString(meeting.getExternalId())
         String fullName = validationService.encodeString(us.fullname)
-        String query = "fullName=${fullName}&meetingID=${extId}&role=${us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE}&redirect=true&userID=${us.getExternUserID()}"
-        String checksum = DigestUtils.sha1Hex(method + query + validationService.getSecuritySalt())
+        ListHashMap<String, String> queryParameters = new ListHashMap<>();
+        queryParameters.put("fullName", fullName);
+        queryParameters.put("meetingID", externalMeetingId);
+        queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
+        queryParameters.put("redirect", "true");
+        queryParameters.put("userID", us.getExternUserID());
+
+        // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
+        if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
+          request.getParameterMap()
+            .findAll { key, value -> ["enforceLayout", "role", "fullName", "userID", "avatarURL", "redirect", "excludeFromDashboard"].contains(key) || key.startsWith("userdata-") }
+            .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+            .each { key, value -> queryParameters.put(key, value[-1]) };
+        }
+
+        String httpQueryString = "";
+        for(String parameterName : queryParameters.keySet()) {
+          httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + parameterName + "=" + validationService.encodeString(queryParameters.get(parameterName));
+        }
+
+        String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
         String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
@@ -1243,7 +1279,7 @@ class ApiController {
             builder.response {
               returncode RESP_CODE_SUCCESS
               message "Join URL provided successfully."
-              url "${defaultServerUrl}/bigbluebutton/api/${method}?${query}&checksum=${checksum}"
+              url "${defaultServerUrl}/bigbluebutton/api/${method}?${httpQueryString}&checksum=${checksum}"
             }
             render(contentType: "application/json", text: builder.toPrettyString())
           }
