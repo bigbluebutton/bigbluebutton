@@ -339,8 +339,8 @@
                   }
 
                   if (userData.guestStatus === 'DENY') {
-                    return redirect(_('app.guest.guestDeny'), userData.meeting.logoutUrl);
                     stopUpdatingWaitingPosition();
+                    return redirect(_('app.guest.guestDeny'), userData.meeting.logoutUrl);
                   }
 
                   if (userData.guestStatus === 'WAIT') {
