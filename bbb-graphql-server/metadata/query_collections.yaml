@@ -12,5 +12,9 @@
                 guestLobbyMessage
                 positionInWaitingQueue
               }
+              meeting {
+                name
+                logoutUrl
+              }
             }
           }
