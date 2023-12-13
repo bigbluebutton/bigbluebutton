@@ -2,7 +2,7 @@ package reader
 
 import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/replayer"
+	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/retransmiter"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket/wsjson"
@@ -64,10 +64,10 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 			// Write the message to browser
 			fromHasuraToBrowserChannel.Send(messageAsMap)
 
-			// Replay the subscription start commands when hasura confirms the connection
+			// Retransmit the subscription start commands when hasura confirms the connection
 			// this is useful in case of a connection invalidation
 			if messageType == "connection_ack" {
-				go replayer.ReplaySubscriptionStartMessages(hc, fromBrowserToHasuraChannel)
+				go retransmiter.RetransmitSubscriptionStartMessages(hc, fromBrowserToHasuraChannel)
 			}
 		}
 	}

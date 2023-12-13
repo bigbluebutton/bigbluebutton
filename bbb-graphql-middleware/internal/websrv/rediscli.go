@@ -34,7 +34,7 @@ func StartRedisListener() {
 		}
 
 		// Skip parsing unnecessary messages
-		if !strings.Contains(msg.Payload, "InvalidateUserGraphqlConnectionSysMsg") {
+		if !strings.Contains(msg.Payload, "ForceUserGraphqlReconnectionSysMsg") {
 			continue
 		}
 
@@ -49,7 +49,7 @@ func StartRedisListener() {
 
 		messageType := messageEnvelopeAsMap["name"]
 
-		if messageType == "InvalidateUserGraphqlConnectionSysMsg" {
+		if messageType == "ForceUserGraphqlReconnectionSysMsg" {
 			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
 			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
@@ -101,21 +101,21 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 	log.Tracef("JSON message sent to channel %s:\n%s\n", channelName, messageJSON)
 }
 
-func SendUserGraphqlConnectionInvalidatedEvtMsg(sessionToken string) {
+func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 	var body = map[string]interface{}{
 		"sessionToken": sessionToken,
 	}
 
-	sendBbbCoreMsgToRedis("UserGraphqlConnectionInvalidatedEvtMsg", body)
+	sendBbbCoreMsgToRedis("UserGraphqlReconnectionForcedEvtMsg", body)
 }
 
-func SendUserGraphqlConnectionStablishedSysMsg(sessionToken string, browserConnectionId string) {
+func SendUserGraphqlConnectionEstablishedSysMsg(sessionToken string, browserConnectionId string) {
 	var body = map[string]interface{}{
 		"sessionToken":        sessionToken,
 		"browserConnectionId": browserConnectionId,
 	}
 
-	sendBbbCoreMsgToRedis("UserGraphqlConnectionStablishedSysMsg", body)
+	sendBbbCoreMsgToRedis("UserGraphqlConnectionEstablishedSysMsg", body)
 }
 
 func SendUserGraphqlConnectionClosedSysMsg(sessionToken string, browserConnectionId string) {
