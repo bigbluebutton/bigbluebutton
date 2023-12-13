@@ -152,7 +152,7 @@
     let positionInWaitingQueue = '';
     function updatePositionInWaitingQueue(newPositionInWaitingQueue) {
       if (positionInWaitingQueue !== newPositionInWaitingQueue) {
-        positionInWaitingQueue = newPositionInWaitingQueue;
+        positionInWaitingQueue = newPositionInWaitingQueue.toString();
         if (positionInWaitingQueue === '1') {
           updatePositionOnPage(_('app.guest.firstPositionInWaitingQueue'), '');
         } else {
