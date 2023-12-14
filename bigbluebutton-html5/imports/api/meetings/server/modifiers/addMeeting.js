@@ -131,6 +131,7 @@ export default async function addMeeting(meeting) {
     },
     systemProps: {
       html5InstanceId: Number,
+      logoutUrl: String,
     },
     groups: Array,
     overrideClientSettings: String,

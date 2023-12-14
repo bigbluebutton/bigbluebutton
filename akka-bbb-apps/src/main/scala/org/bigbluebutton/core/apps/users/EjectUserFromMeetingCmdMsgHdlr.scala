@@ -74,7 +74,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
             Sender.sendDisconnectClientSysMsg(meetingId, ru.id, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
 
             // Force reconnection with graphql to refresh permissions
-            Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, registeredUser.id, registeredUser.sessionToken, EjectReasonCode.EJECT_USER, outGW)
+            Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, registeredUser.id, registeredUser.sessionToken, EjectReasonCode.EJECT_USER, outGW)
           }
         } else {
           // User is ejecting self, so just eject this userid not all sessions if joined using multiple
@@ -93,7 +93,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
           Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
 
           // Force reconnection with graphql to refresh permissions
-          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, registeredUser.id, registeredUser.sessionToken, EjectReasonCode.EJECT_USER, outGW)
+          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, registeredUser.id, registeredUser.sessionToken, EjectReasonCode.EJECT_USER, outGW)
         }
 
       }
@@ -129,7 +129,7 @@ trait EjectUserFromMeetingSysMsgHdlr {
     for {
       regUser <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
     } yield {
-      Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, EjectReasonCode.SYSTEM_EJECT_USER, outGW)
+      Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, EjectReasonCode.SYSTEM_EJECT_USER, outGW)
     }
   }
 }

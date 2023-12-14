@@ -450,8 +450,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
 
       // Messages from Graphql Middleware
-      case UserGraphqlConnectionStablishedSysMsg.NAME =>
-        route[UserGraphqlConnectionStablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
+      case UserGraphqlConnectionEstablishedSysMsg.NAME =>
+        route[UserGraphqlConnectionEstablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case UserGraphqlConnectionClosedSysMsg.NAME =>
         route[UserGraphqlConnectionClosedSysMsg](meetingManagerChannel, envelope, jsonNode)
