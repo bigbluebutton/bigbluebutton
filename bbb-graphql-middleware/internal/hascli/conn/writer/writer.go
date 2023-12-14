@@ -12,7 +12,7 @@ import (
 
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
-func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserChannel chan interface{}, wg *sync.WaitGroup) {
+func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "HasuraConnectionWriter")
 
 	browserConnection := hc.Browserconn
@@ -28,7 +28,7 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
-		case fromBrowserMessage := <-fromBrowserChannel:
+		case fromBrowserMessage := <-fromBrowserToHasuraChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
 					continue

@@ -5,9 +5,9 @@ case "$1" in
 
   fc-cache -f
   if [ ! -f /.dockerenv ]; then
-    systemctl enable bbb-graphql-actions-adapter-server.service
+    systemctl enable bbb-graphql-actions.service
     systemctl daemon-reload
-    startService bbb-graphql-actions-adapter-server.service || echo "bbb-graphql-actions-adapter-server service could not be registered or started"
+    startService bbb-graphql-actions.service || echo "bbb-graphql-actions service could not be registered or started"
   fi
   ;;
 

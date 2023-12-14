@@ -154,3 +154,13 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: pre_join_bbb_client
+    permission:
+      columns:
+        - logoutUrl
+        - meetingId
+        - name
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""

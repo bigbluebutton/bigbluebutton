@@ -2,6 +2,7 @@ package writer
 
 import (
 	"context"
+	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"sync"
 
@@ -9,7 +10,7 @@ import (
 	"nhooyr.io/websocket/wsjson"
 )
 
-func BrowserConnectionWriter(browserConnectionId string, ctx context.Context, c *websocket.Conn, toBrowserChannel chan interface{}, wg *sync.WaitGroup) {
+func BrowserConnectionWriter(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromHasuratoBrowserChannel *common.SafeChannel, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "BrowserConnectionWriter").WithField("browserConnectionId", browserConnectionId)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
@@ -20,14 +21,14 @@ RangeLoop:
 		select {
 		case <-ctx.Done():
 			break RangeLoop
-		case toBrowserMessage := <-toBrowserChannel:
+		case toBrowserMessage := <-fromHasuratoBrowserChannel.ReceiveChannel():
 			{
 				var toBrowserMessageAsMap = toBrowserMessage.(map[string]interface{})
 
 				log.Tracef("sending to browser: %v", toBrowserMessage)
 				err := wsjson.Write(ctx, c, toBrowserMessage)
 				if err != nil {
-					log.Errorf("error on write (browser is disconnected): %v", err)
+					log.Debugf("Browser is disconnected, skiping writing of ws message: %v", err)
 					return
 				}
 
