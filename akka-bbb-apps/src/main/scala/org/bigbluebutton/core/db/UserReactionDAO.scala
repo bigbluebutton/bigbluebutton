@@ -23,13 +23,13 @@ class UserReactionDbTableDef(tag: Tag) extends Table[UserReactionDbModel](tag, "
 }
 
 object UserReactionDAO {
-  def insert(userId: String, reactionEmoji: String) = {
+  def insert(userId: String, reactionEmoji: String, durationInSeconds: Int) = {
     DatabaseConnection.db.run(
       TableQuery[UserReactionDbTableDef].forceInsert(
         UserReactionDbModel(
           userId = userId,
           reactionEmoji = reactionEmoji,
-          durationInSeconds = 60,
+          durationInSeconds = durationInSeconds,
           createdAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )

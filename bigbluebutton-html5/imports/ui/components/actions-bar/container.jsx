@@ -7,7 +7,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import Service from './service';
-import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import TimerService from '/imports/ui/components/timer/service';
@@ -90,7 +89,6 @@ export default withTracker(() => ({
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  handleTakePresenter: Service.takePresenterRole,
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
@@ -104,5 +102,4 @@ export default withTracker(() => ({
   isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
   allowExternalVideo: isExternalVideoEnabled(),
-  setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

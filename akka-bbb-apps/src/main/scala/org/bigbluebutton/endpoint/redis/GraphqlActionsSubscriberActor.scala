@@ -26,13 +26,13 @@ class GraphqlActionsActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       // Messages from bbb-graphql-middleware
-      case m: UserGraphqlConnectionStablishedSysMsg       => handleUserGraphqlConnectionStablishedSysMsg(m)
+      case m: UserGraphqlConnectionEstablishedSysMsg       => handleUserGraphqlConnectionEstablishedSysMsg(m)
       case m: UserGraphqlConnectionClosedSysMsg       => handleUserGraphqlConnectionClosedSysMsg(m)
       case _                          => // message not to be handled.
     }
   }
 
-  private def handleUserGraphqlConnectionStablishedSysMsg(msg: UserGraphqlConnectionStablishedSysMsg) {
+  private def handleUserGraphqlConnectionEstablishedSysMsg(msg: UserGraphqlConnectionEstablishedSysMsg) {
     UserGraphqlConnectionDAO.insert(msg.body.sessionToken, msg.body.browserConnectionId)
   }
 
