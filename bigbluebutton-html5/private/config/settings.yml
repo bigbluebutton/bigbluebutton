@@ -1,9 +1,9 @@
 public:
   app:
     # Special configuration for personal app privacy settings
-    dropboxAppKey: pxonfb5c72b1tr7
-    googleClientID: 753430601932-73fsb3o0oapabrf88j6978glgc0nqhh4.apps.googleusercontent.com
-    googleDevKey: AIzaSyA_Zb0roinIj-ITlgvAFJWF440HCPTnjeQ
+    dropboxAppKey: 82c83f85277ca29d87a566065f1c9b76ccad3dbac651dc8a94dff05455ffc10d
+    googleClientID: 1091321397993-qkaldnu65lh6mllk9hhhghjpp9sovo0a.apps.googleusercontent.com
+    googleDevKey: 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
 
     mobileFontSize: 16px
     desktopFontSize: 14px
@@ -889,9 +889,9 @@ private:
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
     # Special configuration for personal app privacy settings
-    dropboxAppKey: pxonfb5c72b1tr7
-    googleClientID: 753430601932-73fsb3o0oapabrf88j6978glgc0nqhh4.apps.googleusercontent.com
-    googleDevKey: AIzaSyA_Zb0roinIj-ITlgvAFJWF440HCPTnjeQ
+    dropboxAppKey: 82c83f85277ca29d87a566065f1c9b76ccad3dbac651dc8a94dff05455ffc10d
+    googleClientID: 1091321397993-qkaldnu65lh6mllk9hhhghjpp9sovo0a.apps.googleusercontent.com
+    googleDevKey: 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
   redis:
     host: 127.0.0.1
     port: '6379'

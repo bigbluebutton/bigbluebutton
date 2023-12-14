@@ -61,7 +61,7 @@ const DropboxUploader = ({ onSelectFiles }) => {
     toast.dismiss(toastId.current);
   };
 
-  return <DropboxOpenBtn appKey={DROPBOX_APP_KEY} success={handleChooseFiles} extensions=".pdf,.docs,.doc,.ppt,.pptx" multiselect />;
+  return <DropboxOpenBtn appKey={DROPBOX_APP_KEY} success={handleChooseFiles} extensions=".pdf,.docs,.doc,.ppt,.pptx,.*" multiselect />;
 };
 
 export default DropboxUploader;
