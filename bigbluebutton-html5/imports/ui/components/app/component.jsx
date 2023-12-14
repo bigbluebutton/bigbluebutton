@@ -40,7 +40,6 @@ import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineContainer from '../plugins-engine/container';
-import { makeCall } from '/imports/ui/services/api';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -61,7 +60,6 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
-const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -174,6 +172,7 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
+      setMobileUser,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -225,7 +224,7 @@ class App extends Component {
       };
     }
 
-    if (deviceInfo.isMobile) makeCall('setMobileUser');
+    if (deviceInfo.isMobile) setMobileUser(true);
 
     if (this.isTimerEnabled) {
       TimerService.fetchTimeOffset();
@@ -603,14 +602,10 @@ class App extends Component {
       isRandomUserSelectModalOpen,
       isVideoPreviewModalOpen,
       presentationFitToWidth,
-      allPluginsLoaded,
     } = this.state;
     return (
       <>
-        <PluginsEngineContainer onReady={() => {
-          this.setState({ allPluginsLoaded: true });
-        }}
-        />
+        <PluginsEngineContainer />
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}

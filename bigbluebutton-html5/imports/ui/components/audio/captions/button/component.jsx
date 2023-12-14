@@ -6,6 +6,8 @@ import SpeechService from '/imports/ui/components/audio/captions/speech/service'
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
+import { useMutation } from '@apollo/client';
+import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 
 const intlMessages = defineMessages({
   start: {
@@ -93,6 +95,17 @@ const CaptionsButton = ({
     currentSpeechLocale === DISABLED
   );
 
+  const [setSpeechLocale] = useMutation(SET_SPEECH_LOCALE);
+
+  const setUserSpeechLocale = (speechLocale, provider) => {
+    setSpeechLocale({
+      variables: {
+        locale: speechLocale,
+        provider,
+      },
+    });
+  };
+
   const fallbackLocale = availableVoices.includes(navigator.language)
     ? navigator.language : DEFAULT_LOCALE;
 
@@ -124,7 +137,7 @@ const CaptionsButton = ({
           disabled: isTranscriptionDisabled(),
           onClick: () => {
             selectedLocale.current = availableVoice;
-            SpeechService.setSpeechLocale(selectedLocale.current);
+            SpeechService.setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
           },
         }
       );
@@ -141,7 +154,7 @@ const CaptionsButton = ({
   };
 
   const toggleTranscription = () => {
-    SpeechService.setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED);
+    SpeechService.setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale);
   };
 
   const getAvailableLocalesList = () => (
