@@ -17,9 +17,9 @@ const FloatingWindowPluginStateContainer = ((
     pluginApi,
   } = props;
   const [
-    floatingWindowItems,
-    setFloatingWindowItems,
-  ] = useState<PluginSdk.FloatingWindowItem[]>([]);
+    floatingWindows,
+    setFloatingWindows,
+  ] = useState<PluginSdk.FloatingWindowInterface[]>([]);
 
   const {
     pluginsExtensibleAreasAggregatedState,
@@ -28,25 +28,25 @@ const FloatingWindowPluginStateContainer = ((
 
   useEffect(() => {
     // Change this plugin provided toolbar items
-    extensibleAreaMap[uuid].floatingWindowItems = floatingWindowItems;
+    extensibleAreaMap[uuid].floatingWindows = floatingWindows;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
-    const aggregatedFloatingWindowItems = (
-      [] as PluginSdk.FloatingWindowItem[]).concat(
+    const aggregatedFloatingWindows = (
+      [] as PluginSdk.FloatingWindowInterface[]).concat(
       ...Object.values(extensibleAreaMap)
-        .map((extensibleArea: ExtensibleArea) => extensibleArea.floatingWindowItems),
+        .map((extensibleArea: ExtensibleArea) => extensibleArea.floatingWindows),
     );
     setPluginsExtensibleAreasAggregatedState(
       {
         ...pluginsExtensibleAreasAggregatedState,
-        floatingWindowItems: aggregatedFloatingWindowItems,
+        floatingWindows: aggregatedFloatingWindows,
       },
     );
-  }, [floatingWindowItems]);
+  }, [floatingWindows]);
 
-  pluginApi.setFloatingWindows = (items: PluginSdk.FloatingWindowItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.FloatingWindowItem[];
-    return setFloatingWindowItems(itemsWithId);
+  pluginApi.setFloatingWindows = (items: PluginSdk.FloatingWindowInterface[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.FloatingWindowInterface[];
+    return setFloatingWindows(itemsWithId);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

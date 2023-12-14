@@ -8,13 +8,13 @@ const FloatingWindowContainer = () => {
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
-  let floatingWindowItems = [] as PluginSdk.FloatingWindowItem[];
-  if (pluginsExtensibleAreasAggregatedState.floatingWindowItems) {
-    floatingWindowItems = [
-      ...pluginsExtensibleAreasAggregatedState.floatingWindowItems,
+  let floatingWindows = [] as PluginSdk.FloatingWindowInterface[];
+  if (pluginsExtensibleAreasAggregatedState.floatingWindows) {
+    floatingWindows = [
+      ...pluginsExtensibleAreasAggregatedState.floatingWindows,
     ];
   }
-  return floatingWindowItems.map((item: PluginSdk.FloatingWindowItem) => {
+  return floatingWindows.map((item: PluginSdk.FloatingWindowInterface) => {
     const itemToRender: PluginSdk.FloatingWindow = item as PluginSdk.FloatingWindow;
     return (
       <FloatingWindow
