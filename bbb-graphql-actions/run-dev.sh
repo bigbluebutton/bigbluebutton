@@ -13,5 +13,5 @@ if [ ! -d ./node_modules ] ; then
 	npm install
 fi
 
-sudo systemctl stop bbb-graphql-actions-adapter-server
+sudo systemctl stop bbb-graphql-actions
 npm start

@@ -6,7 +6,7 @@ export const createRedisClient = () => {
   const redisClient = redis.createClient({
     url: `redis://${REDIS_HOST}:${REDIS_PORT}`, // Construct URL from host and port.
     disableOfflineQueue: true, // Disable offline queueing of commands.
-    name: 'bbb-graphql-actions-adapter-server', // Assign a name to this client.
+    name: 'bbb-graphql-actions', // Assign a name to this client.
     socket: {
       reconnectStrategy: (times) => 500 // Reconnect strategy with a fixed delay.
     }

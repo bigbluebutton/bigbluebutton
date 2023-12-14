@@ -257,7 +257,7 @@ bbb-html5-backend@1 ——————————————————► [�
 bbb-html5-backend@2 ——————————————————► [✔ - active]
 bbb-html5-frontend@1 —————————————————► [✔ - active]
 bbb-html5-frontend@2 —————————————————► [✔ - active]
-bbb-graphql-actions-adapter-server ———► [✔ - active]
+bbb-graphql-actions ——————————————————► [✔ - active]
 bbb-graphql-middleware ———————————————► [✔ - active]
 bbb-graphql-server ———————————————————► [✔ - active]
 bbb-webrtc-sfu ———————————————————————► [✔ - active]
@@ -284,7 +284,7 @@ ii  bbb-export-annotations             1:3.0-2         amd64        BigBlueButto
 ii  bbb-freeswitch-core                2:3.0-1         amd64        BigBlueButton build of FreeSWITCH
 ii  bbb-freeswitch-sounds              1:3.0-1         amd64        FreeSWITCH Sounds
 ii  bbb-fsesl-akka                     1:3.0-5         all          BigBlueButton FS-ESL (Akka)
-ii  bbb-graphql-actions-adapter-server 1:3.0-4         amd64        BigBlueButton GraphQL Actions Adapter Server
+ii  bbb-graphql-actions                1:3.0-5         amd64        BigBlueButton GraphQL Actions
 ii  bbb-graphql-middleware             1:3.0-6         amd64        GraphQL middleware component for BigBlueButton
 ii  bbb-graphql-server                 1:3.0-5         amd64        GraphQL server component for BigBlueButton
 ii  bbb-html5                          1:3.0-10        amd64        The HTML5 components for BigBlueButton
