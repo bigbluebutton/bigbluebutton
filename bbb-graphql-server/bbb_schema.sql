@@ -20,6 +20,7 @@ create table "meeting" (
 	"presentationUploadExternalUrl" varchar(500),
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
+	"logoutUrl" varchar(500),
 	"createdTime" bigint,
 	"durationInSeconds" integer
 );
@@ -398,7 +399,7 @@ AS SELECT "user"."userId",
     "user"."raiseHand",
     "user"."emoji",
     "user"."guest",
---    "user"."guestStatus",
+    "user"."guestStatus",
     "user"."mobile",
     "user"."clientType",
     "user"."enforceLayout",
@@ -437,10 +438,10 @@ rank() OVER (
 ) as "positionInWaitingQueue",
 u."isAllowed",
 u."isDenied",
-COALESCE(u."guestLobbyMessage",mup."guestLobbyMessage") AS "guestLobbyMessage"
+COALESCE(NULLIF(u."guestLobbyMessage",''),NULLIF(mup."guestLobbyMessage",'')) AS "guestLobbyMessage"
 FROM "user" u
 JOIN "meeting_usersPolicies" mup using("meetingId")
-where u."guestStatus" != 'ALLOW';
+where u."guestStatus" = 'WAIT';
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"

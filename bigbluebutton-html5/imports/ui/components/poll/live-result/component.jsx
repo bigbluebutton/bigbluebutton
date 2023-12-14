@@ -167,6 +167,7 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
+      publishPoll,
     } = this.props;
 
     const { userAnswers, pollStats, currentPollQuestion } = this.state;
@@ -215,7 +216,7 @@ class LiveResult extends PureComponent {
                 disabled={!isMeteorConnected}
                 onClick={() => {
                   Session.set('pollInitiated', false);
-                  Service.publishPoll();
+                  publishPoll(currentPoll?.id);
                   stopPoll();
                 }}
                 label={intl.formatMessage(intlMessages.publishLabel)}

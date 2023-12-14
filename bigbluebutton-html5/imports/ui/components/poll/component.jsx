@@ -576,6 +576,7 @@ class Poll extends Component {
       pollAnswerIds,
       usernames,
       isDefaultPoll,
+      publishPoll,
     } = this.props;
 
     return (
@@ -591,6 +592,7 @@ class Poll extends Component {
             pollAnswerIds,
             usernames,
             isDefaultPoll,
+            publishPoll,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -600,7 +602,7 @@ class Poll extends Component {
 
   renderStartPollButton() {
     const {
-      startPoll, startCustomPoll, intl, pollTypes, checkPollType,
+      startPoll, intl, pollTypes, checkPollType,
     } = this.props;
     const {
       type, secretPoll, optList, isMultipleResponse, question,
@@ -641,7 +643,7 @@ class Poll extends Component {
               return null;
             });
             if (verifiedPollType === pollTypes.Custom) {
-              startCustomPoll(
+              startPoll(
                 verifiedPollType,
                 secretPoll,
                 question,
@@ -1028,6 +1030,5 @@ Poll.propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
   pollTypes: PropTypes.instanceOf(Object).isRequired,
   startPoll: PropTypes.func.isRequired,
-  startCustomPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
 };

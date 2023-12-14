@@ -1,3 +1,12 @@
+---
+id: install
+slug: /administration/install
+title: Install BigBlueButton
+sidebar_position: 1
+description: Install BigBlueButton
+keywords:
+- install
+---
 
 We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
 
