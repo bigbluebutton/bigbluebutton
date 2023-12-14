@@ -143,11 +143,3 @@ export const toggleVoice = (userId: string) => {
     }, 'moderator muted user microphone');
   }
 };
-
-export const removeUser = (userId: string, banUser: boolean) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId, banUser);
-  } else {
-    makeCall('removeUser', userId, banUser);
-  }
-};
