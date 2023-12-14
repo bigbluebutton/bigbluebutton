@@ -13,10 +13,12 @@ import CustomSubscriptionHookContainer from '../domain/shared/custom-subscriptio
 
 import { ObjectToCustomHookContainerMap, HookWithArgumentsContainerProps, HookWithArgumentContainerToRender } from '../domain/shared/custom-subscription/types';
 import CurrentPresentationHookContainer from '../domain/presentations/current-presentation/hook-manager';
+import LoadedChatMessagesHookContainer from '../domain/chat/loaded-chat-messages/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent
 } = {
+  [Hooks.LOADED_CHAT_MESSAGES]: LoadedChatMessagesHookContainer,
   [Hooks.LOADED_USER_LIST]: LoadedUserListHookContainer,
   [Hooks.CURRENT_USER]: CurrentUserHookContainer,
   [Hooks.CURRENT_PRESENTATION]: CurrentPresentationHookContainer,
