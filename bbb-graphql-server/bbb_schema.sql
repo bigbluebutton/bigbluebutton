@@ -1627,16 +1627,15 @@ select "meeting"."meetingId",
             from "v_externalVideo"
             where "v_externalVideo"."meetingId" = "meeting"."meetingId"
         ) as "hasExternalVideo",
-        (
-            select array_agg(distinct "speechLocale")
-            from "user"
-            where "user"."meetingId" = "meeting"."meetingId"
+        exists (
+            select 1
+            from "v_user"
+            where "v_user"."meetingId" = "meeting"."meetingId"
             and NULLIF("speechLocale",'') is not null
-        ) as "audioTranscriptionCaption",
-        (
-            select array_agg(distinct "name")
+        ) or exists (
+            select 1
             from "sharedNotes"
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "model" = 'captions'
-        ) as "typedCaption"
+        ) as "hasCaption"
 from "meeting";
