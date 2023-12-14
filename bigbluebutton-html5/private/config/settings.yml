@@ -1,7 +1,7 @@
 public:
   app:
     # Special configuration for personal app privacy settings
-    dropboxAppKey: 82c83f85277ca29d87a566065f1c9b76ccad3dbac651dc8a94dff05455ffc10d
+    dropboxAppKey: y46lnazn4e5ujie
     googleClientID: 1091321397993-qkaldnu65lh6mllk9hhhghjpp9sovo0a.apps.googleusercontent.com
     googleDevKey: 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
 
@@ -889,7 +889,7 @@ private:
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
     # Special configuration for personal app privacy settings
-    dropboxAppKey: 82c83f85277ca29d87a566065f1c9b76ccad3dbac651dc8a94dff05455ffc10d
+    dropboxAppKey: y46lnazn4e5ujie
     googleClientID: 1091321397993-qkaldnu65lh6mllk9hhhghjpp9sovo0a.apps.googleusercontent.com
     googleDevKey: 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
   redis:
