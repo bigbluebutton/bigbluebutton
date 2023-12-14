@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
-import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useLoadedChatMessages from '/imports/ui/core/hooks/useLoadedChatMessages';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -69,6 +70,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   markMessageAsSeen,
   scrollRef,
 }) => {
+  const { setChatMessagesGraphqlVariablesAndQuery } = useContext(PluginsContext);
+
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
   const chatQuery = isPublicChat
     ? CHAT_MESSAGE_PUBLIC_SUBSCRIPTION
@@ -77,11 +80,17 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
 
-  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
-  const {
-    data: chatMessageData,
-  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
+  const resp = useLoadedChatMessages((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
+  const chatMessageData = resp?.data;
+  useEffect(() => {
+    setChatMessagesGraphqlVariablesAndQuery(
+      {
+        query: chatQuery,
+        variables,
+      },
+    );
+  }, [chatId, page, pageSize]);
   if (chatMessageData) {
     if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
       setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
