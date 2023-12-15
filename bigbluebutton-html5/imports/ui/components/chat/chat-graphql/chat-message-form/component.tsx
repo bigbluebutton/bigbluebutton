@@ -6,6 +6,8 @@ import React, {
   useRef,
 } from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
+import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
+import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
 import { ChatFormEventPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-events/chat/form/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -300,6 +302,15 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         handleSubmit(event);
       }
     };
+    const handleFillChatFormThroughPlugin = ((
+      event: CustomEvent<FillChatFormCommandArguments>,
+    ) => setMessage(event.detail.text)) as EventListener;
+    useEffect(() => {
+      window.addEventListener(ChatFormCommandsEnum.FILL, handleFillChatFormThroughPlugin);
+      return () => {
+        window.removeEventListener(ChatFormCommandsEnum.FILL, handleFillChatFormThroughPlugin);
+      };
+    });
 
     document.addEventListener('click', (event) => {
       const chatList = document.getElementById('chat-list');
