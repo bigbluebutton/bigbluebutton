@@ -1060,7 +1060,7 @@
     "app.video.typeError": "La liste des contraintes spécifiées est vide ou toutes les contraintes définies ont une valeur fausse",
     "app.video.notFoundError": "Webcam introuvable. Assurez-vous qu'elle est bien connectée",
     "app.video.notAllowed": "Permission manquante pour diffuser depuis la webcam. Veuillez vérifier les permissions dans votre navigateur",
-    "app.video.notSupportedError": "La vidéo de la webcam peut être partagée uniquement avec des sources sûres ; assurez-vous que votre certificat SSL est valide",
+    "app.video.notSupportedError": "La vidéo de la webcam peut être diffusée uniquement avec des sources sûres ; assurez-vous que votre certificat SSL est valide",
     "app.video.notReadableError": "Impossible d'obtenir la vidéo de la webcam. Assurez-vous qu'aucun autre programme n'utilise la webcam",
     "app.video.timeoutError": "Le navigateur n'a pas répondu à temps",
     "app.video.genericError": "Une erreur inconnue s'est produite avec l'appareil (Erreur {0})",
