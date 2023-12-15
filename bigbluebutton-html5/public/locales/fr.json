@@ -1149,7 +1149,7 @@
     "app.whiteboard.toolbar.clearConfirmation": "Voulez-vous vraiment effacer les annotations ?",
     "app.whiteboard.toolbar.multiUserOn": "Activer le mode multi-utilisateur",
     "app.whiteboard.toolbar.multiUserOff": "Désactiver le mode multi-utilisateur",
-    "app.whiteboard.toolbar.palmRejectionOn": "Contacts de la paume de la main sur les écrans tactiles : Désactivés",
+    "app.whiteboard.toolbar.palmRejectionOn": "Écran tactiles : contact de la paume de la main neutralisée ",
     "app.whiteboard.toolbar.palmRejectionOff": "Contacts de la paume de la main sur écrans tactiles : Activé",
     "app.whiteboard.toolbar.fontSize": "Liste de tailles de police",
     "app.whiteboard.toolbarAriaLabel": "Outils de présentation",
