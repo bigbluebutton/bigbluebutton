@@ -771,7 +771,7 @@
     "app.audio.listenOnly.backLabel": "Retour",
     "app.audio.listenOnly.closeLabel": "Fermer",
     "app.audio.permissionsOverlay.title": "Autoriser BigBlueButton à utiliser votre micro",
-    "app.audio.permissionsOverlay.hint": "Il est nécessaire que vous nous autorisiez à utiliser vos appareils multimédias pour que vous puissiez participer à la réunion",
+    "app.audio.permissionsOverlay.hint": "Il est nécessaire que vous nous autorisiez à utiliser vos appareils multimédias pour que vous puissiez participer à la réunion :)",
     "app.audio.captions.button.start": "Initier un sous titrage SME",
     "app.audio.captions.button.stop": "Arrêter le sous titrage SME",
     "app.audio.captions.button.language": "Langue",
