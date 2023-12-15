@@ -24,6 +24,8 @@ create table "meeting" (
 	"createdTime" bigint,
 	"durationInSeconds" integer
 );
+ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;
+
 create index "idx_meeting_extId" on "meeting"("extId");
 
 create view "v_meeting" as select * from "meeting";
@@ -192,13 +194,6 @@ FROM meeting m
 JOIN "meeting_lockSettings" mls ON mls."meetingId" = m."meetingId"
 JOIN "meeting_usersPolicies" mup ON mup."meetingId" = m."meetingId";
 
-CREATE OR REPLACE VIEW "v_meeting_showUserlist" AS
-SELECT "meetingId"
-FROM "meeting_lockSettings"
-WHERE "hideUserList" IS FALSE;
-
-CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSettings"("meetingId") WHERE "hideUserList" IS FALSE;
-
 create table "meeting_clientSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
     "clientSettingsJson"    jsonb
@@ -290,7 +285,6 @@ ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestSta
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
 
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
-
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
@@ -523,8 +517,15 @@ CREATE TABLE "user_voice" (
 	"startTime" bigint
 );
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
+-- + 6000 means it will hide after 6 seconds
 ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
 GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
+
+ALTER TABLE "user_voice" ADD COLUMN "startedAt" timestamp with time zone
+GENERATED ALWAYS AS (to_timestamp("startTime"::double precision / 1000)) STORED;
+
+ALTER TABLE "user_voice" ADD COLUMN "endedAt" timestamp with time zone
+GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
 CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","talking");
 CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("userId","hideTalkingIndicatorAt");

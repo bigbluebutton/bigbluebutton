@@ -110,7 +110,7 @@ public class Meeting {
     private Integer endWhenNoModeratorDelayInMinutes = 1;
 
 	public final BreakoutRoomsParams breakoutRoomsParams;
-	public final LockSettingsParams lockSettingsParams;
+	public LockSettingsParams lockSettingsParams;
 
 	public final Integer maxUserConcurrentAccesses;
 
@@ -472,7 +472,15 @@ public class Meeting {
 	}
 
 	public String getGuestPolicy() {
-    	return guestPolicy;
+		return guestPolicy;
+	}
+
+	public void setLockSettings(LockSettingsParams lockSettingsParams) {
+		this.lockSettingsParams = lockSettingsParams;
+	}
+
+	public void setWebcamsOnlyForModerator(Boolean webcamsOnlyForModerator) {
+		this.webcamsOnlyForModerator = webcamsOnlyForModerator;
 	}
 
 	public void setGuestLobbyMessage(String message) {
