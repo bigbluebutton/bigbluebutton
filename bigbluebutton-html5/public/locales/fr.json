@@ -1104,7 +1104,7 @@
     "app.fullscreenButton.label": "Mettre {0} en plein écran",
     "app.fullscreenUndoButton.label": "Sortir {0} du plein écran",
     "app.switchButton.expandLabel": "Agrandir la fenêtre de partage d'écran",
-    "app.switchButton.shrinkLabel": "Réduire la vidéo de partage d'écran",
+    "app.switchButton.shrinkLabel": "Réduire la fenêtre de partage d'écran",
     "app.sfu.mediaServerConnectionError2000": "Impossible de se connecter au serveur multimédia (erreur 2000)",
     "app.sfu.mediaServerOffline2001": "Le serveur multimédia est hors ligne. Veuillez réessayer plus tard (erreur 2001)",
     "app.sfu.mediaServerNoResources2002": "Le serveur multimédia n'a plus de ressources disponibles (erreur 2002)",
