@@ -720,7 +720,7 @@
     "app.audioModal.closeLabel": "Fermer",
     "app.audioModal.yes": "Oui",
     "app.audioModal.no": "Non",
-    "app.audioModal.yes.arialabel" : "Écho activé",
+    "app.audioModal.yes.arialabel" : "L'écho est audible",
     "app.audioModal.no.arialabel" : "Écho désactivé",
     "app.audioModal.echoTestTitle": "Ceci est un test d'écho privé. Prononcez quelques mots. Les avez-vous entendus ?",
     "app.audioModal.settingsTitle": "Modifier vos paramètres audio",
