@@ -721,7 +721,7 @@
     "app.audioModal.yes": "Oui",
     "app.audioModal.no": "Non",
     "app.audioModal.yes.arialabel" : "L'écho est audible",
-    "app.audioModal.no.arialabel" : "Écho désactivé",
+    "app.audioModal.no.arialabel" : "L'écho n'est pas audible",
     "app.audioModal.echoTestTitle": "Ceci est un test d'écho privé. Prononcez quelques mots. Les avez-vous entendus ?",
     "app.audioModal.settingsTitle": "Modifier vos paramètres audio",
     "app.audioModal.helpTitle": "Il y a un problème avec vos périphériques média",
