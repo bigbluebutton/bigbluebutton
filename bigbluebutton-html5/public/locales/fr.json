@@ -1052,7 +1052,7 @@
     "app.video.advancedVideo": "Ouvrir les paramètres avancés",
     "app.video.iceCandidateError": "Erreur lors de l'ajout du candidat ICE",
     "app.video.iceConnectionStateError": "Échec de connexion (erreur ICE 1107)",
-    "app.video.permissionError": "Erreur lors du partage de la webcam. Veuillez vérifier les permissions",
+    "app.video.permissionError": "Erreur lors de la diffusion depuis la webcam. Veuillez vérifier les permissions",
     "app.video.sharingError": "Erreur lors du partage de la Webcam",
     "app.video.abortError": "Un problème empêchant l'utilisation de cet appareil est survenu",
     "app.video.overconstrainedError": "Aucun appareil ne répond au critère demandé",
