@@ -958,7 +958,7 @@
     "app.lock-viewers.featuresLable": "Fonctionnalité",
     "app.lock-viewers.lockStatusLabel": "Statut",
     "app.lock-viewers.webcamLabel": "Diffuser depuis la webcam",
-    "app.lock-viewers.otherViewersWebcamLabel": "Voir les  webcams des autres participants ",
+    "app.lock-viewers.otherViewersWebcamLabel": "Voir les webcams des autres participants ",
     "app.lock-viewers.microphoneLable": "Partager le microphone",
     "app.lock-viewers.PublicChatLabel": "Envoyer des messages publics",
     "app.lock-viewers.PrivateChatLable": "Envoyer des messages privés",
