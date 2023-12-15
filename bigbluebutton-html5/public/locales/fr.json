@@ -1242,7 +1242,7 @@
     "app.externalVideo.autoPlayWarning": "Lire la vidéo pour permettre la synchronisation des médias",
     "app.externalVideo.refreshLabel": "Réactualiser le lecteur vidéo",
     "app.externalVideo.fullscreenLabel": "Lecteur vidéo",
-    "app.externalVideo.noteLabel": "Remarque : les vidéos externes partagées n'apparaîtront pas dans l'enregistrement. Les URL YouTube, Vimeo, Instructure Media, Twitch, Dailymotion et les URL de fichiers multimédias (par exemple https://example.com/xy.mp4) sont pris en charge.",
+    "app.externalVideo.noteLabel": "Remarque : les vidéos externes n'apparaissent pas dans l'enregistrement. Les URL YouTube, Vimeo, Instructure Media, Twitch, Dailymotion et les URL de fichiers multimédias (par exemple https://example.com/xy.mp4) sont pris en charge.",
     "app.externalVideo.subtitlesOn": "Éteindre",
     "app.externalVideo.subtitlesOff": "Activer (si disponible)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Partager une vidéo externe",
