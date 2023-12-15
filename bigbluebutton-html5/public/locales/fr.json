@@ -631,7 +631,7 @@
     "app.actionsBar.actionsDropdown.presentationLabel": "Charger/Gérer les documents de présentation",
     "app.actionsBar.actionsDropdown.initPollLabel": "Lancer un sondage",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Partager votre écran",
-    "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Cesser le partage d'écran",
+    "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Cesser votre partage d'écran",
     "app.actionsBar.actionsDropdown.presentationDesc": "Charger votre présentation",
     "app.actionsBar.actionsDropdown.initPollDesc": "Lancer un sondage",
     "app.actionsBar.actionsDropdown.desktopShareDesc": "Partager votre écran avec les autres participants",
