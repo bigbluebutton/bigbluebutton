@@ -642,7 +642,7 @@
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Créer des salles pour les groupes de travail",
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "Créer des groupes de travail pour scinder la réunion en cours",
     "app.actionsBar.actionsDropdown.captionsLabel": "Écrire des sous-titres SME",
-    "app.actionsBar.actionsDropdown.captionsDesc": "Affiche/cache le volet des sous-titres",
+    "app.actionsBar.actionsDropdown.captionsDesc": "Affiche/occulte le volet des sous-titres",
     "app.actionsBar.actionsDropdown.takePresenter": "Devenir présentateur",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "S'assigner comme nouveau présentateur",
     "app.actionsBar.actionsDropdown.selectRandUserLabel": "Sélectionner un utilisateur aléatoirement",
