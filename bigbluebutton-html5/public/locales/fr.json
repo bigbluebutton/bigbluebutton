@@ -1073,7 +1073,7 @@
     "app.video.cancel": "Annuler",
     "app.video.swapCam": "Échanger",
     "app.video.swapCamDesc": "Permuter les webcams",
-    "app.video.videoLocked": "Partage webcam verrouillé",
+    "app.video.videoLocked": "Diffusion depuis la webcam verrouillé",
     "app.video.videoButtonDesc": "Diffuser depuis la webcam",
     "app.video.videoMenu": "Menu vidéo",
     "app.video.videoMenuDisabled": "Le menu vidéo de la webcam est désactivé dans les paramètres",
