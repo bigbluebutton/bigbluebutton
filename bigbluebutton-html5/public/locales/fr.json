@@ -957,7 +957,7 @@
     "app.lock-viewers.description": "Ces options vous permettent de restreindre l'utilisation de certaines fonctionnalités par les participants.",
     "app.lock-viewers.featuresLable": "Fonctionnalité",
     "app.lock-viewers.lockStatusLabel": "Statut",
-    "app.lock-viewers.webcamLabel": "Partager webcam",
+    "app.lock-viewers.webcamLabel": "Diffuser depuis la webcam",
     "app.lock-viewers.otherViewersWebcamLabel": "Voir les  webcams des autres participants ",
     "app.lock-viewers.microphoneLable": "Partager le microphone",
     "app.lock-viewers.PublicChatLabel": "Envoyer des messages publics",
