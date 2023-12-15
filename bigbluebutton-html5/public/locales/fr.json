@@ -892,7 +892,7 @@
     "app.notification.recordingStart": "Cette réunion est maintenant enregistrée",
     "app.notification.recordingStop": "Cette réunion n'est pas enregistrée",
     "app.notification.recordingPaused": "Cette réunion n'est désormais plus enregistrée",
-    "app.notification.recordingAriaLabel": "Temps d'enregistrement",
+    "app.notification.recordingAriaLabel": "Durée d'enregistrement",
     "app.notification.userJoinPushAlert": "{0} a rejoint la séance",
     "app.notification.userLeavePushAlert": "{0} a quitté la séance",
     "app.submenu.notification.raiseHandLabel": "Lever la main",
