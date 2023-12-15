@@ -790,7 +790,7 @@
     "app.audio.captions.select.pt-BR": "Portugais",
     "app.audio.captions.select.ru-RU": "Russe",
     "app.audio.captions.select.zh-CN": "Chinois",
-    "app.error.removed": "Vous avez été écarté de la réunion",
+    "app.error.removed": "Vous avez été exclu de la réunion",
     "app.error.meeting.ended": "Vous vous êtes déconnecté de la réunion",
     "app.meeting.logout.duplicateUserEjectReason": " Un compte utilisateur déjà connecté tente de rejoindre la réunion",
     "app.meeting.logout.permissionEjectReason": "Expulsé en raison d'une violation de permission",
