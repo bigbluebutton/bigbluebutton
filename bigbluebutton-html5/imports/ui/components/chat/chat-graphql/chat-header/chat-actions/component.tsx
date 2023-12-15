@@ -6,17 +6,17 @@ import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import {
   GET_CHAT_MESSAGE_HISTORY, GET_PERMISSIONS, getChatMessageHistory, getPermissions,
 } from './queries';
 import { uid } from 'radash';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
-import { clearPublicChatHistory, generateExportedMessages } from './services';
+import { generateExportedMessages } from './services';
 import { getDateString } from '/imports/utils/string-utils';
-
 import { isEmpty } from 'ramda';
 import { ChatCommands } from '/imports/ui/core/enums/chat';
+import { CHAT_PUBLIC_CLEAR_HISTORY } from './mutations';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -61,6 +61,7 @@ const ChatActions: React.FC = () => {
   const [userIsModerator, setUserIsmoderator] = useState<boolean>(false);
   const [meetingIsBreakout, setMeetingIsBreakout] = useState<boolean>(false);
   const [showShowWelcomeMessages, setShowShowWelcomeMessages] = useState<boolean>(false);
+  const [chatPublicClearHistory] = useMutation(CHAT_PUBLIC_CLEAR_HISTORY);
   const [
     getChatMessageHistory,
     {
@@ -142,7 +143,7 @@ const ChatActions: React.FC = () => {
         icon: 'delete',
         dataTest: 'chatClear',
         label: intl.formatMessage(intlMessages.clear),
-        onClick: () => clearPublicChatHistory(),
+        onClick: () => chatPublicClearHistory(),
       },
       {
         key: uniqueIdsRef.current[3],
