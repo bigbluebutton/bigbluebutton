@@ -609,7 +609,7 @@
     "app.settings.main.save.label.description": "Enregistre les changements et ferme le menu des paramètres",
     "app.settings.dataSavingTab.label": "Gestion du débit",
     "app.settings.dataSavingTab.webcam": "Autoriser l'activation des webcams des autres participants",
-    "app.settings.dataSavingTab.screenShare": "Activer le partage d'écran des autres participants",
+    "app.settings.dataSavingTab.screenShare": "Autoriser le partage d'écran des autres participants",
     "app.settings.dataSavingTab.description": "Pour économiser votre bande passante, ajustez l'affichage actuel.",
     "app.settings.save-notification.label": "Les paramètres ont été enregistrés",
     "app.statusNotifier.lowerHands": "Mains baissées",
