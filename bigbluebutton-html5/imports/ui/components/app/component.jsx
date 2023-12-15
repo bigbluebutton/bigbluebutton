@@ -53,6 +53,7 @@ import AppService from '/imports/ui/components/app/service';
 import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
+import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -606,6 +607,7 @@ class App extends Component {
     return (
       <>
         <PluginsEngineContainer />
+        <FloatingWindowContainer />
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}

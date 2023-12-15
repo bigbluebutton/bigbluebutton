@@ -16,6 +16,7 @@ import {
   ExtensibleArea, ExtensibleAreaStateManagerProps,
   ExtensibleAreaComponentManager, ExtensibleAreaMap,
 } from '../types';
+import FloatingWindowPluginStateContainer from '../components/floating-window/manager';
 
 const extensibleAreaMap: ExtensibleAreaMap = {};
 
@@ -31,6 +32,7 @@ const extensibleAreaComponentManagers: ExtensibleAreaComponentManager[] = [
   CameraSettingsDropdownPluginStateContainer,
   UserCameraDropdownPluginStateContainer,
   UserListItemAdditionalInformationPluginStateContainer,
+  FloatingWindowPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginProvidedUiItemDescriptor>(
