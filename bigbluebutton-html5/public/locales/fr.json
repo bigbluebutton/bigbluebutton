@@ -1098,7 +1098,7 @@
     "app.video.virtualBackground.uploaded": "Chargé",
     "app.video.virtualBackground.uploading": "En cours de chargement...",
     "app.video.virtualBackground.button.customDesc": "Ajoute un nouveau arrière-plan virtuel",
-    "app.video.camCapReached": "Vous ne pouvez pas partager plus de caméras",
+    "app.video.camCapReached": "Vous ne pouvez pas diffuser depuis plus de caméras",
     "app.video.meetingCamCapReached": "La conférence a atteint sa limite de caméras simultanées",
     "app.video.dropZoneLabel": "Déposer ici",
     "app.fullscreenButton.label": "Mettre {0} en plein écran",
