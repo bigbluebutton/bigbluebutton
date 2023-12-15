@@ -992,7 +992,7 @@
     "app.connection-status.notification": "Une perte de votre connexion a été détectée",
     "app.connection-status.offline": "Hors ligne",
     "app.connection-status.clientNotRespondingWarning": "Le client ne répond pas",
-    "app.connection-status.audioUploadRate": "Taux d'envoi audio",
+    "app.connection-status.audioUploadRate": "Débit audio sortant",
     "app.connection-status.audioDownloadRate": "Taux de réception audio",
     "app.connection-status.videoUploadRate": "Taux d'envoi vidéo",
     "app.connection-status.videoDownloadRate": "Taux de réception vidéo",
