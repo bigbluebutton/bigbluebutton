@@ -637,7 +637,7 @@
     "app.actionsBar.actionsDropdown.desktopShareDesc": "Partager votre écran avec les autres participants",
     "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Cesser de partager votre écran ",
     "app.actionsBar.actionsDropdown.pollBtnLabel": "Démarrer un sondage",
-    "app.actionsBar.actionsDropdown.pollBtnDesc": "Affiche/cache le volet de sondage",
+    "app.actionsBar.actionsDropdown.pollBtnDesc": "Affiche/occulte le volet de sondage",
     "app.actionsBar.actionsDropdown.saveUserNames": "Sauvegarder les noms des utilisateurs",
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Créer des salles pour les groupes de travail",
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "Créer des groupes de travail pour scinder la réunion en cours",
