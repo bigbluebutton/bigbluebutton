@@ -1030,7 +1030,7 @@
     "app.videoPreview.startSharingLabel": "Démarrer le partage",
     "app.videoPreview.stopSharingLabel": "Arrêter le partage",
     "app.videoPreview.stopSharingAllLabel": "Arrêter tout",
-    "app.videoPreview.sharedCameraLabel": "Cette caméra est déjà utilisée",
+    "app.videoPreview.sharedCameraLabel": "Cette caméra diffuse déjà",
     "app.videoPreview.webcamOptionLabel": "Sélectionner une webcam",
     "app.videoPreview.webcamPreviewLabel": "Aperçu de la webcam",
     "app.videoPreview.webcamSettingsTitle": "Paramètres de la webcam",
