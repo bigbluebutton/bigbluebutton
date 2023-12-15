@@ -238,6 +238,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
 
+        //Refresh graphql session for all locked viewers
         for {
           user <- Users2x.findAll(liveMeeting.users2x)
           if user.locked

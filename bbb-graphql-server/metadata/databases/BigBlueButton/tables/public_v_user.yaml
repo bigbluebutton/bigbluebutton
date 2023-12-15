@@ -115,7 +115,7 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - _or:
               - isModerator:
-                    _eq: true
+                  _eq: true
               - meetingId:
                   _eq: X-Hasura-UserListNotLockedInMeeting
       allow_aggregations: true

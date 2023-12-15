@@ -78,6 +78,7 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
 
             broadcastEvent(meetingId, msg.body.setBy, value)
 
+            //Refresh graphql session for all locked viewers
             for {
               user <- Users2x.findAll(liveMeeting.users2x)
               if user.locked

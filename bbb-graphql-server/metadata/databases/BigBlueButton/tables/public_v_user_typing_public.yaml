@@ -31,7 +31,7 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - _or:
               - user:
-                    isModerator:
-                      _eq: true
+                  isModerator:
+                    _eq: true
               - meetingId:
                   _eq: X-Hasura-UserListNotLockedInMeeting
