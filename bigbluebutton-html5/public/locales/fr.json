@@ -1080,7 +1080,7 @@
     "app.video.videoMenuDesc": "Ouvrir le menu déroulant de la vidéo",
     "app.video.pagination.prevPage": "Voir les vidéos précédentes",
     "app.video.pagination.nextPage": "Voir les vidéos suivantes",
-    "app.video.clientDisconnected": "La webcam ne peut pas être partagée à cause de problèmes de connexion",
+    "app.video.clientDisconnected": "Impossible de diffuser depuis la webcam à cause de problèmes de connexion",
     "app.video.virtualBackground.none": "Aucun",
     "app.video.virtualBackground.blur": "Brouiller",
     "app.video.virtualBackground.home": "Accueil",
