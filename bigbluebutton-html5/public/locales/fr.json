@@ -1011,7 +1011,7 @@
     "app.recording.stopTitle": "Enregistrement en pause",
     "app.recording.resumeTitle": "Reprendre l'enregistrement",
     "app.recording.startDescription": "Vous pouvez ultérieurement utiliser le bouton d'enregistrement pour mettre l'enregistrement en pause.",
-    "app.recording.stopDescription": "Êtes-vous sûr de vouloir mettre l'enregistrement en pause ? Vous pouvez reprendre en utilisant à nouveau le bouton d'enregistrement.",
+    "app.recording.stopDescription": "Êtes-vous sûr de vouloir mettre l'enregistrement en pause ? Vous pouvez le reprendre en utilisant à nouveau le bouton d'enregistrement.",
     "app.recording.notify.title": "L'enregistrement a commencé",
     "app.recording.notify.description": "La suite de cette session sera enregistrée.",
     "app.recording.notify.continue": "Poursuivre",
