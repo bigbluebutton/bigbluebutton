@@ -959,7 +959,7 @@
     "app.lock-viewers.lockStatusLabel": "Statut",
     "app.lock-viewers.webcamLabel": "Diffuser depuis la webcam",
     "app.lock-viewers.otherViewersWebcamLabel": "Voir les webcams des autres participants ",
-    "app.lock-viewers.microphoneLable": "Partager le microphone",
+    "app.lock-viewers.microphoneLable": "Diffuser depuis le microphone",
     "app.lock-viewers.PublicChatLabel": "Envoyer des messages publics",
     "app.lock-viewers.PrivateChatLable": "Envoyer des messages privés",
     "app.lock-viewers.notesLabel": "Éditer les notes partagées",
