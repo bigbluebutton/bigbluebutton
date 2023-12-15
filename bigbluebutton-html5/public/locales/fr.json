@@ -1090,7 +1090,7 @@
     "app.video.virtualBackground.backgroundWithIndex": "Arrière-plan {0}",
     "app.video.virtualBackground.custom": "Téléverser depuis votre ordinateur",
     "app.video.virtualBackground.remove": "Supprimer l'image qui a été ajoutée",
-    "app.video.virtualBackground.genericError": "Échec de l'application de l'effet de caméra. Réessayez. ",
+    "app.video.virtualBackground.genericError": "L'application de l'effet de caméra a échoué. Réessayez. ",
     "app.video.virtualBackground.camBgAriaDesc": "Défini l'arrière plan virtuel de caméra à {0}",
     "app.video.virtualBackground.maximumFileSizeExceeded": "La limite de taille pour un fichier est dépassée. ({0} Mo)",
     "app.video.virtualBackground.typeNotAllowed": "Ce type de fichier n'est pas autorisé",
