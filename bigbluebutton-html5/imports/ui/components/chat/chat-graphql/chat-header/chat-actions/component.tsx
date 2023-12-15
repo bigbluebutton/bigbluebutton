@@ -7,14 +7,14 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useLazyQuery, useMutation } from '@apollo/client';
+import { uid } from 'radash';
+import { isEmpty } from 'ramda';
 import {
   GET_CHAT_MESSAGE_HISTORY, GET_PERMISSIONS, getChatMessageHistory, getPermissions,
 } from './queries';
-import { uid } from 'radash';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import { generateExportedMessages } from './services';
 import { getDateString } from '/imports/utils/string-utils';
-import { isEmpty } from 'ramda';
 import { ChatCommands } from '/imports/ui/core/enums/chat';
 import { CHAT_PUBLIC_CLEAR_HISTORY } from './mutations';
 
