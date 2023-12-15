@@ -1245,7 +1245,7 @@
     "app.externalVideo.noteLabel": "Remarque : les vidéos externes n'apparaissent pas dans l'enregistrement. Les URL YouTube, Vimeo, Instructure Media, Twitch, Dailymotion et les URL de fichiers multimédias (par exemple https://example.com/xy.mp4) sont pris en charge.",
     "app.externalVideo.subtitlesOn": "Éteindre",
     "app.externalVideo.subtitlesOff": "Activer (si disponible)",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Partager une vidéo externe",
+    "app.actionsBar.actionsDropdown.shareExternalVideo": "Diffuser une vidéo externe",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Arrêter le partage de vidéo externe",
     "app.legacy.unsupportedBrowser": "Il semblerait que vous utilisiez un navigateur qui n'est pas pris en charge. Veuillez utiliser {0} ou {1} pour une prise en charge complète.",
     "app.legacy.upgradeBrowser": "Il semblerait que vous utilisiez une ancienne version d'un navigateur pris en charge. Veuillez mettre à jour votre navigateur pour une prise en charge complète.",
