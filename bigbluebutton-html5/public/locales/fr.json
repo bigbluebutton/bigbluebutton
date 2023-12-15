@@ -994,7 +994,7 @@
     "app.connection-status.clientNotRespondingWarning": "Le client ne répond pas",
     "app.connection-status.audioUploadRate": "Débit audio sortant",
     "app.connection-status.audioDownloadRate": "Débit audio entrant",
-    "app.connection-status.videoUploadRate": "Taux d'envoi vidéo",
+    "app.connection-status.videoUploadRate": "Débit vidéo sortant",
     "app.connection-status.videoDownloadRate": "Taux de réception vidéo",
     "app.connection-status.lostPackets": "Paquets perdus",
     "app.connection-status.usingTurn": "TURN utilisé",
