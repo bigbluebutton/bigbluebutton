@@ -1065,7 +1065,7 @@
     "app.video.timeoutError": "Le navigateur n'a pas répondu à temps",
     "app.video.genericError": "Une erreur inconnue s'est produite avec l'appareil (Erreur {0})",
     "app.video.inactiveError": "Votre webcam s'est brusquement éteinte. Veuillez vérifier les autorisations données au navigateur.",
-    "app.video.mediaTimedOutError": "Le flux de votre webcam a été interrompu. Essayer de le partager à nouveau",
+    "app.video.mediaTimedOutError": "Le flux de votre webcam a été interrompu. Essayer de le diffuser à nouveau",
     "app.video.mediaFlowTimeout1020": "Le média n'a pas pu atteindre le serveur (erreur 1020)",
     "app.video.suggestWebcamLock": "Appliquer le paramètre de verrouillage aux webcams des participants ?",
     "app.video.suggestWebcamLockReason": "(cela améliorera la stabilité de la conférence)",
