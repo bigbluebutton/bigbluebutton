@@ -910,7 +910,7 @@
     "app.shortcut-help.hidePrivateChat": "Masquer la discussion privée",
     "app.shortcut-help.closePrivateChat": "Fermer la discussion privée",
     "app.shortcut-help.openActions": "Ouvrir le menu des actions",
-    "app.shortcut-help.raiseHand": "Affiche/cache la main Levée",
+    "app.shortcut-help.raiseHand": "Affiche/Masque la main Levée",
     "app.shortcut-help.openDebugWindow": "Ouvrir la fenêtre de débogage",
     "app.shortcut-help.openStatus": "Ouvrir le menu de statut",
     "app.shortcut-help.togglePan": "Activer l'outil panoramique (présentateur)",
