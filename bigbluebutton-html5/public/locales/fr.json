@@ -841,7 +841,7 @@
     "app.guest.missingMeeting": "Cette réunion n'existe pas.",
     "app.guest.meetingEnded": "La réunion est terminée.",
     "app.guest.guestWait": "Veuillez attendre qu'un modérateur approuve votre accès à la réunion.",
-    "app.guest.guestDeny": "L'accès à la conférence a été refusé.",
+    "app.guest.guestDeny": "L'accès à la réunion a été refusé.",
     "app.guest.seatWait": "L'invité attend pour accéder à la réunion.",
     "app.guest.allow": "Invité approuvé et redirigé vers la réunion",
     "app.guest.firstPositionInWaitingQueue": "Vous êtes en premier dans la file !",
