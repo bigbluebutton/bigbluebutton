@@ -456,7 +456,7 @@
     "app.navBar.settingsDropdown.endMeetingDesc": "Interrompt la réunion en cours",
     "app.navBar.settingsDropdown.endMeetingLabel": "Mettre fin à la réunion",
     "app.navBar.userListToggleBtnLabel": "Masquer ou afficher la liste des utilisateurs",
-    "app.navBar.toggleUserList.ariaLabel": "Afficher les utilisateurs ou les messages",
+    "app.navBar.toggleUserList.ariaLabel": "Masquer ou afficher les utilisateurs ou les messages",
     "app.navBar.toggleUserList.newMessages": "avec notification des nouveaux messages",
     "app.navBar.toggleUserList.newMsgAria": "Nouveau message de {0}",
     "app.navBar.recording": "Cette session est enregistrée",
