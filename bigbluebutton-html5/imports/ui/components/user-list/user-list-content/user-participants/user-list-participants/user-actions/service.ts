@@ -129,10 +129,6 @@ export const isVideoPinEnabledForCurrentUser = (
 // so this code is duplicated from the old userlist service
 // session for chats the current user started
 
-export const sendCreatePrivateChat = (receiver: User) => {
-  makeCall('createGroupChat', receiver);
-};
-
 export const toggleVoice = (userId: string) => {
   if (userId === Auth.userID) {
     AudioService.toggleMuteMicrophone();
