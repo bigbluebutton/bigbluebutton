@@ -32,4 +32,6 @@ select_permissions:
                     _eq: true
               - meetingId:
                   _eq: X-Hasura-WebcamsNotLockedInMeeting
+              - userId:
+                  _eq: X-Hasura-WebcamsLockedUserId
       allow_aggregations: true

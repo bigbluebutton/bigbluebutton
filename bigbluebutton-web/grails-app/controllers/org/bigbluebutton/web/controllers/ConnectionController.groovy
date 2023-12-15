@@ -106,6 +106,7 @@ class ConnectionController {
               "X-Hasura-AnnotationsLockedUserId" annotationsLocked ? userSession.internalUserId : ""
               "X-Hasura-UserListNotLockedInMeeting" userListLocked ? "" : userSession.meetingID
               "X-Hasura-WebcamsNotLockedInMeeting" webcamOnlyForMod ? "" : userSession.meetingID
+              "X-Hasura-WebcamsLockedUserId" webcamOnlyForMod ? userSession.internalUserId : ""
             }
             render(contentType: "application/json", text: builder.toPrettyString())
           }
