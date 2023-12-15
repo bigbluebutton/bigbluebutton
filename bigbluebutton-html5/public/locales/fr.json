@@ -879,7 +879,7 @@
     "app.toast.meetingMuteOn.label": "Tous les utilisateurs ont été rendus silencieux",
     "app.toast.meetingMuteOnViewers.label": "Les spectateurs sont en mode silencieux",
     "app.toast.meetingMuteOff.label": "Mode silencieux désactivé",
-    "app.toast.wakeLock.acquireSuccess": "Verrouillage du réveil actif ! Vous pouvez le désactiver dans le menu des paramètres.",
+    "app.toast.wakeLock.acquireSuccess": "Maintien de l'affichage verrouillé ! Vous pouvez le désactiver dans le menu des paramètres.",
     "app.toast.wakeLock.acquireFailed": "Erreur dans le maintien de l'affichage actif",
     "app.toast.wakeLock.notSupported": "Votre navigateur ne prend pas en charge le maintien de l'affichage actif",
     "app.toast.wakeLock.disclaimer": "{0}. Vous serez déconnecté de l'appel quand votre écran s'éteindra.",
