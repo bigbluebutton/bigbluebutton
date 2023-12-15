@@ -904,7 +904,7 @@
     "app.shortcut-help.closeLabel": "Fermer",
     "app.shortcut-help.closeDesc": "Ferme la fenêtre de visualisation des raccourcis clavier",
     "app.shortcut-help.openOptions": "Ouvrir les options",
-    "app.shortcut-help.toggleUserList": "Affiche/Occulte la liste d'utilisateurs",
+    "app.shortcut-help.toggleUserList": "Affiche/Masque la liste d'utilisateurs",
     "app.shortcut-help.toggleMute": "Activer / Désactiver le mode silencieux",
     "app.shortcut-help.togglePublicChat": "Basculer la discussion en mode discussion publique (la liste des utilisateurs doit être ouverte)",
     "app.shortcut-help.hidePrivateChat": "Masquer la discussion privée",
