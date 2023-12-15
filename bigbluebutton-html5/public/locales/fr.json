@@ -839,7 +839,7 @@
     "app.guest.missingToken": "L'invité n'a pas de jeton de session",
     "app.guest.missingSession": "Invité sans session",
     "app.guest.missingMeeting": "Cette réunion n'existe pas.",
-    "app.guest.meetingEnded": "La conférence est terminée.",
+    "app.guest.meetingEnded": "La réunion est terminée.",
     "app.guest.guestWait": "Veuillez attendre qu'un modérateur approuve votre accès à la conférence.",
     "app.guest.guestDeny": "L'accès à la conférence a été refusé.",
     "app.guest.seatWait": "L'invité attend pour accéder à la réunion.",
