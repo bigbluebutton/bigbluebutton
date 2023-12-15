@@ -1082,7 +1082,7 @@
     "app.video.pagination.nextPage": "Voir les vidéos suivantes",
     "app.video.clientDisconnected": "Impossible de diffuser depuis la webcam à cause de problèmes de connexion",
     "app.video.virtualBackground.none": "Aucun",
-    "app.video.virtualBackground.blur": "Brouiller",
+    "app.video.virtualBackground.blur": "Flouter",
     "app.video.virtualBackground.home": "Accueil",
     "app.video.virtualBackground.board": "Tableau",
     "app.video.virtualBackground.coffeeshop": "Café",
