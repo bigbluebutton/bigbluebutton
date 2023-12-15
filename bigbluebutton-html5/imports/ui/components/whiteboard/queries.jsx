@@ -103,4 +103,11 @@ export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`subscription currentPageWri
   }
 }`;
 
+export const CURRENT_PAGE_WRITERS_QUERY = gql`query currentPageWritersQuery {
+  pres_page_writers {
+    userId
+    pageId
+  }
+}`;
+
 export default CURRENT_PAGE_ANNOTATIONS_QUERY;

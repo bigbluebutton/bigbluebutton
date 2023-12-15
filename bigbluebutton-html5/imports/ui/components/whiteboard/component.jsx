@@ -325,12 +325,10 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           currentPresentationPage.scaledHeight
         );
         zoomSlide(
-          parseInt(curPageId, 10),
           viewedRegionW,
           viewedRegionH,
           tlEditor.camera.x,
           tlEditor.camera.y,
-          presentationId
         );
       }
     }
@@ -399,12 +397,10 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
             setZoom(HUNDRED_PERCENT);
             zoomChanger(HUNDRED_PERCENT);
             zoomSlide(
-              parseInt(curPageId, 10),
               HUNDRED_PERCENT,
               viewedRegionH,
               0,
               0,
-              presentationId,
             );
           } else {
             setCamera(adjustedZoom);
@@ -436,12 +432,10 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       setZoom(HUNDRED_PERCENT);
       zoomChanger(HUNDRED_PERCENT);
       zoomSlide(
-        parseInt(curPageId, 10),
         HUNDRED_PERCENT,
         HUNDRED_PERCENT,
         0,
         0,
-        presentationId
       );
     }
   }, [fitToWidth, isPresenter]);
@@ -734,12 +728,10 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
             );
 
             zoomSlide(
-              parseInt(curPageId, 10),
               viewedRegionW,
               viewedRegionH,
               nextCam.x,
               nextCam.y,
-              presentationId
             );
           }
         }

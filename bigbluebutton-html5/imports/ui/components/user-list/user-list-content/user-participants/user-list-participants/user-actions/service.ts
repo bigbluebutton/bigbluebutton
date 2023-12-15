@@ -8,7 +8,6 @@ import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-import * as WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -143,8 +142,4 @@ export const toggleVoice = (userId: string) => {
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
-};
-
-export const changeWhiteboardAccess = (pageId: string, userId: string, whiteboardAccess: boolean) => {
-  WhiteboardService.changeWhiteboardAccess(pageId, userId, !whiteboardAccess);
 };

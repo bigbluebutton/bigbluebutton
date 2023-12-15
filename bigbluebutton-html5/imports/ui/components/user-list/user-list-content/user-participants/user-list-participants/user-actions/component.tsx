@@ -1,10 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
-import { useMutation } from '@apollo/client';
 import {
   SET_AWAY,
   SET_ROLE,
@@ -21,7 +20,6 @@ import {
   isVideoPinEnabledForCurrentUser,
   sendCreatePrivateChat,
   toggleVoice,
-  changeWhiteboardAccess,
   isMe,
   generateActionsPermissions,
   isVoiceOnlyUser,
@@ -39,6 +37,9 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import Styled from './styles';
+import { useMutation, useLazyQuery } from '@apollo/client';
+import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
+import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
 
 interface UserActionsProps {
   user: User;
@@ -209,6 +210,34 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
+
+  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
+  const [getWriters, { data: usersData }] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const writers = usersData?.pres_page_writers || null;
+
+  // users will only be fetched when getWriters is called
+  useEffect(() => {
+    if (writers) {
+      changeWhiteboardAccess();
+    }
+  }, [writers]);
+
+  const changeWhiteboardAccess = () => {
+    if (pageId) {
+      const { userId } = user;
+      const usersIds = writers.map((writer: { userId: string }) => writer.userId);
+      const hasAccess = writers?.some((writer: { userId: string }) => writer.userId === userId);
+      const newUsersIds = hasAccess ? usersIds.filter((id: string) => id !== userId) : [...usersIds, userId];
+
+      presentationSetWriters({
+        variables: {
+          pageId,
+          usersIds: newUsersIds,
+        },
+      });
+    }
+  };
+
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const actionsnPermitions = generateActionsPermissions(
     user,
@@ -395,7 +424,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        changeWhiteboardAccess(pageId, user.userId, hasWhiteboardAccess);
+        getWriters();
         setSelected(false);
       },
       icon: 'pen_tool',
