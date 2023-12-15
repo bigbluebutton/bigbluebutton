@@ -1035,7 +1035,7 @@
     "app.videoPreview.webcamPreviewLabel": "Aperçu de la webcam",
     "app.videoPreview.webcamSettingsTitle": "Paramètres de la webcam",
     "app.videoPreview.webcamEffectsTitle": "Réglages de l'image pour la webcam",
-    "app.videoPreview.cameraAsContentSettingsTitle": "Caméra comme présentation",
+    "app.videoPreview.cameraAsContentSettingsTitle": "Image caméra en zone de présentation",
     "app.videoPreview.webcamVirtualBackgroundLabel": "Paramètres d'arrière-plan virtuel",
     "app.videoPreview.webcamVirtualBackgroundDisabledLabel": "Le périphérique ne prend pas en charge les arrière-plans virtuels",
     "app.videoPreview.webcamNotFoundLabel": "Webcam introuvable",
