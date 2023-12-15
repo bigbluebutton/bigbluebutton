@@ -1157,7 +1157,7 @@
     "app.feedback.subtitle": "Nous aimerions beaucoup savoir ce que vous pensez de votre expérience avec BigBlueButton (optionnel)",
     "app.feedback.textarea": "Comment pouvons-nous améliorer BigBlueButton ?",
     "app.feedback.sendFeedback": "Envoyer l'avis",
-    "app.feedback.sendFeedbackDesc": "Envoyer une évaluation et quitter la réunion",
+    "app.feedback.sendFeedbackDesc": "Envoyer une avis et quitter la réunion",
     "app.videoDock.webcamMirrorLabel": "Retournement horizontal",
     "app.videoDock.webcamMirrorDesc": "Retournement horizontal pour la webcam sélectionnée",
     "app.videoDock.webcamFocusLabel": "Centrer",
