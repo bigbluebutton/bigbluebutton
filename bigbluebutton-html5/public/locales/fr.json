@@ -1045,7 +1045,7 @@
     "app.videoPreview.wholeImageBrightnessDesc": "Applique le réglage de la luminosité à l'image principale et à l'arrière-plan",
     "app.videoPreview.sliderDesc": "Réduit ou augmente le luminosité",
     "app.video.joinVideo": "Diffuser depuis la webcam",
-    "app.video.connecting": "La diffusion de la webcam démarre...",
+    "app.video.connecting": "La diffusion depuis la webcam démarre...",
     "app.video.leaveVideo": "Arrêtez la diffusion depuis la webcam",
     "app.video.videoSettings": "Réglages vidéo",
     "app.video.visualEffects": "Réglages de l'image",
