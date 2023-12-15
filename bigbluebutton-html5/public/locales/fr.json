@@ -1046,7 +1046,7 @@
     "app.videoPreview.sliderDesc": "Réduit ou augmente le luminosité",
     "app.video.joinVideo": "Diffuser depuis la webcam",
     "app.video.connecting": "La diffusion de la webcam démarre...",
-    "app.video.leaveVideo": "Arrêtez le partage de la webcam",
+    "app.video.leaveVideo": "Arrêtez la diffusion depuis la webcam",
     "app.video.videoSettings": "Réglages vidéo",
     "app.video.visualEffects": "Réglages de l'image",
     "app.video.advancedVideo": "Ouvrir les paramètres avancés",
