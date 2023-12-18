@@ -30,8 +30,6 @@ const filterBreakoutUsers = (filter) => (users) => users.filter(filter);
 
 const getUsersNotJoined = filterBreakoutUsers(currentBreakoutUsers);
 
-const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
-
 const isMe = (intId) => intId === Auth.userID;
 
 export default {
@@ -56,6 +54,5 @@ export default {
   getBreakouts,
   getLastBreakouts,
   getUsersNotJoined,
-  takePresenterRole,
   isSharedNotesPinned: () => NotesService.isSharedNotesPinned(),
 };

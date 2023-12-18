@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
+import { useMutation } from '@apollo/client';
 import PollingService from './service';
 import PollService from '/imports/ui/components/poll/service';
 import PollingComponent from './component';
 import { isPollingEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { POLL_SUBMIT_TYPED_VOTE, POLL_SUBMIT_VOTE } from '/imports/ui/components/poll/mutations';
 
 const propTypes = {
   pollExists: PropTypes.bool.isRequired,
@@ -17,9 +19,30 @@ const PollingContainer = ({ pollExists, ...props }) => {
   }));
   const showPolling = pollExists && !currentUserData?.presenter && isPollingEnabled();
 
+  const [pollSubmitUserTypedVote] = useMutation(POLL_SUBMIT_TYPED_VOTE);
+  const [pollSubmitUserVote] = useMutation(POLL_SUBMIT_VOTE);
+
+  const handleTypedVote = (pollId, answer) => {
+    pollSubmitUserTypedVote({
+      variables: {
+        pollId,
+        answer,
+      },
+    });
+  };
+
+  const handleVote = (pollId, answerIds) => {
+    pollSubmitUserVote({
+      variables: {
+        pollId,
+        answerIds,
+      },
+    });
+  };
+
   if (showPolling) {
     return (
-      <PollingComponent {...props} />
+      <PollingComponent handleTypedVote={handleTypedVote} handleVote={handleVote} {...props} />
     );
   }
   return null;
@@ -29,7 +52,7 @@ PollingContainer.propTypes = propTypes;
 
 export default withTracker(() => {
   const {
-    pollExists, handleVote, poll, handleTypedVote,
+    pollExists, poll,
   } = PollingService.mapPolls();
   const { pollTypes } = PollService;
 
@@ -40,8 +63,6 @@ export default withTracker(() => {
 
   return ({
     pollExists,
-    handleVote,
-    handleTypedVote,
     poll,
     pollAnswerIds: PollService.pollAnswerIds,
     pollTypes,

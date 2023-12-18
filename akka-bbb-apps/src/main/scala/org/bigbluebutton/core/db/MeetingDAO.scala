@@ -19,6 +19,7 @@ case class MeetingDbModel(
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
+    logoutUrl:                             String,
     createdTime:                           Long,
     durationInSeconds:                     Int
 )
@@ -36,6 +37,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
     learningDashboardAccessToken,
+    logoutUrl,
     createdTime,
     durationInSeconds
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
@@ -50,6 +52,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
+  val logoutUrl = column[String]("logoutUrl")
   val createdTime = column[Long]("createdTime")
   val durationInSeconds = column[Int]("durationInSeconds")
 }
@@ -70,6 +73,7 @@ object MeetingDAO {
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,
+          logoutUrl = meetingProps.systemProps.logoutUrl,
           createdTime = meetingProps.durationProps.createdTime,
           durationInSeconds = meetingProps.durationProps.duration * 60
         )

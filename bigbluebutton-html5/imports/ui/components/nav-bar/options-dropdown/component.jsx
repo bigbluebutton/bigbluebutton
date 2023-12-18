@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/container';
 import OptionsMenuContainer from '/imports/ui/components/settings/container';
@@ -118,6 +117,7 @@ const propTypes = {
     id: PropTypes.string,
     type: PropTypes.string,
   })).isRequired,
+  userLeaveMeeting: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -208,7 +208,9 @@ class OptionsDropdown extends PureComponent {
   }
 
   leaveSession() {
-    makeCall('userLeftMeeting');
+    const { userLeaveMeeting } = this.props;
+    
+    userLeaveMeeting();
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
     Session.set('codeError', this.LOGOUT_CODE);

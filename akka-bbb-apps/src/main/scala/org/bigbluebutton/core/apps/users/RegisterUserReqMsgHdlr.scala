@@ -49,7 +49,7 @@ trait RegisterUserReqMsgHdlr {
                 Sender.sendDisconnectClientSysMsg(meetingId, userToRemove.id, SystemUser.ID, EjectReasonCode.DUPLICATE_USER, outGW)
 
                 // Force reconnection with graphql to refresh permissions
-                Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, userToRemove.id, userToRemove.sessionToken, EjectReasonCode.DUPLICATE_USER, outGW)
+                Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, userToRemove.id, userToRemove.sessionToken, EjectReasonCode.DUPLICATE_USER, outGW)
               }
           }
         }

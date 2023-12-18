@@ -42,6 +42,7 @@ public interface IBbbWebApiGWApp {
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,
                      Integer html5InstanceId,
+                     String logoutUrl,
                      ArrayList<Group> groups,
                      ArrayList<String> disabledFeatures,
                      Boolean notifyRecordingIsOn,
