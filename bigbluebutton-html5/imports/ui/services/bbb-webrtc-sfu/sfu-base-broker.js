@@ -2,7 +2,10 @@ import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { SFU_BROKER_ERRORS } from '/imports/ui/services/bbb-webrtc-sfu/broker-base-errors';
 
-const PING_INTERVAL_MS = 15000;
+const WS_HEARTBEAT_OPTS = {
+  interval: 15000,
+  delay: 3000,
+};
 
 class BaseBroker {
   static assembleError(code, reason) {
@@ -21,13 +24,14 @@ class BaseBroker {
     this.sfuComponent = sfuComponent;
     this.ws = null;
     this.webRtcPeer = null;
-    this.pingInterval = null;
+    this.wsHeartbeat = null;
     this.started = false;
     this.signallingTransportOpen = false;
     this.logCodePrefix = `${this.sfuComponent}_broker`;
     this.peerConfiguration = {};
 
     this.onbeforeunload = this.onbeforeunload.bind(this);
+    this._onWSError = this._onWSError.bind(this);
     window.addEventListener('beforeunload', this.onbeforeunload);
   }
 
@@ -63,70 +67,134 @@ class BaseBroker {
     // To be implemented by inheritors
   }
 
+  _onWSMessage(message) {
+    this._updateLastMsgTime();
+    this.onWSMessage(message);
+  }
+
+  onWSMessage(message) {
+    // To be implemented by inheritors
+  }
+
+  _onWSError(error) {
+    let normalizedError;
+
+    logger.error({
+      logCode: `${this.logCodePrefix}_websocket_error`,
+      extraInfo: {
+        errorMessage: error.name || error.message || 'Unknown error',
+        sfuComponent: this.sfuComponent,
+      }
+    }, 'WebSocket connection to SFU failed');
+
+    if (this.signallingTransportOpen) {
+      // 1301: "WEBSOCKET_DISCONNECTED", transport was already open
+      normalizedError = BaseBroker.assembleError(1301);
+    } else {
+      // 1302: "WEBSOCKET_CONNECTION_FAILED", transport errored before establishment
+      normalizedError = BaseBroker.assembleError(1302);
+    }
+
+    this.onerror(normalizedError);
+    return normalizedError;
+  }
+
   openWSConnection () {
     return new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.wsUrl);
 
-      this.ws.onmessage = this.onWSMessage.bind(this);
+      this.ws.onmessage = this._onWSMessage.bind(this);
 
       this.ws.onclose = () => {
         // 1301: "WEBSOCKET_DISCONNECTED",
         this.onerror(BaseBroker.assembleError(1301));
       };
 
-      this.ws.onerror = (error) => {
-        logger.error({
-          logCode: `${this.logCodePrefix}_websocket_error`,
-          extraInfo: {
-            errorMessage: error.name || error.message || 'Unknown error',
-            sfuComponent: this.sfuComponent,
-          }
-        }, 'WebSocket connection to SFU failed');
-
-        if (this.signallingTransportOpen) {
-          // 1301: "WEBSOCKET_DISCONNECTED", transport was already open
-          this.onerror(BaseBroker.assembleError(1301));
-        } else {
-          // 1302: "WEBSOCKET_CONNECTION_FAILED", transport errored before establishment
-          const normalized1302 = BaseBroker.assembleError(1302);
-          this.onerror(normalized1302);
-          return reject(normalized1302);
-        }
-      };
+      this.ws.onerror = (error) => reject(this._onWSError(error));
 
       this.ws.onopen = () => {
-        this.pingInterval = setInterval(this.ping.bind(this), PING_INTERVAL_MS);
+        this.setupWSHeartbeat();
         this.signallingTransportOpen = true;
         return resolve();
       };
     });
   }
 
+  closeWs() {
+    this.clearWSHeartbeat();
+
+    if (this.ws !== null) {
+      this.ws.onclose = function (){};
+      this.ws.close();
+    }
+  }
+
+  _updateLastMsgTime() {
+    this.ws.isAlive = true;
+    this.ws.lastMsgTime = Date.now();
+  }
+
+  _getTimeSinceLastMsg() {
+    return Date.now() - this.ws.lastMsgTime;
+  }
+
+  setupWSHeartbeat() {
+    if (WS_HEARTBEAT_OPTS.interval === 0 || this.ws == null) return;
+
+    this.ws.isAlive = true;
+    this.wsHeartbeat = setInterval(() => {
+      if (this.ws.isAlive === false) {
+        logger.warn({
+          logCode: `${this.logCodePrefix}_ws_heartbeat_failed`,
+        }, `WS heartbeat failed (${this.sfuComponent})`);
+        this.closeWs();
+        this._onWSError(new Error('HeartbeatFailed'));
+        return;
+      }
+
+      if (this._getTimeSinceLastMsg() < (
+        WS_HEARTBEAT_OPTS.interval - WS_HEARTBEAT_OPTS.delay
+      )) {
+        return;
+      }
+
+      this.ws.isAlive = false;
+      this.ping();
+    }, WS_HEARTBEAT_OPTS.interval);
+
+    this.ping();
+  }
+
+  clearWSHeartbeat() {
+    if (this.wsHeartbeat) {
+      clearInterval(this.wsHeartbeat);
+    }
+  }
+
   sendMessage (message) {
     const jsonMessage = JSON.stringify(message);
-    this.ws.send(jsonMessage);
+
+    try {
+      this.ws.send(jsonMessage);
+    } catch (error) {
+      logger.error({
+        logCode: `${this.logCodePrefix}_ws_send_error`,
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          sfuComponent: this.sfuComponent,
+        },
+      }, `Failed to send WebSocket message (${this.sfuComponent})`);
+    }
   }
 
   ping () {
     this.sendMessage({ id: 'ping' });
   }
 
-  _handleRemoteDescriptionProcessing (error, localDescription = null) {
-    if (error) {
-      logger.error({
-        logCode: `${this.logCodePrefix}_processanswer_error`,
-        extraInfo: {
-          errorMessage: error.name || error.message || 'Unknown error',
-          sfuComponent: this.sfuComponent,
-        }
-      }, `Error processing SDP answer from SFU for ${this.sfuComponent}`);
-      // 1305: "PEER_NEGOTIATION_FAILED",
-      return this.onerror(BaseBroker.assembleError(1305));
-    }
-
+  _processRemoteDescription(localDescription = null) {
     // There is a new local description; send it back to the server
     if (localDescription) this.sendLocalDescription(localDescription);
-
     // Mark the peer as negotiated and flush the ICE queue
     this.webRtcPeer.negotiated = true;
     this.processIceQueue();
@@ -151,21 +219,39 @@ class BaseBroker {
     return true;
   }
 
-  processOffer (sfuResponse) {
+  processOffer(sfuResponse) {
     if (this._validateStartResponse(sfuResponse)) {
-      this.webRtcPeer.processOffer(
-        sfuResponse.sdpAnswer,
-        this._handleRemoteDescriptionProcessing.bind(this)
-      );
+      this.webRtcPeer.processOffer(sfuResponse.sdpAnswer)
+        .then(this._processRemoteDescription.bind(this))
+        .catch((error) => {
+          logger.error({
+            logCode: `${this.logCodePrefix}_processoffer_error`,
+            extraInfo: {
+              errorMessage: error.name || error.message || 'Unknown error',
+              sfuComponent: this.sfuComponent,
+            },
+          }, `Error processing offer from SFU for ${this.sfuComponent}`);
+          // 1305: "PEER_NEGOTIATION_FAILED",
+          this.onerror(BaseBroker.assembleError(1305));
+        });
     }
   }
 
-  processAnswer (sfuResponse) {
+  processAnswer(sfuResponse) {
     if (this._validateStartResponse(sfuResponse)) {
-      this.webRtcPeer.processAnswer(
-        sfuResponse.sdpAnswer,
-        this._handleRemoteDescriptionProcessing.bind(this)
-      );
+      this.webRtcPeer.processAnswer(sfuResponse.sdpAnswer)
+        .then(this._processRemoteDescription.bind(this))
+        .catch((error) => {
+          logger.error({
+            logCode: `${this.logCodePrefix}_processanswer_error`,
+            extraInfo: {
+              errorMessage: error.name || error.message || 'Unknown error',
+              sfuComponent: this.sfuComponent,
+            },
+          }, `Error processing answer from SFU for ${this.sfuComponent}`);
+          // 1305: "PEER_NEGOTIATION_FAILED",
+          this.onerror(BaseBroker.assembleError(1305));
+        });
     }
   }
 
@@ -205,22 +291,20 @@ class BaseBroker {
     }
   }
 
-  addIceCandidate (candidate) {
-    this.webRtcPeer.addIceCandidate(candidate, (error) => {
-      if (error) {
-        // Just log the error. We can't be sure if a candidate failure on add is
-        // fatal or not, so that's why we have a timeout set up for negotiations and
-        // listeners for ICE state transitioning to failures, so we won't act on it here
-        logger.error({
-          logCode: `${this.logCodePrefix}_addicecandidate_error`,
-          extraInfo: {
-            errorMessage: error.name || error.message || 'Unknown error',
-            errorCode: error.code || 'Unknown code',
-            sfuComponent: this.sfuComponent,
-            started: this.started,
-          }
-        }, `Adding ICE candidate failed`);
-      }
+  addIceCandidate(candidate) {
+    this.webRtcPeer.addIceCandidate(candidate).catch((error) => {
+      // Just log the error. We can't be sure if a candidate failure on add is
+      // fatal or not, so that's why we have a timeout set up for negotiations and
+      // listeners for ICE state transitioning to failures, so we won't act on it here
+      logger.error({
+        logCode: `${this.logCodePrefix}_addicecandidate_error`,
+        extraInfo: {
+          errorMessage: error.name || error.message || 'Unknown error',
+          errorCode: error.code || 'Unknown code',
+          sfuComponent: this.sfuComponent,
+          started: this.started,
+        },
+      }, 'Adding ICE candidate failed');
     });
   }
 
@@ -263,15 +347,7 @@ class BaseBroker {
       this.webRtcPeer.peerConnection.onconnectionstatechange = null;
     }
 
-    if (this.ws !== null) {
-      this.ws.onclose = function (){};
-      this.ws.close();
-    }
-
-    if (this.pingInterval) {
-      clearInterval(this.pingInterval);
-    }
-
+    this.closeWs();
     this.disposePeer();
     this.started = false;
 

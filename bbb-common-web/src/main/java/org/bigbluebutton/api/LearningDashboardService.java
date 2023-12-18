@@ -48,7 +48,7 @@ public class LearningDashboardService {
             File jsonFile = this.getJsonDataFile(meetingId,learningDashboardAccessToken);
 
             FileOutputStream fileOutput = new FileOutputStream(jsonFile);
-            fileOutput.write(activityJson.getBytes());
+            fileOutput.write(activityJson.getBytes("UTF-8"));
 
             fileOutput.close();
 

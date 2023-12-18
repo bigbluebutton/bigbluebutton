@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs.UserLeaveReqMsg
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.Sender
 
 trait UserLeaveReqMsgHdlr extends HandlerHelpers {
   this: MeetingActor =>
@@ -30,6 +31,7 @@ trait UserLeaveReqMsgHdlr extends HandlerHelpers {
             ru <- RegisteredUsers.findWithUserId(msg.body.userId, liveMeeting.registeredUsers)
           } yield {
             RegisteredUsers.setUserLoggedOutFlag(liveMeeting.registeredUsers, ru)
+            Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, ru.id, ru.sessionToken, "user_loggedout", outGW)
           }
         }
         state

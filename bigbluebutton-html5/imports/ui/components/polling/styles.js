@@ -144,7 +144,7 @@ const QText = styled.div`
   padding-right: ${smPaddingX};
 `;
 
-const PollingContainer = styled.div`
+const PollingContainer = styled.aside`
   pointer-events:auto;
   min-width: ${pollWidth};
   position: absolute;
@@ -160,6 +160,10 @@ const PollingContainer = styled.div`
   background-color: ${colorWhite};
   bottom: ${pollBottomOffset};
   right: ${jumboPaddingX};
+
+  &:focus {
+    border: 1px solid ${colorPrimary};
+  }
 
   [dir="rtl"] & {
     left: ${jumboPaddingX};

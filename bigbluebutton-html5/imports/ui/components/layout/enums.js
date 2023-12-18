@@ -3,6 +3,9 @@ export const LAYOUT_TYPE = {
   SMART_LAYOUT: 'smart',
   PRESENTATION_FOCUS: 'presentationFocus',
   VIDEO_FOCUS: 'videoFocus',
+  CAMERAS_ONLY: 'camerasOnly',
+  PRESENTATION_ONLY: 'presentationOnly',
+  PARTICIPANTS_AND_CHAT_ONLY: 'participantsAndChatOnly',
 };
 
 export const DEVICE_TYPE = {
@@ -23,12 +26,21 @@ export const CAMERADOCK_POSITION = {
   SIDEBAR_CONTENT_BOTTOM: 'sidebarContentBottom',
 };
 
+// list of layouts that are only available through join parameters
+export const HIDDEN_LAYOUTS = [
+  LAYOUT_TYPE.CAMERAS_ONLY,
+  LAYOUT_TYPE.PRESENTATION_ONLY,
+  LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+];
+
 export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
   SET_IS_RTL: 'setIsRTL',
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',
   SET_FONT_SIZE: 'setFontSize',
+
+  SET_FOCUSED_CAMERA_ID: 'focusedId',
 
   SET_LAYOUT_INPUT: 'setLayoutInput',
 
@@ -42,8 +54,10 @@ export const ACTIONS = {
   SET_HAS_BANNER_BAR: 'setHasBannerBar',
   SET_HAS_NOTIFICATIONS_BAR: 'setHasNotificationsBar',
 
+  SET_HAS_NAVBAR: 'setHasNavBar',
   SET_NAVBAR_OUTPUT: 'setNavBarOutput',
 
+  SET_HAS_ACTIONBAR: 'setHasActionBar',
   SET_ACTIONBAR_OUTPUT: 'setActionBarOutput',
 
   SET_SIDEBAR_NAVIGATION_IS_OPEN: 'setSidebarNavigationIsOpen',
@@ -77,7 +91,7 @@ export const ACTIONS = {
   SET_PRESENTATION_IS_OPEN: 'setPresentationIsOpen',
   SET_PRESENTATION_CURRENT_SLIDE_SIZE: 'setPresentationCurrentSlideSize',
   SET_PRESENTATION_NUM_CURRENT_SLIDE: 'setPresentationNumCurrentSlide',
-  SET_PRESENTATION_SLIDES_LENGTH: 'setPresentationSlideslength',
+  SET_PRESENTATION_SLIDES_LENGTH: 'setPresentationSlidesLength',
   SET_PRESENTATION_SIZE: 'setPresentationSize',
   SET_PRESENTATION_OUTPUT: 'setPresentationOutput',
   SET_PRESENTATION_IS_RESIZABLE: 'setPresentationIsResizable',
@@ -92,6 +106,9 @@ export const ACTIONS = {
   SET_HAS_EXTERNAL_VIDEO: 'setHasExternalVideo',
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
   SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
+
+  SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
+  SET_NOTES_IS_PINNED: 'setNotesIsPinned',
 };
 
 export const PANELS = {
@@ -101,6 +118,7 @@ export const PANELS = {
   CAPTIONS: 'captions',
   BREAKOUT: 'breakoutroom',
   SHARED_NOTES: 'shared-notes',
+  TIMER: 'timer',
   WAITING_USERS: 'waiting-users',
   NONE: 'none',
 };

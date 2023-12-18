@@ -24,6 +24,8 @@ const propTypes = {
   hideLabel: PropTypes.bool,
 
   className: PropTypes.string,
+
+  rotate: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -35,6 +37,7 @@ const defaultProps = {
   hideLabel: false,
   onClick: null,
   className: '',
+  rotate: false,
 };
 
 const ButtonEmoji = (props) => {
@@ -42,6 +45,7 @@ const ButtonEmoji = (props) => {
     hideLabel,
     className,
     hidden,
+    rotate,
     ...newProps
   } = props;
 
@@ -52,7 +56,7 @@ const ButtonEmoji = (props) => {
     onClick,
   } = newProps;
 
-  const IconComponent = (<Styled.EmojiButtonIcon iconName={emoji} />);
+  const IconComponent = (<Styled.EmojiButtonIcon iconName={emoji} rotate={rotate} />);
 
   return (
     <span>

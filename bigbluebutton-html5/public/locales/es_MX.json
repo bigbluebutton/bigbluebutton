@@ -212,6 +212,7 @@
     "app.settings.main.save.label.description": "Gurada cambios y cierra el menú de configuración",
     "app.settings.dataSavingTab.label": "Ahorro de datos",
     "app.settings.dataSavingTab.webcam": "Habilitar webcams",
+    "app.settings.dataSavingTab.screenShare": "Habilitar escritorio compartido",
     "app.settings.dataSavingTab.description": "Para ahorrar ancho de banda ajusta lo que se se está mostrando",
     "app.switch.onLabel": "Encendido",
     "app.switch.offLabel": "Apagado",

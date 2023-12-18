@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Pads from '/imports/api/pads';
 import Logger from '/imports/startup/server/logger';
 
-export default function createPad(meetingId, externalId, padId) {
+export default async function createPad(meetingId, externalId, padId) {
   try {
     check(meetingId, String);
     check(externalId, String);
@@ -16,10 +16,11 @@ export default function createPad(meetingId, externalId, padId) {
     const modifier = {
       $set: {
         padId,
+        pinned: false,
       },
     };
 
-    const { insertedId } = Pads.upsert(selector, modifier);
+    const { insertedId } = await Pads.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added pad=${padId} external=${externalId} meeting=${meetingId}`);

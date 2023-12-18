@@ -27,8 +27,35 @@ async function checkIsPresenter(test) {
   }, [e.currentUser, e.userAvatar])
 }
 
+async function checkMutedUsers(test) {
+  await test.wasRemoved(e.muteMicButton);
+  await test.hasElement(e.unmuteMicButton);
+}
+
+async function drawArrow(test) {
+  const modWbLocator = test.getLocator(e.whiteboard);
+  const wbBox = await modWbLocator.boundingBox();
+    
+  await test.waitAndClick(e.wbArrowShape);
+
+  await test.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
+  await test.page.mouse.down();
+  await test.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+  await test.page.mouse.up();
+}
+
+async function timeInSeconds(locator) {
+  const text = await locator.innerText();
+  const [hours, minutes, seconds] = text.split(':').map(Number);
+    const timeInSeconds = hours * 3600 + minutes * 60 + seconds;
+    return timeInSeconds;
+}
+
 exports.setStatus = setStatus;
 exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
 exports.checkAvatarIcon = checkAvatarIcon;
 exports.checkIsPresenter = checkIsPresenter;
+exports.checkMutedUsers = checkMutedUsers;
+exports.drawArrow = drawArrow;
+exports.timeInSeconds = timeInSeconds;

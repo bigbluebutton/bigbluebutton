@@ -2,7 +2,7 @@ import Meetings from '/imports/api/meetings';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default function changeMuteMeeting(meetingId, payload) {
+export default async function changeMuteMeeting(meetingId, payload) {
   check(meetingId, String);
   check(payload, {
     muted: Boolean,
@@ -20,7 +20,7 @@ export default function changeMuteMeeting(meetingId, payload) {
   };
 
   try {
-    const { numberAffected } = Meetings.upsert(selector, modifier);
+    const { numberAffected } = await Meetings.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Changed meeting mute status meeting=${meetingId}`);

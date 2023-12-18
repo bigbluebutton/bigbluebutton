@@ -22,11 +22,19 @@ function HomepageHeader() {
                 <div className={styles['header-right']}>
                     <div className={styles.copy}>
                         <p>
+<<<<<<< HEAD
                             BigBlueButton's mission is to build the most efficient <strong>virtual classroom</strong>.
                         </p>
                         <Link
                             className="button button--install button--lg"
                             to="/administration/install">
+=======
+                            BigBlueButton's mission is to build the most effective <strong>virtual classroom</strong>.
+                        </p>
+                        <Link
+                            className="button button--install button--lg"
+                            to="https://support.bigbluebutton.org/">
+>>>>>>> v2.5.x-release
                             Quick Start Guide
                         </Link>
                     </div>

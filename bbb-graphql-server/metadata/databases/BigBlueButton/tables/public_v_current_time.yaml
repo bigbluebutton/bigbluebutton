@@ -1,0 +1,15 @@
+table:
+  name: v_current_time
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: current_time
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - currentTimestamp
+        - currentTimeMillis
+      filter: {}

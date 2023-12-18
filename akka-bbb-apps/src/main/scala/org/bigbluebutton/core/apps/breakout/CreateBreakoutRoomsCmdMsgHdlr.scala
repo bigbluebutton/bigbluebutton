@@ -1,10 +1,11 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
+import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.db.BreakoutRoomDAO
+import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
 import org.bigbluebutton.core.models.PresentationInPod
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core.running.MeetingActor
 
 trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
@@ -52,7 +53,10 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val (internalId, externalId) = BreakoutRoomsUtil.createMeetingIds(liveMeeting.props.meetingProp.intId, i)
       val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
 
-      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName, room.isDefaultName, room.freeJoin, voiceConf, room.users)
+      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName,
+                                          room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.captureNotes,
+                                          msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename)
+
       rooms = rooms + (breakout.id -> breakout)
     }
 
@@ -66,18 +70,23 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.freeJoin,
         liveMeeting.props.voiceProp.dialNumber,
         breakout.voiceConf,
-        msg.body.durationInMinutes * 60,
+        msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
         presId, presSlide, msg.body.record,
-        liveMeeting.props.breakoutProps.privateChatEnabled
+        liveMeeting.props.breakoutProps.privateChatEnabled,
+        breakout.captureNotes,
+        breakout.captureSlides,
+        breakout.captureNotesFilename,
+        breakout.captureSlidesFilename,
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
       outGW.send(event)
     }
 
-    val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes * 60, rooms)
+    val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes * 60, rooms, msg.body.sendInviteToModerators)
+    BreakoutRoomDAO.insert(breakoutModel, liveMeeting)
     state.update(Some(breakoutModel))
   }
 

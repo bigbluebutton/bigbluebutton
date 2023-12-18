@@ -1,7 +1,8 @@
 [Unit]
 Description=BigBlueButton WebRTC SFU
 Wants=redis-server.service
-After=syslog.target network.target freeswitch.service kurento-media-server.service redis-server.service
+After=syslog.target network.target freeswitch.service bbb-webrtc-recorder.service redis-server.service
+PartOf=bigbluebutton.target
 
 [Service]
 WorkingDirectory=/usr/local/bigbluebutton/bbb-webrtc-sfu
@@ -13,6 +14,11 @@ Group=bigbluebutton
 Environment=NODE_ENV=production
 Environment=NODE_CONFIG_DIR=/etc/bigbluebutton/bbb-webrtc-sfu/:/usr/local/bigbluebutton/bbb-webrtc-sfu/config/
 Environment=ALLOW_CONFIG_MUTATIONS=true
+<<<<<<< HEAD
+=======
+CPUSchedulingPolicy=fifo
+Nice=19
+>>>>>>> v2.5.x-release
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target

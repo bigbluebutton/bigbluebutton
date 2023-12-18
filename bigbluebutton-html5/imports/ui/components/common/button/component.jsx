@@ -11,7 +11,11 @@ const SIZES = [
 ];
 
 const COLORS = [
+<<<<<<< HEAD
   'default', 'primary', 'danger', 'warning', 'success', 'dark', 'light', 'offline', 'muted',
+=======
+  'default', 'primary', 'danger', 'warning', 'success', 'dark', 'light', 'offline', 'muted', 'secondary',
+>>>>>>> v2.5.x-release
 ];
 
 const propTypes = {
@@ -123,6 +127,8 @@ export default class Button extends BaseButton {
       'aria-label': ariaLabel,
       'aria-expanded': ariaExpanded,
       tooltipLabel,
+      tooltipdelay,
+      tooltipplacement,
     } = this.props;
 
     const renderFuncName = circle ? 'renderCircle' : 'renderDefault';
@@ -132,6 +138,8 @@ export default class Button extends BaseButton {
       return (
         <TooltipContainer
           title={tooltipLabel || buttonLabel}
+          delay={tooltipdelay}
+          placement={tooltipplacement}
         >
           {this[renderFuncName]()}
         </TooltipContainer>

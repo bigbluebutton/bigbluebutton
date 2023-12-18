@@ -18,10 +18,14 @@
 */
 package org.bigbluebutton.web.controllers
 
+import groovy.json.JsonBuilder
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.domain.User
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.ParamsProcessorUtil
+import java.nio.charset.StandardCharsets
+
 
 class ConnectionController {
   MeetingService meetingService
@@ -42,6 +46,7 @@ class ConnectionController {
         response.addHeader("User-Id", userSession.internalUserId)
         response.addHeader("Meeting-Id", userSession.meetingID)
         response.addHeader("Voice-Bridge", userSession.voicebridge )
+        response.addHeader("User-Name", URLEncoder.encode(userSession.fullname, StandardCharsets.UTF_8.name()))
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {
@@ -50,6 +55,59 @@ class ConnectionController {
       }
     } catch (IOException e) {
       log.error("Error while authenticating connection.\n" + e.getMessage())
+    }
+  }
+
+  def checkGraphqlAuthorization = {
+    try {
+      if(!request.getHeader("User-Agent").startsWith('hasura-graphql-engine')) {
+        throw new Exception("Invalid User Agent")
+      }
+
+      def sessionToken = request.getHeader("x-session-token")
+
+      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
+
+      response.addHeader("Cache-Control", "no-cache")
+
+      if (userSession != null && !isSessionTokenInvalid) {
+        User u = meetingService.getMeeting(userSession.meetingID).getUserById(userSession.internalUserId)
+
+        response.setStatus(200)
+        withFormat {
+          json {
+            def builder = new JsonBuilder()
+            builder {
+              "response" "authorized"
+              "X-Hasura-Role" u ? "bbb_client" : "pre_join_bbb_client"
+              "X-Hasura-Locked" u && u.locked ? "true" : "false"
+              "X-Hasura-LockedInMeeting" u && u.locked ? userSession.meetingID : ""
+              "X-Hasura-LockedUserId" u && u.locked ? userSession.internalUserId : ""
+              "X-Hasura-ModeratorInMeeting" u && u.isModerator() ? userSession.meetingID : ""
+              "X-Hasura-PresenterInMeeting" u && u.isPresenter() ? userSession.meetingID : ""
+              "X-Hasura-UserId" userSession.internalUserId
+              "X-Hasura-MeetingId" userSession.meetingID
+            }
+            render(contentType: "application/json", text: builder.toPrettyString())
+          }
+        }
+      } else {
+        throw new Exception("Invalid User Session")
+      }
+    } catch (Exception e) {
+      log.error("Error while authenticating graphql connection.\n" + e.getMessage())
+      response.setStatus(401)
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder {
+            "response" "unauthorized"
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
     }
   }
 

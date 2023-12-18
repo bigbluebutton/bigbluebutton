@@ -108,6 +108,10 @@ public:
     basename: '/bbb-01/html5client'
     bbbWebBase: 'https://bbb-01.example.com/bigbluebutton'
     learningDashboardBase: 'https://bbb-01.example.com/learning-dashboard'
+<<<<<<< HEAD
+=======
+    graphqlUrl: wss://bbb-01.example.com/v1/graphql
+>>>>>>> v2.5.x-release
   media:
     stunTurnServersFetchAddress: 'https://bbb-01.example.com/bigbluebutton/api/stuns'
     sip_ws_host: 'bbb-01.example.com'
@@ -179,6 +183,26 @@ Create the file `/etc/bigbluebutton/etherpad.json` with the following content:
 }
 ```
 
+<<<<<<< HEAD
+=======
+Adjust the CORS settings in `/etc/default/bbb-web`:
+
+```shell
+JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.org,https://https://bbb-01.example.com"
+```
+
+Adjust the CORS setting in `/etc/default/bbb-graphql-middleware`:
+
+```shell
+BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT=8378
+# If you are running a cluster proxy setup, you need to configure the Origin of
+# the frontend. See https://docs.bigbluebutton.org/administration/cluster-proxy
+BBB_GRAPHQL_MIDDLEWARE_ORIGIN=bbb-proxy.example.org
+```
+
+Pay attention that this one is without protocol, just the hostname.
+
+>>>>>>> v2.5.x-release
 
 Restart BigBlueButton:
 

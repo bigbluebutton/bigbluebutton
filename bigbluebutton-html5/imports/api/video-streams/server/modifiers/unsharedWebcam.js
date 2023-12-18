@@ -3,7 +3,7 @@ import VideoStreams from '/imports/api/video-streams';
 import { check } from 'meteor/check';
 import { getDeviceId } from '/imports/api/video-streams/server/helpers';
 
-export default function unsharedWebcam(meetingId, userId, stream) {
+export default async function unsharedWebcam(meetingId, userId, stream) {
   check(meetingId, String);
   check(userId, String);
   check(stream, String);
@@ -17,7 +17,7 @@ export default function unsharedWebcam(meetingId, userId, stream) {
   };
 
   try {
-    VideoStreams.remove(selector);
+    await VideoStreams.removeAsync(selector);
 
     Logger.info(`Removed stream=${stream} meeting=${meetingId}`);
   } catch (err) {

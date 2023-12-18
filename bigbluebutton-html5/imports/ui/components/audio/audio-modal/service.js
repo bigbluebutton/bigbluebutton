@@ -1,4 +1,3 @@
-import { showModal } from '/imports/ui/components/common/modal/service';
 import Service from '../service';
 import Storage from '/imports/ui/services/storage/session';
 
@@ -27,7 +26,7 @@ export const joinMicrophone = (skipEchoTest = false) => {
 
   const call = new Promise((resolve, reject) => {
     try {
-      if (skipEchoTest && !Service.isConnected()) {
+      if ((skipEchoTest && !Service.isConnected()) || Service.localEchoEnabled) {
         return resolve(Service.joinMicrophone());
       }
 
@@ -38,7 +37,7 @@ export const joinMicrophone = (skipEchoTest = false) => {
   });
 
   return call.then(() => {
-    showModal(null);
+    document.dispatchEvent(new Event("CLOSE_MODAL_AUDIO"));
   }).catch((error) => {
     throw error;
   });
@@ -55,7 +54,7 @@ export const joinListenOnly = () => {
       // prop transitions to a state where it was handled OR the user opts
       // to close the modal.
       if (!Service.autoplayBlocked()) {
-        showModal(null);
+        document.dispatchEvent(new Event("CLOSE_MODAL_AUDIO"));
       }
       resolve();
     });
@@ -72,11 +71,11 @@ export const leaveEchoTest = () => {
   return Service.exitAudio();
 };
 
-export const closeModal = () => {
+export const closeModal = (callback) => {
   if (Service.isConnecting()) {
     Service.forceExitAudio();
   }
-  showModal(null);
+  callback();
 };
 
 export default {

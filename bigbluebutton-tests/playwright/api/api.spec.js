@@ -3,7 +3,6 @@ const { API } = require('./api.js');
 const { APIBreakout } = require('./breakout.js');
 
 test.describe.parallel('API', () => {
-
   test('getMeetings', async ({ browser, context, page }) => {
     const api = new API(browser, context, page);
     await api.testGetMeetings();
@@ -38,5 +37,4 @@ test.describe.parallel('API', () => {
     await api.joinRoom();
     await api.testBreakoutMeetingInfoOneJoin();
   });
-
 });

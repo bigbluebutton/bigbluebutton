@@ -1,0 +1,18 @@
+table:
+  name: v_poll_option
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: poll_option
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - optionDesc
+        - optionId
+        - pollId
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

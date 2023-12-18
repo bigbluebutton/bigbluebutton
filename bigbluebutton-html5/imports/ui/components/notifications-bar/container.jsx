@@ -2,14 +2,14 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Meetings from '/imports/api/meetings';
-import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
+import MeetingRemainingTime from './meeting-remaining-time/container';
 import Styled from './styles';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
+import { isEmpty } from 'radash';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
@@ -26,7 +26,6 @@ const STATUS_WAITING = 'waiting';
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
 const REMAINING_TIME_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeThreshold;
-const REMAINING_TIME_ALERT_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeAlertThreshold;
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -94,7 +93,7 @@ const NotificationsBarContainer = (props) => {
     }
   }, [message, hasNotification]);
 
-  if (_.isEmpty(message)) {
+  if (isEmpty(message)) {
     return null;
   }
 
@@ -172,21 +171,16 @@ export default injectIntl(withTracker(({ intl }) => {
   const meetingId = Auth.meetingID;
   const breakouts = breakoutService.getBreakouts();
 
-  let msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD === 1 ? 'Singular' : 'Plural'}` };
-
   if (breakouts.length > 0) {
     const currentBreakout = breakouts.find((b) => b.breakoutId === meetingId);
 
     if (currentBreakout) {
       data.message = (
-        <BreakoutRemainingTime
+        <MeetingRemainingTime
           breakoutRoom={currentBreakout}
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
-          alertMessage={
-            intl.formatMessage(msg, { 0: REMAINING_TIME_ALERT_THRESHOLD })
-          }
-          alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
+          displayAlerts={true}
         />
       );
     }
@@ -201,18 +195,13 @@ export default injectIntl(withTracker(({ intl }) => {
     const { isBreakout } = Meeting.meetingProp;
     const underThirtyMin = timeRemaining && timeRemaining <= (REMAINING_TIME_THRESHOLD * 60);
 
-    msg = { id: `${intlMessages.alertMeetingEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD === 1 ? 'Singular' : 'Plural'}` };
-
     if (underThirtyMin && !isBreakout) {
       data.message = (
-        <BreakoutRemainingTime
+        <MeetingRemainingTime
           breakoutRoom={meetingTimeRemaining}
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
-          alertMessage={
-            intl.formatMessage(msg, { 0: REMAINING_TIME_ALERT_THRESHOLD })
-          }
-          alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
+          displayAlerts={true}
         />
       );
     }

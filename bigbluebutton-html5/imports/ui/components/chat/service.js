@@ -1,16 +1,15 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
-import _ from 'lodash';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
 
+const APP = Meteor.settings.public.app;
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
@@ -43,6 +42,22 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
+  download: {
+    id: 'app.presentation.downloadLabel',
+    description: 'used as label for presentation download link',
+  },
+  notAccessibleWarning: {
+    id: 'app.presentationUploader.export.notAccessibleWarning',
+    description: 'used for indicating that a link may be not accessible',
+  },
+  original: {
+    id: 'app.presentationUploader.export.originalLabel',
+    description: 'Label to identify original presentation exported',
+  },
+  withWhiteboardAnnotations: {
+    id: 'app.presentationUploader.export.withWhiteboardAnnotations',
+    description: 'Label to identify in current state presentation exported',
+  },
 });
 
 const setUserSentMessage = (bool) => {
@@ -53,9 +68,6 @@ const setUserSentMessage = (bool) => {
 };
 
 const getUser = (userId) => Users.findOne({ userId });
-
-const getPrivateChatByUsers = (userId) => GroupChat
-  .findOne({ users: { $all: [userId, Auth.userID] } });
 
 const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
   { fields: { welcomeProp: 1 } });
@@ -155,57 +167,16 @@ const isChatLocked = (receiverID) => {
   return false;
 };
 
+const isChatClosed = (chatId) => {
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  return !!currentClosedChats.find(closedChat => closedChat.chatId === chatId);
+};
+
 const lastReadMessageTime = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : receiverID;
 
   return UnreadMessages.get(chatType);
-};
-
-const sendGroupMessage = (message, idChatOpen) => {
-  const chatIdToSent = idChatOpen === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : idChatOpen;
-  const chat = GroupChat.findOne({ chatId: chatIdToSent },
-    { fields: { users: 1 } });
-  const chatID = idChatOpen === PUBLIC_CHAT_ID
-    ? PUBLIC_GROUP_CHAT_ID
-    : chat.users.filter((id) => id !== Auth.userID)[0];
-  const isPublicChat = chatID === PUBLIC_CHAT_ID;
-
-  let destinationChatId = PUBLIC_GROUP_CHAT_ID;
-
-  const { userID: senderUserId } = Auth;
-  const receiverId = { id: chatID };
-
-  if (!isPublicChat) {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, senderUserId] } },
-      { fields: { chatId: 1 } });
-
-    if (privateChat) {
-      const { chatId: privateChatId } = privateChat;
-
-      destinationChatId = privateChatId;
-    }
-  }
-
-  const payload = {
-    correlationId: `${senderUserId}-${Date.now()}`,
-    sender: {
-      id: senderUserId,
-      name: '',
-      role: '',
-    },
-    chatEmphasizedText: CHAT_EMPHASIZE_TEXT,
-    message,
-  };
-
-  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-
-  // Remove the chat that user send messages from the session.
-  if (_.indexOf(currentClosedChats, receiverId.id) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiverId.id));
-  }
-
-  return makeCall('sendGroupChatMsg', destinationChatId, payload);
 };
 
 const getScrollPosition = (receiverID) => {
@@ -231,8 +202,8 @@ const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
 const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
-  if (_.indexOf(currentClosedChats, chatId) < 0) {
-    currentClosedChats.push(chatId);
+  if (!isChatClosed(chatId)) {
+    currentClosedChats.push({ chatId, timestamp: Date.now() });
 
     Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
   }
@@ -242,8 +213,10 @@ const closePrivateChat = (chatId) => {
 const removeFromClosedChatsSession = (idChatOpen) => {
   const chatID = idChatOpen;
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-  if (_.indexOf(currentClosedChats, chatID) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chatID));
+
+  if (isChatClosed(chatID)) {
+    const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chatID);
+    Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
   }
 };
 
@@ -320,20 +293,30 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   });
 };
 
+const getExportedPresentationString = (fileURI, filename, intl, fileStateType) => {
+  const intlFileStateType = fileStateType === 'Original' ? intlMessages.original : intlMessages.withWhiteboardAnnotations;
+  const href = `${APP.bbbWebBase}/${fileURI}`;
+  const warningIcon = '<i class="icon-bbb-warning"></i>';
+  const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
+  const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
+  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${href} type="application/pdf" target="_blank" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
+  const name = `<span>${filename} (${intl.formatMessage(intlFileStateType)})</span>`;
+  return `${name}</br>${link}`;
+};
+
 export default {
   setUserSentMessage,
   mapGroupMessage,
   reduceAndMapGroupMessages,
   reduceAndDontMapGroupMessages,
   getUser,
-  getPrivateChatByUsers,
   getWelcomeProp,
   getScrollPosition,
   lastReadMessageTime,
   isChatLocked,
+  isChatClosed,
   updateScrollPosition,
   updateUnreadMessage,
-  sendGroupMessage,
   closePrivateChat,
   removeFromClosedChatsSession,
   exportChat,
@@ -342,4 +325,5 @@ export default {
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
   removePackagedClassAttribute,
+  getExportedPresentationString,
 };

@@ -2,12 +2,13 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
-import org.bigbluebutton.core.apps.{ ExternalVideoModel }
-import org.bigbluebutton.core.models.{ PresentationPod, UserState, Users2x }
+import org.bigbluebutton.core.apps.ExternalVideoModel
+import org.bigbluebutton.core.models.{ PresentationPod, RegisteredUsers, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.{ requestBroadcastStop }
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
+import org.bigbluebutton.core2.message.senders.Sender
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -79,6 +80,13 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
 
           Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
           broadcastOldPresenterChange(oldPres)
+
+          // Force reconnection with graphql to refresh permissions
+          for {
+            u <- RegisteredUsers.findWithUserId(oldPres.intId, liveMeeting.registeredUsers)
+          } yield {
+            Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, oldPres.intId, u.sessionToken, "role_changed", outGW)
+          }
         }
       }
 
@@ -87,6 +95,13 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       } yield {
         Users2x.makePresenter(liveMeeting.users2x, newPres.intId)
         broadcastNewPresenterChange(newPres)
+
+        // Force reconnection with graphql to refresh permissions
+        for {
+          u <- RegisteredUsers.findWithUserId(newPres.intId, liveMeeting.registeredUsers)
+        } yield {
+          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, newPres.intId, u.sessionToken, "role_changed", outGW)
+        }
       }
     }
   }

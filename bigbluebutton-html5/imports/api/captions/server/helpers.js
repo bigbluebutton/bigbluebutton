@@ -14,12 +14,15 @@ const init = (meetingId) => {
     method: 'get',
     url: LOCALES_URL,
     responseType: 'json',
-  }).then((response) => {
+  }).then(async (response) => {
     const { status } = response;
     if (status !== 200) return;
 
     const locales = response.data;
-    locales.forEach((locale) => createCaptions(meetingId, locale.locale, locale.name));
+    await Promise.all(locales.map(async (locale) => {
+      const caption = await createCaptions(meetingId, locale.locale, locale.name);
+      return caption;
+    }));
   }).catch((error) => Logger.error(`Could not create captions for ${meetingId}: ${error}`));
 };
 

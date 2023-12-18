@@ -90,6 +90,13 @@ object PermissionCheck extends SystemConfiguration {
 
       // send a system message to force disconnection
       Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, reason, outGW)
+
+      // Force reconnection with graphql to refresh permissions
+      for {
+        regUser <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
+      } yield {
+        Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, reason, outGW)
+      }
     } else {
       // TODO: get this object a context so it can use the akka logging system
       println(s"Skipping violation ejection of ${userId} trying to ${reason} in ${meetingId}")

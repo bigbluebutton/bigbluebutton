@@ -6,6 +6,7 @@ import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
 import { layoutDispatch } from '../layout/context';
+import GuestUsersManagementPanelContainer from './waiting-users-graphql/component';
 
 const WaitingContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -13,7 +14,7 @@ const WaitingContainer = (props) => {
   return <WaitingComponent {...{ layoutContextDispatch, ...props }} />;
 };
 
-export default withTracker(() => {
+withTracker(() => {
   const guestUsers = GuestUsers.find({
     meetingId: Auth.meetingID,
     guest: true,
@@ -46,6 +47,9 @@ export default withTracker(() => {
     privateGuestLobbyMessage: Service.getPrivateGuestLobbyMessage,
     setPrivateGuestLobbyMessage: Service.setPrivateGuestLobbyMessage,
     authenticatedGuest,
+    guestPolicyExtraAllowOptions: Meteor.settings.public.app.guestPolicyExtraAllowOptions,
     allowRememberChoice: Service.allowRememberChoice,
   };
 })(WaitingContainer);
+
+export default GuestUsersManagementPanelContainer;

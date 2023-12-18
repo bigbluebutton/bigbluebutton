@@ -1,53 +1,79 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
+import { makeCall } from '/imports/ui/services/api';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
 import Service from './service';
+import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import Auth from '/imports/ui/services/auth';
+import {
+  isDownloadPresentationWithAnnotationsEnabled,
+  isDownloadPresentationOriginalFileEnabled,
+  isDownloadPresentationConvertedToPdfEnabled,
+  isPresentationEnabled,
+} from '/imports/ui/services/features';
+import { useSubscription } from '@apollo/client';
+import {
+  PRESENTATIONS_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const PresentationUploaderContainer = (props) => {
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const userIsPresenter = currentUser.presenter;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+  const userIsPresenter = currentUserData?.presenter;
+
+  const { data: presentationData } = useSubscription(PRESENTATIONS_SUBSCRIPTION);
+  const presentations = presentationData?.pres_presentation || [];
+  const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
+
+  const exportPresentation = (presentationId, fileStateType) => {
+    makeCall('exportPresentation', presentationId, fileStateType);
+  };
 
   return userIsPresenter && (
-    <ErrorBoundary Fallback={() => <FallbackModal />}>
-      <PresentationUploader isPresenter={userIsPresenter} {...props} />
+    <ErrorBoundary Fallback={FallbackModal}>
+      <PresentationUploader
+        isPresenter={userIsPresenter}
+        presentations={presentations}
+        currentPresentation={currentPresentation}
+        exportPresentation={exportPresentation}
+        {...props}
+      />
     </ErrorBoundary>
   );
 };
 
 export default withTracker(() => {
-  const currentPresentations = Service.getPresentations();
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchTogglePresentationDownloadable,
+    dispatchChangePresentationDownloadable,
   } = Service;
+  const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
   return {
-    presentations: currentPresentations,
     fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
-    handleSave: (presentations) => Service.persistPresentationChanges(
-      currentPresentations,
-      presentations,
-      PRESENTATION_CONFIG.uploadEndpoint,
-      'DEFAULT_PRESENTATION_POD',
-    ),
+    allowDownloadOriginal: isDownloadPresentationOriginalFileEnabled(),
+    allowDownloadConverted: isDownloadPresentationConvertedToPdfEnabled(),
+    allowDownloadWithAnnotations: isDownloadPresentationWithAnnotationsEnabled(),
+    handleSave: Service.handleSavePresentation,
+    handleDismissToast: PresUploaderToast.handleDismissToast,
+    renderToastList: Service.renderToastList,
+    renderPresentationItemStatus: PresUploaderToast.renderPresentationItemStatus,
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchTogglePresentationDownloadable,
-    isOpen: Session.get('showUploadPresentationView') || false,
+    dispatchChangePresentationDownloadable,
+    isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
+    externalUploadData: Service.getExternalUploadData(),
+    handleFiledrop: Service.handleFiledrop,
   };
 })(PresentationUploaderContainer);

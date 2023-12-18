@@ -342,55 +342,6 @@
 				}
 			},
 			"response": []
-		},
-		{
-			"name": "setPollXML",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var jsonResponse = xml2Json(pm.response.text());",
-							"",
-							"console.log(jsonResponse)",
-							"",
-							"pm.test(\"Return code is SUCCESS\", function () {",
-							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/{{path}}/setPollXML?meetingID=Demo Meeting&pollXML=<poll><title>Test Poll</title><question>Test Question</question><questionType>Test</questionType><answers><answer>Answer1</answer><answer>Answer2</answer></answers></poll>&checksum=0cc4142338cc45d4f6eacfbcfa2ea9754061e7eb",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"{{path}}",
-						"setPollXML"
-					],
-					"query": [
-						{
-							"key": "meetingID",
-							"value": "Demo Meeting"
-						},
-						{
-							"key": "pollXML",
-							"value": "<poll><title>Test Poll</title><question>Test Question</question><questionType>Test</questionType><answers><answer>Answer1</answer><answer>Answer2</answer></answers></poll>"
-						},
-						{
-							"key": "checksum",
-							"value": "0cc4142338cc45d4f6eacfbcfa2ea9754061e7eb"
-						}
-					]
-				}
-			},
-			"response": []
 		}
 	]
 }

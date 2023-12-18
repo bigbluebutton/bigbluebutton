@@ -7,7 +7,7 @@ import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/component
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
-import { CurrentUser } from '/imports/api/users';
+import Users from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -184,7 +184,7 @@ class JoinHandler extends Component {
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;
 
-    setLogoutURL(response);
+    setLogoutURL(response.logoutUrl);
     logUserInfo();
 
     if (response.returncode !== 'FAILED') {
@@ -195,7 +195,7 @@ class JoinHandler extends Component {
       setModOnlyMessage(response);
 
       Tracker.autorun(async (cd) => {
-        const user = CurrentUser
+        const user = Users
           .findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
         if (user) {
           await setCustomData(response);
@@ -210,13 +210,26 @@ class JoinHandler extends Component {
         },
       }, 'User successfully went through main.joinRouteHandler');
     } else {
-      const e = new Error(response.message);
-      if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
+
+      if(['missingSession','meetingForciblyEnded','notFound'].includes(response.messageKey)) {
+        JoinHandler.setError('410');
+        Session.set('errorMessageDescription', 'meeting_ended');
+      } else if(response.messageKey == "guestDeny") {
+        JoinHandler.setError('401');
+        Session.set('errorMessageDescription', 'guest_deny');
+      } else if(response.messageKey == "maxParticipantsReached") {
+        JoinHandler.setError('401');
+        Session.set('errorMessageDescription', 'max_participants_reason');
+      } else {
+        JoinHandler.setError('401');
+        Session.set('errorMessageDescription', response.message);
+      }
+
       logger.error({
         logCode: 'joinhandler_component_joinroutehandler_error',
         extraInfo: {
           response,
-          error: e,
+          error: new Error(response.message),
         },
       }, 'User faced an error on main.joinRouteHandler.');
     }

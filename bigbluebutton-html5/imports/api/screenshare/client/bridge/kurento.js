@@ -2,14 +2,19 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import BridgeService from './service';
 import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
-import { setSharingScreen, screenShareEndAlert } from '/imports/ui/components/screenshare/service';
+import { setIsSharing, screenShareEndAlert, setOutputDeviceId } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from './errors';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
 const OFFERING = SFU_CONFIG.screenshare.subscriberOffering;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
+const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
+const { screenshare: NETWORK_PRIORITY } = Meteor.settings.public.media.networkPriorities || {};
+const GATHERING_TIMEOUT = Meteor.settings.public.kurento.gatheringTimeout;
 
 const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
@@ -23,7 +28,8 @@ const ERROR_MAP = {
   1302: SCREENSHARING_ERRORS.SIGNALLING_TRANSPORT_CONNECTION_FAILED,
   1305: SCREENSHARING_ERRORS.PEER_NEGOTIATION_FAILED,
   1307: SCREENSHARING_ERRORS.ICE_STATE_FAILED,
-}
+  1310: SCREENSHARING_ERRORS.ENDED_WHILE_STARTING,
+};
 
 const mapErrorCode = (error) => {
   const { errorCode } = error;
@@ -47,6 +53,8 @@ export default class KurentoScreenshareBridge {
     this.reconnecting = false;
     this.reconnectionTimeout;
     this.restartIntervalMs = BridgeService.BASE_MEDIA_TIMEOUT;
+    this.startedOnce = false;
+    this.outputDeviceId = null;
   }
 
   get gdmStream() {
@@ -55,6 +63,11 @@ export default class KurentoScreenshareBridge {
 
   set gdmStream(stream) {
     this._gdmStream = stream;
+  }
+
+  _shouldReconnect() {
+    // Sender/presenter reconnect is *not* implemented yet
+    return this.reconnectionTimeout == null && this.role === RECV_ROLE;
   }
 
   /**
@@ -77,38 +90,6 @@ export default class KurentoScreenshareBridge {
     }
   }
 
-  outboundStreamReconnect() {
-    const currentRestartIntervalMs = this.restartIntervalMs;
-    const stream = this.gdmStream;
-
-    logger.warn({
-      logCode: 'screenshare_presenter_reconnect',
-      extraInfo: {
-        reconnecting: this.reconnecting,
-        role: this.role,
-        bridge: BRIDGE_NAME
-      },
-    }, `Screenshare presenter session is reconnecting`);
-
-    this.stop();
-    this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
-    this.share(stream, this.onerror).then(() => {
-      this.clearReconnectionTimeout();
-    }).catch(error => {
-      // Error handling is a no-op because it will be "handled" in handlePresenterFailure
-      logger.debug({
-        logCode: 'screenshare_reconnect_failed',
-        extraInfo: {
-          errorCode: error.errorCode,
-          errorMessage: error.errorMessage,
-          reconnecting: this.reconnecting,
-          role: this.role,
-          bridge: BRIDGE_NAME
-        },
-      }, 'Screensharing reconnect failed');
-    });
-  }
-
   inboundStreamReconnect() {
     const currentRestartIntervalMs = this.restartIntervalMs;
 
@@ -117,17 +98,17 @@ export default class KurentoScreenshareBridge {
       extraInfo: {
         reconnecting: this.reconnecting,
         role: this.role,
-        bridge: BRIDGE_NAME
+        bridge: BRIDGE_NAME,
       },
-    }, `Screenshare viewer session is reconnecting`);
+    }, 'Screenshare viewer is reconnecting');
 
     // Cleanly stop everything before triggering a reconnect
-    this.stop();
+    this._stop();
     // Create new reconnect interval time
     this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
     this.view(this.hasAudio).then(() => {
       this.clearReconnectionTimeout();
-    }).catch(error => {
+    }).catch((error) => {
       // Error handling is a no-op because it will be "handled" in handleViewerFailure
       logger.debug({
         logCode: 'screenshare_reconnect_failed',
@@ -148,13 +129,19 @@ export default class KurentoScreenshareBridge {
     switch (this.role) {
       case RECV_ROLE:
         return this.inboundStreamReconnect();
+
+      // Sender/presenter reconnect is *not* implemented yet
       case SEND_ROLE:
-        return this.outboundStreamReconnect();
       default:
         this.reconnecting = false;
         logger.error({
-          logCode: 'screenshare_invalid_role'
-        }, 'Screen sharing with invalid role, wont reconnect');
+          logCode: 'screenshare_wont_reconnect',
+          extraInfo: {
+            role: this.broker?.role || this.role,
+            started: !!(this.broker?.started),
+            bridge: BRIDGE_NAME,
+          },
+        }, 'Screen sharing will not reconnect');
         break;
     }
   }
@@ -163,11 +150,16 @@ export default class KurentoScreenshareBridge {
     return this.connectionAttempts > BridgeService.MAX_CONN_ATTEMPTS;
   }
 
-  scheduleReconnect () {
+  scheduleReconnect({
+    overrideTimeout,
+  } = { }) {
     if (this.reconnectionTimeout == null) {
+      let nextRestartInterval = this.restartIntervalMs;
+      if (typeof overrideTimeout === 'number') nextRestartInterval = overrideTimeout;
+
       this.reconnectionTimeout = setTimeout(
         this.handleConnectionTimeoutExpiry.bind(this),
-        this.restartIntervalMs
+        nextRestartInterval,
       );
     }
   }
@@ -209,10 +201,17 @@ export default class KurentoScreenshareBridge {
 
     if (mediaElement && this.broker && this.broker.webRtcPeer) {
       const stream = this.broker.webRtcPeer.getRemoteStream();
+
+      if (this.hasAudio && this.outputDeviceId && typeof this.outputDeviceId === 'string') {
+        setOutputDeviceId(this.outputDeviceId);
+      }
+
       BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, !this.broker.hasAudio);
     }
 
+    this.startedOnce = true;
     this.clearReconnectionTimeout();
+    this.connectionAttempts = 0;
   }
 
   handleBrokerFailure(error) {
@@ -222,36 +221,54 @@ export default class KurentoScreenshareBridge {
     logger.error({
       logCode: 'screenshare_broker_failure',
       extraInfo: {
-        errorCode, errorMessage,
+        errorCode,
+        errorMessage,
         role: this.broker.role,
         started: this.broker.started,
         reconnecting: this.reconnecting,
-        bridge: BRIDGE_NAME
+        bridge: BRIDGE_NAME,
       },
     }, `Screenshare broker failure: ${errorMessage}`);
 
+    notifyStreamStateChange('screenshare', 'failed');
     // Screensharing was already successfully negotiated and error occurred during
     // during call; schedule a reconnect
-    // If the session has not yet started, a reconnect should already be scheduled
-    if (this.broker.started) {
-      this.scheduleReconnect();
+    if (this._shouldReconnect()) {
+      // this.broker.started => whether the reconnect should happen immediately.
+      // If this session previously established connection (N-sessions back)
+      // and it failed abruptly, then the timeout is overridden to a intermediate value
+      // (BASE_RECONNECTION_TIMEOUT)
+      let overrideTimeout;
+      if (this.broker?.started) {
+        overrideTimeout = 0;
+      } else if (this.startedOnce) {
+        overrideTimeout = BridgeService.BASE_RECONNECTION_TIMEOUT;
+      }
+
+      this.scheduleReconnect({ overrideTimeout });
     }
 
     return error;
   }
 
-  async view(hasAudio = false) {
-    this.hasAudio = hasAudio;
+  async view(options = {
+    hasAudio: false,
+    outputDeviceId: null,
+  }) {
+    this.hasAudio = options.hasAudio;
+    this.outputDeviceId = options.outputDeviceId;
     this.role = RECV_ROLE;
     const iceServers = await BridgeService.getIceServers(Auth.sessionToken);
-    const options = {
+    const brokerOptions = {
       iceServers,
       userName: Auth.fullname,
-      hasAudio,
+      hasAudio: options.hasAudio,
       offering: OFFERING,
       mediaServer: BridgeService.getMediaServerAdapter(),
       signalCandidates: SIGNAL_CANDIDATES,
       forceRelay: shouldForceRelay(),
+      traceLogs: TRACE_LOGS,
+      gatheringTimeout: GATHERING_TIMEOUT,
     };
 
     this.broker = new ScreenshareBroker(
@@ -260,13 +277,14 @@ export default class KurentoScreenshareBridge {
       Auth.userID,
       Auth.meetingID,
       this.role,
-      options,
+      brokerOptions,
     );
 
     this.broker.onstart = this.handleViewerStart.bind(this);
     this.broker.onerror = this.handleBrokerFailure.bind(this);
-    this.broker.onended = this.handleEnded.bind(this);
-
+    if (!this.reconnecting) {
+      this.broker.onended = this.handleEnded.bind(this);
+    }
     return this.broker.view().finally(this.scheduleReconnect.bind(this));
   }
 
@@ -275,6 +293,7 @@ export default class KurentoScreenshareBridge {
       logCode: 'screenshare_presenter_start_success',
     }, 'Screenshare presenter started succesfully');
     this.clearReconnectionTimeout();
+    this.startedOnce = true;
     this.reconnecting = false;
     this.connectionAttempts = 0;
   }
@@ -283,7 +302,7 @@ export default class KurentoScreenshareBridge {
     screenShareEndAlert();
   }
 
-  share(stream, onFailure) {
+  share(stream, onFailure, contentType) {
     return new Promise(async (resolve, reject) => {
       this.onerror = onFailure;
       this.connectionAttempts += 1;
@@ -293,12 +312,17 @@ export default class KurentoScreenshareBridge {
 
       const onerror = (error) => {
         const normalizedError = this.handleBrokerFailure(error);
-        if (this.maxConnectionAttemptsReached()) {
-          this.clearReconnectionTimeout();
-          this.connectionAttempts = 0;
-          onFailure(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
-
-          return reject(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
+        if (!this.broker.started) {
+        // Broker hasn't started - if there are retries left, try again.
+          if (this.maxConnectionAttemptsReached()) {
+            this.clearReconnectionTimeout();
+            this.connectionAttempts = 0;
+            onFailure(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
+            reject(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
+          }
+        } else if (!this._shouldReconnect()) {
+          // Broker has started - should reconnect? If it shouldn't, end it.
+          onFailure(normalizedError);
         }
       };
 
@@ -308,11 +332,15 @@ export default class KurentoScreenshareBridge {
         userName: Auth.fullname,
         stream,
         hasAudio: this.hasAudio,
+        contentType: contentType,
         bitrate: BridgeService.BASE_BITRATE,
         offering: true,
         mediaServer: BridgeService.getMediaServerAdapter(),
         signalCandidates: SIGNAL_CANDIDATES,
         forceRelay: shouldForceRelay(),
+        traceLogs: TRACE_LOGS,
+        networkPriority: NETWORK_PRIORITY,
+        gatheringTimeout: GATHERING_TIMEOUT,
       };
 
       this.broker = new ScreenshareBroker(
@@ -330,15 +358,17 @@ export default class KurentoScreenshareBridge {
       this.broker.onended = this.handleEnded.bind(this);
 
       this.broker.share().then(() => {
-          this.scheduleReconnect();
-          return resolve();
-        }).catch(reject);
+        this.scheduleReconnect();
+        return resolve();
+      }).catch((error) => reject(mapErrorCode(error)));
     });
-  };
+  }
 
-  stop() {
-    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
-
+  // This is a reconnect-safe internal method. Should be used when one wants
+  // to clear the internal components (ie broker, connection timeouts) without
+  // affecting externally controlled components (ie gDM stream,
+  // media tag, connectionAttempts, ...)
+  _stop() {
     if (this.broker) {
       this.broker.stop();
       // Checks if this session is a sharer and if it's not reconnecting
@@ -346,17 +376,30 @@ export default class KurentoScreenshareBridge {
       // component tracker to be extra sure we won't have any client-side state
       // inconsistency - prlanzarin
       if (this.broker && this.broker.role === SEND_ROLE && !this.reconnecting) {
-        setSharingScreen(false);
+        setIsSharing(false);
       }
       this.broker = null;
     }
+
+    this.clearReconnectionTimeout();
+  }
+
+  stop() {
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+
+    this._stop();
+    this.connectionAttempts = 0;
 
     if (mediaElement && typeof mediaElement.pause === 'function') {
       mediaElement.pause();
       mediaElement.srcObject = null;
     }
 
-    this.gdmStream = null;
-    this.clearReconnectionTimeout();
+    if (this.gdmStream) {
+      MediaStreamUtils.stopMediaStreamTracks(this.gdmStream);
+      this.gdmStream = null;
+    }
+
+    this.outputDeviceId = null;
   }
 }

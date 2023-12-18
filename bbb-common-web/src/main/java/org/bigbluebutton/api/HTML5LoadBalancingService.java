@@ -47,8 +47,8 @@ public class HTML5LoadBalancingService {
 
     // Find nodejs processes associated with processing meeting events
     // $ ps -u meteor -o pcpu,cmd= | grep NODEJS_BACKEND_INSTANCE_ID
-    // 1.1 /usr/share/node-v12.16.1-linux-x64/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=1
-    // 1.0 /usr/share/node-v12.16.1-linux-x64/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=2
+    // 1.1 /usr/lib/bbb-html5/node/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=1
+    // 1.0 /usr/lib/bbb-html5/node/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=2
     public void scanHTML5processes() {
         try {
             this.list = new ArrayList<HTML5ProcessLine>();

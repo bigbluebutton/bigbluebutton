@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
-import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';
+import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/component';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   label: {
@@ -19,6 +19,13 @@ const intlMessages = defineMessages({
 });
 
 class ConnectionStatusButton extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isModalOpen: false,
+    }
+  }
+
   renderIcon(level = 'normal') {
     return(
       <Styled.IconWrapper>
@@ -30,11 +37,32 @@ class ConnectionStatusButton extends PureComponent {
     );
   }
 
+  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
+
+  renderModal(isModalOpen) {
+    const {
+      connectionData,
+    } = this.props;
+
+    return (
+      isModalOpen ?
+      <ConnectionStatusModalComponent
+        {...{
+          isModalOpen,
+          setModalIsOpen: this.setModalIsOpen,
+          connectionData,
+        }}
+      /> : null
+    )
+  }
+
   render() {
     const {
       intl,
       connected,
     } = this.props;
+    const { isModalOpen } = this.state;
+
 
     if (!connected) {
       return (
@@ -51,17 +79,23 @@ class ConnectionStatusButton extends PureComponent {
             onClick={() => {}}
             data-test="connectionStatusButton"
           />
+          {this.renderModal(isModalOpen)}
         </Styled.ButtonWrapper>
       );
     }
 
     const {
-      stats,
-      mountModal,
+      connectionData,
     } = this.props;
 
+    const ownConnectionData = connectionData.filter((curr) => curr.user.userId === Auth.userID);
+
+    const currentStatus = ownConnectionData && ownConnectionData.length > 0
+      ? ownConnectionData[0].currentStatus
+      : 'normal';
+
     let color;
-    switch (stats) {
+    switch (currentStatus) {
       case 'warning':
         color = 'success';
         break;
@@ -77,24 +111,23 @@ class ConnectionStatusButton extends PureComponent {
         color = 'success';
     }
 
-    const level = stats ? stats : 'normal';
-
     return (
       <Styled.ButtonWrapper>
         <Button
-          customIcon={this.renderIcon(level)}
+          customIcon={this.renderIcon(currentStatus)}
           label={intl.formatMessage(intlMessages.label)}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.description)}
           size="sm"
           color={color}
           circle
-          onClick={() => mountModal(<ConnectionStatusModalContainer />)}
+          onClick={() => this.setState({isModalOpen: true})}
           data-test="connectionStatusButton"
         />
+        {this.renderModal(isModalOpen)}
       </Styled.ButtonWrapper>
     );
   }
 }
 
-export default injectIntl(withModalMounter(ConnectionStatusButton));
+export default injectIntl(ConnectionStatusButton);

@@ -1,20 +1,22 @@
 import { useEffect, useRef } from 'react';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { 
   layoutDispatch,
   layoutSelect,
   layoutSelectInput,
-  layoutSelectOutput
+  layoutSelectOutput,
 } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { defaultsDeep } from '/imports/utils/array-utils';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const VideoFocusLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -32,6 +34,10 @@ const VideoFocusLayout = (props) => {
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
+  const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const screenShareInput = layoutSelectInput((i) => i.screenShare);
+  const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
+
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
@@ -43,8 +49,10 @@ const VideoFocusLayout = (props) => {
 
   const prevDeviceType = usePrevious(deviceType);
 
-  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
-    50, { trailing: true, leading: true });
+  const throttledCalculatesLayout = throttle(() => calculatesLayout(), 50, {
+    trailing: true,
+    leading: true,
+  });
 
   useEffect(() => {
     window.addEventListener('resize', () => {
@@ -59,7 +67,7 @@ const VideoFocusLayout = (props) => {
   }, []);
 
   useEffect(() => {
-    if (deviceType === null) return;
+    if (deviceType === null) return () => null;
 
     if (deviceType !== prevDeviceType) {
       // reset layout if deviceType changed
@@ -71,53 +79,15 @@ const VideoFocusLayout = (props) => {
   }, [input, deviceType, isRTL, fontSize, fullscreen]);
 
   const init = () => {
+    const { sidebarContentPanel } = sidebarContentInput;
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep(
+        value: defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen: false,
-              sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
-            },
-            sidebarContent: {
-              isOpen: false,
-              sidebarContentPanel: sidebarContentInput.sidebarContentPanel,
-            },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
-            presentation: {
-              isOpen: presentationInput.isOpen,
-              slidesLength: presentationInput.slidesLength,
-              currentSlide: {
-                ...presentationInput.currentSlide,
-              },
-            },
-            cameraDock: {
-              numCameras: cameraDockInput.numCameras,
-            },
-            externalVideo: {
-              hasExternalVideo: input.externalVideo.hasExternalVideo,
-            },
-            screenShare: {
-              hasScreenShare: input.screenShare.hasScreenShare,
-              width: input.screenShare.width,
-              height: input.screenShare.height,
-            },
-          },
-          INITIAL_INPUT_STATE,
-        ),
-      });
-    } else {
-      const { sidebarContentPanel } = sidebarContentInput;
-
-      layoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep(
-          {
-            sidebarNavigation: {
-              isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen:
+                input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
             },
             sidebarContent: {
               isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -141,25 +111,76 @@ const VideoFocusLayout = (props) => {
             },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
+              width: input.screenShare.width,
+              height: input.screenShare.height,
             },
           },
-          INITIAL_INPUT_STATE,
+          INITIAL_INPUT_STATE
+        ),
+      });
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_INPUT,
+        value: defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen:
+                input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+            },
+            sidebarContent: {
+              isOpen: sidebarContentPanel !== PANELS.NONE,
+              sidebarContentPanel,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: presentationInput.isOpen,
+              slidesLength: presentationInput.slidesLength,
+              currentSlide: {
+                ...presentationInput.currentSlide,
+              },
+            },
+            cameraDock: {
+              numCameras: cameraDockInput.numCameras,
+            },
+            externalVideo: {
+              hasExternalVideo: input.externalVideo.hasExternalVideo,
+            },
+            screenShare: {
+              hasScreenShare: input.screenShare.hasScreenShare,
+              width: input.screenShare.width,
+              height: input.screenShare.height,
+            },
+          },
+          INITIAL_INPUT_STATE
         ),
       });
     }
+    Session.set('layoutReady', true);
     throttledCalculatesLayout();
   };
 
   const calculatesSidebarContentHeight = () => {
+    const { isOpen, slidesLength } = presentationInput;
+    const { hasExternalVideo } = externalVideoInput;
+    const { hasScreenShare } = screenShareInput;
+    const { isPinned: isSharedNotesPinned } = sharedNotesInput;
+
+    const navBarHeight = calculatesNavbarHeight();
+    const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
+    const isGeneralMediaOff =
+      !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+
     let minHeight = 0;
     let height = 0;
     let maxHeight = 0;
     if (sidebarContentInput.isOpen) {
       if (isMobile) {
-        height = windowHeight() - DEFAULT_VALUES.navBarHeight - bannerAreaHeight();
+        height = windowHeight() - navBarHeight - bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
-      } else if (cameraDockInput.numCameras > 0 && presentationInput.isOpen) {
+      } else if (isOpen && !isGeneralMediaOff) {
         if (sidebarContentInput.height > 0 && sidebarContentInput.height < windowHeight()) {
           height = sidebarContentInput.height - bannerAreaHeight();
         } else {
@@ -200,7 +221,7 @@ const VideoFocusLayout = (props) => {
       return baseBounds;
     }
 
-    const { navBarHeight } = DEFAULT_VALUES;
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
@@ -233,13 +254,16 @@ const VideoFocusLayout = (props) => {
     cameraDockBounds,
     sidebarNavWidth,
     sidebarContentWidth,
-    sidebarContentHeight,
+    sidebarContentHeight
   ) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
+    if (
+      fullscreenElement === 'Presentation' ||
+      fullscreenElement === 'Screenshare' ||
+      fullscreenElement === 'ExternalVideo'
+    ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
@@ -254,7 +278,7 @@ const VideoFocusLayout = (props) => {
       mediaBounds.left = mediaAreaBounds.left;
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
-    } else if (cameraDockInput.numCameras > 0 && presentationInput.isOpen) {
+    } else if (presentationInput.isOpen) {
       mediaBounds.height = windowHeight() - sidebarContentHeight - bannerAreaHeight();
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
@@ -266,13 +290,6 @@ const VideoFocusLayout = (props) => {
       mediaBounds.height = 0;
       mediaBounds.top = 0;
       mediaBounds.left = 0;
-    } else {
-      mediaBounds.height = mediaAreaBounds.height;
-      mediaBounds.width = mediaAreaBounds.width;
-      mediaBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
-      mediaBounds.left = !isRTL ? mediaAreaBounds.left : null;
-      mediaBounds.right = isRTL ? sidebarSize : null;
-      mediaBounds.zIndex = 1;
     }
 
     return mediaBounds;
@@ -298,7 +315,8 @@ const VideoFocusLayout = (props) => {
     const sidebarNavBounds = calculatesSidebarNavBounds();
     const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
     const mediaAreaBounds = calculatesMediaAreaBounds(
-      sidebarNavWidth.width, sidebarContentWidth.width,
+      sidebarNavWidth.width,
+      sidebarContentWidth.width
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
@@ -310,9 +328,8 @@ const VideoFocusLayout = (props) => {
       cameraDockBounds,
       sidebarNavWidth.width,
       sidebarContentWidth.width,
-      sidebarContentHeight.height,
+      sidebarContentHeight.height
     );
-    const isBottomResizable = cameraDockInput.numCameras > 0;
 
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -345,9 +362,9 @@ const VideoFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_CAPTIONS_OUTPUT,
       value: {
-        left: !isRTL ? (sidebarSize + captionsMargin) : null,
-        right: isRTL ? (sidebarSize + captionsMargin) : null,
-        maxWidth: mediaAreaBounds.width - (captionsMargin * 2),
+        left: !isRTL ? sidebarSize + captionsMargin : null,
+        right: isRTL ? sidebarSize + captionsMargin : null,
+        maxWidth: mediaAreaBounds.width - captionsMargin * 2,
       },
     });
 
@@ -403,7 +420,7 @@ const VideoFocusLayout = (props) => {
       value: {
         top: false,
         right: !isRTL,
-        bottom: isBottomResizable,
+        bottom: true,
         left: isRTL,
       },
     });
@@ -419,7 +436,7 @@ const VideoFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
-        display: cameraDockInput.numCameras > 0,
+        display: true,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,
@@ -438,6 +455,7 @@ const VideoFocusLayout = (props) => {
           left: false,
         },
         zIndex: cameraDockBounds.zIndex,
+        focusedId: input.cameraDock.focusedId,
       },
     });
 
@@ -480,6 +498,17 @@ const VideoFocusLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: isRTL ? mediaBounds.right : null,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         width: mediaBounds.width,
         height: mediaBounds.height,

@@ -5,12 +5,14 @@ import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
 import Styled from './styles';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import { notify } from '/imports/ui/services/notification';
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  rev: PropTypes.number.isRequired,
+  isPinned: PropTypes.bool.isRequired,
+  sidebarContentPanel: PropTypes.string.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -18,9 +20,17 @@ const intlMessages = defineMessages({
     id: 'app.userList.notesTitle',
     description: 'Title for the notes list',
   },
+  pinnedNotification: {
+    id: 'app.notes.pinnedNotification',
+    description: 'Notification text for pinned shared notes',
+  },
   sharedNotes: {
     id: 'app.notes.title',
     description: 'Title for the shared notes',
+  },
+  sharedNotesPinned: {
+    id: 'app.notes.titlePinned',
+    description: 'Title for the shared notes pinned',
   },
   unreadContent: {
     id: 'app.userList.notesListItem.unreadContent',
@@ -34,6 +44,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.byModerator',
     description: '',
   },
+  disabled: {
+    id: 'app.notes.disabled',
+    description: 'Aria description for disabled notes button',
+  },
 });
 
 class UserNotes extends Component {
@@ -42,35 +56,59 @@ class UserNotes extends Component {
 
     this.state = {
       unread: false,
+      pinWasNotified: false,
     };
     this.setUnread = this.setUnread.bind(this);
+    this.showTitleAlert = this.showTitleAlert.bind(this);
   }
 
   componentDidMount() {
-    const {
-      rev,
-    } = this.props;
-
-    const lastRev = NotesService.getLastRev();
-
-    if (rev !== 0 && rev > lastRev) this.setUnread(true);
+    this.setUnread(NotesService.hasUnreadNotes());
   }
 
   componentDidUpdate(prevProps) {
-    const { sidebarContentPanel, rev } = this.props;
+    const { sidebarContentPanel, isPinned } = this.props;
     const { unread } = this.state;
 
-    if (sidebarContentPanel !== PANELS.SHARED_NOTES && !unread) {
-      if (prevProps.rev !== rev) this.setUnread(true);
+    this.showTitleAlert();
+
+    const notesOpen = sidebarContentPanel === PANELS.SHARED_NOTES && !isPinned;
+    const notesClosed = (prevProps.sidebarContentPanel === PANELS.SHARED_NOTES
+                        && sidebarContentPanel !== PANELS.SHARED_NOTES)
+                        || (prevProps.isPinned && !isPinned);
+
+    if (notesOpen && unread) {
+      NotesService.markNotesAsRead();
+      this.setUnread(false);
+    } else if (!unread && NotesService.hasUnreadNotes()) {
+      this.setUnread(true);
     }
 
-    if (sidebarContentPanel === PANELS.SHARED_NOTES && unread) {
+    if (notesClosed) {
+      NotesService.markNotesAsRead();
       this.setUnread(false);
+    }
+    if (prevProps.isPinned && !isPinned) {
+      this.setState({ pinWasNotified: false });
     }
   }
 
   setUnread(unread) {
     this.setState({ unread });
+  }
+
+  showTitleAlert() {
+    const {
+      intl,
+      isPinned,
+    } = this.props;
+    const { pinWasNotified } = this.state;
+    if (isPinned && !pinWasNotified) {
+      notify(intl.formatMessage(intlMessages.pinnedNotification), 'info', 'copy', { pauseOnFocusLoss: false });
+      this.setState({
+        pinWasNotified: true,
+      });
+    }
   }
 
   renderNotes() {
@@ -79,11 +117,12 @@ class UserNotes extends Component {
       disableNotes,
       sidebarContentPanel,
       layoutContextDispatch,
+      isPinned,
     } = this.props;
     const { unread } = this.state;
 
     let notification = null;
-    if (unread) {
+    if (unread && !isPinned) {
       notification = (
         <Styled.UnreadMessages aria-label={intl.formatMessage(intlMessages.unreadContent)}>
           <Styled.UnreadMessagesText aria-hidden="true">
@@ -93,19 +132,28 @@ class UserNotes extends Component {
       );
     }
 
+    const showTitle = isPinned ? intl.formatMessage(intlMessages.sharedNotesPinned)
+      : intl.formatMessage(intlMessages.sharedNotes);
     return (
       <Styled.ListItem
-        aria-label={intl.formatMessage(intlMessages.sharedNotes)}
+        aria-label={showTitle}
         aria-describedby="lockedNotes"
         role="button"
         tabIndex={0}
         onClick={() => NotesService.toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
-        onKeyPress={() => { }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            NotesService.toggleNotesPanel(sidebarContentPanel, layoutContextDispatch);
+          }
+        }}
+        as={isPinned ? 'button' : 'div'}
+        disabled={isPinned}
+        $disabled={isPinned}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
           <Styled.NotesTitle data-test="sharedNotes">
-            {intl.formatMessage(intlMessages.sharedNotes)}
+            { showTitle }
           </Styled.NotesTitle>
           {disableNotes
             ? (
@@ -113,6 +161,10 @@ class UserNotes extends Component {
                 <Icon iconName="lock" />
                 <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </Styled.NotesLock>
+            ) : null}
+          {isPinned
+            ? (
+              <span className="sr-only">{`${intl.formatMessage(intlMessages.disabled)}`}</span>
             ) : null}
         </div>
         {notification}

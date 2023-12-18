@@ -38,8 +38,11 @@ Major features in this release include:
 
 * **Increased engagement** - The presenter can now share YouTube videos live in the session.
 
+<<<<<<< HEAD
 This release is under active development: see [BigBlueButton 2.2 Project Board](https://github.com/bigbluebutton/bigbluebutton/projects/administration/install).
 
+=======
+>>>>>>> v2.5.x-release
 ## Release 2.0
 
 Released: March 28, 2019 ([Installation Instructions](/administration/install))

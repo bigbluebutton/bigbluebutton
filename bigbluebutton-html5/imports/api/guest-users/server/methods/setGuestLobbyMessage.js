@@ -16,7 +16,10 @@ export default function setGuestLobbyMessage(message) {
 
     check(meetingId, String);
     check(requesterUserId, String);
+<<<<<<< HEAD
 
+=======
+>>>>>>> v2.5.x-release
     const payload = { message: parseMessage(message) };
 
     Logger.info(`User=${requesterUserId} set guest lobby message to ${message}`);

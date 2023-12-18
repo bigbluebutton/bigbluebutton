@@ -7,18 +7,13 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 
-DIRS="/usr/share/bbb-libreoffice /lib/systemd/system /usr/share/bbb-libreoffice-conversion"
+DIRS="/usr/share/bbb-libreoffice /usr/share/bbb-libreoffice-conversion"
 for dir in $DIRS; do
   mkdir -p staging$dir
   DIRECTORIES="$DIRECTORIES --directories $dir"
 done
 
 ##
-
-# Older version
-#cp assets/bbb-libreoffice.service  staging/lib/systemd/system/bbb-libreoffice@.service
-#cp assets/libreoffice_container.sh staging/usr/share/bbb-libreoffice
-#chmod 700 staging/usr/share/bbb-libreoffice/libreoffice_container.sh
 
 if [ $DISTRO != "amzn2" ]; then 
   mkdir -p staging/etc/sudoers.d

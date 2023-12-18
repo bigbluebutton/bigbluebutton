@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.core.api.BreakoutRoomEndedInternalMsg
+import org.bigbluebutton.core.db.BreakoutRoomDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
@@ -27,6 +28,17 @@ trait BreakoutRoomEndedInternalMsgHdlr {
       case Some(model) =>
         if (model.rooms.isEmpty) {
           // All breakout rooms have ended
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "rooms",
+            "app.toast.breakoutRoomEnded",
+            "Message when the breakout room is ended",
+            Vector()
+          )
+          outGW.send(notifyEvent)
+
+          BreakoutRoomDAO.updateRoomsEnded(liveMeeting.props.meetingProp.intId)
           state.update(None)
         } else {
           state.update(Some(model))

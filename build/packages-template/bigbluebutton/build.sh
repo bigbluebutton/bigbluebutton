@@ -16,6 +16,7 @@ fi
 PKGS="bbb-apps-akka
 bbb-config
 bbb-etherpad
+bbb-export-annotations
 bbb-freeswitch-core
 bbb-freeswitch-sounds
 bbb-fsesl-akka
@@ -28,7 +29,8 @@ bbb-playback
 bbb-playback-presentation
 bbb-record-core
 bbb-web
-bbb-webrtc-sfu"
+bbb-webrtc-sfu
+bbb-webrtc-recorder"
 
 DEPENDENCIES=$(
   for PKG in $PKGS; do

@@ -12,24 +12,36 @@ import {
   colorWhite,
   colorPrimary,
   colorBlueLight,
+  colorBlueLightest,
+  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   borderRadius,
   borderSize,
   lgPaddingX,
+  lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const BoxContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-gap: 1.6rem 1rem;
   box-sizing: border-box;
   padding-bottom: 1rem;
 `;
 
+const ContentContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-template-areas: "sidebar content";
+  grid-gap: 1.5rem;
+`;
+
 const Alert = styled.div`
-  ${({ valid }) => !valid && `
+  grid-area: sidebar;
+  margin-bottom: 2.5rem;
+  ${({ valid }) => valid === false && `
     position: relative;
 
     & > * {
@@ -37,13 +49,6 @@ const Alert = styled.div`
       color: ${colorDanger};
     }
   `}
-
-  grid-row: span 3;
-
-  & > div {
-    height: 25.2rem;
-    max-height: 25.2rem;
-  }
 `;
 
 const FreeJoinLabel = styled.label`
@@ -52,7 +57,7 @@ const FreeJoinLabel = styled.label`
   display: flex;
   align-items: center;
   font-size: ${fontSizeSmall};
-  margin-bottom: 0;
+  margin-bottom: 0.2rem;
 
   & > * {
     margin: 0 .5rem 0 0;
@@ -65,22 +70,32 @@ const FreeJoinLabel = styled.label`
 
 const BreakoutNameInput = styled.input`
   width: 100%;
-  text-align: left;
-  font-weight: normal;
-  padding: .25rem;
+  text-align: center;
+  font-weight: 600;
+  padding: .25rem .25rem .25rem 0;
   margin: 0;
   &::placeholder {
     color: ${colorGray};
     opacity: 1;
   }
+  border: 1px solid ${colorGrayLightest};
+  margin-bottom: 1rem;
+
+  ${({ readOnly }) => readOnly && `
+    cursor: default;
+  `}
 `;
 
 const BreakoutBox = styled(ScrollboxVertical)`
   width: 100%;
-  min-height: 6rem;
-  max-height: 8rem;
-  border: 1px solid ${colorGrayLighter};
-  border-radius: ${borderRadius}; 
+  height: 10rem;
+  border: 1px solid ${colorGrayLightest};
+  border-radius: ${borderRadius};
+  padding: ${lgPaddingY} 0;
+
+  ${({ hundred }) => hundred && `
+  height: 100%;
+  `}
 `;
 
 const SpanWarn = styled.span`
@@ -110,9 +125,9 @@ const RoomName = styled(BreakoutNameInput)`
 
 const BreakoutSettings = styled.div`
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr; 
+  grid-template-columns: 1fr 1fr 2fr;
   grid-template-rows: 1fr;
-  grid-gap: 1rem;
+  grid-gap: 2rem;
 
   @media ${smallOnly} {
     grid-template-columns: 1fr ;
@@ -159,6 +174,11 @@ const LabelText = styled.p`
   color: ${colorGray};
   white-space: nowrap;
   margin-bottom: .5rem;
+
+  ${({ bold }) => bold && `
+  font-weight: bold;
+  font-size: 1.5rem;
+  `}
 `;
 
 const DurationArea = styled.div`
@@ -172,13 +192,13 @@ const DurationInput = styled.input`
   color: ${colorGray};
   border: 1px solid ${colorGrayLighter};
   border-radius: ${borderRadius};
-  width: 50%;
-  text-align: center;
+  width: 100%;
+  text-align: left;
   padding: .25rem;
+  
 
   &::placeholder {
     color: ${colorGray};
-    opacity: 1;
   }
 `;
 
@@ -196,21 +216,35 @@ const HoldButtonWrapper = styled(HoldButton)`
 `;
 
 const AssignBtnsContainer = styled.div`
+  justify-items: center;
+  display: flex;
+  flex-flow: row;
+  align-items: baseline;
   margin-top: auto;
 `;
 
 const AssignBtns = styled(Button)`
-  color: ${colorPrimary};
+  color: ${colorDanger};
   font-size: ${fontSizeSmall};
   white-space: nowrap;
-  margin: 3px auto;
-  align-self: flex-end;
-  width: 100%;
+  margin-bottom: 0.5rem;
+
+  ${({ random }) => random && `
+  color: ${colorPrimary};
+  `}
 `;
 
 const CheckBoxesContainer = styled(FlexRow)`
-  margin-top: 2rem;
-  margin-bottom: 0.25rem;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-end; 
+`;
+
+const Separator = styled.div`
+  width: 100%;
+  height: 1px;
+  margin: 1rem 0;
+  border: 1px solid ${colorGrayLightest};
 `;
 
 const FreeJoinCheckbox = styled.input`
@@ -225,10 +259,24 @@ const RoomUserItem = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  border-bottom: solid .5px ${colorGrayLighter};
+  display: flex;
+  justify-content: space-between;
 
   [dir="rtl"] & {
     padding: .25rem .25rem .25rem 0;
+  }
+
+  span.close {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 5px;
+    font-size: ${fontSizeSmaller};
+  }
+
+  &:focus {
+    background-color: ${colorPrimary};
+    color: ${colorWhite};
   }
 
   ${({ selected }) => selected && `
@@ -239,6 +287,10 @@ const RoomUserItem = styled.p`
   ${({ disabled }) => disabled && `
     cursor: not-allowed;
     color: ${colorGrayLighter};
+  `}
+
+  ${({ highlight }) => highlight && `
+    background-color: ${colorBlueLightest};
   `}
 `;
 
@@ -312,6 +364,7 @@ export default {
   AssignBtnsContainer,
   AssignBtns,
   CheckBoxesContainer,
+  Separator,
   FreeJoinCheckbox,
   RoomUserItem,
   LockIcon,
@@ -322,4 +375,5 @@ export default {
   WithError,
   SubTitle,
   Content,
+  ContentContainer,
 };

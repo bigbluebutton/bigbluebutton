@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { IntlProvider } from 'react-intl';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 import { UserDetailsProvider } from './components/UserDetails/context';
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
@@ -83,5 +82,3 @@ class Dashboard extends React.Component {
 
 const rootElement = document.getElementById('root');
 ReactDOM.render(<Dashboard />, rootElement);
-
-reportWebVitals();

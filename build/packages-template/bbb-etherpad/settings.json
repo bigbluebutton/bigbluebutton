@@ -220,9 +220,10 @@
   */
 
   /*
-   * The default text of a pad
-   */
-  "defaultPadText" : "",
+  * The default text of a pad: A zero-width-space is used to work around an issue with Etherpad 1.9.1 where empty pads are not being created.
+  * See: https://github.com/ether/etherpad-lite/issues/5787
+  */
+   "defaultPadText" : "\u200b",
 
   /*
    * Default Pad behavior.
@@ -539,7 +540,7 @@
     "windowMs": 90000,
 
     // maximum number of requests per IP to allow during the rate limit window
-    "max": 10
+    "max": 32
   },
 
   /*
@@ -597,7 +598,40 @@
   "loglevel": "INFO",
 
   /* Override any strings found in locale directories */
-  "customLocaleStrings": {},
+  "customLocaleStrings": {
+    "de": {
+      "pad.importExport.import_export": "Export",
+      "pad.toolbar.import_export.title": "Export zu verschiedenen Dateiformaten"
+    },
+    "en-gb": {
+      "pad.importExport.import_export": "Export",
+      "pad.toolbar.import_export.title": "Export to different file formats"
+    },
+    "en": {
+      "pad.importExport.import_export": "Export",
+      "pad.toolbar.import_export.title": "Export to different file formats"
+    },
+    "es": {
+      "pad.importExport.import_export": "Exportar",
+      "pad.toolbar.import_export.title": "Exportar a diferentes formatos de archivos"
+    },
+    "fr": {
+      "pad.importExport.import_export": "Exporter",
+      "pad.toolbar.import_export.title": "Exporter vers un format de fichier différent"
+    },
+    "it": {
+      "pad.importExport.import_export": "Esportazione",
+      "pad.toolbar.import_export.title": "Esporta a diversi formati di file"
+    },
+    "pt-br": {
+      "pad.importExport.import_export": "Exportar",
+      "pad.toolbar.import_export.title": "Exportar para diferentes formatos de arquivo"
+    },
+    "pt": {
+      "pad.importExport.import_export": "Exportar",
+      "pad.toolbar.import_export.title": "Exportar para diferentes formatos de ficheiro"
+    }
+  },
 
   /* Disable Admin UI tests */
   "enableAdminUITests": false

@@ -75,6 +75,12 @@ object LockSettingsUtil {
     }
   }
 
+  def isMicrophoneSharingLocked(user: UserState, liveMeeting: LiveMeeting): Boolean = {
+    val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+
+    user.role == Roles.VIEWER_ROLE && user.locked && permissions.disableMic
+  }
+
   def isCameraBroadcastLocked(user: UserState, liveMeeting: LiveMeeting): Boolean = {
     val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
 

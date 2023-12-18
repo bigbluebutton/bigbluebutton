@@ -12,8 +12,8 @@ const getDeviceId = (stream) => {
   return stream;
 };
 
-const getUserName = (userId, meetingId) => {
-  const user = Users.findOne(
+const getUserName = async (userId, meetingId) => {
+  const user = await Users.findOneAsync(
     { userId, meetingId },
     { fields: { name: 1 } },
   );

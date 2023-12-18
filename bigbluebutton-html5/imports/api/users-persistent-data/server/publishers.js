@@ -6,7 +6,7 @@ import Users from '/imports/api/users';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function usersPersistentData() {
+async function usersPersistentData() {
   if (!this.userId) {
     return UsersPersistentData.find({ meetingId: '' });
   }
@@ -21,7 +21,8 @@ function usersPersistentData() {
 
   const options = {};
 
-  const User = Users.findOne({ userId: requesterUserId, meetingId }, { fields: { role: 1 } });
+  const User = await Users
+    .findOneAsync({ userId: requesterUserId, meetingId }, { fields: { role: 1 } });
   if (!User || User.role !== ROLE_MODERATOR) {
     options.fields = {
       lastBreakoutRoom: false,

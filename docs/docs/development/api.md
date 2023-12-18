@@ -9,6 +9,7 @@ keywords:
 ---
 
 import APITableComponent from '@site/src/components/APITableComponent';
+<<<<<<< HEAD
 import createEndpointTableData from '@site/docs/data/create.tsx';
 import deleteRecordingsEndpointTableData from '@site/docs/data/deleteRecordings.tsx';
 import endEndpointTableData from '@site/docs/data/end.tsx';
@@ -21,6 +22,20 @@ import joinEndpointTableData from '@site/docs/data/join.tsx';
 import publishRecordingsEndpointTableData from '@site/docs/data/publishRecordings.tsx';
 import putRecordingTextTrackEndpointTableData from '@site/docs/data/putRecordingTextTrack.tsx';
 import updateRecordingsEndpointTableData from '@site/docs/data/updateRecordings.tsx';
+=======
+import createEndpointTableData from '../data/create.tsx';
+import deleteRecordingsEndpointTableData from '../data/deleteRecordings.tsx';
+import endEndpointTableData from '../data/end.tsx';
+import getMeetingInfoEndpointTableData from '../data/getMeetingInfo.tsx';
+import getRecordingsEndpointTableData from '../data/getRecordings.tsx';
+import getRecordingTextTracksEndpointTableData from '../data/getRecordingTextTracks.tsx';
+import insertDocumentEndpointTableData from '../data/insertDocument.tsx';
+import isMeetingRunningEndpointTableData from '../data/isMeetingRunning.tsx';
+import joinEndpointTableData from '../data/join.tsx';
+import publishRecordingsEndpointTableData from '../data/publishRecordings.tsx';
+import putRecordingTextTrackEndpointTableData from '../data/putRecordingTextTrack.tsx';
+import updateRecordingsEndpointTableData from '../data/updateRecordings.tsx';
+>>>>>>> v2.5.x-release
 
 ## Overview
 
@@ -94,6 +109,7 @@ Updated in 2.5:
 
 - **insertDocument** endopoint was first introduced
 
+<<<<<<< HEAD
 ## API Data Types
 
 There are three types in the API.
@@ -111,6 +127,35 @@ Number
 Boolean
 
 : A true/false value. The value must be specified as the literal string `true` or `false` (all lowercase), other values may be misinterpreted.
+=======
+Updated in 2.6:
+
+- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`, `recordFullDurationMedia` (v2.6.9); `disabledFeaturesExclude`(2.6.9); Added `liveTranscription` and `presentation` as options for `disabledFeatures`.
+
+- **getRecordings** - **Added:** Added support for pagination using `offset`, `limit`
+
+- **join**: Added `userdata-bbb_hide_presentation_on_join`.
+
+Updated in 2.7:
+
+- **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`.
+- **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
+
+Updated in 3.0:
+
+
+## API Data Types
+
+There are three types in the API.
+
+**String:**<br /> This data type indicates a (UTF-8) encoded string. When passing String values to BigBlueButton API calls, make sure that you use correctly URL-encoded UTF-8 values so international text will show up correctly. The string must not contain control characters (values 0x00 through 0x1F).
+
+Some BigBlueButton API parameters put additional restrictions on which characters are allowed, or on the lengths of the string. These restrictions are described in the parameter documentation.
+
+**Number:**<br /> This data type indicates a non-negative integer value. The parameter value must only contain the digits `0` through `9`. There should be no leading sign (`+` or `-`), and no comma or period characters.
+
+**Boolean:**<br />A true/false value. The value must be specified as the literal string `true` or `false` (all lowercase), other values may be misinterpreted.
+>>>>>>> v2.5.x-release
 
 ## API Security Model
 
@@ -227,7 +272,11 @@ The following section describes the monitoring calls
 ### Recording
 
 | Resource               | Description                                                   |
+<<<<<<< HEAD
 | :--------------------- | :------------------------------------------------------------ |
+=======
+| :--- | :--- |
+>>>>>>> v2.5.x-release
 | getRecordings          | Get a list of recordings.                                     |
 | publishRecordings      | Enables publishing or unpublishing of a recording.            |
 | deleteRecordings       | Deletes an existing recording                                 |
@@ -242,6 +291,7 @@ The following response parameters are standard to every call and may be returned
 **Parameters:**
 
 | Param Name | Required / Optional | Type   | Description                                                                                                                                                                                                                                                                                                                          |
+<<<<<<< HEAD
 | :--------- | :------------------ | :----- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | checksum   | Varies              | String | See the [API Security ModelAnchor](#api-security-model) section for more details on the usage for this parameter. This is basically a SHA-1 hash of `callName + queryString + sharedSecret`. The security salt will be configured into the application at deploy time. All calls to the API must include the checksum parameter. |
 
@@ -252,6 +302,18 @@ The following response parameters are standard to every call and may be returned
 | returncode | Always        | String | Indicates whether the intended function was successful or not. Always one of two values:`FAILED` – There was an error of some sort – look for the message and messageKey for more information. Note that if the `returncode` is FAILED, the call-specific response parameters marked as “always returned” will not be returned. They are only returned as part of successful responses.`SUCCESS` – The call succeeded – the other parameters that are normally associated with this call will be returned. |
 | message    | Sometimes     | String | A message that gives additional information about the status of the call. A message parameter will always be returned if the returncode was `FAILED`. A message may also be returned in some cases where returncode was `SUCCESS` if additional information would be helpful.                                                                                                                                                                                                                                                |
 | messageKey | Sometimes     | String | Provides similar functionality to the message and follows the same rules. However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.                                                                                                               |
+=======
+| :--- | :--- | :---- | :--- |
+| checksum   | Varies              | String | See the [API Security ModelAnchor](#api-security-model) section for more details on the usage for this parameter.<br /> This is basically a SHA-1 hash of `callName + queryString + sharedSecret`. The security salt will be configured into the application at deploy time. All calls to the API must include the checksum parameter. |
+
+**Response:**
+
+| Param Name | When Returned | Type   | Description |
+| :--- | :--- | :----- | :--- |
+| returncode | Always | String | Indicates whether the intended function was successful or not. Always one of two values:<br /><br />`FAILED` – There was an error of some sort – look for the message and messageKey for more information. Note that if the `returncode` is FAILED, the call-specific response parameters marked as “always returned” will not be returned. They are only returned as part of successful responses.<br /><br />`SUCCESS` – The call succeeded – the other parameters that are normally associated with this call will be returned. |
+| message    | Sometimes | String | A message that gives additional information about the status of the call. A message parameter will always be returned if the returncode was `FAILED`. A message may also be returned in some cases where returncode was `SUCCESS` if additional information would be helpful.|
+| messageKey | Sometimes | String | Provides similar functionality to the message and follows the same rules. However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.|
+>>>>>>> v2.5.x-release
 
 ### create
 
@@ -288,7 +350,11 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
   <attendeePW>ap</attendeePW>
   <moderatorPW>mp</moderatorPW>
   <createTime>1531155809613</createTime>
+<<<<<<< HEAD
   <voiceBridge>70757</voiceBridge>
+=======
+  <`voiceBridge`>70757</`voiceBridge`>
+>>>>>>> v2.5.x-release
   <dialNumber>613-555-1234</dialNumber>
   <createDate>Mon Jul 09 17:03:29 UTC 2018</createDate>
   <hasUserJoined>false</hasUserJoined>
@@ -314,7 +380,11 @@ curl --request POST \
   --data moderatorPW=mp \
   --data name=random-1730297 \
   --data record=false \
+<<<<<<< HEAD
   --data voiceBridge=71296 \
+=======
+  --data `voiceBridge`=71296 \
+>>>>>>> v2.5.x-release
   --data checksum=1234;
 ```
 
@@ -352,6 +422,26 @@ In the body part, you would append a simple XML like the example below:
 
 When you need to provide a document using a URL, and the document URL does not contain an extension, you can use the `filename` parameter, such as `filename=test-results.pdf` to help the BigBlueButton server determine the file type (in this example it would be a PDF file).
 
+<<<<<<< HEAD
+=======
+**From `2.5.x` and on** there is also 2 parameters one can provide the payload to ensure that the document they are uploading can be downloaded or removed from the meeting, those parameters are:
+
+| Parameter      | Description                                    | Default Value |
+| -------------- | ---------------------------------------------- | ------------- |
+| `downloadable` | Dictates if the presentation can be downloaded | `true`        |
+| `removable`    | dictates if one can remove the presentation.   | `false`       |
+
+In the payload the variables are passed inside each `<document>` tag of the xml, as follows:
+
+```xml
+<document downloadable="false" removable="true" url="http://www.sample-pdf.com/sample.pdf" filename="report.pdf"/>
+<document removable="false" name="sample-presentation.pdf">JVBERi0xLjQKJ....
+  [clipped here]
+  ....0CiUlRU9GCg==
+</document>
+```
+
+>>>>>>> v2.5.x-release
 In the case more than a single document is provided, the first one will be loaded in the client, the processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79). For a complete example of the pre-upload slides check the following demos: [demo7](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo7.jsp) and [demo8](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo8.jsp)
@@ -509,6 +599,11 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 </modules>'
 ```
 
+<<<<<<< HEAD
+=======
+There is also the possibility of passing the removable and downloadable variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides) 
+
+>>>>>>> v2.5.x-release
 ### isMeetingRunning
 
 This call enables you to simply check on whether or not a meeting is running by looking it up with your meeting ID.
@@ -610,7 +705,11 @@ Resource URL:
   <internalMeetingID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1531240585189</internalMeetingID>
   <createTime>1531240585189</createTime>
   <createDate>Tue Jul 10 16:36:25 UTC 2018</createDate>
+<<<<<<< HEAD
   <voiceBridge>70066</voiceBridge>
+=======
+  <`voiceBridge`>70066</`voiceBridge`>
+>>>>>>> v2.5.x-release
   <dialNumber>613-555-1234</dialNumber>
   <attendeePW>ap</attendeePW>
   <moderatorPW>mp</moderatorPW>
@@ -710,7 +809,11 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
       <internalMeetingID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1531241258036</internalMeetingID>
       <createTime>1531241258036</createTime>
       <createDate>Tue Jul 10 16:47:38 UTC 2018</createDate>
+<<<<<<< HEAD
       <voiceBridge>70066</voiceBridge>
+=======
+      <`voiceBridge`>70066</`voiceBridge`>
+>>>>>>> v2.5.x-release
       <dialNumber>613-555-1234</dialNumber>
       <attendeePW>ap</attendeePW>
       <moderatorPW>mp</moderatorPW>
@@ -737,6 +840,11 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
 
 ### getRecordings
 
+<<<<<<< HEAD
+=======
+Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs). Support for pagination was added in 2.6.
+
+>>>>>>> v2.5.x-release
 **Resource URL:**
 
 http&#58;//yourserver.com/bigbluebutton/api/getRecordings?[parameters]&checksum=[checksum]
@@ -1033,11 +1141,17 @@ This API is asynchronous. It can take several minutes for the uploaded file to b
 <APITableComponent data={putRecordingTextTrackEndpointTableData}/>
 ```
 
+<<<<<<< HEAD
 POST Body
 : If the request has a body, the Content-Type header must specify multipart/form-data. The following parameters may be encoded in the post body.
 
 file
 : (Type Binary Data, Optional) Contains the uploaded subtitle or caption file. If this parameter is missing, or if the POST request has no body, then any existing text track matching the kind and lang specified will be deleted. If known, the uploading application should set the `Content-Type` to a value appropriate to the file format. If Content-Type is unset, or does not match a known subtitle format, the uploaded file will be probed to automatically detect the type.
+=======
+**POST Body:** <br />If the request has a body, the Content-Type header must specify multipart/form-data. The following parameters may be encoded in the post body.
+
+**file:** <br />(Type Binary Data, Optional) Contains the uploaded subtitle or caption file. If this parameter is missing, or if the POST request has no body, then any existing text track matching the kind and lang specified will be deleted. If known, the uploading application should set the `Content-Type` to a value appropriate to the file format. If Content-Type is unset, or does not match a known subtitle format, the uploaded file will be probed to automatically detect the type.
+>>>>>>> v2.5.x-release
 
 Multiple types of subtitles are accepted for upload, but they will be converted to the WebVTT format for display.
 

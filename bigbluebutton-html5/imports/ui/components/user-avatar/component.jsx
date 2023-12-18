@@ -16,6 +16,7 @@ const propTypes = {
   color: PropTypes.string,
   emoji: PropTypes.bool,
   avatar: PropTypes.string,
+  className: PropTypes.string,
   isSkeleton: PropTypes.bool,
 };
 
@@ -31,6 +32,7 @@ const defaultProps = {
   color: '#000',
   emoji: false,
   avatar: '',
+  className: '',
   isSkeleton: false,
 };
 
@@ -41,6 +43,7 @@ const UserAvatar = ({
   children,
   moderator,
   presenter,
+  className,
   talking,
   muted,
   listenOnly,
@@ -61,6 +64,7 @@ const UserAvatar = ({
         data-test={moderator ? 'moderatorAvatar' : 'viewerAvatar'}
         moderator={moderator}
         presenter={presenter}
+        className={className}
         whiteboardAccess={whiteboardAccess && !presenter}
         muted={muted}
         listenOnly={listenOnly}
@@ -69,13 +73,14 @@ const UserAvatar = ({
         isChrome={isChrome}
         isFirefox={isFirefox}
         isEdge={isEdge}
+        className={className}
         style={{
           backgroundColor: color,
           color, // We need the same color on both for the border
         }}
       >
 
-        <Styled.Talking talking={talking && !muted && avatar.length === 0} animations={animations} />
+        <Styled.Talking talking={talking && !muted} animations={animations} />
 
         {avatar.length !== 0 && !emoji
           ? (

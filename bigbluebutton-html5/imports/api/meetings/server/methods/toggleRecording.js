@@ -6,7 +6,7 @@ import Users from '/imports/api/users';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default function toggleRecording() {
+export default async function toggleRecording() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -21,7 +21,7 @@ export default function toggleRecording() {
     let meetingRecorded;
     let allowedToRecord;
 
-    const recordObject = RecordMeetings.findOne({ meetingId });
+    const recordObject = await RecordMeetings.findOneAsync({ meetingId });
 
     if (recordObject != null) {
       const {
@@ -43,7 +43,7 @@ export default function toggleRecording() {
       meetingId,
       userId: requesterUserId,
     };
-    const user = Users.findOne(selector);
+    const user = await Users.findOneAsync(selector);
 
     if (allowedToRecord && !!user && user.role === ROLE_MODERATOR) {
       Logger.info(`Setting the record parameter to ${!meetingRecorded} for ${meetingId} by ${requesterUserId}`);

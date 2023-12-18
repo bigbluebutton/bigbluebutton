@@ -3,8 +3,9 @@ import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function voiceCallStates() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function voiceCallStates() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing VoiceCallStates was requested by unauth connection ${this.connection.id}`);

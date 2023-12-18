@@ -1,9 +1,9 @@
 import { check } from 'meteor/check';
 import clearBreakouts from '../modifiers/clearBreakouts';
 
-export default function handleBreakoutClosed({ body }) {
+export default async function handleBreakoutClosed({ body }) {
   const { breakoutId } = body;
   check(breakoutId, String);
-
-  return clearBreakouts(breakoutId);
+  const result = await clearBreakouts(breakoutId);
+  return result;
 }

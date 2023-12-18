@@ -1,44 +1,31 @@
-import Auth from '/imports/ui/services/auth';
-import Presentations from '/imports/api/presentations';
 import { makeCall } from '/imports/ui/services/api';
-import { throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 
 const PAN_ZOOM_INTERVAL = Meteor.settings.public.presentation.panZoomInterval || 200;
 
-const getNumberOfSlides = (podId, presentationId) => {
-  const meetingId = Auth.meetingID;
+const POD_ID = 'DEFAULT_PRESENTATION_POD';
 
-  const presentation = Presentations.findOne({
-    meetingId,
-    podId,
-    id: presentationId,
-  });
-
-  return presentation && presentation.pages ? presentation.pages.length : 0;
-};
-
-const previousSlide = (currentSlideNum, podId) => {
+const previousSlide = (currentSlideNum, presentationId) => {
   if (currentSlideNum > 1) {
-    makeCall('switchSlide', currentSlideNum - 1, podId);
+    makeCall('switchSlide', currentSlideNum - 1, POD_ID, presentationId);
   }
 };
 
-const nextSlide = (currentSlideNum, numberOfSlides, podId) => {
+const nextSlide = (currentSlideNum, numberOfSlides, presentationId) => {
   if (currentSlideNum < numberOfSlides) {
-    makeCall('switchSlide', currentSlideNum + 1, podId);
+    makeCall('switchSlide', currentSlideNum + 1, POD_ID, presentationId);
   }
 };
 
-const zoomSlide = throttle((currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset) => {
-  makeCall('zoomSlide', currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset);
+const zoomSlide = throttle((currentSlideNum, widthRatio, heightRatio, xOffset, yOffset, presentationId) => {
+  makeCall('zoomSlide', currentSlideNum, POD_ID, widthRatio, heightRatio, xOffset, yOffset, presentationId);
 }, PAN_ZOOM_INTERVAL);
 
-const skipToSlide = (requestedSlideNum, podId) => {
-  makeCall('switchSlide', requestedSlideNum, podId);
+const skipToSlide = (requestedSlideNum, presentationId) => {
+  makeCall('switchSlide', requestedSlideNum, POD_ID, presentationId);
 };
 
 export default {
-  getNumberOfSlides,
   nextSlide,
   previousSlide,
   skipToSlide,

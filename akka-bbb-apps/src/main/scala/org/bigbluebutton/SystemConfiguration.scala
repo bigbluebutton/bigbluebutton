@@ -1,6 +1,9 @@
 package org.bigbluebutton
 
-import scala.util.Try
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+
+import scala.util.{ Failure, Success, Try }
 import com.typesafe.config.ConfigFactory
 
 trait SystemConfiguration {
@@ -41,11 +44,15 @@ trait SystemConfiguration {
   lazy val syncVoiceUsersStatusInterval = Try(config.getInt("voiceConf.syncUserStatusInterval")).getOrElse(43)
   lazy val ejectRogueVoiceUsers = Try(config.getBoolean("voiceConf.ejectRogueVoiceUsers")).getOrElse(true)
   lazy val dialInApprovalAudioPath = Try(config.getString("voiceConf.dialInApprovalAudioPath")).getOrElse("ivr/ivr-please_hold_while_party_contacted.wav")
+  lazy val toggleListenOnlyAfterMuteTimer = Try(config.getInt("voiceConf.toggleListenOnlyAfterMuteTimer")).getOrElse(4)
 
   lazy val recordingChapterBreakLengthInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(0)
 
   lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
   lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
+
+  lazy val transcriptWords = Try(config.getInt("transcript.words")).getOrElse(8)
+  lazy val transcriptLines = Try(config.getInt("transcript.lines")).getOrElse(2)
 
   lazy val reduceDuplicatedPick = Try(config.getBoolean("apps.reduceDuplicatedPick")).getOrElse(false)
 
@@ -71,12 +78,14 @@ trait SystemConfiguration {
 
   lazy val fromBbbWebRedisChannel = Try(config.getString("redis.fromBbbWebRedisChannel")).getOrElse("from-bbb-web-redis-channel")
 
-  lazy val toAkkaTranscodeRedisChannel = Try(config.getString("redis.toAkkaTranscodeRedisChannel")).getOrElse("bigbluebutton:to-bbb-transcode:system")
-  lazy val fromAkkaTranscodeRedisChannel = Try(config.getString("redis.fromAkkaTranscodeRedisChannel")).getOrElse("bigbluebutton:from-bbb-transcode:system")
-  lazy val toAkkaTranscodeJsonChannel = Try(config.getString("eventBus.toAkkaTranscodeJsonChannel")).getOrElse("to-akka-transcode-json-channel")
-  lazy val fromAkkaTranscodeJsonChannel = Try(config.getString("eventBus.fromAkkaTranscodeJsonChannel")).getOrElse("from-akka-transcode-json-channel")
-
   lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
+
+  lazy val clientSettingsPath = Try(config.getString("client.clientSettingsFilePath")).getOrElse(
+    "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml"
+  )
+  lazy val clientSettingsPathOverride = Try(config.getString("client.clientSettingsOverrideFilePath")).getOrElse(
+    "/etc/bigbluebutton/bbb-html5.yml"
+  )
 
   // Grab the "interface" parameter from the http config
   val httpHost = config.getString("http.interface")

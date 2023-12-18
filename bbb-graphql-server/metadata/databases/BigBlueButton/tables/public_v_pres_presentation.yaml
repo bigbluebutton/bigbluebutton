@@ -1,0 +1,46 @@
+table:
+  name: v_pres_presentation
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: pres_presentation
+  custom_root_fields: {}
+array_relationships:
+  - name: pages
+    using:
+      manual_configuration:
+        column_mapping:
+          presentationId: presentationId
+        insertion_order: null
+        remote_table:
+          name: v_pres_page
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - createdAt
+        - current
+        - downloadFileExtension
+        - downloadFileUri
+        - downloadable
+        - exportToChatCurrentPage
+        - exportToChatHasError
+        - exportToChatInProgress
+        - exportToChatStatus
+        - filenameConverted
+        - isDefault
+        - name
+        - presentationId
+        - removable
+        - totalPages
+        - totalPagesUploaded
+        - uploadCompleted
+        - uploadErrorDetailsJson
+        - uploadErrorMsgKey
+        - uploadInProgress
+        - uploadTemporaryId
+      filter:
+        meetingId:
+          _eq: X-Hasura-PresenterInMeeting

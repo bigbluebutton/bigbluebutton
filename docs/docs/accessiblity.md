@@ -152,9 +152,15 @@ HTML5 ARIA spec - https://www.w3.org/TR/aria-in-html/
 
 ARIA spec - https://www.w3.org/WAI/PF/aria/
 
+<<<<<<< HEAD
 Roles - https://www.w3.org/TR/wai-aria/roles
 
 States and Properties - https://www.w3.org/TR/wai-aria/states_and_properties
+=======
+Roles - https://www.w3.org/TR/2023/WD-dpub-aria-1.1-20230515/#role_definitions
+
+States and Properties - https://www.w3.org/TR/wai-aria-1.0/states_and_properties
+>>>>>>> v2.5.x-release
 
 Design Patterns - https://www.w3.org/TR/wai-aria-practices/#aria_ex
 
@@ -168,7 +174,11 @@ Offered by Deque Systems
 
 ![Image of aXe browser extension accessibility checker](/img/accessibility_axe.jpg)
 
+<<<<<<< HEAD
 https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd
+=======
+https://chrome.google.com/webstore/detail/axe-devtools-web-accessib/lhdoppojpmngadmnindnejefpokejbdd
+>>>>>>> v2.5.x-release
 
 ##### Accessibility Developer Tools
 

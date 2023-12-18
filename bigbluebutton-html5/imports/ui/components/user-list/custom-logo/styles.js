@@ -14,7 +14,7 @@ const Branding = styled.div`
   padding: ${smPaddingX};
   width: 100%;
   & > img {
-    max-height: 2rem;
+    max-height: 3rem;
     max-width: 100%;
     display: block;
     margin-left: auto;

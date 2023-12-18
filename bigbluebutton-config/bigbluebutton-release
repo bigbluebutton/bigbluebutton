@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 BIGBLUEBUTTON_RELEASE=2.5.18
+=======
+BIGBLUEBUTTON_RELEASE=3.0.0-alpha.1
+>>>>>>> v2.5.x-release

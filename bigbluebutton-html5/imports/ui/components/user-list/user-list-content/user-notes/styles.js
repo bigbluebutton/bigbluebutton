@@ -13,7 +13,9 @@ const UnreadMessages = styled(StyledContent.UnreadMessages)``;
 
 const UnreadMessagesText = styled(StyledContent.UnreadMessagesText)``;
 
-const ListItem = styled(StyledContent.ListItem)``;
+const ListItem = styled(StyledContent.ListItem)`
+  i{ left: 4px; }
+`;
 
 const NotesTitle = styled.div`
   font-weight: 400;

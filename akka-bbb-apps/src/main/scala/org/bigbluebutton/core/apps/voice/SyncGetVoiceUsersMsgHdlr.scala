@@ -14,7 +14,7 @@ trait SyncGetVoiceUsersMsgHdlr {
     def buildSyncGetVoiceUsersRespMsg(): BbbCommonEnvCoreMsg = {
       val voiceUsers = VoiceUsers.findAll(liveMeeting.voiceUsers).map { u =>
         VoiceConfUser(intId = u.intId, voiceUserId = u.voiceUserId, callingWith = u.callingWith, callerName = u.callerName,
-          callerNum = u.callerNum, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
+          callerNum = u.callerNum, color = u.color, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
       }
 
       val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)

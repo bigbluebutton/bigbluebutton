@@ -1,10 +1,12 @@
 {
     "app.home.greeting": "Jūsų pristatymas netrukus prasidės ...",
     "app.chat.submitLabel": "Siųsti žinutę",
+    "app.chat.loading": "Įkelti pokalbių pranešimai: {0} %",
     "app.chat.errorMaxMessageLength": "Žinutė yra {0} simboliais(-ų) per ilga",
     "app.chat.disconnected": "Jūs esate atsijungę, žinutės negali būti išsiųstos",
     "app.chat.locked": "Susirašinėjimas yra draudžiamas, žinutės bus neišsiųstos.",
     "app.chat.inputLabel": "Rašykite žinutę susirašinėjimui {0}",
+    "app.chat.inputPlaceholder": "Žinutės {0}",
     "app.chat.titlePublic": "Viešasis susirašinėjimas",
     "app.chat.titlePrivate": "Privatus susirašinėjimas su {0}",
     "app.chat.partnerDisconnected": "{0} paliko susitikimą",
@@ -39,6 +41,10 @@
     "app.captions.menu.previewLabel": "Peržiūra",
     "app.captions.menu.cancelLabel": "Atšaukti",
     "app.textInput.sendLabel": "Siųsti",
+    "app.notes.title": "Bendri užrašai",
+    "app.notes.label": "Užrašai",
+    "app.notes.hide": "Slėpti užrašus",
+    "app.notes.locked": "Užrakinta",
     "app.user.activityCheck": "Vartotojo aktyvumo patikra",
     "app.user.activityCheck.label": "Patikrina ar vartotojas vis dar yra susitikime ({0})",
     "app.user.activityCheck.check": "Patikrinti",
@@ -313,6 +319,7 @@
     "app.settings.main.save.label.description": "Išsaugo pakeitimus ir uždaro nustatymų meniu",
     "app.settings.dataSavingTab.label": "Duomenų saugojimas",
     "app.settings.dataSavingTab.webcam": "Įgalinti kameras",
+    "app.settings.dataSavingTab.screenShare": "Įgalinti darbalaukio bendrinimą",
     "app.settings.dataSavingTab.description": "Norėdami išsaugoti pralaidumą, pakoreguokite tai, kas šiuo metu rodoma.",
     "app.settings.save-notification.label": "Nustatymai išsaugoti",
     "app.statusNotifier.lowerHands": "Nuleistos rankos",
@@ -326,6 +333,7 @@
     "app.actionsBar.actionsDropdown.actionsLabel": "Veiksmai",
     "app.actionsBar.actionsDropdown.initPollLabel": "Inicijuoti apklausą",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Bendrinti savo ekraną",
+    "app.actionsBar.actionsDropdown.lockedDesktopShareLabel": "Ekrano bendrinimas užrakintas",
     "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Nebebendrinkite ekrano",
     "app.actionsBar.actionsDropdown.presentationDesc": "Įkelti savo pristatymą",
     "app.actionsBar.actionsDropdown.initPollDesc": "Inicijuoti apklausą",
@@ -650,7 +658,9 @@
     "app.iOSWarning.label": "Atnaujinkite „iOS į 12.2“ arba naujesnę versiją",
     "app.legacy.unsupportedBrowser": "Panašu, kad naudojate nepalaikomą naršyklę. Norėdami gauti visišką palaikymą, naudokite {0} arba {1}.",
     "app.legacy.upgradeBrowser": "Panašu, kad naudojate senesnę palaikomos naršyklės versiją. Atnaujinkite savo naršyklę, kad gautumėte visą palaikymą.",
-    "app.legacy.criosBrowser": "Jei naudojate „iOS“, naudokite „Safari“, kad gautumėte visą palaikymą."
+    "app.legacy.criosBrowser": "Jei naudojate „iOS“, naudokite „Safari“, kad gautumėte visą palaikymą.",
+    "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
+    "mobileApp.portals.fields.url.label": "Serverio URL"
 
 }
 

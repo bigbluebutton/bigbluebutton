@@ -1,91 +1,55 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useEffect } from 'react';
 import Styled from './styles';
-import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 
-const propTypes = {
-  overlayClassName: PropTypes.string.isRequired,
-  portalClassName: PropTypes.string.isRequired,
-  contentLabel: PropTypes.string.isRequired,
-  isOpen: PropTypes.bool.isRequired,
+const BaseModal = (props) => {
+  const {
+    setIsOpen,
+    modalName,
+    children,
+    isOpen,
+    onRequestClose,
+    className,
+    overlayClassName,
+    dataTest,
+    priority,
+  } = props;
+
+  const closeEventHandler = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+  useEffect(() => {
+    // Only add event listener if name is specified
+    if (!modalName) return () => null;
+
+    const closeEventName = `CLOSE_MODAL_${modalName.toUpperCase()}`;
+
+    // Listen to close event on mount
+    document.addEventListener(closeEventName, closeEventHandler);
+
+    // Remove listener on unmount
+    return () => {
+      document.removeEventListener(closeEventName, closeEventHandler);
+    };
+  }, []);
+  const priorityValue = priority || 'low';
+
+  return (
+    <Styled.BaseModal
+      portalClassName={`modal-${priorityValue}`}
+      parentSelector={() => document.querySelector('#modals-container')}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      className={className}
+      overlayClassName={overlayClassName}
+      shouldReturnFocusAfterClose={false}
+      data={{
+        test: dataTest,
+      }}
+      {...props}
+    >
+      {children}
+    </Styled.BaseModal>
+  );
 };
 
-const defaultProps = {
-  overlayClassName: "modalOverlay",
-  contentLabel: 'Modal',
-  isOpen: true,
-};
-
-export default class ModalBase extends Component {
-
-  componentDidMount() {
-    registerTitleView(this.props.contentLabel);
-  }
-
-  componentWillUnmount() {
-    unregisterTitleView();
-  }
-
-  render() {
-    const {
-      isOpen,
-      'data-test': dataTest
-    } = this.props;
-
-    if (!isOpen) return null;
-
-    return (
-      <Styled.BaseModal
-        {...this.props}
-        parentSelector={() => {
-          if (document.fullscreenElement &&
-            document.fullscreenElement.nodeName &&
-            document.fullscreenElement.nodeName.toLowerCase() === 'div')
-            return document.fullscreenElement;
-          else return document.body;
-        }}
-        data={{
-          test: dataTest ?? null
-        }}
-      >
-        {this.props.children}
-      </Styled.BaseModal>
-    );
-  }
-}
-
-ModalBase.propTypes = propTypes;
-ModalBase.defaultProps = defaultProps;
-
-export const withModalState = ComponentToWrap =>
-  class ModalStateWrapper extends Component {
-    constructor(props) {
-      super(props);
-
-      this.state = {
-        isOpen: true,
-      };
-
-      this.hide = this.hide.bind(this);
-      this.show = this.show.bind(this);
-    }
-
-    hide(cb = () => { }) {
-      Promise.resolve(cb())
-        .then(() => this.setState({ isOpen: false }));
-    }
-
-    show(cb = () => { }) {
-      Promise.resolve(cb())
-        .then(() => this.setState({ isOpen: true }));
-    }
-
-    render() {
-      return (<ComponentToWrap
-        {...this.props}
-        modalHide={this.hide}
-        modalShow={this.show}
-        modalisOpen={this.state.isOpen}
-      />);
-    }
-  };
+export default { BaseModal };

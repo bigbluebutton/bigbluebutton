@@ -1,5 +1,8 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorWhite,
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 
@@ -14,12 +17,44 @@ const Chat = styled.div`
   overflow: hidden;
   height: 100%;
 
+  a {
+    color: ${colorPrimary};
+    text-decoration: none;
+
+    &:focus {
+      color: ${colorPrimary};
+      text-decoration: underline;
+    }
+    &:hover {
+      filter: brightness(90%);
+      text-decoration: underline;
+    }
+    &:active {
+      filter: brightness(85%);
+      text-decoration: underline;
+    }
+    &:hover:focus{
+      filter: brightness(90%);
+      text-decoration: underline;
+    }
+    &:focus:active {
+      filter: brightness(85%);
+      text-decoration: underline;
+    }
+  }
+  u {
+    text-decoration-line: none;
+  }
+
   ${({ isChrome }) => isChrome && `
     transform: translateZ(0);
   `}
 
   @media ${smallOnly} {
     transform: none !important;
+    &.no-padding {
+      padding: 0;
+    }
   }
 `;
 

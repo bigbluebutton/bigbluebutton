@@ -28,7 +28,7 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 public class SvgImageCreatorImp implements SvgImageCreator {
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 
-    private SwfSlidesGenerationProgressNotifier notifier;
+    private SlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
     private long pathsThreshold;
     private int convPdfToSvgTimeout = 60;
@@ -76,7 +76,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     }
 
     private boolean generateSvgImage(File imagePresentationDir, UploadedPresentation pres, int page)
-            throws InterruptedException, TimeoutException{
+            throws InterruptedException, TimeoutException {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
         int countOfTimeOut = 0;
@@ -252,8 +252,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 if(svgHandler.isCommandTimeout()) {
                     log.error("Command execution (convertPngToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
                 }
-
                 done = svgHandler.isCommandSuccessful();
+
+                if(!svgHandler.isCommandSuccessful()) {
+                    String errorOutput = svgHandler.getStderrString();
+                    if (!errorOutput.isEmpty()) {
+                        log.error("Error during conversion from PNG to SVG: " + errorOutput);
+                    }
+                }
 
                 if(destsvg.length() > 0) {
                     // Step 3: Add SVG namespace to the destionation file
@@ -272,7 +278,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     } catch (InterruptedException e) {
                         log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
                     }
-
                     if (namespaceHandler.isCommandTimeout()) {
                         log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
                     }
@@ -381,8 +386,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         pathsThreshold = threshold;
     }
     
-    public void setSwfSlidesGenerationProgressNotifier(
-        SwfSlidesGenerationProgressNotifier notifier) {
+    public void setSlidesGenerationProgressNotifier(
+        SlidesGenerationProgressNotifier notifier) {
       this.notifier = notifier;
     }
 

@@ -1,33 +1,49 @@
 import React from 'react';
+import { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
-import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import JoinVideoButton from './component';
 import VideoService from '../service';
+import {
+  updateSettings,
+} from '/imports/ui/components/settings/service';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const JoinVideoOptionsContainer = (props) => {
   const {
+    updateSettings,
     hasVideoStream,
     disableReason,
     status,
     intl,
-    mountModal,
     ...restProps
   } = props;
 
-  const mountVideoPreview = (force) => { mountModal(<VideoPreviewContainer forceOpen={force} />); };
-
+  const {
+    pluginsExtensibleAreasAggregatedState,
+  } = useContext(PluginsContext);
+  let cameraSettingsDropdownItems = [];
+  if (pluginsExtensibleAreasAggregatedState.cameraSettingsDropdownItems) {
+    cameraSettingsDropdownItems = [
+      ...pluginsExtensibleAreasAggregatedState.cameraSettingsDropdownItems,
+    ];
+  }
   return (
     <JoinVideoButton {...{
-      mountVideoPreview, hasVideoStream, disableReason, status, ...restProps,
+      cameraSettingsDropdownItems,
+      hasVideoStream,
+      updateSettings,
+      disableReason,
+      status,
+      ...restProps,
     }}
     />
   );
 };
 
-export default withModalMounter(injectIntl(withTracker(() => ({
+export default injectIntl(withTracker(() => ({
   hasVideoStream: VideoService.hasVideoStream(),
+  updateSettings,
   disableReason: VideoService.disableReason(),
   status: VideoService.getStatus(),
-}))(JoinVideoOptionsContainer)));
+}))(JoinVideoOptionsContainer));

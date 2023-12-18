@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMsgFromUser }
+import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessageType, GroupChatMsgFromUser }
 import org.bigbluebutton.core.api.SendMessageToBreakoutRoomInternalMsg
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.bus.MessageBus
@@ -20,7 +20,7 @@ trait SendMessageToBreakoutRoomInternalMsgHdlr {
     } yield {
       val groupChatMsgFromUser = GroupChatMsgFromUser(sender.id, sender.copy(name = msg.senderName), true, msg.msg)
       val gcm = GroupChatApp.toGroupChatMessage(sender.copy(name = msg.senderName), groupChatMsgFromUser)
-      val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
+      val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm, GroupChatMessageType.BREAKOUTROOM_MOD_MSG)
 
       val event = buildGroupChatMessageBroadcastEvtMsg(
         liveMeeting.props.meetingProp.intId,

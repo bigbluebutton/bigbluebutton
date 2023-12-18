@@ -22,7 +22,7 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
-import org.bigbluebutton.presentation.messages.OfficeDocConversionProgress;
+import org.bigbluebutton.presentation.messages.DocConversionProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,10 +59,10 @@ public class SupportedDocumentFilter {
     }
 
     if (gw != null) {
-      OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
+      DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
         pres.getId(), pres.getId(),
         pres.getName(), "notUsedYet", "notUsedYet",
-        pres.isDownloadable(), pres.isRemovable(),  msgKey);
+        pres.isDownloadable(), pres.isRemovable(),  msgKey, pres.getTemporaryPresentationId());
 
       gw.sendDocConversionMsg(progress);
 

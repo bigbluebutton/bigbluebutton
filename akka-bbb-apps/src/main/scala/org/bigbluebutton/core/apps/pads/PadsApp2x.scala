@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.pads
 
-import akka.actor.ActorContext
+import org.apache.pekko.actor.ActorContext
 
 class PadsApp2x(implicit val context: ActorContext)
   extends PadCreateGroupReqMsgHdlr
@@ -13,6 +13,7 @@ class PadsApp2x(implicit val context: ActorContext)
   with PadUpdatedSysMsgHdlr
   with PadContentSysMsgHdlr
   with PadPatchSysMsgHdlr
-  with PadUpdatePubMsgHdlr {
+  with PadUpdatePubMsgHdlr
+  with PadPinnedReqMsgHdlr {
 
 }

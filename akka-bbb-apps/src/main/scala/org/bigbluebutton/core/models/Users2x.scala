@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
+import org.bigbluebutton.core.db.{ UserDAO, UserReactionDAO, UserStateDAO }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -21,10 +22,12 @@ object Users2x {
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
     users.save(user)
+    UserStateDAO.update(user)
     Some(user)
   }
 
   def remove(users: Users2x, intId: String): Option[UserState] = {
+    //UserDAO.delete(intId)
     users.remove(intId)
   }
 
@@ -34,6 +37,7 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(true, System.currentTimeMillis()))
       users.save(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -44,6 +48,8 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
       users.save(newUser)
+      UserStateDAO.update(newUser)
+      UserStateDAO.updateExpired(u.intId, false)
       newUser
     }
   }
@@ -107,11 +113,19 @@ object Users2x {
     newUserState
   }
 
+  def setMobile(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.mobile).setTo(true)
+    users.save(newUserState)
+    UserStateDAO.update((newUserState))
+    newUserState
+  }
+
   def ejectFromMeeting(users: Users2x, intId: String): Option[UserState] = {
     for {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
+      //      UserDAO.delete(intId)  --it will keep the user on Db
       ejectedUser
     }
   }
@@ -122,6 +136,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(true)
       users.save(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -132,8 +147,30 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(false)
       users.save(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
+  }
+
+  def updatePins(users: Users2x, intId: String, maxPinnedCameras: Int, pin: Boolean): Option[UserState] = {
+    if (pin) {
+      return Users2x.addPin(users, intId, maxPinnedCameras);
+    } else {
+      return Users2x.removePin(users, intId);
+    }
+  }
+
+  def addPin(users: Users2x, intId: String, maxPinnedCameras: Int): Option[UserState] = {
+    users.pinned.enqueue(intId)
+    changePin(users, intId, true)
+    if (users.pinned.size <= maxPinnedCameras) return None
+    changePin(users, users.pinned.dequeue(), false)
+  }
+
+  def removePin(users: Users2x, intId: String): Option[UserState] = {
+    if (!hasPins(users)) return None
+    users.pinned.dequeueFirst(_.startsWith(intId))
+    changePin(users, intId, false)
   }
 
   def changePin(users: Users2x, intId: String, pin: Boolean): Option[UserState] = {
@@ -142,6 +179,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.pin).setTo(pin)
       users.save(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -151,8 +189,44 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.emoji).setTo(emoji)
+
       users.save(newUser)
+      UserStateDAO.update(newUser)
       newUser
+    }
+  }
+  def setReactionEmoji(users: Users2x, intId: String, reactionEmoji: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.reactionEmoji).setTo(reactionEmoji)
+        .modify(_.reactionChangedOn).setTo(System.currentTimeMillis())
+
+      users.save(newUser)
+      UserReactionDAO.insert(intId, reactionEmoji)
+      newUser
+    }
+  }
+
+  def setUserRaiseHand(users: Users2x, intId: String, raiseHand: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUserState = u.modify(_.raiseHand).setTo(raiseHand)
+      users.save(newUserState)
+      UserStateDAO.update(newUserState)
+      newUserState
+    }
+  }
+
+  def setUserAway(users: Users2x, intId: String, away: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUserState = u.modify(_.away).setTo(away)
+      users.save(newUserState)
+      UserStateDAO.update(newUserState)
+      newUserState
     }
   }
 
@@ -162,6 +236,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.locked).setTo(locked)
       users.save(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -171,6 +246,17 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.pickExempted).setTo(exempted)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserSpeechLocale(users: Users2x, intId: String, locale: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.speechLocale).setTo(locale)
+      UserStateDAO.update(newUser)
       users.save(newUser)
       newUser
     }
@@ -194,11 +280,8 @@ object Users2x {
     users.toVector.find(u => u.presenter)
   }
 
-  def hasPin(users: Users2x): Boolean = {
-    findPin(users) match {
-      case Some(p) => true
-      case None    => false
-    }
+  def hasPins(users: Users2x): Boolean = {
+    !users.pinned.isEmpty
   }
 
   def isPin(intId: String, users: Users2x): Boolean = {
@@ -208,8 +291,13 @@ object Users2x {
     }
   }
 
-  def findPin(users: Users2x): Option[UserState] = {
-    users.toVector.find(u => u.pin)
+  def findPins(users: Users2x): Vector[Option[UserState]] = {
+    for {
+      uIntId <- users.pinned.toVector
+    } yield {
+      val u = findWithIntId(users, uIntId)
+      u
+    }
   }
 
   def findModerator(users: Users2x): Option[UserState] = {
@@ -249,6 +337,8 @@ class Users2x {
   // Collection of users that left the meeting. We keep a cache of the old users state to recover in case
   // the user reconnected by refreshing the client. (ralam june 13, 2017)
   private var usersCache: collection.immutable.HashMap[String, UserState] = new collection.immutable.HashMap[String, UserState]
+
+  private var pinned: collection.mutable.Queue[String] = new collection.mutable.Queue[String]()
 
   private def toVector: Vector[UserState] = users.values.toVector
 
@@ -329,18 +419,25 @@ case class UserState(
     role:                  String,
     guest:                 Boolean,
     pin:                   Boolean,
+    mobile:                Boolean,
     authed:                Boolean,
     guestStatus:           String,
     emoji:                 String,
+    reactionEmoji:         String,
+    reactionChangedOn:     Long         = 0,
+    raiseHand:             Boolean,
+    away:                  Boolean,
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
+    color:                 String,
     roleChangedOn:         Long         = System.currentTimeMillis(),
     lastActivityTime:      Long         = System.currentTimeMillis(),
     lastInactivityInspect: Long         = 0,
     clientType:            String,
     pickExempted:          Boolean,
-    userLeftFlag:          UserLeftFlag
+    userLeftFlag:          UserLeftFlag,
+    speechLocale:          String       = ""
 )
 
 case class UserIdAndName(id: String, name: String)
@@ -382,4 +479,5 @@ object EjectReasonCode {
   val USER_INACTIVITY = "user_inactivity_eject_reason"
   val BANNED_USER_REJOINING = "banned_user_rejoining_reason"
   val USER_LOGGED_OUT = "user_logged_out_reason"
+  val MAX_PARTICIPANTS = "max_participants_reason"
 }

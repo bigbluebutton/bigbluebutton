@@ -19,15 +19,26 @@
 
 package org.bigbluebutton.presentation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.bigbluebutton.presentation.FileTypeConstants.*;
 
+import org.apache.tika.Tika;
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 
 @SuppressWarnings("serial")
 public final class SupportedFileTypes {
-	
+
+	private static Logger log = LoggerFactory.getLogger(SupportedFileTypes.class);
+	private static MimeTypeUtils mimeTypeUtils = new MimeTypeUtils();
+
 	private static final List<String> SUPPORTED_FILE_LIST = Collections.unmodifiableList(new ArrayList<String>(15) {		
 		{				
 			// Add all the supported files				
@@ -51,7 +62,7 @@ public final class SupportedFileTypes {
 			add(JPEG); add(JPG); add(PNG);
 		}
 	});
-	
+
 	/*
 	 * Returns if the file with extension is supported.
 	 */
@@ -60,7 +71,7 @@ public final class SupportedFileTypes {
 	}
 	
 	/*
-	 * Returns if the office file is supported.
+	 * Returns if the Office file is supported.
 	 */
 	public static boolean isOfficeFile(String fileExtension) {
 		return OFFICE_FILE_LIST.contains(fileExtension.toLowerCase());
@@ -71,9 +82,55 @@ public final class SupportedFileTypes {
 	}
 	
 	/*
-	 * Returns if the iamge file is supported
+	 * Returns if the image file is supported
 	 */
 	public static boolean isImageFile(String fileExtension) {
 		return IMAGE_FILE_LIST.contains(fileExtension.toLowerCase());
+	}
+
+	public static String detectMimeType(File pres) {
+		if (pres == null) {
+			log.error("Presentation is null");
+			return "";
+		}
+	
+		if (!pres.isFile()) {
+			log.error("Presentation is not a file");
+			return "";
+		}
+	
+		try (InputStream presStream = new FileInputStream(pres)) {
+			return (new Tika()).detect(presStream);
+		} catch (IOException e) {
+			log.error("Error while executing detectMimeType: {}", e);
+		}
+
+		return "";
+	}
+
+	public static String detectFileExtensionBasedOnMimeType(File pres) {
+		String mimeType = detectMimeType(pres);
+		return mimeTypeUtils.getExtensionBasedOnMimeType(mimeType);
+	}
+
+	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
+		String mimeType = detectMimeType(pres);
+
+		if (mimeType.equals("")) {
+			log.error("Not able to detect mimeType.");
+			return false;
+		}
+
+		if (!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) {
+			log.error("MimeType is not valid for this meeting, [{}]", mimeType);
+			return false;
+		}
+
+		if (!mimeTypeUtils.extensionMatchMimeType(mimeType, fileExtension)) {
+			log.error("File with extension [{}] doesn't match with mimeType [{}].", fileExtension, mimeType);
+			return false;
+		}
+
+		return true;
 	}
 }

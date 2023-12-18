@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default function userActivitySign() {
+export default async function userActivitySign() {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -29,7 +29,7 @@ export default function userActivitySign() {
       },
     };
 
-    Users.update(selector, modifier); // TODO-- we should move this to a modifier
+    await Users.updateAsync(selector, modifier); // TODO-- we should move this to a modifier
 
     Logger.info(`User ${userId} sent a activity sign for meeting ${meetingId}`);
 

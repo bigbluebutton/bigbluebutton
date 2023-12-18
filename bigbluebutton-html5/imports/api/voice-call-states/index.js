@@ -7,7 +7,7 @@ if (Meteor.isServer) {
   // 1. intId
   // 2. meetingId, intId
 
-  VoiceCallStates._ensureIndex({ meetingId: 1, userId: 1 });
+  VoiceCallStates.createIndexAsync({ meetingId: 1, userId: 1 });
 }
 
 export default VoiceCallStates;

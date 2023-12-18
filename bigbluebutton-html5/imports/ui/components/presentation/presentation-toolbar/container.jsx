@@ -1,35 +1,44 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import PresentationService from '/imports/ui/components/presentation/service';
-import MediaService from '/imports/ui/components/media/service';
 import PollService from '/imports/ui/components/poll/service';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import Auth from '/imports/ui/services/auth';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { useSubscription } from '@apollo/client';
+import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 
 const PresentationToolbarContainer = (props) => {
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const userIsPresenter = currentUser.presenter;
+  const pluginsContext = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = pluginsContext;
 
-  const { layoutSwapped } = props;
+  const { userIsPresenter, layoutSwapped } = props;
+
+  const { data: pollData } = useSubscription(POLL_SUBSCRIPTION);
+  const hasPoll = pollData?.poll?.length > 0;
 
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
+  const endCurrentPoll = () => {
+    if (hasPoll) makeCall('stopPoll');
+  };
+
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
+
+    const pluginProvidedPresentationToolbarItems = pluginsExtensibleAreasAggregatedState
+      ?.presentationToolbarItems;
 
     return (
       <PresentationToolbar
         {...props}
         amIPresenter={userIsPresenter}
+        endCurrentPoll={endCurrentPoll}
         {...{
+          pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,
         }}
       />
@@ -38,12 +47,7 @@ const PresentationToolbarContainer = (props) => {
   return null;
 };
 
-export default withTracker((params) => {
-  const {
-    podId,
-    presentationId,
-  } = params;
-
+export default withTracker(() => {
   const startPoll = (type, id, answers = [], question = '', multiResp = false) => {
     Session.set('openPanel', 'poll');
     Session.set('forcePollOpen', true);
@@ -53,15 +57,11 @@ export default withTracker((params) => {
   };
 
   return {
-    layoutSwapped: MediaService.getSwapLayout() && MediaService.shouldEnableSwapLayout(),
-    numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
     nextSlide: PresentationToolbarService.nextSlide,
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     isMeteorConnected: Meteor.status().connected,
     isPollingEnabled: isPollingEnabled(),
-    currentSlidHasContent: PresentationService.currentSlidHasContent(),
-    parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     startPoll,
   };
 })(PresentationToolbarContainer);
@@ -79,4 +79,9 @@ PresentationToolbarContainer.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   previousSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
+  layoutSwapped: PropTypes.bool,
+};
+
+PresentationToolbarContainer.defaultProps = {
+  layoutSwapped: false,
 };

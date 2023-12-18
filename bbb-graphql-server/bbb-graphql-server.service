@@ -1,0 +1,25 @@
+[Unit]
+Description=BigBlueButton GraphQL Server
+Requires=network.target
+Wants=postgresql.service
+After=postgresql.service
+PartOf=bigbluebutton.target
+
+[Service]
+Type=simple
+User=bigbluebutton
+Group=bigbluebutton
+WorkingDirectory=/usr/local/bin
+EnvironmentFile=/etc/default/bbb-graphql-server
+ExecStart=/usr/local/bin/hasura-graphql-engine serve
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=60
+SuccessExitStatus=143
+TimeoutStopSec=5
+PermissionsStartOnly=true
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target
+

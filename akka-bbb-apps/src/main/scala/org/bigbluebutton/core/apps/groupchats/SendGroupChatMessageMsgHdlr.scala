@@ -49,7 +49,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
 
         if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
           val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg)
-          val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
+          val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm)
 
           val event = buildGroupChatMessageBroadcastEvtMsg(
             liveMeeting.props.meetingProp.intId,

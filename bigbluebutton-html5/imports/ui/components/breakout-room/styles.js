@@ -67,6 +67,11 @@ const Content = styled.div`
   justify-content: space-between;
   font-size: ${fontSizeSmall};
   font-weight: bold;
+  padding: ${borderSize} ${borderSize} ${borderSize} 0;
+
+  [dir="rtl"] & {
+    padding: ${borderSize} 0 ${borderSize} ${borderSize};
+  }
 `;
 
 const BreakoutRoomListNameLabel = styled.span`

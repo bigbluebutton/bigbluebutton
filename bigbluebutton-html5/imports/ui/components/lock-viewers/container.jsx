@@ -1,27 +1,24 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import LockViewersComponent from './component';
 import { updateLockSettings, updateWebcamsOnlyForModerator } from './service';
-import { UsersContext } from '../components-data/users-context/context';
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const LockViewersContainer = (props) => {
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const amIModerator = currentUser.role === ROLE_MODERATOR;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    isModerator: user.isModerator,
+  }));
+  const amIModerator = currentUserData?.isModerator;
 
-  return amIModerator && <LockViewersComponent {...props} />
-}
+  return amIModerator && <LockViewersComponent {...props} />;
+};
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
-  closeModal: () => mountModal(null),
+export default withTracker(({ setIsOpen }) => ({
+  closeModal: () => setIsOpen(false),
   meeting: Meetings.findOne({ meetingId: Auth.meetingID }),
   updateLockSettings,
   updateWebcamsOnlyForModerator,
   showToggleLabel: false,
-}))(LockViewersContainer));
+}))(LockViewersContainer);

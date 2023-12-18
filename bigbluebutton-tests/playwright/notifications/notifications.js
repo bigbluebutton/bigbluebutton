@@ -2,9 +2,10 @@ const { test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util');
-const { openSettings } = require('../settings/util');
+const { openSettings } = require('../options/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
+const { sleep } = require('../core/helpers');
 
 class Notifications extends MultiUsers {
   constructor(browser, context) {
@@ -25,11 +26,12 @@ class Notifications extends MultiUsers {
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
     await util.waitAndClearNotification(this.modPage);
+    await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
     await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
-    await this.modPage.wasRemoved(e.connecting);
+    await this.modPage.wasRemoved(e.establishingAudioLabel);
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
   }
@@ -44,16 +46,24 @@ class Notifications extends MultiUsers {
   }
 
   async raiseAndLowerHandNotification() {
-    const { raiseHandButton } = getSettings();
-    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+    const { reactionsButton } = getSettings();
+    if (!reactionsButton) {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.hasElement(e.joinAudio);
+      await this.modPage.wasRemoved(e.reactionsButton);
+      return
+    }
 
     await util.waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.raiseHandBtn);
-    await this.modPage.waitForSelector(e.smallToastMsg);
-    await util.checkNotificationText(this.modPage, e.raisingHandToast);
-    await util.waitAndClearNotification(this.modPage);
+    await sleep(1000);
+    await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.lowerHandBtn);
-    await util.checkNotificationText(this.modPage, e.loweringHandToast);
+    await this.modPage.wasRemoved(e.raiseHandRejection);
+    await util.checkNotificationText(this.modPage, e.raisingHandToast);
+    await this.modPage.hasText(`${e.smallToastMsg}>>nth=0`, e.raisingHandToast);
+    await this.modPage.hasText(`${e.smallToastMsg}>>nth=1`, e.loweringHandToast);
   }
 
   async userJoinNotification(page) {

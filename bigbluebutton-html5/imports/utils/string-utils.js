@@ -31,6 +31,15 @@ export const unescapeHtml = (input) => {
   return e.value;
 };
 
+export const formatLocaleCode = (locale) => {
+  const formattedLocale = locale?.replace('_', '-').replace('@', '-');
+
+  return {
+    language: formattedLocale?.split('-')[0],
+    formattedLocale,
+  };
+};
+
 export const safeMatch = (regex, content, defaultValue) => {
   const regexLimit = 50000;
 
@@ -38,11 +47,32 @@ export const safeMatch = (regex, content, defaultValue) => {
   return content.match(regex) || defaultValue;
 };
 
+export const lowercaseTrim = (text) => {
+  return text.trim().toLowerCase();
+}
+
+export const upperFirst = (string) => {
+  return string ? string.charAt(0).toUpperCase() + string.slice(1) : '';
+}
+
+export const uniqueId = (() => {
+  let num = 0;
+  return function (prefix) {
+      prefix = String(prefix) || '';
+      num += 1;
+      return prefix + num;
+  }
+})();
+
 export default {
   capitalizeFirstLetter,
   getDateString,
   stripTags,
   escapeHtml,
   unescapeHtml,
+  formatLocaleCode,
   safeMatch,
+  lowercaseTrim,
+  upperFirst,
+  uniqueId,
 };

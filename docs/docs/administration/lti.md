@@ -10,6 +10,7 @@ keywords:
 
 ## Overview
 
+<<<<<<< HEAD
 BigBlueButton is [certified](https://site.imsglobal.org/certifications/bigbluebutton-inc/36891/bigbluebutton) by IMS Global to support IMS Learning Tools Interoperability (LTI) 1.0.
 
 ![imscertifiedsm](/img/imscertifiedsm.png)
@@ -125,3 +126,28 @@ When using HAProxy the variable `$http_x_forwarded_proto` shall be used instead
 ```
 
 If a different web server or proxy server is used, make sure of passing the protocol to tomcat.
+=======
+BigBlueButton can accept incoming LTI launch requests from a tool consumer, which is the IMS term for any platform that can make an LTI request to an external tool.  
+
+Such platforms include Open edX, Desire2Learn, BlackBoard, Pearson Learning Studio, etc.
+
+What this means is that with no custom code, any LTI compliant platform can integrate BigBlueButton virtual classrooms to its system.
+
+### Installation of LTI components 
+
+There are two components for LTI integration that you need to install on your BigBlueButton server.
+  - [bbb-lti-broker](https://github.com/bigbluebutton/bbb-lti-broker)
+  - [bbb-apps-room](https://github.com/bigbluebutton/bbb-app-rooms)
+
+The broker component handles the incoming launch, while the rooms component handles the rendering of the interface to the educator and student. 
+
+When installing using [bbb-install.sh](https://github.com/bigbluebutton/bbb-install#bbb-install), you can add the parameter `-t` to add LTI credentials have have `bbb-install.sh` install the above components for you.
+
+```
+-t <key>:<secret>      Install BigBlueButton LTI framework tools and add/update LTI consumer credentials <key>:<secret>
+```
+
+After using the `-t` option, you can access the LTI launch URL by opening the URL `https://<hostnam>/lti`.  With the LTI launchh URL, key, and secret, you can test the LTI integration using the [TUSGI test](https://www.tsugi.org/lti-test/lms.php) page.
+
+For more details on the configuration of the LTI integration for BigBlueButton, see the README files for [bbb-lti-broker](https://github.com/bigbluebutton/bbb-lti-broker) and [bbb-apps-room](https://github.com/bigbluebutton/bbb-app-rooms).
+>>>>>>> v2.5.x-release

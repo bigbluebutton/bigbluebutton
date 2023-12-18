@@ -1,19 +1,24 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { NavBarItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/nav-bar-item/enums';
 import Styled from './styles';
-import RecordingIndicator from './recording-indicator/container';
-import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import RecordingIndicator from './nav-bar-graphql/recording-indicator/component';
+import TalkingIndicator from '/imports/ui/components/nav-bar/nav-bar-graphql/talking-indicator/component';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
+import ConnectionStatus from '/imports/ui/components/connection-status/component';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
-import SettingsDropdownContainer from './settings-dropdown/container';
+import OptionsDropdownContainer from './options-dropdown/container';
+import TimerIndicatorContainer from '/imports/ui/components/timer/timer-graphql/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import _ from "lodash";
-import { PANELS, ACTIONS } from '../layout/enums';
+import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import Button from '/imports/ui/components/common/button/component';
+import { isEqual } from 'radash';
+import Settings from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -45,6 +50,9 @@ const propTypes = {
   breakoutNum: PropTypes.number,
   breakoutName: PropTypes.string,
   meetingName: PropTypes.string,
+  pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+  })).isRequired,
 };
 
 const defaultProps = {
@@ -53,15 +61,89 @@ const defaultProps = {
   shortcuts: '',
 };
 
+const renderPluginItems = (pluginItems) => {
+  if (pluginItems !== undefined) {
+    return (
+      <>
+        {
+          pluginItems.map((pluginItem) => {
+            let returnComponent;
+            switch (pluginItem.type) {
+              case NavBarItemType.BUTTON:
+                returnComponent = (
+                  <Styled.PluginComponentWrapper
+                    key={`${pluginItem.id}-${pluginItem.type}`}
+                  >
+                    <Button
+                      disabled={pluginItem.disabled}
+                      icon={pluginItem.icon}
+                      label={pluginItem.label}
+                      aria-label={pluginItem.tooltip}
+                      color="primary"
+                      tooltip={pluginItem.tooltip}
+                      onClick={pluginItem.onClick}
+                    />
+                  </Styled.PluginComponentWrapper>
+                );
+                break;
+              case NavBarItemType.INFO:
+                returnComponent = (
+                  <Styled.PluginComponentWrapper
+                    key={`${pluginItem.id}-${pluginItem.type}`}
+                    tooltip={pluginItem.tooltip}
+                  >
+                    <Styled.PluginInfoComponent>
+                      {pluginItem.label}
+                    </Styled.PluginInfoComponent>
+                  </Styled.PluginComponentWrapper>
+                );
+                break;
+              default:
+                returnComponent = null;
+                break;
+            }
+            if (pluginItem.hasSeparator) {
+              switch (pluginItem.position) {
+                case PluginSdk.NavBarItemPosition.RIGHT:
+                  returnComponent = (
+                    <>
+                      {returnComponent}
+                      <Styled.PluginSeparatorWrapper key={`${pluginItem.id}-${pluginItem.type}-separator`}>
+                        |
+                      </Styled.PluginSeparatorWrapper>
+                    </>
+                  );
+                  break;
+                default:
+                  returnComponent = (
+                    <>
+                      <Styled.PluginSeparatorWrapper key={`${pluginItem.id}-${pluginItem.type}-separator`}>
+                        |
+                      </Styled.PluginSeparatorWrapper>
+                      {returnComponent}
+                    </>
+                  );
+                  break;
+              }
+            }
+            return returnComponent;
+          })
+        }
+      </>
+    );
+  }
+  return (<></>);
+};
 class NavBar extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-        acs: props.activeChats,
-    }
+      acs: props.activeChats,
+    };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
+    this.splitPluginItems = this.splitPluginItems.bind(this);
   }
 
   componentDidMount() {
@@ -104,8 +186,8 @@ class NavBar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!_.isEqual(prevProps.activeChats, this.props.activeChats)) {
-      this.setState({ acs: this.props.activeChats})
+    if (!isEqual(prevProps.activeChats, this.props.activeChats)) {
+      this.setState({ acs: this.props.activeChats });
     }
   }
 
@@ -156,6 +238,31 @@ class NavBar extends Component {
     }
   }
 
+  splitPluginItems() {
+    const { pluginNavBarItems } = this.props;
+
+    return pluginNavBarItems.reduce((result, item) => {
+      switch (item.position) {
+        case PluginSdk.NavBarItemPosition.LEFT:
+          result.leftPluginItems.push(item);
+          break;
+        case PluginSdk.NavBarItemPosition.CENTER:
+          result.centerPluginItems.push(item);
+          break;
+        case PluginSdk.NavBarItemPosition.RIGHT:
+          result.rightPluginItems.push(item);
+          break;
+        default:
+          break;
+      }
+      return result;
+    }, {
+      leftPluginItems: [],
+      centerPluginItems: [],
+      rightPluginItems: [],
+    });
+  }
+
   render() {
     const {
       hasUnreadMessages,
@@ -163,20 +270,22 @@ class NavBar extends Component {
       activeChats,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
-      mountModal,
       presentationTitle,
       amIModerator,
       style,
       main,
+      isPinned,
       sidebarNavigation,
+      currentUserId,
     } = this.props;
 
-    const hasNotification = hasUnreadMessages || hasUnreadNotes;
+    const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     const isExpanded = sidebarNavigation.isOpen;
+    const { isPhone } = deviceInfo;
 
     const { acs } = this.state;
 
@@ -186,8 +295,16 @@ class NavBar extends Component {
       }
     });
 
+    const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
+
+    const { selectedLayout } = Settings.application;
+    const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+
     return (
       <Styled.Navbar
+        id="Navbar"
         style={
           main === 'new'
             ? {
@@ -206,45 +323,54 @@ class NavBar extends Component {
       >
         <Styled.Top>
           <Styled.Left>
-            {isExpanded && document.dir === 'ltr'
+            {shouldShowNavBarToggleButton && isExpanded && document.dir === 'ltr'
               && <Styled.ArrowLeft iconName="left_arrow" />}
-            {!isExpanded && document.dir === 'rtl'
+            {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'rtl'
               && <Styled.ArrowLeft iconName="left_arrow" />}
-            <Styled.NavbarToggleButton
-              onClick={this.handleToggleUserList}
-              ghost
-              circle
-              hideLabel
-              data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
-              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              aria-label={ariaLabel}
-              icon="user"
-              aria-expanded={isExpanded}
-              accessKey={TOGGLE_USERLIST_AK}
-              hasNotification={hasNotification}
-            />
-            {!isExpanded && document.dir === 'ltr'
+            {shouldShowNavBarToggleButton && (
+              <Styled.NavbarToggleButton
+                tooltipplacement="right"
+                onClick={this.handleToggleUserList}
+                color={isPhone && isExpanded ? 'primary' : 'dark'}
+                size='md'
+                circle
+                hideLabel
+                data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
+                label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                aria-label={ariaLabel}
+                icon="user"
+                aria-expanded={isExpanded}
+                accessKey={TOGGLE_USERLIST_AK}
+                hasNotification={hasNotification}
+              />
+            )}
+            {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'ltr'
               && <Styled.ArrowRight iconName="right_arrow" />}
-            {isExpanded && document.dir === 'rtl'
+            {shouldShowNavBarToggleButton && isExpanded && document.dir === 'rtl'
               && <Styled.ArrowRight iconName="right_arrow" />}
+            {renderPluginItems(leftPluginItems)}
           </Styled.Left>
           <Styled.Center>
             <Styled.PresentationTitle data-test="presentationTitle">
               {presentationTitle}
             </Styled.PresentationTitle>
             <RecordingIndicator
-              mountModal={mountModal}
               amIModerator={amIModerator}
+              currentUserId={currentUserId}
             />
+            {renderPluginItems(centerPluginItems)}
           </Styled.Center>
           <Styled.Right>
+            {renderPluginItems(rightPluginItems)}
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
-            <SettingsDropdownContainer amIModerator={amIModerator} />
+            {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
+            <OptionsDropdownContainer amIModerator={amIModerator} />
           </Styled.Right>
         </Styled.Top>
         <Styled.Bottom>
-          <TalkingIndicatorContainer amIModerator={amIModerator} />
+          <TalkingIndicator amIModerator={amIModerator} />
+          <TimerIndicatorContainer />
         </Styled.Bottom>
       </Styled.Navbar>
     );
@@ -253,4 +379,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-export default withShortcutHelper(withModalMounter(injectIntl(NavBar)), 'toggleUserList');
+export default withShortcutHelper(injectIntl(NavBar), 'toggleUserList');

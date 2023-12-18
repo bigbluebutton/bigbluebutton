@@ -2,9 +2,10 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core2.message.senders.Sender
 
 trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -37,6 +38,13 @@ trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
           }
 
           LockSettingsUtil.enforceCamLockSettingsForUser(uvo, liveMeeting, outGW)
+        }
+
+        // Force reconnection with graphql to refresh permissions
+        for {
+          u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
+        } yield {
+          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "lock_user_changed", outGW)
         }
 
         log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked)

@@ -1,6 +1,6 @@
 import { makeCall } from '/imports/ui/services/api';
 import Polls from '/imports/api/polls';
-import { debounce } from 'lodash';
+import { debounce } from '/imports/utils/debounce';
 
 const MAX_CHAR_LENGTH = 5;
 

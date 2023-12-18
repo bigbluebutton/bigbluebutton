@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalState } from '../base/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -61,7 +60,7 @@ class ModalFullscreen extends PureComponent {
   }
 
   handleAction(name) {
-    const { confirm, dismiss, modalHide } = this.props;
+    const { confirm, dismiss } = this.props;
     const { callback: callBackConfirm } = confirm;
     const { callback: callBackDismiss } = dismiss;
 
@@ -78,7 +77,7 @@ class ModalFullscreen extends PureComponent {
         break;
     }
 
-    return modalHide(callback);
+    return callback();
   }
 
   render() {
@@ -89,7 +88,7 @@ class ModalFullscreen extends PureComponent {
       dismiss,
       className,
       children,
-      modalisOpen,
+      isOpen,
       preventClosing,
       ...otherProps
     } = this.props;
@@ -102,8 +101,8 @@ class ModalFullscreen extends PureComponent {
 
     return (
       <Styled.FullscreenModal
-      id="fsmodal"
-        isOpen={modalisOpen || preventClosing}
+        id="fsmodal"
+        isOpen={isOpen || preventClosing}
         contentLabel={title}
         overlayClassName={"fullscreenModalOverlay"}
         {...otherProps}
@@ -118,6 +117,7 @@ class ModalFullscreen extends PureComponent {
               disabled={dismiss.disabled}
               onClick={() => this.handleAction('dismiss')}
               aria-describedby="modalDismissDescription"
+              color="secondary"
             />
             <Styled.ConfirmButton
               data-test="modalConfirmButton"
@@ -146,4 +146,4 @@ class ModalFullscreen extends PureComponent {
 ModalFullscreen.propTypes = propTypes;
 ModalFullscreen.defaultProps = defaultProps;
 
-export default withModalState(injectIntl(ModalFullscreen));
+export default injectIntl(ModalFullscreen);

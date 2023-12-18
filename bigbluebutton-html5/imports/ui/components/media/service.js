@@ -1,25 +1,18 @@
-import Presentations from '/imports/api/presentations';
-import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
-import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
+import {
+  isScreenSharingEnabled, isCameraAsContentEnabled, isPresentationEnabled,
+} from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
+import NotesService from '/imports/ui/components/notes/service';
+import VideoStreams from '/imports/api/video-streams';
+import Auth from '/imports/ui/services/auth/index';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
-
-const getPresentationInfo = () => {
-  const currentPresentation = Presentations.findOne({
-    current: true,
-  });
-
-  return {
-    current_presentation: (currentPresentation != null),
-  };
-};
 
 function shouldShowWhiteboard() {
   return true;
@@ -27,68 +20,54 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter()) && isVideoBroadcasting();
+  return (isScreenSharingEnabled() || isCameraAsContentEnabled())
+    && (viewScreenshare || UserService.isUserPresenter())
+    && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
 }
 
-function shouldShowExternalVideo() {
-  return isExternalVideoEnabled() && getVideoUrl();
+function shouldShowSharedNotes() {
+  return NotesService.isSharedNotesPinned();
 }
 
 function shouldShowOverlay() {
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 
-const swapLayout = {
-  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
-  tracker: new Tracker.Dependency(),
-};
-
-const setSwapLayout = (layoutContextDispatch) => {
-  const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
-
-  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout) || hidePresentation;
-  swapLayout.tracker.changed();
-
-  if (!hidePresentation) {
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !swapLayout.value,
-    });
-  }
-};
-
-const toggleSwapLayout = (layoutContextDispatch) => {
-  window.dispatchEvent(new Event('togglePresentationHide'));
-  swapLayout.value = !swapLayout.value;
-  swapLayout.tracker.changed();
-
+const setPresentationIsOpen = (layoutContextDispatch, value) => {
   layoutContextDispatch({
     type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-    value: !swapLayout.value,
+    value,
   });
 };
 
-export const shouldEnableSwapLayout = () => {
-  if (!PRESENTATION_CONFIG.oldMinimizeButton) {
-    return true;
-  }
-  return !shouldShowScreenshare() && !shouldShowExternalVideo();
-};
+const isThereWebcamOn = (meetingID) => {
+  return VideoStreams.find({
+    meetingId: meetingID
+  }).count() > 0;
+}
 
-export const getSwapLayout = () => {
-  swapLayout.tracker.depend();
-  return swapLayout.value;
-};
+const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch, isSharingVideo) => {
+  const isSharedNotesPinned = NotesService.isSharedNotesPinned();
+  const hasScreenshare = isScreenSharingEnabled();
+  const isThereWebcam = isThereWebcamOn(Auth.meetingID);
+  const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
+  const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
+  const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;
+  const isPresentationDisabled = !isPresentationEnabled();
+
+  if (isPresentationDisabled && (webcamIsOnlyContent || isThereNoMedia)) {
+    setPresentationIsOpen(layoutContextDispatch, false);
+  }
+
+}
 
 export default {
-  getPresentationInfo,
+  buildLayoutWhenPresentationAreaIsDisabled,
   shouldShowWhiteboard,
   shouldShowScreenshare,
-  shouldShowExternalVideo,
   shouldShowOverlay,
-  isVideoBroadcasting,
-  toggleSwapLayout,
-  shouldEnableSwapLayout,
-  getSwapLayout,
-  setSwapLayout,
+  isScreenBroadcasting,
+  isCameraAsContentBroadcasting,
+  setPresentationIsOpen,
+  shouldShowSharedNotes,
 };

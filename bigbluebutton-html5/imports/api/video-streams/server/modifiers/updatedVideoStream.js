@@ -1,8 +1,9 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VideoStreams from '/imports/api/video-streams';
+import flat from 'flat';
 
-export default function updateVideoStream(meetingId, videoStream) {
+export default async function updateVideoStream(meetingId, videoStream) {
   check(meetingId, String);
   check(videoStream, {
     userId: String,
@@ -23,12 +24,12 @@ export default function updateVideoStream(meetingId, videoStream) {
 
   const modifier = {
     $set: Object.assign(
-      ...videoStream,
+      flat(videoStream),
     ),
   };
 
   try {
-    const numberAffected = VideoStreams.update(selector, modifier);
+    const numberAffected = await VideoStreams.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.debug(`Update videoStream ${stream} for user ${userId} in ${meetingId}`);

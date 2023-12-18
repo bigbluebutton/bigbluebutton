@@ -14,8 +14,10 @@ import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
+import BBBStorage from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
-import _ from 'lodash';
+import { debounce } from '/imports/utils/debounce';
+import { partition } from '/imports/utils/array-utils';
 import {
   getSortingMethod,
   sortVideoStreams,
@@ -40,6 +42,8 @@ const {
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
+  desktopGridSizes: DESKTOP_GRID_SIZES,
+  mobileGridSizes: MOBILE_GRID_SIZES,
 } = Meteor.settings.public.kurento.pagination;
 const PAGINATION_THRESHOLDS_CONF = Meteor.settings.public.kurento.paginationThresholds;
 const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
@@ -374,13 +378,30 @@ class VideoService {
     return this.setPageSize(size);
   }
 
+  getGridSize () {
+    let size;
+    const myRole = this.getMyRole();
+    const gridSizes = !this.isMobile ? DESKTOP_GRID_SIZES : MOBILE_GRID_SIZES;
+    
+    switch (myRole) {
+      case ROLE_MODERATOR:
+        size = gridSizes.moderator;
+        break;
+      case ROLE_VIEWER:
+      default:
+        size = gridSizes.viewer
+    }
+
+    return size;
+  }
+
   getVideoPage (streams, pageSize) {
     // Publishers are taken into account for the page size calculations. They
     // also appear on every page. Same for pinned user.
-    const [filtered, others] = _.partition(streams, (vs) => Auth.userID === vs.userId || vs.pin);
+    const [filtered, others] = partition(streams, (vs) => Auth.userID === vs.userId || vs.pin);
 
     // Separate pin from local cameras
-    const [pin, mine] = _.partition(filtered, (vs) => vs.pin);
+    const [pin, mine] = partition(filtered, (vs) => vs.pin);
 
     // Recalculate total number of pages
     this.setNumberOfPages(filtered.length, others.length, pageSize);
@@ -418,12 +439,26 @@ class VideoService {
     makeCall('changePin', userId, !userIsPinned);
   }
 
+  isGridEnabled() {
+    return Session.get('isGridEnabled');
+  }
+
   getVideoStreams() {
     const pageSize = this.getMyPageSize();
     const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
     const { neededDataTypes } = isPaginationDisabled
       ? getSortingMethod(DEFAULT_SORTING)
       : getSortingMethod(PAGINATION_SORTING);
+    const isGridEnabled = this.isGridEnabled();
+    let gridUsers = [];
+    let users = [];
+
+    if (isGridEnabled) {
+      users = Users.find(
+        { meetingId: Auth.meetingID },
+        { fields: { loggedOut: 1, left: 1, ...neededDataTypes} },
+      ).fetch();
+    }
 
     let streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
@@ -443,15 +478,38 @@ class VideoService {
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
     if (isPaginationDisabled) {
+      if (isGridEnabled) {
+        const streamUsers = streams.map((stream) => stream.userId);
+  
+        gridUsers = users.filter(
+          (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId)
+        ).map((user) => ({
+          isGridItem: true,
+          ...user,
+          }));
+      }
+
       return {
         streams: sortVideoStreams(streams, DEFAULT_SORTING),
+        gridUsers,
         totalNumberOfStreams: streams.length
       };
     }
 
     const paginatedStreams = this.getVideoPage(streams, pageSize);
 
-    return { streams: paginatedStreams, totalNumberOfStreams: streams.length };
+    if (isGridEnabled) {
+      const streamUsers = paginatedStreams.map((stream) => stream.userId);
+
+      gridUsers = users.filter(
+        (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId)
+      ).map((user) => ({
+        isGridItem: true,
+        ...user,
+        }));
+    }
+
+    return { streams: paginatedStreams, gridUsers, totalNumberOfStreams: streams.length };
   }
 
   stopConnectingStream () {
@@ -637,11 +695,7 @@ class VideoService {
   }
 
   // In user-list it is necessary to check if the user is sharing his webcam
-  isVideoPinEnabledForCurrentUser() {
-    const currentUser = Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } });
-
-    const isModerator = currentUser.role === 'MODERATOR';
+  isVideoPinEnabledForCurrentUser(isModerator) {
     const isBreakout = meetingIsBreakout();
     const isPinEnabled = this.isPinEnabled();
 
@@ -677,7 +731,7 @@ class VideoService {
   }
 
   isLocalStream(cameraId) {
-    return cameraId.startsWith(Auth.userID);
+    return cameraId?.startsWith(Auth.userID);
   }
 
   playStart(cameraId) {
@@ -688,11 +742,11 @@ class VideoService {
   }
 
   getCameraProfile() {
-    const profileId = Session.get('WebcamProfileId') || '';
+    const profileId = BBBStorage.getItem('WebcamProfileId') || '';
     const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
       || CAMERA_PROFILES.find(profile => profile.default)
       || CAMERA_PROFILES[0];
-    const deviceId = Session.get('WebcamDeviceId');
+    const deviceId = BBBStorage.getItem('WebcamDeviceId');
     if (deviceId) {
       cameraProfile.constraints = cameraProfile.constraints || {};
       cameraProfile.constraints.deviceId = { exact: deviceId };
@@ -702,7 +756,7 @@ class VideoService {
   }
 
   addCandidateToPeer(peer, candidate, cameraId) {
-    peer.addIceCandidate(candidate, (error) => {
+    peer.addIceCandidate(candidate).catch((error) => {
       if (error) {
         // Just log the error. We can't be sure if a candidate failure on add is
         // fatal or not, so that's why we have a timeout set up for negotiations
@@ -755,7 +809,7 @@ class VideoService {
     if (this.userParameterProfile === null) {
       this.userParameterProfile = getFromUserSettings(
         'bbb_preferred_camera_profile',
-        (CAMERA_PROFILES.filter(i => i.default) || {}).id,
+        (CAMERA_PROFILES.find(i => i.default) || {}).id || null,
       );
     }
 
@@ -771,17 +825,6 @@ class VideoService {
       && !this.isMobile
       && !this.isSafari
       && this.numberOfDevices > 1;
-  }
-
-  // to be used soon (Paulo)
-  amIModerator() {
-    return Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } }).role === ROLE_MODERATOR;
-  }
-
-  // to be used soon (Paulo)
-  getNumberOfPublishers() {
-    return VideoStreams.find({ meetingId: Auth.meetingID }).count();
   }
 
   isProfileBetter (newProfileId, originalProfileId) {
@@ -1014,7 +1057,7 @@ export default {
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
-  applyCameraProfile: _.debounce(
+  applyCameraProfile: debounce(
     videoService.applyCameraProfile.bind(videoService),
     CAMERA_QUALITY_THR_DEBOUNCE,
     { leading: false, trailing: true },
@@ -1030,7 +1073,7 @@ export default {
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
   toggleVideoPin: (userId, pin) => videoService.toggleVideoPin(userId, pin),
   getVideoPinByUser: (userId) => videoService.getVideoPinByUser(userId),
-  isVideoPinEnabledForCurrentUser: () => videoService.isVideoPinEnabledForCurrentUser(),
+  isVideoPinEnabledForCurrentUser: (user) => videoService.isVideoPinEnabledForCurrentUser(user),
   isPinEnabled: () => videoService.isPinEnabled(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
   getStats: () => videoService.getStats(),

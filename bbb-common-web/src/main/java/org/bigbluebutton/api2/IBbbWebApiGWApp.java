@@ -1,7 +1,6 @@
 package org.bigbluebutton.api2;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
@@ -19,13 +18,16 @@ public interface IBbbWebApiGWApp {
   void createMeeting(String meetingID, String externalMeetingID,
                      String parentMeetingID, String meetingName, Boolean recorded,
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
-                     Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
+                     Boolean allowStartStopRecording,
+                     Boolean recordFullDurationMedia,
+                     Boolean webcamsOnlyForModerator,
                      Integer meetingCameraCap,
                      Integer userCameraCap,
+                     Integer maxPinnedCameras,
                      String moderatorPass, String viewerPass, String learningDashboardAccessToken, Long createTime,
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
                      String guestPolicy, Boolean authenticatedGuest, String meetingLayout, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
-                     String dialNumber, Integer maxUsers,
+                     String dialNumber, Integer maxUsers, Integer maxUserConcurrentAccesses,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
                      Integer userInactivityInspectTimerInMinutes,
@@ -41,13 +43,16 @@ public interface IBbbWebApiGWApp {
                      LockSettingsParams lockSettingsParams,
                      Integer html5InstanceId,
                      ArrayList<Group> groups,
-                     ArrayList<String> disabledFeatures);
+                     ArrayList<String> disabledFeatures,
+                     Boolean notifyRecordingIsOn,
+                     String presentationUploadExternalDescription,
+                     String presentationUploadExternalUrl,
+                     String overrideClientSettings);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String avatarURL,
-                    Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard);
-  void ejectDuplicateUser(String meetingID, String internalUserId, String fullname,
-                    String externUserID);
+                    String externUserID, String authToken, String sessionToken, String avatarURL,
+                    Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
+                    String enforceLayout, Map<String, String> customParameters);
   void guestWaitingLeft(String meetingID, String internalUserId);
 
   void destroyMeeting(DestroyMeetingMessage msg);

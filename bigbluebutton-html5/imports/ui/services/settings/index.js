@@ -1,8 +1,8 @@
 import {default as LocalStorage} from '/imports/ui/services/storage/local';
 import {default as SessionStorage} from '/imports/ui/services/storage/session';
 
-import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
+import { isEmpty } from 'radash';
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -13,6 +13,7 @@ const SETTINGS = [
   'cc',
   'dataSaving',
   'animations',
+  'selfViewDisable',
 ];
 
 const CHANGED_SETTINGS = 'changed_settings';
@@ -59,7 +60,7 @@ class Settings {
   }
 
   loadChanged() {
-    const Storage = (APP_CONFIG.userSettingsStorage == 'local') ? LocalStorage : SessionStorage;
+    const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     const savedSettings = {};
 
     SETTINGS.forEach((s) => {
@@ -77,7 +78,7 @@ class Settings {
   }
 
   save(settings = CHANGED_SETTINGS) {
-    const Storage = (APP_CONFIG.userSettingsStorage == 'local') ? LocalStorage : SessionStorage;
+    const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
         const values = this[k].value;
@@ -91,7 +92,7 @@ class Settings {
             [item]: values[item],
           }), {});
 
-        if (_.isEmpty(changedValues)) Storage.removeItem(`${settings}${k}`);
+        if (isEmpty(changedValues)) Storage.removeItem(`${settings}${k}`);
         Storage.setItem(`${settings}${k}`, changedValues);
       });
     } else {

@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 
 // "CALL_STARTED", "IN_ECHO_TEST", "IN_CONFERENCE", "CALL_ENDED"
 
-export default function handleVoiceCallStateEvent({ body }, meetingId) {
+export default async function handleVoiceCallStateEvent({ body }, meetingId) {
   const {
     voiceConf,
     clientSession,
@@ -37,7 +37,7 @@ export default function handleVoiceCallStateEvent({ body }, meetingId) {
   };
 
   try {
-    const { numberAffected } = VoiceCallState.upsert(selector, modifier);
+    const { numberAffected } = await VoiceCallState.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.debug('Update voice call', {

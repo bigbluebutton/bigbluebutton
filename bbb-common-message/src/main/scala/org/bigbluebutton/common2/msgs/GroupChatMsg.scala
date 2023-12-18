@@ -5,6 +5,15 @@ object GroupChatAccess {
   val PRIVATE = "PRIVATE_ACCESS"
 }
 
+object GroupChatMessageType {
+  val DEFAULT = "default"
+  val PRESENTATION = "presentation"
+  val POLL = "poll"
+  val BREAKOUTROOM_MOD_MSG = "breakoutRoomModeratorMsg"
+  val PUBLIC_CHAT_HIST_CLEARED = "publicChatHistoryCleared"
+  val USER_AWAY_STATUS_MSG = "userAwayStatusMsg"
+}
+
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
 case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)

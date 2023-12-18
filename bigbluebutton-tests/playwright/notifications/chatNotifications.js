@@ -1,7 +1,7 @@
 const { MultiUsers } = require("../user/multiusers");
 const util = require('./util');
 const e = require('../core/elements');
-const { openSettings } = require('../settings/util');
+const { openSettings } = require('../options/util');
 const { sleep } = require("../core/helpers");
 
 class ChatNotifications extends MultiUsers {

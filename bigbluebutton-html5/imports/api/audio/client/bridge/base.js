@@ -4,15 +4,14 @@ import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import {
-  DEFAULT_INPUT_DEVICE_ID,
-  reloadAudioElement
+  getAudioConstraints,
+  doGUM,
 } from '/imports/api/audio/client/bridge/service';
 
 const MEDIA = Meteor.settings.public.media;
 const BASE_BRIDGE_NAME = 'base';
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const TRANSFER_TONE = '1';
-const MEDIA_TAG = MEDIA.mediaTag;
 
 export default class BaseAudioBridge {
   constructor(userData) {
@@ -55,52 +54,83 @@ export default class BaseAudioBridge {
     console.error('The Bridge must implement changeInputDevice');
   }
 
+  setInputStream() {
+    console.error('The Bridge must implement setInputStream');
+  }
+
   sendDtmf() {
     console.error('The Bridge must implement sendDtmf');
   }
 
-  setDefaultInputDevice() {
-    this.inputDeviceId = DEFAULT_INPUT_DEVICE_ID;
+  set inputDeviceId (deviceId) {
+    this._inputDeviceId = deviceId;
   }
 
-  async changeInputDeviceId(inputDeviceId) {
-    if (!inputDeviceId) {
-      throw new Error();
-    }
+  get inputDeviceId () {
+    return this._inputDeviceId;
 
-    this.inputDeviceId = inputDeviceId;
-    return inputDeviceId;
   }
 
-  async changeOutputDevice(value, isLive) {
-    const audioElement = document.querySelector(MEDIA_TAG);
+  /**
+   * Change the input device with the given deviceId, without renegotiating
+   * peer.
+   * A new MediaStream object is created for the given deviceId. This object
+   * is returned by the resolved promise.
+   * @param  {String}  deviceId The id of the device to be set as input
+   * @return {Promise}          A promise that is resolved with the MediaStream
+   *                            object after changing the input device.
+   */
+  async liveChangeInputDevice(deviceId) {
+    let newStream;
+    let backupStream;
 
-    if (audioElement.setSinkId) {
-      try {
-        if (!isLive) {
-          audioElement.srcObject = null;
-        }
+    try {
+      const constraints = {
+        audio: getAudioConstraints({ deviceId }),
+      };
 
-        await audioElement.setSinkId(value);
-        reloadAudioElement(audioElement);
-        logger.debug({
-          logCode: 'audio_reload_audio_element',
-          extraInfo: {
-            bridgeName: this.bridgeName,
-          },
-        }, 'Audio element reloaded after changing output device');
-
-        this.outputDeviceId = value;
-      } catch (error) {
-        logger.error({
-          logCode: 'audio_changeoutputdevice_error',
-          extraInfo: { error, callerIdName: this.user.callerIdName },
-        }, 'Change Output Device error');
-        throw new Error(this.baseErrorCodes.MEDIA_ERROR);
+      // Backup stream (current one) in case the switch fails
+      if (this.inputStream && this.inputStream.active) {
+        backupStream = this.inputStream ? this.inputStream.clone() : null;
+        this.inputStream.getAudioTracks().forEach((track) => track.stop());
       }
-    }
 
-    return this.outputDeviceId;
+      newStream = await doGUM(constraints);
+      await this.setInputStream(newStream);
+      if (backupStream && backupStream.active) {
+        backupStream.getAudioTracks().forEach((track) => track.stop());
+        backupStream = null;
+      }
+
+      return newStream;
+    } catch (error) {
+      // Device change failed. Clean up the tentative new stream to avoid lingering
+      // stuff, then try to rollback to the previous input stream.
+      if (newStream && typeof newStream.getAudioTracks === 'function') {
+        newStream.getAudioTracks().forEach((t) => t.stop());
+        newStream = null;
+      }
+
+      // Rollback to backup stream
+      if (backupStream && backupStream.active) {
+        this.setInputStream(backupStream).catch((rollbackError) => {
+          logger.error({
+            logCode: 'audio_changeinputdevice_rollback_failure',
+            extraInfo: {
+              bridgeName: this.bridgeName,
+              deviceId,
+              errorName: rollbackError.name,
+              errorMessage: rollbackError.message,
+            },
+          }, 'Microphone device change rollback failed - the device may become silent');
+
+          backupStream.getAudioTracks().forEach((track) => track.stop());
+          backupStream = null;
+        });
+      }
+
+      throw error;
+    }
   }
 
   trackTransferState(transferCallback) {

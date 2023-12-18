@@ -1,6 +1,7 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { debounce, throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
+import { debounce } from '/imports/utils/debounce';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
@@ -10,6 +11,11 @@ import Storage from '../../services/storage/session';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
+const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeter;
+const {
+  enabled: LOCAL_ECHO_TEST_ENABLED,
+  initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+} = Meteor.settings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 
@@ -66,6 +72,21 @@ const init = (messages, intl) => {
   return AudioManager.init(userData, audioEventHandler);
 };
 
+const muteMicrophone = () => {
+  const user = VoiceUsers.findOne({
+    meetingId: Auth.meetingID, intId: Auth.userID,
+  }, { fields: { muted: 1 } });
+
+  if (!user.muted) {
+    logger.info({
+      logCode: 'audiomanager_mute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'User wants to leave conference. Microphone muted');
+    AudioManager.setSenderTrackEnabled(false);
+    makeCall('toggleVoice');
+  }
+};
+
 const isVoiceUser = () => {
   const voiceUser = VoiceUsers.findOne({ intId: Auth.userID },
     { fields: { joined: 1 } });
@@ -94,7 +115,6 @@ const toggleMuteMicrophone = throttle(() => {
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
-
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -104,14 +124,22 @@ export default {
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
-  changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  liveChangeInputDevice: inputDeviceId => AudioManager.liveChangeInputDevice(inputDeviceId),
-  changeOutputDevice: (outputDeviceId, isLive) => {
-    if (AudioManager.outputDeviceId !== outputDeviceId) {
-      AudioManager.changeOutputDevice(outputDeviceId, isLive);
-    }
+  changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
+  changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
+  liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
+  changeOutputDevice: (outputDeviceId, isLive) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
+  isConnectedToBreakout: () => {
+    const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
+    if (transferStatus.status
+      === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED) return true;
+    return false;
   },
-  isConnected: () => AudioManager.isConnected,
+  isConnected: () => {
+    const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
+    if (!!transferStatus.breakoutMeetingId
+      && transferStatus.breakoutMeetingId !== Auth.meetingID) return false;
+    return AudioManager.isConnected;
+  },
   isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,
   isUsingAudio: () => AudioManager.isUsingAudio(),
@@ -124,18 +152,23 @@ export default {
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1 } }).role === ROLE_MODERATOR,
+    { fields: { role: 1 } })?.role === ROLE_MODERATOR,
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
-  playAlertSound: url => AudioManager.playAlertSound(url),
+  playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints:
-    constraints => AudioManager.updateAudioConstraints(constraints),
+    (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
+  muteMicrophone: () => muteMicrophone(),
   isReconnecting: () => AudioManager.isReconnecting,
-  setBreakoutAudioTransferStatus: status => AudioManager
+  setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
+  localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
+  localEchoInitHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+  showVolumeMeter: SHOW_VOLUME_METER,
+  notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
 };

@@ -54,29 +54,6 @@ def check_events_xml(raw_dir,meeting_id)
   bad_doc = Nokogiri::XML(File.open(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
 end
 
-def repair_red5_ser(directory)
-  cp="/usr/share/red5/red5-server.jar:/usr/share/red5/lib/*"
-  if File.directory?(directory)
-    FileUtils.cd(directory) do
-
-      BigBlueButton.logger.info("Repairing red5 serialized streams")
-      Dir.glob("*.flv.ser").each do |ser|
-        BigBlueButton.logger.info("Repairing #{ser}")
-        ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
-        if ret != 0
-          BigBlueButton.logger.warn("Failed to repair #{ser}")
-          next
-        end
-
-        BigBlueButton.logger.info("Cleaning up .flv.ser and .flv.info files")
-        FileUtils.rm_f(ser)
-        FileUtils.rm_f("#{ser[0..-5]}.info")
-      end
-    end
-  end
-end
-
-
 # Determine the filenames for the done and fail files
 if !break_timestamp.nil?
   done_base = "#{meeting_id}-#{break_timestamp}"
@@ -95,12 +72,6 @@ begin
 
   logger.info("Checking events.xml")
   check_events_xml(raw_archive_dir,meeting_id)
-
-  logger.info("Repairing webcam videos")
-  repair_red5_ser("#{raw_archive_dir}/#{meeting_id}/video/#{meeting_id}")
-
-  logger.info("Repairing deskshare videos")
-  repair_red5_ser("#{raw_archive_dir}/#{meeting_id}/deskshare")
 
   if break_timestamp.nil?
     # Either this recording isn't segmented, or we are working on the last

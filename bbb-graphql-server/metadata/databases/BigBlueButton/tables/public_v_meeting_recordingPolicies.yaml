@@ -1,0 +1,19 @@
+table:
+  name: v_meeting_recordingPolicies
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: meeting_recordingPolicies
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - allowStartStopRecording
+        - autoStartRecording
+        - keepEvents
+        - record
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

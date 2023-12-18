@@ -6,6 +6,7 @@ public class UserJoined implements IMessage {
   public final String externalUserId;
   public final String name;
   public final String role;
+  public final Boolean locked;
   public final String avatarURL;
   public final Boolean guest;
   public final String guestStatus;
@@ -17,6 +18,7 @@ public class UserJoined implements IMessage {
 										String externalUserId,
 										String name,
 										String role,
+										Boolean locked,
 										String avatarURL,
 										Boolean guest,
 										String guestStatus,
@@ -26,6 +28,7 @@ public class UserJoined implements IMessage {
   	this.externalUserId = externalUserId;
   	this.name = name;
   	this.role = role;
+  	this.locked = locked;
   	this.avatarURL = avatarURL;
   	this.guest = guest;
   	this.guestStatus = guestStatus;

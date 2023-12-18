@@ -80,5 +80,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-remove after-remove.sh \
     --description "The EtherPad Lite components for BigBlueButton" \
     $DIRECTORIES \
-    $OPTS
+    $OPTS \
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'
 

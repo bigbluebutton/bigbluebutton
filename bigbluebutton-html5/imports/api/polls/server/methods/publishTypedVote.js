@@ -4,7 +4,7 @@ import Polls from '/imports/api/polls';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function publishTypedVote(id, pollAnswer) {
+export default async function publishTypedVote(id, pollAnswer) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
@@ -18,7 +18,7 @@ export default function publishTypedVote(id, pollAnswer) {
     check(pollAnswer, String);
     check(id, String);
 
-    const allowedToVote = Polls.findOne({
+    const allowedToVote = await Polls.findOneAsync({
       id,
       users: { $in: [requesterUserId] },
       meetingId,
@@ -33,7 +33,7 @@ export default function publishTypedVote(id, pollAnswer) {
       return null;
     }
 
-    const activePoll = Polls.findOne({ meetingId, id }, {
+    const activePoll = await Polls.findOneAsync({ meetingId, id }, {
       fields: {
         answers: 1,
       },
@@ -73,4 +73,7 @@ export default function publishTypedVote(id, pollAnswer) {
   } catch (err) {
     Logger.error(`Exception while invoking method publishTypedVote ${err.stack}`);
   }
+  //In this case we return true because
+  //lint asks for async functions to return some value.
+  return true;
 }

@@ -1,11 +1,17 @@
 .tippy-tooltip.bbbtip-theme{
     color:#fff;
     background-color:#333333;
-    padding: .25rem;
+    padding: .25rem .5rem;
     border-radius: 4px;
 }
 
 .tippy-tooltip.bbbtip-theme>.tippy-svg-arrow{
     fill: #333333;
     background-color: transparent;
+}
+
+.tippy-tooltip.bbbtip-theme>.tippy-content{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

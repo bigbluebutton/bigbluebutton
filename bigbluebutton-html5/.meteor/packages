@@ -5,7 +5,11 @@
 
 meteor-base@1.5.1
 mobile-experience@1.1.0
+<<<<<<< HEAD
 mongo@1.16.6
+=======
+mongo@1.16.7
+>>>>>>> v2.5.x-release
 reactive-var@1.0.12
 
 standard-minifier-css@1.9.2
@@ -23,3 +27,4 @@ check@1.3.2
 rocketchat:streamer
 meteortesting:mocha
 lmieulet:meteor-coverage
+typescript@4.9.4

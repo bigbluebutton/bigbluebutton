@@ -7,8 +7,9 @@ import { publicationSafeGuard } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function guestUsers() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function guestUsers() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing GuestUser was requested by unauth connection ${this.connection.id}`);
@@ -17,7 +18,7 @@ function guestUsers() {
 
   const { meetingId, userId } = tokenValidation;
 
-  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
+  const User = await Users.findOneAsync({ userId, meetingId }, { fields: { role: 1 } });
   if (!User || User.role !== ROLE_MODERATOR) {
     Logger.warn(
       'Publishing GuestUser was requested by non-moderator connection',
@@ -27,8 +28,9 @@ function guestUsers() {
     return GuestUsers.find({ meetingId: '' });
   }
   // Monitor this publication and stop it when user is not a moderator anymore
-  const comparisonFunc = () => {
-    const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
+  const comparisonFunc = async () => {
+    const user = await Users
+      .findOneAsync({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
     const condition = user.role === ROLE_MODERATOR;
 
     if (!condition) {

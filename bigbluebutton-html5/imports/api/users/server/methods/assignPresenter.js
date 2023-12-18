@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function assignPresenter(userId) { // TODO-- send username from client side
+export default async function assignPresenter(userId) { // TODO-- send username from client side
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -16,7 +16,7 @@ export default function assignPresenter(userId) { // TODO-- send username from c
     check(requesterUserId, String);
     check(userId, String);
 
-    const User = Users.findOne({
+    const User = await Users.findOneAsync({
       meetingId,
       userId,
     });
@@ -26,10 +26,8 @@ export default function assignPresenter(userId) { // TODO-- send username from c
     }
 
     const payload = {
-      newPresenterId: userId,
-      newPresenterName: User.name,
       assignedBy: requesterUserId,
-      requesterId: requesterUserId,
+      newPresenterId: userId,
     };
 
     Logger.verbose('User set as presenter', { userId, meetingId, setBy: requesterUserId });

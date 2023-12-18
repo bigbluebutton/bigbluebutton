@@ -7,6 +7,7 @@ import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ RegisteredUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -30,6 +31,17 @@ trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
 
         val event = buildSendMessageToAllBreakoutRoomsEvtMsg(msg.header.userId, msg.body.msg, breakoutModel.rooms.size)
         outGW.send(event)
+
+        val notifyModeratorEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+          msg.header.userId,
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "group_chat",
+          "app.createBreakoutRoom.msgToBreakoutsSent",
+          "Message for chat sent successfully",
+          Vector(s"${breakoutModel.rooms.size}")
+        )
+        outGW.send(notifyModeratorEvent)
 
         log.debug("Sending message '{}' to all breakout rooms in meeting {}", msg.body.msg, props.meetingProp.intId)
       }

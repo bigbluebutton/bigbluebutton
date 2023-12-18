@@ -118,7 +118,7 @@ playback_host: 127.0.0.1
 
    to
 
-   ret = BigBlueButton.exec_ret('/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt', ...)
+   ret = BigBlueButton.exec_ret('/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_poll_svg', ...)
 
    Finally, run the publish script:
 

@@ -1,8 +1,9 @@
 [Unit]
 Description=BigBlueButton FS-ESL (Akka)
 Requires=network.target
-Wants=redis-server.service
-After=redis-server.service
+Wants=redis-server.service freeswitch.service
+After=redis-server.service freeswitch.service
+PartOf= bigbluebutton.target
 
 [Service]
 Type=simple
@@ -12,7 +13,7 @@ ExecStart=/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=60
-SuccessExitStatus=
+SuccessExitStatus=143
 TimeoutStopSec=5
 User=bigbluebutton
 ExecStartPre=/bin/mkdir -p /run/bbb-fsesl-akka
@@ -22,5 +23,5 @@ PermissionsStartOnly=true
 LimitNOFILE=1024
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target  bigbluebutton.target
 

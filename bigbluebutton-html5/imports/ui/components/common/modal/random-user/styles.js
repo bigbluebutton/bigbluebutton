@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
-  fontSizeLarge,
   fontSizeXXL,
   headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
@@ -14,12 +13,10 @@ const ModalViewContainer = styled.div`
   display: flex;
   flex-flow: column;
   align-items: center;
-`;
 
-const ModalViewTitle = styled.div`
-  font-weight: 600;
-  font-size: ${fontSizeLarge};
-  margin-bottom: ${mdPaddingX};
+  & > div {
+    margin-bottom: 1rem;
+  }
 `;
 
 const ModalAvatar = styled.div`
@@ -37,7 +34,7 @@ const ModalAvatar = styled.div`
 `;
 
 const SelectedUserName = styled.div`
-  margin-bottom: ${mdPaddingX};;
+  margin-bottom: ${mdPaddingX};
   font-weight: ${headingsFontWeight};
   font-size: 2rem;
   white-space: nowrap;
@@ -54,7 +51,6 @@ const SelectButton = styled(Button)`
 
 export default {
   ModalViewContainer,
-  ModalViewTitle,
   ModalAvatar,
   SelectedUserName,
   SelectButton,

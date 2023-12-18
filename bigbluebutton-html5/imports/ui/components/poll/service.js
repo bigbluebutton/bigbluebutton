@@ -80,15 +80,62 @@ const intlMessages = defineMessages({
   },
 });
 
+const getUsedLabels = (listOfAnswers, possibleLabels) => listOfAnswers.map(
+  (answer) => {
+    if (answer.key.length >= 2) {
+      const formattedLabel = answer.key.slice(0, 2).toUpperCase();
+      if (possibleLabels.includes(formattedLabel)) {
+        return formattedLabel;
+      }
+    }
+    return undefined;
+  },
+);
+
+const getFormattedAnswerValue = (answerText) => {
+  // In generatePossibleLabels there is a check to see if the
+  // answer's length is greater than 2
+  const newText = answerText.slice(2).trim();
+  return newText;
+};
+
+const generateAlphabetList = () => Array.from(Array(26))
+  .map((e, i) => i + 65).map((x) => String.fromCharCode(x));
+
+const generatePossibleLabels = (alphabetCharacters) => {
+  // Remove the Letter from the beginning and the following sign, if any, like so:
+  // "A- the answer is" -> Remove "A-" -> "the answer is"
+  const listOfForbiddenSignsToStart = ['.', ':', '-'];
+
+  const possibleLabels = [];
+  for (let i = 0; i < alphabetCharacters.length; i += 1) {
+    for (let j = 0; j < listOfForbiddenSignsToStart.length; j += 1) {
+      possibleLabels.push(alphabetCharacters[i] + listOfForbiddenSignsToStart[j]);
+    }
+  }
+  return possibleLabels;
+};
+
 const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   let responded = 0;
   let resultString = '';
   let optionsString = '';
 
+  const alphabetCharacters = generateAlphabetList();
+  const possibleLabels = generatePossibleLabels(alphabetCharacters);
+
+  // We need to guarantee that the labels are in the correct order, and that all options have label
+  const pollAnswerMatchLabeledFormat = getUsedLabels(answers, possibleLabels);
+  const isPollAnswerMatchFormat = !isDefaultPoll
+    ? pollAnswerMatchLabeledFormat.reduce(
+      (acc, label, index) => acc && !!label && label[0] === alphabetCharacters[index][0], true,
+    )
+    : false;
+
   answers.map((item) => {
     responded += item.numVotes;
     return item;
-  }).forEach((item) => {
+  }).forEach((item, index) => {
     const numResponded = responded === numRespondents ? numRespondents : responded;
     const pct = Math.round((item.numVotes / numResponded) * 100);
     const pctBars = '|'.repeat((pct * MAX_POLL_RESULT_BARS) / 100);
@@ -99,8 +146,15 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
         : item.key;
       resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     } else {
-      resultString += `${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
-      optionsString += `${item.id + 1}: ${item.key}\n`;
+      if (isPollAnswerMatchFormat) {
+        resultString += `${pollAnswerMatchLabeledFormat[index][0]}`;
+        const formattedAnswerValue = getFormattedAnswerValue(item.key);
+        optionsString += `${pollAnswerMatchLabeledFormat[index][0]}: ${formattedAnswerValue}\n`;
+      } else {
+        resultString += `${item.id + 1}`;
+        optionsString += `${item.id + 1}: ${item.key}\n`;
+      }
+      resultString += `: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     }
   });
 
@@ -178,7 +232,7 @@ const checkPollType = (
   switch (_type) {
     case pollTypes.Letter:
       pollString = optList.map((x) => x.val.toUpperCase()).sort().join('');
-      defaultMatch = pollString.match(/^(ABCDEFG)|(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
+      defaultMatch = pollString.match(/^(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
       isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
       _type = isDefault ? `${_type}${defaultMatch[0].length}` : pollTypes.Custom;
       break;
@@ -205,6 +259,44 @@ const checkPollType = (
   return _type;
 };
 
+/**
+ * 
+ * @param {String} input
+ */
+ const validateInput = (input) => {
+  let _input = input;
+  while (/^\s/.test(_input)) _input = _input.substring(1);
+  return _input;
+};
+
+/**
+ * 
+ * @param {String} input
+ */
+const removeEmptyLineSpaces = (input) => {
+  const filteredInput = input.split('\n').filter((val) => val.trim() !== '');
+  return filteredInput;
+};
+
+/**
+ * 
+ * @param {String|Array} questionAndOptions
+ */
+const getSplittedQuestionAndOptions = (questionAndOptions) => {
+  const inputList = Array.isArray(questionAndOptions)
+    ? questionAndOptions
+    : questionAndOptions.split('\n').filter((val) => val !== '');
+  const splittedQuestion = inputList.length > 0 ? inputList[0] : questionAndOptions;
+  const optionsList = inputList.slice(1);
+
+  optionsList.forEach((val, i) => { optionsList[i] = { val }; });
+
+  return {
+    splittedQuestion,
+    optionsList,
+  };
+};
+
 export default {
   pollTypes,
   currentPoll: () => CurrentPoll.findOne({ meetingId: Auth.meetingID }),
@@ -216,4 +308,7 @@ export default {
   matchYesNoAbstentionPoll,
   matchTrueFalsePoll,
   checkPollType,
+  validateInput,
+  removeEmptyLineSpaces,
+  getSplittedQuestionAndOptions,
 };

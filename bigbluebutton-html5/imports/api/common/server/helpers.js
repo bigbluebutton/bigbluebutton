@@ -1,6 +1,10 @@
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 import RegexWebUrl from '/imports/utils/regex-weburl';
+<<<<<<< HEAD
+=======
+import { BREAK_LINE } from '/imports/utils/lineEndings';
+>>>>>>> v2.5.x-release
 
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
@@ -25,6 +29,16 @@ export const parseMessage = (message) => {
   // Replace flash links to flash valid ones
   parsedMessage = parsedMessage.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
 
+<<<<<<< HEAD
+=======
+  // Replace flash links to html valid ones
+  parsedMessage = parsedMessage.split('<a href=\'event:').join('<a target="_blank" href=\'');
+  parsedMessage = parsedMessage.split('<a href="event:').join('<a target="_blank" href="');
+
+  // Replace \r and \n to <br/>
+  parsedMessage = parsedMessage.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, `$1${BREAK_LINE}$2`);
+
+>>>>>>> v2.5.x-release
   return parsedMessage;
 };
 
@@ -46,7 +60,7 @@ export const indexOf = [].indexOf || function (item) {
   return -1;
 };
 
-export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
+export const processForHTML5ServerOnly = (fn) => async (message, ...args) => {
   const { envelope } = message;
   const { routing } = envelope;
   const { msgType, meetingId, userId } = routing;
@@ -56,7 +70,7 @@ export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
     meetingId,
   };
 
-  const user = Users.findOne(selector);
+  const user = await Users.findOneAsync(selector);
 
   const shouldSkip = user && msgType === MSG_DIRECT_TYPE && userId !== NODE_USER && user.clientType !== 'HTML5';
   if (shouldSkip) return () => { };
@@ -75,9 +89,10 @@ export const extractCredentials = (credentials) => {
 // The provided function is publication-specific and must check the "survival condition" of the publication.
 export const publicationSafeGuard = function (fn, self) {
   let stopped = false;
-  const periodicCheck = function () {
+  const periodicCheck = async function () {
     if (stopped) return;
-    if (!fn()) {
+    const result = await fn();
+    if (!result) {
       self.added(self._name, 'publication-stop-marker', { id: 'publication-stop-marker', stopped: true });
       self.stop();
     } else Meteor.setTimeout(periodicCheck, 1000);

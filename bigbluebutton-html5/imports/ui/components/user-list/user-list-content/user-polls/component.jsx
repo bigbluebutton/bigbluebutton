@@ -50,7 +50,11 @@ const UserPolls = ({
             tabIndex={0}
             data-test="pollMenuButton"
             onClick={handleClickTogglePoll}
-            onKeyPress={() => {}}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleClickTogglePoll();
+              }
+            }}
           >
             <Icon iconName="polling" />
             <span>{intl.formatMessage(intlMessages.pollLabel)}</span>

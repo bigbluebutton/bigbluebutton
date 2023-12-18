@@ -3,6 +3,10 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials, parseMessage } from '/imports/api/common/server/helpers';
+<<<<<<< HEAD
+=======
+
+>>>>>>> v2.5.x-release
 
 const REDIS_CONFIG = Meteor.settings.private.redis;
 const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;

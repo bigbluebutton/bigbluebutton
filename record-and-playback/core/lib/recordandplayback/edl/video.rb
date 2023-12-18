@@ -25,7 +25,10 @@ module BigBlueButton
   module EDL
     module Video
       FFMPEG_WF_CODEC = 'libx264'
-      FFMPEG_WF_ARGS = ['-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'veryfast', '-crf', '30', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p']
+      FFMPEG_WF_ARGS = [
+        '-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'fast', '-crf', '23',
+        '-x264opts', 'stitchable=1', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p',
+      ]
       WF_EXT = 'mp4'
 
       def self.dump(edl)
@@ -368,11 +371,6 @@ module BigBlueButton
           # Convert the duration to milliseconds
           info[:duration] = (info[:format][:duration].to_r * 1000).to_i
 
-          # Red5 writes video files with the first frame often having a pts
-          # much greater than 0.
-          # We can compensate for this during decoding if we know the
-          # timestamp offset, which ffprobe handily finds. Convert the units
-          # to ms.
           info[:start_time] = (info[:format][:start_time].to_r * 1000).to_i
           info[:video][:start_time] = (info[:video][:start_time].to_r * 1000).to_i
 

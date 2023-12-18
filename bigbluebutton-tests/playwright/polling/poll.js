@@ -3,7 +3,7 @@ const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util.js');
 const utilPresentation = require('../presentation/util');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
@@ -16,6 +16,9 @@ class Polling extends MultiUsers {
   async createPoll() {
     await util.startPoll(this.modPage);
     await this.modPage.hasElement(e.pollMenuButton);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async pollAnonymous() {
@@ -24,10 +27,12 @@ class Polling extends MultiUsers {
     await this.modPage.waitForSelector(e.publishPollingLabel);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.userPage.wasRemoved(e.receivedAnswer);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async quickPoll() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
 
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
@@ -35,6 +40,9 @@ class Polling extends MultiUsers {
     await this.modPage.waitForSelector(e.pollMenuButton);
 
     await this.userPage.hasElement(e.pollingContainer);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async pollUserResponse() {
@@ -54,7 +62,11 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitForSelector(e.restartPoll);
 
-    await this.modPage.hasElement(e.pollResults);
+    await this.modPage.hasElement(e.wbDrawnRectangle);
+    await this.userPage.hasElement(e.wbDrawnRectangle);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async stopPoll() {
@@ -63,35 +75,9 @@ class Polling extends MultiUsers {
     await this.userPage.waitForSelector(e.pollingContainer);
     await this.modPage.waitAndClick(e.cancelPollBtn);
     await this.userPage.wasRemoved(e.pollingContainer);
-  }
 
-  async pollResultsOnChat() {
-    const { pollChatMessage } = getSettings();
-    test.fail(!pollChatMessage, 'Poll results on chat is disabled');
-
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await util.startPoll(this.modPage, true);
-    await this.modPage.waitAndClick(e.chatButton);
-
-    await this.modPage.hasElement(e.chatPollMessageText);
-    await this.userPage.hasElement(e.chatPollMessageText);
-  }
-
-  async pollResultsOnWhiteboard() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await util.startPoll(this.modPage, true);
-    await this.modPage.hasElement(e.pollResults);
-  }
-
-  async pollResultsInDifferentPresentation() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await util.startPoll(this.modPage);
-
-    await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
-    await this.modPage.waitAndClick(e.publishPollingLabel);
-
-    // Check poll results
-    await this.modPage.hasElement(e.pollResults);
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async manageResponseChoices() {
@@ -121,6 +107,201 @@ class Polling extends MultiUsers {
 
     await expect(initialRespCount).toEqual(await this.getAnswerOptionCount());
     await this.checkLastOptionText();
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
+  }
+
+  async notAbleStartNewPollWithoutPresentation() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.hasElement(e.noPresentation);
+  }
+
+  async customInput() {
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
+
+    await this.modPage.type(e.pollQuestionArea, 'Test');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.type(e.pollOptionItem, 'test1');
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await this.userPage.hasElement(e.pollingContainer);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+
+    await this.modPage.hasText(e.currentPollQuestion, /Test/);
+    await this.modPage.hasText(e.answer1, '1');
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+  }
+
+  async allowMultipleChoices() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
+
+    await this.modPage.type(e.pollQuestionArea, 'Test');
+    await this.modPage.waitAndClickElement(e.allowMultiple);
+
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.modPage.hasElement(e.errorNoValueInput);
+
+    await this.modPage.type(e.pollOptionItem1, 'test1');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.type(e.pollOptionItem2, 'test2');
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.modPage.hasText(e.currentPollQuestion, /Test/);
+
+    await this.userPage.waitAndClick(e.firstPollAnswerOptionBtn);
+    await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
+    await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
+
+    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasText(e.answer2, '1');
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+  }
+
+  async smartSlidesQuestions() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.userListItem);
+
+    // Type Response
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.hasElement(e.responsePollQuestion);
+    await this.userPage.type(e.pollAnswerOptionInput, 'test');
+    await this.userPage.waitAndClick(e.pollSubmitAnswer);
+    await this.userPage.wasRemoved(e.pollingContainer, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasText(e.receivedAnswer, 'test');
+
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+
+    // Multiple Choices
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
+    await this.userPage.waitAndClick(e.secondPollAnswerDescOption);
+    await this.userPage.waitAndClick(e.submitAnswersMultiple);
+    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasText(e.answer2, '1');
+
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+
+    // One option answer
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.waitAndClick(e.pollAnswerOptionE);
+    await this.modPage.hasText(e.answerE, '1');
+
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+
+    // Yes/No/Abstention
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.yesNoOption);
+    await this.modPage.waitAndClick(e.yesNoAbstentionOption)
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.modPage.hasText(e.answer1, '1');
+
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+
+    // True/False
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+
+    await this.modPage.hasElementDisabled(e.nextSlide);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+  }
+
+  async pollResultsOnChat() {
+    const { pollChatMessage } = getSettings();
+    
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.startPoll(this.modPage, true);
+    await this.modPage.waitAndClick(e.chatButton);
+
+    const lastChatPollMessageTextModerator = await this.modPage.getLocator(e.chatPollMessageText).last();
+    if(!pollChatMessage) {
+      return expect(lastChatPollMessageTextModerator).toBeHidden({ ELEMENT_WAIT_TIME });
+    }
+    await expect(lastChatPollMessageTextModerator).toBeVisible();
+    const lastChatPollMessageTextUser = await this.userPage.getLocator(e.chatPollMessageText).last();
+    await expect(lastChatPollMessageTextUser).toBeVisible();
+  }
+
+  async pollResultsOnWhiteboard() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.startPoll(this.modPage, true);
+    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle).last();
+    await expect(wbDrawnRectangleLocator).toBeVisible({ timeout: ELEMENT_WAIT_TIME});
+
+    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const wbBox = await modWbLocator.boundingBox();
+
+    await wbDrawnRectangleLocator.click();
+    await this.modPage.page.mouse.down();
+    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+    await this.modPage.page.mouse.up();
+    await wbDrawnRectangleLocator.dblclick();
+    await this.modPage.page.keyboard.type('test');
+    await expect(wbDrawnRectangleLocator).toContainText('test');
+
+    // user turns to presenter to edit the poll results
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+
+    const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbDrawnRectangle).last();
+    await wbDrawnRectangleUserLocator.dblclick();
+    await this.userPage.page.keyboard.type('testUser');
+    await expect(wbDrawnRectangleUserLocator).toContainText('testUser');
+    
+    await this.modPage.waitAndClick(e.currentUser);
+    await this.modPage.waitAndClick(e.takePresenter);
+    await this.userPage.waitAndClick(e.hidePublicChat);
+  }
+
+  async pollResultsInDifferentPresentation() {
+    await waitAndClearDefaultPresentationNotification(this.modPage);
+    
+
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
+    await util.startPoll(this.modPage);
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+
+    // Check poll results
+    await this.modPage.hasElement(e.wbDrawnRectangle);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async startNewPoll() {
@@ -140,7 +321,6 @@ class Polling extends MultiUsers {
   async typeOnLastChoiceInput() {
     const lastInput = this.modPage.getLocatorByIndex(e.pollOptionItem, -1);
     await lastInput.fill(this.newInputText);
-
   }
 
   async checkLastOptionText() {

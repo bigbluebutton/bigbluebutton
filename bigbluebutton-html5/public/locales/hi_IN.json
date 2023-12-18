@@ -231,6 +231,7 @@
     "app.settings.main.save.label.description": "परिवर्तन सहेजता है और सेटिंग मेनू बंद करता है",
     "app.settings.dataSavingTab.label": "डेटा की बचत",
     "app.settings.dataSavingTab.webcam": "वेबकैम सक्षम करें",
+    "app.settings.dataSavingTab.screenShare": "डेस्कटॉप साझाकरण सक्षम करें",
     "app.settings.dataSavingTab.description": "अपने बैंडविड्थ को बचाने के लिए जो वर्तमान में प्रदर्शित हो रहा है उसे समायोजित करें।",
     "app.switch.onLabel": "ओन्न",
     "app.switch.offLabel": "ओफ़्",

@@ -21,10 +21,10 @@ export default function toggleLockSettings(lockSettingsProps) {
       disablePublicChat: Boolean,
       disableNotes: Boolean,
       hideUserList: Boolean,
-      lockedLayout: Boolean,
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       hideViewersCursor: Boolean,
+      hideViewersAnnotation: Boolean,
       setBy: Match.Maybe(String),
     });
 
@@ -35,10 +35,10 @@ export default function toggleLockSettings(lockSettingsProps) {
       disablePublicChat: disablePubChat,
       disableNotes,
       hideUserList,
-      lockedLayout,
       lockOnJoin,
       lockOnJoinConfigurable,
       hideViewersCursor,
+      hideViewersAnnotation,
     } = lockSettingsProps;
 
     const payload = {
@@ -48,10 +48,10 @@ export default function toggleLockSettings(lockSettingsProps) {
       disablePubChat,
       disableNotes,
       hideUserList,
-      lockedLayout,
       lockOnJoin,
       lockOnJoinConfigurable,
       hideViewersCursor,
+      hideViewersAnnotation,
       setBy: requesterUserId,
     };
 

@@ -2,28 +2,40 @@ import { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
-import GroupChat from '/imports/api/group-chat';
-import Annotations from '/imports/api/annotations';
 import Users from '/imports/api/users';
-import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
-import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
-import {
-  localCollectionRegistry,
-} from '/client/collection-mirror-initializer';
-import SubscriptionRegistry, { subscriptionReactivity } from '../../services/subscription-registry/subscriptionRegistry';
+import { localCollectionRegistry } from '/client/collection-mirror-initializer';
+import SubscriptionRegistry, {
+  subscriptionReactivity,
+} from '../../services/subscription-registry/subscriptionRegistry';
 import { isChatEnabled } from '/imports/ui/services/features';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
-  'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
-  'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
-  'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'meeting-time-remaining',
-  'local-settings', 'users-typing', 'record-meetings', 'video-streams',
-  'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts', 'breakouts-history',
-  'pads', 'pads-sessions', 'pads-updates',
+  'users',
+  'meetings',
+  'polls',
+  'captions',
+  'voiceUsers',
+  'screenshare',
+  'users-settings',
+  'guestUser',
+  'users-infos',
+  'meeting-time-remaining',
+  'local-settings',
+  'record-meetings',
+  'video-streams',
+  'voice-call-states',
+  'breakouts',
+  'breakouts-history',
+  'pads',
+  'pads-sessions',
+  'pads-updates',
+  'notifications',
+  'audio-captions',
+  'layout-meetings',
+  'user-reaction',
+  'timer',
 ];
 const {
   localBreakoutsSync,
@@ -72,10 +84,14 @@ export default withTracker(() => {
 
   const subscriptionErrorHandler = {
     onError: (error) => {
-      logger.error({
-        logCode: 'startup_client_subscription_error',
-        extraInfo: { error },
-      }, 'Error while subscribing to collections');
+      logger.error(
+        {
+          logCode: 'startup_client_subscription_error',
+          extraInfo: { error },
+        },
+        'Error while subscribing to collections'
+      );
+      console.log('-------------------------', {error});
       Session.set('codeError', error.error);
     },
   };
@@ -84,8 +100,11 @@ export default withTracker(() => {
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
     let subscriptionHandlers = subscriptionErrorHandler;
-    if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
-      || (!isChatEnabled() && name.indexOf('chat') !== -1)) return null;
+    if (
+      (!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1) ||
+      (!isChatEnabled() && name.indexOf('chat') !== -1)
+    )
+      return null;
 
     if (name === 'users') {
       subscriptionHandlers = {
@@ -100,7 +119,7 @@ export default withTracker(() => {
     return SubscriptionRegistry.createSubscription(name, subscriptionHandlers);
   });
 
-  if (currentUser && (oldRole !== currentUser?.role)) {
+  if (currentUser && oldRole !== currentUser?.role) {
     // stop subscription from the client-side as the server-side only watch moderators
     if (oldRole === 'VIEWER' && currentUser?.role === 'MODERATOR') {
       // let this withTracker re-execute when a subscription is stopped
@@ -125,51 +144,15 @@ export default withTracker(() => {
     oldRole = currentUser?.role;
   }
 
-  subscriptionsHandlers = subscriptionsHandlers.filter(obj => obj);
-  const ready = subscriptionsHandlers.every(handler => handler.ready());
-  let groupChatMessageHandler = {};
-
-  if (isChatEnabled() && ready) {
-    const chatsCount = GroupChat.find({
-      $or: [
-        {
-          meetingId,
-          access: PUBLIC_CHAT_TYPE,
-          chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
-        },
-        { meetingId, users: { $all: [requesterUserId] } },
-      ],
-    }).count();
-
-    const subHandler = {
-      ...subscriptionErrorHandler,
-    };
-
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatsCount, subHandler);
-  }
+  subscriptionsHandlers = subscriptionsHandlers.filter((obj) => obj);
+  const ready = subscriptionsHandlers.every((handler) => handler.ready());
 
   // TODO: Refactor all the late subscribers
   let usersPersistentDataHandler = {};
   if (ready) {
     usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
-    const annotationsHandler = Meteor.subscribe('annotations', {
-      onReady: () => {
-        const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
-        AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
-        Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
-          try {
-            AnnotationsLocal.insert(a);
-          } catch (e) {
-            // TODO
-          }
-        });
-        annotationsHandler.stop();
-      },
-      ...subscriptionErrorHandler,
-    });
-
-    Object.values(localCollectionRegistry).forEach(
-      (localCollection) => localCollection.checkForStaleData(),
+    Object.values(localCollectionRegistry).forEach((localCollection) =>
+      localCollection.checkForStaleData()
     );
   }
 

@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.redis
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI

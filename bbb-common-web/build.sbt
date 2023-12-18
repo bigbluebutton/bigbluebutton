@@ -11,7 +11,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:11",
+    "-release:17",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -106,5 +106,16 @@ libraryDependencies ++= Seq(
   "org.springframework.boot" % "spring-boot-starter-validation" % "2.7.12",
   "org.springframework.data" % "spring-data-commons" % "2.7.6",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
+<<<<<<< HEAD
   "commons-validator" % "commons-validator" % "1.7"
+=======
+  "org.postgresql" % "postgresql" % "42.4.3",
+  "org.hibernate" % "hibernate-core" % "5.6.1.Final",
+  "org.flywaydb" % "flyway-core" % "7.8.2",
+  "com.zaxxer" % "HikariCP" % "4.0.3",
+  "commons-validator" % "commons-validator" % "1.7",
+  "org.apache.tika" % "tika-core" % "2.8.0",
+  "org.apache.tika" % "tika-parsers-standard-package" % "2.8.0",
+  "org.scala-lang.modules" %% "scala-xml" % "2.2.0"
+>>>>>>> v2.5.x-release
 )

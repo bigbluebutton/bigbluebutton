@@ -345,3 +345,12 @@
 .icon-bbb-pin-video_off:before {
   content: "\e965";
 }
+.icon-bbb-closed_caption_stop:before {
+  content: "\e966";
+}
+.icon-bbb-link:before {
+  content: "\e967";
+}
+.icon-bbb-manage_layout:before {
+  content: "\e968";
+}

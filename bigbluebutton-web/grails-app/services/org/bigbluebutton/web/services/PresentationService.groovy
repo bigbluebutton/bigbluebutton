@@ -18,10 +18,9 @@
  */
 package org.bigbluebutton.web.services
 
-import java.util.concurrent.*;
-import java.lang.InterruptedException
 import org.bigbluebutton.presentation.DocumentConversionService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.springframework.beans.factory.annotation.Autowired
 
 class PresentationService {
 
@@ -93,16 +92,12 @@ class PresentationService {
 		}
 	}
 
-	def showSlide(String conf, String room, String presentationName, String id) {
-		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "slide-${id}.swf")
+	def sendDocConversionFailedOnMimeType(UploadedPresentation pres, String fileMime, String fileExtension) {
+		documentConversionService.sendDocConversionFailedOnMimeType(pres, fileMime, fileExtension)
 	}
 
 	def showSvgImage(String conf, String room, String presentationName, String id) {
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
-	}
-
-	def showPresentation = {conf, room, filename ->
-		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename + File.separatorChar + "slides.swf")
 	}
 
 	def showThumbnail = {conf, room, presentationName, thumb ->

@@ -54,6 +54,10 @@ repositories {
 
 dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
+<<<<<<< HEAD
+=======
+
+>>>>>>> v2.5.x-release
   implementation "org.springframework:spring-core:5.3.21"
   implementation "org.springframework:spring-context:5.3.27"
   implementation "org.springframework.boot:spring-boot:${springVersion}"
@@ -99,12 +103,16 @@ dependencies {
   implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.10.0"
   implementation "org.springframework.data:spring-data-commons:2.7.6"
+<<<<<<< HEAD
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
   implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.5'
+=======
+>>>>>>> v2.5.x-release
 
-  implementation "javax.validation:validation-api:2.0.1.Final"
-//  compile "org.hibernate:hibernate-validator:7.0.1.Final"
+  implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
+  implementation 'org.postgresql:postgresql:42.4.3'
+  implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
   console "org.grails:grails-console:5.2.0"

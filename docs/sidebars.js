@@ -16,6 +16,7 @@ const sidebars = {
     teaching: [
         {
             label: 'Teaching',
+<<<<<<< HEAD
             type: 'category',
             items: [
                 {
@@ -27,6 +28,10 @@ const sidebars = {
                 type: 'doc',
                 id: 'teaching/index',
             },
+=======
+            type: 'link',
+            href: 'https://bigbluebutton.org/teachers/tutorials/',
+>>>>>>> v2.5.x-release
         }
     ],
     development: [

@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Styled from './styles';
+import Button from '/imports/ui/components/common/button/component';
+
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  toggleSwapLayout: PropTypes.func.isRequired,
+  setPresentationIsOpen: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -31,12 +32,15 @@ const intlMessages = defineMessages({
 
 const PresentationOptionsContainer = ({
   intl,
-  isLayoutSwapped,
-  toggleSwapLayout,
+  presentationIsOpen,
+  setPresentationIsOpen,
   layoutContextDispatch,
   hasPresentation,
   hasExternalVideo,
   hasScreenshare,
+  hasPinnedSharedNotes,
+  hasGenericContent,
+  hasCameraAsContent,
 }) => {
   let buttonType = 'presentation';
   if (hasExternalVideo) {
@@ -44,26 +48,34 @@ const PresentationOptionsContainer = ({
     buttonType = 'external-video';
   } else if (hasScreenshare) {
     buttonType = 'desktop';
+  } else if (hasCameraAsContent) {
+    buttonType = 'video';
   }
 
-  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation;
+  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare
+  || hasPresentation || hasPinnedSharedNotes
+  || hasGenericContent || hasCameraAsContent;
   return (
-    <Styled.RestorePresentationButton
-      icon={`${buttonType}${isLayoutSwapped ? '_off' : ''}`}
-      data-test="restorePresentationButton"
-      label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
-      aria-label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
-      aria-describedby={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
-      description={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
-      color={!isLayoutSwapped ? "primary" : "default"}
+    <Button
+      icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
+      label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
+      aria-label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
+      aria-describedby={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
+      description={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
+      color={presentationIsOpen ? "primary" : "default"}
       hideLabel
       circle
       size="lg"
-      onClick={() => toggleSwapLayout(layoutContextDispatch)}
+      onClick={() => {
+        setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
+        if (!hasExternalVideo && !hasScreenshare && !hasPinnedSharedNotes) {
+          Session.set('presentationLastState', !presentationIsOpen);
+        }
+      }}
       id="restore-presentation"
-      ghost={isLayoutSwapped}
+      ghost={!presentationIsOpen}
       disabled={!isThereCurrentPresentation}
-      data-test={isLayoutSwapped ? 'restorePresentation' : 'minimizePresentation'}
+      data-test={!presentationIsOpen ? 'restorePresentation' : 'minimizePresentation'}
     />
   );
 };

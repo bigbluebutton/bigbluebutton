@@ -9,7 +9,10 @@ keywords:
 - firewall
 ---
 
+<<<<<<< HEAD
 This document covers firewall configuration for BigBlueButton 2.2.
+=======
+>>>>>>> v2.5.x-release
 
 You should configure your firewall before [Installing BigBlueButton](/administration/install); otherwise, you may get errors during the installation and will be unable to test BigBlueButton after the installation completes.
 
@@ -282,6 +285,7 @@ to
 
 so that FreeSWITCH announces the external IP address when a connection is established.
 
+<<<<<<< HEAD
 Check `/etc/bigbluebutton/nginx/sip.nginx` to ensure its binding to the external IP address of the firewall [Configure FreeSWITCH for using SSL](/administration/install#configure-freeswitch-for-using-ssl).
 
 Check that `enableListenOnly` is set to true in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, as in
@@ -292,6 +296,18 @@ $ grep enableListenOnly /usr/share/meteor/bundle/programs/server/assets/app/conf
 ```
 
 Next, edit `/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml` change the value to `ip` to match the external IP address of the server.
+=======
+Check `/etc/bigbluebutton/nginx/sip.nginx` to ensure its binding to the external IP address of the firewall.
+
+Check that `enableListenOnly` is set to true in `/etc/bigbluebutton/bbb-html5.yml`, as in
+
+```bash
+$ grep enableListenOnly /etc/bigbluebutton/bbb-html5.yml
+    enableListenOnly: true
+```
+
+Next, edit `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` change the value to `ip` to match the external IP address of the server.
+>>>>>>> v2.5.x-release
 
 ```yaml
 freeswitch:
@@ -300,7 +316,12 @@ freeswitch:
   port: 5066
 ```
 
+<<<<<<< HEAD
 If your runnig 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs` set to true or false in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml` (see [Configure FreeSWITCH for using SSL](/administration/install#configure-freeswitch-for-using-ssl)).
+=======
+If your runnig 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs`
+set to true or false in `/etc/bigbluebutton/bbb-html5.yml`.
+>>>>>>> v2.5.x-release
 
 You also need to [setup Kurento to use a STUN server](#extra-steps-when-server-is-behind-nat).
 
@@ -310,7 +331,12 @@ After making the above changes, restart BigBlueButton.
 $ bbb-conf --restart
 ```
 
+<<<<<<< HEAD
 To test, launch FireFox and try connecting to your BigBlueButton server and join the audio. If you see the words '[ WebRTC Audio ]' in the lower right-hand corner, it worked.
+=======
+To test, launch FireFox and try connecting to your BigBlueButton server and join the audio.
+If you see the words '[ WebRTC Audio ]' in the lower right-hand corner, it worked.
+>>>>>>> v2.5.x-release
 
 If it didn't work, there are two likely error messages when you try to connect with audio.
 

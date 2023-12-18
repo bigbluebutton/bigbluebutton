@@ -1,5 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
 
@@ -15,11 +16,11 @@ const intlMessages = defineMessages({
 const PinArea = (props) => {
   const intl = useIntl();
 
-  const { user } = props;
+  const { user, amIModerator } = props;
   const pinned = user?.pin;
   const userId = user?.userId;
   const shouldRenderPinButton = pinned && userId;
-  const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser();
+  const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser(amIModerator);
 
   if (!shouldRenderPinButton) return <Styled.PinButtonWrapper />;
 
@@ -42,3 +43,10 @@ const PinArea = (props) => {
 };
 
 export default PinArea;
+
+PinArea.propTypes = {
+  user: PropTypes.shape({
+    pin: PropTypes.bool.isRequired,
+    userId: PropTypes.string.isRequired,
+  }).isRequired,
+};

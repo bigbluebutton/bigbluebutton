@@ -7,14 +7,13 @@ const oldParameters = {
   askForFeedbackOnLogout: 'bbb_ask_for_feedback_on_logout',
   autoJoin: 'bbb_auto_join_audio',
   autoShareWebcam: 'bbb_auto_share_webcam',
-  autoSwapLayout: 'bbb_auto_swap_layout',
   clientTitle: 'bbb_client_title',
   customStyle: 'bbb_custom_style',
   customStyleUrl: 'bbb_custom_style_url',
   displayBrandingArea: 'bbb_display_branding_area',
   enableVideo: 'bbb_enable_video',
   forceListenOnly: 'bbb_force_listen_only',
-  hidePresentation: 'bbb_hide_presentation',
+  hidePresentationOnJoin: 'bbb_hide_presentation',
   listenOnlyMode: 'bbb_listen_only_mode',
   multiUserPenOnly: 'bbb_multi_user_pen_only',
   multiUserTools: 'bbb_multi_user_tools',
@@ -35,6 +34,8 @@ const currentParameters = [
   'bbb_listen_only_mode',
   'bbb_skip_check_audio',
   'bbb_skip_check_audio_on_first_join',
+  'bbb_fullaudio_bridge',
+  'bbb_transparent_listen_only',
   // BRANDING
   'bbb_display_branding_area',
   // SHORTCUTS
@@ -57,12 +58,12 @@ const currentParameters = [
   'bbb_custom_style',
   'bbb_custom_style_url',
   // LAYOUT
-  'bbb_auto_swap_layout',
-  'bbb_hide_presentation',
+  'bbb_hide_presentation_on_join',
   'bbb_show_participants_on_login',
   'bbb_show_public_chat_on_login',
   'bbb_hide_actions_bar',
   'bbb_hide_nav_bar',
+  'bbb_change_layout',
 ];
 
 function valueParser(val) {

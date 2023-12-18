@@ -22,9 +22,11 @@ trait TestFixtures {
 
   val autoStartRecording = false
   val allowStartStopRecording = false
+  val recordFullDurationMedia = false
   val webcamsOnlyForModerator = false
   val meetingCameraCap = 0
   val userCameraCap = 0
+  val maxPinnedCameras = 3
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
   val learningDashboardAccessToken = "ldToken"
@@ -43,18 +45,27 @@ trait TestFixtures {
   val guestPolicy = "ALWAYS_ASK"
   val authenticatedGuest = false
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
+  val captureNotesFilename = s"Room 0${sequence} (Notes)"
+  val captureSlidesFilename = s"Room 0${sequence} (Whiteboard)"
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     meetingCameraCap = meetingCameraCap,
+    maxPinnedCameras = maxPinnedCameras,
     isBreakout = isBreakout.booleanValue())
-  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
+  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, captureNotes = false,
+                                    captureSlides = false, breakoutRooms = Vector(),
+                                    endWhenNoModerator = endWhenNoModerator, endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes,
+                                    captureNotesFilename = captureNotesFilename, captureSlidesFilename = captureSlidesFilename)
 
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword,  learningDashboardAccessToken = learningDashboardAccessToken)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
-    allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents)
+    allowStartStopRecording = allowStartStopRecording,
+    recordFullDurationMedia = recordFullDurationMedia,
+    keepEvents = keepEvents
+  )
   val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)

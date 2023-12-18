@@ -285,7 +285,11 @@ timestamp=1234567890
   for this meeting. The application needs to detect the create event (`meeting_created_message`) to
   have a proper mapping of internal to external meeting IDs. So make sure the web hooks application
   is always running while BigBlueButton is running!
+<<<<<<< HEAD
 * If you register a hook with, for example, the URL "http://myserver.com/my/hook" and no `meetingID`
+=======
+* If you register a hook with, for example, the URL `http://myserver.com/my/hook` and no `meetingID`
+>>>>>>> v2.5.x-release
   set (making it a global hook) and later try to register another hook with the same URL but with
   a `meetingID` set, the first hook will not be removed nor modified, while the second hook will
   not be created.
@@ -327,4 +331,8 @@ callbackURL=http://postcatcher.in/catchers/5527e67ba4c6dd0300000738
 
 ## Development
 
+<<<<<<< HEAD
 See [Webhooks docs in GitHub](https://github.com/bigbluebutton/bigbluebutton/tree/v2.0.x-release/bbb-webhooks#development).
+=======
+See [Webhooks docs in GitHub](https://github.com/bigbluebutton/bbb-webhooks).
+>>>>>>> v2.5.x-release
