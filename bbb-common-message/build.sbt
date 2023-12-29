@@ -34,7 +34,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
 Seq(Revolver.settings: _*)
-lazy val commonMessage = (project in file(".")).settings(name := "bbb-common-message", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
+lazy val commonMessage = (project in file(".")).settings(name := "bbb-common-message", libraryDependencies ++= Dependencies.runtime).settings(compileSettings, unmanagedResourceDirectories in Compile += baseDirectory.value / "src/main/protobuf")
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf

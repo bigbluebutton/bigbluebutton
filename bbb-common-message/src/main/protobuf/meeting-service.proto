@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message TestRequest {
+  string msg = 1;
+}
+
+message TestResponse {
+  string msg = 1;
+}
+
+service MeetingService {
+  rpc test(TestRequest) returns (TestResponse);
+}

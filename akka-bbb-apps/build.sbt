@@ -6,6 +6,7 @@ import com.typesafe.sbt.SbtNativePackager.autoImport._
 enablePlugins(JavaServerAppPackaging)
 enablePlugins(UniversalPlugin)
 enablePlugins(DebianPlugin)
+enablePlugins(PekkoGrpcPlugin)
 
 version := "0.0.4"
 
@@ -36,6 +37,7 @@ retrieveManaged := true
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
+libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.13" % "0.0.22-SNAPSHOT" % "protobuf-src" intransitive()
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
 

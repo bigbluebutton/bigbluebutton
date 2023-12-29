@@ -9,3 +9,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.15")
 addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.9")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
+
+addSbtPlugin("org.apache.pekko" % "pekko-grpc-sbt-plugin" % "1.0.1")
+
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
