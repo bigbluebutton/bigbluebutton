@@ -48,9 +48,9 @@ To develop BigBlueButton from within Windows, you have two options:
 - use Windows Subsystem for Linux
 - use VMWare Player or VirtualBox to create a virtual machine (VM).
 
-Choose the OS to be Ubuntu 20.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 20.04 64-bit VM.
+Choose the OS to be Ubuntu 22.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 22.04 64-bit VM.
 
-**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 20.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
+**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 22.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
 
 #### Developing on Linux host via container
 
