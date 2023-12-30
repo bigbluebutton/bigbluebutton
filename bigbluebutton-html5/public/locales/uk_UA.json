@@ -502,7 +502,7 @@
     "app.actionsBar.actionsDropdown.shareCameraAsContent": "Показати камеру як вміст",
     "app.actionsBar.actionsDropdown.unshareCameraAsContent": "Зупинити камеру як вміст",
     "app.screenshare.screenShareLabel" : "Демонстрація екрану",
-    "app.cameraAsContent.cameraAsContentLabel" : "Поточна камера",
+    "app.cameraAsContent.cameraAsContentLabel" : "Показати камеру",
     "app.submenu.application.applicationSectionTitle": "Застосунок",
     "app.submenu.application.animationsLabel": "Анімації",
     "app.submenu.application.audioFilterLabel": "Аудіофільтри для мікрофона",
