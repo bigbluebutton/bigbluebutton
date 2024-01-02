@@ -80,21 +80,6 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
   );
 };
 
-const cleanArrowShapeProps = (shapeProp) => {
-  if (!shapeProp) return;
-
-  if (shapeProp.type === "binding") {
-    delete shapeProp.x;
-    delete shapeProp.y;
-  }
-
-  if (shapeProp.type === "point") {
-    delete shapeProp.boundShapeId;
-    delete shapeProp.normalizedAnchor;
-    delete shapeProp.isExact;
-  }
-};
-
 export default Whiteboard = React.memo(function Whiteboard(props) {
   const {
     isPresenter,
@@ -251,10 +236,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           });
         }
 
-        if (diff?.type === "arrow") {
-          cleanArrowShapeProps(diff?.props?.end);
-          cleanArrowShapeProps(diff?.props?.start);
-        }
         toUpdate.push(diff);
       }
     });
