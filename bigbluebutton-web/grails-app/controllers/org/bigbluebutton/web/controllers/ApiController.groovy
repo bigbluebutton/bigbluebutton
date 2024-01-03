@@ -22,6 +22,9 @@ import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
+import io.grpc.StatusRuntimeException
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -37,7 +40,9 @@ import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.bigbluebutton.presentation.SupportedFileTypes;
+import org.bigbluebutton.presentation.SupportedFileTypes
+import org.bigbluebutton.protos.MeetingServiceGrpc
+import org.bigbluebutton.protos.MeetingServiceOuterClass;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
@@ -66,6 +71,8 @@ class ApiController {
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
 
+  ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8081).usePlaintext().build()
+  MeetingServiceGrpc.MeetingServiceBlockingStub blockingStub = MeetingServiceGrpc.newBlockingStub(channel)
 
   def initResponseBuilder = {
     String protocol = this.getClass().getResource("").getProtocol();
@@ -555,6 +562,16 @@ class ApiController {
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
     boolean isRunning = meeting != null && meeting.isRunning();
+
+    MeetingServiceOuterClass.TestRequest request = MeetingServiceOuterClass.TestRequest.newBuilder().setMsg("Sending test request").build()
+    try {
+      MeetingServiceOuterClass.TestResponse response = blockingStub.test(request)
+      log.info("Got response from test request {}", response.msg)
+    } catch (StatusRuntimeException e) {
+      log.error("RPC test request failed")
+      log.error("Status code {}", e.getStatus())
+      log.error("{}", e.getMessage())
+    }
 
     response.addHeader("Cache-Control", "no-cache")
     withFormat {
