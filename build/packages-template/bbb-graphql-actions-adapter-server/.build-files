@@ -1,5 +1,0 @@
-after-install.sh
-bbb-graphql-actions-adapter-server.service
-before-remove.sh
-build.sh
-opts-jammy.sh

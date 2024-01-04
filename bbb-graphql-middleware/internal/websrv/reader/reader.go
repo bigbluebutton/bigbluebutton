@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromBrowserChannel1 chan interface{}, fromBrowserChannel2 *common.SafeChannel, waitGroups []*sync.WaitGroup) {
+func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromBrowserToHasuraChannel1 *common.SafeChannel, fromBrowserToHasuraChannel2 *common.SafeChannel, waitGroups []*sync.WaitGroup) {
 	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnectionId)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
 
 	defer func() {
-		close(fromBrowserChannel1)
-		fromBrowserChannel2.Close()
+		fromBrowserToHasuraChannel1.Close()
+		fromBrowserToHasuraChannel2.Close()
 	}()
 
 	defer func() {
@@ -32,21 +32,17 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	fromBrowserChannel2Alive := true
-
 	for {
 		var v interface{}
 		err := wsjson.Read(ctx, c, &v)
 		if err != nil {
-			log.Errorf("error on read (browser is disconnected): %v", err)
+			log.Debugf("Browser is disconnected, skiping reading of ws message: %v", err)
 			return
 		}
 
 		log.Tracef("received from browser: %v", v)
 
-		fromBrowserChannel1 <- v
-		if fromBrowserChannel2Alive {
-			fromBrowserChannel2Alive = fromBrowserChannel2.Send(v)
-		}
+		fromBrowserToHasuraChannel1.Send(v)
+		fromBrowserToHasuraChannel2.Send(v)
 	}
 }

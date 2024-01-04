@@ -25,6 +25,15 @@ object_relationships:
         remote_table:
           name: v_meeting_clientSettings
           schema: public
+  - name: componentsFlags
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_componentsFlags
+          schema: public
   - name: externalVideo
     using:
       manual_configuration:
@@ -145,3 +154,13 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: pre_join_bbb_client
+    permission:
+      columns:
+        - logoutUrl
+        - meetingId
+        - name
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""

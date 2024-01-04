@@ -5,10 +5,12 @@ import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/co
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 import { isCameraAsContentEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useSubscription } from '@apollo/client';
+import { useSubscription, useMutation } from '@apollo/client';
 import {
   PROCESSED_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
+import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
+import Auth from '/imports/ui/services/auth';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -26,6 +28,12 @@ const ActionsDropdownContainer = (props) => {
   const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
 
+  const [setPresenter] = useMutation(SET_PRESENTER);
+
+  const handleTakePresenter = () => {
+    setPresenter({ variables: { userId: Auth.userID } });
+  };
+
   return (
     <ActionsDropdown
       {...{
@@ -40,6 +48,7 @@ const ActionsDropdownContainer = (props) => {
         isDropdownOpen: Session.get('dropdownOpen'),
         setPresentation: PresentationUploaderService.setPresentation,
         isCameraAsContentEnabled: isCameraAsContentEnabled(),
+        handleTakePresenter,
         ...props,
       }}
     />

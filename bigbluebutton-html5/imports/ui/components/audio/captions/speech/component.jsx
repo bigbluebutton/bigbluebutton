@@ -19,7 +19,7 @@ class Speech extends PureComponent {
 
     this.idle = true;
 
-    this.speechRecognition = Service.initSpeechRecognition();
+    this.speechRecognition = Service.initSpeechRecognition(props.setUserSpeechLocale);
 
     if (this.speechRecognition) {
       this.speechRecognition.onend = () => this.onEnd();
@@ -146,6 +146,7 @@ Speech.propTypes = {
   locale: PropTypes.string.isRequired,
   connected: PropTypes.bool.isRequired,
   talking: PropTypes.bool.isRequired,
+  setUserSpeechLocale: PropTypes.func.isRequired,
 };
 
 export default Speech;

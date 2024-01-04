@@ -1,6 +1,7 @@
 import React, { createContext, useState } from 'react';
 import { ExtensibleArea } from '/imports/ui/components/plugins-engine/extensible-areas/types';
-import { PluginsContextType, UserListGraphqlVariables } from './types';
+import { ChatMessagesGraphqlVariablesAndQuery, PluginsContextType, UserListGraphqlVariables } from './types';
+import { CHAT_MESSAGE_PUBLIC_SUBSCRIPTION } from '../../chat/chat-graphql/chat-message-list/page/queries';
 
 export const PluginsContext = createContext<PluginsContextType>({} as PluginsContextType);
 
@@ -12,6 +13,12 @@ export const PluginsContextProvider = ({ children, ...props }: any) => {
   const [userListGraphqlVariables, setUserListGraphqlVariables] = useState<UserListGraphqlVariables>(
     {} as UserListGraphqlVariables,
   );
+  const [
+    chatMessagesGraphqlVariablesAndQuery,
+    setChatMessagesGraphqlVariablesAndQuery,
+  ] = useState<ChatMessagesGraphqlVariablesAndQuery>(
+    { query: CHAT_MESSAGE_PUBLIC_SUBSCRIPTION } as ChatMessagesGraphqlVariablesAndQuery,
+  );
 
   return (
     <PluginsContext.Provider
@@ -21,6 +28,8 @@ export const PluginsContextProvider = ({ children, ...props }: any) => {
         pluginsExtensibleAreasAggregatedState,
         userListGraphqlVariables,
         setUserListGraphqlVariables,
+        chatMessagesGraphqlVariablesAndQuery,
+        setChatMessagesGraphqlVariablesAndQuery,
       }}
     >
       {children}

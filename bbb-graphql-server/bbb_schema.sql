@@ -20,6 +20,7 @@ create table "meeting" (
 	"presentationUploadExternalUrl" varchar(500),
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
+	"logoutUrl" varchar(500),
 	"createdTime" bigint,
 	"durationInSeconds" integer
 );
@@ -205,6 +206,16 @@ create table "meeting_clientSettings" (
 
 CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings";
 
+create view "v_meeting_clientPluginSettings" as
+select "meetingId",
+       plugin->>'name' as "name",
+       plugin->>'url' as "url",
+       (plugin->>'settings')::jsonb as "settings",
+       (plugin->>'dataChannels')::jsonb as "dataChannels"
+from (
+    select "meetingId", jsonb_array_elements("clientSettingsJson"->'public'->'plugins') AS plugin
+    from "meeting_clientSettings"
+) settings;
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -215,7 +226,6 @@ create table "meeting_group" (
 );
 create index "idx_meeting_group_meetingId" on "meeting_group"("meetingId");
 create view "v_meeting_group" as select * from meeting_group;
-
 
 -- ========== User tables
 
@@ -389,7 +399,7 @@ AS SELECT "user"."userId",
     "user"."raiseHand",
     "user"."emoji",
     "user"."guest",
---    "user"."guestStatus",
+    "user"."guestStatus",
     "user"."mobile",
     "user"."clientType",
     "user"."enforceLayout",
@@ -428,10 +438,10 @@ rank() OVER (
 ) as "positionInWaitingQueue",
 u."isAllowed",
 u."isDenied",
-COALESCE(u."guestLobbyMessage",mup."guestLobbyMessage") AS "guestLobbyMessage"
+COALESCE(NULLIF(u."guestLobbyMessage",''),NULLIF(mup."guestLobbyMessage",'')) AS "guestLobbyMessage"
 FROM "user" u
 JOIN "meeting_usersPolicies" mup using("meetingId")
-where u."guestStatus" != 'ALLOW';
+where u."guestStatus" = 'WAIT';
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
@@ -1448,9 +1458,15 @@ WHERE "currentRoomIsOnline" IS TRUE;
 --JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
 --User to update "inviteDismissedAt" via Mutation
-CREATE VIEW "v_breakoutRoom_user" AS
-SELECT *
-FROM "breakoutRoom_user";
+CREATE OR REPLACE VIEW "v_breakoutRoom_user" AS
+SELECT bu.*
+FROM "breakoutRoom_user" bu
+where bu."breakoutRoomId" in (
+    select b."breakoutRoomId"
+    from "user" u
+    join "breakoutRoom" b on b."parentMeetingId" = u."meetingId" and b."endedAt" is null
+    where u."userId" = bu."userId"
+);
 
 ------------------------------------
 ----sharedNotes
@@ -1576,3 +1592,50 @@ JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
 				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
 				)
 ORDER BY m."createdAt";
+
+------------------------
+
+
+create view "v_meeting_componentsFlags" as
+select "meeting"."meetingId",
+        exists (
+            select 1
+            from "breakoutRoom"
+            where "breakoutRoom"."parentMeetingId" = "meeting"."meetingId"
+            and "endedAt" is null
+        ) as "hasBreakoutRoom",
+        exists (
+            select 1
+            from "poll"
+            where "poll"."meetingId" = "meeting"."meetingId"
+            and "ended" is false
+            and "published" is false
+        ) as "hasPoll",
+        exists (
+            select 1
+            from "timer"
+            where "timer"."meetingId" = "meeting"."meetingId"
+            and "active" is true
+        ) as "hasTimer",
+        exists (
+            select 1
+            from "v_screenshare"
+            where "v_screenshare"."meetingId" = "meeting"."meetingId"
+        ) as "hasScreenshare",
+        exists (
+            select 1
+            from "v_externalVideo"
+            where "v_externalVideo"."meetingId" = "meeting"."meetingId"
+        ) as "hasExternalVideo",
+        exists (
+            select 1
+            from "v_user"
+            where "v_user"."meetingId" = "meeting"."meetingId"
+            and NULLIF("speechLocale",'') is not null
+        ) or exists (
+            select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "model" = 'captions'
+        ) as "hasCaption"
+from "meeting";
