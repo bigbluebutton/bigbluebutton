@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { Tldraw, track, useEditor } from "@tldraw/tldraw";
+import { Tldraw, track, useEditor, DefaultColorStyle, DefaultDashStyle, DefaultFillStyle, DefaultFontStyle, DefaultSizeStyle } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import SlideCalcUtil, {
   HUNDRED_PERCENT,
@@ -117,6 +117,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     svgUri,
     maxStickyNoteLength,
     fontFamily,
+    colorStyle,
+    dashStyle,
+    fillStyle,
+    fontStyle,
+    sizeStyle,
     hasShapeAccess,
     presentationAreaHeight,
     presentationAreaWidth,
@@ -665,6 +670,29 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     console.log("EDITOR : ", editor);
 
     const debouncePersistShape = debounce({ delay: 0 }, persistShape);
+  
+
+    const colorStyles = ['black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'];
+    const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
+    const fillStyles = ['none', 'pattern', 'semi', 'solid'];
+    const fontStyles = ['draw','mono','sans', 'serif'];
+    const sizeStyles = ['l', 'm', 's', 'xl'];
+
+    if ( colorStyles.includes(colorStyle) ) {
+      editor.setStyleForNextShapes(DefaultColorStyle, colorStyle);
+    }
+    if ( dashStyles.includes(dashStyle) ) {
+      editor.setStyleForNextShapes(DefaultDashStyle, dashStyle);
+    }
+    if ( fillStyles.includes(fillStyle) ) {
+      editor.setStyleForNextShapes(DefaultFillStyle, fillStyle);
+    }
+    if ( fontStyles.includes(fontStyle)) {
+      editor.setStyleForNextShapes(DefaultFontStyle, fontStyle);
+    }
+    if ( sizeStyles.includes(sizeStyle) ) {
+      editor.setStyleForNextShapes(DefaultSizeStyle, sizeStyle);
+    }
 
     editor.store.listen(
       (entry) => {
@@ -887,6 +915,11 @@ Whiteboard.propTypes = {
   svgUri: PropTypes.string,
   maxStickyNoteLength: PropTypes.number.isRequired,
   fontFamily: PropTypes.string.isRequired,
+  colorStyle: PropTypes.string.isRequired,
+  dashStyle: PropTypes.string.isRequired,
+  fillStyle: PropTypes.string.isRequired,
+  fontStyle: PropTypes.string.isRequired,
+  sizeStyle: PropTypes.string.isRequired,
   hasShapeAccess: PropTypes.func.isRequired,
   presentationAreaHeight: PropTypes.number.isRequired,
   presentationAreaWidth: PropTypes.number.isRequired,
