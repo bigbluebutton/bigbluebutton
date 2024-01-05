@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import UserReactionService from '/imports/ui/components/user-reaction/service';
-import UserListService from '/imports/ui/components/user-list/service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import data from '@emoji-mart/data';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { init } from 'emoji-mart';
+import { SET_RAISE_HAND, SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
+import { useMutation } from '@apollo/client';
 
 import Styled from './styles';
 
@@ -28,6 +28,9 @@ const ReactionsButton = (props) => {
   // initialize emoji-mart data, need for the new version
   init({ data });
 
+  const [setRaiseHand] = useMutation(SET_RAISE_HAND);
+  const [setReactionEmoji] = useMutation(SET_REACTION_EMOJI);
+
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const intlMessages = defineMessages({
@@ -42,7 +45,7 @@ const ReactionsButton = (props) => {
     notRaiseHandLabel: {
       id: 'app.actionsBar.reactions.lowHand',
       description: 'not Raise Hand Label',
-    },  
+    },
   });
 
   const handleClose = () => {
@@ -54,11 +57,16 @@ const ReactionsButton = (props) => {
 
   const handleReactionSelect = (reaction) => {
     const newReaction = currentUserReaction === reaction ? 'none' : reaction;
-    UserReactionService.setUserReaction(newReaction);
+    setReactionEmoji({ variables: { reactionEmoji: newReaction } });
   };
 
   const handleRaiseHandButtonClick = () => {
-    UserListService.setUserRaiseHand(userId, !raiseHand);
+    setRaiseHand({
+      variables: {
+        userId,
+        raiseHand: !raiseHand,
+      },
+    });
   };
 
   const RaiseHandButtonLabel = () => {

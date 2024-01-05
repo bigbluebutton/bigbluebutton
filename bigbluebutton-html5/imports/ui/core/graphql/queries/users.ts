@@ -78,8 +78,17 @@ subscription Users {
   }
 }`;
 
+export const GET_USER_IDS = gql`
+  query Users {
+    user {
+      userId
+    }
+  }
+`;
+
 export default {
   USER_LIST_SUBSCRIPTION,
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
   USERS_OVERVIEW,
+  GET_USER_IDS,
 };

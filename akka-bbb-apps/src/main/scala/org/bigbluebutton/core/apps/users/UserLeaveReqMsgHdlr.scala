@@ -31,7 +31,7 @@ trait UserLeaveReqMsgHdlr extends HandlerHelpers {
             ru <- RegisteredUsers.findWithUserId(msg.body.userId, liveMeeting.registeredUsers)
           } yield {
             RegisteredUsers.setUserLoggedOutFlag(liveMeeting.registeredUsers, ru)
-            Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, ru.id, ru.sessionToken, "user_loggedout", outGW)
+            Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, ru.id, ru.sessionToken, "user_loggedout", outGW)
           }
         }
         state

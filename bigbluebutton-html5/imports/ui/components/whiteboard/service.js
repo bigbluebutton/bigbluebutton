@@ -87,32 +87,6 @@ const getMultiUser = (whiteboardId) => {
   return data.multiUser;
 };
 
-const addGlobalAccess = (whiteboardId) => {
-  makeCall('addGlobalAccess', whiteboardId);
-};
-
-const addIndividualAccess = (whiteboardId, userId) => {
-  makeCall('addIndividualAccess', whiteboardId, userId);
-};
-
-const removeGlobalAccess = (whiteboardId) => {
-  makeCall('removeGlobalAccess', whiteboardId);
-};
-
-const removeIndividualAccess = (whiteboardId, userId) => {
-  makeCall('removeIndividualAccess', whiteboardId, userId);
-};
-
-const changeWhiteboardAccess = (pageId, userId, access) => {
-  if (!pageId) return;
-
-  if (access) {
-    addIndividualAccess(pageId, userId);
-  } else {
-    removeIndividualAccess(pageId, userId);
-  }
-};
-
 const persistShape = (shape, whiteboardId, isModerator) => {
   const annotation = {
     id: shape.id,
@@ -308,11 +282,6 @@ export {
   initDefaultPages,
   sendAnnotation,
   getMultiUser,
-  changeWhiteboardAccess,
-  addGlobalAccess,
-  addIndividualAccess,
-  removeGlobalAccess,
-  removeIndividualAccess,
   persistShape,
   removeShapes,
   changeCurrentSlide,

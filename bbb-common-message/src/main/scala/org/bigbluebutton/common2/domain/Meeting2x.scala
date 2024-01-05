@@ -68,7 +68,8 @@ case class LockSettingsProps(
 )
 
 case class SystemProps(
-    html5InstanceId: Int
+    html5InstanceId: Int,
+    logoutUrl: String,
 )
 
 case class GroupProps(

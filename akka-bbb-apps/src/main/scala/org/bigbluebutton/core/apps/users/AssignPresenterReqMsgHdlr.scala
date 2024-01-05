@@ -85,7 +85,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
           for {
             u <- RegisteredUsers.findWithUserId(oldPres.intId, liveMeeting.registeredUsers)
           } yield {
-            Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, oldPres.intId, u.sessionToken, "role_changed", outGW)
+            Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, oldPres.intId, u.sessionToken, "role_changed", outGW)
           }
         }
       }
@@ -100,7 +100,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
         for {
           u <- RegisteredUsers.findWithUserId(newPres.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, newPres.intId, u.sessionToken, "role_changed", outGW)
+          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, newPres.intId, u.sessionToken, "role_changed", outGW)
         }
       }
     }

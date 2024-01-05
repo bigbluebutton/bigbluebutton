@@ -435,10 +435,6 @@ class VideoService {
     return user.pin;
   }
 
-  toggleVideoPin(userId, userIsPinned) {
-    makeCall('changePin', userId, !userIsPinned);
-  }
-
   isGridEnabled() {
     return Session.get('isGridEnabled');
   }
@@ -1071,7 +1067,6 @@ export default {
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
   getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
-  toggleVideoPin: (userId, pin) => videoService.toggleVideoPin(userId, pin),
   getVideoPinByUser: (userId) => videoService.getVideoPinByUser(userId),
   isVideoPinEnabledForCurrentUser: (user) => videoService.isVideoPinEnabledForCurrentUser(user),
   isPinEnabled: () => videoService.isPinEnabled(),
