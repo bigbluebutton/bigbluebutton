@@ -560,15 +560,17 @@ class ApiController {
       return
     }
 
-    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
-    boolean isRunning = meeting != null && meeting.isRunning();
+//    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+//    boolean isRunning = meeting != null && meeting.isRunning();
 
-    MeetingServiceOuterClass.TestRequest request = MeetingServiceOuterClass.TestRequest.newBuilder().setMsg("Sending test request").build()
+    boolean isRunning = false
+    MeetingServiceOuterClass.MeetingRunningReq request = MeetingServiceOuterClass.MeetingRunningReq.newBuilder().setMeetingId(params.meetingID).build()
     try {
-      MeetingServiceOuterClass.TestResponse response = blockingStub.test(request)
-      log.info("Got response from test request {}", response.msg)
+      MeetingServiceOuterClass.MeetingRunningResp response = blockingStub.isMeetingRunning(request)
+      log.info("isMeetingRunning request was successful. Returned {}", response.getIsRunning())
+      isRunning = response.getIsRunning()
     } catch (StatusRuntimeException e) {
-      log.error("RPC test request failed")
+      log.error("RPC isMeetingRunning request failed")
       log.error("Status code {}", e.getStatus())
       log.error("{}", e.getMessage())
     }

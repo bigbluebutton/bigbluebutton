@@ -2,14 +2,32 @@ syntax = "proto3";
 
 package org.bigbluebutton.protos;
 
-message TestRequest {
-  string msg = 1;
+message MeetingRunningReq {
+  string meetingId = 1;
 }
 
-message TestResponse {
-  string msg = 1;
+message MeetingRunningResp {
+  bool isRunning = 1;
+}
+
+message MeetingInfoReq {
+  string meetingId = 1;
+}
+
+message MeetingInfoResp {
+
+}
+
+message MeetingsReq {
+
+}
+
+message MeetingsResp {
+
 }
 
 service MeetingService {
-  rpc test(TestRequest) returns (TestResponse);
+  rpc isMeetingRunning(MeetingRunningReq) returns (MeetingRunningResp);
+  rpc getMeetingInfo(MeetingInfoReq) returns (MeetingInfoResp);
+  rpc getMeetings(MeetingsReq) returns (MeetingsResp);
 }

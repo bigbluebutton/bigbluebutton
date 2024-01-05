@@ -132,3 +132,6 @@ case class DeskShareStoppedRequest(conferenceName: String, callerId: String, cal
 case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
 case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
 case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage
+
+// gRPC messages
+case class IsMeetingRunning(meetingId: String) extends InMessage

@@ -66,10 +66,11 @@ class BigBlueButtonActor(
   def receive = {
     // Internal messages
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
+    case msg: IsMeetingRunning => handleIsMeetingRunning(sender(), msg)
 
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
-    case _                              => // do nothing
+    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
+    case _                        => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -196,6 +197,13 @@ class BigBlueButtonActor(
 
       //Remove ColorPicker idx of the meeting
       ColorPicker.reset(m.props.meetingProp.intId)
+    }
+  }
+
+  private def handleIsMeetingRunning(sender: ActorRef, msg: IsMeetingRunning): Unit = {
+    RunningMeetings.findWithId(meetings, msg.meetingId) match {
+      case Some(meeting) => sender ! true
+      case None          => sender ! false
     }
   }
 

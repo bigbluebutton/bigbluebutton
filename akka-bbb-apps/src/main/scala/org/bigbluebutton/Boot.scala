@@ -1,6 +1,6 @@
 package org.bigbluebutton
 
-import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.event.Logging
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
@@ -120,13 +120,14 @@ object Boot extends App with SystemConfiguration {
 
   val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
 
-  new GrpcServer(system).run()
+  new GrpcServer(system, bbbActor).run()
 }
 
-class GrpcServer(system: ActorSystem) {
+class GrpcServer(system: ActorSystem, bbbActor: ActorRef) {
   def run(): Future[Http.ServerBinding] = {
     implicit val sys: ActorSystem = system
     implicit val ec: ExecutionContext = sys.dispatcher
+    implicit val bbb: ActorRef = bbbActor
 
     val service: HttpRequest => Future[HttpResponse] = MeetingServiceHandler(new MeetingServiceImpl())
     val binding = Http().newServerAt("127.0.0.1", 8081).bind(service)
