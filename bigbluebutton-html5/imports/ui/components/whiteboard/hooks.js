@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import SlideCalcUtil, {
+import {
     HUNDRED_PERCENT,
     MAX_PERCENT,
 } from "/imports/utils/slideCalcUtils";
@@ -133,8 +133,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         zoom *= baseZoom;
 
         const zoomRatio = zoom / initialZoomRef.current;
-        const backendZoomValue = zoomRatio * 100;
-        const adjustedBackendZoomValue = Math.min(Math.max(backendZoomValue, 100), 400);
+        const backendZoomValue = zoomRatio * HUNDRED_PERCENT;
+        const adjustedBackendZoomValue = Math.min(Math.max(backendZoomValue, HUNDRED_PERCENT), MAX_PERCENT);
 
         const nextCamera = {
             x: cx + (cursorPosition.x / zoom - cursorPosition.x) - (cursorPosition.x / cz - cursorPosition.x),
