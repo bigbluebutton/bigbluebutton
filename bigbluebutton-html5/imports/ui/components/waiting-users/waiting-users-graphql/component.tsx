@@ -18,7 +18,6 @@ import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import Styled from './styles';
 import {
-  guestUsersCall,
   privateMessageVisible,
   setGuestLobbyMessage,
   setPrivateGuestLobbyMessage,
@@ -29,7 +28,7 @@ import TextInput from '/imports/ui/components/text-input/component';
 import renderNoUserWaitingItem from './guest-items/noPendingGuestUser';
 import renderPendingUsers from './guest-items/guestPendingUser';
 import logger from '/imports/startup/client/logger';
-import { SET_POLICY } from '../mutations';
+import { SET_POLICY, SUBMIT_APPROVAL_STATUS } from '../mutations';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
@@ -167,6 +166,20 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   const { isChrome } = browserInfo;
   const [rememberChoice, setRememberChoice] = useState(false);
   const [setPolicy] = useMutation(SET_POLICY);
+  const [submitApprovalStatus] = useMutation(SUBMIT_APPROVAL_STATUS);
+
+  const guestUsersCall = useCallback((users: GuestWaitingUser[], status: string) => {
+    const guests = users.map((user) => ({
+      guest: user.user.userId,
+      status,
+    }));
+
+    submitApprovalStatus({
+      variables: {
+        guests,
+      },
+    });
+  }, []);
 
   const existPendingUsers = authedGuestUsers.length > 0 || unauthedGuestUsers.length > 0;
 

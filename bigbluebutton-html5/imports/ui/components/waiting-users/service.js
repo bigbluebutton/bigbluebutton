@@ -2,8 +2,6 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 
-const guestUsersCall = (guestsArray, status) => makeCall('allowPendingUsers', guestsArray, status);
-
 const getGuestPolicy = () => {
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
@@ -45,7 +43,6 @@ const privateMessageVisible = (id) => {
 };
 
 export default {
-  guestUsersCall,
   privateMessageVisible,
   getGuestPolicy,
   isWaitingRoomEnabled,
