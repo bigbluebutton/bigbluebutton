@@ -21,4 +21,12 @@ export const SUBMIT_APPROVAL_STATUS = gql`
   }
 `;
 
-export default { SET_POLICY, SUBMIT_APPROVAL_STATUS };
+export const SET_LOBBY_MESSAGE = gql`
+  mutation SetLobbyMessage($message: String!) {
+    guestUsersSetLobbyMessage(
+      message: $message,
+    )
+  }
+`;
+
+export default { SET_POLICY, SUBMIT_APPROVAL_STATUS, SET_LOBBY_MESSAGE };

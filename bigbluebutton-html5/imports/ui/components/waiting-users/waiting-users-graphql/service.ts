@@ -17,12 +17,9 @@ export const getNameInitials = (name: string) => {
   return nameInitials.replace(/^\w/, (c: string) => c.toUpperCase());
 };
 
-export const setGuestLobbyMessage = (message: string) => makeCall('setGuestLobbyMessage', message);
-
 export const setPrivateGuestLobbyMessage = (message: string, guestId: string) => makeCall('setPrivateGuestLobbyMessage', message, guestId);
 
 export default {
   privateMessageVisible,
-  setGuestLobbyMessage,
   getNameInitials,
 };

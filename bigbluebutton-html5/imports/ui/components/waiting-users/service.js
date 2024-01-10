@@ -29,8 +29,6 @@ const getGuestLobbyMessage = () => {
   return '';
 };
 
-const setGuestLobbyMessage = (message) => makeCall('setGuestLobbyMessage', message);
-
 const setPrivateGuestLobbyMessage = (message, guestId) => makeCall('setPrivateGuestLobbyMessage', message, guestId);
 
 const privateMessageVisible = (id) => {
@@ -48,7 +46,6 @@ export default {
   isWaitingRoomEnabled,
   isGuestLobbyMessageEnabled,
   getGuestLobbyMessage,
-  setGuestLobbyMessage,
   setPrivateGuestLobbyMessage,
   allowRememberChoice,
 };
