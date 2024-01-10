@@ -24,12 +24,9 @@ export const setGuestLobbyMessage = (message: string) => makeCall('setGuestLobby
 
 export const setPrivateGuestLobbyMessage = (message: string, guestId: string) => makeCall('setPrivateGuestLobbyMessage', message, guestId);
 
-export const changeGuestPolicy = (policyRule: string) => makeCall('changeGuestPolicy', policyRule);
-
 export default {
   privateMessageVisible,
   guestUsersCall,
   setGuestLobbyMessage,
   getNameInitials,
-  changeGuestPolicy,
 };

@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useSubscription } from '@apollo/client';
+import { useSubscription, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import { notify } from '/imports/ui/services/notification';
@@ -22,7 +22,6 @@ import {
   privateMessageVisible,
   setGuestLobbyMessage,
   setPrivateGuestLobbyMessage,
-  changeGuestPolicy,
 } from './service';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -30,6 +29,7 @@ import TextInput from '/imports/ui/components/text-input/component';
 import renderNoUserWaitingItem from './guest-items/noPendingGuestUser';
 import renderPendingUsers from './guest-items/guestPendingUser';
 import logger from '/imports/startup/client/logger';
+import { SET_POLICY } from '../mutations';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
@@ -166,6 +166,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   const intl = useIntl();
   const { isChrome } = browserInfo;
   const [rememberChoice, setRememberChoice] = useState(false);
+  const [setPolicy] = useMutation(SET_POLICY);
 
   const existPendingUsers = authedGuestUsers.length > 0 || unauthedGuestUsers.length > 0;
 
@@ -200,7 +201,11 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
     message: string,
   ) => () => {
     if (shouldExecutePolicy) {
-      changeGuestPolicy(policyRule);
+      setPolicy({
+        variables: {
+          guestPolicy: policyRule,
+        },
+      });
     }
 
     closePanel();
