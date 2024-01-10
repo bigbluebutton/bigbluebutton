@@ -6,6 +6,7 @@ import Storage from '/imports/ui/services/storage/session';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { ValidationStates } from '/imports/api/auth-token-validation';
 import logger from '/imports/startup/client/logger';
+import { makeVar } from '@apollo/client';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -22,10 +23,12 @@ class Auth {
       return;
     }
 
+    console.log('-----------------');
+
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
     this._authToken = Storage.getItem('authToken');
-    this._sessionToken = Storage.getItem('sessionToken');
+    this._sessionToken = makeVar(Storage.getItem('sessionToken'));
     this._logoutURL = Storage.getItem('logoutURL');
     this._confname = Storage.getItem('confname');
     this._externUserID = Storage.getItem('externUserID');
@@ -48,12 +51,20 @@ class Auth {
   }
 
   get sessionToken() {
-    return this._sessionToken;
+    try {
+      return this._sessionToken();
+    } catch {
+      return null;
+    }
   }
 
   set sessionToken(sessionToken) {
-    this._sessionToken = sessionToken;
-    Storage.setItem('sessionToken', this._sessionToken);
+    if (this._sessionToken) {
+      this._sessionToken(sessionToken);
+    } else {
+      this._sessionToken = makeVar(sessionToken);
+    }
+    Storage.setItem('sessionToken', this._sessionToken());
   }
 
   get userID() {
