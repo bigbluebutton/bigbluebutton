@@ -59,7 +59,10 @@ const WhiteboardContainer = (props) => {
   const curPageId = currentPresentationPage?.num;
   const presentationId = currentPresentationPage?.presentationId;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
+    variables: { pageId: currentPresentationPage?.pageId },
+    skip: !currentPresentationPage?.pageId,
+  });
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
