@@ -492,10 +492,6 @@ const toggleVoice = (userId) => {
   }
 };
 
-const ejectUserCameras = (userId) => {
-  makeCall('ejectUserCameras', userId);
-};
-
 const getEmoji = () => {
   const currentUser = Users.findOne({ userId: Auth.userID },
     { fields: { emoji: 1 } });
@@ -724,7 +720,6 @@ export default {
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
-  ejectUserCameras,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
 };

@@ -7,6 +7,7 @@ import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs
 import {
   SET_AWAY,
   SET_ROLE,
+  USER_EJECT_CAMERAS,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
@@ -292,6 +293,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
+  const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -524,7 +526,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'ejectUserCameras',
       label: intl.formatMessage(messages.ejectUserCamerasLabel),
       onClick: () => {
-        makeCall('ejectUserCameras', user.userId);
+        userEjectCameras({
+          variables: {
+            userId: user.userId,
+          },
+        });
         setSelected(false);
       },
       icon: 'video_off',
