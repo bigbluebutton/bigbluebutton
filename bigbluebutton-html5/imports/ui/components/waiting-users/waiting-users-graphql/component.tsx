@@ -19,7 +19,6 @@ import { ACTIONS, PANELS } from '../../layout/enums';
 import Styled from './styles';
 import {
   privateMessageVisible,
-  setPrivateGuestLobbyMessage,
 } from './service';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -31,6 +30,7 @@ import {
   SET_POLICY,
   SUBMIT_APPROVAL_STATUS,
   SET_LOBBY_MESSAGE,
+  SET_LOBBY_MESSAGE_PRIVATE,
 } from '../mutations';
 
 // @ts-ignore - temporary, while meteor exists in the project
@@ -171,6 +171,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   const [setPolicy] = useMutation(SET_POLICY);
   const [submitApprovalStatus] = useMutation(SUBMIT_APPROVAL_STATUS);
   const [setLobbyMessage] = useMutation(SET_LOBBY_MESSAGE);
+  const [setLobbyMessagePrivate] = useMutation(SET_LOBBY_MESSAGE_PRIVATE);
 
   const guestUsersCall = useCallback((users: GuestWaitingUser[], status: string) => {
     const guests = users.map((user) => ({
@@ -188,6 +189,15 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   const setGuestLobbyMessage = useCallback((message: string) => {
     setLobbyMessage({
       variables: {
+        message,
+      },
+    });
+  }, []);
+
+  const setPrivateGuestLobbyMessage = useCallback((message: string, guestId: string) => {
+    setLobbyMessagePrivate({
+      variables: {
+        guestId,
         message,
       },
     });

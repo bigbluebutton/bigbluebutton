@@ -1,6 +1,5 @@
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
 
 const getGuestPolicy = () => {
   const meeting = Meetings.findOne(
@@ -29,8 +28,6 @@ const getGuestLobbyMessage = () => {
   return '';
 };
 
-const setPrivateGuestLobbyMessage = (message, guestId) => makeCall('setPrivateGuestLobbyMessage', message, guestId);
-
 const privateMessageVisible = (id) => {
   const privateInputSpace = document.getElementById(id);
   if (privateInputSpace.style.display === 'block') {
@@ -46,6 +43,5 @@ export default {
   isWaitingRoomEnabled,
   isGuestLobbyMessageEnabled,
   getGuestLobbyMessage,
-  setPrivateGuestLobbyMessage,
   allowRememberChoice,
 };
