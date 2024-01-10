@@ -3,7 +3,6 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import { makeCall } from '/imports/ui/services/api';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
@@ -197,8 +196,6 @@ const updateUnreadMessage = (timestamp, idChatOpen) => {
   return UnreadMessages.update(chatType, timestamp);
 };
 
-const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
-
 const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
@@ -320,7 +317,6 @@ export default {
   closePrivateChat,
   removeFromClosedChatsSession,
   exportChat,
-  clearPublicChatHistory,
   maxTimestampReducer,
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,

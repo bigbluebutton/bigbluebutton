@@ -21,8 +21,21 @@ export const USER_EJECT_CAMERAS = gql`
   mutation UserEjectCameras($userId: String!) {
     userEjectCameras(
       userId: $userId,
+      )
+    }
+  `;
+
+export const CHAT_CREATE_WITH_USER = gql`
+  mutation ChatCreateWithUser($userId: String!) {
+    chatCreateWithUser(
+      userId: $userId,
     )
   }
 `;
 
-export default { SET_AWAY, SET_ROLE, USER_EJECT_CAMERAS };
+export default {
+  SET_AWAY,
+  SET_ROLE,
+  USER_EJECT_CAMERAS,
+  CHAT_CREATE_WITH_USER,
+};

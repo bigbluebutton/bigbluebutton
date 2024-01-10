@@ -8,6 +8,7 @@ import {
   SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
+  CHAT_CREATE_WITH_USER,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
@@ -19,7 +20,6 @@ import {
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
-  sendCreatePrivateChat,
   toggleVoice,
   isMe,
   generateActionsPermissions,
@@ -287,6 +287,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
+  const [chatCreateWithUser] = useMutation(CHAT_CREATE_WITH_USER);
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
@@ -361,7 +362,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       onClick: () => {
         setPendingChat(user.userId);
         setSelected(false);
-        sendCreatePrivateChat(user);
+        chatCreateWithUser({
+          variables: {
+            userId: user.userId,
+          },
+        });
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: true,
