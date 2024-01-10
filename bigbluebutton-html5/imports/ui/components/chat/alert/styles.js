@@ -42,9 +42,14 @@ const ContentMessagePoll = styled(ContentMessage)`
   margin-top: ${fontSizeSmall};
 `;
 
+const ContentMessageExportedPresentation = styled(ContentMessage)`
+  margin-top: ${fontSizeSmall};
+`;
+
 export default {
   PushMessageContent,
   UserNameMessage,
   ContentMessage,
   ContentMessagePoll,
+  ContentMessageExportedPresentation,
 };
