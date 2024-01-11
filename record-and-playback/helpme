@@ -1,0 +1,49 @@
+Hello, bigbluebutton developers. I am so sorry for bothering you.
+I need to solve this problem urgently, so if you want, I can fund you to fix this problem.
+
+I need assistance in integrating BBB into my LMS system. I configured the layout to build the recorded video as follows when the screen and webCam (1) are shared at the same time during the recording process.
+
+bigbluebutton\record-and-playback\video\scripts\video.yml
+
+layout:
+  width: 1280
+  height: 720
+  framerate: 24
+  areas:
+    - name: presentation
+      x: 0
+      y: 0
+      width: 1280
+      height: 720
+    - name: webcam
+      x: 0
+      y: 0
+      width: 1280
+      height: 720    
+    - name: deskshare
+      x: 0
+      y: 0
+      width: 1280
+      height: 720    
+      pad: true      
+    - name: webcam
+      x: 960
+      y: 500
+      width: 270
+      height: 200
+
+
+When using this layout, if both the screen and webCam are shared during the recording process, the video is recorded in the same structure as screen1 as follows.
+
+When using this layout, if both the screen and webCam are shared during the recording process, the screen sharing layout (full-screen) and webCam layout (small) are displayed in the video like the screen1.png file.
+screen-1.png
+
+However, even when screen sharing is disabled, the webCam layout (full-screen) and webCam layout (small) are displayed in the video like the screen2.png file.
+screen2.png
+I don't want to present a small webCam layout in this case.
+I would really appreciate any help I need in this regard.
+
+I sincerely look forward to your help.
+Thank you for your time and consideration.
+
+Warm regards.
