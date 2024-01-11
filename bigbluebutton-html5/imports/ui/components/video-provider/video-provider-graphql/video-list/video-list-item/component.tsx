@@ -56,8 +56,8 @@ export interface VideoListItemContainerProps {
   });
   userId: string;
   dragging: boolean;
-  draggingOver: boolean,
-  isSelfviewDisabled: boolean,
+  draggingOver: boolean;
+  isSelfviewDisabled: boolean;
 }
 
 interface VideoListItemProps extends VideoListItemContainerProps {
@@ -138,6 +138,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   dragging,
   draggingOver,
   PinnedUserId,
+  isSelfviewDisabled,
 }) => {
   const intl = useIntl();
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
@@ -146,7 +147,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   // when it will be ready and video provider will be migrated to graphql
   const [isMirrored, setIsMirrored] = useState<boolean>(VideoService.mirrorOwnWebcam(userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
-  const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
+  const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(isSelfviewDisabled);
   const layoutContextDispatch = layoutDispatch();
   const pinned = userId === PinnedUserId;
 
