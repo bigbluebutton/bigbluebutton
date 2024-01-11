@@ -14,13 +14,9 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
-  // TODO - move this property to akka and make it read the setting chat.moderatorChatEmphasized also
-  const chatEmphasizedText = (sessionVariables['x-hasura-moderatorinmeeting'] as string).length>0;
-
-  const body = { 
+  const body = {
     msg: {
       correlationId: `${routing.userId}-${Date.now()}`,
-      chatEmphasizedText,
       message: input.chatMessageInMarkdownFormat,
       sender: {
         id: routing.userId,
