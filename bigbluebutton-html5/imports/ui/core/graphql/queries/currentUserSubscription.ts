@@ -22,9 +22,7 @@ subscription userCurrentSubscription {
   emoji
   extId
   guest
-  guestStatus {
-    guestStatus
-  }
+  guestStatus
   hasDrawPermissionOnCurrentPage
   isDialIn
   isModerator

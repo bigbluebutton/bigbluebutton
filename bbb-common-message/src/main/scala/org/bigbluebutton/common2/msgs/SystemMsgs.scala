@@ -235,30 +235,30 @@ case class DeletedRecordingSysMsgBody(recordId: String)
 /**
  * Sent from akka-apps to graphql-middleware
  */
-object InvalidateUserGraphqlConnectionSysMsg { val NAME = "InvalidateUserGraphqlConnectionSysMsg" }
-case class InvalidateUserGraphqlConnectionSysMsg(
+object ForceUserGraphqlReconnectionSysMsg { val NAME = "ForceUserGraphqlReconnectionSysMsg" }
+case class ForceUserGraphqlReconnectionSysMsg(
     header: BbbCoreHeaderWithMeetingId,
-    body:   InvalidateUserGraphqlConnectionSysMsgBody
+    body:   ForceUserGraphqlReconnectionSysMsgBody
 ) extends BbbCoreMsg
-case class InvalidateUserGraphqlConnectionSysMsgBody(meetingId: String, userId: String, sessionToken: String, reason: String)
+case class ForceUserGraphqlReconnectionSysMsgBody(meetingId: String, userId: String, sessionToken: String, reason: String)
 
 /**
  * Sent from graphql-middleware to akka-apps
  */
 
-object UserGraphqlConnectionInvalidatedEvtMsg { val NAME = "UserGraphqlConnectionInvalidatedEvtMsg" }
-case class UserGraphqlConnectionInvalidatedEvtMsg(
+object UserGraphqlReconnectionForcedEvtMsg { val NAME = "UserGraphqlReconnectionForcedEvtMsg" }
+case class UserGraphqlReconnectionForcedEvtMsg(
     header: BbbCoreBaseHeader,
-    body:   UserGraphqlConnectionInvalidatedEvtMsgBody
+    body:   UserGraphqlReconnectionForcedEvtMsgBody
 ) extends BbbCoreMsg
-case class UserGraphqlConnectionInvalidatedEvtMsgBody(sessionToken: String, browserConnectionId: String)
+case class UserGraphqlReconnectionForcedEvtMsgBody(sessionToken: String, browserConnectionId: String)
 
-object UserGraphqlConnectionStablishedSysMsg { val NAME = "UserGraphqlConnectionStablishedSysMsg" }
-case class UserGraphqlConnectionStablishedSysMsg(
+object UserGraphqlConnectionEstablishedSysMsg { val NAME = "UserGraphqlConnectionEstablishedSysMsg" }
+case class UserGraphqlConnectionEstablishedSysMsg(
     header: BbbCoreBaseHeader,
-    body:   UserGraphqlConnectionStablishedSysMsgBody
+    body:   UserGraphqlConnectionEstablishedSysMsgBody
 ) extends BbbCoreMsg
-case class UserGraphqlConnectionStablishedSysMsgBody(sessionToken: String, browserConnectionId: String)
+case class UserGraphqlConnectionEstablishedSysMsgBody(sessionToken: String, browserConnectionId: String)
 
 object UserGraphqlConnectionClosedSysMsg { val NAME = "UserGraphqlConnectionClosedSysMsg" }
 case class UserGraphqlConnectionClosedSysMsg(

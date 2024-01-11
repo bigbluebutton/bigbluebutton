@@ -25,7 +25,7 @@ object_relationships:
         remote_table:
           name: v_user_customParameter
           schema: public
-  - name: guestStatus
+  - name: guestStatusDetails
     using:
       manual_configuration:
         column_mapping:
@@ -146,6 +146,7 @@ select_permissions:
         - expired
         - extId
         - guest
+        - guestStatus
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
@@ -182,6 +183,7 @@ select_permissions:
         - expired
         - extId
         - guest
+        - guestStatus
         - joinErrorCode
         - joinErrorMessage
         - joined

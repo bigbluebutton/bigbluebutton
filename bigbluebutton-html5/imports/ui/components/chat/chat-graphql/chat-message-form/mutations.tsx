@@ -10,4 +10,12 @@ export const CHAT_SEND_MESSAGE = gql`
   }
 `;
 
-export default { CHAT_SEND_MESSAGE };
+export const CHAT_SET_TYPING = gql`
+  mutation ChatSetTyping($chatId: String!) {
+    chatSetTyping(
+      chatId: $chatId,
+    )
+  }
+`;
+
+export default { CHAT_SEND_MESSAGE, CHAT_SET_TYPING };

@@ -25,6 +25,8 @@ import { isEqual } from 'radash';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { useMutation } from '@apollo/client';
+import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutations';
 
 import {
   getFontSize,
@@ -84,6 +86,16 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
+
+  const [setMobileFlag] = useMutation(SET_MOBILE_FLAG);
+
+  const setMobileUser = (mobile) => {
+    setMobileFlag({
+      variables: {
+        mobile,
+      },
+    });
+  };
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -216,6 +228,7 @@ const AppContainer = (props) => {
           shouldShowScreenshare,
           shouldShowSharedNotes,
           shouldShowPresentation,
+          setMobileUser,
         }}
         {...otherProps}
       />

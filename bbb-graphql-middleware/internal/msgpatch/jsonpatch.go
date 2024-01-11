@@ -70,7 +70,7 @@ func ClearAllCaches() {
 	if err == nil && info.IsDir() {
 		filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				log.Errorf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
+				log.Debugf("Cache dir was removed previously (probably user disconnected): %q: %v\n", path, err)
 				return err
 			}
 

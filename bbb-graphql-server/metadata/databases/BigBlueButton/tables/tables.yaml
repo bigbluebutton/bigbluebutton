@@ -19,7 +19,6 @@
 - "!include public_v_meeting_lockSettings.yaml"
 - "!include public_v_meeting_recording.yaml"
 - "!include public_v_meeting_recordingPolicies.yaml"
-- "!include public_v_meeting_showUserlist.yaml"
 - "!include public_v_meeting_usersPolicies.yaml"
 - "!include public_v_meeting_voiceSettings.yaml"
 - "!include public_v_pluginDataChannelMessage.yaml"

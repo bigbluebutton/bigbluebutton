@@ -605,7 +605,7 @@ public:
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
   userReaction:
     enabled: true
-    expire: 60
+    expire: 30
     reactions:
       - id: 'smiley'
         native: '😃'

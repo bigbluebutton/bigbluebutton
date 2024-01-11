@@ -39,11 +39,11 @@ const getSpeechVoices = () => {
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
-const setSpeechLocale = (value) => {
+const setSpeechLocale = (value, setUserSpeechLocale) => {
   const voices = getSpeechVoices();
 
   if (voices.includes(value) || value === '') {
-    makeCall('setSpeechLocale', value, CONFIG.provider);
+    setUserSpeechLocale(value, CONFIG.provider);
   } else {
     logger.error({
       logCode: 'captions_speech_locale',
@@ -53,7 +53,7 @@ const setSpeechLocale = (value) => {
 
 const useFixedLocale = () => isEnabled() && CONFIG.language.forceLocale;
 
-const initSpeechRecognition = () => {
+const initSpeechRecognition = (setUserSpeechLocale) => {
   if (!isEnabled() || !isWebSpeechApi()) return null;
   if (hasSpeechRecognitionSupport()) {
     // Effectivate getVoices
@@ -63,9 +63,9 @@ const initSpeechRecognition = () => {
     speechRecognition.interimResults = true;
 
     if (useFixedLocale() || localeAsDefaultSelected()) {
-      setSpeechLocale(getLocale());
+      setSpeechLocale(getLocale(), setUserSpeechLocale);
     } else {
-      setSpeechLocale(navigator.language);
+      setSpeechLocale(navigator.language, setUserSpeechLocale);
     }
 
     return speechRecognition;
