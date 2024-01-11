@@ -27,4 +27,12 @@ export const SET_LOCK_SETTINGS_PROPS = gql`
   }
 `;
 
-export default { SET_LOCK_SETTINGS_PROPS };
+export const SET_WEBCAM_ONLY_FOR_MODERATOR = gql`
+  mutation SetWebcamOnlyForModerator($webcamsOnlyForModerator: Boolean!) {
+    meetingSetWebcamOnlyForModerator(
+      webcamsOnlyForModerator: $webcamsOnlyForModerator,
+    )
+  }
+`;
+
+export default { SET_LOCK_SETTINGS_PROPS, SET_WEBCAM_ONLY_FOR_MODERATOR };

@@ -4,9 +4,8 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import { useMutation } from '@apollo/client';
 import LockViewersComponent from './component';
-import { updateWebcamsOnlyForModerator } from './service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { SET_LOCK_SETTINGS_PROPS } from './mutations';
+import { SET_LOCK_SETTINGS_PROPS, SET_WEBCAM_ONLY_FOR_MODERATOR } from './mutations';
 
 const LockViewersContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -15,6 +14,7 @@ const LockViewersContainer = (props) => {
   const amIModerator = currentUserData?.isModerator;
 
   const [setLockSettingsProps] = useMutation(SET_LOCK_SETTINGS_PROPS);
+  const [setWebcamOnlyForModerator] = useMutation(SET_WEBCAM_ONLY_FOR_MODERATOR);
 
   const updateLockSettings = (lockSettings) => {
     setLockSettingsProps({
@@ -33,12 +33,25 @@ const LockViewersContainer = (props) => {
     });
   };
 
-  return amIModerator && <LockViewersComponent updateLockSettings={updateLockSettings} {...props} />;
+  const updateWebcamsOnlyForModerator = (webcamsOnlyForModerator) => {
+    setWebcamOnlyForModerator({
+      variables: {
+        webcamsOnlyForModerator,
+      },
+    });
+  };
+
+  return amIModerator && (
+    <LockViewersComponent
+      updateWebcamsOnlyForModerator={updateWebcamsOnlyForModerator}
+      updateLockSettings={updateLockSettings}
+      {...props}
+    />
+  );
 };
 
 export default withTracker(({ setIsOpen }) => ({
   closeModal: () => setIsOpen(false),
   meeting: Meetings.findOne({ meetingId: Auth.meetingID }),
-  updateWebcamsOnlyForModerator,
   showToggleLabel: false,
 }))(LockViewersContainer);
