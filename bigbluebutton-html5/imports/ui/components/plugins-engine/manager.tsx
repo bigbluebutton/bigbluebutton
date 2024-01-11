@@ -7,19 +7,19 @@ import {
 } from 'bigbluebutton-html-plugin-sdk';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import * as uuidLib from 'uuid';
-import PluginHooksHandlerContainer from './data-consumption/state-manager/manager';
+import PluginDataConsumptionManager from './data-consumption/manager';
 import PluginsEngineComponent from './component';
 import { PluginConfig, EffectivePluginConfig } from './types';
-import PluginLoaderContainer from './loader/manager';
-import ExtensibleAreaStateManager from './extensible-areas/state-manager/manager';
-import PluginDataChannelManagerContainer from './data-channel/manager';
+import PluginLoaderManager from './loader/manager';
+import ExtensibleAreaStateManager from './extensible-areas/manager';
+import PluginDataChannelManager from './data-channel/manager';
 import PluginUiCommandsHandler from './ui-commands/handler';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
-const PluginsEngineContainer = () => {
+const PluginsEngineManager = () => {
   // If there is no plugin to load, the engine simply returns null
   if (!PLUGINS_CONFIG) return null;
 
@@ -51,6 +51,7 @@ const PluginsEngineContainer = () => {
           containerRef,
         }}
       />
+      <PluginDataConsumptionManager />
       <PluginUiCommandsHandler />
       {
         effectivePluginsConfig.map((effectivePluginConfig: EffectivePluginConfig) => {
@@ -58,7 +59,7 @@ const PluginsEngineContainer = () => {
           const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName);
           return (
             <div key={uuid}>
-              <PluginLoaderContainer
+              <PluginLoaderManager
                 {...{
                   uuid,
                   containerRef,
@@ -67,7 +68,7 @@ const PluginsEngineContainer = () => {
                   pluginConfig: effectivePluginConfig,
                 }}
               />
-              <PluginDataChannelManagerContainer
+              <PluginDataChannelManager
                 {...{
                   pluginApi,
                 }}
@@ -82,9 +83,8 @@ const PluginsEngineContainer = () => {
           );
         })
       }
-      <PluginHooksHandlerContainer />
     </>
   );
 };
 
-export default PluginsEngineContainer;
+export default PluginsEngineManager;

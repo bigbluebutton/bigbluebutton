@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import formatLoadedUserListDataFromGraphql from './utils';
 import useLoadedUserList from '/imports/ui/core/hooks/useLoadedUserList';
@@ -23,7 +24,7 @@ const LoadedUserListHookContainer = () => {
     >(HookEvents.UPDATED, {
       detail: {
         data: formatLoadedUserListDataFromGraphql(usersData),
-        hook: Hooks.LOADED_USER_LIST,
+        hook: DataConsumptionHooks.LOADED_USER_LIST,
       },
     }));
   };

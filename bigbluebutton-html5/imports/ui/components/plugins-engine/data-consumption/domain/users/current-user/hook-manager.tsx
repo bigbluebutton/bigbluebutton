@@ -4,8 +4,9 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
 import formatCurrentUserResponseFromGraphql from './utils';
 
@@ -32,7 +33,7 @@ const CurrentUserHookContainer = () => {
         {
           detail: {
             data: currentUserProjection,
-            hook: Hooks.CURRENT_USER,
+            hook: DataConsumptionHooks.CURRENT_USER,
           },
         },
       ),
