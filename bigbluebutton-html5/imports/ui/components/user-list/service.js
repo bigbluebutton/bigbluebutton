@@ -503,10 +503,6 @@ const getEmoji = () => {
   return currentUser.emoji;
 };
 
-const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
-
-const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
-
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
   if (!dropdownContent) return;
@@ -699,8 +695,6 @@ export default {
   sortUsersByName,
   sortUsers,
   toggleVoice,
-  muteAllUsers,
-  muteAllExceptPresenter,
   getUsers,
   formatUsers,
   getActiveChats,
