@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useSubscription } from '@apollo/client';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
