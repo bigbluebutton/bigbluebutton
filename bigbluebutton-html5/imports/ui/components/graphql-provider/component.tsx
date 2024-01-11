@@ -37,7 +37,7 @@ const GraphqlProvider = ({ children }: Props): React.ReactNode => {
     const client = new ApolloClient({
       link: wsLink,
       cache: new InMemoryCache(),
-      connectToDevTools: Meteor.isDevelopment,
+      connectToDevTools: true,
     });
     setApolloClient(client);
   }, []);
