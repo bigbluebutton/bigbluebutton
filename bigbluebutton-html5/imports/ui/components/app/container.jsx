@@ -27,6 +27,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { useMutation } from '@apollo/client';
 import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SET_SYNC_WITH_PRESENTER_LAYOUT } from './mutations';
 
 import {
   getFontSize,
@@ -88,6 +89,7 @@ const AppContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const [setMobileFlag] = useMutation(SET_MOBILE_FLAG);
+  const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
 
   const setMobileUser = (mobile) => {
     setMobileFlag({
@@ -147,8 +149,12 @@ const AppContainer = (props) => {
   }, [isPresenter, prevRandomUser, randomlySelectedUser, isModalOpen]);
 
   const setPushLayout = () => {
-    LayoutService.setPushLayout(pushLayout);
-  }
+    setSyncWithPresenterLayout({
+      variables: {
+        syncWithPresenterLayout: pushLayout,
+      },
+    });
+  };
 
   const setMeetingLayout = () => {
     const { isResizing } = cameraDockInput;
