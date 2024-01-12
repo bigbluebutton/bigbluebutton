@@ -269,8 +269,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
 
   const { componentsFlags } = currentMeeting;
 
-  const hasCaptions = (componentsFlags?.audioTranscriptionCaption?.length ?? 0) > 0
-    || (componentsFlags?.typedCaption?.length ?? 0) > 0;
+  const hasCaptions = componentsFlags?.hasCaptions;
 
   if (!hasCaptions) return null;
 

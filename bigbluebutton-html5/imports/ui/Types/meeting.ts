@@ -85,13 +85,12 @@ export interface ExternalVideo {
 }
 
 export interface ComponentsFlags {
-  audioTranscriptionCaption: string[];
+  hasCaption: boolean;
   hasBreakoutRoom: boolean;
   hasExternalVideo: boolean;
   hasPoll: boolean;
   hasScreenshare: boolean;
   hasTimer: boolean;
-  typedCaption: string[];
 }
 
 export interface Meeting {
