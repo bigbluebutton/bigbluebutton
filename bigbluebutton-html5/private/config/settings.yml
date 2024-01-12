@@ -857,6 +857,18 @@ public:
         update: DRAW_UPDATE
         end: DRAW_END
     styles:
+      # color is one of 'black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'
+      colorStyle: 'black'
+      # dash is one of 'dashed', 'dotted', 'draw', 'solid'
+      dashStyle: 'draw'
+      # fill is one of 'none', 'pattern', 'semi', 'solid'
+      fillStyle: 'none'
+      # font is one of 'draw','mono','sans', 'serif'
+      fontStyle: 'draw'
+      # size is one of 'l', 'm', 's', 'xl'
+      sizeStyle: 'm'
+
+      # this one is obsoleted now
       text:
         # Initial font family.
         # family: mono|sans|script|serif
