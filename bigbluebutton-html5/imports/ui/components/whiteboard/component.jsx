@@ -670,7 +670,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     console.log("EDITOR : ", editor);
 
     const debouncePersistShape = debounce({ delay: 0 }, persistShape);
-  
 
     const colorStyles = ['black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'];
     const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
