@@ -8,6 +8,7 @@ import { clone } from 'radash';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
+import { VideoEvents } from '../../core/enums/video';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -279,6 +280,12 @@ class Settings extends Component {
             if (saved.application.locale !== current.application.locale) {
               const { language } = formatLocaleCode(saved.application.locale);
               document.body.classList.remove(`lang-${language}`);
+            }
+
+            if (saved.application.selfViewDisable !== current.application.selfViewDisable) {
+              const sentMessageEvent = new CustomEvent(VideoEvents
+                .SELFVIEW_DISABLED_SETTINGS_CHANGED);
+              window.dispatchEvent(sentMessageEvent);
             }
 
             /* We need to use setIsOpen(false) here to prevent submenu state updates,

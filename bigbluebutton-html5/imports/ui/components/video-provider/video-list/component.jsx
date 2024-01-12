@@ -328,7 +328,6 @@ class VideoList extends Component {
             focused={isFocused}
             name={name}
             userId={userId}
-            isSelfviewDisabled={isSelfviewDisabled}
           />
         </Styled.VideoListItem>
       );

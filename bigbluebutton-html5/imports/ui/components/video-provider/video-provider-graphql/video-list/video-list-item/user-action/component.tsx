@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { defineMessages, useIntl } from 'react-intl';
@@ -10,7 +10,8 @@ import Styled from './styles';
 import { handleVideoFocus, toggleFullscreen, toggleVideoPin } from './service';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { setSelfViewDisable } from '/imports/ui/core/local-states/useSelfViewDisable';
+import useSelfViewDisable from '/imports/ui/core/local-states/useSelfViewDisable';
+import Settings from '/imports/ui/services/settings';
 
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
 
@@ -51,6 +52,9 @@ const intlMessages = defineMessages({
   mirrorDesc: {
     id: 'app.videoDock.webcamMirrorDesc',
   },
+  disableMirrorDesc: {
+    id: 'app.videoDock.webcamDisableMirrorDesc',
+  },
   fullscreenLabel: {
     id: 'app.videoDock.webcamFullscreenLabel',
     description: 'Make fullscreen option label',
@@ -77,6 +81,7 @@ interface UserActionContainerProps {
   name: string;
   numOfStreams: number;
   isModerator: boolean;
+  setIsSelfViewDisabled: (isSelfViewDisabled: boolean) => void;
 }
 
 interface UserActionProps extends UserActionContainerProps {
@@ -101,30 +106,39 @@ const UserAction: React.FC<UserActionProps> = ({
   isModerator,
   isBreakout,
   isRTL,
+  setIsSelfViewDisabled,
 }) => {
   const intl = useIntl();
   const dispatch = layoutDispatch();
   const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
   const { isFirefox } = browserInfo;
+  const [selfviewDisabled, setSelfViewDisable] = useSelfViewDisable();
+
+  const toggleDisableCam = () => {
+    const disabledCams = Session.get('disabledCams') || selfviewDisabled || [];
+    const isDisabled = selfviewDisabled.length > 0 || isSelfViewDisabled;
+    if (!isDisabled) {
+      Session.set('disabledCams', [...disabledCams, userId]);
+      setSelfViewDisable([...disabledCams, userId]);
+      setIsSelfViewDisabled(true);
+      // @ts-ignore - auto generated field
+      Settings.application.selfViewDisable = true;
+      Settings.save();
+    } else {
+      Session.set('disabledCams', disabledCams.filter((cId: string) => cId !== userId));
+      setSelfViewDisable(disabledCams.filter((cId: string) => cId !== userId));
+      setIsSelfViewDisabled(false);
+      // @ts-ignore - auto generated field
+      Settings.application.selfViewDisable = false;
+      Settings.save();
+    }
+  };
 
   const getAvailableActions = () => {
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
-    const enableSelfCamIntlKey = !isSelfViewDisabled ? 'disable' : 'enable';
-
+    const enableSelfCamIntlKey = !(selfviewDisabled.length > 0 || isSelfViewDisabled) ? 'disable' : 'enable';
     const menuItems = [];
-
-    const toggleDisableCam = () => {
-      const disabledCams = Session.get('disabledCams') || [];
-      const isDisabled = disabledCams && disabledCams?.includes(userId);
-      if (!isDisabled) {
-        Session.set('disabledCams', [...disabledCams, userId]);
-        setSelfViewDisable([...disabledCams, userId]);
-      } else {
-        Session.set('disabledCams', disabledCams.filter((cId: string) => cId !== userId));
-        setSelfViewDisable(disabledCams.filter((cId: string) => cId !== userId));
-      }
-    };
 
     if (isVideoSqueezed) {
       menuItems.push({
@@ -146,7 +160,7 @@ const UserAction: React.FC<UserActionProps> = ({
         );
       }
     }
-    if (userId === Auth.userID && isStream && !isSelfViewDisabled) {
+    if (userId === Auth.userID && isStream) {
       menuItems.push({
         key: `${cameraId}-disable`,
         label: intl.formatMessage(intlMessages[`${enableSelfCamIntlKey}Label`]),
@@ -266,6 +280,7 @@ const UserActionContainer: React.FC<UserActionContainerProps> = ({
   name,
   numOfStreams,
   isModerator,
+  setIsSelfViewDisabled,
 }) => {
   const focusedId = layoutSelectInput((i: Input) => i.cameraDock.focusedId);
   const {
@@ -293,6 +308,7 @@ const UserActionContainer: React.FC<UserActionContainerProps> = ({
       numOfStreams={numOfStreams}
       isModerator={isModerator}
       isRTL={isRTL}
+      setIsSelfViewDisabled={setIsSelfViewDisabled}
     />
   );
 };

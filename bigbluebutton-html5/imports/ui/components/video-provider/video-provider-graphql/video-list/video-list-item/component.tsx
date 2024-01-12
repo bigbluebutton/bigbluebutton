@@ -32,6 +32,7 @@ import PinAreaContainer from './pin-area/component';
 import useSelfViewDisable from '/imports/ui/core/local-states/useSelfViewDisable';
 import { User } from '/imports/ui/Types/user';
 import logger from '/imports/startup/client/logger';
+import { VideoEvents } from '/imports/ui/core/enums/video';
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 175;
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
@@ -57,14 +58,12 @@ export interface VideoListItemContainerProps {
   userId: string;
   dragging: boolean;
   draggingOver: boolean;
-  isSelfviewDisabled: boolean;
 }
 
 interface VideoListItemProps extends VideoListItemContainerProps {
   userId: string;
   talking: boolean;
   disabledCams: string[];
-  settingsSelfViewDisable: boolean;
   voiceUser: boolean;
   presenter: boolean;
   clientType: string;
@@ -119,7 +118,6 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   talking,
   onVideoItemMount,
   disabledCams,
-  settingsSelfViewDisable,
   name,
   numOfStreams,
   isStream,
@@ -138,7 +136,6 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   dragging,
   draggingOver,
   PinnedUserId,
-  isSelfviewDisabled,
 }) => {
   const intl = useIntl();
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
@@ -147,7 +144,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   // when it will be ready and video provider will be migrated to graphql
   const [isMirrored, setIsMirrored] = useState<boolean>(VideoService.mirrorOwnWebcam(userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
-  const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(isSelfviewDisabled);
+  const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
   const layoutContextDispatch = layoutDispatch();
   const pinned = userId === PinnedUserId;
 
@@ -190,6 +187,14 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
   useEffect(() => {
     subscribeToStreamStateChange(cameraId, onStreamStateChange as EventListener);
     onVideoItemMount(videoTag.current);
+
+    const handleSelfViewDisabled = () => {
+      // @ts-ignore - JS auto generated field
+      const SettingsSelfViewDisabled = Settings.application.selfViewDisable;
+      setIsSelfViewDisabled(SettingsSelfViewDisabled);
+    };
+    window.addEventListener(VideoEvents.SELFVIEW_DISABLED_SETTINGS_CHANGED, handleSelfViewDisabled);
+
     if (videoContainer.current !== null) {
       resizeObserver.observe(videoContainer.current);
     }
@@ -201,9 +206,9 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
     return () => {
       videoTag?.current?.removeEventListener('loadeddata', onLoadedData);
       resizeObserver.disconnect();
+      window.removeEventListener(VideoEvents.SELFVIEW_DISABLED_SETTINGS_CHANGED, handleSelfViewDisabled);
     };
   }, []);
-
   // component will mount
   useEffect(() => {
     const playElement = (elem: HTMLVideoElement | null) => {
@@ -228,10 +233,6 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
     }
   }, [isSelfViewDisabled, videoDataLoaded, disabledCams]);
 
-  useEffect(() => {
-    setIsSelfViewDisabled(settingsSelfViewDisable);
-  }, [settingsSelfViewDisable]);
-
   const renderSqueezedButton = () => (
     <UserActionContainer
       userId={userId}
@@ -246,6 +247,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
       name={name}
       numOfStreams={numOfStreams}
       isModerator={isModerator}
+      setIsSelfViewDisabled={setIsSelfViewDisabled}
     />
   );
 
@@ -280,6 +282,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
           name={name}
           numOfStreams={numOfStreams}
           isModerator={isModerator}
+          setIsSelfViewDisabled={setIsSelfViewDisabled}
         />
         <UserStatus
           listenOnly={listenOnly}
@@ -343,6 +346,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
           name={name}
           numOfStreams={numOfStreams}
           isModerator={isModerator}
+          setIsSelfViewDisabled={setIsSelfViewDisabled}
         />
         <UserStatus
           listenOnly={listenOnly}
@@ -414,7 +418,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
   userId,
   dragging,
   draggingOver,
-  isSelfviewDisabled,
 }) => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const { element } = fullscreen;
@@ -483,9 +486,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = ({
       PinnedUserId={pinnedUser?.data?.user[0]?.userId ?? ''}
       dragging={dragging}
       draggingOver={draggingOver}
-      // @ts-ignore: Singleton with auto-generated Fields
-      settingsSelfViewDisable={isSelfviewDisabled}
-      isSelfviewDisabled={isSelfviewDisabled}
     />
   );
 };
