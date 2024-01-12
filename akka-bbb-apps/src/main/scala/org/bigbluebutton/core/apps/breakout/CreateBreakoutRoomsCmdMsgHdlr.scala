@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPath
+import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse}
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.db.BreakoutRoomDAO
@@ -19,13 +19,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
 
     val minOfRooms = 2
-    val maxOfRooms =
-      getConfigPropertyValueByPath(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit") match {
-        case Some(breakoutRoomLimit: Int) => breakoutRoomLimit max minOfRooms
-        case _ =>
-          log.debug("Config `public.app.breakouts.breakoutRoomLimit` not found.")
-          16
-      }
+    val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
       val meetingId = liveMeeting.props.meetingProp.intId
