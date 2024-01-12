@@ -215,26 +215,31 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [getWriters, { data: usersData }] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
   const writers = usersData?.pres_page_writers || null;
 
-  // users will only be fetched when getWriters is called
-  useEffect(() => {
-    if (writers) {
-      changeWhiteboardAccess();
-    }
-  }, [writers]);
+  const handleWhiteboardAccessChange = async () => {
+    try {
+      // Fetch the writers data
+      const { data } = await getWriters({ variables: { pageId } });
+      const writers = data?.pres_page_writers || [];
 
-  const changeWhiteboardAccess = () => {
-    if (pageId) {
-      const { userId } = user;
-      const usersIds = writers.map((writer: { userId: string }) => writer.userId);
-      const hasAccess = writers?.some((writer: { userId: string }) => writer.userId === userId);
-      const newUsersIds = hasAccess ? usersIds.filter((id: string) => id !== userId) : [...usersIds, userId];
+      // Determine if the user has access
+      const { userId, presPagesWritable } = user;
+      const hasAccess = presPagesWritable.some(page => page.userId === userId && page.isCurrentPage);
 
-      presentationSetWriters({
+      // Prepare the updated list of user IDs for whiteboard access
+      const usersIds = writers.map(writer => writer.userId);
+      const newUsersIds = hasAccess
+        ? usersIds.filter(id => id !== userId)
+        : [...usersIds, userId];
+
+      // Update the writers
+      await presentationSetWriters({
         variables: {
           pageId,
           usersIds: newUsersIds,
         },
       });
+    } catch (error) {
+      console.error("Error updating whiteboard access", error);
     }
   };
 
@@ -282,7 +287,9 @@ const UserActions: React.FC<UserActionsProps> = ({
     (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
   );
 
-  const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
+  const hasWhiteboardAccess = user.presPagesWritable?.some(page => 
+    page.pageId === pageId && page.userId === user.userId
+  );
 
   const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
@@ -424,7 +431,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        getWriters();
+        handleWhiteboardAccessChange();
         setSelected(false);
       },
       icon: 'pen_tool',
