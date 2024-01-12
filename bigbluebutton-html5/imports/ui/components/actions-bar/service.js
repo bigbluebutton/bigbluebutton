@@ -45,7 +45,6 @@ export default {
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.record': 1 } }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
-  createBreakoutRoom: (rooms, durationInMinutes, record = false, captureNotes = false, captureSlides = false, sendInviteToModerators = false) => makeCall('createBreakoutRoom', rooms, durationInMinutes, record, captureNotes, captureSlides, sendInviteToModerators),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   breakoutJoinedUsers: () => Breakouts.find({
     joinedUsers: { $exists: true },
