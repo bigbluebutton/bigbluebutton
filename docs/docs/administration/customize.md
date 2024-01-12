@@ -1433,6 +1433,7 @@ Useful tools for development:
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
 | `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent.                                                                                                                   | `false`        |
 | `userdata-bbb_direct_leave_button`        | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu.                                                                                                                   | `false`        |
+| `userdata-bbb_show_animations_default`        | (Introduced in BigBlueButton 2.7.4) If set to `false` the default value for the Animations toggle in Settings will be 'off'                                                                                                                   | `true`        |
 
 #### Branding parameters
 
