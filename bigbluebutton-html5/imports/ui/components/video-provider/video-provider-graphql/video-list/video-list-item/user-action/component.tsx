@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { defineMessages, useIntl } from 'react-intl';
@@ -46,11 +46,11 @@ const intlMessages = defineMessages({
   unpinDesc: {
     id: 'app.videoDock.webcamUnpinDesc',
   },
-  mirrorLabel: {
+  enableMirrorLabel: {
     id: 'app.videoDock.webcamEnableMirrorLabel',
   },
-  mirrorDesc: {
-    id: 'app.videoDock.webcamMirrorDesc',
+  enableMirrorDesc: {
+    id: 'app.videoDock.webcamEnableMirrorDesc',
   },
   disableMirrorDesc: {
     id: 'app.videoDock.webcamDisableMirrorDesc',
@@ -65,6 +65,9 @@ const intlMessages = defineMessages({
   },
   disableDesc: {
     id: 'app.videoDock.webcamDisableDesc',
+  },
+  disableMirrorLabel: {
+    id: 'app.videoDock.webcamDisableMirrorLabel',
   },
 });
 
@@ -82,6 +85,7 @@ interface UserActionContainerProps {
   numOfStreams: number;
   isModerator: boolean;
   setIsSelfViewDisabled: (isSelfViewDisabled: boolean) => void;
+  isMirrored: boolean;
 }
 
 interface UserActionProps extends UserActionContainerProps {
@@ -107,6 +111,7 @@ const UserAction: React.FC<UserActionProps> = ({
   isBreakout,
   isRTL,
   setIsSelfViewDisabled,
+  isMirrored,
 }) => {
   const intl = useIntl();
   const dispatch = layoutDispatch();
@@ -138,6 +143,7 @@ const UserAction: React.FC<UserActionProps> = ({
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
     const enableSelfCamIntlKey = !(selfviewDisabled.length > 0 || isSelfViewDisabled) ? 'disable' : 'enable';
+    const isMirroredIntlKey = !isMirrored ? 'enableMirror' : 'disableMirror';
     const menuItems = [];
 
     if (isVideoSqueezed) {
@@ -173,8 +179,8 @@ const UserAction: React.FC<UserActionProps> = ({
     if (isStream) {
       menuItems.push({
         key: `${cameraId}-mirror`,
-        label: intl.formatMessage(intlMessages.mirrorLabel),
-        description: intl.formatMessage(intlMessages.mirrorDesc),
+        label: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Label`]),
+        description: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Desc`]),
         onClick: () => onHandleMirror(cameraId),
         dataTest: 'mirrorWebcamBtn',
       });
@@ -281,6 +287,7 @@ const UserActionContainer: React.FC<UserActionContainerProps> = ({
   numOfStreams,
   isModerator,
   setIsSelfViewDisabled,
+  isMirrored,
 }) => {
   const focusedId = layoutSelectInput((i: Input) => i.cameraDock.focusedId);
   const {
@@ -309,6 +316,7 @@ const UserActionContainer: React.FC<UserActionContainerProps> = ({
       isModerator={isModerator}
       isRTL={isRTL}
       setIsSelfViewDisabled={setIsSelfViewDisabled}
+      isMirrored={isMirrored}
     />
   );
 };

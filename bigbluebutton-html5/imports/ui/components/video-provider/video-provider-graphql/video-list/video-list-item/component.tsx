@@ -244,6 +244,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
       isStream={isStream}
       videoContainer={videoContainer}
       onHandleMirror={() => setIsMirrored((value) => !value)}
+      isMirrored={isMirrored}
       name={name}
       numOfStreams={numOfStreams}
       isModerator={isModerator}
@@ -279,6 +280,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
           isStream={isStream}
           videoContainer={videoContainer}
           onHandleMirror={() => setIsMirrored((value) => !value)}
+          isMirrored={isMirrored}
           name={name}
           numOfStreams={numOfStreams}
           isModerator={isModerator}
@@ -343,6 +345,7 @@ const VideoListItem: React.FC<VideoListItemProps> = ({
           isStream={isStream}
           videoContainer={videoContainer}
           onHandleMirror={() => setIsMirrored((value) => !value)}
+          isMirrored={isMirrored}
           name={name}
           numOfStreams={numOfStreams}
           isModerator={isModerator}
