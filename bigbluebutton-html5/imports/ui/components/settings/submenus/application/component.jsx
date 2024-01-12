@@ -9,6 +9,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const MIN_FONTSIZE = 0;
 const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
@@ -436,6 +437,10 @@ class ApplicationMenu extends BaseMenu {
 
     const showSelect = allLocales && allLocales.length > 0;
 
+    const showAnimationsDefault = getFromUserSettings(
+      'bbb_show_animations_default',
+      settings.animations,
+    );
     return (
       <div>
         <div>
@@ -455,12 +460,12 @@ class ApplicationMenu extends BaseMenu {
             </Styled.Col>
             <Styled.Col>
               <Styled.FormElementRight>
-                {displaySettingsStatus(settings.animations)}
+                {displaySettingsStatus(showAnimationsDefault)}
                 <Toggle
                   icons={false}
-                  defaultChecked={settings.animations}
+                  defaultChecked={showAnimationsDefault}
                   onChange={() => this.handleToggle('animations')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
+                  ariaLabel={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(showAnimationsDefault, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>
