@@ -812,6 +812,7 @@
     "app.toast.chat.system": "System",
     "app.toast.chat.poll": "Umfrageergebnisse",
     "app.toast.chat.pollClick": "Umfrageergebnisse wurden veröffentlicht. Hier klicken, um sie anzusehen.",
+    "app.toast.chat.exportedPresentation": "Präsentationsdatei",
     "app.toast.clearedEmoji.label": "Emojistatus zurückgesetzt",
     "app.toast.setEmoji.label": "Emojistatus auf {0} gesetzt",
     "app.toast.meetingMuteOn.label": "Alle Teilnehmer wurden stummgeschaltet",
