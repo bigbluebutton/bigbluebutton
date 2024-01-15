@@ -37,7 +37,7 @@ type Mutation {
 
 type Mutation {
   breakoutRoomSendMessageToAll(
-    msg: String!
+    message: String!
   ): Boolean
 }
 

@@ -43,7 +43,6 @@ export default withTracker((props) => {
   const {
     requestJoinURL,
     setBreakoutsTime,
-    sendMessageToAllBreakouts,
     isNewTimeHigherThanMeetingRemaining,
     findBreakouts,
     getBreakoutRoomUrl,
@@ -92,7 +91,6 @@ export default withTracker((props) => {
     breakoutRooms,
     requestJoinURL,
     setBreakoutsTime,
-    sendMessageToAllBreakouts,
     isNewTimeHigherThanMeetingRemaining,
     getBreakoutRoomUrl,
     transferUserToMeeting,

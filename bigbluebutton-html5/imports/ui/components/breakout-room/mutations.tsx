@@ -40,4 +40,17 @@ export const BREAKOUT_ROOM_MOVE_USER = gql`
   }
 `;
 
-export default { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_END_ALL, BREAKOUT_ROOM_MOVE_USER };
+export const BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL = gql`
+  mutation BreakoutRoomSendMessageToAll($message: String!) {
+    breakoutRoomSendMessageToAll(
+      message: $message,
+    )
+  }
+`;
+
+export default {
+  BREAKOUT_ROOM_CREATE,
+  BREAKOUT_ROOM_END_ALL,
+  BREAKOUT_ROOM_MOVE_USER,
+  BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
+};

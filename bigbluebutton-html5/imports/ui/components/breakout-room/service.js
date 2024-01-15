@@ -106,14 +106,6 @@ const setBreakoutsTime = (timeInMinutes) => {
   return true;
 };
 
-const sendMessageToAllBreakouts = (msg) => {
-  makeCall('sendMessageToAllBreakouts', {
-    msg,
-  });
-
-  return true;
-};
-
 const transferUserToMeeting = (fromMeetingId, toMeetingId) =>
   makeCall('transferUser', fromMeetingId, toMeetingId);
 
@@ -213,7 +205,6 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 export default {
   findBreakouts,
   setBreakoutsTime,
-  sendMessageToAllBreakouts,
   isNewTimeHigherThanMeetingRemaining,
   requestJoinURL,
   getBreakoutRoomUrl,
