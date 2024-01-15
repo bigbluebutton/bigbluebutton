@@ -66,11 +66,12 @@ class BigBlueButtonActor(
   def receive = {
     // Internal messages
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
-    case msg: IsMeetingRunning => handleIsMeetingRunning(sender(), msg)
+    case msg: IsMeetingRunning          => handleIsMeetingRunning(sender(), msg)
+    case msg: GetMeeting                => handleGetMeeting(sender(), msg)
 
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-    case _                        => // do nothing
+    case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
+    case _                              => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -205,6 +206,10 @@ class BigBlueButtonActor(
       case Some(meeting) => sender ! true
       case None          => sender ! false
     }
+  }
+
+  private def handleGetMeeting(sender: ActorRef, msg: GetMeeting): Unit = {
+    sender ! RunningMeetings.findWithId(meetings, msg.meetingId)
   }
 
 }

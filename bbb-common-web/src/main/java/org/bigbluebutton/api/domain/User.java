@@ -40,6 +40,8 @@ public class User {
 	private String clientType;
 	private List<String> streams;
 	private Long leftOn = null;
+	private Boolean isPresenter;
+	private Boolean hasVideo;
 
 	public User(String internalUserId,
 							String externalUserId,
@@ -194,4 +196,19 @@ public class User {
 		return this.clientType;
 	}
 
+	public void setIsPresenter(Boolean isPresenter) {
+		this.isPresenter = isPresenter;
+	}
+
+	public boolean getIsPresenter() {
+		return isPresenter;
+	}
+
+	public void setHasVideo(Boolean hasVideo) {
+		this.hasVideo = hasVideo;
+	}
+
+	public boolean getHasVideo() {
+		return hasVideo;
+	}
 }

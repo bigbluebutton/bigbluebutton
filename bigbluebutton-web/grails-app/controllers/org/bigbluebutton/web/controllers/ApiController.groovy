@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils
 import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
+import org.bigbluebutton.api.domain.User
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
@@ -42,7 +43,8 @@ import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.protos.MeetingServiceGrpc
-import org.bigbluebutton.protos.MeetingServiceOuterClass;
+import org.bigbluebutton.protos.MeetingServiceOuterClass
+import org.bigbluebutton.protos.MeetingServiceOuterClass.MeetingInfo;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
@@ -560,9 +562,6 @@ class ApiController {
       return
     }
 
-//    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
-//    boolean isRunning = meeting != null && meeting.isRunning();
-
     boolean isRunning = false
     MeetingServiceOuterClass.MeetingRunningReq request = MeetingServiceOuterClass.MeetingRunningReq.newBuilder().setMeetingId(params.meetingID).build()
     try {
@@ -647,7 +646,21 @@ class ApiController {
       return
     }
 
-    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+//    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    Meeting meeting = new Meeting.Builder("", "", 1000000L).build()
+
+    MeetingServiceOuterClass.MeetingInfoReq request = MeetingServiceOuterClass.MeetingInfoReq.newBuilder().setMeetingId(params.meetingID).build()
+    try {
+      MeetingServiceOuterClass.MeetingInfoResp response = blockingStub.getMeetingInfo(request)
+      log.info("isMeetingRunning request was successful")
+      log.info("***** Meeting Info ******")
+      log.info("{}", response.getMeetingInfo())
+      meeting = meetingInfoToMeeting(response.getMeetingInfo())
+    } catch (StatusRuntimeException e) {
+      log.error("RPC getMeetingInfo request failed")
+      log.error("Status code {}", e.getStatus())
+      log.error("{}", e.getMessage())
+    }
 
     withFormat {
       xml {
@@ -2047,6 +2060,52 @@ class ApiController {
     }
 
     return response
+  }
+
+  private Meeting meetingInfoToMeeting(MeetingInfo meetingInfo) {
+    Meeting meeting = new Meeting.Builder(meetingInfo.getMeetingExtId(), meetingInfo.getMeetingIntId(), meetingInfo.getDurationInfo().getCreateTime())
+                  .withName(meetingInfo.getMeetingName())
+                  .withMaxUsers(meetingInfo.getParticipantInfo().getMaxUsers())
+                  .withModeratorPass(meetingInfo.getModeratorPw())
+                  .withViewerPass(meetingInfo.getAttendeePw())
+                  .withRecording(meetingInfo.getRecording())
+                  .withDuration(meetingInfo.getDurationInfo().getDuration())
+                  .withTelVoice(meetingInfo.getVoiceBridge())
+                  .withDialNumber(meetingInfo.getDialNumber())
+                  .withMetadata(meetingInfo.getMetadataMap())
+                  .isBreakout(meetingInfo.getBreakoutInfo().getIsBreakout())
+                  .build()
+
+    meeting.setIsRunning(meetingInfo.getDurationInfo().getIsRunning())
+    meeting.setUserHasJoined(meetingInfo.getParticipantInfo().getHasUserJoined())
+    meeting.setForciblyEnded(meetingInfo.getDurationInfo().getHasBeenForciblyEnded())
+    meeting.setStartTime(meetingInfo.getDurationInfo().getStartTime())
+    meeting.setEndTime(meetingInfo.getDurationInfo().getEndTime())
+    meeting.setNumUsersOnline(meetingInfo.getParticipantInfo().getParticipantCount())
+    meeting.setNumListenOnlyUsers(meetingInfo.getParticipantInfo().getListenerCount())
+    meeting.setNumVoiceUsers(meetingInfo.getParticipantInfo().getVoiceParticipantCount())
+    meeting.setNumVideoUsers(meetingInfo.getParticipantInfo().getVideoCount())
+    meeting.setNumMods(meetingInfo.getParticipantInfo().getModeratorCount())
+
+    for(MeetingServiceOuterClass.Attendee attendee: meetingInfo.getAttendeesList()) {
+      User user = new User(attendee.getUserId(), attendee.getFullName(), attendee.getFullName(), attendee.getRole(), false, "", false, "", attendee.getClientType())
+      user.setIsPresenter(attendee.getIsPresenter())
+      user.setListeningOnly(attendee.getIsListeningOnly())
+      user.setVoiceJoined(attendee.getHasJoinedVoice())
+      user.setHasVideo(attendee.getHasVideo())
+      meeting.addUserCustomData(attendee.getUserId(), attendee.getCustomDataMap())
+      meeting.userJoined(user)
+    }
+
+    meeting.setParentMeetingId(meetingInfo.getBreakoutInfo().getParentMeetingId())
+    meeting.setSequence(meetingInfo.getBreakoutInfo().getSequence())
+    meeting.setFreeJoin(meetingInfo.getBreakoutInfo().getFreeJoin())
+
+    for(String breakoutRoom: meetingInfo.getBreakoutRoomsList().asList()) {
+      meeting.addBreakoutRoom(breakoutRoom)
+    }
+
+    return meeting
   }
 
 }

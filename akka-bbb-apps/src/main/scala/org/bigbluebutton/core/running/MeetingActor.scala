@@ -42,10 +42,11 @@ import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, Vali
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.db.UserStateDAO
-import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
+import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers, findWIthIntId }
 import org.bigbluebutton.core.models.Webcams.findAll
-import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
+import org.bigbluebutton.core2.MeetingStatus2x.{ authUserHadJoined, hasAuthedUserJoined }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.protos.{ Attendee, BreakoutInfo, DurationInfo, MeetingInfo, ParticipantInfo }
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -266,6 +267,9 @@ class MeetingActor(
     // internal messages
     case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
+
+    // Internal gRPC messages
+    case msg: GetMeetingInfo                      => sender() ! handleGetMeetingInfo()
 
     case msg: ExtendMeetingDuration               => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
@@ -667,6 +671,73 @@ class MeetingActor(
     MeetingInfoAnalytics(
       meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
       screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails, breakoutRoom
+    )
+  }
+
+  private def handleGetMeetingInfo(): MeetingInfo = {
+    println(s"***** Getting meeting info for meeting with ID ${liveMeeting.props.meetingProp.intId}")
+    val attendees = for {
+      u <- Users2x.findAll(liveMeeting.users2x)
+    } yield {
+      Attendee(
+        userId = u.intId,
+        fullName = u.name,
+        role = u.role,
+        isPresenter = u.presenter,
+        isListeningOnly = findWIthIntId(liveMeeting.voiceUsers, u.intId) match {
+          case Some(vu) => vu.listenOnly
+          case None     => false
+        },
+        hasJoinedVoice = VoiceUsers.findAll(liveMeeting.voiceUsers).exists(v => v.voiceUserId == u.intId),
+        hasVideo = findAll(liveMeeting.webcams).exists(w => w.userId == u.intId),
+        clientType = u.clientType,
+        customData = Map()
+      )
+    }
+
+    val durationInfo = DurationInfo(
+      createTime = liveMeeting.props.durationProps.createdTime,
+      createdOn = liveMeeting.props.durationProps.createdDate,
+      duration = liveMeeting.props.durationProps.duration,
+      startTime = 1000000L,
+      endTime = 1000000L,
+      isRunning = MeetingStatus2x.hasMeetingEnded(liveMeeting.status),
+      hasBeenForciblyEnded = false
+    )
+
+    val lc = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers).length
+    val participantInfo = ParticipantInfo(
+      hasUserJoined = hasAuthedUserJoined(liveMeeting.status),
+      participantCount = Users2x.findAll(liveMeeting.users2x).length,
+      listenerCount = lc,
+      voiceParticipantCount = VoiceUsers.findAll(liveMeeting.voiceUsers).length - lc,
+      videoCount = findAll(liveMeeting.webcams).length,
+      maxUsers = liveMeeting.props.usersProp.maxUsers,
+      moderatorCount = Users2x.findAll(liveMeeting.users2x).count(u => u.role.equalsIgnoreCase("moderator"))
+    )
+
+    val breakoutInfo = BreakoutInfo(
+      isBreakout = liveMeeting.props.meetingProp.isBreakout,
+      parentMeetingId = liveMeeting.props.breakoutProps.parentId,
+      sequence = liveMeeting.props.breakoutProps.sequence,
+      freeJoin = liveMeeting.props.breakoutProps.freeJoin
+    )
+
+    MeetingInfo(
+      meetingName = liveMeeting.props.meetingProp.name,
+      meetingExtId = liveMeeting.props.meetingProp.extId,
+      meetingIntId = liveMeeting.props.meetingProp.intId,
+      voiceBridge = liveMeeting.props.voiceProp.voiceConf,
+      dialNumber = liveMeeting.props.voiceProp.dialNumber,
+      attendeePw = liveMeeting.props.password.viewerPass,
+      moderatorPw = liveMeeting.props.password.moderatorPass,
+      recording = liveMeeting.props.recordProp.record,
+      attendees = attendees,
+      metadata = Map(),
+      breakoutRooms = liveMeeting.props.breakoutProps.breakoutRooms,
+      durationInfo = Some(durationInfo),
+      participantInfo = Some(participantInfo),
+      breakoutInfo = Some(breakoutInfo)
     )
   }
 

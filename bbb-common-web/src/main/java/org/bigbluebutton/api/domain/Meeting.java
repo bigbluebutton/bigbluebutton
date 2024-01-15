@@ -120,6 +120,13 @@ public class Meeting {
 
 	private String overrideClientSettings = "";
 
+	private boolean isRunning;
+	private int numUsersOnline;
+	private int numListenOnlyUsers;
+	private int numVoiceUsers;
+	private int numVideoUsers;
+	private int numMods;
+
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
@@ -477,6 +484,62 @@ public class Meeting {
 
 	public void setGuestLobbyMessage(String message) {
 		guestLobbyMessage = message;
+	}
+
+	public void setIsRunning(boolean isRunning) {
+		this.isRunning = isRunning;
+	}
+
+	public boolean getIsRunning() {
+		return isRunning;
+	}
+
+	public void setUserHasJoined(boolean userHasJoined) {
+		this.userHasJoined = userHasJoined;
+	}
+
+	public void setIsForciblyEnded(boolean forciblyEnded) {
+		this.forciblyEnded = forciblyEnded;
+	}
+
+	public void setNumUsersOnline(int numUsersOnline) {
+		this.numUsersOnline = numUsersOnline;
+	}
+
+	public int getNumOnlineUsers() {
+		return numUsersOnline;
+	}
+
+	public void setNumListenOnlyUsers(int numListenOnlyUsers) {
+		this.numListenOnlyUsers = numListenOnlyUsers;
+	}
+
+	public int getNumListenOnlyUsers() {
+		return numListenOnlyUsers;
+	}
+
+	public void setNumVoiceUsers(int numVoiceUsers) {
+		this.numVoiceUsers = numVoiceUsers;
+	}
+
+	public int getNumVoiceUsers() {
+		return this.numVoiceUsers;
+	}
+
+	public void setNumVideoUsers(int numVideoUsers) {
+		this.numVideoUsers = numVideoUsers;
+	}
+
+	public int getNumVideoUsers() {
+		return numVideoUsers;
+	}
+
+	public void setNumMods(int numMods) {
+		this.numMods = numMods;
+	}
+
+	public int getNumMods() {
+		return numMods;
 	}
 
 	public String getGuestLobbyMessage(String guestId) {

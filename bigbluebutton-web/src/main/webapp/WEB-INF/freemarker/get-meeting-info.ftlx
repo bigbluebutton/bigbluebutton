@@ -16,29 +16,29 @@
   <#if meeting.getModeratorPassword()?? && meeting.getModeratorPassword()!="">
           <moderatorPW>${meeting.getModeratorPassword()}</moderatorPW>
   </#if>
-  <running>${meeting.isRunning()?c}</running>
+  <running>${meeting.getIsRunning()?c}</running>
   <duration>${meeting.getDuration()?c}</duration>
   <hasUserJoined>${meeting.hasUserJoined()?c}</hasUserJoined>
   <recording>${meeting.isRecord()?c}</recording>
   <hasBeenForciblyEnded>${meeting.isForciblyEnded()?c}</hasBeenForciblyEnded>
   <startTime>${meeting.getStartTime()?c}</startTime>
   <endTime>${meeting.getEndTime()?c}</endTime>
-  <participantCount>${meeting.getNumUsersOnline()?c}</participantCount>
+  <participantCount>${meeting.getNumOnlineUsers()?c}</participantCount>
   <listenerCount>${meeting.getNumListenOnly()?c}</listenerCount>
-  <voiceParticipantCount>${meeting.getNumVoiceJoined()?c}</voiceParticipantCount>
-  <videoCount>${meeting.getNumVideos()?c}</videoCount>
+  <voiceParticipantCount>${meeting.getNumVoiceUsers()?c}</voiceParticipantCount>
+  <videoCount>${meeting.getNumVideoUsers()?c}</videoCount>
   <maxUsers>${meeting.getMaxUsers()?c}</maxUsers>
-  <moderatorCount>${meeting.getNumModerators()?c}</moderatorCount>
+  <moderatorCount>${meeting.getNumMods()?c}</moderatorCount>
   <attendees>
   <#list meeting.getOnlineUsers() as att>
     <attendee>
         <userID>${att.getExternalUserId()}</userID>
         <fullName>${att.getFullname()}</fullName>
         <role>${att.getRole()}</role>
-        <isPresenter>${att.isPresenter()?c}</isPresenter>
+        <isPresenter>${att.getIsPresenter()?c}</isPresenter>
         <isListeningOnly>${att.isListeningOnly()?c}</isListeningOnly>
         <hasJoinedVoice>${att.isVoiceJoined()?c}</hasJoinedVoice>
-        <hasVideo>${att.hasVideo()?c}</hasVideo>
+        <hasVideo>${att.getHasVideo()?c}</hasVideo>
         <clientType>${att.getClientType()}</clientType>
         <#if meeting.getUserCustomData(att.getExternalUserId())??>
             <#assign ucd = meeting.getUserCustomData(att.getExternalUserId())>

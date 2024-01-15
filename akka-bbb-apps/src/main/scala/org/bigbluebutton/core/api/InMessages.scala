@@ -135,3 +135,5 @@ case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID:
 
 // gRPC messages
 case class IsMeetingRunning(meetingId: String) extends InMessage
+case class GetMeeting(meetingId: String) extends InMessage
+case class GetMeetingInfo() extends InMessage
