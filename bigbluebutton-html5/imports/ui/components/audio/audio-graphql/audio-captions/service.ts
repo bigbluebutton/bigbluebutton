@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import { unique } from 'radash';
-import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
@@ -31,11 +30,11 @@ export const setAudioCaptions = (value: boolean) => {
   Session.set('audioCaptions', value);
 };
 
-export const setSpeechLocale = (value: string) => {
+export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
   const voices = getSpeechVoices();
 
   if (voices.includes(value) || value === '') {
-    makeCall('setSpeechLocale', value, CONFIG.provider);
+    setUserSpeechLocale(value, CONFIG.provider);
   } else {
     logger.error({
       logCode: 'captions_speech_locale',

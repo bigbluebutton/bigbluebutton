@@ -1,5 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useMutation } from '@apollo/client';
+
 import {
   getSpeechVoices,
   isAudioTranscriptionEnabled,
@@ -7,6 +9,7 @@ import {
   useFixedLocale,
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 
 const intlMessages = defineMessages({
   title: {
@@ -76,6 +79,17 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 }) => {
   const useLocaleHook = useFixedLocale();
   const intl = useIntl();
+  const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
+
+  const setUserSpeechLocale = (speechLocale: string, provider: string) => {
+    setSpeechLocaleMutation({
+      variables: {
+        locale: speechLocale,
+        provider,
+      },
+    });
+  };
+
   if (!isTranscriptionEnabled || useLocaleHook) return null;
 
   if (speechVoices.length === 0) {
@@ -94,7 +108,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
-    setSpeechLocale(value);
+    setSpeechLocale(value, setUserSpeechLocale);
   };
 
   return (

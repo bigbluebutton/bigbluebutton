@@ -1,16 +1,28 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { diff } from '@mconf/bbb-diff';
+import { useReactiveVar, useMutation } from '@apollo/client';
+import { throttle } from 'radash';
 import {
   SpeechRecognitionAPI,
   generateId,
+  getLocale,
+  hasSpeechRecognitionSupport,
   initSpeechRecognition,
   isLocaleValid,
+  localeAsDefaultSelected,
+  setSpeechVoices,
   updateFinalTranscript,
   updateInterimTranscript,
+  useFixedLocale,
 } from './service';
 import logger from '/imports/startup/client/logger';
-import { useReactiveVar } from '@apollo/client';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { isAudioTranscriptionEnabled, isWebSpeechApi, setSpeechLocale } from '../service';
+import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SUBMIT_TEXT } from './mutations';
+
+const THROTTLE_TIMEOUT = 200;
 
 type SpeechRecognitionEvent = {
   resultIndex: number;
@@ -41,6 +53,84 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
   const idleRef = useRef(true);
   const speechRecognitionRef = useRef<ReturnType<typeof SpeechRecognitionAPI>>(null);
+  const prevIdRef = useRef('');
+  const prevTranscriptRef = useRef('');
+  const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
+
+  const setUserSpeechLocale = (speechLocale: string, provider: string) => {
+    setSpeechLocaleMutation({
+      variables: {
+        locale: speechLocale,
+        provider,
+      },
+    });
+  };
+
+  const initSpeechRecognition = () => {
+    if (!isAudioTranscriptionEnabled() && !isWebSpeechApi()) return null;
+
+    if (!hasSpeechRecognitionSupport()) return null;
+
+    setSpeechVoices();
+    const speechRecognition = new SpeechRecognitionAPI();
+
+    speechRecognition.continuous = true;
+    speechRecognition.interimResults = true;
+
+    if (useFixedLocale() || localeAsDefaultSelected()) {
+      setSpeechLocale(getLocale(), setUserSpeechLocale);
+    } else {
+      setSpeechLocale(navigator.language, setUserSpeechLocale);
+    }
+
+    return speechRecognition;
+  };
+
+  const [submitText] = useMutation(SUBMIT_TEXT);
+  const captionSubmitText = (
+    id: string,
+    transcript: string,
+    locale: string,
+    isFinal: boolean = false,
+  ) => {
+    // If it's a new sentence
+    if (id !== prevIdRef.current) {
+      prevIdRef.current = id;
+      prevTranscriptRef.current = '';
+    }
+
+    const transcriptDiff = diff(prevTranscriptRef.current, transcript);
+
+    let start = 0;
+    let end = 0;
+    let text = '';
+    if (transcriptDiff) {
+      start = transcriptDiff.start;
+      end = transcriptDiff.end;
+      text = transcriptDiff.text;
+    }
+
+    // Stores current transcript as previous
+    prevTranscriptRef.current = transcript;
+
+    submitText({
+      variables: {
+        transcriptId: id,
+        start,
+        end,
+        text,
+        transcript,
+        locale,
+        isFinal,
+      },
+    });
+  };
+
+  const throttledTranscriptUpdate = useMemo(() => throttle(
+    { interval: THROTTLE_TIMEOUT },
+    captionSubmitText,
+  ), []);
+
   const onEnd = useCallback(() => {
     stop();
   }, []);
@@ -70,10 +160,10 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     resultRef.current.isFinal = isFinal;
 
     if (isFinal) {
-      updateFinalTranscript(id, transcript, locale);
+      throttledTranscriptUpdate(id, transcript, locale, true);
       resultRef.current.id = generateId();
     } else {
-      updateInterimTranscript(id, transcript, locale);
+      throttledTranscriptUpdate(id, transcript, locale, false);
     }
   }, [locale]);
 

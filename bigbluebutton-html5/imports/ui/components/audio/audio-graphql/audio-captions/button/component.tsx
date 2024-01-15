@@ -11,6 +11,8 @@ import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/component
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { User } from '/imports/ui/Types/user';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { useMutation } from '@apollo/client';
+import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 
 const intlMessages = defineMessages({
   start: {
@@ -100,7 +102,15 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
 }) => {
   const intl = useIntl();
   const [active] = useAudioCaptionEnable();
-
+  const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
+  const setUserSpeechLocale = (speechLocale: string, provider: string) => {
+    setSpeechLocaleMutation({
+      variables: {
+        locale: speechLocale,
+        provider,
+      },
+    });
+  };
   const isTranscriptionDisabled = () => currentSpeechLocale === DISABLED;
   const fallbackLocale = availableVoices.includes(navigator.language)
     ? navigator.language
@@ -119,7 +129,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   const shouldRenderChevron = isSupported && isVoiceUser;
 
   const toggleTranscription = () => {
-    setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED);
+    setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale);
   };
 
   const getAvailableLocales = () => {
@@ -139,7 +149,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
             disabled: isTranscriptionDisabled(),
             onClick: () => {
               selectedLocale.current = availableVoice;
-              setSpeechLocale(selectedLocale.current);
+              setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
             },
           }
         );
@@ -258,7 +268,6 @@ const AudioCaptionsButtonContainer: React.FC = () => {
       componentsFlags: m.componentsFlags,
     };
   });
-  console.log('currentMeeting', currentMeeting);
   if (currentUserLoading || componentsFlagsLoading) return null;
   if (!currentUser || !currentMeeting) return null;
 
@@ -269,7 +278,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
 
   const { componentsFlags } = currentMeeting;
 
-  const hasCaptions = componentsFlags?.hasCaptions;
+  const hasCaptions = componentsFlags?.hasCaption;
 
   if (!hasCaptions) return null;
 
