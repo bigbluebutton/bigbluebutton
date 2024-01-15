@@ -69,11 +69,6 @@ const setCapturedContentUploading = () => {
   });
 };
 
-const endAllBreakouts = () => {
-  setCapturedContentUploading();
-  makeCall('endAllBreakouts');
-};
-
 const requestJoinURL = (breakoutId) => {
   makeCall('requestJoinURL', {
     breakoutId,
@@ -217,7 +212,6 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 
 export default {
   findBreakouts,
-  endAllBreakouts,
   setBreakoutsTime,
   sendMessageToAllBreakouts,
   isNewTimeHigherThanMeetingRemaining,

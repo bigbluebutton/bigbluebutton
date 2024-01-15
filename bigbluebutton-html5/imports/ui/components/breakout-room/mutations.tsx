@@ -20,4 +20,10 @@ export const BREAKOUT_ROOM_CREATE = gql`
   }
 `;
 
-export default { BREAKOUT_ROOM_CREATE };
+export const BREAKOUT_ROOM_END_ALL = gql`
+  mutation {
+    breakoutRoomEndAll
+  }
+`;
+
+export default { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_END_ALL };

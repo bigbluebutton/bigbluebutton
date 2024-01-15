@@ -26,7 +26,7 @@ import {
   moveUserRegistery,
 } from './room-managment-state/types';
 import { moveUser } from './service';
-import { BREAKOUT_ROOM_CREATE } from './mutations';
+import { BREAKOUT_ROOM_CREATE } from '../../mutations';
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;

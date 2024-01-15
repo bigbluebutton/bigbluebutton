@@ -2,6 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
+import { useMutation } from '@apollo/client';
 import BreakoutComponent from './component';
 import Service from './service';
 import { layoutDispatch, layoutSelect } from '../layout/context';
@@ -11,6 +12,8 @@ import {
 } from '/imports/ui/components/audio/audio-modal/service';
 import { makeCall } from '/imports/ui/services/api';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { BREAKOUT_ROOM_END_ALL } from './mutations';
+import logger from '/imports/startup/client/logger';
 
 const BreakoutContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -22,15 +25,22 @@ const BreakoutContainer = (props) => {
   const amIModerator = currentUserData?.isModerator;
   const isRTL = layoutSelect((i) => i.isRTL);
 
+  const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
+
+  const endAllBreakouts = () => {
+    Service.setCapturedContentUploading();
+    breakoutRoomEndAll();
+  };
+
   return <BreakoutComponent
     amIPresenter={amIPresenter}
+    endAllBreakouts={endAllBreakouts}
     {...{ layoutContextDispatch, isRTL, amIModerator, ...props }}
   />;
 };
 
 export default withTracker((props) => {
   const {
-    endAllBreakouts,
     requestJoinURL,
     setBreakoutsTime,
     sendMessageToAllBreakouts,
@@ -80,7 +90,6 @@ export default withTracker((props) => {
   return {
     ...props,
     breakoutRooms,
-    endAllBreakouts,
     requestJoinURL,
     setBreakoutsTime,
     sendMessageToAllBreakouts,
