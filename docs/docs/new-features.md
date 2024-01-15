@@ -133,12 +133,12 @@ The new mode is *turned off by default* and is considered *experimental*. To ena
 ### Upgraded components
 
 Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
-- Spring 2.7.12
+- Spring 2.7.17
 - React 18
 - NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
 - Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
 - Meteor 2.13
-- Grails 5.3.2
+- Grails 6.1
 - GORM 7.3.1
 - Groovy 3.0.11
 
@@ -147,6 +147,7 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.4)
 - [2.7.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.3)
 - [2.7.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.2)
 - [2.7.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.1)
