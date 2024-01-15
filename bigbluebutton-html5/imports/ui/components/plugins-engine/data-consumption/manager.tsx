@@ -4,33 +4,36 @@ import React, { useEffect, useState } from 'react';
 import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
 import { makeCustomHookIdentifierFromArgs } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/utils';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import {
+  DataConsumptionHooks,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 import { HookEventWrapper, SubscribedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
-import LoadedUserListHookContainer from '../domain/users/loaded-user-list/hook-manager';
-import CurrentUserHookContainer from '../domain/users/current-user/hook-manager';
-import CustomSubscriptionHookContainer from '../domain/shared/custom-subscription/hook-manager';
+import LoadedUserListHookContainer from './domain/users/loaded-user-list/hook-manager';
+import CurrentUserHookContainer from './domain/users/current-user/hook-manager';
+import CustomSubscriptionHookContainer from './domain/shared/custom-subscription/hook-manager';
 
-import { ObjectToCustomHookContainerMap, HookWithArgumentsContainerProps, HookWithArgumentContainerToRender } from '../domain/shared/custom-subscription/types';
-import CurrentPresentationHookContainer from '../domain/presentations/current-presentation/hook-manager';
-import LoadedChatMessagesHookContainer from '../domain/chat/loaded-chat-messages/hook-manager';
+import { ObjectToCustomHookContainerMap, HookWithArgumentsContainerProps, HookWithArgumentContainerToRender } from './domain/shared/custom-subscription/types';
+import CurrentPresentationHookContainer from './domain/presentations/current-presentation/hook-manager';
+import LoadedChatMessagesHookContainer from './domain/chat/loaded-chat-messages/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent
 } = {
-  [Hooks.LOADED_CHAT_MESSAGES]: LoadedChatMessagesHookContainer,
-  [Hooks.LOADED_USER_LIST]: LoadedUserListHookContainer,
-  [Hooks.CURRENT_USER]: CurrentUserHookContainer,
-  [Hooks.CURRENT_PRESENTATION]: CurrentPresentationHookContainer,
+  [DataConsumptionHooks.LOADED_CHAT_MESSAGES]: LoadedChatMessagesHookContainer,
+  [DataConsumptionHooks.LOADED_USER_LIST]: LoadedUserListHookContainer,
+  [DataConsumptionHooks.CURRENT_USER]: CurrentUserHookContainer,
+  [DataConsumptionHooks.CURRENT_PRESENTATION]: CurrentPresentationHookContainer,
 };
 
 const HooksMapWithArguments:{
   [key: string]: React.FunctionComponent<HookWithArgumentsContainerProps>
 } = {
-  [Hooks.CUSTOM_SUBSCRIPTION]: CustomSubscriptionHookContainer,
+  [DataConsumptionHooks.CUSTOM_SUBSCRIPTION]: CustomSubscriptionHookContainer,
 };
 
-const PluginHooksHandlerContainer: React.FC = () => {
+const PluginDataConsumptionManager: React.FC = () => {
   const [
     hookUtilizationCount,
     setHookUtilizationCount,
@@ -45,7 +48,7 @@ const PluginHooksHandlerContainer: React.FC = () => {
     const updateHookUsage = (
       hookName: string, delta: number, hookArguments?: CustomSubscriptionArguments,
     ): void => {
-      if (hookName !== Hooks.CUSTOM_SUBSCRIPTION) {
+      if (hookName !== DataConsumptionHooks.CUSTOM_SUBSCRIPTION) {
         setHookUtilizationCount((mapObj) => {
           const newMap = new Map<string, number>(mapObj.entries());
           newMap.set(hookName, (mapObj.get(hookName) || 0) + delta);
@@ -74,7 +77,7 @@ const PluginHooksHandlerContainer: React.FC = () => {
     const subscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
         let hookArguments: CustomSubscriptionArguments | undefined;
-        if (event.detail.hook === Hooks.CUSTOM_SUBSCRIPTION) {
+        if (event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION) {
           const detail = event.detail as SubscribedEventDetails;
           hookArguments = detail.hookArguments as CustomSubscriptionArguments;
         }
@@ -83,7 +86,7 @@ const PluginHooksHandlerContainer: React.FC = () => {
     const unsubscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
         let hookArguments: CustomSubscriptionArguments | undefined;
-        if (event.detail.hook === Hooks.CUSTOM_SUBSCRIPTION) {
+        if (event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION) {
           const detail = event.detail as SubscribedEventDetails;
           hookArguments = detail.hookArguments as CustomSubscriptionArguments;
         }
@@ -138,4 +141,4 @@ const PluginHooksHandlerContainer: React.FC = () => {
   );
 };
 
-export default PluginHooksHandlerContainer;
+export default PluginDataConsumptionManager;
