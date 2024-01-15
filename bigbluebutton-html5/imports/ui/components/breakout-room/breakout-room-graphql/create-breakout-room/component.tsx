@@ -25,8 +25,7 @@ import {
   BreakoutUser,
   moveUserRegistery,
 } from './room-managment-state/types';
-import { moveUser } from './service';
-import { BREAKOUT_ROOM_CREATE } from '../../mutations';
+import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../../mutations';
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
@@ -238,6 +237,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
+  const [moveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
 
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
@@ -312,7 +312,13 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     userIds.forEach((userId) => {
       const { fromRoomId, toRoomId } = moveRegisterRef.current[userId];
       if (fromRoomId !== toRoomId) {
-        moveUser(userId, fromRoomId, toRoomId);
+        moveUser({
+          variables: {
+            userId,
+            fromBreakoutRoomId: fromRoomId,
+            toBreakoutRoomId: toRoomId,
+          },
+        });
       }
     });
     setIsOpen(false);

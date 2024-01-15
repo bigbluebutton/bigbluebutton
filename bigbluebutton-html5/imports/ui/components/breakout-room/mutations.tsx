@@ -26,4 +26,18 @@ export const BREAKOUT_ROOM_END_ALL = gql`
   }
 `;
 
-export default { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_END_ALL };
+export const BREAKOUT_ROOM_MOVE_USER = gql`
+  mutation BreakoutRoomMoveUser(
+    $userId: String!,
+    $fromBreakoutRoomId: String!,
+    $toBreakoutRoomId: String!,
+  ) {
+    breakoutRoomMoveUser(
+      userId: $userId,
+      fromBreakoutRoomId: $fromBreakoutRoomId,
+      toBreakoutRoomId: $toBreakoutRoomId,
+    )
+  }
+`;
+
+export default { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_END_ALL, BREAKOUT_ROOM_MOVE_USER };
