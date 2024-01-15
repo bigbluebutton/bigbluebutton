@@ -183,7 +183,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: ChatMessageType.BREAKOUT_ROOM,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage={message?.user?.isModerator}
+              emphasizedMessage={message.chatEmphasizedText}
               text={message.message}
             />
           ),
