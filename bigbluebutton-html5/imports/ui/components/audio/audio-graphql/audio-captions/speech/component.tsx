@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
+// @ts-ignore - it's has no types
 import { diff } from '@mconf/bbb-diff';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import { throttle } from 'radash';
@@ -7,12 +13,10 @@ import {
   generateId,
   getLocale,
   hasSpeechRecognitionSupport,
-  initSpeechRecognition,
   isLocaleValid,
   localeAsDefaultSelected,
   setSpeechVoices,
   updateFinalTranscript,
-  updateInterimTranscript,
   useFixedLocale,
 } from './service';
 import logger from '/imports/startup/client/logger';

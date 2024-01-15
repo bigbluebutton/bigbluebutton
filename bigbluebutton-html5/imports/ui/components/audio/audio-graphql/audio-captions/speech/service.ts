@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { isAudioTranscriptionEnabled, isWebSpeechApi, setSpeechLocale } from '../service';
+import { isAudioTranscriptionEnabled } from '../service';
 import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { unique } from 'radash';
@@ -87,31 +87,10 @@ export const updateFinalTranscript = (id: string, transcript: string, locale: st
   updateTranscript(id, transcript, locale, true);
 };
 
-export const initSpeechRecognition = () => {
-  if (!isAudioTranscriptionEnabled() && !isWebSpeechApi()) return null;
-
-  if (!hasSpeechRecognitionSupport()) return null;
-
-  setSpeechVoices();
-  const speechRecognition = new SpeechRecognitionAPI();
-
-  speechRecognition.continuous = true;
-  speechRecognition.interimResults = true;
-
-  if (useFixedLocale() || localeAsDefaultSelected()) {
-    setSpeechLocale(getLocale());
-  } else {
-    setSpeechLocale(navigator.language);
-  }
-
-  return speechRecognition;
-};
-
 export const isLocaleValid = (locale: string) => LANGUAGES.includes(locale);
 
 export default {
   generateId,
-  initSpeechRecognition,
   getLocale,
   localeAsDefaultSelected,
   useFixedLocale,
