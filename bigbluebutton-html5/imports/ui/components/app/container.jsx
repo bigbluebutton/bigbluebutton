@@ -25,7 +25,7 @@ import { isEqual } from 'radash';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { useMutation } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
 import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutations';
 
 import {
@@ -34,8 +34,10 @@ import {
 } from './service';
 
 import App from './component';
+import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
+const NOTES_CONFIG = Meteor.settings.public.notes;
 
 const endMeeting = (code, ejectedReason) => {
   Session.set('codeError', code);
@@ -61,7 +63,6 @@ const AppContainer = (props) => {
     pushLayoutMeeting,
     currentUserId,
     shouldShowScreenshare: propsShouldShowScreenshare,
-    shouldShowSharedNotes,
     presentationRestoreOnUpdate,
     randomlySelectedUser,
     isModalOpen,
@@ -88,6 +89,9 @@ const AppContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const [setMobileFlag] = useMutation(SET_MOBILE_FLAG);
+  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const shouldShowSharedNotes = !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const setMobileUser = (mobile) => {
     setMobileFlag({
@@ -311,7 +315,6 @@ export default withTracker(() => {
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
-  const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare();
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
@@ -352,7 +355,6 @@ export default withTracker(() => {
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
     viewScreenshare,
-    shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',

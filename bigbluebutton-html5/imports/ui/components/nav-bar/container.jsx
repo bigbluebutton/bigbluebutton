@@ -15,6 +15,7 @@ import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useHasUnreadNotes from '../notes/notes-graphql/hooks/useHasUnreadNotes';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 
@@ -38,7 +39,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
   const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
-  const { unread, ...rest } = props;
+  const unread = useHasUnreadNotes();
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
@@ -88,7 +89,7 @@ const NavBarContainer = ({ children, ...props }) => {
         activeChats,
         currentUserId: Auth.userID,
         pluginNavBarItems,
-        ...rest,
+        ...props,
       }}
       style={{ ...navBar }}
     >

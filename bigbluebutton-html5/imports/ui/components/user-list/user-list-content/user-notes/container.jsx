@@ -4,6 +4,7 @@ import NotesService from '/imports/ui/components/notes/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import UserNotes from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
+import UserNotesContainerGraphql from '../../user-list-graphql/user-list-content/user-notes/component';
 
 const UserNotesContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -12,7 +13,7 @@ const UserNotesContainer = (props) => {
   return <UserNotes {...{ layoutContextDispatch, sidebarContentPanel, ...props }} />;
 };
 
-export default lockContextContainer(withTracker(({ userLocks }) => {
+lockContextContainer(withTracker(({ userLocks }) => {
   const shouldDisableNotes = userLocks.userNotes;
   return {
     unread: NotesService.hasUnreadNotes(),
@@ -20,3 +21,5 @@ export default lockContextContainer(withTracker(({ userLocks }) => {
     isPinned: NotesService.isSharedNotesPinned(),
   };
 })(UserNotesContainer));
+
+export default UserNotesContainerGraphql;

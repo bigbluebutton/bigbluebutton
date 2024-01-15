@@ -12,7 +12,7 @@ import UserInfoContainer from '/imports/ui/components/user-info/container';
 import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
 import { Meteor } from 'meteor/meteor';
 import ToastContainer from '/imports/ui/components/common/toast/container';
-import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
+import PadsSessionsContainer from '/imports/ui/components/pads/pads-graphql/sessions/component';
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
