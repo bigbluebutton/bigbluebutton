@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-const CURRENT_USER_SUBSCRIPTION = gql`
+export const CURRENT_USER_SUBSCRIPTION = gql`
 subscription userCurrentSubscription {
   user_current {
     authed
@@ -46,6 +46,7 @@ subscription userCurrentSubscription {
     registeredOn
     role
     userId
+    speechLocale
     voice {
       joined
       muted

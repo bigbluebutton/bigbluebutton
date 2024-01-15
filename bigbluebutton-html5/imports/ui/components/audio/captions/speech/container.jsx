@@ -4,6 +4,7 @@ import { useMutation } from '@apollo/client';
 import { diff } from '@mconf/bbb-diff';
 import Service from './service';
 import Speech from './component';
+import AudioCaptionsSpeechContainer from '../../audio-graphql/audio-captions/speech/component';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SUBMIT_TEXT } from './mutations';
 
@@ -66,7 +67,7 @@ const Container = (props) => {
   );
 };
 
-export default withTracker(() => {
+withTracker(() => {
   const {
     locale,
     connected,
@@ -79,3 +80,5 @@ export default withTracker(() => {
     talking,
   };
 })(Container);
+
+export default AudioCaptionsSpeechContainer;

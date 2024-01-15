@@ -1,11 +1,16 @@
-import React, { useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
-import Service from '/imports/ui/components/audio/captions/service';
-import SpeechService from '/imports/ui/components/audio/captions/speech/service';
+import React, { useEffect, useRef } from 'react';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
+import { getSpeechVoices, setAudioCaptions, setSpeechLocale } from '../service';
+import { defineMessages, useIntl } from 'react-intl';
+import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
+import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
+import { User } from '/imports/ui/Types/user';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useMutation } from '@apollo/client';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 
@@ -78,38 +83,42 @@ const intlMessages = defineMessages({
   },
 });
 
-const DEFAULT_LOCALE = 'en-US';
+interface AudioCaptionsButtonProps {
+  isRTL: boolean;
+  availableVoices: string[];
+  currentSpeechLocale: string;
+  isSupported: boolean;
+  isVoiceUser: boolean;
+}
+
 const DISABLED = '';
 
-const CaptionsButton = ({
-  intl,
-  active,
+const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   isRTL,
-  enabled,
   currentSpeechLocale,
   availableVoices,
   isSupported,
   isVoiceUser,
 }) => {
-  const isTranscriptionDisabled = () => (
-    currentSpeechLocale === DISABLED
-  );
-
-  const [setSpeechLocale] = useMutation(SET_SPEECH_LOCALE);
-
-  const setUserSpeechLocale = (speechLocale, provider) => {
-    setSpeechLocale({
+  const intl = useIntl();
+  const [active] = useAudioCaptionEnable();
+  const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
+  const setUserSpeechLocale = (speechLocale: string, provider: string) => {
+    setSpeechLocaleMutation({
       variables: {
         locale: speechLocale,
         provider,
       },
     });
   };
-
+  const isTranscriptionDisabled = () => currentSpeechLocale === DISABLED;
   const fallbackLocale = availableVoices.includes(navigator.language)
-    ? navigator.language : DEFAULT_LOCALE;
+    ? navigator.language
+    : 'en-US'; // Assuming 'en-US' is the default fallback locale
 
-  const getSelectedLocaleValue = (isTranscriptionDisabled() ? fallbackLocale : currentSpeechLocale);
+  const getSelectedLocaleValue = isTranscriptionDisabled()
+    ? fallbackLocale
+    : currentSpeechLocale;
 
   const selectedLocale = useRef(getSelectedLocaleValue);
 
@@ -117,31 +126,34 @@ const CaptionsButton = ({
     if (!isTranscriptionDisabled()) selectedLocale.current = getSelectedLocaleValue;
   }, [currentSpeechLocale]);
 
-  if (!enabled) return null;
-
   const shouldRenderChevron = isSupported && isVoiceUser;
+
+  const toggleTranscription = () => {
+    setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale);
+  };
 
   const getAvailableLocales = () => {
     let indexToInsertSeparator = -1;
-    const availableVoicesObjectToMenu = availableVoices.map((availableVoice, index) => {
-      if (availableVoice === availableVoices[0]) {
-        indexToInsertSeparator = index;
-      }
-      return (
-        {
-          icon: '',
-          label: intl.formatMessage(intlMessages[availableVoice]),
-          key: availableVoice,
-          iconRight: selectedLocale.current === availableVoice ? 'check' : null,
-          customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
-          disabled: isTranscriptionDisabled(),
-          onClick: () => {
-            selectedLocale.current = availableVoice;
-            SpeechService.setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
-          },
+    const availableVoicesObjectToMenu: (MenuOptionItemType | MenuSeparatorItemType)[] = availableVoices
+      .map((availableVoice: string, index: number) => {
+        if (availableVoice === availableVoices[0]) {
+          indexToInsertSeparator = index;
         }
-      );
-    });
+        return (
+          {
+            icon: '',
+            label: intl.formatMessage(intlMessages[availableVoice as keyof typeof intlMessages]),
+            key: availableVoice,
+            iconRight: selectedLocale.current === availableVoice ? 'check' : null,
+            customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
+            disabled: isTranscriptionDisabled(),
+            onClick: () => {
+              selectedLocale.current = availableVoice;
+              setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
+            },
+          }
+        );
+      });
     if (indexToInsertSeparator >= 0) {
       availableVoicesObjectToMenu.splice(indexToInsertSeparator, 0, {
         key: 'separator-01',
@@ -151,12 +163,6 @@ const CaptionsButton = ({
     return [
       ...availableVoicesObjectToMenu,
     ];
-  };
-
-  const toggleTranscription = () => {
-    SpeechService.setSpeechLocale(
-      isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale,
-    );
   };
 
   const getAvailableLocalesList = () => (
@@ -190,10 +196,9 @@ const CaptionsButton = ({
       onClick: toggleTranscription,
     }]
   );
-
-  const onToggleClick = (e) => {
+  const onToggleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    Service.setAudioCaptions(!active);
+    setAudioCaptions(!active);
   };
 
   const startStopCaptionsButton = (
@@ -243,17 +248,49 @@ const CaptionsButton = ({
   );
 };
 
-CaptionsButton.propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
-  active: PropTypes.bool.isRequired,
-  isRTL: PropTypes.bool.isRequired,
-  enabled: PropTypes.bool.isRequired,
-  currentSpeechLocale: PropTypes.string.isRequired,
-  availableVoices: PropTypes.arrayOf(PropTypes.string).isRequired,
-  isSupported: PropTypes.bool.isRequired,
-  isVoiceUser: PropTypes.bool.isRequired,
+const AudioCaptionsButtonContainer: React.FC = () => {
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const {
+    data: currentUser,
+    loading: currentUserLoading,
+  } = useCurrentUser(
+    (user: Partial<User>) => ({
+      speechLocale: user.speechLocale,
+      voice: user.voice,
+    }),
+  );
+
+  const {
+    data: currentMeeting,
+    loading: componentsFlagsLoading,
+  } = useMeeting((m) => {
+    return {
+      componentsFlags: m.componentsFlags,
+    };
+  });
+  if (currentUserLoading || componentsFlagsLoading) return null;
+  if (!currentUser || !currentMeeting) return null;
+
+  const availableVoices = getSpeechVoices();
+  const currentSpeechLocale = currentUser.speechLocale || '';
+  const isSupported = availableVoices.length > 0;
+  const isVoiceUser = !!currentUser.voice;
+
+  const { componentsFlags } = currentMeeting;
+
+  const hasCaptions = componentsFlags?.hasCaption;
+
+  if (!hasCaptions) return null;
+
+  return (
+    <AudioCaptionsButton
+      isRTL={isRTL}
+      availableVoices={availableVoices}
+      currentSpeechLocale={currentSpeechLocale}
+      isSupported={isSupported}
+      isVoiceUser={isVoiceUser}
+    />
+  );
 };
 
-export default injectIntl(CaptionsButton);
+export default AudioCaptionsButtonContainer;
