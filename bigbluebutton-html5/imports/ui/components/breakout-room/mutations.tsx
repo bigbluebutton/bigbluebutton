@@ -48,6 +48,14 @@ export const BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL = gql`
   }
 `;
 
+export const BREAKOUT_ROOM_SET_TIME = gql`
+  mutation BreakoutRoomSetTime($timeInMinutes: Int!) {
+    breakoutRoomSetTime(
+      timeInMinutes: $timeInMinutes,
+    )
+  }
+`;
+
 export default {
   BREAKOUT_ROOM_CREATE,
   BREAKOUT_ROOM_END_ALL,

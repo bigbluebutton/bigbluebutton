@@ -96,16 +96,6 @@ const isNewTimeHigherThanMeetingRemaining = (newTimeInMinutes) => {
   return false;
 };
 
-const setBreakoutsTime = (timeInMinutes) => {
-  if (timeInMinutes <= 0) return false;
-
-  makeCall('setBreakoutsTime', {
-    timeInMinutes,
-  });
-
-  return true;
-};
-
 const transferUserToMeeting = (fromMeetingId, toMeetingId) =>
   makeCall('transferUser', fromMeetingId, toMeetingId);
 
@@ -204,7 +194,6 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 
 export default {
   findBreakouts,
-  setBreakoutsTime,
   isNewTimeHigherThanMeetingRemaining,
   requestJoinURL,
   getBreakoutRoomUrl,

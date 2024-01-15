@@ -12,7 +12,7 @@ import {
 } from '/imports/ui/components/audio/audio-modal/service';
 import { makeCall } from '/imports/ui/services/api';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { BREAKOUT_ROOM_END_ALL } from './mutations';
+import { BREAKOUT_ROOM_END_ALL, BREAKOUT_ROOM_SET_TIME } from './mutations';
 import logger from '/imports/startup/client/logger';
 
 const BreakoutContainer = (props) => {
@@ -26,15 +26,23 @@ const BreakoutContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
 
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
+  const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
 
   const endAllBreakouts = () => {
     Service.setCapturedContentUploading();
     breakoutRoomEndAll();
   };
 
+  const setBreakoutsTime = (timeInMinutes) => {
+    if (timeInMinutes <= 0) return false;
+
+    return breakoutRoomSetTime({ variables: { timeInMinutes } });
+  };
+
   return <BreakoutComponent
     amIPresenter={amIPresenter}
     endAllBreakouts={endAllBreakouts}
+    setBreakoutsTime={setBreakoutsTime}
     {...{ layoutContextDispatch, isRTL, amIModerator, ...props }}
   />;
 };
@@ -42,7 +50,6 @@ const BreakoutContainer = (props) => {
 export default withTracker((props) => {
   const {
     requestJoinURL,
-    setBreakoutsTime,
     isNewTimeHigherThanMeetingRemaining,
     findBreakouts,
     getBreakoutRoomUrl,
@@ -90,7 +97,6 @@ export default withTracker((props) => {
     ...props,
     breakoutRooms,
     requestJoinURL,
-    setBreakoutsTime,
     isNewTimeHigherThanMeetingRemaining,
     getBreakoutRoomUrl,
     transferUserToMeeting,
