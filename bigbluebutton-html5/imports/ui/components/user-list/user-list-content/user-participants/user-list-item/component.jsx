@@ -636,7 +636,9 @@ class UserListItem extends PureComponent {
       size: '1.3rem',
     };
 
-    let userAvatarFiltered = user.avatar;
+    const userAvatarFiltered = (user.raiseHand === true || user.away === true || user.reaction !== 'none')
+      ? ''
+      : user.avatar;
 
     const emojiIcons = [
       {
@@ -661,7 +663,6 @@ class UserListItem extends PureComponent {
       } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
         return <Icon iconName={normalizeEmojiName(user.emoji)} />;
       } if (user.reaction !== 'none') {
-        userAvatarFiltered = '';
         return user.reaction;
       } if (user.name) {
         return user.name.toLowerCase().slice(0, 2);
