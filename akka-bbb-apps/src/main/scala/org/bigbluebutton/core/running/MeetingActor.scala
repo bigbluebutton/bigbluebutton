@@ -675,7 +675,6 @@ class MeetingActor(
   }
 
   private def handleGetMeetingInfo(): MeetingInfo = {
-    println(s"***** Getting meeting info for meeting with ID ${liveMeeting.props.meetingProp.intId}")
     val attendees = for {
       u <- Users2x.findAll(liveMeeting.users2x)
     } yield {

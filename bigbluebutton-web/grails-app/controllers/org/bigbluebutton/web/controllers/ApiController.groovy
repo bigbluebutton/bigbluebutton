@@ -691,8 +691,6 @@ class ApiController {
       return
     }
 
-//    Collection<Meeting> mtgs = meetingService.getMeetings();
-
     List<Meeting> meetings = new ArrayList<>()
     MeetingServiceOuterClass.MeetingsReq request = MeetingServiceOuterClass.MeetingsReq.newBuilder().build()
 
