@@ -56,9 +56,19 @@ export const BREAKOUT_ROOM_SET_TIME = gql`
   }
 `;
 
+export const USER_TRANSFER_VOICE_TO_MEETING = gql`
+  mutation UserTransferVoiceToMeeting($fromMeetingId: String!, $toMeetingId: String!) {
+    userTransferVoiceToMeeting(
+      fromMeetingId: $fromMeetingId,
+      toMeetingId: $toMeetingId,
+    )
+  }
+`;
+
 export default {
   BREAKOUT_ROOM_CREATE,
   BREAKOUT_ROOM_END_ALL,
   BREAKOUT_ROOM_MOVE_USER,
   BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
+  USER_TRANSFER_VOICE_TO_MEETING,
 };

@@ -1,5 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
-import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
+import { MeetingTimeRemaining } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
@@ -96,27 +96,6 @@ const isNewTimeHigherThanMeetingRemaining = (newTimeInMinutes) => {
   return false;
 };
 
-const transferUserToMeeting = (fromMeetingId, toMeetingId) =>
-  makeCall('transferUser', fromMeetingId, toMeetingId);
-
-const transferToBreakout = (breakoutId) => {
-  const breakoutRooms = findBreakouts();
-  const breakoutRoom = breakoutRooms
-    .filter((breakout) => breakout.breakoutId === breakoutId)
-    .shift();
-  const breakoutMeeting = Meetings.findOne(
-    {
-      $and: [
-        { 'breakoutProps.sequence': breakoutRoom.sequence },
-        { 'breakoutProps.parentId': breakoutRoom.parentMeetingId },
-        { 'meetingProp.isBreakout': true },
-      ],
-    },
-    { fields: { meetingId: 1 } }
-  );
-  transferUserToMeeting(Auth.meetingID, breakoutMeeting.meetingId);
-};
-
 const getBreakoutByUserId = (userId) =>
   Breakouts.find(
     { [`url_${userId}`]: { $exists: true } },
@@ -197,8 +176,6 @@ export default {
   isNewTimeHigherThanMeetingRemaining,
   requestJoinURL,
   getBreakoutRoomUrl,
-  transferUserToMeeting,
-  transferToBreakout,
   meetingId: () => Auth.meetingID,
   getLastBreakoutByUserId,
   getBreakouts,
