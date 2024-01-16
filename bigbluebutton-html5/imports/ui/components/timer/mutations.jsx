@@ -16,7 +16,14 @@ export const TIMER_DEACTIVATE = gql`
   }
 `;
 
+export const TIMER_RESET = gql`
+  mutation timerReset {
+    timerReset
+  }
+`;
+
 export default {
   TIMER_ACTIVATE,
   TIMER_DEACTIVATE,
+  TIMER_RESET,
 };

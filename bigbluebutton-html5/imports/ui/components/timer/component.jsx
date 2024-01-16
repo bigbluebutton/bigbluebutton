@@ -229,6 +229,7 @@ class Timer extends Component {
     const {
       intl,
       timer,
+      timerReset,
     } = this.props;
 
     const { running } = timer;
@@ -247,7 +248,7 @@ class Timer extends Component {
         <Styled.TimerControlButton
           color="secondary"
           label={intl.formatMessage(intlMessages.reset)}
-          onClick={() => Service.resetTimer()}
+          onClick={() => timerReset()}
           data-test="resetTimerStopWatch"
         />
       </Styled.TimerControls>

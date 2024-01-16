@@ -89,8 +89,6 @@ const switchTimer = (stopwatch) => makeCall('switchTimer', stopwatch);
 
 const setTimer = (time) => makeCall('setTimer', time);
 
-const resetTimer = () => makeCall('resetTimer');
-
 const timerEnded = () => makeCall('timerEnded');
 
 const setTrack = (track) => {
@@ -300,7 +298,6 @@ export default {
   setHours,
   setMinutes,
   setSeconds,
-  resetTimer,
   fetchTimeOffset,
   setTrack,
   getTimeOffset,
