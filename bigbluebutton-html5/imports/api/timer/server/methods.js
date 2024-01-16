@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import activateTimer from './methods/activateTimer';
 import deactivateTimer from './methods/deactivateTimer';
 import resetTimer from './methods/resetTimer';
 import startTimer from './methods/startTimer';
@@ -11,7 +10,6 @@ import setTrack from './methods/setTrack';
 import timerEnded from './methods/endTimer';
 
 Meteor.methods({
-  activateTimer,
   deactivateTimer,
   resetTimer,
   startTimer,
