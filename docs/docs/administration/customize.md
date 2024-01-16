@@ -1348,13 +1348,13 @@ Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the 
 
 ### Configuration of gladia.io
 
-To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](gladia.io).  You can signup for free credentials to test the integration.
+To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](gladia.io).  You can sign up for free credentials to test the integration.
 
 Next, you must be using BigBlueButton 2.7.4 (pass `-v focal-270`) or later on Ubuntu 20.04 server with a public IP and hostname.  
 
-One you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install the transcription server for gladia.io.
+Once you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
 
-Next, run `sudo bbb-conf --setip <hostname>` where <hostname> is the external hostname of the server (same as was passed to bbb-install.sh). This will update the gladia.io configuration to use your hostname.
+Next, run `sudo bbb-conf --setip <hostname>` where \<hostname\> is the external hostname of the server (same as was passed to bbb-install.sh). This will update the bbb-transcription-controller configuration.
 
 Next, to enable gladia.io, run the following two commands
 
@@ -1363,13 +1363,13 @@ yq w -i /etc/bigbluebutton/bbb-html5.yml public.app.audioCaptions.enabled true
 yq w -i /etc/bigbluebutton/bbb-html5.yml public.app.audioCaptions.provider gladia
 ```
 
-Next, set the gladia.io API key using the command below, replacing '<x_gladia_key>' with a glada.io API key obtained above.
+Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
 
 ```
-yq w -i /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml gladia.startMessage '{"<x_gladia_key>": "<gladia-api-key>", "sample_rate": 0, "bit_depth": 16, "model_type": "fast", "endpointing": 10 }'
+yq w -i /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml gladia.startMessage '{"x_gladia_key": "<gladia-api-key>", "sample_rate": 0, "bit_depth": 16, "model_type": "fast", "endpointing": 10 }'
 ```
 
-Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will appear.
+Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
 
 
 ### Configuration of global settings
