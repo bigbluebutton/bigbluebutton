@@ -2,16 +2,14 @@ const { test } = require('@playwright/test');
 const { fullyParallel } = require('../playwright.config');
 const { LearningDashboard } = require('./learningdashboard');
 const c = require('../parameters/constants');
-
-if (!fullyParallel) test.describe.configure({ mode: 'serial' });
+const { initializePages } = require('../core/helpers');
 
 test.describe('Learning Dashboard', async () => {
   const learningDashboard = new LearningDashboard();
 
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await learningDashboard.initModPage(page, true,  { createParameter: c.recordMeeting });
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    const { context } = await initializePages(learningDashboard, browser, false, { createParameter: c.recordMeeting });
     await learningDashboard.getDashboardPage(context);
   });
 

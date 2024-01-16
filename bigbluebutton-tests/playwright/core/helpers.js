@@ -162,6 +162,18 @@ function sleep(time) {
   });
 }
 
+async function initializePages(testInstance, browser, isMultiUser = false, initOptions) {
+  const { createParameter, joinParameter } = initOptions || {};
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await testInstance.initModPage(page, true, { createParameter, joinParameter });
+  if (isMultiUser) await testInstance.initUserPage(true, context, { createParameter, joinParameter });
+
+  return {
+    context,
+  };
+}
+
 exports.getRandomInt = getRandomInt;
 exports.apiCallUrl = apiCallUrl;
 exports.apiCall = apiCall;
@@ -173,3 +185,4 @@ exports.checkRootPermission = checkRootPermission;
 exports.linkIssue = linkIssue;
 exports.sleep = sleep;
 exports.setBrowserLogs = setBrowserLogs;
+exports.initializePages = initializePages;
