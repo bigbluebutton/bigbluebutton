@@ -1,6 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
 import { MeetingTimeRemaining } from '/imports/api/meetings';
-import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
 import UsersPersistentData from '/imports/api/users-persistent-data';
@@ -66,12 +65,6 @@ const setCapturedContentUploading = () => {
     if (breakout.captureSlides) {
       upsertCapturedContent(filename, `${temporaryPresentationId}-slides`);
     }
-  });
-};
-
-const requestJoinURL = (breakoutId) => {
-  makeCall('requestJoinURL', {
-    breakoutId,
   });
 };
 
@@ -174,7 +167,6 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 export default {
   findBreakouts,
   isNewTimeHigherThanMeetingRemaining,
-  requestJoinURL,
   getBreakoutRoomUrl,
   meetingId: () => Auth.meetingID,
   getLastBreakoutByUserId,

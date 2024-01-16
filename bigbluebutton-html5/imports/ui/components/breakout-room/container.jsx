@@ -16,6 +16,7 @@ import {
   BREAKOUT_ROOM_END_ALL,
   BREAKOUT_ROOM_SET_TIME,
   USER_TRANSFER_VOICE_TO_MEETING,
+  BREAKOUT_ROOM_REQUEST_JOIN_URL,
 } from './mutations';
 import logger from '/imports/startup/client/logger';
 
@@ -32,6 +33,7 @@ const BreakoutContainer = (props) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
+  const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
 
   const endAllBreakouts = () => {
     Service.setCapturedContentUploading();
@@ -55,18 +57,22 @@ const BreakoutContainer = (props) => {
     );
   };
 
+  const requestJoinURL = (breakoutRoomId) => {
+    breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
+  };
+
   return <BreakoutComponent
     amIPresenter={amIPresenter}
     endAllBreakouts={endAllBreakouts}
     setBreakoutsTime={setBreakoutsTime}
     transferUserToMeeting={transferUserToMeeting}
+    requestJoinURL={requestJoinURL}
     {...{ layoutContextDispatch, isRTL, amIModerator, ...props }}
   />;
 };
 
 export default withTracker((props) => {
   const {
-    requestJoinURL,
     isNewTimeHigherThanMeetingRemaining,
     findBreakouts,
     getBreakoutRoomUrl,
@@ -111,7 +117,6 @@ export default withTracker((props) => {
   return {
     ...props,
     breakoutRooms,
-    requestJoinURL,
     isNewTimeHigherThanMeetingRemaining,
     getBreakoutRoomUrl,
     isMicrophoneUser,

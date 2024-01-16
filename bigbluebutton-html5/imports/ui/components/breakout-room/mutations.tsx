@@ -65,10 +65,20 @@ export const USER_TRANSFER_VOICE_TO_MEETING = gql`
   }
 `;
 
+export const BREAKOUT_ROOM_REQUEST_JOIN_URL = gql`
+  mutation BreakoutRoomRequestJoinUrl($breakoutRoomId: String!) {
+    breakoutRoomRequestJoinUrl(
+      breakoutRoomId: $breakoutRoomId,
+    )
+  }
+`;
+
 export default {
   BREAKOUT_ROOM_CREATE,
   BREAKOUT_ROOM_END_ALL,
   BREAKOUT_ROOM_MOVE_USER,
   BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
+  BREAKOUT_ROOM_SET_TIME,
   USER_TRANSFER_VOICE_TO_MEETING,
+  BREAKOUT_ROOM_REQUEST_JOIN_URL,
 };
