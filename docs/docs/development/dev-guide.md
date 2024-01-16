@@ -1,3 +1,14 @@
+---
+id: guide
+slug: /development/guide
+title: Development Guide
+sidebar_position: 2
+description: BigBlueButton Development Guide
+keywords:
+- development
+- developer
+---
+
 Welcome to the BigBlueButton Developer's Guide for BigBlueButton 3.0.
 
 This document gives you an overview of how to set up a development environment for BigBlueButton 3.0.

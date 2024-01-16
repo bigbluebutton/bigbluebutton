@@ -52,7 +52,7 @@ public class ResponseBuilder {
         return new Date(timestamp).toString();
     }
 
-    public String buildMeetingVersion(String apiVersion, String bbbVersion, String returnCode) {
+    public String buildMeetingVersion(String apiVersion, String bbbVersion, String graphqlWebsocketUrl, String returnCode) {
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
@@ -60,6 +60,7 @@ public class ResponseBuilder {
         data.put("version", apiVersion);
         data.put("apiVersion", apiVersion);
         data.put("bbbVersion", bbbVersion);
+        data.put("graphqlWebsocketUrl", graphqlWebsocketUrl);
 
         processData(getTemplate("api-version.ftlx"), data, xmlText);
 

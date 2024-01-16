@@ -396,8 +396,8 @@ display_bigbluebutton_status () {
         done
     fi
 
-    if [ -f /usr/lib/systemd/system/bbb-graphql-actions-adapter-server.service ]; then
-        units="$units bbb-graphql-actions-adapter-server"
+    if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
+        units="$units bbb-graphql-actions"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-middleware.service ]; then

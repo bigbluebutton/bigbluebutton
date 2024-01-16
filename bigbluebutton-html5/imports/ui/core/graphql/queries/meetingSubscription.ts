@@ -86,13 +86,12 @@ const MEETING_SUBSCRIPTION = gql`
           updatedAt
         }
         componentsFlags {
-          hasPoll
-          audioTranscriptionCaption
+          hasCaption
           hasBreakoutRoom
           hasExternalVideo
+          hasPoll
           hasScreenshare
           hasTimer
-          typedCaption
         }
       }
   }

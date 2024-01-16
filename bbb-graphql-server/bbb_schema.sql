@@ -20,9 +20,12 @@ create table "meeting" (
 	"presentationUploadExternalUrl" varchar(500),
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
+	"logoutUrl" varchar(500),
 	"createdTime" bigint,
 	"durationInSeconds" integer
 );
+ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;
+
 create index "idx_meeting_extId" on "meeting"("extId");
 
 create view "v_meeting" as select * from "meeting";
@@ -191,13 +194,6 @@ FROM meeting m
 JOIN "meeting_lockSettings" mls ON mls."meetingId" = m."meetingId"
 JOIN "meeting_usersPolicies" mup ON mup."meetingId" = m."meetingId";
 
-CREATE OR REPLACE VIEW "v_meeting_showUserlist" AS
-SELECT "meetingId"
-FROM "meeting_lockSettings"
-WHERE "hideUserList" IS FALSE;
-
-CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSettings"("meetingId") WHERE "hideUserList" IS FALSE;
-
 create table "meeting_clientSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
     "clientSettingsJson"    jsonb
@@ -289,7 +285,6 @@ ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestSta
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
 
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
-
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
@@ -398,7 +393,7 @@ AS SELECT "user"."userId",
     "user"."raiseHand",
     "user"."emoji",
     "user"."guest",
---    "user"."guestStatus",
+    "user"."guestStatus",
     "user"."mobile",
     "user"."clientType",
     "user"."enforceLayout",
@@ -437,10 +432,10 @@ rank() OVER (
 ) as "positionInWaitingQueue",
 u."isAllowed",
 u."isDenied",
-COALESCE(u."guestLobbyMessage",mup."guestLobbyMessage") AS "guestLobbyMessage"
+COALESCE(NULLIF(u."guestLobbyMessage",''),NULLIF(mup."guestLobbyMessage",'')) AS "guestLobbyMessage"
 FROM "user" u
 JOIN "meeting_usersPolicies" mup using("meetingId")
-where u."guestStatus" != 'ALLOW';
+where u."guestStatus" = 'WAIT';
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
@@ -522,8 +517,15 @@ CREATE TABLE "user_voice" (
 	"startTime" bigint
 );
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
+-- + 6000 means it will hide after 6 seconds
 ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
 GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
+
+ALTER TABLE "user_voice" ADD COLUMN "startedAt" timestamp with time zone
+GENERATED ALWAYS AS (to_timestamp("startTime"::double precision / 1000)) STORED;
+
+ALTER TABLE "user_voice" ADD COLUMN "endedAt" timestamp with time zone
+GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
 CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","talking");
 CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("userId","hideTalkingIndicatorAt");
@@ -1626,16 +1628,15 @@ select "meeting"."meetingId",
             from "v_externalVideo"
             where "v_externalVideo"."meetingId" = "meeting"."meetingId"
         ) as "hasExternalVideo",
-        (
-            select array_agg(distinct "speechLocale")
-            from "user"
-            where "user"."meetingId" = "meeting"."meetingId"
+        exists (
+            select 1
+            from "v_user"
+            where "v_user"."meetingId" = "meeting"."meetingId"
             and NULLIF("speechLocale",'') is not null
-        ) as "audioTranscriptionCaption",
-        (
-            select array_agg(distinct "name")
+        ) or exists (
+            select 1
             from "sharedNotes"
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "model" = 'captions'
-        ) as "typedCaption"
+        ) as "hasCaption"
 from "meeting";

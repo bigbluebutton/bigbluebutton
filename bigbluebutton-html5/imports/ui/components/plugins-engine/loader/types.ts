@@ -1,6 +1,6 @@
 import { PluginConfig } from '../types';
 
-export interface PluginLoaderContainerProps {
+export interface PluginLoaderManagerProps {
   uuid: string;
   containerRef: React.RefObject<HTMLDivElement>;
   loadedPlugins: React.MutableRefObject<number>;
