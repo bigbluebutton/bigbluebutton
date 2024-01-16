@@ -646,10 +646,9 @@ class ApiController {
       return
     }
 
-//    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
-    Meeting meeting = new Meeting.Builder("", "", 1000000L).build()
-
+    Meeting meeting = null
     MeetingServiceOuterClass.MeetingInfoReq request = MeetingServiceOuterClass.MeetingInfoReq.newBuilder().setMeetingId(params.meetingID).build()
+
     try {
       MeetingServiceOuterClass.MeetingInfoResp response = blockingStub.getMeetingInfo(request)
       log.info("isMeetingRunning request was successful")
@@ -660,6 +659,11 @@ class ApiController {
       log.error("RPC getMeetingInfo request failed")
       log.error("Status code {}", e.getStatus())
       log.error("{}", e.getMessage())
+    }
+
+    if(meeting == null) {
+      invalid("meetingNotFound", "No meeting with the provided ID could be found")
+      return
     }
 
     withFormat {
@@ -687,13 +691,30 @@ class ApiController {
       return
     }
 
-    Collection<Meeting> mtgs = meetingService.getMeetings();
+//    Collection<Meeting> mtgs = meetingService.getMeetings();
 
-    if (mtgs == null || mtgs.isEmpty()) {
+    List<Meeting> meetings = new ArrayList<>()
+    MeetingServiceOuterClass.MeetingsReq request = MeetingServiceOuterClass.MeetingsReq.newBuilder().build()
+
+    try {
+      MeetingServiceOuterClass.MeetingsResp response = blockingStub.getMeetings(request)
+      log.info("getMeetings request was successful")
+      log.info("***** Meetings ******")
+      log.info("{}", response.getMeetingsList())
+      for(MeetingInfo meetingInfo: response.getMeetingsList()) {
+        meetings.add(meetingInfoToMeeting(meetingInfo))
+      }
+    } catch (StatusRuntimeException e) {
+      log.error("RPC getMeetings request failed")
+      log.error("Status code {}", e.getStatus())
+      log.error("{}", e.getMessage())
+    }
+
+    if (meetings == null || meetings.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(text: responseBuilder.buildGetMeetingsResponse(mtgs, "noMeetings", "no meetings were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildGetMeetingsResponse(meetings, "noMeetings", "no meetings were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     } else {
@@ -701,7 +722,7 @@ class ApiController {
 
       withFormat {
         xml {
-          render(text: responseBuilder.buildGetMeetingsResponse(mtgs, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildGetMeetingsResponse(meetings, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }

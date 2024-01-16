@@ -27,5 +27,11 @@ class MeetingServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
     }
   }
 
-  override def getMeetings(in: MeetingsReq): Future[MeetingsResp] = ???
+  override def getMeetings(in: MeetingsReq): Future[MeetingsResp] = {
+    implicit val timeout: Timeout = 3.seconds
+    (bbbActor ? GetMeetings()).mapTo[Vector[RunningMeeting]].flatMap { runningMeetings =>
+      val meetingInfoFutures = runningMeetings.map(m => (m.actorRef ? GetMeetingInfo()).mapTo[MeetingInfo])
+      Future.sequence(meetingInfoFutures).map(meetings => MeetingsResp(meetings))
+    }
+  }
 }
