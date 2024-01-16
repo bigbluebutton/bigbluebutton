@@ -9,7 +9,7 @@ test.describe('Chat', () => {
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    const { context: innerContext } = await initializePages(chat, browser, true);
+    const { context: innerContext } = await initializePages(chat, browser, { isMultiUser: true });
     context = innerContext;
   });
 

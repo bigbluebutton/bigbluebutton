@@ -162,8 +162,8 @@ function sleep(time) {
   });
 }
 
-async function initializePages(testInstance, browser, isMultiUser = false, initOptions) {
-  const { createParameter, joinParameter } = initOptions || {};
+async function initializePages(testInstance, browser, initOptions) {
+  const { isMultiUser, createParameter, joinParameter } = initOptions || {};
   const context = await browser.newContext();
   const page = await context.newPage();
   await testInstance.initModPage(page, true, { createParameter, joinParameter });

@@ -9,7 +9,7 @@ test.describe('Learning Dashboard', async () => {
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    const { context } = await initializePages(learningDashboard, browser, false, { createParameter: c.recordMeeting });
+    const { context } = await initializePages(learningDashboard, browser, { createParameter: c.recordMeeting });
     await learningDashboard.getDashboardPage(context);
   });
 

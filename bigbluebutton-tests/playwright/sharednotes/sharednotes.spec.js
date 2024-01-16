@@ -8,7 +8,7 @@ test.describe('Shared Notes', () => {
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(sharedNotes, browser, true);
+    await initializePages(sharedNotes, browser, { isMultiUser: true });
   });
 
   test('Open shared notes @ci', async () => {

@@ -8,7 +8,7 @@ test.describe('Polling', async () => {
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(polling, browser, true);
+    await initializePages(polling, browser, { isMultiUser: true });
   });
 
   // Manage

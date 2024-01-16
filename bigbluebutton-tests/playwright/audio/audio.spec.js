@@ -8,7 +8,7 @@ test.describe('Audio', () => {
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(audio, browser, true);
+    await initializePages(audio, browser, { isMultiUser: true });
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#listen-only-mode-automated
