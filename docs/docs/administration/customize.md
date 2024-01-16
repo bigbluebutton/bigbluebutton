@@ -1348,7 +1348,7 @@ Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the 
 
 ### Configuration of gladia.io
 
-To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](gladia.io).  You can sign up for free credentials to test the integration.
+To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration.
 
 Next, you must be using BigBlueButton 2.7.4 (pass `-v focal-270`) or later on Ubuntu 20.04 server with a public IP and hostname.  
 
