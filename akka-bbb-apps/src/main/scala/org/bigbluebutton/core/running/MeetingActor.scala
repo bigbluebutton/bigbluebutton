@@ -675,6 +675,9 @@ class MeetingActor(
   }
 
   private def handleGetMeetingInfo(): MeetingInfo = {
+
+    VoiceUsers.findAll(liveMeeting.voiceUsers).foreach(v => println(s"VoiceUser with intId ${v.intId} and voiceUserId ${v.voiceUserId}"))
+
     val attendees = for {
       u <- Users2x.findAll(liveMeeting.users2x)
     } yield {
@@ -683,11 +686,8 @@ class MeetingActor(
         fullName = u.name,
         role = u.role,
         isPresenter = u.presenter,
-        isListeningOnly = findWIthIntId(liveMeeting.voiceUsers, u.intId) match {
-          case Some(vu) => vu.listenOnly
-          case None     => false
-        },
-        hasJoinedVoice = VoiceUsers.findAll(liveMeeting.voiceUsers).exists(v => v.voiceUserId == u.intId),
+        isListeningOnly = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers).exists(v => v.intId == u.intId),
+        hasJoinedVoice = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).exists(v => v.intId == u.intId),
         hasVideo = findAll(liveMeeting.webcams).exists(w => w.userId == u.intId),
         clientType = u.clientType,
         customData = Map()
@@ -733,7 +733,7 @@ class MeetingActor(
       recording = liveMeeting.props.recordProp.record,
       attendees = attendees,
       metadata = Map(),
-      breakoutRooms = liveMeeting.props.breakoutProps.breakoutRooms,
+      breakoutRooms = if (state.breakout.isDefined) state.breakout.get.getRooms().map(_.name).toList else List(),
       durationInfo = Some(durationInfo),
       participantInfo = Some(participantInfo),
       breakoutInfo = Some(breakoutInfo)

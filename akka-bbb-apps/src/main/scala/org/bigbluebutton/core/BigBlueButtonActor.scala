@@ -205,7 +205,7 @@ class BigBlueButtonActor(
   private def handleIsMeetingRunning(sender: ActorRef, msg: IsMeetingRunning): Unit = {
     RunningMeetings.findWithId(meetings, msg.meetingId) match {
       case Some(_) => sender ! true
-      case None          => sender ! false
+      case None    => sender ! false
     }
   }
 

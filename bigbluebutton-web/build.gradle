@@ -146,15 +146,6 @@ protobuf {
   }
 }
 
-//sourceSets {
-//  main {
-//    java {
-//      srcDirs 'generated/source/proto/main/grpc'
-//      srcDirs 'generated/source/proto/main/java'
-//    }
-//  }
-//}
-
 tasks.named('bootWarMainClassName') {
     it.mustRunAfter(tasks.named('compileGsonViews'))
 }
