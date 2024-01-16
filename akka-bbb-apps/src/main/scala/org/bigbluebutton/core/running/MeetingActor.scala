@@ -675,9 +675,6 @@ class MeetingActor(
   }
 
   private def handleGetMeetingInfo(): MeetingInfo = {
-
-    VoiceUsers.findAll(liveMeeting.voiceUsers).foreach(v => println(s"VoiceUser with intId ${v.intId} and voiceUserId ${v.voiceUserId}"))
-
     val attendees = for {
       u <- Users2x.findAll(liveMeeting.users2x)
     } yield {
