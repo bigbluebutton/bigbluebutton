@@ -14,6 +14,7 @@ case class SharedNotesRevDbModel(
     start:            Option[Int],
     end:              Option[Int],
     diff:             Option[String],
+    fullContentHtml:  Option[String],
     createdAt:        java.sql.Timestamp
 )
 
@@ -26,8 +27,9 @@ class SharedNotesRevDbTableDef(tag: Tag) extends Table[SharedNotesRevDbModel](ta
   val start = column[Option[Int]]("start")
   val end = column[Option[Int]]("end")
   val diff = column[Option[String]]("diff")
+  val fullContentHtml = column[Option[String]]("fullContentHtml")
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  val * = (meetingId, sharedNotesExtId, rev, userId, changeset, start, end, diff, createdAt) <> (SharedNotesRevDbModel.tupled, SharedNotesRevDbModel.unapply)
+  val * = (meetingId, sharedNotesExtId, rev, userId, changeset, start, end, diff, fullContentHtml, createdAt) <> (SharedNotesRevDbModel.tupled, SharedNotesRevDbModel.unapply)
 }
 
 object SharedNotesRevDAO {
@@ -43,6 +45,7 @@ object SharedNotesRevDAO {
           start = None,
           end = None,
           diff = None,
+          fullContentHtml = None,
           createdAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )
@@ -52,14 +55,14 @@ object SharedNotesRevDAO {
       }
   }
 
-  def update(meetingId: String, sharedNotesExtId: String, revId: Int, start: Int, end: Int, text: String) = {
+  def update(meetingId: String, sharedNotesExtId: String, revId: Int, start: Int, end: Int, diffText: String, fullContentHtml: String) = {
     DatabaseConnection.db.run(
       TableQuery[SharedNotesRevDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.sharedNotesExtId === sharedNotesExtId)
         .filter(_.rev === revId)
-        .map(n => (n.start, n.end, n.diff))
-        .update((Some(start), Some(end), Some(text)))
+        .map(n => (n.start, n.end, n.diff, n.fullContentHtml))
+        .update((Some(start), Some(end), Some(diffText), Some(fullContentHtml)))
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated Rev on SharedNotes table!")
         case Failure(e)            => DatabaseConnection.logger.error(s"Error updating Rev SharedNotes: $e")

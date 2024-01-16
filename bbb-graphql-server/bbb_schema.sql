@@ -1491,6 +1491,7 @@ create table "sharedNotes_rev" (
 	"start" integer,
 	"end" integer,
 	"diff" TEXT,
+	"fullContentHtml" TEXT,
 	"createdAt" timestamp with time zone,
 	constraint "pk_sharedNotes_rev" primary key ("meetingId", "sharedNotesExtId", "rev")
 );
@@ -1506,10 +1507,12 @@ create table "sharedNotes_session" (
 create index "sharedNotes_session_userId" on "sharedNotes_session"("userId");
 
 create view "v_sharedNotes" as
-SELECT sn.*, max(snr.rev) "lastRev"
+SELECT sn.*, max(snr.rev) "lastRev",
+(array_remove(array_agg(snr."fullContentHtml" ORDER BY snr.rev DESC),NULL))[1] as "fullContentHtml"
 FROM "sharedNotes" sn
 LEFT JOIN "sharedNotes_rev" snr ON snr."meetingId" = sn."meetingId" AND snr."sharedNotesExtId" = sn."sharedNotesExtId"
 GROUP BY sn."meetingId", sn."sharedNotesExtId";
+
 
 create view "v_sharedNotes_session" as
 SELECT sns.*, sn."padId"
