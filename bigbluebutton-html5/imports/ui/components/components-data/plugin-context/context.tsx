@@ -13,6 +13,7 @@ export const PluginsContextProvider = ({ children, ...props }: any) => {
   const [userListGraphqlVariables, setUserListGraphqlVariables] = useState<UserListGraphqlVariables>(
     {} as UserListGraphqlVariables,
   );
+  const [domElementManipulationMessageIds, setDomElementManipulationMessageIds] = useState<string[]>([]);
   const [
     chatMessagesGraphqlVariablesAndQuery,
     setChatMessagesGraphqlVariablesAndQuery,
@@ -30,6 +31,8 @@ export const PluginsContextProvider = ({ children, ...props }: any) => {
         setUserListGraphqlVariables,
         chatMessagesGraphqlVariablesAndQuery,
         setChatMessagesGraphqlVariablesAndQuery,
+        domElementManipulationMessageIds,
+        setDomElementManipulationMessageIds,
       }}
     >
       {children}
