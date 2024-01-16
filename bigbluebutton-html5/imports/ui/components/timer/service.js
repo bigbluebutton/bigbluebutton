@@ -91,8 +91,6 @@ const setTimer = (time) => makeCall('setTimer', time);
 
 const resetTimer = () => makeCall('resetTimer');
 
-const deactivateTimer = () => makeCall('deactivateTimer');
-
 const timerEnded = () => makeCall('timerEnded');
 
 const setTrack = (track) => {
@@ -303,7 +301,6 @@ export default {
   setMinutes,
   setSeconds,
   resetTimer,
-  deactivateTimer,
   fetchTimeOffset,
   setTrack,
   getTimeOffset,

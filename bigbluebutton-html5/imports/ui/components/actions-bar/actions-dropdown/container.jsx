@@ -10,7 +10,7 @@ import {
   PROCESSED_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
-import { TIMER_ACTIVATE } from '../../timer/mutations';
+import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
 
 const TIMER_CONFIG = Meteor.settings.public.timer;
@@ -34,6 +34,7 @@ const ActionsDropdownContainer = (props) => {
 
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
+  const [timerDeactivate] = useMutation(TIMER_DEACTIVATE);
 
   const handleTakePresenter = () => {
     setPresenter({ variables: { userId: Auth.userID } });
@@ -72,6 +73,7 @@ const ActionsDropdownContainer = (props) => {
         isCameraAsContentEnabled: isCameraAsContentEnabled(),
         handleTakePresenter,
         activateTimer,
+        deactivateTimer: timerDeactivate,
         ...props,
       }}
     />
