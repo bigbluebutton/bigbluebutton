@@ -22,6 +22,7 @@ import StartPollButton from './components/StartPollButton';
 import ResponseChoices from './components/ResponseChoices';
 import ResponseTypes from './components/ResponseTypes';
 import PollquestionArea from './components/PollquestionArea';
+import LiveResultContainer from './components/LiveResult';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -432,7 +433,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
 
   const pollOptions = () => {
     if (hasCurrentPresentation) <EmptySlideArea />;
-    if (hasPoll) return null;
+    if (hasPoll) return <LiveResultContainer />;
     return (
       <>
         {
