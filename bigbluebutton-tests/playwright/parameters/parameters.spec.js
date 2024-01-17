@@ -21,8 +21,8 @@ test.describe.parallel('Create Parameters', () => {
 
     test('Banner Color @ci', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
-      const colorToRGB = hexToRgb(c.color);
-      await createParam.initModPage(page, true, { createParameter: `${c.bannerColor}&${encodeCustomParams(c.bannerText)}` });
+      const colorToRGB = hexToRgb(c.color.substring(1));
+      await createParam.initModPage(page, true, { createParameter: `${encodeCustomParams(c.bannerColor)}&${c.bannerText}` });
       await createParam.bannerColor(colorToRGB);
     });
   });

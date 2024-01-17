@@ -2,9 +2,9 @@ const e = require('../core/elements');
 
 // Create Parameters
 exports.bannerText = 'bannerText=some+text';
-const color = 'FFFF00'
+const color = '#FFFF00'
 exports.color = color;
-exports.bannerColor = `bannerColor=#${color}`;
+exports.bannerColor = `bannerColor=${color}`;
 exports.maxParticipants = 'maxParticipants=2';
 exports.duration = 'duration=2';
 const messageModerator = 'Test';
