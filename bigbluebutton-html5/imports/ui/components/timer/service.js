@@ -3,7 +3,6 @@ import Timer from '/imports/api/timer';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 import { Session } from 'meteor/session';
-import Logger from '/imports/startup/client/logger';
 import { ACTIONS, PANELS } from '../layout/enums';
 
 const TIMER_CONFIG = Meteor.settings.public.timer;
@@ -80,8 +79,6 @@ const isStopwatch = () => {
   if (timer) return timer.stopwatch;
   return false;
 };
-
-const setTimer = (time) => makeCall('setTimer', time);
 
 const timerEnded = () => makeCall('timerEnded');
 
@@ -227,48 +224,6 @@ const togglePanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
-const setHours = (hours, time) => {
-  if (!Number.isNaN(hours) && hours >= 0 && hours <= MAX_HOURS) {
-    const currentHours = Math.floor(time / MILLI_IN_HOUR);
-
-    const diff = (hours - currentHours) * MILLI_IN_HOUR;
-    setTimer(time + diff);
-  } else {
-    Logger.warn('Invalid time');
-  }
-};
-
-const setMinutes = (minutes, time) => {
-  if (!Number.isNaN(minutes) && minutes >= 0 && minutes <= 59) {
-    const currentHours = Math.floor(time / MILLI_IN_HOUR);
-    const mHours = currentHours * MILLI_IN_HOUR;
-
-    const currentMinutes = Math.floor((time - mHours) / MILLI_IN_MINUTE);
-
-    const diff = (minutes - currentMinutes) * MILLI_IN_MINUTE;
-    setTimer(time + diff);
-  } else {
-    Logger.warn('Invalid time');
-  }
-};
-
-const setSeconds = (seconds, time) => {
-  if (!Number.isNaN(seconds) && seconds >= 0 && seconds <= 59) {
-    const currentHours = Math.floor(time / MILLI_IN_HOUR);
-    const mHours = currentHours * MILLI_IN_HOUR;
-
-    const currentMinutes = Math.floor((time - mHours) / MILLI_IN_MINUTE);
-    const mMinutes = currentMinutes * MILLI_IN_MINUTE;
-
-    const currentSeconds = Math.floor((time - mHours - mMinutes) / MILLI_IN_SECOND);
-
-    const diff = (seconds - currentSeconds) * MILLI_IN_SECOND;
-    setTimer(time + diff);
-  } else {
-    Logger.warn('Invalid time');
-  }
-};
-
 export default {
   OFFSET_INTERVAL,
   TRACKS,
@@ -282,9 +237,6 @@ export default {
   isRunning,
   isStopwatch,
   isAlarmEnabled,
-  setHours,
-  setMinutes,
-  setSeconds,
   fetchTimeOffset,
   getTimeOffset,
   getElapsedTime,

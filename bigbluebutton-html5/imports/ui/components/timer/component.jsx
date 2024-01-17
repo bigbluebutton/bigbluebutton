@@ -130,32 +130,32 @@ class Timer extends Component {
   }
 
   handleOnHoursChange(event) {
-    const { timer } = this.props;
+    const { timer, setHours } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const hours = parseInt(target.value, 10);
-      Service.setHours(hours, timer.time);
+      setHours(hours, timer.time);
     }
   }
 
   handleOnMinutesChange(event) {
-    const { timer } = this.props;
+    const { timer, setMinutes } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const minutes = parseInt(target.value, 10);
-      Service.setMinutes(minutes, timer.time);
+      setMinutes(minutes, timer.time);
     }
   }
 
   handleOnSecondsChange(event) {
-    const { timer } = this.props;
+    const { timer, setSeconds } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const seconds = parseInt(target.value, 10);
-      Service.setSeconds(seconds, timer.time);
+      setSeconds(seconds, timer.time);
     }
   }
 
