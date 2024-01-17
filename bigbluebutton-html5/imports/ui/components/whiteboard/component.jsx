@@ -500,7 +500,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     if (tlEditorRef.current) {
       const useElement = document.querySelector(".tl-cursor use");
-      if (useElement && !isMultiUserActive) {
+      if (useElement && !isMultiUserActive && !isPresenter) {
         useElement.setAttribute("href", "#redPointer");
       } else if (useElement) {
         useElement.setAttribute("href", "#cursor");
@@ -512,7 +512,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           const id = InstancePresenceRecordType.createId(userId);
           const active = yPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
-          if (!active || (hideViewersCursor && user.role === 'VIEWER' && !currentUser?.presenter)) {
+          if (!active || (hideViewersCursor && user.role === 'VIEWER' && !currentUser?.presenter) || (!presenter && !isMultiUserActive)) {
             tlEditorRef.current?.store.remove([id]);
             return null;
           }
