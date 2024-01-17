@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
@@ -213,24 +213,25 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
   const [getWriters, { data: usersData }] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
-  const writers = usersData?.pres_page_writers || null;
 
   const handleWhiteboardAccessChange = async () => {
     try {
       // Fetch the writers data
       const { data } = await getWriters({ variables: { pageId } });
       const fetchedWriters = data?.pres_page_writers || [];
-  
+
       // Determine if the user has access
       const { userId, presPagesWritable } = user;
-      const hasAccess = presPagesWritable.some((page: { userId: string; isCurrentPage: boolean }) => page.userId === userId && page.isCurrentPage);
-  
+      const hasAccess = presPagesWritable.some((page: { userId: string; isCurrentPage: boolean }) =>
+        page.userId === userId && page.isCurrentPage
+      );
+
       // Prepare the updated list of user IDs for whiteboard access
       const usersIds = fetchedWriters.map((writer: { userId: string }) => writer.userId);
       const newUsersIds: string[] = hasAccess
         ? usersIds.filter((id: string) => id !== userId)
         : [...usersIds, userId];
-  
+
       // Update the writers
       await presentationSetWriters({
         variables: {
@@ -239,7 +240,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         },
       });
     } catch (error) {
-      console.error("Error updating whiteboard access", error);
+      console.error('Error updating whiteboard access', error);
     }
   };
 
@@ -287,7 +288,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
   );
 
-  const hasWhiteboardAccess = user.presPagesWritable?.some((page: { pageId: string; userId: string }) => 
+  const hasWhiteboardAccess = user.presPagesWritable?.some((page: { pageId: string; userId: string }) =>
     page.pageId === pageId && page.userId === user.userId
   );
 
