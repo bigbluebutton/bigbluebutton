@@ -164,18 +164,18 @@ class Timer extends Component {
   }
 
   handleSwitchToStopwatch() {
-    const { timer } = this.props;
+    const { timer, switchTimer } = this.props;
 
     if (!timer.stopwatch) {
-      Service.switchTimer(true);
+      switchTimer(true);
     }
   }
 
   handleSwitchToTimer() {
-    const { timer } = this.props;
+    const { timer, switchTimer } = this.props;
 
     if (timer.stopwatch) {
-      Service.switchTimer(false);
+      switchTimer(false);
     }
   }
 

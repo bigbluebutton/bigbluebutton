@@ -34,10 +34,17 @@ export const TIMER_STOP = gql`
   }
 `;
 
+export const TIMER_SWITCH_MODE = gql`
+  mutation timerSwitchMode($stopwatch: Boolean!) {
+    timerSwitchMode(stopwatch: $stopwatch)
+  }
+`;
+
 export default {
   TIMER_ACTIVATE,
   TIMER_DEACTIVATE,
   TIMER_RESET,
   TIMER_START,
   TIMER_STOP,
+  TIMER_SWITCH_MODE,
 };

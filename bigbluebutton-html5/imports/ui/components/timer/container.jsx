@@ -5,7 +5,12 @@ import Timer from './component';
 import Service from './service';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { TIMER_RESET, TIMER_START, TIMER_STOP } from './mutations';
+import {
+  TIMER_RESET,
+  TIMER_START,
+  TIMER_STOP,
+  TIMER_SWITCH_MODE,
+} from './mutations';
 
 const TimerContainer = ({ children, ...props }) => {
   const layoutContextDispatch = layoutDispatch();
@@ -19,6 +24,7 @@ const TimerContainer = ({ children, ...props }) => {
   const [timerReset] = useMutation(TIMER_RESET);
   const [timerStart] = useMutation(TIMER_START);
   const [timerStop] = useMutation(TIMER_STOP);
+  const [timerSwitchMode] = useMutation(TIMER_SWITCH_MODE);
 
   const startTimer = () => {
     timerStart();
@@ -26,6 +32,10 @@ const TimerContainer = ({ children, ...props }) => {
 
   const stopTimer = (accumulated) => {
     timerStop({ variables: { accumulated } });
+  };
+
+  const switchTimer = (stopwatch) => {
+    timerSwitchMode({ variables: { stopwatch } });
   };
 
   return (
@@ -36,6 +46,7 @@ const TimerContainer = ({ children, ...props }) => {
       timerReset,
       startTimer,
       stopTimer,
+      switchTimer,
       ...props,
     }}
     >
