@@ -11,7 +11,6 @@ import PollService from '/imports/ui/components/poll/service';
 const APP = Meteor.settings.public.app;
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
-const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
@@ -78,7 +77,7 @@ const mapGroupMessage = (message) => {
     time: message.timestamp || message.time,
     sender: null,
     key: message.key,
-    chatId: message.chatId
+    chatId: message.chatId,
   };
 
   if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) {
@@ -168,7 +167,7 @@ const isChatLocked = (receiverID) => {
 
 const isChatClosed = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return !!currentClosedChats.find(closedChat => closedChat.chatId === chatId);
+  return !!currentClosedChats.find((closedChat) => closedChat.chatId === chatId);
 };
 
 const lastReadMessageTime = (receiverID) => {
@@ -212,8 +211,8 @@ const removeFromClosedChatsSession = (idChatOpen) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   if (isChatClosed(chatID)) {
-    const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chatID);
-    Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
+    const closedChats = currentClosedChats.filter((closedChat) => closedChat.chatId !== chatID);
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, closedChats);
   }
 };
 
@@ -231,7 +230,8 @@ const exportChat = (timeWindowList, intl) => {
       const min = date.getMinutes().toString().padStart(2, 0);
       const hourMin = `[${hour}:${min}]`;
 
-      // Skip the reduce aggregation for the sync messages because they aren't localized, causing an error in line 268
+      // Skip the reduce aggregation for the sync messages because they aren't localized
+      // (causing an error in line 268)
       // Also they're temporary (preliminary) messages, so it doesn't make sense export them
       if (['SYSTEM_MESSAGE-sync-msg', 'synced'].includes(message.id)) return acc;
 

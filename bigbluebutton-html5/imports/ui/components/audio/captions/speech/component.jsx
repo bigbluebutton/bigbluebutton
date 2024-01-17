@@ -1,7 +1,10 @@
 import { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import logger from '/imports/startup/client/logger';
+import { throttle } from 'radash';
 import Service from './service';
+
+const THROTTLE_TIMEOUT = 200;
 
 class Speech extends PureComponent {
   constructor(props) {
@@ -26,6 +29,11 @@ class Speech extends PureComponent {
       this.speechRecognition.onerror = (event) => this.onError(event);
       this.speechRecognition.onresult = (event) => this.onResult(event);
     }
+
+    this.throttledTranscriptUpdate = throttle(
+      { interval: THROTTLE_TIMEOUT },
+      props.captionSubmitText
+    );
   }
 
   componentDidUpdate(prevProps) {
@@ -96,12 +104,12 @@ class Speech extends PureComponent {
     this.result.transcript = transcript;
     this.result.isFinal = isFinal;
 
-    const { locale } = this.props;
+    const { locale, captionSubmitText } = this.props;
     if (isFinal) {
-      Service.updateFinalTranscript(id, transcript, locale);
+      captionSubmitText(id, transcript, locale, true);
       this.result.id = Service.generateId();
     } else {
-      Service.updateInterimTranscript(id, transcript, locale);
+      this.throttledTranscriptUpdate(id, transcript, locale, false);
     }
   }
 

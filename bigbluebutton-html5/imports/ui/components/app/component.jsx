@@ -39,7 +39,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
-import PluginsEngineContainer from '../plugins-engine/container';
+import PluginsEngineManager from '../plugins-engine/manager';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -606,7 +606,7 @@ class App extends Component {
     } = this.state;
     return (
       <>
-        <PluginsEngineContainer />
+        <PluginsEngineManager />
         <FloatingWindowContainer />
         <TimeSync />
         <Notifications />

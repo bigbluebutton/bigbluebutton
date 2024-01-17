@@ -175,6 +175,7 @@ const WhiteboardContainer = (props) => {
   const isModerator = currentUser?.isModerator;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
+  const { colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const layoutContextDispatch = layoutDispatch();
 
@@ -222,6 +223,11 @@ const WhiteboardContainer = (props) => {
         maxStickyNoteLength,
         maxNumberOfAnnotations,
         fontFamily,
+        colorStyle,
+        dashStyle,
+        fillStyle,
+        fontStyle,
+        sizeStyle,
         hasShapeAccess,
         handleToggleFullScreen,
         sidebarNavigationWidth,
