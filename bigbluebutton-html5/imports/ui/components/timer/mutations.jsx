@@ -40,6 +40,12 @@ export const TIMER_SWITCH_MODE = gql`
   }
 `;
 
+export const TIMER_SET_SONG_TRACK = gql`
+  mutation timerSetSongTrack($track: String!) {
+    timerSetSongTrack(track: $track)
+  }
+`;
+
 export default {
   TIMER_ACTIVATE,
   TIMER_DEACTIVATE,
@@ -47,4 +53,5 @@ export default {
   TIMER_START,
   TIMER_STOP,
   TIMER_SWITCH_MODE,
+  TIMER_SET_SONG_TRACK,
 };

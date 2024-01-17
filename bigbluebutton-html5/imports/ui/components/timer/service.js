@@ -85,10 +85,6 @@ const setTimer = (time) => makeCall('setTimer', time);
 
 const timerEnded = () => makeCall('timerEnded');
 
-const setTrack = (track) => {
-  makeCall('setTrack', track);
-};
-
 const fetchTimeOffset = () => {
   const t0 = Date.now();
 
@@ -290,7 +286,6 @@ export default {
   setMinutes,
   setSeconds,
   fetchTimeOffset,
-  setTrack,
   getTimeOffset,
   getElapsedTime,
   getInterval,

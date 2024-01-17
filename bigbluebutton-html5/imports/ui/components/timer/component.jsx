@@ -89,10 +89,6 @@ const propTypes = {
 };
 
 class Timer extends Component {
-  static handleOnTrackChange(event) {
-    Service.setTrack(event.target.value);
-  }
-
   constructor(props) {
     super(props);
 
@@ -177,6 +173,13 @@ class Timer extends Component {
     if (timer.stopwatch) {
       switchTimer(false);
     }
+  }
+
+  handleOnTrackChange(event) {
+    const { setTrack } = this.props;
+    const { target } = event;
+
+    setTrack(target.value);
   }
 
   getTime() {
@@ -285,7 +288,7 @@ class Timer extends Component {
                   id={track}
                   value={track}
                   checked={currentTrack === track}
-                  onChange={Timer.handleOnTrackChange}
+                  onChange={(event) => this.handleOnTrackChange(event)}
                   disabled={stopwatch}
                 />
                 {intl.formatMessage(intlMessages[track])}

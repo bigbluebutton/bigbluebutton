@@ -10,6 +10,7 @@ import {
   TIMER_START,
   TIMER_STOP,
   TIMER_SWITCH_MODE,
+  TIMER_SET_SONG_TRACK,
 } from './mutations';
 
 const TimerContainer = ({ children, ...props }) => {
@@ -25,6 +26,7 @@ const TimerContainer = ({ children, ...props }) => {
   const [timerStart] = useMutation(TIMER_START);
   const [timerStop] = useMutation(TIMER_STOP);
   const [timerSwitchMode] = useMutation(TIMER_SWITCH_MODE);
+  const [timerSetSongTrack] = useMutation(TIMER_SET_SONG_TRACK);
 
   const startTimer = () => {
     timerStart();
@@ -38,6 +40,10 @@ const TimerContainer = ({ children, ...props }) => {
     timerSwitchMode({ variables: { stopwatch } });
   };
 
+  const setTrack = (track) => {
+    timerSetSongTrack({ variables: { track } });
+  };
+
   return (
     <Timer {...{
       layoutContextDispatch,
@@ -47,6 +53,7 @@ const TimerContainer = ({ children, ...props }) => {
       startTimer,
       stopTimer,
       switchTimer,
+      setTrack,
       ...props,
     }}
     >
