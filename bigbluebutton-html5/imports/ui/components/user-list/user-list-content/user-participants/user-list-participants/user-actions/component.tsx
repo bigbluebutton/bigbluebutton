@@ -212,7 +212,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters, { data: usersData }] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
 
   const handleWhiteboardAccessChange = async () => {
     try {
@@ -223,7 +223,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       // Determine if the user has access
       const { userId, presPagesWritable } = user;
       const hasAccess = presPagesWritable.some((page: { userId: string; isCurrentPage: boolean }) =>
-        page.userId === userId && page.isCurrentPage
+        page.userId === userId && page.isCurrentPage,
       );
 
       // Prepare the updated list of user IDs for whiteboard access
@@ -289,7 +289,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   );
 
   const hasWhiteboardAccess = user.presPagesWritable?.some((page: { pageId: string; userId: string }) =>
-    page.pageId === pageId && page.userId === user.userId
+    page.pageId === pageId && page.userId === user.userId,
   );
 
   const [setAway] = useMutation(SET_AWAY);
