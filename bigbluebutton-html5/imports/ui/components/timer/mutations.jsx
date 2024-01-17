@@ -22,8 +22,22 @@ export const TIMER_RESET = gql`
   }
 `;
 
+export const TIMER_START = gql`
+  mutation timerStart {
+    timerStart
+  }
+`;
+
+export const TIMER_STOP = gql`
+  mutation timerStop($accumulated: Float!) {
+    timerStop(accumulated: $accumulated)
+  }
+`;
+
 export default {
   TIMER_ACTIVATE,
   TIMER_DEACTIVATE,
   TIMER_RESET,
+  TIMER_START,
+  TIMER_STOP,
 };

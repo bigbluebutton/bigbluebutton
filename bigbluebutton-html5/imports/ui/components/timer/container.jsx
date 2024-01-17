@@ -5,7 +5,7 @@ import Timer from './component';
 import Service from './service';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { TIMER_RESET } from './mutations';
+import { TIMER_RESET, TIMER_START, TIMER_STOP } from './mutations';
 
 const TimerContainer = ({ children, ...props }) => {
   const layoutContextDispatch = layoutDispatch();
@@ -17,10 +17,26 @@ const TimerContainer = ({ children, ...props }) => {
 
   const isModerator = currentUserData?.isModerator;
   const [timerReset] = useMutation(TIMER_RESET);
+  const [timerStart] = useMutation(TIMER_START);
+  const [timerStop] = useMutation(TIMER_STOP);
+
+  const startTimer = () => {
+    timerStart();
+  };
+
+  const stopTimer = (accumulated) => {
+    timerStop({ variables: { accumulated } });
+  };
 
   return (
     <Timer {...{
-      layoutContextDispatch, isResizing, isModerator, timerReset, ...props,
+      layoutContextDispatch,
+      isResizing,
+      isModerator,
+      timerReset,
+      startTimer,
+      stopTimer,
+      ...props,
     }}
     >
       {children}

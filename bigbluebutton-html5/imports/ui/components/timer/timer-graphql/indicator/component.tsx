@@ -1,4 +1,4 @@
-import { useSubscription } from '@apollo/client';
+import { useSubscription, useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 import GET_TIMER, { GetTimerResponse } from './queries';
@@ -8,9 +8,9 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { startTimer, stopTimer } from './service';
 import { layoutSelectInput } from '../../../layout/context';
 import { Input } from '../../../layout/layoutTypes';
+import { TIMER_START, TIMER_STOP } from '../../mutations';
 
 const CDN = Meteor.settings.public.app.cdn;
 const BASENAME = Meteor.settings.public.app.basename;
@@ -45,6 +45,22 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const music = useRef<HTMLAudioElement>();
   const triggered = useRef<boolean>(true);
   const alreadyNotified = useRef<boolean>(false);
+  const [startTimerMutation] = useMutation(TIMER_START);
+  const [stopTimerMutation] = useMutation(TIMER_STOP);
+
+  const startTimer = () => {
+    startTimerMutation();
+  };
+
+  const stopTimer = () => {
+    stopTimerMutation(
+      {
+        variables: {
+          accumulated: time,
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);

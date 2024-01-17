@@ -81,10 +81,6 @@ const isStopwatch = () => {
   return false;
 };
 
-const startTimer = () => makeCall('startTimer');
-
-const stopTimer = () => makeCall('stopTimer');
-
 const switchTimer = (stopwatch) => makeCall('switchTimer', stopwatch);
 
 const setTimer = (time) => makeCall('setTimer', time);
@@ -292,8 +288,6 @@ export default {
   isRunning,
   isStopwatch,
   isAlarmEnabled,
-  startTimer,
-  stopTimer,
   switchTimer,
   setHours,
   setMinutes,

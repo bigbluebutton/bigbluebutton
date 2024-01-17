@@ -124,12 +124,12 @@ class Timer extends Component {
   }
 
   handleControlClick() {
-    const { timer } = this.props;
+    const { timer, startTimer, stopTimer } = this.props;
 
     if (timer.running) {
-      Service.stopTimer();
+      stopTimer(this.getTime());
     } else {
-      Service.startTimer();
+      startTimer();
     }
   }
 
