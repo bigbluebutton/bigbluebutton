@@ -219,18 +219,18 @@ const UserActions: React.FC<UserActionsProps> = ({
     try {
       // Fetch the writers data
       const { data } = await getWriters({ variables: { pageId } });
-      const writers = data?.pres_page_writers || [];
-
+      const fetchedWriters = data?.pres_page_writers || [];
+  
       // Determine if the user has access
       const { userId, presPagesWritable } = user;
-      const hasAccess = presPagesWritable.some(page => page.userId === userId && page.isCurrentPage);
-
+      const hasAccess = presPagesWritable.some((page: { userId: string; isCurrentPage: boolean }) => page.userId === userId && page.isCurrentPage);
+  
       // Prepare the updated list of user IDs for whiteboard access
-      const usersIds = writers.map(writer => writer.userId);
-      const newUsersIds = hasAccess
-        ? usersIds.filter(id => id !== userId)
+      const usersIds = fetchedWriters.map((writer: { userId: string }) => writer.userId);
+      const newUsersIds: string[] = hasAccess
+        ? usersIds.filter((id: string) => id !== userId)
         : [...usersIds, userId];
-
+  
       // Update the writers
       await presentationSetWriters({
         variables: {
@@ -287,7 +287,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
   );
 
-  const hasWhiteboardAccess = user.presPagesWritable?.some(page => 
+  const hasWhiteboardAccess = user.presPagesWritable?.some((page: { pageId: string; userId: string }) => 
     page.pageId === pageId && page.userId === user.userId
   );
 
