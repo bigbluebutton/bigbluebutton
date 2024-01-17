@@ -222,8 +222,8 @@ const UserActions: React.FC<UserActionsProps> = ({
 
       // Determine if the user has access
       const { userId, presPagesWritable } = user;
-      const hasAccess = presPagesWritable.some((page: { userId: string; isCurrentPage: boolean }) =>
-        page.userId === userId && page.isCurrentPage,
+      const hasAccess = presPagesWritable.some(
+        (page: { userId: string; isCurrentPage: boolean }) => (page.userId === userId && page.isCurrentPage),
       );
 
       // Prepare the updated list of user IDs for whiteboard access
@@ -288,8 +288,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
   );
 
-  const hasWhiteboardAccess = user.presPagesWritable?.some((page: { pageId: string; userId: string }) =>
-    page.pageId === pageId && page.userId === user.userId,
+  const hasWhiteboardAccess = user.presPagesWritable?.some(
+    (page: { pageId: string; userId: string }) => (page.pageId === pageId && page.userId === user.userId),
   );
 
   const [setAway] = useMutation(SET_AWAY);
