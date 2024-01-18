@@ -107,6 +107,8 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   }, [running]);
 
   useEffect(() => {
+    if (!running) return;
+
     const timePassed = passedTime >= 0 ? passedTime : 0;
 
     setTime((prev) => {
@@ -114,7 +116,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (timePassed > prev) return timePassed;
       return prev;
     });
-  }, [passedTime, stopwatch]);
+  }, [passedTime, stopwatch, startedAt]);
 
   useEffect(() => {
     if (!timeRef.current) {
@@ -188,7 +190,7 @@ const TimerIndicatorContainer: React.FC = () => {
 
   const { timer } = timerData;
   const [currentTimer] = timer;
-  if (!currentTimer.active) return null;
+  if (!currentTimer?.active) return null;
 
   const {
     accumulated,

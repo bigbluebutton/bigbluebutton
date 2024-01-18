@@ -120,10 +120,20 @@ class Timer extends Component {
   }
 
   handleControlClick() {
-    const { timer, startTimer, stopTimer } = this.props;
+    const {
+      timer, startTimer, stopTimer, timeOffset,
+    } = this.props;
+
+    const {
+      running,
+      accumulated,
+      timestamp,
+    } = timer;
 
     if (timer.running) {
-      stopTimer(this.getTime());
+      const elapsedTime = Service.getElapsedTime(running, timestamp, timeOffset, accumulated);
+
+      stopTimer(elapsedTime);
     } else {
       startTimer();
     }
@@ -160,17 +170,19 @@ class Timer extends Component {
   }
 
   handleSwitchToStopwatch() {
-    const { timer, switchTimer } = this.props;
+    const { timer, stopTimer, switchTimer } = this.props;
 
     if (!timer.stopwatch) {
+      stopTimer(this.getTime());
       switchTimer(true);
     }
   }
 
   handleSwitchToTimer() {
-    const { timer, switchTimer } = this.props;
+    const { timer, stopTimer, switchTimer } = this.props;
 
     if (timer.stopwatch) {
+      stopTimer(this.getTime());
       switchTimer(false);
     }
   }
