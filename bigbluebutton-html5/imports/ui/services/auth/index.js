@@ -23,7 +23,6 @@ class Auth {
       return;
     }
 
-    console.log('-----------------');
 
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
