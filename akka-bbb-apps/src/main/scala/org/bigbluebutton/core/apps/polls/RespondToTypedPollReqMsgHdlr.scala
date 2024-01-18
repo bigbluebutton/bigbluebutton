@@ -64,7 +64,7 @@ trait RespondToTypedPollReqMsgHdlr {
             }
           }
         }
-        case None => log.error("Error while trying to answer the poll {} in meeting {}: Answer not found.", msg.body.pollId, msg.header.meetingId)
+        case None => log.error("Error while trying to answer the poll {} in meeting {}: Answer not found or something went wrong while trying to create the answer.", msg.body.pollId, msg.header.meetingId)
       }
 
     } else {
