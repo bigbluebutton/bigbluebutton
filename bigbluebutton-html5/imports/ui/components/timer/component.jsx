@@ -205,13 +205,22 @@ class Timer extends Component {
       updatedTime = Math.max(time - elapsedTime, 0);
     }
 
+    return updatedTime;
+  }
+
+  getTimeString() {
+    const { timer } = this.props;
+    const { stopwatch } = timer;
+
+    const updatedTime = this.getTime();
+
     return Service.getTimeAsString(updatedTime, stopwatch);
   }
 
   updateTime() {
     const { current } = this.timeRef;
     if (current) {
-      current.textContent = this.getTime();
+      current.textContent = this.getTimeString();
     }
   }
 
@@ -397,7 +406,7 @@ class Timer extends Component {
           ref={this.timeRef}
           data-test="timerCurrent"
         >
-          {this.getTime()}
+          {this.getTimeString()}
         </Styled.TimerCurrent>
         <Styled.TimerType>
           <Styled.TimerSwitchButton
