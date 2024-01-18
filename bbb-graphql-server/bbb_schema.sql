@@ -1500,6 +1500,11 @@ create table "sharedNotes_rev" (
 );
 --create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
 
+create view "v_sharedNotes_diff" as
+select "meetingId", "sharedNotesExtId", "userId", "start", "end", "diff"
+from "sharedNotes_rev"
+where "diff" is not null;
+
 create table "sharedNotes_session" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),

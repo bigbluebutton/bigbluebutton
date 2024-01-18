@@ -36,6 +36,7 @@
 - "!include public_v_pres_presentation_uploadToken.yaml"
 - "!include public_v_screenshare.yaml"
 - "!include public_v_sharedNotes.yaml"
+- "!include public_v_sharedNotes_diff.yaml"
 - "!include public_v_sharedNotes_session.yaml"
 - "!include public_v_timer.yaml"
 - "!include public_v_user.yaml"
