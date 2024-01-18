@@ -52,6 +52,33 @@ object ClientSettings extends SystemConfiguration {
     } else clientSettingsFromFile
   }
 
+  def getConfigPropertyValueByPathAsIntOrElse(map: Map[String, Any], path: String, alternativeValue: Int): Int = {
+    getConfigPropertyValueByPath(map, path) match {
+      case Some(configValue: Int) => configValue
+      case _ =>
+        logger.debug("Config `{}` not found.", path)
+        alternativeValue
+    }
+  }
+
+  def getConfigPropertyValueByPathAsStringOrElse(map: Map[String, Any], path: String, alternativeValue: String): String = {
+    getConfigPropertyValueByPath(map, path) match {
+      case Some(configValue: String) => configValue
+      case _ =>
+        logger.debug("Config `{}` not found.", path)
+        alternativeValue
+    }
+  }
+
+  def getConfigPropertyValueByPathAsBooleanOrElse(map: Map[String, Any], path: String, alternativeValue: Boolean): Boolean = {
+    getConfigPropertyValueByPath(map, path) match {
+      case Some(configValue: Boolean) => configValue
+      case _ =>
+        logger.debug("Config `{}` not found.", path)
+        alternativeValue
+    }
+  }
+
   def getConfigPropertyValueByPath(map: Map[String, Any], path: String): Option[Any] = {
     val keys = path.split("\\.")
 
