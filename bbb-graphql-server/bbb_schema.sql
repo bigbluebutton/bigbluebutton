@@ -233,6 +233,7 @@ CREATE TABLE "user" (
 	"avatar" varchar(500),
 	"color" varchar(7),
     "sessionToken" varchar(16),
+    "authToken" varchar(16),
     "authed" bool,
     "joined" bool,
     "joinErrorCode" varchar(50),
@@ -384,6 +385,7 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role",
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
     "user"."extId",
+    "user"."authToken",
     "user"."meetingId",
     "user"."name",
     "user"."nameSortable",
@@ -419,7 +421,8 @@ AS SELECT "user"."userId",
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator"
+    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
    FROM "user";
 
 CREATE OR REPLACE VIEW "v_user_guest" AS

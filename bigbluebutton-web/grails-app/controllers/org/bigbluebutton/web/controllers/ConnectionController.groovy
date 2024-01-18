@@ -95,7 +95,7 @@ class ConnectionController {
             def builder = new JsonBuilder()
             builder {
               "response" "authorized"
-              "X-Hasura-Role" u ? "bbb_client" : "pre_join_bbb_client"
+              "X-Hasura-Role" u && !u.hasLeft() ? "bbb_client" : "pre_join_bbb_client"
               "X-Hasura-ModeratorInMeeting" u && u.isModerator() ? userSession.meetingID : ""
               "X-Hasura-PresenterInMeeting" u && u.isPresenter() ? userSession.meetingID : ""
               "X-Hasura-UserId" userSession.internalUserId
