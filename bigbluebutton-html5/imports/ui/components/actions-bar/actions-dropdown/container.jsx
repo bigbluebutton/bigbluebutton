@@ -47,14 +47,16 @@ const ActionsDropdownContainer = (props) => {
 
     timerActivate({ variables: { stopwatch, running, time } });
 
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: true,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.TIMER,
-    });
+    setTimeout(() => {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.TIMER,
+      });
+    }, 500);
   };
 
   return (

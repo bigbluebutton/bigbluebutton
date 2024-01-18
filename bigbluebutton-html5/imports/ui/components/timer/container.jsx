@@ -4,7 +4,6 @@ import { useMutation } from '@apollo/client';
 import Timer from './component';
 import Service from './service';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Logger from '/imports/startup/client/logger';
 import {
   TIMER_RESET,
@@ -24,11 +23,7 @@ const TimerContainer = ({ children, ...props }) => {
   const layoutContextDispatch = layoutDispatch();
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const { isResizing } = cameraDock;
-  const { data: currentUserData } = useCurrentUser((user) => ({
-    isModerator: user.isModerator,
-  }));
 
-  const isModerator = currentUserData?.isModerator;
   const [timerReset] = useMutation(TIMER_RESET);
   const [timerStart] = useMutation(TIMER_START);
   const [timerStop] = useMutation(TIMER_STOP);
@@ -102,7 +97,6 @@ const TimerContainer = ({ children, ...props }) => {
     <Timer {...{
       layoutContextDispatch,
       isResizing,
-      isModerator,
       timerReset,
       startTimer,
       stopTimer,

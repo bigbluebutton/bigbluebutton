@@ -14,6 +14,7 @@ import PluginLoaderManager from './loader/manager';
 import ExtensibleAreaStateManager from './extensible-areas/manager';
 import PluginDataChannelManager from './data-channel/manager';
 import PluginUiCommandsHandler from './ui-commands/handler';
+import PluginDomElementManipulationManager from './dom-element-manipulation/manager';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -53,6 +54,7 @@ const PluginsEngineManager = () => {
       />
       <PluginDataConsumptionManager />
       <PluginUiCommandsHandler />
+      <PluginDomElementManipulationManager />
       {
         effectivePluginsConfig.map((effectivePluginConfig: EffectivePluginConfig) => {
           const { uuid, name: pluginName } = effectivePluginConfig;

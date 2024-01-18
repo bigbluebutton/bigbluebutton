@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
+import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
@@ -40,26 +44,45 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   page,
   markMessageAsSeen,
   scrollRef,
-}) => (
-  // eslint-disable-next-line react/jsx-filename-extension
-  <div key={`messagePage-${page}`} id={`${page}`}>
-    {messages.map((message, index, Array) => {
-      const previousMessage = Array[index - 1];
-      return (
-        <ChatMessage
-          key={message.createdAt}
-          message={message}
-          previousMessage={previousMessage}
-          lastSenderPreviousPage={
-            !previousMessage ? lastSenderPreviousPage : null
-          }
-          scrollRef={scrollRef}
-          markMessageAsSeen={markMessageAsSeen}
-        />
-      );
-    })}
-  </div>
-);
+}) => {
+  const { domElementManipulationMessageIds } = useContext(PluginsContext);
+  const [messagesRequestedFromPlugin, setMessagesRequestedFromPlugin] = useState<
+  UpdatedEventDetailsForChatMessageDomElements[]>([]);
+  useEffect(() => {
+    const dataToSend = messagesRequestedFromPlugin.filter((
+      message,
+    ) => domElementManipulationMessageIds.indexOf(message.messageId) !== -1);
+    window.dispatchEvent(
+      new CustomEvent<UpdatedEventDetails<UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.UPDATED, {
+        detail: {
+          hook: DomElementManipulationHooks.CHAT_MESSAGE,
+          data: dataToSend,
+        },
+      }),
+    );
+  }, [domElementManipulationMessageIds]);
+  return (
+    // eslint-disable-next-line react/jsx-filename-extension
+    <div key={`messagePage-${page}`} id={`${page}`}>
+      {messages.map((message, index, Array) => {
+        const previousMessage = Array[index - 1];
+        return (
+          <ChatMessage
+            key={message.createdAt}
+            message={message}
+            previousMessage={previousMessage}
+            setMessagesRequestedFromPlugin={setMessagesRequestedFromPlugin}
+            lastSenderPreviousPage={
+              !previousMessage ? lastSenderPreviousPage : null
+            }
+            scrollRef={scrollRef}
+            markMessageAsSeen={markMessageAsSeen}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
 const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   page,
