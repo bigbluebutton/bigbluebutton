@@ -1239,7 +1239,8 @@ CREATE TABLE "poll" (
 "multipleResponses" boolean,
 "ended" boolean,
 "published" boolean,
-"publishedAt" timestamp with time zone
+"publishedAt" timestamp with time zone,
+"createdAt" timestamp with time zone not null default current_timestamp
 );
 CREATE INDEX "idx_poll_meetingId" ON "poll"("meetingId");
 CREATE INDEX "idx_poll_meetingId_active" ON "poll"("meetingId") where ended is false;
