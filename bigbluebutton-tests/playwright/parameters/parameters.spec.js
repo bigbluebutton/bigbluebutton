@@ -457,7 +457,8 @@ test.describe.parallel('Custom Parameters', () => {
   });
 
   test.describe.parallel('Presentation', () => {
-    test('Hide Presentation on join @ci', async ({ browser, context, page }) => {
+    // see https://github.com/bigbluebutton/bigbluebutton/issues/19456
+    test('Hide Presentation on join @ci @flaky', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
