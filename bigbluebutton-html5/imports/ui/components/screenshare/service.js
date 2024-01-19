@@ -3,7 +3,6 @@ import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import { stopWatching } from '/imports/ui/components/external-video-player/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import AudioService from '/imports/ui/components/audio/service';
@@ -281,7 +280,7 @@ const screenshareHasStarted = (isPresenter, options = {}) => {
   }
 };
 
-const shareScreen = async (isPresenter, onFail, options = {}) => {
+const shareScreen = async (stopWatching, isPresenter, onFail, options = {}) => {
   if (isCameraAsContentBroadcasting()) {
     screenshareHasEnded();
   }

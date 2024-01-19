@@ -1,7 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 
 import { getStreamer } from '/imports/api/external-videos';
-import { makeCall } from '/imports/ui/services/api';
 import ReactPlayer from 'react-player';
 
 import Panopto from './custom-players/panopto';
@@ -16,10 +15,6 @@ const isUrlValid = (url) => {
   }
 
   return /^https.*$/.test(url) && (ReactPlayer.canPlay(url) || Panopto.canPlay(url));
-};
-
-const stopWatching = () => {
-  makeCall('stopWatchingExternalVideo');
 };
 
 const onMessage = (message, func) => {
@@ -43,6 +38,5 @@ export {
   onMessage,
   removeAllListeners,
   isUrlValid,
-  stopWatching,
   getPlayingState,
 };

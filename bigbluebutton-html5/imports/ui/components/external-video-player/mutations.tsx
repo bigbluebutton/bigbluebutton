@@ -24,4 +24,10 @@ export const EXTERNAL_VIDEO_UPDATE = gql`
   }
 `;
 
-export default { EXTERNAL_VIDEO_START, EXTERNAL_VIDEO_UPDATE };
+export const EXTERNAL_VIDEO_STOP = gql`
+  mutation ExternalVideoStop {
+    externalVideoStop
+  }
+`;
+
+export default { EXTERNAL_VIDEO_START, EXTERNAL_VIDEO_UPDATE, EXTERNAL_VIDEO_STOP };

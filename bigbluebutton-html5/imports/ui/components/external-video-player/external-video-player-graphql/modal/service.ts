@@ -1,12 +1,7 @@
 import ReactPlayer from 'react-player';
-import { makeCall } from '/imports/ui/services/api';
 
 const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
 const PANOPTO_MATCH_URL = /https?:\/\/([^/]+\/Panopto)(\/Pages\/Viewer\.aspx\?id=)([-a-zA-Z0-9]+)/;
-
-export const stopWatching = () => {
-  makeCall('stopWatchingExternalVideo');
-};
 
 export const isUrlValid = (url: string) => {
   if (YOUTUBE_SHORTS_REGEX.test(url)) {
@@ -19,5 +14,5 @@ export const isUrlValid = (url: string) => {
 };
 
 export default {
-  stopWatching,
+  isUrlValid,
 };
