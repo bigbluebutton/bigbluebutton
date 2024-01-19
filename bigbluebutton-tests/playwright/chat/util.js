@@ -1,4 +1,4 @@
-const { default: test, expect } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { getSettings } = require('../core/settings');
 
