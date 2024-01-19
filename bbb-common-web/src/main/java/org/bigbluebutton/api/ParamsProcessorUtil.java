@@ -70,6 +70,8 @@ public class ParamsProcessorUtil {
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
     private String defaultHTML5ClientUrl;
+
+    private String graphqlWebsocketUrl;
     private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
     private Integer defaultHttpSessionTimeout = 14400;
@@ -864,6 +866,10 @@ public class ParamsProcessorUtil {
 		return defaultHTML5ClientUrl;
 	}
 
+    public String getGraphqlWebsocketUrl() {
+        return graphqlWebsocketUrl;
+    }
+
 	public String getDefaultGuestWaitURL() {
 		return defaultGuestWaitURL;
         }
@@ -1216,6 +1222,10 @@ public class ParamsProcessorUtil {
 	public void setDefaultHTML5ClientUrl(String defaultHTML5ClientUrl) {
 		this.defaultHTML5ClientUrl = defaultHTML5ClientUrl;
 	}
+
+    public void setGraphqlWebsocketUrl(String graphqlWebsocketUrl) {
+        this.graphqlWebsocketUrl = graphqlWebsocketUrl.replace("https://","wss://");
+    }
 
 	public void setDefaultGuestWaitURL(String url) {
 		this.defaultGuestWaitURL = url;

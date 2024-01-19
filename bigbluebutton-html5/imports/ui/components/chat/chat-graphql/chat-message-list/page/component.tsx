@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
+import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
-import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useLoadedChatMessages from '/imports/ui/core/hooks/useLoadedChatMessages';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -39,26 +44,45 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   page,
   markMessageAsSeen,
   scrollRef,
-}) => (
-  // eslint-disable-next-line react/jsx-filename-extension
-  <div key={`messagePage-${page}`} id={`${page}`}>
-    {messages.map((message, index, Array) => {
-      const previousMessage = Array[index - 1];
-      return (
-        <ChatMessage
-          key={message.createdAt}
-          message={message}
-          previousMessage={previousMessage}
-          lastSenderPreviousPage={
-            !previousMessage ? lastSenderPreviousPage : null
-          }
-          scrollRef={scrollRef}
-          markMessageAsSeen={markMessageAsSeen}
-        />
-      );
-    })}
-  </div>
-);
+}) => {
+  const { domElementManipulationMessageIds } = useContext(PluginsContext);
+  const [messagesRequestedFromPlugin, setMessagesRequestedFromPlugin] = useState<
+  UpdatedEventDetailsForChatMessageDomElements[]>([]);
+  useEffect(() => {
+    const dataToSend = messagesRequestedFromPlugin.filter((
+      message,
+    ) => domElementManipulationMessageIds.indexOf(message.messageId) !== -1);
+    window.dispatchEvent(
+      new CustomEvent<UpdatedEventDetails<UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.UPDATED, {
+        detail: {
+          hook: DomElementManipulationHooks.CHAT_MESSAGE,
+          data: dataToSend,
+        },
+      }),
+    );
+  }, [domElementManipulationMessageIds]);
+  return (
+    // eslint-disable-next-line react/jsx-filename-extension
+    <div key={`messagePage-${page}`} id={`${page}`}>
+      {messages.map((message, index, Array) => {
+        const previousMessage = Array[index - 1];
+        return (
+          <ChatMessage
+            key={message.createdAt}
+            message={message}
+            previousMessage={previousMessage}
+            setMessagesRequestedFromPlugin={setMessagesRequestedFromPlugin}
+            lastSenderPreviousPage={
+              !previousMessage ? lastSenderPreviousPage : null
+            }
+            scrollRef={scrollRef}
+            markMessageAsSeen={markMessageAsSeen}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
 const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   page,
@@ -69,6 +93,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   markMessageAsSeen,
   scrollRef,
 }) => {
+  const { setChatMessagesGraphqlVariablesAndQuery } = useContext(PluginsContext);
+
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
   const chatQuery = isPublicChat
     ? CHAT_MESSAGE_PUBLIC_SUBSCRIPTION
@@ -77,11 +103,17 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
 
-  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
-  const {
-    data: chatMessageData,
-  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
+  const resp = useLoadedChatMessages((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
+  const chatMessageData = resp?.data;
+  useEffect(() => {
+    setChatMessagesGraphqlVariablesAndQuery(
+      {
+        query: chatQuery,
+        variables,
+      },
+    );
+  }, [chatId, page, pageSize]);
   if (chatMessageData) {
     if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
       setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);

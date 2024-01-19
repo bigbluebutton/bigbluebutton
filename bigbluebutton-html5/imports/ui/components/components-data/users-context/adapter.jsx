@@ -1,5 +1,4 @@
 import { useContext, useEffect } from 'react';
-import { CurrentUser } from '/imports/api/users';
 import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UsersContext, ACTIONS } from './context';
@@ -44,7 +43,6 @@ const Adapter = () => {
 
   useEffect(() => {
     const usersCursor = Users.find({}, { sort: { timestamp: 1 } });
-    const CurrentUserCursor = CurrentUser.find({});
     usersCursor.observe({
       added: (obj) => {
         ChatLogger.debug('usersAdapter::observe::added', obj);
@@ -58,18 +56,6 @@ const Adapter = () => {
       changed: (obj) => {
         dispatch({
           type: ACTIONS.CHANGED,
-          value: {
-            user: obj,
-          },
-        });
-      },
-    });
-
-    CurrentUserCursor.observe({
-      added: (obj) => {
-        ChatLogger.debug('usersAdapter::observe::current-user::added', obj);
-        dispatch({
-          type: ACTIONS.ADDED,
           value: {
             user: obj,
           },

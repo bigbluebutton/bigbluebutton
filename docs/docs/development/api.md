@@ -107,6 +107,9 @@ Updated in 2.7:
 - **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`.
 - **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
 
+Updated in 3.0:
+
+
 ## API Data Types
 
 There are three types in the API.

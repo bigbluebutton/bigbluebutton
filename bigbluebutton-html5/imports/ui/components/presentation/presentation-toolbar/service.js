@@ -1,7 +1,4 @@
 import { makeCall } from '/imports/ui/services/api';
-import { throttle } from '/imports/utils/throttle';
-
-const PAN_ZOOM_INTERVAL = Meteor.settings.public.presentation.panZoomInterval || 200;
 
 const POD_ID = 'DEFAULT_PRESENTATION_POD';
 
@@ -17,10 +14,6 @@ const nextSlide = (currentSlideNum, numberOfSlides, presentationId) => {
   }
 };
 
-const zoomSlide = throttle((currentSlideNum, widthRatio, heightRatio, xOffset, yOffset) => {
-  makeCall('zoomSlide', currentSlideNum, POD_ID, widthRatio, heightRatio, xOffset, yOffset);
-}, PAN_ZOOM_INTERVAL);
-
 const skipToSlide = (requestedSlideNum, presentationId) => {
   makeCall('switchSlide', requestedSlideNum, POD_ID, presentationId);
 };
@@ -29,5 +22,4 @@ export default {
   nextSlide,
   previousSlide,
   skipToSlide,
-  zoomSlide,
 };

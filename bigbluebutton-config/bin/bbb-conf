@@ -396,8 +396,8 @@ display_bigbluebutton_status () {
         done
     fi
 
-    if [ -f /usr/lib/systemd/system/bbb-graphql-actions-adapter-server.service ]; then
-        units="$units bbb-graphql-actions-adapter-server"
+    if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
+        units="$units bbb-graphql-actions"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-middleware.service ]; then
@@ -1123,7 +1123,7 @@ check_state() {
         echo "#"
         echo "# To fix, run the commands"
         echo "#"
-        echo "# sudo yq e -i 'freeswitch.sip_ip = $FREESWITCH_SIP /etc/bigbluebutton/bbb-webrtc-sfu/production.yml"
+        echo "# sudo yq e -i 'freeswitch.sip_ip' = $FREESWITCH_SIP /etc/bigbluebutton/bbb-webrtc-sfu/production.yml"
         echo "# sudo chown bigbluebutton:bigbluebutton /etc/bigbluebutton/bbb-webrtc-sfu/production.yml"
         echo "#"
       fi

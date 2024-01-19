@@ -14,9 +14,9 @@ import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
-const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
 
 const checkUnreadMessages = ({
   groupChatsMessages, groupChats, users, idChatOpen,
@@ -32,7 +32,7 @@ const checkUnreadMessages = ({
 const NavBarContainer = ({ children, ...props }) => {
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const usingGroupChatContext = useContext(GroupChatContext);
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
@@ -55,19 +55,21 @@ const NavBarContainer = ({ children, ...props }) => {
     { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
   );
 
-  const isExpanded = !!sidebarContentPanel || !!sidebarNavPanel;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    isModerator: user.isModerator,
+  }));
+  const amIModerator = currentUserData?.isModerator;
 
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const amIModerator = currentUser.role === ROLE_MODERATOR;
+  const isExpanded = !!sidebarContentPanel || !!sidebarNavPanel;
 
   const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
 
   if (hideNavBar || navBar.display === false) return null;
 
   let pluginNavBarItems = [];
-  if (pluginsProvidedAggregatedState.navBarItems) {
+  if (pluginsExtensibleAreasAggregatedState.navBarItems) {
     pluginNavBarItems = [
-      ...pluginsProvidedAggregatedState.navBarItems,
+      ...pluginsExtensibleAreasAggregatedState.navBarItems,
     ];
   }
 

@@ -1,4 +1,4 @@
-bbb_version: '2.6.1'
+bbb_version: '3.0.0'
 raw_audio_src: /var/freeswitch/meetings
 mediasoup_video_src: /var/mediasoup/recordings
 mediasoup_screenshare_src: /var/mediasoup/screenshare

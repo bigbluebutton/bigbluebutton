@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"sync"
 
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
@@ -18,10 +19,10 @@ import (
 )
 
 var lastHasuraConnectionId int
-var hasuraEndpoint = "ws://127.0.0.1:8080/v1/graphql"
+var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 
 // Hasura client connection
-func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserChannel chan interface{}, toBrowserChannel chan interface{}) error {
+func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserToHasuraChannel *common.SafeChannel, fromHasuraToBrowserChannel *common.SafeChannel) error {
 	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
 
 	// Obtain id for this connection
@@ -89,14 +90,14 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	// Start routines
 
 	// reads from browser, writes to hasura
-	go writer.HasuraConnectionWriter(&thisConnection, fromBrowserChannel, &wg)
+	go writer.HasuraConnectionWriter(&thisConnection, fromBrowserToHasuraChannel, &wg)
 
 	// reads from hasura, writes to browser
-	go reader.HasuraConnectionReader(&thisConnection, toBrowserChannel, fromBrowserChannel, &wg)
+	go reader.HasuraConnectionReader(&thisConnection, fromHasuraToBrowserChannel, fromBrowserToHasuraChannel, &wg)
 
 	// if it's a reconnect, inject authentication
 	if !browserConnection.Disconnected && browserConnection.ConnectionInitMessage != nil {
-		fromBrowserChannel <- browserConnection.ConnectionInitMessage
+		fromBrowserToHasuraChannel.Send(browserConnection.ConnectionInitMessage)
 	}
 
 	// Wait

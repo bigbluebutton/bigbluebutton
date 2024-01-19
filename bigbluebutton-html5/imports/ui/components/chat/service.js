@@ -1,10 +1,8 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import { makeCall } from '/imports/ui/services/api';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
@@ -13,7 +11,6 @@ import PollService from '/imports/ui/components/poll/service';
 const APP = Meteor.settings.public.app;
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
-const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
@@ -70,9 +67,6 @@ const setUserSentMessage = (bool) => {
 
 const getUser = (userId) => Users.findOne({ userId });
 
-const getPrivateChatByUsers = (userId) => GroupChat
-  .findOne({ users: { $all: [userId, Auth.userID] } });
-
 const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
   { fields: { welcomeProp: 1 } });
 
@@ -83,7 +77,7 @@ const mapGroupMessage = (message) => {
     time: message.timestamp || message.time,
     sender: null,
     key: message.key,
-    chatId: message.chatId
+    chatId: message.chatId,
   };
 
   if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) {
@@ -173,7 +167,7 @@ const isChatLocked = (receiverID) => {
 
 const isChatClosed = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return !!currentClosedChats.find(closedChat => closedChat.chatId === chatId);
+  return !!currentClosedChats.find((closedChat) => closedChat.chatId === chatId);
 };
 
 const lastReadMessageTime = (receiverID) => {
@@ -181,53 +175,6 @@ const lastReadMessageTime = (receiverID) => {
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : receiverID;
 
   return UnreadMessages.get(chatType);
-};
-
-const sendGroupMessage = (message, idChatOpen) => {
-  const chatIdToSent = idChatOpen === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : idChatOpen;
-  const chat = GroupChat.findOne({ chatId: chatIdToSent },
-    { fields: { users: 1 } });
-  const chatID = idChatOpen === PUBLIC_CHAT_ID
-    ? PUBLIC_GROUP_CHAT_ID
-    : chat.users.filter((id) => id !== Auth.userID)[0];
-  const isPublicChat = chatID === PUBLIC_CHAT_ID;
-
-  let destinationChatId = PUBLIC_GROUP_CHAT_ID;
-
-  const { userID: senderUserId } = Auth;
-  const receiverId = { id: chatID };
-
-  if (!isPublicChat) {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, senderUserId] } },
-      { fields: { chatId: 1 } });
-
-    if (privateChat) {
-      const { chatId: privateChatId } = privateChat;
-
-      destinationChatId = privateChatId;
-    }
-  }
-
-  const payload = {
-    correlationId: `${senderUserId}-${Date.now()}`,
-    sender: {
-      id: senderUserId,
-      name: '',
-      role: '',
-    },
-    chatEmphasizedText: CHAT_EMPHASIZE_TEXT,
-    message,
-  };
-
-  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-
-  // Remove the chat that user send messages from the session.
-  if (isChatClosed(receiverId.id)) {
-    const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== receiverId.id);
-    Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
-  }
-
-  return makeCall('sendGroupChatMsg', destinationChatId, payload);
 };
 
 const getScrollPosition = (receiverID) => {
@@ -248,8 +195,6 @@ const updateUnreadMessage = (timestamp, idChatOpen) => {
   return UnreadMessages.update(chatType, timestamp);
 };
 
-const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
-
 const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
@@ -266,8 +211,8 @@ const removeFromClosedChatsSession = (idChatOpen) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   if (isChatClosed(chatID)) {
-    const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chatID);
-    Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
+    const closedChats = currentClosedChats.filter((closedChat) => closedChat.chatId !== chatID);
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, closedChats);
   }
 };
 
@@ -285,7 +230,8 @@ const exportChat = (timeWindowList, intl) => {
       const min = date.getMinutes().toString().padStart(2, 0);
       const hourMin = `[${hour}:${min}]`;
 
-      // Skip the reduce aggregation for the sync messages because they aren't localized, causing an error in line 268
+      // Skip the reduce aggregation for the sync messages because they aren't localized
+      // (causing an error in line 268)
       // Also they're temporary (preliminary) messages, so it doesn't make sense export them
       if (['SYSTEM_MESSAGE-sync-msg', 'synced'].includes(message.id)) return acc;
 
@@ -361,7 +307,6 @@ export default {
   reduceAndMapGroupMessages,
   reduceAndDontMapGroupMessages,
   getUser,
-  getPrivateChatByUsers,
   getWelcomeProp,
   getScrollPosition,
   lastReadMessageTime,
@@ -369,11 +314,9 @@ export default {
   isChatClosed,
   updateScrollPosition,
   updateUnreadMessage,
-  sendGroupMessage,
   closePrivateChat,
   removeFromClosedChatsSession,
   exportChat,
-  clearPublicChatHistory,
   maxTimestampReducer,
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,

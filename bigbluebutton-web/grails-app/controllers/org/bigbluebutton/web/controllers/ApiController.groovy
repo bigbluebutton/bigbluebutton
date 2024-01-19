@@ -43,6 +43,7 @@ import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
 import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.RemoteIceCandidate
+import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
 
@@ -84,9 +85,32 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#index"
     response.addHeader("Cache-Control", "no-cache")
 
-    withFormat {
-      xml {
-        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), paramsProcessorUtil.getBbbVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
+    def contentType = request.getHeader("content-type")
+
+    if(contentType == 'application/json') {
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_SUCCESS
+            version paramsProcessorUtil.getApiVersion()
+            apiVersion paramsProcessorUtil.getApiVersion()
+            bbbVersion paramsProcessorUtil.getBbbVersion()
+            graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    } else {
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildMeetingVersion(
+                  paramsProcessorUtil.getApiVersion(),
+                  paramsProcessorUtil.getBbbVersion(),
+                  paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  RESP_CODE_SUCCESS),
+                  contentType: "text/xml")
+        }
       }
     }
   }
@@ -1240,22 +1264,36 @@ class ApiController {
         logData.put("userid", us.internalUserId);
         logData.put("sessionToken", sessionToken);
         logData.put("logCode", "getJoinUrl");
-        logData.put("description", "Request join URL.");
+        logData.put("description", "Request join URL");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
 
         log.info(" --analytics-- data=" + logStr);
 
         String method = 'join'
-        String extId = validationService.encodeString(meeting.getExternalId())
+        String externalMeetingId = validationService.encodeString(meeting.getExternalId())
         String fullName = validationService.encodeString(us.fullname)
-        String query = "fullName=${fullName}&meetingID=${extId}&role=${us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE}&redirect=true&userID=${us.getExternUserID()}"
+        ListHashMap<String, String> queryParameters = new ListHashMap<>();
+        queryParameters.put("fullName", fullName);
+        queryParameters.put("meetingID", externalMeetingId);
+        queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
+        queryParameters.put("redirect", "true");
+        queryParameters.put("userID", us.getExternUserID());
 
-        if (!StringUtils.isEmpty(params.enforceLayout)) {
-          query += "&enforceLayout=${validationService.encodeString(params.enforceLayout)}";
+        // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
+        if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
+          request.getParameterMap()
+            .findAll { key, value -> ["enforceLayout", "role", "fullName", "userID", "avatarURL", "redirect", "excludeFromDashboard"].contains(key) || key.startsWith("userdata-") }
+            .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+            .each { key, value -> queryParameters.put(key, value[-1]) };
         }
 
-        String checksum = DigestUtils.sha1Hex(method + query + validationService.getSecuritySalt())
+        String httpQueryString = "";
+        for(String parameterName : queryParameters.keySet()) {
+          httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + parameterName + "=" + validationService.encodeString(queryParameters.get(parameterName));
+        }
+
+        String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
         String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
@@ -1264,7 +1302,7 @@ class ApiController {
             builder.response {
               returncode RESP_CODE_SUCCESS
               message "Join URL provided successfully."
-              url "${defaultServerUrl}/bigbluebutton/api/${method}?${query}&checksum=${checksum}"
+              url "${defaultServerUrl}/bigbluebutton/api/${method}?${httpQueryString}&checksum=${checksum}"
             }
             render(contentType: "application/json", text: builder.toPrettyString())
           }

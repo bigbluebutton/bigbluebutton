@@ -10,6 +10,8 @@ import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
+import { useMutation } from '@apollo/client';
 
 const { isIphone } = deviceInfo;
 const { isSafari, isValidSafariVersion } = browserInfo;
@@ -20,17 +22,19 @@ const OptionsDropdownContainer = (props) => {
   const { width: browserWidth } = layoutSelectInput((i) => i.browser);
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const isRTL = layoutSelect((i) => i.isRTL);
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let optionsDropdownItems = [];
-  if (pluginsProvidedAggregatedState.optionsDropdownItems) {
+  if (pluginsExtensibleAreasAggregatedState.optionsDropdownItems) {
     optionsDropdownItems = [
-      ...pluginsProvidedAggregatedState.optionsDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.optionsDropdownItems,
     ];
   }
 
+  const [userLeaveMeeting] = useMutation(USER_LEAVE_MEETING);
+
   return (
     <OptionsDropdown {...{
-      isMobile, isRTL, optionsDropdownItems, ...props,
+      isMobile, isRTL, optionsDropdownItems, userLeaveMeeting, ...props,
     }}
     />
   );

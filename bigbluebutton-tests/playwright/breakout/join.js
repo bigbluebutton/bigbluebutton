@@ -86,7 +86,7 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
-    await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 

@@ -28,7 +28,7 @@ import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
-import ExternalVideoContainer from '../external-video-player/container';
+import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
@@ -39,9 +39,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
-import PluginsEngineContainer from '../plugins-engine/container';
-import { makeCall } from '/imports/ui/services/api';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import PluginsEngineManager from '../plugins-engine/manager';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -55,6 +53,7 @@ import AppService from '/imports/ui/components/app/service';
 import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
+import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -62,7 +61,6 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
-const PLUGINS_CONFIG = Meteor.settings.public.plugins;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -175,6 +173,7 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
+      setMobileUser,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -226,9 +225,7 @@ class App extends Component {
       };
     }
 
-    if (deviceInfo.isMobile) makeCall('setMobileUser');
-
-    ConnectionStatusService.startRoundTripTime();
+    if (deviceInfo.isMobile) setMobileUser(true);
 
     if (this.isTimerEnabled) {
       TimerService.fetchTimeOffset();
@@ -253,6 +250,8 @@ class App extends Component {
       layoutContextDispatch,
       numCameras,
       presentationIsOpen,
+      hideActionsBar,
+      hideNavBar,
     } = this.props;
 
     this.renderDarkMode();
@@ -322,12 +321,20 @@ class App extends Component {
         });
       }, 0);
     }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_ACTIONBAR,
+      value: !hideActionsBar,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_NAVBAR,
+      value: !hideNavBar,
+    });
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
     window.onbeforeunload = null;
-    ConnectionStatusService.stopRoundTripTime();
 
     if (this.timeOffsetInterval) {
       clearInterval(this.timeOffsetInterval);
@@ -588,6 +595,7 @@ class App extends Component {
       presentationIsOpen,
       darkTheme,
       intl,
+      isModerator,
     } = this.props;
 
     const {
@@ -595,14 +603,11 @@ class App extends Component {
       isRandomUserSelectModalOpen,
       isVideoPreviewModalOpen,
       presentationFitToWidth,
-      allPluginsLoaded,
     } = this.state;
     return (
       <>
-        <PluginsEngineContainer onReady={() => {
-          this.setState({ allPluginsLoaded: true });
-        }}
-        />
+        <PluginsEngineManager />
+        <FloatingWindowContainer />
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}
@@ -626,10 +631,10 @@ class App extends Component {
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
-          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
           {
             shouldShowExternalVideo
-              ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
+              ? <ExternalVideoPlayerContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
           {shouldShowSharedNotes
@@ -644,8 +649,8 @@ class App extends Component {
           {this.renderAudioCaptions()}
           <PresentationUploaderToastContainer intl={intl} />
           <UploaderContainer />
-          <CaptionsSpeechContainer />
-          <BreakoutRoomInvitation />
+          <CaptionsSpeechContainer isModerator={isModerator} />
+          <BreakoutRoomInvitation isModerator={isModerator} />
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,

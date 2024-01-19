@@ -32,6 +32,10 @@ func (s *SafeChannel) Receive() (interface{}, bool) {
 	return val, ok
 }
 
+func (s *SafeChannel) ReceiveChannel() <-chan interface{} {
+	return s.ch
+}
+
 func (s *SafeChannel) Close() {
 	s.mux.Lock()
 	defer s.mux.Unlock()

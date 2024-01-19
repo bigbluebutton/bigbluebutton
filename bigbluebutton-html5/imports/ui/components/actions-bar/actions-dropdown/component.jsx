@@ -2,19 +2,19 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import ExternalVideoModal from '/imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
-import TimerService from '/imports/ui/components/timer/service';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
 import { isPresentationEnabled, isLayoutsEnabled } from '/imports/ui/services/features';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -164,11 +164,11 @@ class ActionsDropdown extends PureComponent {
   }
 
   handleTimerClick() {
-    const { isTimerActive, layoutContextDispatch } = this.props;
+    const { isTimerActive, activateTimer, deactivateTimer } = this.props;
     if (!isTimerActive) {
-      TimerService.activateTimer(layoutContextDispatch);
+      activateTimer();
     } else {
-      TimerService.deactivateTimer();
+      deactivateTimer();
     }
   }
 
@@ -281,7 +281,12 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
-    if (isLayoutsEnabled()) {
+    const { selectedLayout } = Settings.application;
+    const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+
+    if (shouldShowManageLayoutButton && isLayoutsEnabled()) {
       actions.push({
         icon: 'manage_layout',
         label: intl.formatMessage(intlMessages.layoutModal),
@@ -301,16 +306,16 @@ class ActionsDropdown extends PureComponent {
         onClick: hasCameraAsContent
           ? screenshareHasEnded
           : () => {
-              screenshareHasEnded();
-              this.setCameraAsContentModalIsOpen(true);
-            },
+            screenshareHasEnded();
+            this.setCameraAsContentModalIsOpen(true);
+          },
         dataTest: 'shareCameraAsContent',
       });
     }
 
     actionButtonDropdownItems.forEach((actionButtonItem) => {
       switch (actionButtonItem.type) {
-        case PluginSdk.ActionButtonDropdownItemType.OPTION:
+        case ActionButtonDropdownItemType.OPTION:
           actions.push({
             icon: actionButtonItem.icon,
             label: actionButtonItem.label,
@@ -319,7 +324,7 @@ class ActionsDropdown extends PureComponent {
             allowed: actionButtonItem.allowed,
           });
           break;
-        case PluginSdk.ActionButtonDropdownItemType.SEPARATOR:
+        case ActionButtonDropdownItemType.SEPARATOR:
           actions.push({
             key: actionButtonItem.id,
             allowed: actionButtonItem.allowed,
@@ -349,11 +354,11 @@ class ActionsDropdown extends PureComponent {
         return (
           {
             customStyles: p.current ? customStyles : null,
-            icon: "file",
+            icon: 'file',
             iconRight: p.current ? 'check' : null,
-            selected: p.current ? true : false,
+            selected: !!p.current,
             label: p.name,
-            description: "uploaded presentation file",
+            description: 'uploaded presentation file',
             key: `uploaded-presentation-${p.presentationId}`,
             onClick: () => {
               setPresentationFitToWidth(false);
@@ -384,6 +389,7 @@ class ActionsDropdown extends PureComponent {
   setPropsToPassModal(value) {
     this.setState({ propsToPassModal: value });
   }
+
   setForceOpen(value) {
     this.setState({ forceOpen: value });
   }
@@ -503,7 +509,7 @@ class ActionsDropdown extends PureComponent {
               }}
               {...propsToPassModal}
             />
-          )
+          ),
         )}
       </>
     );

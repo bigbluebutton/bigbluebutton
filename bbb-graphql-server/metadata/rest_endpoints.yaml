@@ -1,1 +1,9 @@
-[]
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: UserCurrent
+  methods:
+    - GET
+  name: UserCurrent
+  url: usercurrent
