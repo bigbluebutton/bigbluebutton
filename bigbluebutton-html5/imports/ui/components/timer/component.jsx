@@ -121,19 +121,11 @@ class Timer extends Component {
 
   handleControlClick() {
     const {
-      timer, startTimer, stopTimer, timeOffset,
+      timer, startTimer, stopTimer,
     } = this.props;
 
-    const {
-      running,
-      accumulated,
-      timestamp,
-    } = timer;
-
     if (timer.running) {
-      const elapsedTime = Service.getElapsedTime(running, timestamp, timeOffset, accumulated);
-
-      stopTimer(elapsedTime);
+      stopTimer();
     } else {
       startTimer();
     }
@@ -173,7 +165,7 @@ class Timer extends Component {
     const { timer, stopTimer, switchTimer } = this.props;
 
     if (!timer.stopwatch) {
-      stopTimer(this.getTime());
+      stopTimer();
       switchTimer(true);
     }
   }
@@ -182,7 +174,7 @@ class Timer extends Component {
     const { timer, stopTimer, switchTimer } = this.props;
 
     if (timer.stopwatch) {
-      stopTimer(this.getTime());
+      stopTimer();
       switchTimer(false);
     }
   }
