@@ -8,4 +8,20 @@ export const EXTERNAL_VIDEO_START = gql`
   }
 `;
 
-export default { EXTERNAL_VIDEO_START };
+export const EXTERNAL_VIDEO_UPDATE = gql`
+  mutation ExternalVideoUpdate(
+    $status: String!
+    $rate: Float!,
+    $time: Float!,
+    $state: Float!,
+  ) {
+    externalVideoUpdate(
+      status: $status,
+      rate: $rate,
+      time: $time,
+      state: $state,
+    )
+  }
+`;
+
+export default { EXTERNAL_VIDEO_START, EXTERNAL_VIDEO_UPDATE };

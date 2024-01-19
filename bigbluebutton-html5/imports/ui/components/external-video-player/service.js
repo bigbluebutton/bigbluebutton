@@ -22,31 +22,6 @@ const stopWatching = () => {
   makeCall('stopWatchingExternalVideo');
 };
 
-let lastMessage = null;
-
-const sendMessage = (event, data) => {
-
-  // don't re-send repeated update messages
-  if (lastMessage && lastMessage.event === event
-    && event === 'playerUpdate' && lastMessage.time === data.time) {
-    return;
-  }
-
-  // don't register to redis a viewer joined message
-  if (event === 'viewerJoined') {
-    return;
-  }
-
-  lastMessage = { ...data, event };
-
-  // Use an integer for playing state
-  // 0: stopped 1: playing
-  // We might use more states in the future
-  data.state =  data.state ? 1 : 0;
-
-  makeCall('emitExternalVideoEvent', { status: event, playerStatus: data });
-};
-
 const onMessage = (message, func) => {
   const streamer = getStreamer(Auth.meetingID);
   streamer.on(message, func);
@@ -65,7 +40,6 @@ const getPlayingState = (state) => {
 };
 
 export {
-  sendMessage,
   onMessage,
   removeAllListeners,
   isUrlValid,
