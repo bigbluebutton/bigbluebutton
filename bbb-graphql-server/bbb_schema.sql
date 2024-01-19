@@ -1501,7 +1501,7 @@ create table "sharedNotes_rev" (
 --create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
 
 create view "v_sharedNotes_diff" as
-select "meetingId", "sharedNotesExtId", "userId", "start", "end", "diff"
+select "meetingId", "sharedNotesExtId", "userId", "start", "end", "diff", "rev"
 from "sharedNotes_rev"
 where "diff" is not null;
 
