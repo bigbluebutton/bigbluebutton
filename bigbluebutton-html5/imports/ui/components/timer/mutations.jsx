@@ -29,8 +29,8 @@ export const TIMER_START = gql`
 `;
 
 export const TIMER_STOP = gql`
-  mutation timerStop($accumulated: Float!) {
-    timerStop(accumulated: $accumulated)
+  mutation timerStop {
+    timerStop
   }
 `;
 
