@@ -117,13 +117,37 @@ object ClientSettings extends SystemConfiguration {
                   for {
                     dataChannel <- dataChannels
                   } yield {
-                    if (dataChannel.contains("name") && dataChannel.contains("writePermission")) {
+                    if (dataChannel.contains("name")) {
                       val channelName = dataChannel("name").toString
-                      val writePermission = dataChannel("writePermission")
-                      writePermission match {
-                        case wPerm: List[String] => pluginDataChannels += (channelName -> DataChannel(channelName, wPerm))
-                        case _                   => logger.warn(s"Invalid writePermission for channel $channelName in plugin $pluginName")
+                      val writePermission = {
+                        if (dataChannel.contains("writePermission")) {
+                          dataChannel("writePermission") match {
+                            case wPerm: List[String] => wPerm
+                            case _ => {
+                              logger.warn(s"Invalid writePermission for channel $channelName in plugin $pluginName")
+                              List()
+                            }
+                          }
+                        } else {
+                          logger.warn(s"Missing config writePermission for channel $channelName in plugin $pluginName")
+                          List()
+                        }
                       }
+                      val deletePermission = {
+                        if (dataChannel.contains("deletePermission")) {
+                          dataChannel("deletePermission") match {
+                            case dPerm: List[String] => dPerm
+                            case _ => {
+                              logger.warn(s"Invalid deletePermission for channel $channelName in plugin $pluginName")
+                              List()
+                            }
+                          }
+                        } else {
+                          List()
+                        }
+                      }
+
+                      pluginDataChannels += (channelName -> DataChannel(channelName, writePermission, deletePermission))
                     }
                   }
                 case _ => logger.warn(s"Plugin $pluginName has an invalid dataChannels format")
@@ -139,7 +163,7 @@ object ClientSettings extends SystemConfiguration {
     pluginsFromConfig
   }
 
-  case class DataChannel(name: String, writePermission: List[String])
+  case class DataChannel(name: String, writePermission: List[String], deletePermission: List[String])
   case class Plugin(name: String, url: String, dataChannels: Map[String, DataChannel])
 
 }

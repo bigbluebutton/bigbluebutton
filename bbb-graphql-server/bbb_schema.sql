@@ -1585,12 +1585,13 @@ CREATE TABLE "pluginDataChannelMessage" (
 	"fromUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
 	"toUserIds" varchar[],
-	"createdAt" timestamp with time ZONE DEFAULT current_timestamp,
+	"createdAt" timestamp with time zone DEFAULT current_timestamp,
+	"deletedAt" timestamp with time zone,
 	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId")
 );
 
-create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt");
-create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt");
+create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
+create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
 CREATE OR REPLACE VIEW "v_pluginDataChannelMessage" AS
 SELECT u."meetingId", u."userId", m."pluginName", m."dataChannel", m."messageId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
@@ -1601,6 +1602,7 @@ JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
 				OR u."role" = ANY(m."toRoles")
 				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
 				)
+WHERE "deletedAt" is null
 ORDER BY m."createdAt";
 
 ------------------------
