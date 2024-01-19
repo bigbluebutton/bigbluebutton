@@ -2,8 +2,6 @@ import Auth from '/imports/ui/services/auth';
 
 import { getStreamer } from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
-import NotesService from '/imports/ui/components/notes/service';
-
 import ReactPlayer from 'react-player';
 
 import Panopto from './custom-players/panopto';
@@ -18,22 +16,6 @@ const isUrlValid = (url) => {
   }
 
   return /^https.*$/.test(url) && (ReactPlayer.canPlay(url) || Panopto.canPlay(url));
-};
-
-const startWatching = (url) => {
-  let externalVideoUrl = url;
-
-  if (YOUTUBE_SHORTS_REGEX.test(url)) {
-    const shortsUrl = url.replace('shorts/', 'watch?v=');
-    externalVideoUrl = shortsUrl;
-  } else if (Panopto.canPlay(url)) {
-    externalVideoUrl = Panopto.getSocialUrl(url);
-  }
-
-  // Close Shared Notes if open.
-  NotesService.pinSharedNotes(false);
-
-  makeCall('startWatchingExternalVideo', externalVideoUrl);
 };
 
 const stopWatching = () => {
@@ -87,7 +69,6 @@ export {
   onMessage,
   removeAllListeners,
   isUrlValid,
-  startWatching,
   stopWatching,
   getPlayingState,
 };
