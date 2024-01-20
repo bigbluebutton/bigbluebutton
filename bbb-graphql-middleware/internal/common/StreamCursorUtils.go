@@ -12,20 +12,15 @@ func GetStreamCursorPropsFromQuery(payload map[string]interface{}, query string)
 	streamCursorVariable := ""
 	var streamCursorInitialValue interface{}
 
-	regexPattern := `cursor:\s*\{\s*initial_value\s*:\s*\{\s*([^\:]+):\s*([^}]+)\s*\}\s*\}`
-	re := regexp.MustCompile(regexPattern)
-	matches := re.FindStringSubmatch(query)
+	cursorInitialValueRePattern := regexp.MustCompile(`cursor:\s*\{\s*initial_value\s*:\s*\{\s*([^:]+):\s*([^}]+)\s*}\s*}`)
+	matches := cursorInitialValueRePattern.FindStringSubmatch(query)
 	if matches != nil {
 		streamCursorKey = matches[1]
 		if strings.HasPrefix(matches[2], "$") {
-			//Variable
 			streamCursorVariable, _ = strings.CutPrefix(matches[2], "$")
-			variables, ok := payload["variables"].(map[string]interface{})
-			if ok {
-				for varKey, varValue := range variables {
-					if varKey == streamCursorVariable {
-						streamCursorInitialValue = varValue
-					}
+			if variables, okVariables := payload["variables"].(map[string]interface{}); okVariables {
+				if targetVariableValue, okTargetVariableValue := variables[streamCursorVariable]; okTargetVariableValue {
+					streamCursorInitialValue = targetVariableValue
 				}
 			}
 		} else {
@@ -50,7 +45,6 @@ func GetLastStreamCursorValueFromReceivedMessage(messageAsMap map[string]interfa
 					if lastItemOfMessageAsMap, currDataOk := lastItemOfMessage.(map[string]interface{}); currDataOk {
 						if lastItemValue, okLastItemValue := lastItemOfMessageAsMap[streamCursorKey]; okLastItemValue {
 							lastStreamCursorValue = lastItemValue
-							//fmt.Println("Descobriu ultimo valor: " + lastStreamCursorValue.(string))
 						}
 					}
 				}
@@ -79,9 +73,7 @@ func ReplaceMessageWithLastCursorValue(subscription GraphQlSubscription) interfa
 			/**** This stream has its cursor value set through inline value (not variables) ****/
 			query, okQuery := payload["query"].(string)
 			if okQuery {
-				pattern := `cursor:\s*\{\s*initial_value\s*:\s*\{\s*([^\:]+:\s*[^}]+)\s*\}\s*\}`
-				re := regexp.MustCompile(pattern)
-
+				cursorInitialValueRePattern := regexp.MustCompile(`cursor:\s*\{\s*initial_value\s*:\s*\{\s*([^:]+:\s*[^}]+)\s*}\s*}`)
 				newValue := ""
 
 				replaceInitialValueFunc := func(match string) string {
@@ -89,7 +81,7 @@ func ReplaceMessageWithLastCursorValue(subscription GraphQlSubscription) interfa
 					case string:
 						newValue = v
 
-						//Append quotes if it is missing
+						//Append quotes if it is missing, it will be necessary when appending to the query
 						if !strings.HasPrefix(v, "\"") {
 							newValue = "\"" + newValue
 						}
@@ -115,7 +107,7 @@ func ReplaceMessageWithLastCursorValue(subscription GraphQlSubscription) interfa
 					}
 				}
 
-				newQuery := re.ReplaceAllStringFunc(query, replaceInitialValueFunc)
+				newQuery := cursorInitialValueRePattern.ReplaceAllStringFunc(query, replaceInitialValueFunc)
 				if query != newQuery {
 					payload["query"] = newQuery
 					message["payload"] = payload
