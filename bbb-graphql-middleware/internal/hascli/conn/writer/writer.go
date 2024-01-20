@@ -41,7 +41,11 @@ RangeLoop:
 
 					//Identify type based on query string
 					messageType := common.Query
+					streamCursorKey := ""
+					streamCursorVariable := ""
+					var streamCursorInitialValue interface{}
 					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
+
 					query, ok := payload["query"].(string)
 					if ok {
 						if strings.HasPrefix(query, "subscription") {
@@ -49,6 +53,7 @@ RangeLoop:
 
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
 								messageType = common.Streaming
+								streamCursorKey, streamCursorVariable, streamCursorInitialValue = common.GetStreamCursorPropsFromQuery(payload, query)
 							}
 
 							if strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {") {
@@ -73,6 +78,10 @@ RangeLoop:
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                        queryId,
 						Message:                   fromBrowserMessage,
+						OperationName:             operationName,
+						StreamCursorKey:           streamCursorKey,
+						StreamCursorVariable:      streamCursorVariable,
+						StreamCursorCurrValue:     streamCursorInitialValue,
 						LastSeenOnHasuraConnetion: hc.Id,
 						JsonPatchSupported:        jsonPatchSupported,
 						Type:                      messageType,

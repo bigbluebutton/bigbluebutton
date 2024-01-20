@@ -66,6 +66,18 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 					msgpatch.PatchMessage(&messageAsMap, hc.Browserconn)
 				}
 
+				//Set last cursor value for stream
+				if subscription.Type == common.Streaming {
+					lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(messageAsMap, subscription.StreamCursorKey)
+					if lastCursor != nil && subscription.StreamCursorCurrValue != lastCursor {
+						subscription.StreamCursorCurrValue = lastCursor
+
+						hc.Browserconn.ActiveSubscriptionsMutex.Lock()
+						hc.Browserconn.ActiveSubscriptions[queryId] = subscription
+						hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
+					}
+
+				}
 			}
 
 			// Write the message to browser

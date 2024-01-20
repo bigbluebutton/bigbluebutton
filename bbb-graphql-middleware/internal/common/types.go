@@ -21,6 +21,10 @@ type GraphQlSubscription struct {
 	Id                        string
 	Message                   interface{}
 	Type                      QueryType
+	OperationName             string
+	StreamCursorKey           string
+	StreamCursorVariable      string
+	StreamCursorCurrValue     interface{}
 	JsonPatchSupported        bool   // indicate if client support Json Patch for this subscription
 	LastSeenOnHasuraConnetion string // id of the hasura connection that this query was active
 }

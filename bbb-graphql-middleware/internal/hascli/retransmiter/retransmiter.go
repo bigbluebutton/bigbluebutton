@@ -11,8 +11,14 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection, fromBrowse
 	hc.Browserconn.ActiveSubscriptionsMutex.RLock()
 	for _, subscription := range hc.Browserconn.ActiveSubscriptions {
 		if subscription.LastSeenOnHasuraConnetion != hc.Id {
+
 			log.Tracef("retransmiting subscription start: %v", subscription.Message)
-			fromBrowserToHasuraChannel.Send(subscription.Message)
+
+			if subscription.Type == common.Streaming && subscription.StreamCursorCurrValue != nil {
+				fromBrowserToHasuraChannel.Send(common.ReplaceMessageWithLastCursorValue(subscription))
+			} else {
+				fromBrowserToHasuraChannel.Send(subscription.Message)
+			}
 		}
 	}
 	hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
