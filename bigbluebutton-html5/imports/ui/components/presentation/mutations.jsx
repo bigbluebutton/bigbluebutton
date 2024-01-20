@@ -23,7 +23,17 @@ export const PRESENTATION_SET_WRITERS = gql`
   }
 `;
 
+export const PRESENTATION_SET_PAGE = gql`
+  mutation PresentationSetPage($presentationId: String!, $pageId: String!) {
+    presentationSetPage(
+      presentationId: $presentationId,
+      pageId: $pageId,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   PRESENTATION_SET_WRITERS,
+  PRESENTATION_SET_PAGE,
 };

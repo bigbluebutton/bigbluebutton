@@ -11,14 +11,12 @@ import {
   initDefaultPages,
   persistShape,
   removeShapes,
-  changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
 import CursorService from './cursors/service';
-import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import SettingsService from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -235,15 +233,11 @@ const WhiteboardContainer = (props) => {
         initDefaultPages,
         persistShape,
         isMultiUserActive,
-        changeCurrentSlide,
         shapes,
         bgShape,
         assets,
         removeShapes,
         zoomSlide,
-        skipToSlide: PresentationToolbarService.skipToSlide,
-        nextSlide: PresentationToolbarService.nextSlide,
-        previousSlide: PresentationToolbarService.previousSlide,
         numberOfSlides: currentPresentationPage?.totalPages,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,

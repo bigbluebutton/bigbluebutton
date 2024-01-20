@@ -100,10 +100,6 @@ const persistShape = (shape, whiteboardId, isModerator) => {
 
 const removeShapes = (shapes, whiteboardId) => makeCall('deleteAnnotations', shapes, whiteboardId);
 
-const changeCurrentSlide = (s) => {
-  makeCall('changeCurrentSlide', s);
-};
-
 const initDefaultPages = (count = 1) => {
   const pages = {};
   const pageStates = {};
@@ -284,7 +280,6 @@ export {
   getMultiUser,
   persistShape,
   removeShapes,
-  changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
