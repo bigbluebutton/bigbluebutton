@@ -32,8 +32,22 @@ export const PRESENTATION_SET_PAGE = gql`
   }
 `;
 
+export const PRESENTATION_SET_DOWNLOADABLE = gql`
+  mutation PresentationSetDownloadable(
+    $presentationId: String!,
+    $downloadable: Boolean!,
+    $fileStateType: String!,) {
+    presentationSetDownloadable(
+      presentationId: $presentationId,
+      downloadable: $downloadable,
+      fileStateType: $fileStateType,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   PRESENTATION_SET_WRITERS,
   PRESENTATION_SET_PAGE,
+  PRESENTATION_SET_DOWNLOADABLE,
 };

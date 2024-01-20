@@ -1,9 +1,9 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { makeCall } from '/imports/ui/services/api';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
+import { useSubscription, useMutation } from '@apollo/client';
 import Service from './service';
 import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';
@@ -13,11 +13,11 @@ import {
   isDownloadPresentationConvertedToPdfEnabled,
   isPresentationEnabled,
 } from '/imports/ui/services/features';
-import { useSubscription } from '@apollo/client';
 import {
   PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { PRESENTATION_SET_DOWNLOADABLE } from '../mutations';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -31,8 +31,16 @@ const PresentationUploaderContainer = (props) => {
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
 
+  const [presentationSetDownloadable] = useMutation(PRESENTATION_SET_DOWNLOADABLE);
+
   const exportPresentation = (presentationId, fileStateType) => {
-    makeCall('exportPresentation', presentationId, fileStateType);
+    presentationSetDownloadable({
+      variables: {
+        presentationId,
+        downloadable: true,
+        fileStateType,
+      },
+    });
   };
 
   return userIsPresenter && (
