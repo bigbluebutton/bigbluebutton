@@ -1,6 +1,8 @@
 package reader
 
 import (
+	"context"
+	"errors"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/retransmiter"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
@@ -23,7 +25,11 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 		var message interface{}
 		err := wsjson.Read(hc.Context, hc.Websocket, &message)
 		if err != nil {
-			log.Errorf("Error: %v", err)
+			if errors.Is(err, context.Canceled) {
+				log.Debugf("Closing ws connection as Context was cancelled!")
+			} else {
+				log.Errorf("Error reading message from Hasura: %v", err)
+			}
 			return
 		}
 
@@ -59,6 +65,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 					subscription.Type == common.Subscription {
 					msgpatch.PatchMessage(&messageAsMap, hc.Browserconn)
 				}
+
 			}
 
 			// Write the message to browser
