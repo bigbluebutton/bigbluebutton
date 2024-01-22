@@ -22,7 +22,6 @@ import '/imports/api/users-persistent-data/server';
 import '/imports/api/connection-status/server';
 import '/imports/api/timer/server';
 import '/imports/api/audio-captions/server';
-import '/imports/api/external-videos/server';
 import '/imports/api/pads/server';
 import '/imports/api/local-settings/server';
 import '/imports/api/voice-call-states/server';
