@@ -48,7 +48,6 @@ class WhiteboardModel extends SystemConfiguration {
 
   def addAnnotations(wbId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean): Array[AnnotationVO] = {
     val wb = getWhiteboard(wbId)
-    println(s"addAnnotations - Before: ${wb.annotationsMap}")
 
     var annotationsAdded = Array[AnnotationVO]()
     var newAnnotationsMap = wb.annotationsMap
@@ -88,7 +87,6 @@ class WhiteboardModel extends SystemConfiguration {
 
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
-    println(s"addAnnotations - After: ${newWb.annotationsMap}")
     annotationsAdded
   }
 
@@ -150,9 +148,6 @@ class WhiteboardModel extends SystemConfiguration {
     // Update whiteboard and save
     val updatedWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(updatedWb)
-
-    // Log after operation
-    println(s"deleteAnnotations - After: ${updatedWb.annotationsMap}")
 
     annotationsIdsRemoved.map(PresAnnotationDAO.delete(wbId, userId, _))
 
