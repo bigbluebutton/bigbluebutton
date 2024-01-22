@@ -97,11 +97,13 @@ export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStrea
   }
 }`;
 
-export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`subscription currentPageWritersSubscription {
-  pres_page_writers {
-    userId
+export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
+  subscription currentPageWritersSubscription($pageId: String!) {
+    pres_page_writers(where: { pageId: { _eq: $pageId } }) {
+      userId
+    }
   }
-}`;
+`;
 
 export const CURRENT_PAGE_WRITERS_QUERY = gql`query currentPageWritersQuery {
   pres_page_writers {
