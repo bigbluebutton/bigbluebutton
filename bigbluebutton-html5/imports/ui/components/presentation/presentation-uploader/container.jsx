@@ -43,6 +43,16 @@ const PresentationUploaderContainer = (props) => {
     });
   };
 
+  const dispatchChangePresentationDownloadable = (presentationId, downloadable, fileStateType) => {
+    presentationSetDownloadable({
+      variables: {
+        presentationId,
+        downloadable,
+        fileStateType,
+      },
+    });
+  };
+
   return userIsPresenter && (
     <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader
@@ -50,6 +60,7 @@ const PresentationUploaderContainer = (props) => {
         presentations={presentations}
         currentPresentation={currentPresentation}
         exportPresentation={exportPresentation}
+        dispatchChangePresentationDownloadable={dispatchChangePresentationDownloadable}
         {...props}
       />
     </ErrorBoundary>
@@ -60,7 +71,6 @@ export default withTracker(() => {
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchChangePresentationDownloadable,
   } = Service;
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
@@ -78,7 +88,6 @@ export default withTracker(() => {
     renderPresentationItemStatus: PresUploaderToast.renderPresentationItemStatus,
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchChangePresentationDownloadable,
     isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),

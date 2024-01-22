@@ -41,10 +41,6 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   xhr.send(opts.body);
 });
 
-const dispatchChangePresentationDownloadable = (presentation, newState, fileStateType) => {
-  makeCall('setPresentationDownloadable', presentation.presentationId, newState, fileStateType);
-};
-
 const requestPresentationUploadToken = (
   temporaryPresentationId,
   meetingId,
@@ -352,7 +348,6 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
 export default {
   handleSavePresentation,
   persistPresentationChanges,
-  dispatchChangePresentationDownloadable,
   setPresentation,
   requestPresentationUploadToken,
   getExternalUploadData,
