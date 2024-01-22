@@ -83,10 +83,10 @@ Meteor.startup(() => {
           // Skipping heartbeat, because websocket is sending data
           if (currentTime - this.ws.lastSentFrameTimestamp < 10000) {
             try {
-              Logger.info('Skipping heartbeat, because websocket is sending data', {
+              Logger.debug('Skipping heartbeat, because websocket is sending data', {
                 currentTime,
                 lastSentFrameTimestamp: this.ws.lastSentFrameTimestamp,
-                userId: this.session.connection._meteorSession.userId,
+                userId: this.session?.connection?._meteorSession?.userId,
               });
               return;
             } catch (err) {
@@ -102,7 +102,7 @@ Meteor.startup(() => {
         if (supportsHeartbeats) {
           this.hto_ref = setTimeout(() => {
             try {
-              Logger.info('Heartbeat timeout', { userId: this.session.connection._meteorSession.userId, sentAt: currentTime, now: new Date().getTime() });
+              Logger.warn('Heartbeat timeout', { userId: this.session?.connection?._meteorSession?.userId, sentAt: currentTime, now: new Date().getTime() });
             } catch (err) {
               Logger.error(`Heartbeat timeout error: ${err}`);
             } finally {
