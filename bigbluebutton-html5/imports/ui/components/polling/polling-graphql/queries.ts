@@ -27,7 +27,8 @@ export const hasPendingPoll = gql`
       polls(
         where: {
           ended: { _eq: false }
-          users: { responded: { _eq: false }, userId: { _eq: $userId } }
+          users: { responded: { _eq: false }, userId: { _eq: $userId } },
+          userCurrent: { responded: { _eq: false } }
         }
       ) {
         users {
