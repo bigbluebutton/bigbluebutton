@@ -1310,6 +1310,13 @@ FROM poll_option o
 JOIN poll using("pollId")
 WHERE poll."type" != 'R-';
 
+create view "v_poll_user_current" as
+select "user"."userId", "poll"."pollId", case when count(pr.*) > 0 then true else false end as responded
+from "user"
+join "poll" on "poll"."meetingId" = "user"."meetingId"
+left join "poll_response" pr on pr."userId" = "user"."userId" and pr."pollId" = "poll"."pollId"
+group by "user"."userId", "poll"."pollId";
+
 --------------------------------
 ----External video
 

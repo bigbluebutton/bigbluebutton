@@ -26,6 +26,7 @@
 - "!include public_v_poll_option.yaml"
 - "!include public_v_poll_response.yaml"
 - "!include public_v_poll_user.yaml"
+- "!include public_v_poll_user_current.yaml"
 - "!include public_v_pres_annotation_curr.yaml"
 - "!include public_v_pres_annotation_history_curr.yaml"
 - "!include public_v_pres_page.yaml"
