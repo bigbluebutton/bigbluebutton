@@ -20,6 +20,9 @@ import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
 
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
       system:         ActorSystem,
@@ -205,12 +208,23 @@ class BigBlueButtonActor(
   private def handleIsMeetingRunning(sender: ActorRef, msg: IsMeetingRunning): Unit = {
     RunningMeetings.findWithId(meetings, msg.meetingId) match {
       case Some(_) => sender ! true
-      case None    => sender ! false
+      case None =>
+        RunningMeetings.findWithExtId(meetings, msg.meetingId) match {
+          case Some(_) => sender ! true
+          case None    => sender ! false
+        }
     }
   }
 
   private def handleGetMeeting(sender: ActorRef, msg: GetMeeting): Unit = {
-    sender ! RunningMeetings.findWithId(meetings, msg.meetingId)
+    RunningMeetings.findWithId(meetings, msg.meetingId) match {
+      case Some(m) => sender ! Some(m)
+      case None =>
+        RunningMeetings.findWithExtId(meetings, msg.meetingId) match {
+          case Some(m) => sender ! Some(m)
+          case None    => sender ! None
+        }
+    }
   }
 
   private def handleGetMeetings(sender: ActorRef, msg: GetMeetings): Unit = {
