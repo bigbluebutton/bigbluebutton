@@ -177,6 +177,14 @@ class Base extends Component {
 
     if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true))) {
       if (!checkedUserSettings) {
+        const showAnimationsDefault = getFromUserSettings(
+          'bbb_show_animations_default',
+          Meteor.settings.public.app.defaultSettings.application.animations
+        );
+
+        Settings.application.animations = showAnimationsDefault;
+        Settings.save();
+
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
           if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
             layoutContextDispatch({
