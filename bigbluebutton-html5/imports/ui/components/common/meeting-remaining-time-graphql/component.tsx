@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import BreakoutService from '/imports/ui/components/breakout-room/service';
+import { setCapturedContentUploading } from './service';
 import { Text, Time } from './styles';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useSubscription } from '@apollo/client';
@@ -9,6 +9,7 @@ import { FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION, breakoutDataResponse } from 
 import { notify } from '/imports/ui/services/notification';
 import { Meteor } from 'meteor/meteor';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   breakoutTimeRemaining: {
@@ -51,12 +52,9 @@ interface MeetingRemainingTimeContainerProps {
   displayAlerts: boolean;
 }
 
-interface MeetingRemainingTimeProps {
+interface MeetingRemainingTimeProps extends MeetingRemainingTimeContainerProps {
   durationInSeconds: number;
   referenceStartedTime: number;
-  isBreakoutDuration: boolean;
-  fromBreakoutPanel: boolean | false;
-  displayAlerts: boolean;
   isBreakout: boolean | false;
 }
 
@@ -110,8 +108,8 @@ const MeetingRemainingTime: React.FC<MeetingRemainingTimeProps> = (props) => {
     };
   }, [remainingTime, durationInSeconds]);
 
-  let meetingTimeMessage: string = '';
-  let boldText: boolean = false;
+  const meetingTimeMessage = React.useRef<string>('');
+  const boldText = React.useRef<boolean>(false);
 
   if (remainingTime >= 0 && timeRemainingInterval) {
     if (remainingTime > 0) {
@@ -142,21 +140,21 @@ const MeetingRemainingTime: React.FC<MeetingRemainingTimeProps> = (props) => {
         );
       }
 
-      if (fromBreakoutPanel) boldText = true;
-      meetingTimeMessage = intl.formatMessage(fromBreakoutPanel || isBreakoutDuration
+      if (fromBreakoutPanel) boldText.current = true;
+      meetingTimeMessage.current = intl.formatMessage(fromBreakoutPanel || isBreakoutDuration
         ? intlMessages.breakoutDuration
         : intlMessages.meetingTimeRemaining, { 0: humanizeSeconds(remainingTime) });
     } else {
       clearInterval(timeRemainingInterval.current);
-      BreakoutService.setCapturedContentUploading();
-      meetingTimeMessage = intl.formatMessage(isBreakoutDuration
+      setCapturedContentUploading();
+      meetingTimeMessage.current = intl.formatMessage(isBreakoutDuration
         ? intlMessages.breakoutWillClose
         : intlMessages.meetingWillClose);
     }
   }
 
-  if (boldText) {
-    const words = meetingTimeMessage.split(' ');
+  if (boldText.current) {
+    const words = meetingTimeMessage.current.split(' ');
     const time = words.pop();
     const text = words.join(' ');
 
@@ -171,7 +169,7 @@ const MeetingRemainingTime: React.FC<MeetingRemainingTimeProps> = (props) => {
 
   return (
     <span data-test="timeRemaining">
-      {meetingTimeMessage}
+      {meetingTimeMessage.current}
     </span>
   );
 };
@@ -200,6 +198,7 @@ const MeetingRemainingTimeContainer: React.FC<MeetingRemainingTimeContainerProps
     if (breakoutLoading) return loadingRemainingTime();
     if (!breakoutData) return null;
     if (breakoutError) {
+      logger.error('Error when loading breakout data', breakoutError);
       return (
         <div>
           Error:
