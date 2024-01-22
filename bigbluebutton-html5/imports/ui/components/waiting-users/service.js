@@ -1,10 +1,5 @@
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
-
-const guestUsersCall = (guestsArray, status) => makeCall('allowPendingUsers', guestsArray, status);
-
-const changeGuestPolicy = (policyRule) => makeCall('changeGuestPolicy', policyRule);
 
 const getGuestPolicy = () => {
   const meeting = Meetings.findOne(
@@ -33,28 +28,20 @@ const getGuestLobbyMessage = () => {
   return '';
 };
 
-const setGuestLobbyMessage = (message) => makeCall('setGuestLobbyMessage', message);
-
-const setPrivateGuestLobbyMessage = (message, guestId) => makeCall('setPrivateGuestLobbyMessage', message, guestId);
-
 const privateMessageVisible = (id) => {
   const privateInputSpace = document.getElementById(id);
-  if (privateInputSpace.style.display === "block") {
-    privateInputSpace.style.display = "none";
+  if (privateInputSpace.style.display === 'block') {
+    privateInputSpace.style.display = 'none';
   } else {
-    privateInputSpace.style.display = "block";
+    privateInputSpace.style.display = 'block';
   }
 };
 
 export default {
-  guestUsersCall,
   privateMessageVisible,
-  changeGuestPolicy,
   getGuestPolicy,
   isWaitingRoomEnabled,
   isGuestLobbyMessageEnabled,
   getGuestLobbyMessage,
-  setGuestLobbyMessage,
-  setPrivateGuestLobbyMessage,
   allowRememberChoice,
 };

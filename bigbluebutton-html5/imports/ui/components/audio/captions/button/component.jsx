@@ -154,7 +154,9 @@ const CaptionsButton = ({
   };
 
   const toggleTranscription = () => {
-    SpeechService.setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale);
+    SpeechService.setSpeechLocale(
+      isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale,
+    );
   };
 
   const getAvailableLocalesList = () => (

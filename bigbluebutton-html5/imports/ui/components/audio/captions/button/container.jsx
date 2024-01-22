@@ -4,10 +4,11 @@ import Service from '/imports/ui/components/audio/captions/service';
 import Button from './component';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 import AudioService from '/imports/ui/components/audio/service';
+import AudioCaptionsButtonContainer from '../../audio-graphql/audio-captions/button/component';
 
 const Container = (props) => <Button {...props} />;
 
-export default withTracker(() => {
+withTracker(() => {
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const availableVoices = SpeechService.getSpeechVoices();
   const currentSpeechLocale = SpeechService.getSpeechLocale();
@@ -23,3 +24,5 @@ export default withTracker(() => {
     isVoiceUser,
   };
 })(Container);
+
+export default AudioCaptionsButtonContainer;

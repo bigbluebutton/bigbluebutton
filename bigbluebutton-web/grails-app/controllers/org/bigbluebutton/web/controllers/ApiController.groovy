@@ -85,9 +85,32 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#index"
     response.addHeader("Cache-Control", "no-cache")
 
-    withFormat {
-      xml {
-        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), paramsProcessorUtil.getBbbVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
+    def contentType = request.getHeader("content-type")
+
+    if(contentType == 'application/json') {
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_SUCCESS
+            version paramsProcessorUtil.getApiVersion()
+            apiVersion paramsProcessorUtil.getApiVersion()
+            bbbVersion paramsProcessorUtil.getBbbVersion()
+            graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    } else {
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildMeetingVersion(
+                  paramsProcessorUtil.getApiVersion(),
+                  paramsProcessorUtil.getBbbVersion(),
+                  paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  RESP_CODE_SUCCESS),
+                  contentType: "text/xml")
+        }
       }
     }
   }

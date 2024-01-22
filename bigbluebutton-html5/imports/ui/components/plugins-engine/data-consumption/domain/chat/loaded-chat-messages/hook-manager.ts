@@ -4,8 +4,9 @@ import {
   LoadedChatMessage,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/chat/loaded-chat-messages/types';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import useLoadedChatMessages from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
@@ -29,7 +30,7 @@ const LoadedChatMessagesHookContainer = () => {
     >(HookEvents.UPDATED, {
       detail: {
         data: formatLoadedChatMessagesDataFromGraphql(chatMessagesData),
-        hook: Hooks.LOADED_CHAT_MESSAGES,
+        hook: DataConsumptionHooks.LOADED_CHAT_MESSAGES,
       },
     }));
   };

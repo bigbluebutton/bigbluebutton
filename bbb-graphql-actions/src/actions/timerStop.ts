@@ -16,11 +16,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
-  const body = {
-    accumulated: input.accumulated
-  };
-
-  //TODO calculate accumulated on the backend
+  const body = {};
 
   return { eventName, routing, header, body };
 }

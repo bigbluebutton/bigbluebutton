@@ -30,4 +30,7 @@ export interface PluginsContextType {
     chatMessagesGraphqlVariablesAndQuery: ChatMessagesGraphqlVariablesAndQuery;
     setChatMessagesGraphqlVariablesAndQuery: React.Dispatch<
         React.SetStateAction<ChatMessagesGraphqlVariablesAndQuery>>;
+    domElementManipulationMessageIds: string[];
+    setDomElementManipulationMessageIds: React.Dispatch<
+        React.SetStateAction<string[]>>;
 }

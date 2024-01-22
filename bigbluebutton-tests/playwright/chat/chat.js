@@ -363,6 +363,7 @@ class Chat extends MultiUsers {
       return this.modPage.hasText(`${e.chatUserMessageText}>>nth=2`, ":)");
     }
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
+    await this.userPage.waitAndClickElement(e.chatButton, 1);
     await this.userPage.waitForSelector(e.hidePrivateChat);
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage)

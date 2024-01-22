@@ -24,6 +24,8 @@ create table "meeting" (
 	"createdTime" bigint,
 	"durationInSeconds" integer
 );
+ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;
+
 create index "idx_meeting_extId" on "meeting"("extId");
 
 create view "v_meeting" as select * from "meeting";
@@ -192,13 +194,6 @@ FROM meeting m
 JOIN "meeting_lockSettings" mls ON mls."meetingId" = m."meetingId"
 JOIN "meeting_usersPolicies" mup ON mup."meetingId" = m."meetingId";
 
-CREATE OR REPLACE VIEW "v_meeting_showUserlist" AS
-SELECT "meetingId"
-FROM "meeting_lockSettings"
-WHERE "hideUserList" IS FALSE;
-
-CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSettings"("meetingId") WHERE "hideUserList" IS FALSE;
-
 create table "meeting_clientSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
     "clientSettingsJson"    jsonb
@@ -238,6 +233,7 @@ CREATE TABLE "user" (
 	"avatar" varchar(500),
 	"color" varchar(7),
     "sessionToken" varchar(16),
+    "authToken" varchar(16),
     "authed" bool,
     "joined" bool,
     "joinErrorCode" varchar(50),
@@ -290,7 +286,6 @@ ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestSta
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
 
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
-
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
@@ -390,6 +385,7 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role",
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
     "user"."extId",
+    "user"."authToken",
     "user"."meetingId",
     "user"."name",
     "user"."nameSortable",
@@ -425,7 +421,8 @@ AS SELECT "user"."userId",
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator"
+    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
    FROM "user";
 
 CREATE OR REPLACE VIEW "v_user_guest" AS
@@ -523,8 +520,15 @@ CREATE TABLE "user_voice" (
 	"startTime" bigint
 );
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
+-- + 6000 means it will hide after 6 seconds
 ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
 GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
+
+ALTER TABLE "user_voice" ADD COLUMN "startedAt" timestamp with time zone
+GENERATED ALWAYS AS (to_timestamp("startTime"::double precision / 1000)) STORED;
+
+ALTER TABLE "user_voice" ADD COLUMN "endedAt" timestamp with time zone
+GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
 CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","talking");
 CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("userId","hideTalkingIndicatorAt");
@@ -1238,7 +1242,8 @@ CREATE TABLE "poll" (
 "multipleResponses" boolean,
 "ended" boolean,
 "published" boolean,
-"publishedAt" timestamp with time zone
+"publishedAt" timestamp with time zone,
+"createdAt" timestamp with time zone not null default current_timestamp
 );
 CREATE INDEX "idx_poll_meetingId" ON "poll"("meetingId");
 CREATE INDEX "idx_poll_meetingId_active" ON "poll"("meetingId") where ended is false;
@@ -1304,6 +1309,13 @@ SELECT poll."meetingId", poll."pollId", o."optionId", o."optionDesc"
 FROM poll_option o
 JOIN poll using("pollId")
 WHERE poll."type" != 'R-';
+
+create view "v_poll_user_current" as
+select "user"."userId", "poll"."pollId", case when count(pr.*) > 0 then true else false end as responded
+from "user"
+join "poll" on "poll"."meetingId" = "user"."meetingId"
+left join "poll_response" pr on pr."userId" = "user"."userId" and pr."pollId" = "poll"."pollId"
+group by "user"."userId", "poll"."pollId";
 
 --------------------------------
 ----External video
@@ -1495,6 +1507,11 @@ create table "sharedNotes_rev" (
 );
 --create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
 
+create view "v_sharedNotes_diff" as
+select "meetingId", "sharedNotesExtId", "userId", "start", "end", "diff", "rev"
+from "sharedNotes_rev"
+where "diff" is not null;
+
 create table "sharedNotes_session" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),
@@ -1575,12 +1592,13 @@ CREATE TABLE "pluginDataChannelMessage" (
 	"fromUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
 	"toUserIds" varchar[],
-	"createdAt" timestamp with time ZONE DEFAULT current_timestamp,
+	"createdAt" timestamp with time zone DEFAULT current_timestamp,
+	"deletedAt" timestamp with time zone,
 	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId")
 );
 
-create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt");
-create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt");
+create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
+create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
 CREATE OR REPLACE VIEW "v_pluginDataChannelMessage" AS
 SELECT u."meetingId", u."userId", m."pluginName", m."dataChannel", m."messageId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
@@ -1591,6 +1609,7 @@ JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
 				OR u."role" = ANY(m."toRoles")
 				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
 				)
+WHERE "deletedAt" is null
 ORDER BY m."createdAt";
 
 ------------------------

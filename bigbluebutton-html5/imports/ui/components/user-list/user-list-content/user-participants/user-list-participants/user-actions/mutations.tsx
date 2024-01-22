@@ -17,4 +17,12 @@ export const SET_ROLE = gql`
   }
 `;
 
-export default { SET_AWAY, SET_ROLE };
+export const CHAT_CREATE_WITH_USER = gql`
+  mutation ChatCreateWithUser($userId: String!) {
+    chatCreateWithUser(
+      userId: $userId,
+    )
+  }
+`;
+
+export default { SET_AWAY, SET_ROLE, CHAT_CREATE_WITH_USER };

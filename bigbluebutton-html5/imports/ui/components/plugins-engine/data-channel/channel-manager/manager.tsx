@@ -6,7 +6,7 @@ import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/
 import {
   DispatcherFunction, ObjectTo, ToRole, ToUserId,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
-import { Hooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataChannelHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 
 import { PLUGIN_DATA_CHANNEL_DISPATCH_QUERY, PLUGIN_DATA_CHANNEL_FETCH_QUERY } from '../queries';
 
@@ -84,7 +84,7 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent(dataChannelIdentifier, {
-        detail: { hook: Hooks.DATA_CHANNEL, data },
+        detail: { hook: DataChannelHooks.DATA_CHANNEL, data },
       }),
     );
   }, [data]);

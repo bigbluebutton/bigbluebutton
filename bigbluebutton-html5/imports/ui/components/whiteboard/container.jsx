@@ -59,7 +59,10 @@ const WhiteboardContainer = (props) => {
   const curPageId = currentPresentationPage?.num;
   const presentationId = currentPresentationPage?.presentationId;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
+    variables: { pageId: currentPresentationPage?.pageId },
+    skip: !currentPresentationPage?.pageId,
+  });
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
@@ -175,6 +178,7 @@ const WhiteboardContainer = (props) => {
   const isModerator = currentUser?.isModerator;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
+  const { colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const layoutContextDispatch = layoutDispatch();
 
@@ -222,6 +226,11 @@ const WhiteboardContainer = (props) => {
         maxStickyNoteLength,
         maxNumberOfAnnotations,
         fontFamily,
+        colorStyle,
+        dashStyle,
+        fillStyle,
+        fontStyle,
+        sizeStyle,
         hasShapeAccess,
         handleToggleFullScreen,
         sidebarNavigationWidth,

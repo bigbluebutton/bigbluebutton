@@ -1,7 +1,7 @@
 const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const c = require('./constants');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 async function forceListenOnly(test) {
   await test.wasRemoved(e.echoYesButton);
@@ -71,14 +71,14 @@ async function annotation(test) {
 
 function encodeCustomParams(param) {
   try {
-    let splited = param.split('=');
-    if (splited.length > 2) {
-      const aux = splited.shift();
-      splited[1] = splited.join('=');
-      splited[0] = aux;
+    let splitted = param.split('=');
+    if (splitted.length > 2) {
+      const aux = splitted.shift();
+      splitted[1] = splitted.join('=');
+      splitted[0] = aux;
     }
-    splited[1] = encodeURIComponent(splited[1]).replace(/%20/g, '+');
-    return splited.join('=');
+    splitted[1] = encodeURIComponent(splitted[1]).replace();
+    return splitted.join('=');
   } catch (err) {
     console.log(err);
   }

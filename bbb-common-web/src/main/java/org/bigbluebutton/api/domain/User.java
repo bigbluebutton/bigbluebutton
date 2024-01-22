@@ -137,6 +137,10 @@ public class User {
 	public boolean isModerator() {
 		return "MODERATOR".equalsIgnoreCase(this.role);
 	}
+
+	public boolean isLocked() {
+		return this.locked;
+	}
 	
 	public void setStatus(String key, String value){
 		this.status.put(key, value);

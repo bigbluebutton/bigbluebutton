@@ -1,6 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
-import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
-import { makeCall } from '/imports/ui/services/api';
+import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
 import UsersPersistentData from '/imports/api/users-persistent-data';
@@ -69,17 +68,6 @@ const setCapturedContentUploading = () => {
   });
 };
 
-const endAllBreakouts = () => {
-  setCapturedContentUploading();
-  makeCall('endAllBreakouts');
-};
-
-const requestJoinURL = (breakoutId) => {
-  makeCall('requestJoinURL', {
-    breakoutId,
-  });
-};
-
 const isNewTimeHigherThanMeetingRemaining = (newTimeInMinutes) => {
   const meetingId = Auth.meetingID;
   const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
@@ -99,45 +87,6 @@ const isNewTimeHigherThanMeetingRemaining = (newTimeInMinutes) => {
   }
 
   return false;
-};
-
-const setBreakoutsTime = (timeInMinutes) => {
-  if (timeInMinutes <= 0) return false;
-
-  makeCall('setBreakoutsTime', {
-    timeInMinutes,
-  });
-
-  return true;
-};
-
-const sendMessageToAllBreakouts = (msg) => {
-  makeCall('sendMessageToAllBreakouts', {
-    msg,
-  });
-
-  return true;
-};
-
-const transferUserToMeeting = (fromMeetingId, toMeetingId) =>
-  makeCall('transferUser', fromMeetingId, toMeetingId);
-
-const transferToBreakout = (breakoutId) => {
-  const breakoutRooms = findBreakouts();
-  const breakoutRoom = breakoutRooms
-    .filter((breakout) => breakout.breakoutId === breakoutId)
-    .shift();
-  const breakoutMeeting = Meetings.findOne(
-    {
-      $and: [
-        { 'breakoutProps.sequence': breakoutRoom.sequence },
-        { 'breakoutProps.parentId': breakoutRoom.parentMeetingId },
-        { 'meetingProp.isBreakout': true },
-      ],
-    },
-    { fields: { meetingId: 1 } }
-  );
-  transferUserToMeeting(Auth.meetingID, breakoutMeeting.meetingId);
 };
 
 const getBreakoutByUserId = (userId) =>
@@ -217,14 +166,8 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 
 export default {
   findBreakouts,
-  endAllBreakouts,
-  setBreakoutsTime,
-  sendMessageToAllBreakouts,
   isNewTimeHigherThanMeetingRemaining,
-  requestJoinURL,
   getBreakoutRoomUrl,
-  transferUserToMeeting,
-  transferToBreakout,
   meetingId: () => Auth.meetingID,
   getLastBreakoutByUserId,
   getBreakouts,
