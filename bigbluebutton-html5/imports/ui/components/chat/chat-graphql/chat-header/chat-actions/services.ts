@@ -1,5 +1,4 @@
 import { Message } from '/imports/ui/Types/message';
-import { makeCall } from '/imports/ui/services/api';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { IntlShape, defineMessages } from 'react-intl';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
@@ -56,6 +55,3 @@ export const getDateString = (date = new Date()) => {
   const dateString = `${date.getFullYear()}-${month}-${dayOfMonth}_${time}`;
   return dateString;
 };
-
-// TODO: Make action using mutations
-export const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));

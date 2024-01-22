@@ -19,7 +19,6 @@ const SUBSCRIPTIONS = [
   'voiceUsers',
   'screenshare',
   'users-settings',
-  'guestUser',
   'users-infos',
   'meeting-time-remaining',
   'local-settings',

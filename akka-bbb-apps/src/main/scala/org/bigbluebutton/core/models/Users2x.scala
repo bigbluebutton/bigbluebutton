@@ -195,7 +195,7 @@ object Users2x {
       newUser
     }
   }
-  def setReactionEmoji(users: Users2x, intId: String, reactionEmoji: String): Option[UserState] = {
+  def setReactionEmoji(users: Users2x, intId: String, reactionEmoji: String, durationInSeconds: Int): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
     } yield {
@@ -203,7 +203,7 @@ object Users2x {
         .modify(_.reactionChangedOn).setTo(System.currentTimeMillis())
 
       users.save(newUser)
-      UserReactionDAO.insert(intId, reactionEmoji)
+      UserReactionDAO.insert(intId, reactionEmoji, durationInSeconds)
       newUser
     }
   }

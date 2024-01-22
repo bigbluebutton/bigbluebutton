@@ -1,9 +1,10 @@
-import {gql} from '@apollo/client';
+import {gql, useMutation} from '@apollo/client';
  import React, { useState } from "react";
 import usePatchedSubscription from "./usePatchedSubscription";
 
-const ParentOfUserList = ({userId}) => {
+const ParentOfUserList = ({user}) => {
   const [shouldRender, setShouldRender] = useState(true);
+
   return (
     <div>
       Userlist:
@@ -13,12 +14,30 @@ const ParentOfUserList = ({userId}) => {
           setShouldRender(e.target.checked);
         }
       }></input>
-      {shouldRender && <UserList userId={userId} />}
+      {shouldRender && <UserList userId={user.userId} />}
     </div>
   );
 }
 
 function UserList({userId}) {
+
+    const [dispatchUserEject] = useMutation(gql`
+      mutation UserEject($userId: String!) {
+        userEjectFromMeeting(
+          userId: $userId,
+          banUser: false,
+        )
+      }
+    `);
+
+    const handleDispatchUserEject = (userId) => {
+        dispatchUserEject({
+            variables: {
+                userId: userId,
+            },
+        });
+    };
+
   const { loading, error, data } = usePatchedSubscription(
     gql`subscription {
       user(limit: 50, order_by: [
@@ -120,7 +139,9 @@ function UserList({userId}) {
                   </td>
                   <td>{user?.connectionStatus?.connectionAliveAt}</td>
                   <td style={{backgroundColor: user.disconnected === true ? '#A0DAA9' : ''}}>{user.disconnected === true ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}
+                      {user.isModerator ? <button onClick={() => handleDispatchUserEject(user.userId)}>Eject!</button> : ''}
+                  </td>
               </tr>
           );
         })}

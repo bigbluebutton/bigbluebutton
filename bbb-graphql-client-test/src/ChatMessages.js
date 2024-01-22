@@ -25,12 +25,11 @@ export default function ChatMessages({userId}) {
 
   const { loading, error, data } = usePatchedSubscription(
     gql`subscription {
-      chat_message_private(limit: 20, order_by: [{createdTime: desc}, {senderName: asc}]) {
+      chat_message_private(limit: 20, order_by: [{createdAt: desc}, {senderName: asc}]) {
         chatEmphasizedText
         chatId
         correlationId
-        createdTime
-        createdTimeAsDate
+        createdAt
         message
         messageId
         senderId
@@ -63,7 +62,7 @@ export default function ChatMessages({userId}) {
                   <td>{curr.chatId}</td>
                   <td>{curr.senderName}</td>
                   <td>{curr.message}</td>
-                  <td>{curr.createdTimeAsDate} ({curr.createdTime})</td>
+                  <td>{curr.createdAt}</td>
                   <td>
                       {
                           curr.senderId !== userId ?
