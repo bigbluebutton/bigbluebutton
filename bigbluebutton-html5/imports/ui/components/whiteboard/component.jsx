@@ -222,8 +222,9 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     });
 
     Object.values(prevShapesRef.current).forEach((remoteShape) => {
+      if (!remoteShape.id) return;
       const localShape = localLookup.get(remoteShape.id);
-
+      const prevShape = prevShapesRef.current[remoteShape.id];
       // Create a deep clone of remoteShape and remove the isModerator property
       const comparisonRemoteShape = deepCloneUsingShallow(remoteShape);
       delete comparisonRemoteShape.isModerator;
@@ -234,7 +235,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           // If the shape does not exist in local, add it to toAdd
           toAdd.push(remoteShape);
         }
-      } else if (!isEqual(localShape, comparisonRemoteShape)) {
+      } else if (!isEqual(localShape, comparisonRemoteShape) && prevShape) {
         // Capture the differences
         const diff = {
           id: remoteShape.id,
@@ -242,7 +243,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           typeName: remoteShape.typeName,
         };
 
-        if (!selectedShapeIds.includes(diff?.id) && prevShapesRef.current[`${diff?.id}`].meta?.updatedBy !== currentUser?.userId) {
+        if (!selectedShapeIds.includes(remoteShape.id) && prevShape?.meta?.updatedBy !== currentUser?.userId) {
           // Compare each property
           Object.keys(remoteShape).forEach((key) => {
             if (
