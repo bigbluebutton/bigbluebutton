@@ -350,7 +350,6 @@ const PollingGraphqlContainer: React.FC<PollingGraphqlContainerProps> = () => {
       variables: { userId: currentUserData?.userId },
     },
   );
-  console.log(hasPendingPollData, error);
   const [pollSubmitUserTypedVote] = useMutation(POLL_SUBMIT_TYPED_VOTE);
   const [pollSubmitUserVote] = useMutation(POLL_SUBMIT_VOTE);
 
