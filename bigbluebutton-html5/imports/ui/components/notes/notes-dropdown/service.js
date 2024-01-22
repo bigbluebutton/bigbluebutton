@@ -58,5 +58,5 @@ async function convertAndUpload(presentations) {
 
 export default {
   convertAndUpload,
-  pinSharedNotes: () => NotesService.pinSharedNotes(true),
+  pinSharedNotes: (stopWatching) => NotesService.pinSharedNotes(true, stopWatching),
 };

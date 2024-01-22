@@ -35,8 +35,8 @@ const TimerContainer = ({ children, ...props }) => {
     timerStart();
   };
 
-  const stopTimer = (accumulated) => {
-    timerStop({ variables: { accumulated } });
+  const stopTimer = () => {
+    timerStop();
   };
 
   const switchTimer = (stopwatch) => {

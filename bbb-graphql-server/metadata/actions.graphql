@@ -391,9 +391,7 @@ type Mutation {
 }
 
 type Mutation {
-  timerStop(
-    accumulated: Float!
-  ): Boolean
+  timerStop: Boolean
 }
 
 type Mutation {
