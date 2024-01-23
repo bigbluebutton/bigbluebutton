@@ -812,6 +812,7 @@
     "app.toast.chat.system": "Sistem",
     "app.toast.chat.poll": "Anket sonuçları",
     "app.toast.chat.pollClick": "Anket sonuçları yayınlandı. Görmek için buraya tıklayın.",
+    "app.toast.chat.exportedPresentation": "Sunum dosyası",
     "app.toast.clearedEmoji.label": "Emoji durumu temizlendi",
     "app.toast.setEmoji.label": "Emoji durumu {0} olarak ayarlandı",
     "app.toast.meetingMuteOn.label": "Tüm kullanıcıların sesi kapatıldı",
