@@ -101,16 +101,6 @@ type Mutation {
 }
 
 type Mutation {
-  dispatchPluginDataChannelMessageMsg(
-    pluginName: String!
-    dataChannel: String!
-    payloadJson: String!
-    toRoles: [String]!
-    toUserIds: [String]!
-  ): Boolean
-}
-
-type Mutation {
   externalVideoStart(
     externalVideoUrl: String!
   ): Boolean
@@ -207,6 +197,31 @@ type Mutation {
 type Mutation {
   meetingSetWebcamOnlyForModerator(
     webcamsOnlyForModerator: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelDeleteMessage(
+    pluginName: String!
+    dataChannel: String!
+    messageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelDispatchMessage(
+    pluginName: String!
+    dataChannel: String!
+    payloadJson: String!
+    toRoles: [String]!
+    toUserIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelReset(
+    pluginName: String!
+    dataChannel: String!
   ): Boolean
 }
 
@@ -376,9 +391,7 @@ type Mutation {
 }
 
 type Mutation {
-  timerStop(
-    accumulated: Float!
-  ): Boolean
+  timerStop: Boolean
 }
 
 type Mutation {

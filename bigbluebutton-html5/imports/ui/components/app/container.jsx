@@ -13,7 +13,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
-import LayoutService from '/imports/ui/components/layout/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
 import {
   layoutSelect,
@@ -27,6 +26,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { useMutation } from '@apollo/client';
 import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
 
 import {
   getFontSize,
@@ -88,6 +88,8 @@ const AppContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const [setMobileFlag] = useMutation(SET_MOBILE_FLAG);
+  const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
+  const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
 
   const setMobileUser = (mobile) => {
     setMobileFlag({
@@ -147,19 +149,26 @@ const AppContainer = (props) => {
   }, [isPresenter, prevRandomUser, randomlySelectedUser, isModalOpen]);
 
   const setPushLayout = () => {
-    LayoutService.setPushLayout(pushLayout);
-  }
+    setSyncWithPresenterLayout({
+      variables: {
+        syncWithPresenterLayout: pushLayout,
+      },
+    });
+  };
 
   const setMeetingLayout = () => {
     const { isResizing } = cameraDockInput;
-    LayoutService.setMeetingLayout({
-      layout: selectedLayout,
-      presentationIsOpen,
-      isResizing,
-      cameraPosition: cameraDock.position,
-      focusedCamera: focusedId,
-      presentationVideoRate,
-      pushLayout,
+
+    setMeetingLayoutProps({
+      variables: {
+        layout: selectedLayout,
+        syncWithPresenterLayout: pushLayout,
+        presentationIsOpen,
+        isResizing,
+        cameraPosition: cameraDock.position,
+        focusedCamera: focusedId,
+        presentationVideoRate,
+      },
     });
   };
 

@@ -594,7 +594,9 @@ class MeetingActor(
         updateUserLastActivity(m.body.msg.sender.id)
 
       // Plugin
-      case m: DispatchPluginDataChannelMessageMsg => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelDispatchMessageMsg => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelDeleteMessageMsg   => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelResetMsg           => pluginHdlrs.handle(m, state, liveMeeting)
 
       // Webcams
       case m: UserBroadcastCamStartMsg            => webcamApp2x.handle(m, liveMeeting, msgBus)

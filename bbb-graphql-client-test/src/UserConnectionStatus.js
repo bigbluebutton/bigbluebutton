@@ -52,7 +52,7 @@ export default function UserConnectionStatus() {
 
         setTimeout(() => {
             handleUpdateConnectionAliveAt();
-        }, 5000);
+        }, 25000);
     };
 
     useEffect(() => {
