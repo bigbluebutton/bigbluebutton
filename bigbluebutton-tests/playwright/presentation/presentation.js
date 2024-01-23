@@ -6,7 +6,6 @@ const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultip
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification, waitAndClearNotification } = require('../notifications/util');
 
 const defaultZoomLevel = '100%';
 

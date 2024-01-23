@@ -1,11 +1,12 @@
 import React from 'react';
 import NotesDropdown from './component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
-import { useSubscription } from '@apollo/client';
+import { useSubscription, useMutation } from '@apollo/client';
 import {
   PROCESSED_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
 
 const NotesDropdownContainer = ({ ...props }) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -17,7 +18,21 @@ const NotesDropdownContainer = ({ ...props }) => {
   const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
 
-  return <NotesDropdown {...{ amIPresenter, isRTL, presentations, ...props }} />;
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+
+  return (
+    <NotesDropdown
+      {
+      ...{
+        amIPresenter,
+        isRTL,
+        presentations,
+        stopExternalVideoShare,
+        ...props,
+      }
+      }
+    />
+  );
 };
 
 export default NotesDropdownContainer;
