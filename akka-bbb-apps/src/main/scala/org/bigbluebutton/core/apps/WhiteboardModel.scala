@@ -119,7 +119,6 @@ class WhiteboardModel extends SystemConfiguration {
   def deleteAnnotations(wbId: String, userId: String, annotationsIds: Array[String], isPresenter: Boolean, isModerator: Boolean): Array[String] = {
     // Log before operation
     val wb = getWhiteboard(wbId)
-    println(s"deleteAnnotations - Before: ${wb.annotationsMap}")
 
     var annotationsIdsRemoved = Array[String]()
     var newAnnotationsMap = wb.annotationsMap
@@ -127,7 +126,6 @@ class WhiteboardModel extends SystemConfiguration {
     for (annotationId <- annotationsIds) {
       val annotation = wb.annotationsMap.get(annotationId)
 
-      println(s"Attempting to delete annotation: $annotationId")
       if (annotation.isDefined) {
         val hasPermission = isPresenter || isModerator || annotation.get.userId == userId
         if (hasPermission) {
@@ -138,10 +136,7 @@ class WhiteboardModel extends SystemConfiguration {
           println(s"User $userId doesn't have permission to remove annotation $annotationId, ignoring...")
         }
       } else {
-        println(s"Annotation $annotationId not found. Existing annotations:")
-        wb.annotationsMap.foreach { case (id, ann) =>
-          println(s"Annotation ID: $id, Annotation: $ann")
-        }
+        println(s"Annotation $annotationId not found while trying to delete it.")
       }
     }
 
