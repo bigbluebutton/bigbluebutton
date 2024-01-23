@@ -1,15 +1,15 @@
 package org.bigbluebutton.core.apps.plugin
 
 import org.bigbluebutton.ClientSettings
-import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.db.{ PluginDataChannelMessageDAO }
+import org.bigbluebutton.common2.msgs.PluginDataChannelDeleteMessageMsg
+import org.bigbluebutton.core.db.PluginDataChannelMessageDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 
-trait DispatchPluginDataChannelMessageMsgHdlr extends HandlerHelpers {
+trait PluginDataChannelDeleteMessageMsgHdlr extends HandlerHelpers {
 
-  def handle(msg: DispatchPluginDataChannelMessageMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
+  def handle(msg: PluginDataChannelDeleteMessageMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
     val pluginsDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("plugins")
     val meetingId = liveMeeting.props.meetingProp.intId
 
@@ -25,27 +25,33 @@ trait DispatchPluginDataChannelMessageMsgHdlr extends HandlerHelpers {
         println(s"Data channel '${msg.body.dataChannel}' not found in plugin '${msg.body.pluginName}'.")
       } else {
         val hasPermission = for {
-          writePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.dataChannel).writePermission
+          deletePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.dataChannel).deletePermission
         } yield {
-          writePermission.toLowerCase match {
+          deletePermission.toLowerCase match {
             case "all"       => true
             case "moderator" => user.role == Roles.MODERATOR_ROLE
             case "presenter" => user.presenter
-            case _           => false
+            case "sender" => {
+              val senderUserId = PluginDataChannelMessageDAO.getMessageSender(
+                meetingId,
+                msg.body.pluginName,
+                msg.body.dataChannel,
+                msg.body.messageId
+              )
+              senderUserId == msg.header.userId
+            }
+            case _ => false
           }
         }
 
         if (!hasPermission.contains(true)) {
-          println(s"No permission to write in plugin: '${msg.body.pluginName}', data channel: '${msg.body.dataChannel}'.")
+          println(s"No permission to delete in plugin: '${msg.body.pluginName}', data channel: '${msg.body.dataChannel}'.")
         } else {
-          PluginDataChannelMessageDAO.insert(
+          PluginDataChannelMessageDAO.delete(
             meetingId,
             msg.body.pluginName,
             msg.body.dataChannel,
-            msg.header.userId,
-            msg.body.payloadJson,
-            msg.body.toRoles,
-            msg.body.toUserIds
+            msg.body.messageId
           )
         }
       }

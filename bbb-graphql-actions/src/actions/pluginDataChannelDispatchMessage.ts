@@ -2,7 +2,7 @@ import { RedisMessage } from '../types';
 import { ValidationError } from '../types/ValidationError';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  const eventName = `DispatchPluginDataChannelMessageMsg`;
+  const eventName = `PluginDataChannelDispatchMessageMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,

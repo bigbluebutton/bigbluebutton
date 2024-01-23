@@ -53,13 +53,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   };
 
   const stopTimer = () => {
-    stopTimerMutation(
-      {
-        variables: {
-          accumulated: time,
-        },
-      },
-    );
+    stopTimerMutation();
   };
 
   useEffect(() => {
