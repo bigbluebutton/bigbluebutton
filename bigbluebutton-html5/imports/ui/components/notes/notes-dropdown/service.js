@@ -7,7 +7,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
 
-async function convertAndUpload(presentations, setPresentation) {
+async function convertAndUpload(presentations, setPresentation, removePresentation) {
   let filename = 'Shared_Notes';
   const duplicates = presentations.filter((pres) => pres.filename?.startsWith(filename) || pres.name?.startsWith(filename)).length;
 
@@ -52,7 +52,9 @@ async function convertAndUpload(presentations, setPresentation) {
     onUpload: () => { },
     onProgress: () => { },
     onDone: () => { },
-  }, setPresentation);
+  },
+  setPresentation,
+  removePresentation);
 }
 
 export default {

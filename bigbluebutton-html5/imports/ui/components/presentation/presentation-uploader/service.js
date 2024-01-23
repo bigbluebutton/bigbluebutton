@@ -179,15 +179,18 @@ const uploadAndConvertPresentations = (
   p.onUpload, p.onProgress, p.onConversion, p.current,
 )));
 
-const removePresentation = (presentationId) => {
-  makeCall('removePresentation', presentationId, POD_ID);
-};
-
 const removePresentations = (
   presentationsToRemove,
-) => Promise.all(presentationsToRemove.map((p) => removePresentation(p.presentationId, POD_ID)));
+  removePresentation,
+) => Promise.all(presentationsToRemove.map((p) => removePresentation(p.presentationId)));
 
-const persistPresentationChanges = (oldState, newState, uploadEndpoint, setPresentation) => {
+const persistPresentationChanges = (
+  oldState,
+  newState,
+  uploadEndpoint,
+  setPresentation,
+  removePresentation,
+) => {
   const presentationsToUpload = newState.filter((p) => !p.uploadCompleted);
   const presentationsToRemove = oldState.filter((p) => !newState.find((u) => { return u.presentationId === p.presentationId }));
 
@@ -206,7 +209,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, setPrese
     })
     .then((presentations) => {
       if (currentPresentation === undefined) {
-        setPresentation('', POD_ID);
+        setPresentation('');
         return Promise.resolve();
       }
 
@@ -221,9 +224,9 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, setPrese
         return Promise.resolve();
       }
 
-      return setPresentation(currentPresentation?.presentationId, POD_ID);
+      return setPresentation(currentPresentation?.presentationId);
     })
-    .then(removePresentations.bind(null, presentationsToRemove, POD_ID));
+    .then(removePresentations.bind(null, presentationsToRemove, removePresentation));
 };
 
 const handleSavePresentation = (
@@ -232,6 +235,7 @@ const handleSavePresentation = (
   newPres = {},
   currentPresentations = [],
   setPresentation,
+  removePresentation,
 ) => {
   if (!isPresentationEnabled()) {
     return null;
@@ -254,6 +258,7 @@ const handleSavePresentation = (
     presentations,
     PRESENTATION_CONFIG.uploadEndpoint,
     setPresentation,
+    removePresentation,
   );
 };
 

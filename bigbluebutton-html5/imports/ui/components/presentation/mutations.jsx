@@ -53,10 +53,19 @@ export const PRESENTATION_SET_CURRENT = gql`
   }
 `;
 
+export const PRESENTATION_REMOVE = gql`
+  mutation PresentationRemove($presentationId: String!) {
+    presentationRemove(
+      presentationId: $presentationId,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   PRESENTATION_SET_WRITERS,
   PRESENTATION_SET_PAGE,
   PRESENTATION_SET_DOWNLOADABLE,
   PRESENTATION_SET_CURRENT,
+  PRESENTATION_REMOVE,
 };

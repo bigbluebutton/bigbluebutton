@@ -6,7 +6,7 @@ import {
   PROCESSED_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
+import { PRESENTATION_SET_CURRENT, PRESENTATION_REMOVE } from '../../presentation/mutations';
 
 const NotesDropdownContainer = ({ ...props }) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -19,12 +19,29 @@ const NotesDropdownContainer = ({ ...props }) => {
   const presentations = presentationData?.pres_presentation || [];
 
   const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
+  const [presentationRemove] = useMutation(PRESENTATION_REMOVE);
 
   const setPresentation = (presentationId) => {
     presentationSetCurrent({ variables: { presentationId } });
   };
 
-  return <NotesDropdown {...{ amIPresenter, isRTL, presentations, setPresentation, ...props }} />;
+  const removePresentation = (presentationId) => {
+    presentationRemove({ variables: { presentationId } });
+  };
+
+  return (
+    <NotesDropdown {
+      ...{
+        amIPresenter,
+        isRTL,
+        presentations,
+        setPresentation,
+        removePresentation,
+        ...props,
+      }
+    }
+    />
+  );
 };
 
 export default NotesDropdownContainer;

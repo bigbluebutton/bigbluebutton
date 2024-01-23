@@ -7,7 +7,6 @@ import '/imports/api/annotations/server';
 import '/imports/api/cursor/server';
 import '/imports/api/polls/server';
 import '/imports/api/captions/server';
-import '/imports/api/presentations/server';
 import '/imports/api/presentation-upload-token/server';
 import '/imports/api/breakouts/server';
 import '/imports/api/breakouts-history/server';

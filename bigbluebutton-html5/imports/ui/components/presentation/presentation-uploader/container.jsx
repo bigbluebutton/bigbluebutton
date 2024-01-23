@@ -17,7 +17,7 @@ import {
   PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { PRESENTATION_SET_DOWNLOADABLE, PRESENTATION_SET_CURRENT } from '../mutations';
+import { PRESENTATION_SET_DOWNLOADABLE, PRESENTATION_SET_CURRENT, PRESENTATION_REMOVE } from '../mutations';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -33,6 +33,7 @@ const PresentationUploaderContainer = (props) => {
 
   const [presentationSetDownloadable] = useMutation(PRESENTATION_SET_DOWNLOADABLE);
   const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
+  const [presentationRemove] = useMutation(PRESENTATION_REMOVE);
 
   const exportPresentation = (presentationId, fileStateType) => {
     presentationSetDownloadable({
@@ -58,6 +59,10 @@ const PresentationUploaderContainer = (props) => {
     presentationSetCurrent({ variables: { presentationId } });
   };
 
+  const removePresentation = (presentationId) => {
+    presentationRemove({ variables: { presentationId } });
+  };
+
   return userIsPresenter && (
     <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader
@@ -67,6 +72,7 @@ const PresentationUploaderContainer = (props) => {
         exportPresentation={exportPresentation}
         dispatchChangePresentationDownloadable={dispatchChangePresentationDownloadable}
         setPresentation={setPresentation}
+        removePresentation={removePresentation}
         {...props}
       />
     </ErrorBoundary>
