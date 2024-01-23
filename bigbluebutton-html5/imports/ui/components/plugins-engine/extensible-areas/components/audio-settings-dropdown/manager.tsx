@@ -18,7 +18,7 @@ const AudioSettingsDropdownPluginStateContainer = ((
   const [
     audioSettingsDropdownItems,
     setAudioSettingsDropdownItems,
-  ] = useState<PluginSdk.AudioSettingsDropdownItem[]>([]);
+  ] = useState<PluginSdk.AudioSettingsDropdownInterface[]>([]);
 
   const {
     pluginsExtensibleAreasAggregatedState,
@@ -30,7 +30,7 @@ const AudioSettingsDropdownPluginStateContainer = ((
     extensibleAreaMap[uuid].audioSettingsDropdownItems = audioSettingsDropdownItems;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
-    const aggregatedAudioSettingsDropdownItems = ([] as PluginSdk.AudioSettingsDropdownItem[]).concat(
+    const aggregatedAudioSettingsDropdownItems = ([] as PluginSdk.AudioSettingsDropdownInterface[]).concat(
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.audioSettingsDropdownItems),
     );
@@ -43,8 +43,8 @@ const AudioSettingsDropdownPluginStateContainer = ((
     );
   }, [audioSettingsDropdownItems]);
 
-  pluginApi.setAudioSettingsDropdownItems = (items: PluginSdk.AudioSettingsDropdownItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.AudioSettingsDropdownItem[];
+  pluginApi.setAudioSettingsDropdownItems = (items: PluginSdk.AudioSettingsDropdownInterface[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.AudioSettingsDropdownInterface[];
     return setAudioSettingsDropdownItems(itemsWithId);
   };
   return null;

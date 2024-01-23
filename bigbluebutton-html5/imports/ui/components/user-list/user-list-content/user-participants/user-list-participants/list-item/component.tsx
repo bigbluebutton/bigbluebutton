@@ -76,10 +76,10 @@ interface UserListItemProps {
 }
 
 const renderUserListItemIconsFromPlugin = (
-  userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformation[],
+  userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformationInterface[],
 ) => userItemsFromPlugin.filter(
   (item) => item.type === UserListItemAdditionalInformationType.ICON,
-).map((item: PluginSdk.UserListItemAdditionalInformation) => {
+).map((item: PluginSdk.UserListItemAdditionalInformationInterface) => {
   const itemToRender = item as PluginSdk.UserListItemIcon;
   return (
     <Styled.IconRightContainer
@@ -96,12 +96,12 @@ const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
 
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformation[];
+  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformationInterface[];
   if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
     userItemsFromPlugin = pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
-      const userListItem = item as PluginSdk.UserListItemAdditionalInformation;
+      const userListItem = item as PluginSdk.UserListItemAdditionalInformationInterface;
       return userListItem.userId === user.userId;
-    }) as PluginSdk.UserListItemAdditionalInformation[];
+    }) as PluginSdk.UserListItemAdditionalInformationInterface[];
   }
 
   const intl = useIntl();

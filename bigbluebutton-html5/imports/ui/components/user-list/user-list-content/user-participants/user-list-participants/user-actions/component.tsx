@@ -151,10 +151,10 @@ const messages = defineMessages({
   },
 });
 const makeDropdownPluginItem: (
-  userDropdownItems: PluginSdk.UserListDropdownItem[]) => DropdownItem[] = (
-    userDropdownItems: PluginSdk.UserListDropdownItem[],
+  userDropdownItems: PluginSdk.UserListDropdownInterface[]) => DropdownItem[] = (
+    userDropdownItems: PluginSdk.UserListDropdownInterface[],
   ) => userDropdownItems.map(
-    (userDropdownItem: PluginSdk.UserListDropdownItem) => {
+    (userDropdownItem: PluginSdk.UserListDropdownInterface) => {
       const returnValue: DropdownItem = {
         isSeparator: false,
         key: userDropdownItem.id,
@@ -272,7 +272,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     && lockSettings.hasActiveLockSetting
     && !user.isModerator;
 
-  let userListDropdownItems = [] as PluginSdk.UserListDropdownItem[];
+  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
   if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
     userListDropdownItems = [
       ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
@@ -280,7 +280,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   }
 
   const userDropdownItems = userListDropdownItems.filter(
-    (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
+    (item: PluginSdk.UserListDropdownInterface) => (user?.userId === item?.userId),
   );
 
   const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
@@ -316,7 +316,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownItem) => (item?.type === UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownInterface) => (item?.type === UserListDropdownItemType.INFORMATION),
     )),
     {
       allowed: allowedToChangeStatus,
@@ -556,7 +556,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: 'time',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownItem) => (item?.type !== UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownInterface) => (item?.type !== UserListDropdownItemType.INFORMATION),
     )),
   ];
 
