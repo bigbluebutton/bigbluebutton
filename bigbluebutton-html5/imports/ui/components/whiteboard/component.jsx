@@ -80,21 +80,6 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
   );
 };
 
-const cleanArrowShapeProps = (shapeProp) => {
-  if (!shapeProp) return;
-
-  if (shapeProp.type === "binding") {
-    delete shapeProp.x;
-    delete shapeProp.y;
-  }
-
-  if (shapeProp.type === "point") {
-    delete shapeProp.boundShapeId;
-    delete shapeProp.normalizedAnchor;
-    delete shapeProp.isExact;
-  }
-};
-
 export default Whiteboard = React.memo(function Whiteboard(props) {
   const {
     isPresenter,
@@ -268,10 +253,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
             });
           }
 
-          if (diff?.type === "arrow") {
-            cleanArrowShapeProps(diff?.props?.end);
-            cleanArrowShapeProps(diff?.props?.start);
-          }
           toUpdate.push(diff);
         }
       }
@@ -521,7 +502,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     if (tlEditorRef.current) {
       const useElement = document.querySelector(".tl-cursor use");
-      if (useElement && !isMultiUserActive) {
+      if (useElement && !isMultiUserActive && !isPresenter) {
         useElement.setAttribute("href", "#redPointer");
       } else if (useElement) {
         useElement.setAttribute("href", "#cursor");
@@ -533,12 +514,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           const id = InstancePresenceRecordType.createId(userId);
           const active = yPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
-          if (
-            !active ||
-            (hideViewersCursor &&
-              user.role === "VIEWER" &&
-              !currentUser?.presenter)
-          ) {
+          if (!active || (hideViewersCursor && user.role === 'VIEWER' && !currentUser?.presenter) || (!presenter && !isMultiUserActive)) {
             tlEditorRef.current?.store.remove([id]);
             return null;
           }

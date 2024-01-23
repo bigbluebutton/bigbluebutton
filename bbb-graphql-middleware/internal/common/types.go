@@ -19,8 +19,12 @@ const (
 
 type GraphQlSubscription struct {
 	Id                        string
-	Message                   interface{}
+	Message                   map[string]interface{}
 	Type                      QueryType
+	OperationName             string
+	StreamCursorField         string
+	StreamCursorVariableName  string
+	StreamCursorCurrValue     interface{}
 	JsonPatchSupported        bool   // indicate if client support Json Patch for this subscription
 	LastSeenOnHasuraConnetion string // id of the hasura connection that this query was active
 }
@@ -31,7 +35,7 @@ type BrowserConnection struct {
 	Context                  context.Context                // browser connection context
 	ActiveSubscriptions      map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex sync.RWMutex                   // mutex to control the map usage
-	ConnectionInitMessage    interface{}                    // init message received in this connection (to be used on hasura reconnect)
+	ConnectionInitMessage    map[string]interface{}         // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection         *HasuraConnection              // associated hasura connection
 	Disconnected             bool                           // indicate if the connection is gone
 }
