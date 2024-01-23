@@ -10,7 +10,6 @@ import scala.util.{ Failure, Success, Try }
 object ClientSettings extends SystemConfiguration {
   var clientSettingsFromFile: Map[String, Object] = Map("" -> "")
   val logger = LoggerFactory.getLogger(this.getClass)
-  val
 
   def loadClientSettingsFromFile() = {
     val clientSettingsFile = scala.io.Source.fromFile(clientSettingsPath, "UTF-8")
