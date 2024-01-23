@@ -10,7 +10,6 @@ import { CURSOR_SUBSCRIPTION } from './cursors/queries';
 import {
   initDefaultPages,
   persistShape,
-  removeShapes,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
@@ -33,7 +32,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   AssetRecordType,
 } from "@tldraw/tldraw";
-import { PRESENTATION_SET_ZOOM } from '../presentation/mutations';
+import { PRESENTATION_SET_ZOOM, PRES_ANNOTATION_DELETE } from '../presentation/mutations';
 
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 
@@ -62,6 +61,16 @@ const WhiteboardContainer = (props) => {
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
+  const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
+
+  const removeShapes = (shapeIds) => {
+    presentationDeleteAnnotations({
+      variables: {
+        pageId: currentPresentationPage?.pageId,
+        annotationsIds: shapeIds,
+      },
+    });
+  };
 
   const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
     const { pageId, num } = currentPresentationPage;

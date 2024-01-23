@@ -61,6 +61,15 @@ export const PRESENTATION_REMOVE = gql`
   }
 `;
 
+export const PRES_ANNOTATION_DELETE = gql`
+  mutation PresAnnotationDelete($pageId: String!, $annotationsIds: [String]!) {
+    presAnnotationDelete(
+      pageId: $pageId,
+      annotationsIds: $annotationsIds,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   PRESENTATION_SET_WRITERS,
@@ -68,4 +77,5 @@ export default {
   PRESENTATION_SET_DOWNLOADABLE,
   PRESENTATION_SET_CURRENT,
   PRESENTATION_REMOVE,
+  PRES_ANNOTATION_DELETE,
 };

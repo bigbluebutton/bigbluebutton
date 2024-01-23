@@ -20,7 +20,6 @@ import {
   findRemoved,
   filterInvalidShapes,
   mapLanguage,
-  sendShapeChanges,
   usePrevious,
 } from "./utils";
 // import { throttle } from "/imports/utils/throttle";
@@ -720,7 +719,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         });
     
         Object.values(removed).forEach((record) => {
-          removeShapes([record.id], whiteboardId);
+          removeShapes([record.id]);
         });
       },
       { source: "user", scope: "document" }

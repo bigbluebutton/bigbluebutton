@@ -98,8 +98,6 @@ const persistShape = (shape, whiteboardId, isModerator) => {
   sendAnnotation(annotation);
 };
 
-const removeShapes = (shapes, whiteboardId) => makeCall('deleteAnnotations', shapes, whiteboardId);
-
 const initDefaultPages = (count = 1) => {
   const pages = {};
   const pageStates = {};
@@ -279,7 +277,6 @@ export {
   sendAnnotation,
   getMultiUser,
   persistShape,
-  removeShapes,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
