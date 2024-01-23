@@ -179,10 +179,6 @@ const uploadAndConvertPresentations = (
   p.onUpload, p.onProgress, p.onConversion, p.current,
 )));
 
-const setPresentation = (presentationId) => {
-  makeCall('setPresentation', presentationId, POD_ID);
-};
-
 const removePresentation = (presentationId) => {
   makeCall('removePresentation', presentationId, POD_ID);
 };
@@ -191,7 +187,7 @@ const removePresentations = (
   presentationsToRemove,
 ) => Promise.all(presentationsToRemove.map((p) => removePresentation(p.presentationId, POD_ID)));
 
-const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
+const persistPresentationChanges = (oldState, newState, uploadEndpoint, setPresentation) => {
   const presentationsToUpload = newState.filter((p) => !p.uploadCompleted);
   const presentationsToRemove = oldState.filter((p) => !newState.find((u) => { return u.presentationId === p.presentationId }));
 
@@ -231,7 +227,11 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
 };
 
 const handleSavePresentation = (
-  presentations = [], isFromPresentationUploaderInterface = true, newPres = {}, currentPresentations = [],
+  presentations = [],
+  isFromPresentationUploaderInterface = true,
+  newPres = {},
+  currentPresentations = [],
+  setPresentation,
 ) => {
   if (!isPresentationEnabled()) {
     return null;
@@ -253,7 +253,7 @@ const handleSavePresentation = (
     currentPresentations,
     presentations,
     PRESENTATION_CONFIG.uploadEndpoint,
-    'DEFAULT_PRESENTATION_POD',
+    setPresentation,
   );
 };
 
@@ -348,7 +348,6 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
 export default {
   handleSavePresentation,
   persistPresentationChanges,
-  setPresentation,
   requestPresentationUploadToken,
   getExternalUploadData,
   uploadAndConvertPresentation,

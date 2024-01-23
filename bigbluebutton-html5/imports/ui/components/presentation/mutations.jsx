@@ -45,9 +45,18 @@ export const PRESENTATION_SET_DOWNLOADABLE = gql`
   }
 `;
 
+export const PRESENTATION_SET_CURRENT = gql`
+  mutation PresentationSetCurrent($presentationId: String!) {
+    presentationSetCurrent(
+      presentationId: $presentationId,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   PRESENTATION_SET_WRITERS,
   PRESENTATION_SET_PAGE,
   PRESENTATION_SET_DOWNLOADABLE,
+  PRESENTATION_SET_CURRENT,
 };

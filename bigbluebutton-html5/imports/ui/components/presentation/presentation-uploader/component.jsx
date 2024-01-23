@@ -583,6 +583,7 @@ class PresentationUploader extends Component {
       selectedToBeNextCurrent,
       presentations: propPresentations,
       dispatchChangePresentationDownloadable,
+      setPresentation,
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
@@ -610,7 +611,7 @@ class PresentationUploader extends Component {
 
     if (!disableActions) {
       Session.set('showUploadPresentationView', false);
-      return handleSave(presentationsToSave, true, {}, propPresentations)
+      return handleSave(presentationsToSave, true, {}, propPresentations, setPresentation)
         .then(() => {
           const hasError = presentations.some((p) => !!p.uploadErrorMsgKey);
           if (!hasError) {
