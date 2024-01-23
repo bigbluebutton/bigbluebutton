@@ -1,5 +1,5 @@
 import React, {
-  ElementRef, useEffect, useMemo, useRef, useState,
+  useEffect, useMemo, useRef, useState,
 } from 'react';
 import { useMutation, useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
@@ -94,8 +94,8 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
   const [typedAns, setTypedAns] = useState('');
   const [checkedAnswers, setCheckedAnswers] = useState<Array<number>>([]);
   const intl = useIntl();
-  const responseInput = useRef<ElementRef<'input'>>(null);
-  const pollingContainer = useRef<ElementRef<'aside'>>(null);
+  const responseInput = useRef<HTMLInputElement>(null);
+  const pollingContainer = useRef<HTMLElement>(null);
 
   useEffect(() => {
     play();
