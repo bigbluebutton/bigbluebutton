@@ -19,7 +19,7 @@ const PresentationToolbarPluginStateContainer = ((
   const [
     presentationToolbarItems,
     setPresentationToolbarItems,
-  ] = useState<PluginSdk.PresentationToolbarItem[]>([]);
+  ] = useState<PluginSdk.PresentationToolbarInterface[]>([]);
 
   const {
     pluginsExtensibleAreasAggregatedState,
@@ -31,7 +31,7 @@ const PresentationToolbarPluginStateContainer = ((
     extensibleAreaMap[uuid].presentationToolbarItems = presentationToolbarItems;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
-    const aggregatedPresentationToolbarItems = ([] as PluginSdk.PresentationToolbarItem[]).concat(
+    const aggregatedPresentationToolbarItems = ([] as PluginSdk.PresentationToolbarInterface[]).concat(
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.presentationToolbarItems),
     );
@@ -44,8 +44,8 @@ const PresentationToolbarPluginStateContainer = ((
     );
   }, [presentationToolbarItems]);
 
-  pluginApi.setPresentationToolbarItems = (items: PluginSdk.PresentationToolbarItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.PresentationToolbarItem[];
+  pluginApi.setPresentationToolbarItems = (items: PluginSdk.PresentationToolbarInterface[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.PresentationToolbarInterface[];
     return setPresentationToolbarItems(itemsWithId);
   };
   return null;

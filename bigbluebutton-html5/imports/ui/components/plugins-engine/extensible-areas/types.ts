@@ -8,7 +8,7 @@ export interface ExtensibleAreaStateManagerProps {
 }
 
 export interface ExtensibleArea {
-  presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
+  presentationToolbarItems: PluginSdk.PresentationToolbarInterface[];
   userListDropdownItems: PluginSdk.UserListDropdownInterface[];
   actionButtonDropdownItems: PluginSdk.ActionButtonDropdownInterface[];
   audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownInterface[];
@@ -17,7 +17,7 @@ export interface ExtensibleArea {
   navBarItems: PluginSdk.NavBarInterface[];
   optionsDropdownItems: PluginSdk.OptionsDropdownInterface[];
   cameraSettingsDropdownItems: PluginSdk.CameraSettingsDropdownInterface[];
-  userCameraDropdownItems: PluginSdk.UserCameraDropdownItem[];
+  userCameraDropdownItems: PluginSdk.UserCameraDropdownInterface[];
   userListItemAdditionalInformation: PluginSdk.UserListItemAdditionalInformationInterface[];
   floatingWindows: PluginSdk.FloatingWindowInterface[]
 }
