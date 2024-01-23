@@ -7,7 +7,7 @@ import Service from './service';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const DEBOUNCE_TIMEOUT = 15000;
-const NOTES_CONFIG = Meteor.settings.public.notes;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 const NOTES_IS_PINNABLE = NOTES_CONFIG.pinnable;
 
 const intlMessages = defineMessages({

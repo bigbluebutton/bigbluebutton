@@ -29,7 +29,7 @@ const showGuestNotification = () => {
   return guestPolicy === 'ASK_MODERATOR';
 };
 
-const isKeepPushingLayoutEnabled = () => Meteor.settings.public.layout.showPushLayoutToggle;
+const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
 
 const updateSettings = (obj, msgDescriptor) => {
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));

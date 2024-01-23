@@ -11,7 +11,7 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 
-const ALWAYS_SHOW_WAITING_ROOM = Meteor.settings.public.app.alwaysShowWaitingRoomUI;
+const ALWAYS_SHOW_WAITING_ROOM = window.meetingClientSettings.public.app.alwaysShowWaitingRoomUI;
 
 interface GuestPanelOpenerProps {
   count: number;

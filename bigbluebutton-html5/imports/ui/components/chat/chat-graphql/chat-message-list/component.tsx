@@ -26,7 +26,7 @@ import { Layout } from '../../../layout/layoutTypes';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 // @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 

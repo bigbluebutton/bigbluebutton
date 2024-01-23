@@ -12,7 +12,7 @@ import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import { Session } from 'meteor/session';
 import { isEqual } from 'radash';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const POLL_RESULT_KEY = CHAT_CONFIG.system_messages_keys.chat_poll_result;
@@ -99,9 +99,9 @@ const ChatAlert = (props) => {
           .reduce((a, b) => a + b.unreadCounter, 0);
 
       if (unreadCount > unreadMessagesCount) {
-        AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-          + Meteor.settings.public.app.basename
-          + Meteor.settings.public.app.instanceId}`
+        AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
+          + window.meetingClientSettings.public.app.basename
+          + window.meetingClientSettings.public.app.instanceId}`
           + '/resources/sounds/notify.mp3');
       }
 

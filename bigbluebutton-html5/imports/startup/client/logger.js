@@ -16,7 +16,7 @@ import { nameFromLevel } from '@browser-bunyan/levels';
 // externalURL is the end-point that logs will be sent to
 // Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 
-const LOG_CONFIG = Meteor.settings.public.clientLog || { console: { enabled: true, level: 'info' } };
+const LOG_CONFIG = window.meetingClientSettings.public.clientLog || { console: { enabled: true, level: 'info' } };
 
 // Custom stream that logs to an end-point
 class ServerLoggerStream extends ServerStream {
@@ -35,7 +35,7 @@ class ServerLoggerStream extends ServerStream {
     if (fullInfo.meetingId != null) {
       this.rec.userInfo = fullInfo;
     }
-    this.rec.clientBuild = Meteor.settings.public.app.html5ClientBuild;
+    this.rec.clientBuild = window.meetingClientSettings.public.app.html5ClientBuild;
     this.rec.connectionId = Meteor.connection._lastSessionId;
     if (this.logTagString) {
       this.rec.logTag = this.logTagString;

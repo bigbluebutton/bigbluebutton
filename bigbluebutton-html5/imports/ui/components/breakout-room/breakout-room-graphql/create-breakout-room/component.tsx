@@ -27,7 +27,7 @@ import {
 } from './room-managment-state/types';
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../../mutations';
 
-const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
+const BREAKOUT_LIM = window.meetingClientSettings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 const MIN_BREAKOUT_TIME = 5;

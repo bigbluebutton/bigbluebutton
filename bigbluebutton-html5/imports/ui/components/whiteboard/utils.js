@@ -7,8 +7,8 @@ import {
   notifyShapeNumberExceeded,
 } from './service';
 
-const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const usePrevious = (value) => {
   const ref = React.useRef();

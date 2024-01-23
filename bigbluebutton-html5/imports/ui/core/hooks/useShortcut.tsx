@@ -9,7 +9,7 @@ interface ShortcutObject {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
-const BASE_SHORTCUTS: Array<ShortcutObject> = Meteor.settings.public.app.shortcuts;
+const BASE_SHORTCUTS: Array<ShortcutObject> = window.meetingClientSettings.public.app.shortcuts;
 
 export function useShortcut(param: string): string {
   const [shortcut, setShortcut] = useState<string>('');

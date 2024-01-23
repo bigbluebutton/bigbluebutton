@@ -57,7 +57,7 @@ const FULLSCREEN_CHANGE_EVENT = isSafari
   ? 'webkitfullscreenchange'
   : 'fullscreenchange';
 
-const PAN_ZOOM_INTERVAL = Meteor.settings.public.presentation.panZoomInterval || 200;
+const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
 
 const getToolbarHeight = () => {
   let height = 0;

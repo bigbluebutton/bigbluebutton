@@ -12,7 +12,7 @@ let currentUserData = {};
 let messageQueue = [];
 let referenceIds = {};
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 const ITENS_PER_PAGE = CHAT_CONFIG.itemsPerPage;

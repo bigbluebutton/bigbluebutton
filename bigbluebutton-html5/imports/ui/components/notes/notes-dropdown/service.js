@@ -5,7 +5,7 @@ import NotesService from '/imports/ui/components/notes/service';
 import { UploadingPresentations } from '/imports/api/presentations';
 import { uniqueId } from '/imports/utils/string-utils';
 
-const PADS_CONFIG = Meteor.settings.public.pads;
+const PADS_CONFIG = window.meetingClientSettings.public.pads;
 
 async function convertAndUpload(presentations) {
 

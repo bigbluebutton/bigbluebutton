@@ -24,7 +24,7 @@ import BBBStorage from '/imports/ui/services/storage';
 import { useMutation } from '@apollo/client';
 import { SET_EXIT_REASON } from '/imports/ui/core/graphql/mutations/userMutations';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
 const USER_WAS_EJECTED = 'userWasEjected';
 
@@ -177,8 +177,8 @@ class Base extends Component {
 
     if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true))) {
       if (!checkedUserSettings) {
-        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+        if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,

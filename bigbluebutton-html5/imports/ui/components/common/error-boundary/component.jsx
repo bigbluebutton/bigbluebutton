@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import logger from '/imports/startup/client/logger';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
-  Fallback: PropTypes.func.isRequired,
 };
 
 class ErrorBoundary extends Component {
@@ -13,31 +11,43 @@ class ErrorBoundary extends Component {
     this.state = { error: false, errorInfo: null };
   }
 
+  componentDidUpdate() {
+    const { error, errorInfo } = this.state;
+
+    if (error || errorInfo) {
+      console.error({
+        logCode: 'Error_Boundary_wrapper',
+        extraInfo: { error, errorInfo },
+      }, 'generic error boundary logger');
+    }
+  }
+
   componentDidCatch(error, errorInfo) {
     this.setState({
       error,
       errorInfo,
     });
-    logger.error({
-      logCode: 'Error_Boundary_wrapper',
-      extraInfo: { error, errorInfo },
-    }, 'generic error boundary logger');
   }
 
   render() {
     const { error } = this.state;
-    const { children, Fallback } = this.props;
+    const { children } = this.props;
 
-    return (error ? (<Fallback {...this.state} />) : children);
+    return (error ? (
+      <div>
+        Error:
+        {this.error}
+      </div>
+    ) : children);
   }
 }
 
 ErrorBoundary.propTypes = propTypes;
+
+export default ErrorBoundary;
 
 export const withErrorBoundary = (WrappedComponent, FallbackComponent) => (props) => (
   <ErrorBoundary Fallback={FallbackComponent}>
     <WrappedComponent {...props} />
   </ErrorBoundary>
 );
-
-export default ErrorBoundary;

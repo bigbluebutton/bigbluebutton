@@ -18,7 +18,7 @@
   },
   "meteor": {
     "mainModule": {
-      "web.browser": "client/main.jsx",
+      "web.browser": "client/main.tsx",
       "legacy": "client/legacy.jsx",
       "server": "server/main.js"
     }

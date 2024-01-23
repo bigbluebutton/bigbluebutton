@@ -23,8 +23,8 @@ import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 import Settings from '/imports/ui/services/settings';
 
-const APP_CONFIG = Meteor.settings.public.app;
-const KURENTO_CONFIG = Meteor.settings.public.kurento;
+const APP_CONFIG = window.meetingClientSettings.public.app;
+const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
 
 const intlMessages = defineMessages({
   joinedAudio: {

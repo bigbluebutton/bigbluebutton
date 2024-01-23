@@ -9,7 +9,7 @@ import Storage from '/imports/ui/services/storage/session';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import UserService from '/imports/ui/components/user-list/service';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -38,8 +38,8 @@ export const MESSAGE_TYPES = {
   STREAM: 'stream',
 };
 
-export const getGroupingTime = () => Meteor.settings.public.chat.grouping_messages_window;
-export const getGroupChatId = () => Meteor.settings.public.chat.public_group_id;
+export const getGroupingTime = () => window.meetingClientSettings.public.chat.grouping_messages_window;
+export const getGroupChatId = () => window.meetingClientSettings.public.chat.public_group_id;
 export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {}).authTokenValidatedTime || 0;
 
 const generateTimeWindow = (timestamp) => {

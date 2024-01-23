@@ -9,7 +9,7 @@ import { GroupChatContext } from '/imports/ui/components/components-data/group-c
 import userListService from '/imports/ui/components/user-list/service';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 
-const PUBLIC_CHAT_ID = Meteor.settings.public.chat.public_group_id;
+const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
 
 const propTypes = {
   audioAlertEnabled: PropTypes.bool.isRequired,

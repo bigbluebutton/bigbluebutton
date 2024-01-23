@@ -8,9 +8,9 @@ import AudioManager from '/imports/ui/services/audio-manager';
 
 const MUTED_KEY = 'muted';
 // @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 // @ts-ignore - temporary, while meteor exists in the project
-const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
+const TOGGLE_MUTE_THROTTLE_TIME = window.meetingClientSettings.public.media.toggleMuteThrottleTime;
 const DEVICE_LABEL_MAX_LENGTH = 40;
 const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
 const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';

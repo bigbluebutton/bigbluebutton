@@ -19,7 +19,7 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
+const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
 const PresentationUploaderContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({

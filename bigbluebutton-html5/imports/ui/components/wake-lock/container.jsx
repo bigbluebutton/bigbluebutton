@@ -6,7 +6,7 @@ import Service from './service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 
 const propTypes = {
   areAudioModalsOpen: PropTypes.bool,

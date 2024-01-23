@@ -37,7 +37,7 @@ import {
 } from "@tldraw/tldraw";
 import { PRESENTATION_SET_ZOOM } from '../presentation/mutations';
 
-const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
+const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
 
 let annotations = [];
 let lastUpdatedAt = null;

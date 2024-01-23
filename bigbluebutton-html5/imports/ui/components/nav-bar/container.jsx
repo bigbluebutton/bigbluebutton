@@ -16,7 +16,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const PUBLIC_CONFIG = Meteor.settings.public;
+const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
 const checkUnreadMessages = ({
   groupChatsMessages, groupChats, users, idChatOpen,

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 
-const { pointerDiameter } = Meteor.settings.public.whiteboard;
+const { pointerDiameter } = window.meetingClientSettings.public.whiteboard;
 
 const Cursor = (props) => {
   const {

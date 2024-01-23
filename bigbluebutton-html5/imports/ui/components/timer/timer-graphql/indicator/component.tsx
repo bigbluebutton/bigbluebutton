@@ -12,10 +12,10 @@ import { layoutSelectInput } from '../../../layout/context';
 import { Input } from '../../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../../mutations';
 
-const CDN = Meteor.settings.public.app.cdn;
-const BASENAME = Meteor.settings.public.app.basename;
+const CDN = window.meetingClientSettings.public.app.cdn;
+const BASENAME = window.meetingClientSettings.public.app.basename;
 const HOST = CDN + BASENAME;
-const trackName = Meteor.settings.public.timer.music;
+const trackName = window.meetingClientSettings.public.timer.music;
 
 interface TimerIndicatorProps {
   passedTime: number;

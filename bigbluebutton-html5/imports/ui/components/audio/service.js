@@ -9,13 +9,13 @@ import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
-const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeter;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+const TOGGLE_MUTE_THROTTLE_TIME = window.meetingClientSettings.public.media.toggleMuteThrottleTime;
+const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
 const {
   enabled: LOCAL_ECHO_TEST_ENABLED,
   initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
-} = Meteor.settings.public.media.localEchoTest;
+} = window.meetingClientSettings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 

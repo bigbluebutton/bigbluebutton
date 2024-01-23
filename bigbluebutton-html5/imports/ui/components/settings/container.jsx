@@ -32,6 +32,6 @@ export default withTracker((props) => ({
   showGuestNotification: showGuestNotification(),
   showToggleLabel: false,
   isScreenSharingEnabled: isScreenSharingEnabled(),
-  isVideoEnabled: Meteor.settings.public.kurento.enableVideo,
+  isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
   isReactionsEnabled: UserReactionService.isEnabled(),
 }))(SettingsContainer);

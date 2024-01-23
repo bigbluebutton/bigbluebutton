@@ -17,9 +17,9 @@ const propTypes = {
   children: PropTypes.element.isRequired,
 };
 
-const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
-const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
-const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
+const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
+const CLIENT_VERSION = window.meetingClientSettings.public.app.html5ClientBuild;
+const FALLBACK_ON_EMPTY_STRING = window.meetingClientSettings.public.app.fallbackOnEmptyLocaleString;
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
