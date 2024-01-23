@@ -55,8 +55,6 @@ const validateInput = (i: string) => {
   return input;
 };
 
-interface PollingGraphqlContainerProps {}
-
 interface PollingGraphqlProps {
   handleTypedVote: (pollId: string, answer: string) => void;
   handleVote: (pollId: string, answerIds: Array<number>) => void;
@@ -328,7 +326,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
   );
 };
 
-const PollingGraphqlContainer: React.FC<PollingGraphqlContainerProps> = () => {
+const PollingGraphqlContainer: React.FC = () => {
   const { data: currentUserData } = useCurrentUser((u) => ({
     userId: u.userId,
     presenter: u.presenter,
