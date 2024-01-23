@@ -594,7 +594,9 @@ class MeetingActor(
         updateUserLastActivity(m.body.msg.sender.id)
 
       // Plugin
-      case m: DispatchPluginDataChannelMessageMsg => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelDispatchMessageMsg => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelDeleteMessageMsg   => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelResetMsg           => pluginHdlrs.handle(m, state, liveMeeting)
 
       // Webcams
       case m: UserBroadcastCamStartMsg            => webcamApp2x.handle(m, liveMeeting, msgBus)
@@ -1005,7 +1007,7 @@ class MeetingActor(
         for {
           regUser <- RegisteredUsers.findWithUserId(u.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, EjectReasonCode.USER_INACTIVITY, outGW)
+          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, EjectReasonCode.USER_INACTIVITY, outGW)
         }
       }
     }

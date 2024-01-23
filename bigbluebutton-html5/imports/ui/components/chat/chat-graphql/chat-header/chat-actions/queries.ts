@@ -22,6 +22,7 @@ query getChatMessageHistory {
     message
     messageId
     messageType
+    chatEmphasizedText
     createdAt
     user {
       userId

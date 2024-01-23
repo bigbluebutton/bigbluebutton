@@ -8,7 +8,7 @@ import PollContainer from '/imports/ui/components/poll/container';
 import CaptionsContainer from '/imports/ui/components/captions/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import TimerContainer from '/imports/ui/components/timer/container';
-import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
+import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/waiting-users-graphql/component';
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
@@ -145,8 +145,8 @@ const SidebarContent = (props) => {
       )}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer amIModerator={amIModerator} />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
-      {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
-      {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
+      {sidebarContentPanel === PANELS.TIMER && <TimerContainer isModerator={amIModerator} />}
+      {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}
       {sidebarContentPanel === PANELS.POLL && (
         <Styled.Poll
           style={{ minWidth, top: '0', display: pollDisplay }}

@@ -3,7 +3,6 @@ import Timer from '/imports/api/timer';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import { TRACKS, getInitialState } from '/imports/api/timer/server/helpers';
-import { sysStopTimer } from '../methods/stopTimer';
 import { sysEndTimer } from '../methods/endTimer';
 
 const getActivateModifier = () => ({
@@ -38,7 +37,6 @@ const handleTimerEndedNotifications = (fields, meetingId, handle) => {
   }
 
   if (fields.ended >= meetingUsers) {
-    sysStopTimer(meetingId);
     sysEndTimer(meetingId);
   }
 };

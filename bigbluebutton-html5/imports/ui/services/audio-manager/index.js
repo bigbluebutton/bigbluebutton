@@ -79,7 +79,7 @@ class AudioManager {
       isHangingUp: makeVar(false),
       isListenOnly: makeVar(false),
       isEchoTest: makeVar(false),
-      isTalking: false,
+      isTalking: makeVar(false),
       isWaitingPermissions: false,
       error: null,
       muteHandle: null,

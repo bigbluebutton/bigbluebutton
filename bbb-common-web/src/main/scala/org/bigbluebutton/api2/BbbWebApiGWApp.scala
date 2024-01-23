@@ -149,6 +149,7 @@ class BbbWebApiGWApp(
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
+                    logoutUrl:                              String,
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
@@ -230,7 +231,8 @@ class BbbWebApiGWApp(
     )
 
     val systemProps = SystemProps(
-      html5InstanceId
+      html5InstanceId,
+      logoutUrl
     )
 
     val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))

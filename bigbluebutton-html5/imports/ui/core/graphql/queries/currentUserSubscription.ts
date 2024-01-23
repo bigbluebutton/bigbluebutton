@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-const CURRENT_USER_SUBSCRIPTION = gql`
+export const CURRENT_USER_SUBSCRIPTION = gql`
 subscription userCurrentSubscription {
   user_current {
     authed
@@ -22,9 +22,7 @@ subscription userCurrentSubscription {
   emoji
   extId
   guest
-  guestStatus {
-    guestStatus
-  }
+  guestStatus
   hasDrawPermissionOnCurrentPage
   isDialIn
   isModerator
@@ -71,6 +69,7 @@ subscription userCurrentSubscription {
     registeredOn
     role
     userId
+    speechLocale
     voice {
       joined
       muted

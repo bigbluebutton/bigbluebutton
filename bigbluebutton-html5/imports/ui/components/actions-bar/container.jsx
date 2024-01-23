@@ -2,13 +2,11 @@ import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
-import { useSubscription } from '@apollo/client';
+import { useSubscription, useMutation } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import Service from './service';
-import UserListService from '/imports/ui/components/user-list/service';
-import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
@@ -21,6 +19,7 @@ import {
 import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -51,6 +50,8 @@ const ActionsBarContainer = (props) => {
     emoji: user.emoji,
     isModerator: user.isModerator,
   }));
+
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
@@ -69,6 +70,7 @@ const ActionsBarContainer = (props) => {
         actionBarItems,
         isThereCurrentPresentation,
         isSharingVideo,
+        stopExternalVideoShare,
       }
     }
     />
@@ -87,10 +89,8 @@ const isReactionsButtonEnabled = () => {
 };
 
 export default withTracker(() => ({
-  stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  handleTakePresenter: Service.takePresenterRole,
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
@@ -104,5 +104,4 @@ export default withTracker(() => ({
   isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
   allowExternalVideo: isExternalVideoEnabled(),
-  setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

@@ -416,8 +416,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
       //Plugin
-      case DispatchPluginDataChannelMessageMsg.NAME =>
-        routeGenericMsg[DispatchPluginDataChannelMessageMsg](envelope, jsonNode)
+      case PluginDataChannelDispatchMessageMsg.NAME =>
+        routeGenericMsg[PluginDataChannelDispatchMessageMsg](envelope, jsonNode)
+
+      case PluginDataChannelDeleteMessageMsg.NAME =>
+        routeGenericMsg[PluginDataChannelDeleteMessageMsg](envelope, jsonNode)
+
+      case PluginDataChannelResetMsg.NAME =>
+        routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
 
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>
@@ -450,8 +456,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
 
       // Messages from Graphql Middleware
-      case UserGraphqlConnectionStablishedSysMsg.NAME =>
-        route[UserGraphqlConnectionStablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
+      case UserGraphqlConnectionEstablishedSysMsg.NAME =>
+        route[UserGraphqlConnectionEstablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case UserGraphqlConnectionClosedSysMsg.NAME =>
         route[UserGraphqlConnectionClosedSysMsg](meetingManagerChannel, envelope, jsonNode)

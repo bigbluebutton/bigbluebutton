@@ -84,17 +84,16 @@ const propTypes = {
 
 const defaultProps = {
   code: '500',
-  callback: async () => {},
+  callback: () => {},
+  endedReason: null,
 };
 
 class ErrorScreen extends PureComponent {
   componentDidMount() {
-    const { code, callback } = this.props;
+    const { code, callback, endedReason } = this.props;
     const log = code === '403' ? 'warn' : 'error';
     AudioManager.exitAudio();
-    callback().finally(() => {
-      Meteor.disconnect();
-    });
+    callback(endedReason, () => Meteor.disconnect());
     logger[log]({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
   }
 

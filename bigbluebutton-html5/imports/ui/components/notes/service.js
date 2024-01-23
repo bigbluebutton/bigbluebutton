@@ -58,8 +58,8 @@ const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
-const pinSharedNotes = (pinned) => {
-  PadsService.pinPad(NOTES_CONFIG.id, pinned);
+const pinSharedNotes = (pinned, stopWatching) => {
+  PadsService.pinPad(NOTES_CONFIG.id, pinned, stopWatching);
 };
 
 const isSharedNotesPinned = () => {
