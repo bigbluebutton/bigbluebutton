@@ -38,6 +38,7 @@ type BrowserConnection struct {
 	ConnectionInitMessage    map[string]interface{}         // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection         *HasuraConnection              // associated hasura connection
 	Disconnected             bool                           // indicate if the connection is gone
+	ConnAckSentToBrowser     bool                           // indicate if `connection_ack` msg was already sent to the browser
 }
 
 type HasuraConnection struct {

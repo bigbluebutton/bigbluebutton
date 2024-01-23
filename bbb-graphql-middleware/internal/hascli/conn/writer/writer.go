@@ -12,7 +12,7 @@ import (
 
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
-func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup) {
+func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup, initMessage map[string]interface{}) {
 	log := log.WithField("_routine", "HasuraConnectionWriter")
 
 	browserConnection := hc.Browserconn
@@ -22,6 +22,17 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChan
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
 	defer log.Debugf("finished")
+
+	//Send authentication (init) message at first
+	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
+	if initMessage != nil {
+		log.Infof("it's a reconnection, injecting authentication (init) message")
+		err := wsjson.Write(hc.Context, hc.Websocket, initMessage)
+		if err != nil {
+			log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+			return
+		}
+	}
 
 RangeLoop:
 	for {

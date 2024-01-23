@@ -80,13 +80,22 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 				}
 			}
 
-			// Write the message to browser
-			fromHasuraToBrowserChannel.Send(messageAsMap)
-
 			// Retransmit the subscription start commands when hasura confirms the connection
 			// this is useful in case of a connection invalidation
 			if messageType == "connection_ack" {
+				//Hasura connection was initialized, now it's able to send new messages to Hasura
+				fromBrowserToHasuraChannel.UnfreezeChannel()
+
+				//Avoid to send `connection_ack` to the browser when it's a reconnection
+				if hc.Browserconn.ConnAckSentToBrowser == false {
+					fromHasuraToBrowserChannel.Send(messageAsMap)
+					hc.Browserconn.ConnAckSentToBrowser = true
+				}
+
 				go retransmiter.RetransmitSubscriptionStartMessages(hc, fromBrowserToHasuraChannel)
+			} else {
+				// Forward the message to browser
+				fromHasuraToBrowserChannel.Send(messageAsMap)
 			}
 		}
 	}
