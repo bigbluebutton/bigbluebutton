@@ -117,7 +117,6 @@ class WhiteboardModel extends SystemConfiguration {
   }
 
   def deleteAnnotations(wbId: String, userId: String, annotationsIds: Array[String], isPresenter: Boolean, isModerator: Boolean): Array[String] = {
-    // Log before operation
     val wb = getWhiteboard(wbId)
 
     var annotationsIdsRemoved = Array[String]()
