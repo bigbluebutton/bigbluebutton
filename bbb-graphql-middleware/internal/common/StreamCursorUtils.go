@@ -8,18 +8,18 @@ import (
 )
 
 func GetStreamCursorPropsFromQuery(payload map[string]interface{}, query string) (string, string, interface{}) {
-	streamCursorKey := ""
-	streamCursorVariable := ""
+	streamCursorField := ""
+	streamCursorVariableName := ""
 	var streamCursorInitialValue interface{}
 
 	cursorInitialValueRePattern := regexp.MustCompile(`cursor:\s*\{\s*initial_value\s*:\s*\{\s*([^:]+):\s*([^}]+)\s*}\s*}`)
 	matches := cursorInitialValueRePattern.FindStringSubmatch(query)
 	if matches != nil {
-		streamCursorKey = matches[1]
+		streamCursorField = matches[1]
 		if strings.HasPrefix(matches[2], "$") {
-			streamCursorVariable, _ = strings.CutPrefix(matches[2], "$")
+			streamCursorVariableName, _ = strings.CutPrefix(matches[2], "$")
 			if variables, okVariables := payload["variables"].(map[string]interface{}); okVariables {
-				if targetVariableValue, okTargetVariableValue := variables[streamCursorVariable]; okTargetVariableValue {
+				if targetVariableValue, okTargetVariableValue := variables[streamCursorVariableName]; okTargetVariableValue {
 					streamCursorInitialValue = targetVariableValue
 				}
 			}
@@ -28,10 +28,10 @@ func GetStreamCursorPropsFromQuery(payload map[string]interface{}, query string)
 		}
 	}
 
-	return streamCursorKey, streamCursorVariable, streamCursorInitialValue
+	return streamCursorField, streamCursorVariableName, streamCursorInitialValue
 }
 
-func GetLastStreamCursorValueFromReceivedMessage(messageAsMap map[string]interface{}, streamCursorKey string) interface{} {
+func GetLastStreamCursorValueFromReceivedMessage(messageAsMap map[string]interface{}, streamCursorField string) interface{} {
 	var lastStreamCursorValue interface{}
 
 	if payload, okPayload := messageAsMap["payload"].(map[string]interface{}); okPayload {
@@ -43,7 +43,7 @@ func GetLastStreamCursorValueFromReceivedMessage(messageAsMap map[string]interfa
 					// Get the last item directly (once it will contain the last cursor value)
 					lastItemOfMessage := currentDataProp[len(currentDataProp)-1]
 					if lastItemOfMessageAsMap, currDataOk := lastItemOfMessage.(map[string]interface{}); currDataOk {
-						if lastItemValue, okLastItemValue := lastItemOfMessageAsMap[streamCursorKey]; okLastItemValue {
+						if lastItemValue, okLastItemValue := lastItemOfMessageAsMap[streamCursorField]; okLastItemValue {
 							lastStreamCursorValue = lastItemValue
 						}
 					}
@@ -55,16 +55,31 @@ func GetLastStreamCursorValueFromReceivedMessage(messageAsMap map[string]interfa
 	return lastStreamCursorValue
 }
 
-func ReplaceMessageWithLastCursorValue(subscription GraphQlSubscription) interface{} {
-	var message = subscription.Message.(map[string]interface{})
+func PatchQueryIncludingCursorField(originalQuery string, cursorField string) string {
+	if cursorField == "" {
+		return originalQuery
+	}
+
+	lastIndex := strings.LastIndex(originalQuery, "{")
+	if lastIndex == -1 {
+		return originalQuery
+	}
+
+	// It will include the cursorField at the beginning of the list of fields
+	// It's not a problem if the field be duplicated in the list, Hasura just ignore the second occurrence
+	return originalQuery[:lastIndex+1] + "\n    " + cursorField + originalQuery[lastIndex+1:]
+}
+
+func PatchQuerySettingLastCursorValue(subscription GraphQlSubscription) interface{} {
+	message := subscription.Message
 	payload, okPayload := message["payload"].(map[string]interface{})
 
 	if okPayload {
-		if subscription.StreamCursorVariable != "" {
+		if subscription.StreamCursorVariableName != "" {
 			/**** This stream has its cursor value set through variables ****/
 			if variables, okVariables := payload["variables"].(map[string]interface{}); okVariables {
-				if variables[subscription.StreamCursorVariable] != subscription.StreamCursorCurrValue {
-					variables[subscription.StreamCursorVariable] = subscription.StreamCursorCurrValue
+				if variables[subscription.StreamCursorVariableName] != subscription.StreamCursorCurrValue {
+					variables[subscription.StreamCursorVariableName] = subscription.StreamCursorCurrValue
 					payload["variables"] = variables
 					message["payload"] = payload
 				}
@@ -100,7 +115,7 @@ func ReplaceMessageWithLastCursorValue(subscription GraphQlSubscription) interfa
 					}
 
 					if newValue != "" {
-						replacement := subscription.StreamCursorKey + ": " + newValue
+						replacement := subscription.StreamCursorField + ": " + newValue
 						return fmt.Sprintf("cursor: {initial_value: {%s}}", replacement)
 					} else {
 						return match

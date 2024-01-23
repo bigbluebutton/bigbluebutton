@@ -68,7 +68,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 
 				//Set last cursor value for stream
 				if subscription.Type == common.Streaming {
-					lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(messageAsMap, subscription.StreamCursorKey)
+					lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(messageAsMap, subscription.StreamCursorField)
 					if lastCursor != nil && subscription.StreamCursorCurrValue != lastCursor {
 						subscription.StreamCursorCurrValue = lastCursor
 

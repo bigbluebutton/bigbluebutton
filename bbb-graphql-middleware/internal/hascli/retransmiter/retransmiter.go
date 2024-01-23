@@ -15,7 +15,7 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection, fromBrowse
 			log.Tracef("retransmiting subscription start: %v", subscription.Message)
 
 			if subscription.Type == common.Streaming && subscription.StreamCursorCurrValue != nil {
-				fromBrowserToHasuraChannel.Send(common.ReplaceMessageWithLastCursorValue(subscription))
+				fromBrowserToHasuraChannel.Send(common.PatchQuerySettingLastCursorValue(subscription))
 			} else {
 				fromBrowserToHasuraChannel.Send(subscription.Message)
 			}

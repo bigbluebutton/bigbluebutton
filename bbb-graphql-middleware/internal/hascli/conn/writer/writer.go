@@ -41,8 +41,8 @@ RangeLoop:
 
 					//Identify type based on query string
 					messageType := common.Query
-					streamCursorKey := ""
-					streamCursorVariable := ""
+					streamCursorField := ""
+					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
 					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
 
@@ -53,7 +53,18 @@ RangeLoop:
 
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
 								messageType = common.Streaming
-								streamCursorKey, streamCursorVariable, streamCursorInitialValue = common.GetStreamCursorPropsFromQuery(payload, query)
+
+								browserConnection.ActiveSubscriptionsMutex.RLock()
+								_, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+								browserConnection.ActiveSubscriptionsMutex.RUnlock()
+								if !queryIdExists {
+									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromQuery(payload, query)
+
+									//It's necessary to assure the cursor field will return in the result of the query
+									//To be able to store the last received cursor value
+									payload["query"] = common.PatchQueryIncludingCursorField(query, streamCursorField)
+									fromBrowserMessageAsMap["payload"] = payload
+								}
 							}
 
 							if strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {") {
@@ -77,10 +88,10 @@ RangeLoop:
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                        queryId,
-						Message:                   fromBrowserMessage,
+						Message:                   fromBrowserMessageAsMap,
 						OperationName:             operationName,
-						StreamCursorKey:           streamCursorKey,
-						StreamCursorVariable:      streamCursorVariable,
+						StreamCursorField:         streamCursorField,
+						StreamCursorVariableName:  streamCursorVariableName,
 						StreamCursorCurrValue:     streamCursorInitialValue,
 						LastSeenOnHasuraConnetion: hc.Id,
 						JsonPatchSupported:        jsonPatchSupported,
@@ -105,11 +116,11 @@ RangeLoop:
 				}
 
 				if fromBrowserMessageAsMap["type"] == "connection_init" {
-					browserConnection.ConnectionInitMessage = fromBrowserMessage
+					browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
 				}
 
-				log.Tracef("sending to hasura: %v", fromBrowserMessage)
-				err := wsjson.Write(hc.Context, hc.Websocket, fromBrowserMessage)
+				log.Tracef("sending to hasura: %v", fromBrowserMessageAsMap)
+				err := wsjson.Write(hc.Context, hc.Websocket, fromBrowserMessageAsMap)
 				if err != nil {
 					log.Errorf("error on write (we're disconnected from hasura): %v", err)
 					return
