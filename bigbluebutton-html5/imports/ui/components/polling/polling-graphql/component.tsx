@@ -4,11 +4,8 @@ import React, {
 import { useMutation, useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import AudioService from '/imports/ui/components/audio/service';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
-import PollService from '/imports/ui/components/poll/service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { isPollingEnabled } from '/imports/ui/services/features';
 import {
   POLL_SUBMIT_TYPED_VOTE,
   POLL_SUBMIT_VOTE,
@@ -17,7 +14,7 @@ import {
   hasPendingPoll,
   HasPendingPollResponse,
 } from './queries';
-import { shouldStackOptions } from './service';
+import Service from './service';
 import Styled from './styles';
 
 const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
@@ -66,6 +63,7 @@ interface PollingGraphqlProps {
   pollAnswerIds: Record<string, { id: string; description: string }>;
   pollTypes: Record<string, string>;
   isDefaultPoll: (pollType: string) => boolean;
+  playAlert: () => void;
   poll: {
     pollId: string;
     multipleResponses: boolean;
@@ -89,6 +87,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
     pollAnswerIds,
     pollTypes,
     isDefaultPoll,
+    playAlert,
   } = props;
 
   const [typedAns, setTypedAns] = useState('');
@@ -98,21 +97,11 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
   const pollingContainer = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    play();
+    playAlert();
     if (pollingContainer.current) {
       pollingContainer.current.focus();
     }
   }, []);
-
-  const play = () => {
-    AudioService.playAlertSound(
-      `${
-        Meteor.settings.public.app.cdn
-        + Meteor.settings.public.app.basename
-        + Meteor.settings.public.app.instanceId
-      }/resources/sounds/Poll.mp3`,
-    );
-  };
 
   const handleUpdateResponseInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (responseInput.current) {
@@ -357,9 +346,9 @@ const PollingGraphqlContainer: React.FC<PollingGraphqlContainerProps> = () => {
   const pollData = meetingData && meetingData.polls[0];
   const userData = pollData && pollData.users[0];
   const pollExists = !!userData;
-  const showPolling = pollExists && !currentUserData?.presenter && isPollingEnabled();
+  const showPolling = pollExists && !currentUserData?.presenter && Service.isPollingEnabled();
   const stackOptions = useMemo(
-    () => !!pollData && shouldStackOptions(pollData.options.map((o) => o.optionDesc)),
+    () => !!pollData && Service.shouldStackOptions(pollData.options.map((o) => o.optionDesc)),
     [pollData],
   );
 
@@ -391,9 +380,10 @@ const PollingGraphqlContainer: React.FC<PollingGraphqlContainerProps> = () => {
         ...pollData,
         stackOptions,
       }}
-      pollAnswerIds={PollService.pollAnswerIds}
-      pollTypes={PollService.pollTypes}
-      isDefaultPoll={PollService.isDefaultPoll}
+      pollAnswerIds={Service.pollAnswerIds}
+      isDefaultPoll={Service.isDefaultPoll}
+      pollTypes={Service.pollTypes}
+      playAlert={Service.playAlert}
     />
   );
 };
