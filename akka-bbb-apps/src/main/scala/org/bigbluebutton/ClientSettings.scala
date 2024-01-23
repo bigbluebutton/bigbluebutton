@@ -10,6 +10,7 @@ import scala.util.{ Failure, Success, Try }
 object ClientSettings extends SystemConfiguration {
   var clientSettingsFromFile: Map[String, Object] = Map("" -> "")
   val logger = LoggerFactory.getLogger(this.getClass)
+  val
 
   def loadClientSettingsFromFile() = {
     val clientSettingsFile = scala.io.Source.fromFile(clientSettingsPath, "UTF-8")
@@ -56,7 +57,7 @@ object ClientSettings extends SystemConfiguration {
     getConfigPropertyValueByPath(map, path) match {
       case Some(configValue: Int) => configValue
       case _ =>
-        logger.debug("Config `{}` not found.", path)
+        logger.debug(s"Config `$path` with type Integer not found in clientSettings.")
         alternativeValue
     }
   }
@@ -65,7 +66,7 @@ object ClientSettings extends SystemConfiguration {
     getConfigPropertyValueByPath(map, path) match {
       case Some(configValue: String) => configValue
       case _ =>
-        logger.debug("Config `{}` not found.", path)
+        logger.debug(s"Config `$path` with type String not found in clientSettings.")
         alternativeValue
     }
   }
@@ -74,7 +75,7 @@ object ClientSettings extends SystemConfiguration {
     getConfigPropertyValueByPath(map, path) match {
       case Some(configValue: Boolean) => configValue
       case _ =>
-        logger.debug("Config `{}` not found.", path)
+        logger.debug(s"Config `$path` with type Boolean found in clientSettings.")
         alternativeValue
     }
   }
