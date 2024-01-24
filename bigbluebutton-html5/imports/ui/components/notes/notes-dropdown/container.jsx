@@ -7,6 +7,7 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_CURRENT, PRESENTATION_REMOVE } from '../../presentation/mutations';
+import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
 
 const NotesDropdownContainer = ({ ...props }) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -20,6 +21,7 @@ const NotesDropdownContainer = ({ ...props }) => {
 
   const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
   const [presentationRemove] = useMutation(PRESENTATION_REMOVE);
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   const setPresentation = (presentationId) => {
     presentationSetCurrent({ variables: { presentationId } });
@@ -30,16 +32,18 @@ const NotesDropdownContainer = ({ ...props }) => {
   };
 
   return (
-    <NotesDropdown {
+    <NotesDropdown
+      {
       ...{
         amIPresenter,
         isRTL,
         presentations,
         setPresentation,
         removePresentation,
+        stopExternalVideoShare,
         ...props,
       }
-    }
+      }
     />
   );
 };

@@ -276,7 +276,7 @@ type Mutation {
 type Mutation {
   presAnnotationSubmit(
     pageId: String!
-    annotations: [String]!
+    annotations: json!
   ): Boolean
 }
 

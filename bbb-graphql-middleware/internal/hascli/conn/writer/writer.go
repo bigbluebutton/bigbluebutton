@@ -12,7 +12,7 @@ import (
 
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
-func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup) {
+func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup, initMessage map[string]interface{}) {
 	log := log.WithField("_routine", "HasuraConnectionWriter")
 
 	browserConnection := hc.Browserconn
@@ -22,6 +22,17 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChan
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
 	defer log.Debugf("finished")
+
+	//Send authentication (init) message at first
+	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
+	if initMessage != nil {
+		log.Infof("it's a reconnection, injecting authentication (init) message")
+		err := wsjson.Write(hc.Context, hc.Websocket, initMessage)
+		if err != nil {
+			log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+			return
+		}
+	}
 
 RangeLoop:
 	for {
@@ -41,7 +52,11 @@ RangeLoop:
 
 					//Identify type based on query string
 					messageType := common.Query
+					streamCursorField := ""
+					streamCursorVariableName := ""
+					var streamCursorInitialValue interface{}
 					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
+
 					query, ok := payload["query"].(string)
 					if ok {
 						if strings.HasPrefix(query, "subscription") {
@@ -49,6 +64,18 @@ RangeLoop:
 
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
 								messageType = common.Streaming
+
+								browserConnection.ActiveSubscriptionsMutex.RLock()
+								_, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+								browserConnection.ActiveSubscriptionsMutex.RUnlock()
+								if !queryIdExists {
+									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromQuery(payload, query)
+
+									//It's necessary to assure the cursor field will return in the result of the query
+									//To be able to store the last received cursor value
+									payload["query"] = common.PatchQueryIncludingCursorField(query, streamCursorField)
+									fromBrowserMessageAsMap["payload"] = payload
+								}
 							}
 
 							if strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {") {
@@ -72,7 +99,11 @@ RangeLoop:
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                        queryId,
-						Message:                   fromBrowserMessage,
+						Message:                   fromBrowserMessageAsMap,
+						OperationName:             operationName,
+						StreamCursorField:         streamCursorField,
+						StreamCursorVariableName:  streamCursorVariableName,
+						StreamCursorCurrValue:     streamCursorInitialValue,
 						LastSeenOnHasuraConnetion: hc.Id,
 						JsonPatchSupported:        jsonPatchSupported,
 						Type:                      messageType,
@@ -96,11 +127,11 @@ RangeLoop:
 				}
 
 				if fromBrowserMessageAsMap["type"] == "connection_init" {
-					browserConnection.ConnectionInitMessage = fromBrowserMessage
+					browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
 				}
 
-				log.Tracef("sending to hasura: %v", fromBrowserMessage)
-				err := wsjson.Write(hc.Context, hc.Websocket, fromBrowserMessage)
+				log.Tracef("sending to hasura: %v", fromBrowserMessageAsMap)
+				err := wsjson.Write(hc.Context, hc.Websocket, fromBrowserMessageAsMap)
 				if err != nil {
 					log.Errorf("error on write (we're disconnected from hasura): %v", err)
 					return

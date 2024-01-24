@@ -141,6 +141,7 @@ class ScreenshareComponent extends React.Component {
       layoutContextDispatch,
       toggleSwapLayout,
       pinSharedNotes,
+      stopExternalVideoShare,
     } = this.props;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
@@ -173,7 +174,7 @@ class ScreenshareComponent extends React.Component {
       value: Session.get('presentationLastState'),
     });
 
-    pinSharedNotes(Session.get('pinnedNotesLastState'));
+    pinSharedNotes(Session.get('pinnedNotesLastState'), stopExternalVideoShare);
   }
 
   clearMediaFlowingMonitor() {

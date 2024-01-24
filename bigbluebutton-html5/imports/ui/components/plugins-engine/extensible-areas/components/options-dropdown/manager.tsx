@@ -19,7 +19,7 @@ const OptionsDropdownPluginStateContainer = ((
   const [
     optionsDropdownItems,
     setOptionsDropdownItems,
-  ] = useState<PluginSdk.OptionsDropdownItem[]>([]);
+  ] = useState<PluginSdk.OptionsDropdownInterface[]>([]);
 
   const {
     pluginsExtensibleAreasAggregatedState,
@@ -32,7 +32,7 @@ const OptionsDropdownPluginStateContainer = ((
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedOptionsDropdownItems = (
-      [] as PluginSdk.OptionsDropdownItem[]).concat(
+      [] as PluginSdk.OptionsDropdownInterface[]).concat(
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.optionsDropdownItems),
     );
@@ -44,8 +44,8 @@ const OptionsDropdownPluginStateContainer = ((
     );
   }, [optionsDropdownItems]);
 
-  pluginApi.setOptionsDropdownItems = (items: PluginSdk.OptionsDropdownItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.OptionsDropdownItem[];
+  pluginApi.setOptionsDropdownItems = (items: PluginSdk.OptionsDropdownInterface[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.OptionsDropdownInterface[];
     return setOptionsDropdownItems(itemsWithId);
   };
   return null;
