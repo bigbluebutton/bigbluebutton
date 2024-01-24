@@ -468,7 +468,7 @@ exports.wbStickyNoteShape = 'button[data-testid="tools.note"]';
 exports.wbTextShape = 'button[data-testid="tools.text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape="sticky"]';
-exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
+exports.wbDrawnRectangle = 'div[data-shape-type="geo"]';
 exports.wbDrawnLine = 'div[data-shape="draw"]';
 exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
 exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';
