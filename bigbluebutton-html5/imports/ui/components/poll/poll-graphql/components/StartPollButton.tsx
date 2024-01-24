@@ -113,32 +113,34 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
           err = intl.formatMessage(intlMessages.optionErr);
         }
 
-        if (err) return setError(err);
-
-        setIsPolling(true);
-        const verifiedPollType = checkPollType(
-          type,
-          optionsList,
-          intl.formatMessage(intlMessages.yes),
-          intl.formatMessage(intlMessages.no),
-          intl.formatMessage(intlMessages.abstention),
-          intl.formatMessage(intlMessages.true),
-          intl.formatMessage(intlMessages.false),
-        );
-        const verifiedOptions = optionsList.map((o) => {
-          if (o.val.trim().length > 0) return o.val;
-          return null;
-        });
-        if (verifiedPollType === pollTypes.Custom) {
-          startPoll(
-            verifiedPollType,
-            secretPoll,
-            question,
-            isMultipleResponse,
-            verifiedOptions?.filter(Boolean),
-          );
+        if (err) {
+          setError(err);
         } else {
-          startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);
+          setIsPolling(true);
+          const verifiedPollType = checkPollType(
+            type,
+            optionsList,
+            intl.formatMessage(intlMessages.yes),
+            intl.formatMessage(intlMessages.no),
+            intl.formatMessage(intlMessages.abstention),
+            intl.formatMessage(intlMessages.true),
+            intl.formatMessage(intlMessages.false),
+          );
+          const verifiedOptions = optionsList.map((o) => {
+            if (o.val.trim().length > 0) return o.val;
+            return null;
+          });
+          if (verifiedPollType === pollTypes.Custom) {
+            startPoll(
+              verifiedPollType,
+              secretPoll,
+              question,
+              isMultipleResponse,
+              verifiedOptions?.filter(Boolean),
+            );
+          } else {
+            startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);
+          }
         }
       }}
     />

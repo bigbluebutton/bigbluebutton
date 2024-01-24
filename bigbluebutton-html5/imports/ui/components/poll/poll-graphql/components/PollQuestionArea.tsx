@@ -25,7 +25,7 @@ const intlMessages = defineMessages({
   },
 });
 
-interface PollquestionAreaProps {
+interface PollQuestionAreaProps {
   customInput: boolean;
   optList: Array<{ val: string }>;
   warning: string | null;
@@ -39,7 +39,7 @@ interface PollquestionAreaProps {
   question: string | string[];
 }
 
-const PollquestionArea: React.FC<PollquestionAreaProps> = ({
+const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
   customInput,
   optList,
   warning,
@@ -101,4 +101,4 @@ const PollquestionArea: React.FC<PollquestionAreaProps> = ({
   );
 };
 
-export default PollquestionArea;
+export default PollQuestionArea;

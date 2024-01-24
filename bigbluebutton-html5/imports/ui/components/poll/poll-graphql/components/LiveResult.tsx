@@ -1,14 +1,14 @@
 import { useMutation, useSubscription } from '@apollo/client';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { Session } from 'meteor/session';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
 import Styled from '../styles';
 import { ResponseInfo, UserInfo, getCurrentPollData, getCurrentPollDataResponse } from '../queries';
 import logger from '/imports/startup/client/logger';
-import { defineMessages, useIntl } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
-import { Session } from 'meteor/session';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutation';
 
 const intlMessages = defineMessages({
@@ -51,11 +51,8 @@ const intlMessages = defineMessages({
 });
 
 interface LiveResultProps {
-  multipleResponses: boolean;
   questionText: string;
   responses: Array<ResponseInfo>;
-  secret: boolean;
-  published: boolean;
   isSecret: boolean;
   usersCount: number;
   numberOfAnswerCount: number;
@@ -65,11 +62,8 @@ interface LiveResultProps {
 }
 
 const LiveResult: React.FC<LiveResultProps> = ({
-  multipleResponses,
   questionText,
   responses,
-  secret,
-  published,
   isSecret,
   usersCount,
   numberOfAnswerCount,
@@ -80,7 +74,6 @@ const LiveResult: React.FC<LiveResultProps> = ({
   const intl = useIntl();
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
   const [stopPoll] = useMutation(POLL_CANCEL);
-  const [waitingResponsesCount, setWaitingResponsesCount] = React.useState(0);
 
   const publishPoll = useCallback((pId: string) => {
     pollPublishResult({
@@ -88,10 +81,6 @@ const LiveResult: React.FC<LiveResultProps> = ({
         pollId: pId,
       },
     });
-  }, []);
-
-  useEffect(() => {
-    setWaitingResponsesCount(usersCount);
   }, []);
 
   return (
@@ -102,17 +91,17 @@ const LiveResult: React.FC<LiveResultProps> = ({
       <Styled.Stats>
         {questionText ? <Styled.Title data-test="currentPollQuestion">{questionText}</Styled.Title> : null}
         <Styled.Status>
-          {waitingResponsesCount !== numberOfAnswerCount
+          {usersCount !== numberOfAnswerCount
             ? (
               <span>
                 {`${intl.formatMessage(intlMessages.waitingLabel, {
                   0: numberOfAnswerCount,
-                  1: waitingResponsesCount,
+                  1: usersCount,
                 })} `}
               </span>
             )
             : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
-          {waitingResponsesCount !== numberOfAnswerCount
+          {usersCount !== numberOfAnswerCount
             ? <Styled.ConnectingAnimation animations={animations} /> : null}
         </Styled.Status>
         <ResponsiveContainer width="90%" height={250}>
@@ -225,8 +214,9 @@ const LiveResultContainer: React.FC = () => {
     users,
   } = currentPoll;
 
-  const usersCount = 10;
-  const numberOfAnswerCount = responses[0].pollResponsesCount;
+  const numberOfAnswerCount = currentPoll.responses_aggregate.aggregate.sum.optionResponsesCount;
+  const numberOfUsersCount = currentPoll.users_aggregate.aggregate.count;
+
   return (
     <LiveResult
       multipleResponses={multipleResponses}
@@ -235,8 +225,8 @@ const LiveResultContainer: React.FC = () => {
       secret={secret}
       published={published}
       isSecret={isSecret}
-      usersCount={usersCount}
-      numberOfAnswerCount={numberOfAnswerCount}
+      usersCount={numberOfUsersCount}
+      numberOfAnswerCount={numberOfAnswerCount ?? 0}
       animations={animations}
       pollId={pollId}
       users={users}

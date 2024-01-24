@@ -1,38 +1,29 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Session } from 'meteor/session';
 import { Meteor } from 'meteor/meteor';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Header from '/imports/ui/components/common/control-header/component';
+import { useMutation, useSubscription } from '@apollo/client';
 import { Input } from '../../layout/layoutTypes';
 import { layoutDispatch, layoutSelectInput } from '../../layout/context';
 import { addNewAlert } from '../../screenreader-alert/service';
 import { PANELS, ACTIONS } from '../../layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { useMutation, useSubscription } from '@apollo/client';
-import { POLL_CANCEL, POLL_CREATE, POLL_PUBLISH_RESULT } from './mutation';
+import { POLL_CANCEL } from './mutation';
 import { GetHasCurrentPresentationResponse, getHasCurrentPresentation } from './queries';
 import EmptySlideArea from './components/EmptySlideArea';
-import { getSplittedQuestionAndOptions, isDefaultPoll, pollTypes, removeEmptyLineSpaces, validateInput } from './service';
+import { getSplittedQuestionAndOptions, pollTypes, validateInput } from './service';
 import Toggle from '/imports/ui/components/common/switch/component';
-import DraggableTextArea from '/imports/ui/components/poll/dragAndDrop/component';
 import Styled from '../styles';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
-import StartPollButton from './components/StartPollButton';
 import ResponseChoices from './components/ResponseChoices';
 import ResponseTypes from './components/ResponseTypes';
-import PollquestionArea from './components/PollquestionArea';
+import PollQuestionArea from './components/PollQuestionArea';
 import LiveResultContainer from './components/LiveResult';
-
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
-const MIN_OPTIONS_LENGTH = 2;
-const QUESTION_MAX_INPUT_CHARS = 1200;
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -251,14 +242,11 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   hasPoll,
   hasCurrentPresentation,
 }) => {
-  const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
   const [stopPoll] = useMutation(POLL_CANCEL);
-  const [createPoll] = useMutation(POLL_CREATE);
 
   const intl = useIntl();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [customInput, setCustomInput] = React.useState(false);
-  const [isPolling, setIsPolling] = useState(false);
   const [question, setQuestion] = useState<string[] | string>('');
   const [questionAndOptions, setQuestionAndOptions] = useState<string[] | string>('');
   const [optList, setOptList] = useState<Array<{val: string}>>([]);
@@ -268,14 +256,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   const [warning, setWarning] = useState<string | null>('');
   const [isPasting, setIsPasting] = useState(false);
   const [type, setType] = useState<string | null>('');
-
-  const handleBackClick = () => {
-    setIsPolling(false);
-    setError(null);
-    stopPoll();
-    Session.set('resetPollPanel', false);
-    document?.activeElement?.blur();
-  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -313,11 +293,12 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     const clearWarning = maxOptionsWarning && optionsListLength <= MAX_CUSTOM_FIELDS;
     const clearError = input.length > 0 && type === pollTypes.Response;
 
-    if (optionsListLength > MAX_CUSTOM_FIELDS  && optList[MAX_CUSTOM_FIELDS] === undefined) {
+    if (optionsListLength > MAX_CUSTOM_FIELDS && optList[MAX_CUSTOM_FIELDS] === undefined) {
       setWarning(intl.formatMessage(intlMessages.maxOptionsWarning));
-      if (!isPasting) return null;
-      maxOptionsWarning = intl.formatMessage(intlMessages.maxOptionsWarning);
-      setIsPasting(false);
+      if (isPasting) {
+        maxOptionsWarning = intl.formatMessage(intlMessages.maxOptionsWarning);
+        setIsPasting(false);
+      }
     }
     setQuestionAndOptions(input);
     setOptList(optionsList);
@@ -334,13 +315,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
       setQuestion(validatedInput);
       setError(clearError ? null : error);
     } else {
-      setQuestionAndOptionsFn(validatedInput);
-    }
-  };
-
-  const handlePollValuesText = (text: string) => {
-    if (text && text.length > 0) {
-      const validatedInput = validateInput(text);
       setQuestionAndOptionsFn(validatedInput);
     }
   };
@@ -391,29 +365,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     }
   };
 
-  const handleAutoOptionToogle = () => {
-    const toggledValue = !customInput;
-
-    if (customInput === true && toggledValue === false) {
-      const questionAndOptionsList = removeEmptyLineSpaces(questionAndOptions as string);
-      setQuestion(questionAndOptionsList.join('\n'));
-      setCustomInput(toggledValue);
-      setOptList([]);
-      setType(null);
-    } else {
-      const inputList = removeEmptyLineSpaces(question as string);
-      const { splittedQuestion, optionsList } = getSplittedQuestionAndOptions(inputList);
-      const clearWarning = optionsList.length > MAX_CUSTOM_FIELDS
-        ? intl.formatMessage(intlMessages.maxOptionsWarning) : null;
-      handlePollLetterOptions();
-      setQuestionAndOptions(inputList.join('\n'));
-      setOptList(optionsList);
-      setCustomInput(toggledValue);
-      setQuestion(splittedQuestion);
-      setWarning(clearWarning);
-    }
-  };
-
   const toggleIsMultipleResponse = () => {
     setIsMultipleResponse((prev) => !prev);
     return !isMultipleResponse;
@@ -452,6 +403,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
                       : intl.formatMessage(intlMessages.off)}
                   </Styled.ToggleLabel>
                   <Toggle
+                  // @ts-ignore - JS component wrapped by intl
                     icons={false}
                     defaultChecked={customInput}
                     onChange={() => setCustomInput(!customInput)}
@@ -469,7 +421,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
             {intl.formatMessage(intlMessages.customInputInstructionsLabel)}
           </Styled.PollParagraph>
         )}
-        <PollquestionArea
+        <PollQuestionArea
           customInput={customInput}
           question={question}
           questionAndOptions={questionAndOptions}
@@ -497,7 +449,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           secretPoll={secretPoll}
           question={question}
           setError={setError}
-          setIsPolling={setIsPolling}
+          setIsPolling={() => {}}
           hasCurrentPresentation={hasCurrentPresentation}
           handleToggle={handleToggle}
           error={error}
@@ -513,6 +465,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   return (
     <div>
       <Header
+        data-test="pollPaneTitle"
         leftButtonProps={{
           'aria-label': intl.formatMessage(intlMessages.hidePollDesc),
           'data-test': 'hidePollDesc',
@@ -547,6 +500,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
             Session.set('pollInitiated', false);
           },
         }}
+        customRightButton={null}
       />
       {pollOptions()}
       <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
@@ -581,7 +535,6 @@ const PollCreationPanelContainer: React.FC = () => {
   const {
     data: getHasCurrentPresentationData,
     loading: getHasCurrentPresentationLoading,
-    error: getHasCurrentPresentationError,
   } = useSubscription<GetHasCurrentPresentationResponse>(getHasCurrentPresentation);
 
   if (currentUserLoading || !currentUser) return null;

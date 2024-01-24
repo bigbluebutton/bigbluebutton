@@ -31,6 +31,19 @@ export interface PollInfo {
   multipleResponses: boolean;
   users: Array<UserInfo>;
   responses: Array<ResponseInfo>;
+  users_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+  responses_aggregate: {
+    aggregate: {
+      count: number;
+      sum: {
+        optionResponsesCount: number;
+      }
+    };
+  };
 }
 
 export interface getCurrentPollDataResponse {
@@ -49,7 +62,7 @@ export const getHasCurrentPresentation = gql`
 
 export const getCurrentPollData = gql`
 subscription getCurrentPollData {
-    poll(limit: 1) {
+    poll(order_by: {createdAt: desc}, limit: 1,) {
       pollId
       published
       secret
@@ -67,6 +80,19 @@ subscription getCurrentPollData {
         optionResponsesCount
         optionDesc
         pollResponsesCount
+      }
+      users_aggregate {
+        aggregate {
+          count
+        }
+      }
+      responses_aggregate {
+        aggregate {
+          count
+          sum {
+            optionResponsesCount
+          }
+        }
       }
     }
   }

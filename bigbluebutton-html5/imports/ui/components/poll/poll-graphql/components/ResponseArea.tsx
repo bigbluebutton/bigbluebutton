@@ -126,6 +126,7 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
                   : intl.formatMessage(intlMessages.off)}
               </Styled.ToggleLabel>
               <Toggle
+              // @ts-ignore - component Wrapped by intl, not reflecting the correct props
                 icons={false}
                 defaultChecked={secretPoll}
                 onChange={() => handleToggle()}
