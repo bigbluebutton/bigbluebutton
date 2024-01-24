@@ -1,5 +1,4 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import { defineMessages, useIntl } from 'react-intl';
 import { pollTypes } from '../service';
 import Styled from '../styles';

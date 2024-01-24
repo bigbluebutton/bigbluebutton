@@ -64,7 +64,7 @@ const PollOptionInput = styled.input`
   border: 1px solid ${colorGrayLighter};
   box-shadow: 0 0 0 1px ${colorGrayLighter};
 `;
-
+// @ts-ignore - Button is a JS Component
 const DeletePollOptionButton = styled(Button)`
   font-size: ${fontSizeBase};
   flex: none;
@@ -90,7 +90,11 @@ const Instructions = styled.div`
   color: ${colorText};
 `;
 
-const PollQuestionArea = styled.textarea`
+type PollQuestionAreaProps = {
+  hasError: boolean;
+};
+
+const PollQuestionArea = styled.textarea<PollQuestionAreaProps>`
   resize: none;
 
   &:focus {
@@ -135,6 +139,7 @@ const ResponseType = styled.div`
   }
 `;
 
+// @ts-ignore - Button is a JS Component
 const PollConfigButton = styled(Button)`
   border: solid ${colorGrayLight} 1px;
   min-height: ${pollInputHeight};
@@ -181,6 +186,7 @@ const PollCheckbox = styled.div`
   margin-bottom: ${pollMdMargin};
 `;
 
+// @ts-ignore - Button is a JS Component
 const AddItemButton = styled(Button)`
   top: 1px;
   position: relative;
@@ -244,6 +250,7 @@ const Toggle = styled.label`
   align-items: center;
 `;
 
+// @ts-ignore - Button is a JS Component
 const StartPollBtn = styled(Button)`
   position: relative;
   width: 100%;
@@ -265,6 +272,7 @@ const NoSlidePanelContainer = styled.div`
   text-align: center;
 `;
 
+// @ts-ignore - Button is a JS Component
 const PollButton = styled(Button)`
   margin-top: ${smPaddingY};
   margin-bottom: ${smPaddingY};
@@ -533,6 +541,7 @@ const ButtonsActions = styled.div`
   justify-content: space-between;
 `;
 
+// @ts-ignore - Button is a JS Component
 const PublishButton = styled(Button)`
   width: 48%;
   overflow-wrap: break-word;
@@ -541,6 +550,7 @@ const PublishButton = styled(Button)`
 
 const CancelButton = styled(PublishButton)``;
 
+// @ts-ignore - Button is a JS Component
 const LiveResultButton = styled(Button)`
   width: 100%;
   margin-top: ${smPaddingY};

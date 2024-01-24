@@ -6,7 +6,12 @@ import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
 import Styled from '../styles';
-import { ResponseInfo, UserInfo, getCurrentPollData, getCurrentPollDataResponse } from '../queries';
+import {
+  ResponseInfo,
+  UserInfo,
+  getCurrentPollData,
+  getCurrentPollDataResponse,
+} from '../queries';
 import logger from '/imports/startup/client/logger';
 import Settings from '/imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutation';
@@ -53,23 +58,23 @@ const intlMessages = defineMessages({
 interface LiveResultProps {
   questionText: string;
   responses: Array<ResponseInfo>;
-  isSecret: boolean;
   usersCount: number;
   numberOfAnswerCount: number;
   animations: boolean;
   pollId: string;
   users: Array<UserInfo>;
+  isSecret: boolean;
 }
 
 const LiveResult: React.FC<LiveResultProps> = ({
   questionText,
   responses,
-  isSecret,
   usersCount,
   numberOfAnswerCount,
   animations,
   pollId,
   users,
+  isSecret,
 }) => {
   const intl = useIntl();
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
@@ -205,11 +210,8 @@ const LiveResultContainer: React.FC = () => {
   const currentPoll = currentPollData.poll[0];
   const isSecret = currentPoll.secret;
   const {
-    multipleResponses,
     questionText,
     responses,
-    secret,
-    published,
     pollId,
     users,
   } = currentPoll;
@@ -219,11 +221,8 @@ const LiveResultContainer: React.FC = () => {
 
   return (
     <LiveResult
-      multipleResponses={multipleResponses}
       questionText={questionText}
       responses={responses}
-      secret={secret}
-      published={published}
       isSecret={isSecret}
       usersCount={numberOfUsersCount}
       numberOfAnswerCount={numberOfAnswerCount ?? 0}
