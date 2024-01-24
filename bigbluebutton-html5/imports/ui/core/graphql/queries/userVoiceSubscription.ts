@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const TALKING_INDICATOR_SUBSCRIPTION = gql`
+const TALKING_INDICATOR_SUBSCRIPTION = gql`
   subscription TalkingIndicatorSubscription($limit: Int!) {
     user_voice(
       where: { showTalkingIndicator: { _eq: true } }
@@ -22,3 +22,5 @@ export const TALKING_INDICATOR_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export default TALKING_INDICATOR_SUBSCRIPTION;
