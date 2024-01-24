@@ -96,7 +96,7 @@ const WhiteboardContainer = (props) => {
   const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
   const { pres_page_cursor: cursorArray } = (cursorData || []);
 
-  const { data: annotationStreamData, loading: annotationStreamLoading } = useSubscription(
+  const { data: annotationStreamData } = useSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
     {
       variables: { lastUpdatedAt: new Date(0).toISOString() },
@@ -126,12 +126,16 @@ const WhiteboardContainer = (props) => {
   let shapes = {};
   let bgShape = [];
 
-  if (!annotationStreamLoading) {
-    const pageAnnotations = annotations
-      .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
+  const pageAnnotations = annotations
+    .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
 
-    shapes = formatAnnotations(pageAnnotations, intl, curPageId, pollResults, currentPresentationPage);
-  }
+  shapes = formatAnnotations(
+    pageAnnotations,
+    intl,
+    curPageId,
+    pollResults,
+    currentPresentationPage,
+  );
 
   const { isIphone } = deviceInfo;
 
