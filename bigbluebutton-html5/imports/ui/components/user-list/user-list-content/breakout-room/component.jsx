@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
-import MeetingRemainingTime from '/imports/ui/components/common/meeting-remaining-time-graphql/component';
+import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -61,9 +61,7 @@ const BreakoutRoomItem = ({
                   {intl.formatMessage(intlMessages.breakoutTitle)}
                 </Styled.BreakoutTitle>
                 <Styled.BreakoutDuration>
-                  <MeetingRemainingTime
-                    isBreakoutDuration
-                  />
+                  <BreakoutRemainingTime />
                 </Styled.BreakoutDuration>
               </div>
             </Styled.ListItem>

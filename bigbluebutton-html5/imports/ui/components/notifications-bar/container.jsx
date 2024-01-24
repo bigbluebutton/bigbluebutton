@@ -5,7 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import { isEmpty } from 'radash';
-import MeetingRemainingTime from '/imports/ui/components/common/meeting-remaining-time-graphql/component';
+import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
 import Styled from './styles';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
@@ -159,9 +159,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     if (currentBreakout) {
       data.message = (
-        <MeetingRemainingTime
-          displayAlerts
-        />
+        <MeetingRemainingTime />
       );
     }
   }
@@ -177,9 +175,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     if (underThirtyMin && !isBreakout) {
       data.message = (
-        <MeetingRemainingTime
-          displayAlerts
-        />
+        <MeetingRemainingTime />
       );
     }
   }
