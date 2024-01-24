@@ -33,7 +33,14 @@ export const POLL_CANCEL = gql`
 `;
 
 export const POLL_CREATE = gql`
-  mutation PollCreate($pollType: String!, $pollId: String!, $secretPoll: Boolean!, $question: String!, $isMultipleResponse: Boolean!, $answers: [String]!) {
+  mutation PollCreate(
+    $pollType: String!,
+    $pollId: String!,
+    $secretPoll: Boolean!,
+    $question: String!,
+    $isMultipleResponse: Boolean!,
+    $answers: [String]!
+  ) {
     pollCreate(
       pollType: $pollType,
       pollId: $pollId,

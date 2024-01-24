@@ -129,6 +129,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
                 publishPoll(pollId);
                 stopPoll();
               }}
+              disabled={numberOfAnswerCount <= 0}
               label={intl.formatMessage(intlMessages.publishLabel)}
               data-test="publishPollingLabel"
               color="primary"
