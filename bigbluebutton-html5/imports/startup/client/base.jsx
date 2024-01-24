@@ -394,18 +394,13 @@ export default withTracker(() => {
   const currentConnectionId = User?.currentConnectionId;
   const { connectionID, connectionAuthTime } = Auth;
   const connectionIdUpdateTime = User?.connectionIdUpdateTime;
-  
+
   if (ejected) {
     // use the connectionID to block users, so we can detect if the user was
     // blocked by the current connection. This is the case when a a user is
     // ejected from a meeting but not permanently ejected. Permanent ejects are
     // managed by the server, not by the client.
     BBBStorage.setItem(USER_WAS_EJECTED, connectionID);
-  }
-
-  if (currentConnectionId && currentConnectionId !== connectionID && connectionIdUpdateTime > connectionAuthTime) {
-    Session.set('codeError', '409');
-    Session.set('errorMessageDescription', 'joined_another_window_reason')
   }
 
   let userSubscriptionHandler;

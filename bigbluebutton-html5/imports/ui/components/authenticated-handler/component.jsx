@@ -38,12 +38,15 @@ class AuthenticatedHandler extends Component {
     if (Auth.loggedIn) {
       callback();
     }
+    console.log('Auth.loggedIn', Auth.loggedIn);
 
     AuthenticatedHandler.addReconnectObservable();
 
     const setReason = (reason) => {
       const log = reason.error === 403 ? 'warn' : 'error';
-      
+      console.log('log', log);
+      console.log('reason', reason.error);
+
       logger[log]({
         logCode: 'authenticatedhandlercomponent_setreason',
         extraInfo: { reason },
@@ -55,8 +58,10 @@ class AuthenticatedHandler extends Component {
 
     try {
       const getAuthenticate = await Auth.authenticate();
+      console.log('getAuthenticate', getAuthenticate);
       callback(getAuthenticate);
     } catch (error) {
+      console.log('error', error);
       setReason(error);
     }
   }
@@ -70,6 +75,7 @@ class AuthenticatedHandler extends Component {
 
   componentDidMount() {
     if (Session.get('codeError')) {
+      console.log('Session.get(codeError)', Session.get('codeError'));
       this.setState({ authenticated: true });
     }
     AuthenticatedHandler.authenticatedRouteHandler((value, error) => {

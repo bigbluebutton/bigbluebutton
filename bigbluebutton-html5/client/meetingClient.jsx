@@ -22,7 +22,7 @@ import { Meteor } from 'meteor/meteor';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
-import JoinHandler from '/imports/ui/components/join-handler/component';
+import JoinHandler from '/imports/ui/components/join-handler/graphQL/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
 import Subscriptions from '/imports/ui/components/subscriptions/component';
 import IntlStartup from '/imports/startup/client/intl';
@@ -83,13 +83,11 @@ const Startup = () => {
     <ContextProviders>
       <>
         <JoinHandler>
-          <AuthenticatedHandler>
-            <Subscriptions>
-              <IntlStartup>
-                <Base />
-              </IntlStartup>
-            </Subscriptions>
-          </AuthenticatedHandler>
+          <Subscriptions>
+            <IntlStartup>
+              <Base />
+            </IntlStartup>
+          </Subscriptions>
         </JoinHandler>
         <UsersAdapter />
         <ChatAdapter />

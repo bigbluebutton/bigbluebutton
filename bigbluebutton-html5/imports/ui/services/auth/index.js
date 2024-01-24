@@ -210,7 +210,7 @@ class Auth {
     if (this.loggedIn && !force) {
       return Promise.resolve();
     }
-
+    console.log('MeetingID: ', this.meetingID, 'UserID: ', this.userID, 'Token: ', this.token);
     if (!(this.meetingID && this.userID && this.token)) {
       return Promise.reject({
         error: 401,
@@ -237,6 +237,7 @@ class Auth {
   }
 
   validateAuthToken() {
+    console.log('CHEGOUUUUUUUUU');
     return new Promise((resolve, reject) => {
       const validationTimeout = setTimeout(() => {
         reject({
