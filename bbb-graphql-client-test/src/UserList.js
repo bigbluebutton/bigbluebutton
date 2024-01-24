@@ -1,9 +1,10 @@
-import {gql} from '@apollo/client';
+import {gql, useMutation} from '@apollo/client';
  import React, { useState } from "react";
 import usePatchedSubscription from "./usePatchedSubscription";
 
-const ParentOfUserList = ({userId}) => {
+const ParentOfUserList = ({user}) => {
   const [shouldRender, setShouldRender] = useState(true);
+
   return (
     <div>
       Userlist:
@@ -13,12 +14,46 @@ const ParentOfUserList = ({userId}) => {
           setShouldRender(e.target.checked);
         }
       }></input>
-      {shouldRender && <UserList userId={userId} />}
+      {shouldRender && <UserList myUser={user} />}
     </div>
   );
 }
 
-function UserList({userId}) {
+function UserList({myUser}) {
+
+    const [dispatchUserEject] = useMutation(gql`
+      mutation UserEject($userId: String!) {
+        userEjectFromMeeting(
+          userId: $userId,
+          banUser: false,
+        )
+      }
+    `);
+
+    const handleDispatchUserEject = (userId) => {
+        dispatchUserEject({
+            variables: {
+                userId: userId,
+            },
+        });
+    };
+
+    const [dispatchUserSetPresenter] = useMutation(gql`
+      mutation UserEject($userId: String!) {
+        userSetPresenter(
+          userId: $userId
+        )
+      }
+    `);
+
+    const handleDispatchUserSetPresenter = (userId) => {
+        dispatchUserSetPresenter({
+            variables: {
+                userId: userId,
+            },
+        });
+    };
+
   const { loading, error, data } = usePatchedSubscription(
     gql`subscription {
       user(limit: 50, order_by: [
@@ -94,17 +129,20 @@ function UserList({userId}) {
       </thead>
       <tbody>
         {data.map((user) => {
-            console.log('user', user);
+            // console.log('user', user);
           return (
               <tr key={user.userId} style={{ color: user.color }}>
                   {/*<td>{user.userId}</td>*/}
                   <td>
                       <div style={{backgroundColor: user.color, padding: 2, borderRadius: "15px", color: "#FFFFFF"}}>{user.name}</div>
+                      {myUser.userId == user.userId ? <span>(You!)</span> : ''}
                   </td>
                   <td>{user.role}</td>
                   <td>{user.emoji}</td>
                   <td>{user.avatar}</td>
-                  <td style={{backgroundColor: user.presenter === true ? '#A0DAA9' : ''}}>{user.presenter === true ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.presenter === true ? '#A0DAA9' : ''}}>{user.presenter === true ? 'Yes' : 'No'}
+                      {myUser.isModerator && !user.presenter ? <button onClick={() => handleDispatchUserSetPresenter(user.userId)}>Make presenter!</button> : ''}
+                  </td>
                   <td style={{backgroundColor: user.mobile === true ? '#A0DAA9' : ''}}>{user.mobile === true ? 'Yes' : 'No'}</td>
                   <td>{user.clientType}</td>
                   <td style={{backgroundColor: user.cameras.length > 0 ? '#A0DAA9' : ''}}>{user.cameras.length > 0 ? 'Yes' : 'No'}</td>
@@ -120,7 +158,10 @@ function UserList({userId}) {
                   </td>
                   <td>{user?.connectionStatus?.connectionAliveAt}</td>
                   <td style={{backgroundColor: user.disconnected === true ? '#A0DAA9' : ''}}>{user.disconnected === true ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}
+                      <br />
+                      {myUser.isModerator ? <button onClick={() => handleDispatchUserEject(user.userId)}>Eject!</button> : ''}
+                  </td>
               </tr>
           );
         })}

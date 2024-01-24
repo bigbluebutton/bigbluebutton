@@ -130,6 +130,7 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - authToken
         - authed
         - avatar
         - away
@@ -150,6 +151,7 @@ select_permissions:
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
+        - isOnline
         - isRunningEchoTest
         - joinErrorCode
         - joinErrorMessage
@@ -173,6 +175,7 @@ select_permissions:
   - role: pre_join_bbb_client
     permission:
       columns:
+        - authToken
         - authed
         - banned
         - color
@@ -181,6 +184,8 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - expired
+        - isOnline
+        - isModerator
         - extId
         - guest
         - guestStatus

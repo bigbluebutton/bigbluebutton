@@ -37,7 +37,7 @@ type Mutation {
 
 type Mutation {
   breakoutRoomSendMessageToAll(
-    msg: String!
+    message: String!
   ): Boolean
 }
 
@@ -97,16 +97,6 @@ type Mutation {
 type Mutation {
   chatSetTyping(
     chatId: String
-  ): Boolean
-}
-
-type Mutation {
-  dispatchPluginDataChannelMessageMsg(
-    pluginName: String!
-    dataChannel: String!
-    payloadJson: String!
-    toRoles: [String]!
-    toUserIds: [String]!
   ): Boolean
 }
 
@@ -211,6 +201,31 @@ type Mutation {
 }
 
 type Mutation {
+  pluginDataChannelDeleteMessage(
+    pluginName: String!
+    dataChannel: String!
+    messageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelDispatchMessage(
+    pluginName: String!
+    dataChannel: String!
+    payloadJson: String!
+    toRoles: [String]!
+    toUserIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelReset(
+    pluginName: String!
+    dataChannel: String!
+  ): Boolean
+}
+
+type Mutation {
   pollCancel: Boolean
 }
 
@@ -261,7 +276,7 @@ type Mutation {
 type Mutation {
   presAnnotationSubmit(
     pageId: String!
-    annotations: [String]!
+    annotations: json!
   ): Boolean
 }
 
@@ -376,9 +391,7 @@ type Mutation {
 }
 
 type Mutation {
-  timerStop(
-    accumulated: Float!
-  ): Boolean
+  timerStop: Boolean
 }
 
 type Mutation {
