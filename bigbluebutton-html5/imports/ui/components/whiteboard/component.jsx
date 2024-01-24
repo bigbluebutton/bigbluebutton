@@ -99,7 +99,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     isPresenter,
     removeShapes,
     initDefaultPages,
-    persistShape,
+    persistShapeWrapper,
     shapes,
     assets,
     currentUser,
@@ -667,7 +667,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
     console.log("EDITOR : ", editor);
 
-    const debouncePersistShape = debounce({ delay: 0 }, persistShape);
+    const debouncePersistShape = debounce({ delay: 0 }, persistShapeWrapper);
 
     const colorStyles = ['black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'];
     const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
@@ -704,7 +704,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
               createdBy: currentUser?.userId,
             }
           };
-          persistShape(updatedRecord, whiteboardId, isModerator);
+          persistShapeWrapper(updatedRecord, whiteboardId, isModerator);
         });
     
         Object.values(updated).forEach(([_, record]) => {
@@ -715,7 +715,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
               createdBy: shapes[record?.id]?.meta?.createdBy,
             }
           };
-          persistShape(updatedRecord, whiteboardId, isModerator);
+          persistShapeWrapper(updatedRecord, whiteboardId, isModerator);
         });
     
         Object.values(removed).forEach((record) => {
@@ -889,7 +889,7 @@ Whiteboard.propTypes = {
   isIphone: PropTypes.bool.isRequired,
   removeShapes: PropTypes.func.isRequired,
   initDefaultPages: PropTypes.func.isRequired,
-  persistShape: PropTypes.func.isRequired,
+  persistShapeWrapper: PropTypes.func.isRequired,
   notifyNotAllowedChange: PropTypes.func.isRequired,
   shapes: PropTypes.objectOf(PropTypes.shape).isRequired,
   assets: PropTypes.objectOf(PropTypes.shape).isRequired,

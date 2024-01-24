@@ -32,7 +32,11 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   AssetRecordType,
 } from "@tldraw/tldraw";
-import { PRESENTATION_SET_ZOOM, PRES_ANNOTATION_DELETE } from '../presentation/mutations';
+import {
+  PRESENTATION_SET_ZOOM,
+  PRES_ANNOTATION_DELETE,
+  PRES_ANNOTATION_SUBMIT,
+} from '../presentation/mutations';
 
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 
@@ -62,6 +66,7 @@ const WhiteboardContainer = (props) => {
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
+  const [presentationSubmitAnnotations] = useMutation(PRES_ANNOTATION_SUBMIT);
 
   const removeShapes = (shapeIds) => {
     presentationDeleteAnnotations({
@@ -86,6 +91,19 @@ const WhiteboardContainer = (props) => {
         heightRatio,
       },
     });
+  };
+
+  const submitAnnotations = async (newAnnotations) => {
+    await presentationSubmitAnnotations({
+      variables: {
+        pageId: currentPresentationPage?.pageId,
+        annotations: newAnnotations,
+      },
+    });
+  };
+
+  const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
+    persistShape(shape, whiteboardId, isModerator, submitAnnotations);
   };
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
@@ -240,7 +258,7 @@ const WhiteboardContainer = (props) => {
         sidebarNavigationWidth,
         layoutContextDispatch,
         initDefaultPages,
-        persistShape,
+        persistShapeWrapper,
         isMultiUserActive,
         shapes,
         bgShape,

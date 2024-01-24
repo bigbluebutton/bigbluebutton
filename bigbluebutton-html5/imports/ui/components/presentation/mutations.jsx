@@ -70,6 +70,15 @@ export const PRES_ANNOTATION_DELETE = gql`
   }
 `;
 
+export const PRES_ANNOTATION_SUBMIT = gql`
+  mutation PresAnnotationSubmit($pageId: String!, $annotations: json!) {
+    presAnnotationSubmit(
+      pageId: $pageId,
+      annotations: $annotations,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   PRESENTATION_SET_WRITERS,
@@ -78,4 +87,5 @@ export default {
   PRESENTATION_SET_CURRENT,
   PRESENTATION_REMOVE,
   PRES_ANNOTATION_DELETE,
+  PRES_ANNOTATION_SUBMIT,
 };

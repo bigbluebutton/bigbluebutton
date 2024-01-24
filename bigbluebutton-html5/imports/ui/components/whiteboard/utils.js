@@ -1,10 +1,4 @@
 import React from 'react';
-import { isEqual } from 'radash';
-import {
-  persistShape,
-  notifyNotAllowedChange,
-  notifyShapeNumberExceeded,
-} from './service';
 
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
