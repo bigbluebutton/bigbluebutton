@@ -144,6 +144,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             <ChatMessageTextContent
               emphasizedMessage
               text={intl.formatMessage(intlMessages.chatClear)}
+              systemMsg
             />
           ),
         };
@@ -155,6 +156,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
+              systemMsg
               emphasizedMessage
               text={message.message}
             />
@@ -170,6 +172,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             <ChatMessageTextContent
               emphasizedMessage
               text={(away) ? intl.formatMessage(intlMessages.userAway) : intl.formatMessage(intlMessages.userNotAway)}
+              systemMsg
             />
           ),
         };
@@ -185,6 +188,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             <ChatMessageTextContent
               emphasizedMessage={message.chatEmphasizedText}
               text={message.message}
+              systemMsg={false}
             />
           ),
         };
