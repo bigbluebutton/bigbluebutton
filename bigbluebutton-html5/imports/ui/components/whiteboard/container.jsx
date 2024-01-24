@@ -1,8 +1,7 @@
-import React from 'react';
-import { useQuery, useSubscription, useMutation } from '@apollo/client';
+import React, { useEffect, useState } from 'react';
+import { useSubscription, useMutation } from '@apollo/client';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-  CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from './queries';
@@ -39,15 +38,14 @@ import { PRESENTATION_SET_ZOOM } from '../presentation/mutations';
 
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 
-let annotations = [];
-let lastUpdatedAt = null;
-
 const WhiteboardContainer = (props) => {
   const {
     intl,
     slidePosition,
     svgUri,
   } = props;
+
+  const [annotations, setAnnotations] = useState([]);
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -98,53 +96,38 @@ const WhiteboardContainer = (props) => {
   const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
   const { pres_page_cursor: cursorArray } = (cursorData || []);
 
-  const {
-    loading: annotationsLoading,
-    data: annotationsData,
-  } = useQuery(CURRENT_PAGE_ANNOTATIONS_QUERY);
-  const { pres_annotation_curr: history } = (annotationsData || []);
-
-  const lastHistoryTime = history?.[0]?.lastUpdatedAt || null;
-
-  if (!lastUpdatedAt) {
-    if (lastHistoryTime) {
-      if (new Date(lastUpdatedAt).getTime() < new Date(lastHistoryTime).getTime()) {
-        lastUpdatedAt = lastHistoryTime;
-      }
-    } else {
-      const newLastUpdatedAt = new Date();
-      lastUpdatedAt = newLastUpdatedAt.toISOString();
-    }
-  }
-
-  const { data: streamData } = useSubscription(
+  const { data: annotationStreamData, loading: annotationStreamLoading } = useSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
     {
-      variables: { lastUpdatedAt },
+      variables: { lastUpdatedAt: new Date(0).toISOString() },
     },
   );
-  const { pres_annotation_curr_stream: streamDataItem } = (streamData || []);
 
-  if (streamDataItem) {
-    if (new Date(lastUpdatedAt).getTime() < new Date(streamDataItem[0].lastUpdatedAt).getTime()) {
-      if (streamDataItem[0].annotationInfo === '') {
-        // remove shape
-        annotations = annotations.filter(
-          (annotation) => annotation.annotationId !== streamDataItem[0].annotationId,
-        );
-      } else {
-        // add shape
-        annotations = annotations.concat(streamDataItem);
-      }
-      lastUpdatedAt = streamDataItem[0].lastUpdatedAt;
+  useEffect(() => {
+    const { pres_annotation_curr_stream: annotationStream } = annotationStreamData || {};
+
+    if (annotationStream) {
+      const newAnnotations = [];
+      const annotationsToBeRemoved = [];
+      annotationStream.forEach((item) => {
+        if (item.annotationInfo === '') {
+          annotationsToBeRemoved.push(item.annotationId);
+        } else {
+          newAnnotations.push(item);
+        }
+      });
+      const currentAnnotations = annotations.filter(
+        (annotation) => !annotationsToBeRemoved.includes(annotation.annotationId),
+      );
+      setAnnotations([...currentAnnotations, ...newAnnotations]);
     }
-  }
+  }, [annotationStreamData]);
+
   let shapes = {};
   let bgShape = [];
 
-  if (!annotationsLoading && history) {
-    const pageAnnotations = history
-      .concat(annotations)
+  if (!annotationStreamLoading) {
+    const pageAnnotations = annotations
       .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
 
     shapes = formatAnnotations(pageAnnotations, intl, curPageId, pollResults, currentPresentationPage);
