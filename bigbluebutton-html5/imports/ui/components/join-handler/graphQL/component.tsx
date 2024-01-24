@@ -80,7 +80,6 @@ const JoinHandler: React.FC<JoinHandlerProps> = ({
       Auth.loggedIn = true;
       Auth.uniqueClientSession = `${sessionToken}-${Math.random().toString(36).substring(6)}`;
       Auth.isAuthenticating = false;
-      Auth.authenticate(true);
 
       Session.set('isMeetingEnded', false);
       Session.set('isPollOpen', false);

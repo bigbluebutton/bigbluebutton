@@ -83,11 +83,13 @@ const Startup = () => {
     <ContextProviders>
       <>
         <JoinHandler>
-          <Subscriptions>
-            <IntlStartup>
-              <Base />
-            </IntlStartup>
-          </Subscriptions>
+          <AuthenticatedHandler>
+            <Subscriptions>
+              <IntlStartup>
+                <Base />
+              </IntlStartup>
+            </Subscriptions>
+          </AuthenticatedHandler>
         </JoinHandler>
         <UsersAdapter />
         <ChatAdapter />
