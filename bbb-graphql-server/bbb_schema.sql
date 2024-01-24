@@ -21,6 +21,9 @@ create table "meeting" (
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
 	"logoutUrl" varchar(500),
+	"customLogoUrl" varchar(500),
+	"bannerText" text,
+	"bannerColor" varchar(50),
 	"createdTime" bigint,
 	"durationInSeconds" integer
 );

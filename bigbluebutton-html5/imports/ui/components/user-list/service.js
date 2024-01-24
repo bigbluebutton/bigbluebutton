@@ -492,10 +492,6 @@ const toggleVoice = (userId) => {
   }
 };
 
-const ejectUserCameras = (userId) => {
-  makeCall('ejectUserCameras', userId);
-};
-
 const getEmoji = () => {
   const currentUser = Users.findOne({ userId: Auth.userID },
     { fields: { emoji: 1 } });
@@ -506,10 +502,6 @@ const getEmoji = () => {
 
   return currentUser.emoji;
 };
-
-const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
-
-const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
 
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
@@ -703,8 +695,6 @@ export default {
   sortUsersByName,
   sortUsers,
   toggleVoice,
-  muteAllUsers,
-  muteAllExceptPresenter,
   getUsers,
   formatUsers,
   getActiveChats,
@@ -724,7 +714,6 @@ export default {
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
-  ejectUserCameras,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
 };

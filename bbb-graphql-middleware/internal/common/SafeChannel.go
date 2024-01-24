@@ -5,9 +5,10 @@ import (
 )
 
 type SafeChannel struct {
-	ch     chan interface{}
-	closed bool
-	mux    sync.Mutex
+	ch         chan interface{}
+	closed     bool
+	mux        sync.Mutex
+	freezeFlag bool
 }
 
 func NewSafeChannel(size int) *SafeChannel {
@@ -43,5 +44,19 @@ func (s *SafeChannel) Close() {
 	if !s.closed {
 		close(s.ch)
 		s.closed = true
+	}
+}
+
+func (s *SafeChannel) FreezeChannel() {
+	if !s.freezeFlag {
+		s.mux.Lock()
+		s.freezeFlag = true
+	}
+}
+
+func (s *SafeChannel) UnfreezeChannel() {
+	if s.freezeFlag {
+		s.mux.Unlock()
+		s.freezeFlag = false
 	}
 }
