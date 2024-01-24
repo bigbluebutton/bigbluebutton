@@ -39,20 +39,25 @@ const proccessAnnotationsQueue = async (submitAnnotations) => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  const isAnnotationSent = await submitAnnotations(annotations);
+  try {
+    const isAnnotationSent = await submitAnnotations(annotations);
 
-  if (!isAnnotationSent) {
-    // undo splice
+    if (!isAnnotationSent) {
+      // undo splice
+      annotationsQueue.splice(0, 0, ...annotations);
+      setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsRetryDelay);
+    } else {
+      // ask tiago
+      const delayPerc = Math.min(
+        annotationsMaxDelayQueueSize, queueSize,
+      ) / annotationsMaxDelayQueueSize;
+      const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
+      const delayTime = annotationsBufferTimeMin + delayDelta * delayPerc;
+      setTimeout(() => proccessAnnotationsQueue(submitAnnotations), delayTime);
+    }
+  } catch (error) {
     annotationsQueue.splice(0, 0, ...annotations);
-    setTimeout(proccessAnnotationsQueue, annotationsRetryDelay);
-  } else {
-    // ask tiago
-    const delayPerc = Math.min(
-      annotationsMaxDelayQueueSize, queueSize,
-    ) / annotationsMaxDelayQueueSize;
-    const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
-    const delayTime = annotationsBufferTimeMin + delayDelta * delayPerc;
-    setTimeout(proccessAnnotationsQueue, delayTime);
+    setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsRetryDelay);
   }
 };
 
@@ -85,7 +90,7 @@ const getMultiUser = (whiteboardId) => {
   return data.multiUser;
 };
 
-const persistShape = (shape, whiteboardId, isModerator, submitAnnotations) => {
+const persistShape = async (shape, whiteboardId, isModerator, submitAnnotations) => {
   const annotation = {
     id: shape.id,
     annotationInfo: { ...shape, isModerator },

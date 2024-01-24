@@ -97,12 +97,14 @@ const WhiteboardContainer = (props) => {
   };
 
   const submitAnnotations = async (newAnnotations) => {
-    await presentationSubmitAnnotations({
+    const isAnnotationSent = await presentationSubmitAnnotations({
       variables: {
         pageId: currentPresentationPage?.pageId,
         annotations: newAnnotations,
       },
     });
+
+    return isAnnotationSent?.data?.presAnnotationSubmit;
   };
 
   const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
