@@ -23,7 +23,7 @@ const LoadedChatMessagesHookContainer = () => {
 
   const updateLoadedChatMessagesForPlugin = () => {
     window.dispatchEvent(new CustomEvent<
-      UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<LoadedChatMessage>>
+      UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<LoadedChatMessage[]>>
     >(HookEvents.UPDATED, {
       detail: {
         data: formatLoadedChatMessagesDataFromGraphql(chatMessagesData),
