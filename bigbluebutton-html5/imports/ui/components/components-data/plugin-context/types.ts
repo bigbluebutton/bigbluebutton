@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql';
 import { ExtensibleArea } from '/imports/ui/components/plugins-engine/extensible-areas/types';
 import React from 'react';
 
