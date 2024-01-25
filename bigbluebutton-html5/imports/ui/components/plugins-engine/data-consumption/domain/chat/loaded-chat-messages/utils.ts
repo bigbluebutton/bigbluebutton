@@ -3,9 +3,9 @@ import { Message } from '/imports/ui/Types/message';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 const formatLoadedChatMessagesDataFromGraphql = (
-  responseDataFromGraphql: GraphqlDataHookSubscriptionResponse<Partial<Message>[]>,
+  responseDataFromGraphql: Partial<Message>[],
 ) => ({
-  data: !responseDataFromGraphql.loading ? responseDataFromGraphql.data?.map((chatMessagesData) => ({
+  data: responseDataFromGraphql.map((chatMessagesData) => ({
     createdAt: chatMessagesData.createdAt,
     message: chatMessagesData.message,
     messageId: chatMessagesData.messageId,
