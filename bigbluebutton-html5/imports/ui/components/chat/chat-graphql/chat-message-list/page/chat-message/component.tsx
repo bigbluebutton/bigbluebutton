@@ -98,14 +98,11 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
 
   const msgTime = dateTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
   const clearMessage = `${intl.formatMessage(intlMessages.chatClear)} at ${msgTime}`;
-  const { away } = JSON.parse(message.messageMetadata);
-  const awayMessage = (away)
-    ? `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
-    : `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
+
   const messageContent: {
     name: string,
-    color?: string,
-    isModerator?: boolean,
+    color: string,
+    isModerator: boolean,
     component: React.ReactElement,
   } = useMemo(() => {
     switch (message.messageType) {
@@ -130,6 +127,9 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       case ChatMessageType.CHAT_CLEAR:
         return {
           name: intl.formatMessage(intlMessages.systemLabel),
+          color: '',
+          isModerator: false,
+          isSystemSender: true,
           component: (
             <ChatMessageTextContent
               emphasizedMessage={false}
@@ -153,8 +153,14 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
         };
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
+        const { away } = JSON.parse(message.messageMetadata);
+        const awayMessage = (away)
+          ? `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
+          : `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
         return {
-          name: '',
+          name: message.senderName,
+          color: '',
+          isModerator: false,
           component: (
             <ChatMessageTextContent
               emphasizedMessage={false}
@@ -200,7 +206,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             isOnline={message.user?.isOnline ?? true}
             dateTime={dateTime}
           />
-        ) : null}
+        ) : null }
         {messageContent.component}
       </ChatContent>
     </ChatWrapper>
