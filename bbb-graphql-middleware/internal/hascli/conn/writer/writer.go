@@ -96,20 +96,23 @@ RangeLoop:
 						jsonPatchSupported = true
 					}
 
-					browserConnection.ActiveSubscriptionsMutex.Lock()
-					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
-						Id:                        queryId,
-						Message:                   fromBrowserMessageAsMap,
-						OperationName:             operationName,
-						StreamCursorField:         streamCursorField,
-						StreamCursorVariableName:  streamCursorVariableName,
-						StreamCursorCurrValue:     streamCursorInitialValue,
-						LastSeenOnHasuraConnetion: hc.Id,
-						JsonPatchSupported:        jsonPatchSupported,
-						Type:                      messageType,
+					//Not storing Mutations because they will not be retransmitted in case of reconnection
+					if messageType != common.Mutation {
+						browserConnection.ActiveSubscriptionsMutex.Lock()
+						browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
+							Id:                        queryId,
+							Message:                   fromBrowserMessageAsMap,
+							OperationName:             operationName,
+							StreamCursorField:         streamCursorField,
+							StreamCursorVariableName:  streamCursorVariableName,
+							StreamCursorCurrValue:     streamCursorInitialValue,
+							LastSeenOnHasuraConnetion: hc.Id,
+							JsonPatchSupported:        jsonPatchSupported,
+							Type:                      messageType,
+						}
+						// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
+						browserConnection.ActiveSubscriptionsMutex.Unlock()
 					}
-					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
-					browserConnection.ActiveSubscriptionsMutex.Unlock()
 				}
 
 				if fromBrowserMessageAsMap["type"] == "stop" {
