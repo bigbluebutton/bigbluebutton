@@ -16,6 +16,15 @@ object_relationships:
         remote_table:
           name: v_user_ref
           schema: public
+  - name: voice
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_voice
+          schema: public
 select_permissions:
   - role: bbb_client
     permission:
@@ -23,6 +32,15 @@ select_permissions:
         - streamId
         - userId
       filter:
-        meetingId:
-          _eq: X-Hasura-MeetingId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - user:
+                  isModerator:
+                    _eq: true
+              - meetingId:
+                  _eq: X-Hasura-WebcamsNotLockedInMeeting
+              - userId:
+                  _eq: X-Hasura-WebcamsLockedUserId
       allow_aggregations: true

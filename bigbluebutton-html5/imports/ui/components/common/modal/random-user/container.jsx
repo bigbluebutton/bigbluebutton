@@ -7,6 +7,9 @@ import { makeCall } from '/imports/ui/services/api';
 import RandomUserSelect from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import logger from '/imports/startup/client/logger';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { useMutation } from '@apollo/client';
+import { PICK_RANDOM_VIEWER } from '/imports/ui/core/graphql/mutations/userMutations';
 
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 
@@ -23,12 +26,21 @@ const RandomUserSelectContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const { randomlySelectedUser } = props;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+
+  const [pickRandomViewer] = useMutation(PICK_RANDOM_VIEWER);
+
+  const randomUserReq = () => (SELECT_RANDOM_USER_ENABLED ? pickRandomViewer() : null);
+
+  if (!users || !currentUserData) return null;
 
   let mappedRandomlySelectedUsers = [];
 
   const currentUser = {
     userId: Auth.userID,
-    presenter: users[Auth.meetingID][Auth.userID].presenter
+    presenter: currentUserData?.presenter,
   };
 
   try {
@@ -72,6 +84,7 @@ const RandomUserSelectContainer = (props) => {
       mappedRandomlySelectedUsers={mappedRandomlySelectedUsers}
       currentUser={currentUser}
       keepModalOpen={keepModalOpen}
+      randomUserReq={randomUserReq}
     />
   );
 };
@@ -92,14 +105,11 @@ export default withTracker(() => {
     },
   });
 
-  const randomUserReq = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('setRandomUser') : null);
-
   const clearRandomlySelectedUser = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('clearRandomlySelectedUser') : null);
 
   return ({
     toggleKeepModalOpen,
     numAvailableViewers: viewerPool.length,
-    randomUserReq,
     clearRandomlySelectedUser,
     randomlySelectedUser: meeting.randomlySelectedUser,
   });

@@ -19,6 +19,10 @@ case class MeetingDbModel(
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
+    logoutUrl:                             String,
+    customLogoUrl:                         Option[String],
+    bannerText:                            Option[String],
+    bannerColor:                           Option[String],
     createdTime:                           Long,
     durationInSeconds:                     Int
 )
@@ -36,6 +40,10 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
     learningDashboardAccessToken,
+    logoutUrl,
+    customLogoUrl,
+    bannerText,
+    bannerColor,
     createdTime,
     durationInSeconds
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
@@ -50,6 +58,10 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
+  val logoutUrl = column[String]("logoutUrl")
+  val customLogoUrl = column[Option[String]]("customLogoUrl")
+  val bannerText = column[Option[String]]("bannerText")
+  val bannerColor = column[Option[String]]("bannerColor")
   val createdTime = column[Long]("createdTime")
   val durationInSeconds = column[Int]("durationInSeconds")
 }
@@ -70,6 +82,19 @@ object MeetingDAO {
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,
+          logoutUrl = meetingProps.systemProps.logoutUrl,
+          customLogoUrl = meetingProps.systemProps.customLogoURL match {
+            case ""      => None
+            case logoUrl => Some(logoUrl)
+          },
+          bannerText = meetingProps.systemProps.bannerText match {
+            case ""         => None
+            case bannerText => Some(bannerText)
+          },
+          bannerColor = meetingProps.systemProps.bannerColor match {
+            case ""          => None
+            case bannerColor => Some(bannerColor)
+          },
           createdTime = meetingProps.durationProps.createdTime,
           durationInSeconds = meetingProps.durationProps.duration * 60
         )

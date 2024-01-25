@@ -22,12 +22,13 @@ export default function MyInfo({userAuthToken}) {
 
     const [dispatchUserJoin] = useMutation(gql`
       mutation UserJoin($authToken: String!, $clientType: String!) {
-        userJoin(
+        userJoinMeeting(
           authToken: $authToken,
           clientType: $clientType,
         )
       }
     `);
+
     const handleDispatchUserJoin = (authToken) => {
         dispatchUserJoin({
             variables: {
@@ -37,12 +38,23 @@ export default function MyInfo({userAuthToken}) {
         });
     };
 
+    const [dispatchUserLeave] = useMutation(gql`
+      mutation UserLeaveMeeting {
+        userLeaveMeeting
+      }
+    `);
+    const handleDispatchUserLeave = (authToken) => {
+        dispatchUserLeave();
+    };
+
 
   const { loading, error, data } = useSubscription(
     gql`subscription {
       user_current {
         userId
         name
+        loggedOut
+        ejected
         joined
         joinErrorCode
         joinErrorMessage
@@ -60,7 +72,7 @@ export default function MyInfo({userAuthToken}) {
             {/*<th>Id</th>*/}
             <th>userId</th>
             <th>name</th>
-            <th>joined</th>
+            <th>Status</th>
             <th>joinErrorCode</th>
             <th>joinErrorMessage</th>
         </tr>
@@ -72,8 +84,11 @@ export default function MyInfo({userAuthToken}) {
               <tr key={curr.userId}>
                   <td>{curr.userId}</td>
                   <td>{curr.name}</td>
-                  <td>{curr.joined ? 'Yes' : 'No'}
-                      {curr.joined ? '' : <button onClick={() => handleDispatchUserJoin(userAuthToken)}>Join Now!</button>}
+                  <td>{curr.joined && !curr.loggedOut && !curr.ejected ? 'joined' : ''}
+                      {curr.loggedOut ? 'loggedOut' : ''}
+                      {curr.ejected ? 'ejected' : ''}
+                      {!curr.joined && !curr.loggedOut ? <button onClick={() => handleDispatchUserJoin(userAuthToken)}>Join Now!</button> : ''}
+                      {curr.joined && !curr.loggedOut && !curr.ejected ? <button onClick={() => handleDispatchUserLeave()}>Leave Now!</button> : ''}
                   </td>
                   <td>{curr.joinErrorCode}</td>
                   <td>{curr.joinErrorMessage}</td>

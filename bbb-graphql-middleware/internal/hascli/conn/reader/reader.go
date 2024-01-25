@@ -1,8 +1,10 @@
 package reader
 
 import (
+	"context"
+	"errors"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/replayer"
+	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/retransmiter"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket/wsjson"
@@ -10,7 +12,7 @@ import (
 )
 
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
-func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChannel chan interface{}, fromBrowserToHasuraChannel chan interface{}, wg *sync.WaitGroup) {
+func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChannel *common.SafeChannel, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.Browserconn.Id).WithField("hasuraConnectionId", hc.Id)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
@@ -23,7 +25,11 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 		var message interface{}
 		err := wsjson.Read(hc.Context, hc.Websocket, &message)
 		if err != nil {
-			log.Errorf("Error: %v", err)
+			if errors.Is(err, context.Canceled) {
+				log.Debugf("Closing ws connection as Context was cancelled!")
+			} else {
+				log.Errorf("Error reading message from Hasura: %v", err)
+			}
 			return
 		}
 
@@ -59,15 +65,37 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 					subscription.Type == common.Subscription {
 					msgpatch.PatchMessage(&messageAsMap, hc.Browserconn)
 				}
+
+				//Set last cursor value for stream
+				if subscription.Type == common.Streaming {
+					lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(messageAsMap, subscription.StreamCursorField)
+					if lastCursor != nil && subscription.StreamCursorCurrValue != lastCursor {
+						subscription.StreamCursorCurrValue = lastCursor
+
+						hc.Browserconn.ActiveSubscriptionsMutex.Lock()
+						hc.Browserconn.ActiveSubscriptions[queryId] = subscription
+						hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
+					}
+
+				}
 			}
 
-			// Write the message to browser
-			fromHasuraToBrowserChannel <- messageAsMap
-
-			// Replay the subscription start commands when hasura confirms the connection
+			// Retransmit the subscription start commands when hasura confirms the connection
 			// this is useful in case of a connection invalidation
 			if messageType == "connection_ack" {
-				go replayer.ReplaySubscriptionStartMessages(hc, fromBrowserToHasuraChannel)
+				//Hasura connection was initialized, now it's able to send new messages to Hasura
+				fromBrowserToHasuraChannel.UnfreezeChannel()
+
+				//Avoid to send `connection_ack` to the browser when it's a reconnection
+				if hc.Browserconn.ConnAckSentToBrowser == false {
+					fromHasuraToBrowserChannel.Send(messageAsMap)
+					hc.Browserconn.ConnAckSentToBrowser = true
+				}
+
+				go retransmiter.RetransmitSubscriptionStartMessages(hc, fromBrowserToHasuraChannel)
+			} else {
+				// Forward the message to browser
+				fromHasuraToBrowserChannel.Send(messageAsMap)
 			}
 		}
 	}

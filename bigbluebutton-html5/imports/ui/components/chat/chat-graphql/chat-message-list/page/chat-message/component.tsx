@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
@@ -16,6 +17,7 @@ interface ChatMessageProps {
   message: Message;
   previousMessage: Message;
   lastSenderPreviousPage: string | null | undefined;
+  setMessagesRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForChatMessageDomElements[]>>
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
 }
@@ -62,6 +64,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   lastSenderPreviousPage,
   scrollRef,
   message,
+  setMessagesRequestedFromPlugin,
   markMessageAsSeen,
 }) => {
   const intl = useIntl();
@@ -70,7 +73,19 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       markMessageAsSeen(message);
     }
   }, [message, messageRef]);
+  const messageContentRef = React.createRef<HTMLDivElement>();
 
+  useEffect(() => {
+    setMessagesRequestedFromPlugin((messages) => {
+      if (messageContentRef.current && !messages.some((m) => m.messageId === message.messageId)) {
+        messages.push({
+          messageId: message.messageId,
+          message: messageContentRef.current,
+        });
+      }
+      return messages;
+    });
+  }, [messageContentRef]);
   useEffect(() => {
     const callbackFunction = () => {
       if (messageRef.current && isInViewport(messageRef.current)) {
@@ -179,7 +194,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: ChatMessageType.BREAKOUT_ROOM,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage={message?.user?.isModerator}
+              emphasizedMessage={message.chatEmphasizedText}
               text={message.message}
               systemMsg={false}
             />

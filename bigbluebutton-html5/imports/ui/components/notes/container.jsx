@@ -1,11 +1,10 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Notes from './component';
 import Service from './service';
-import Auth from '/imports/ui/services/auth';
 import MediaService from '/imports/ui/components/media/service';
 import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '../layout/context';
-import { UsersContext } from '../components-data/users-context/context';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const Container = ({ ...props }) => {
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
@@ -13,9 +12,10 @@ const Container = ({ ...props }) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+  const amIPresenter = currentUserData?.presenter;
 
   return <Notes {...{
     layoutContextDispatch,

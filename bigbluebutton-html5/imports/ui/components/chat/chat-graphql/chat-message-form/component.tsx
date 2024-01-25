@@ -6,6 +6,10 @@ import React, {
   useRef,
 } from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
+import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
+import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
+import { ChatFormEventPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-events/chat/form/types';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
@@ -17,8 +21,6 @@ import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
-  startUserTyping,
-  stopUserTyping,
   textToMarkdown,
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
@@ -28,10 +30,11 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useMutation } from '@apollo/client';
-import { SEND_GROUP_CHAT_MSG } from './mutations';
+import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { throttle } from '/imports/utils/throttle';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -39,6 +42,7 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+const START_TYPING_THROTTLE_INTERVAL = 1000;
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -142,6 +146,22 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     localStorage.setItem('unsentMessages', JSON.stringify(unsentMessages));
   };
 
+  const [chatSetTyping] = useMutation(CHAT_SET_TYPING);
+
+  const handleUserTyping = throttle(
+    (hasError?: boolean) => {
+      if (hasError || !ENABLE_TYPING_INDICATOR) return;
+
+      chatSetTyping({
+        variables: {
+          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+        },
+      });
+    },
+    START_TYPING_THROTTLE_INTERVAL,
+    { leading: true, trailing: false },
+  );
+
   useEffect(() => {
     setMessageHint();
     if (!isMobile) {
@@ -225,11 +245,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       newMessage = newMessage.substring(0, maxMessageLength);
     }
 
-    const handleUserTyping = (hasError?: boolean) => {
-      if (hasError || !ENABLE_TYPING_INDICATOR) return;
-      startUserTyping(chatId);
-    };
-
+    window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED, {
+      detail: {
+        text: newMessage,
+      } as ChatFormEventPayloads[PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED],
+    }));
     setMessage(newMessage);
     setError(newError);
     handleUserTyping(newError != null);
@@ -238,9 +258,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
 
-    const [sendGroupChatMsg, {
-      loading: sendGroupChatMsgLoading, error: sendGroupChatMsgError,
-    }] = useMutation(SEND_GROUP_CHAT_MSG);
+    const [chatSendMessage, {
+      loading: chatSendMessageLoading, error: chatSendMessageError,
+    }] = useMutation(CHAT_SEND_MESSAGE);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -255,7 +275,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      sendGroupChatMsg({
+      chatSendMessage({
         variables: {
           chatMessageInMarkdownFormat: msg,
           chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
@@ -273,7 +293,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       updateUnreadMessages(chatId, '');
       setHasErrors(false);
       setShowEmojiPicker(false);
-      if (ENABLE_TYPING_INDICATOR) stopUserTyping();
       const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
       window.dispatchEvent(sentMessageEvent);
 
@@ -295,6 +314,15 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         handleSubmit(event);
       }
     };
+    const handleFillChatFormThroughPlugin = ((
+      event: CustomEvent<FillChatFormCommandArguments>,
+    ) => setMessage(event.detail.text)) as EventListener;
+    useEffect(() => {
+      window.addEventListener(ChatFormCommandsEnum.FILL, handleFillChatFormThroughPlugin);
+      return () => {
+        window.removeEventListener(ChatFormCommandsEnum.FILL, handleFillChatFormThroughPlugin);
+      };
+    });
 
     document.addEventListener('click', (event) => {
       const chatList = document.getElementById('chat-list');
@@ -306,7 +334,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     });
 
-    if (sendGroupChatMsgError) { return <div>something went wrong</div>; }
+    if (chatSendMessageError) { return <div>something went wrong</div>; }
 
     return (
       <Styled.Form
@@ -332,8 +360,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
-            disabled={disabled || partnerIsLoggedOut || sendGroupChatMsgLoading}
+            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             value={message}
+            onFocus={() => {
+              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_FOCUSED));
+            }}
+            onBlur={() => {
+              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_UNFOCUSED));
+            }}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}
             onPaste={(e) => { e.stopPropagation(); }}
@@ -359,7 +393,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             circle
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
-            disabled={disabled || partnerIsLoggedOut || sendGroupChatMsgLoading}
+            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"

@@ -1,7 +1,6 @@
 import React from 'react';
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
-import GroupChat from '/imports/api/group-chat';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
 import UserReaction from '/imports/api/user-reaction';
@@ -19,9 +18,7 @@ import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
-import { indexOf } from '/imports/utils/array-utils';
-import { isEmpty, throttle } from 'radash';
-import ChatService from '/imports/ui/components/chat/service';
+import { isEmpty } from 'radash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -483,39 +480,6 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
-  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
-  return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, emoji)
-    : makeCall('setEmojiStatus', userId, 'none');
-});
-
-const setUserAway = throttle({ interval: 1000 }, (userId, away) => {
-  return makeCall('changeAway', away);
-}, 250, { leading: false, trailing: true });
-
-const setUserRaiseHand = throttle({ interval: 1000 }, (userId, raiseHand) => {
-  return makeCall('changeRaiseHand', raiseHand);
-}, 250, { leading: false, trailing: true });
-
-const clearAllEmojiStatus = () => {
-  makeCall('clearAllUsersEmoji');
-};
-
-const clearAllReactions = () => {
-  makeCall('clearAllUsersReaction');
-};
-
-const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
-
-const removeUser = (userId, banUser) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId, banUser);
-  } else {
-    makeCall('removeUser', userId, banUser);
-  }
-};
-
 const toggleVoice = (userId) => {
   if (userId === Auth.userID) {
     AudioService.toggleMuteMicrophone();
@@ -528,10 +492,6 @@ const toggleVoice = (userId) => {
   }
 };
 
-const ejectUserCameras = (userId) => {
-  makeCall('ejectUserCameras', userId);
-};
-
 const getEmoji = () => {
   const currentUser = Users.findOne({ userId: Auth.userID },
     { fields: { emoji: 1 } });
@@ -542,12 +502,6 @@ const getEmoji = () => {
 
   return currentUser.emoji;
 };
-
-const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
-
-const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
-
-const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
@@ -618,33 +572,6 @@ const roving = (...args) => {
     dropdownTrigger?.click();
     focusFirstDropDownItem();
   }
-};
-
-const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
-  .findOne({ users: { $all: [receiverId, senderId] } });
-
-const getGroupChatPrivate = (senderUserId, receiver) => {
-  const chat = hasPrivateChatBetweenUsers(senderUserId, receiver.userId);
-  if (!chat) {
-    makeCall('createGroupChat', receiver);
-  } else {
-    const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
-    if (indexOf(startedChats, chat.chatId) < 0) {
-      startedChats.push(chat.chatId);
-      Session.set(STARTED_CHAT_LIST_KEY, startedChats);
-    }
-
-    const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-
-    if (ChatService.isChatClosed(chat.chatId)) {
-      const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chat.chatId);
-      Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
-    }
-  }
-};
-
-const toggleUserLock = (userId, lockStatus) => {
-  makeCall('toggleUserLock', userId, lockStatus);
 };
 
 const requestUserInformation = (userId) => {
@@ -767,17 +694,7 @@ const UserLeftMeetingAlert = (obj) => {
 export default {
   sortUsersByName,
   sortUsers,
-  setEmojiStatus,
-  setUserAway,
-  setUserRaiseHand,
-  clearAllEmojiStatus,
-  clearAllReactions,
-  assignPresenter,
-  removeUser,
   toggleVoice,
-  muteAllUsers,
-  muteAllExceptPresenter,
-  changeRole,
   getUsers,
   formatUsers,
   getActiveChats,
@@ -788,19 +705,15 @@ export default {
   isPublicChat,
   roving,
   getCustomLogoUrl,
-  getGroupChatPrivate,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji,
-  hasPrivateChatBetweenUsers,
-  toggleUserLock,
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
-  ejectUserCameras,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
 };

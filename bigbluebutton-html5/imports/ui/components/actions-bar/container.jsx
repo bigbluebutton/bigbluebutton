@@ -2,14 +2,11 @@ import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
-import { useSubscription } from '@apollo/client';
+import { useSubscription, useMutation } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
-import { UsersContext } from '../components-data/users-context/context';
 import ActionsBar from './component';
 import Service from './service';
-import UserListService from '/imports/ui/components/user-list/service';
-import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
@@ -20,6 +17,9 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -29,22 +29,32 @@ const ActionsBarContainer = (props) => {
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const isThereCurrentPresentation = !!presentationPage?.presentationId;
 
-  const usingUsersContext = useContext(UsersContext);
+  const { data: currentMeeting } = useMeeting((m) => ({
+    externalVideo: m.externalVideo,
+  }));
+
+  const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
+
   const {
-    pluginsProvidedAggregatedState,
+    pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   let actionBarItems = [];
-  if (pluginsProvidedAggregatedState.actionsBarItems) {
+  if (pluginsExtensibleAreasAggregatedState.actionsBarItems) {
     actionBarItems = [
-      ...pluginsProvidedAggregatedState.actionsBarItems,
+      ...pluginsExtensibleAreasAggregatedState.actionsBarItems,
     ];
   }
 
-  const { users } = usingUsersContext;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    emoji: user.emoji,
+    isModerator: user.isModerator,
+  }));
 
-  const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
-
-  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
+  const amIPresenter = currentUserData?.presenter;
+  const amIModerator = currentUserData?.isModerator;
 
   if (actionsBarStyle.display === false) return null;
 
@@ -53,11 +63,14 @@ const ActionsBarContainer = (props) => {
       ...{
         ...props,
         currentUser,
+        amIModerator,
         layoutContextDispatch,
         actionsBarStyle,
         amIPresenter,
         actionBarItems,
         isThereCurrentPresentation,
+        isSharingVideo,
+        stopExternalVideoShare,
       }
     }
     />
@@ -76,12 +89,8 @@ const isReactionsButtonEnabled = () => {
 };
 
 export default withTracker(() => ({
-  amIModerator: Service.amIModerator(),
-  stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  handleTakePresenter: Service.takePresenterRole,
-  isSharingVideo: Service.isSharingVideo(),
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
@@ -95,5 +104,4 @@ export default withTracker(() => ({
   isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
   allowExternalVideo: isExternalVideoEnabled(),
-  setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

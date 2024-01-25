@@ -52,7 +52,7 @@ export default function UserConnectionStatus() {
 
         setTimeout(() => {
             handleUpdateConnectionAliveAt();
-        }, 5000);
+        }, 25000);
     };
 
     useEffect(() => {
@@ -90,7 +90,7 @@ export default function UserConnectionStatus() {
       </thead>
       <tbody>
         {data.user_connectionStatus.map((curr) => {
-            console.log('user_connectionStatus', curr);
+            // console.log('user_connectionStatus', curr);
 
             if(curr.userClientResponseAt == null) {
                 // handleUpdateUserClientResponseAt();
