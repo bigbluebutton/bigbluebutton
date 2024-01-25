@@ -95,10 +95,17 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     || lastSenderPreviousPage) === message?.user?.userId;
   const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
   const dateTime = new Date(message?.createdAt);
+
+  const msgTime = dateTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+  const clearMessage = `${intl.formatMessage(intlMessages.chatClear)} at ${msgTime}`;
+  const { away } = JSON.parse(message.messageMetadata);
+  const awayMessage = (away)
+    ? `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
+    : `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
   const messageContent: {
     name: string,
-    color: string,
-    isModerator: boolean,
+    color?: string,
+    isModerator?: boolean,
     component: React.ReactElement,
   } = useMemo(() => {
     switch (message.messageType) {
@@ -123,12 +130,10 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       case ChatMessageType.CHAT_CLEAR:
         return {
           name: intl.formatMessage(intlMessages.systemLabel),
-          color: '#0F70D7',
-          isModerator: true,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage
-              text={intl.formatMessage(intlMessages.chatClear)}
+              emphasizedMessage={false}
+              text={clearMessage}
               systemMsg
             />
           ),
@@ -148,15 +153,12 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
         };
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
-        const { away } = JSON.parse(message.messageMetadata);
         return {
-          name: message.senderName,
-          color: '#0F70D7',
-          isModerator: true,
+          name: '',
           component: (
             <ChatMessageTextContent
-              emphasizedMessage
-              text={(away) ? intl.formatMessage(intlMessages.userAway) : intl.formatMessage(intlMessages.userNotAway)}
+              emphasizedMessage={false}
+              text={awayMessage}
               systemMsg
             />
           ),
@@ -191,12 +193,14 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         </ChatAvatar>
       )}
       <ChatContent sameSender={message?.user ? sameSender : false}>
-        <ChatMessageHeader
-          sameSender={message?.user ? sameSender : false}
-          name={messageContent.name}
-          isOnline={message.user?.isOnline ?? true}
-          dateTime={dateTime}
-        />
+        {!ChatMessageType.USER_AWAY_STATUS_MSG ? (
+          <ChatMessageHeader
+            sameSender={message?.user ? sameSender : false}
+            name={messageContent.name}
+            isOnline={message.user?.isOnline ?? true}
+            dateTime={dateTime}
+          />
+        ) : null}
         {messageContent.component}
       </ChatContent>
     </ChatWrapper>

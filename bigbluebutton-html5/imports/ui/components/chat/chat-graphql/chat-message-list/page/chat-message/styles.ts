@@ -25,9 +25,9 @@ interface ChatContentProps {
 }
 
 interface ChatAvatarProps {
-  avatar: string;
-  color: string;
-  moderator: boolean;
+  avatar?: string;
+  color?: string;
+  moderator?: boolean;
   emoji?: string;
 }
 
