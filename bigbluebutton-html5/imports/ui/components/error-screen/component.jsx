@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
-import AudioManager from '/imports/ui/services/audio-manager';
-import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -80,21 +78,29 @@ const propTypes = {
     PropTypes.string,
     PropTypes.number,
   ]),
+  error: PropTypes.object,
+  errorInfo: PropTypes.object,
 };
 
 const defaultProps = {
   code: '500',
   callback: () => {},
   endedReason: null,
+  error: {},
+  errorInfo: {},
 };
 
 class ErrorScreen extends PureComponent {
   componentDidMount() {
     const { code, callback, endedReason } = this.props;
-    const log = code === '403' ? 'warn' : 'error';
-    AudioManager.exitAudio();
+    // stop audio
+    document.querySelector('audio').pause();
+    navigator
+      .mediaDevices
+      .getUserMedia({ audio: true, video: true })
+      .then((m) => m.getTracks().forEach((t) => t.stop()));
     callback(endedReason, () => Meteor.disconnect());
-    logger[log]({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
+    console.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
   }
 
   render() {
@@ -102,18 +108,29 @@ class ErrorScreen extends PureComponent {
       intl,
       code,
       children,
+      error,
+      errorInfo,
     } = this.props;
+    let formatedMessage = 'Oops, something went wrong';
+    let errorMessageDescription = Session.get('errorMessageDescription');
+    if (intl) {
+      formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
 
-    let formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
+      if (code in intlMessages) {
+        formatedMessage = intl.formatMessage(intlMessages[code]);
+      }
 
-    if (code in intlMessages) {
-      formatedMessage = intl.formatMessage(intlMessages[code]);
+      errorMessageDescription = Session.get('errorMessageDescription');
+
+      if (errorMessageDescription in intlMessages) {
+        errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);
+      }
     }
 
-    let errorMessageDescription = Session.get('errorMessageDescription');
-
-    if (errorMessageDescription in intlMessages) {
-      errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);
+    if (error) {
+      errorMessageDescription = `Error: ${error}
+       
+      ErrorInfo: ${JSON.stringify(errorInfo)}`;
     }
 
     return (
@@ -143,6 +160,8 @@ class ErrorScreen extends PureComponent {
 }
 
 export default injectIntl(ErrorScreen);
+
+export { ErrorScreen };
 
 ErrorScreen.propTypes = propTypes;
 ErrorScreen.defaultProps = defaultProps;

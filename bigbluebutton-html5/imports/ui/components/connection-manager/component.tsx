@@ -5,6 +5,7 @@ import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import React, { useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
+import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 
 interface Props {
   children: React.ReactNode;
@@ -75,13 +76,23 @@ const ConnectionManager = ({ children }: Props): React.ReactNode => {
   [graphqlUrl]);
   return (
     graphqlUrlapolloClient
-    && (
-      <ApolloProvider
-        client={graphqlUrlapolloClient}
-      >
-        {children}
-      </ApolloProvider>
-    )
+      ? (
+        <ApolloProvider
+          client={graphqlUrlapolloClient}
+        >
+          {children}
+        </ApolloProvider>
+      ) : (
+        <LoadingScreen>
+          {/* I made this because the component is in JS and requires a child, but it's optional */}
+          <div style={{
+            display: 'none',
+          }}
+          >
+            <h1>Loading...</h1>
+          </div>
+        </LoadingScreen>
+      )
   );
 };
 

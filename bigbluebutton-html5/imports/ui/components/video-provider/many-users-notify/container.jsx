@@ -49,7 +49,8 @@ export default withTracker(() => {
     }, { fields: {} }).count(),
     lockSettings: meeting.lockSettingsProps,
     webcamOnlyForModerator: meeting.usersProp.webcamsOnlyForModerator,
-    limitOfViewersInWebcam: Meteor.settings.public.app.viewersInWebcam,
-    limitOfViewersInWebcamIsEnable: Meteor.settings.public.app.enableLimitOfViewersInWebcam,
+    limitOfViewersInWebcam: window.meetingClientSettings.public.app.viewersInWebcam,
+    limitOfViewersInWebcamIsEnable: window.meetingClientSettings
+      .public.app.enableLimitOfViewersInWebcam,
   };
 })(ManyUsersContainer);

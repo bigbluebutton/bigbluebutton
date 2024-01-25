@@ -4,14 +4,13 @@ import ConnectionManager from '/imports/ui/components/connection-manager/compone
 import { render } from 'react-dom';
 import SettingsLoader from '/imports/ui/components/settings-loader/component';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
+import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 
 const Main: React.FC = () => {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary Fallback={ErrorScreen}>
       <ConnectionManager>
-        <SettingsLoader>
-          <h1>Loading...</h1>
-        </SettingsLoader>
+        <SettingsLoader />
       </ConnectionManager>
     </ErrorBoundary>
   );

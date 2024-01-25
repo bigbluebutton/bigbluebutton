@@ -6,19 +6,16 @@ import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
 import MeetingClientSettings from '../../Types/meetingClientSettings';
 import ClientStartup from '/client/clientStartup';
 
-interface SettingsLoaderProps {
-  children: React.ReactNode;
-}
-
 declare global {
   interface Window {
     meetingClientSettings: MeetingClientSettings;
   }
 }
 
-const SettingsLoader: React.FC<SettingsLoaderProps> = () => {
+const SettingsLoader: React.FC = () => {
   const { loading, error, data } = useQuery<getBigblueButtonSettingsResponse>(getBigblueButtonSettings);
   const [allowToRender, setAllowToRender] = React.useState(false);
+
   useEffect(() => {
     if (!loading && !error) {
       const settings = data?.meeting[0].clientSettings.clientSettingsJson;

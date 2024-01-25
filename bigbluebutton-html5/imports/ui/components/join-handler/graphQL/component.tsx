@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import React, { useEffect } from 'react';
-import { Session } from 'meteor/session';
 import {
   getUserCurrent,
   GetUserCurrentResponse,
@@ -47,7 +46,7 @@ const JoinHandler: React.FC<JoinHandlerProps> = ({
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {
-      timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       throw new Error('Authentication timeout');
     }, connectionTimeout);
   }, []);
@@ -66,6 +65,7 @@ const JoinHandler: React.FC<JoinHandlerProps> = ({
       clearTimeout(timeoutRef.current);
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
+      Auth.clearCredentials();
       Auth.set(
         meetingId,
         userId,
@@ -76,16 +76,6 @@ const JoinHandler: React.FC<JoinHandlerProps> = ({
         extId,
         meetingName,
       );
-      Auth.connectionAuthTime = new Date().getTime();
-      Auth.loggedIn = true;
-      Auth.uniqueClientSession = `${sessionToken}-${Math.random().toString(36).substring(6)}`;
-      Auth.isAuthenticating = false;
-
-      Session.set('isMeetingEnded', false);
-      Session.set('isPollOpen', false);
-      // TODO: breakoutRoomIsOpen doesn't seem used
-      Session.set('breakoutRoomIsOpen', false);
-
       setAllowToRender(true);
     }
   }, [authed]);
@@ -118,18 +108,21 @@ const JoinHandlerContainer: React.FC<JoinHandlerContainerProps> = ({ children })
   } = useQuery<GetUserInfoResponse>(getUserInfo);
   if (loading || userInfoLoading) return null;
   if (error || userInfoError) {
-    console.log('Error on user authentication: ', error, userInfoError);
-    
     throw new Error('Error on user authentication: ', error);
   }
+
   if (!data || data.user_current.length === 0) return null;
   if (!userInfoData || userInfoData.meeting.length === 0) return null;
-  const { authToken, authed, joinErrorCode, joinErrorMessage } = data.user_current[0];
+  const {
+    authToken,
+    authed,
+    joinErrorCode,
+    joinErrorMessage,
+  } = data.user_current[0];
   const { logoutUrl, meetingId, name: meetingName } = userInfoData.meeting[0];
   const { extId, name: userName, userId } = userInfoData.user_current[0];
   return (
     <JoinHandler
-      children={children}
       authToken={authToken}
       authed={authed}
       logoutUrl={logoutUrl}
@@ -140,7 +133,9 @@ const JoinHandlerContainer: React.FC<JoinHandlerContainerProps> = ({ children })
       userId={userId}
       joinErrorCode={joinErrorCode}
       joinErrorMessage={joinErrorMessage}
-    />
+    >
+      {children}
+    </JoinHandler>
   );
 };
 
