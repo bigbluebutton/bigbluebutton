@@ -65,6 +65,7 @@ const propTypes = {
     id: PropTypes.string,
     type: PropTypes.string,
   })).isRequired,
+  sendUserUnshareWebcam: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -74,6 +75,7 @@ const JoinVideoButton = ({
   disableReason,
   updateSettings,
   cameraSettingsDropdownItems,
+  sendUserUnshareWebcam,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -108,12 +110,12 @@ const JoinVideoButton = ({
   const handleOnClick = debounce(() => {
     switch (status) {
       case 'videoConnecting':
-        VideoService.stopVideo();
+        VideoService.stopVideo(undefined, sendUserUnshareWebcam);
         break;
       case 'connected':
       default:
         if (exitVideo()) {
-          VideoService.exitVideo();
+          VideoService.exitVideo(sendUserUnshareWebcam);
         } else {
           setForceOpen(isMobileSharingCamera);
           setVideoPreviewModalIsOpen(true);

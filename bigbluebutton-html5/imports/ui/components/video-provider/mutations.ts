@@ -8,6 +8,15 @@ export const CAMERA_BROADCAST_START = gql`
   }
 `;
 
+export const CAMERA_BROADCAST_STOP = gql`
+  mutation CameraBroadcastStop($cameraId: String!) {
+    cameraBroadcastStop(
+      stream: $cameraId
+    )
+  }
+`;
+
 export default {
   CAMERA_BROADCAST_START,
+  CAMERA_BROADCAST_STOP,
 };

@@ -8,11 +8,17 @@ import ScreenShareService from '/imports/ui/components/screenshare/service';
 import logger from '/imports/startup/client/logger';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
 
 const VideoPreviewContainer = (props) => <VideoPreview {...props} />;
 
 export default withTracker(({ setIsOpen, callbackToClose }) => {
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+
+  const sendUserUnshareWebcam = (cameraId) => {
+    cameraBroadcastStop({ variables: { cameraId } });
+  };
 
   return {
     startSharing: (deviceId) => {
@@ -47,9 +53,9 @@ export default withTracker(({ setIsOpen, callbackToClose }) => {
       setIsOpen(false);
       if (deviceId) {
         const streamId = VideoService.getMyStreamId(deviceId);
-        if (streamId) VideoService.stopVideo(streamId);
+        if (streamId) VideoService.stopVideo(streamId, sendUserUnshareWebcam);
       } else {
-        VideoService.exitVideo();
+        VideoService.exitVideo(sendUserUnshareWebcam);
       }
     },
     stopSharingCameraAsContent: () => {

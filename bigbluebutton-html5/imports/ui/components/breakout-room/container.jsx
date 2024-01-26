@@ -19,6 +19,7 @@ import {
   BREAKOUT_ROOM_REQUEST_JOIN_URL,
 } from './mutations';
 import logger from '/imports/startup/client/logger';
+import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
 
 const BreakoutContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -34,6 +35,11 @@ const BreakoutContainer = (props) => {
   const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+
+  const sendUserUnshareWebcam = (cameraId) => {
+    cameraBroadcastStop({ variables: { cameraId } });
+  };
 
   const endAllBreakouts = () => {
     Service.setCapturedContentUploading();
@@ -67,6 +73,7 @@ const BreakoutContainer = (props) => {
     setBreakoutsTime={setBreakoutsTime}
     transferUserToMeeting={transferUserToMeeting}
     requestJoinURL={requestJoinURL}
+    sendUserUnshareWebcam={sendUserUnshareWebcam}
     {...{ layoutContextDispatch, isRTL, amIModerator, ...props }}
   />;
 };

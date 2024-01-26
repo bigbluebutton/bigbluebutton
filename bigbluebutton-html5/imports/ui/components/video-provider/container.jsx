@@ -4,16 +4,21 @@ import { useMutation } from '@apollo/client';
 import VideoProvider from './component';
 import VideoService from './service';
 import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
-import { CAMERA_BROADCAST_START } from './mutations';
+import { CAMERA_BROADCAST_START, CAMERA_BROADCAST_STOP } from './mutations';
 
 const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const VideoProviderContainer = ({ children, ...props }) => {
   const { streams, isGridEnabled } = props;
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
 
   const sendUserShareWebcam = (cameraId) => {
     cameraBroadcastStart({ variables: { cameraId } });
+  };
+
+  const sendUserUnshareWebcam = (cameraId) => {
+    cameraBroadcastStop({ variables: { cameraId } });
   };
 
   const playStart = (cameraId) => {
@@ -23,7 +28,19 @@ const VideoProviderContainer = ({ children, ...props }) => {
     }
   };
 
-  return (!streams.length && !isGridEnabled ? null : <VideoProvider {...props} playStart={playStart}>{children}</VideoProvider>);
+  return (
+    !streams.length && !isGridEnabled
+      ? null
+      : (
+        <VideoProvider
+          {...props}
+          playStart={playStart}
+          sendUserUnshareWebcam={sendUserUnshareWebcam}
+        >
+          {children}
+        </VideoProvider>
+      )
+  );
 };
 
 export default withTracker(({ swapLayout, ...rest }) => {
