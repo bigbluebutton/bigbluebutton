@@ -68,23 +68,23 @@ const config = {
                 fromExtensions: ['html', 'htm'],
                 redirects: [
                     {
-                        to: "/2.6/new-features",
-                        from: "/2.6/new"
+                        to: "/2.6/new-features/",
+                        from: "/2.6/new/"
                     },
                     {
-                        to: "/2.6/new-features",
+                        to: "/2.6/new-features/",
                         from: "/2.6/new.html"
                     },
                     {
-                        to: "/new-features",
-                        from: "/2.7/new-features"
+                        to: "/new-features/",
+                        from: "/2.7/new-features/"
                     },
                     {
-                        to: "/development/api",
+                        to: "/development/api/",
                         from: "/dev/api.html"
                     },
                     {
-                        to: "/greenlight/v3/migration",
+                        to: "/greenlight/v3/migration/",
                         from: "/greenlight_v3/gl3-migration.html"
                     }
                 ],
