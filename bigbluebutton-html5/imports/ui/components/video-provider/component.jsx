@@ -123,6 +123,7 @@ const propTypes = {
   currentVideoPageIndex: PropTypes.number.isRequired,
   totalNumberOfStreams: PropTypes.number.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
+  playStart: PropTypes.func.isRequired,
 };
 
 class VideoProvider extends Component {
@@ -1153,6 +1154,7 @@ class VideoProvider extends Component {
   handlePlayStart(message) {
     const { cameraId: stream, role } = message;
     const peer = this.webRtcPeers[stream];
+    const { playStart } = this.props;
 
     if (peer) {
       logger.info({
@@ -1169,7 +1171,7 @@ class VideoProvider extends Component {
       this.clearRestartTimers(stream);
       this.attachVideoStream(stream);
 
-      VideoService.playStart(stream);
+      playStart(stream);
     } else {
       logger.warn({
         logCode: 'video_provider_playstart_no_peer',

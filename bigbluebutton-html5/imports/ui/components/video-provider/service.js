@@ -1073,4 +1073,5 @@ export default {
   getPreloadedStream: () => videoService.getPreloadedStream(),
   getStats: () => videoService.getStats(),
   updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
+  joinedVideo: () => videoService.joinedVideo(),
 };
