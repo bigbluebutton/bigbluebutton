@@ -45,6 +45,17 @@ export const PRESENTATION_SET_DOWNLOADABLE = gql`
   }
 `;
 
+export const PRESENTATION_EXPORT = gql`
+  mutation PresentationExport(
+    $presentationId: String!,
+    $fileStateType: String!,) {
+    presentationExport(
+      presentationId: $presentationId,
+      fileStateType: $fileStateType,
+    )
+  }
+`;
+
 export const PRESENTATION_SET_CURRENT = gql`
   mutation PresentationSetCurrent($presentationId: String!) {
     presentationSetCurrent(
@@ -84,6 +95,7 @@ export default {
   PRESENTATION_SET_WRITERS,
   PRESENTATION_SET_PAGE,
   PRESENTATION_SET_DOWNLOADABLE,
+  PRESENTATION_EXPORT,
   PRESENTATION_SET_CURRENT,
   PRESENTATION_REMOVE,
   PRES_ANNOTATION_DELETE,

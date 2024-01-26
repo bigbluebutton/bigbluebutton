@@ -17,7 +17,12 @@ import {
   PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { PRESENTATION_SET_DOWNLOADABLE, PRESENTATION_SET_CURRENT, PRESENTATION_REMOVE } from '../mutations';
+import {
+  PRESENTATION_SET_DOWNLOADABLE,
+  PRESENTATION_EXPORT,
+  PRESENTATION_SET_CURRENT,
+  PRESENTATION_REMOVE,
+} from '../mutations';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -32,14 +37,14 @@ const PresentationUploaderContainer = (props) => {
   const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
 
   const [presentationSetDownloadable] = useMutation(PRESENTATION_SET_DOWNLOADABLE);
+  const [presentationExport] = useMutation(PRESENTATION_EXPORT);
   const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
   const [presentationRemove] = useMutation(PRESENTATION_REMOVE);
 
   const exportPresentation = (presentationId, fileStateType) => {
-    presentationSetDownloadable({
+    presentationExport({
       variables: {
         presentationId,
-        downloadable: true,
         fileStateType,
       },
     });
