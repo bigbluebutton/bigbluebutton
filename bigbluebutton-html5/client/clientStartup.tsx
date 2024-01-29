@@ -1,6 +1,10 @@
-import React, { Suspense, useContext, useEffect, useMemo } from 'react';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
+import React, {
+  Suspense,
+  useContext,
+  useEffect,
+} from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+
 const MeetingClientLazy = React.lazy(() => import('./meetingClient'));
 
 const ClientStartup: React.FC = () => {

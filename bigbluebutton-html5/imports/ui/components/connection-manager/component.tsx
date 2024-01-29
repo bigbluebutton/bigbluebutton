@@ -22,7 +22,7 @@ interface Response {
 }
 
 const ConnectionManager = ({ children }: Props): React.ReactNode => {
-  const [graphqlUrlapolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
+  const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
@@ -49,17 +49,24 @@ const ConnectionManager = ({ children }: Props): React.ReactNode => {
       }
       let wsLink;
       try {
-        wsLink = new WebSocketLink(
-          new SubscriptionClient(graphqlUrl, {
-            reconnect: true,
-            timeout: 30000,
-            connectionParams: {
-              headers: {
-                'X-Session-Token': sessionToken,
-              },
+        const subscription = new SubscriptionClient(graphqlUrl, {
+          reconnect: true,
+          timeout: 30000,
+          connectionParams: {
+            headers: {
+              'X-Session-Token': sessionToken,
             },
-          }),
+          },
+        });
+        subscription.onError(() => {
+          throw new Error('Error: on subscription to server');
+        });
+        wsLink = new WebSocketLink(
+          subscription,
         );
+        wsLink.setOnError((error) => {
+          throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
+        });
       } catch (error) {
         throw new Error('Error creating WebSocketLink: '.concat(JSON.stringify(error) || ''));
       }
@@ -78,10 +85,10 @@ const ConnectionManager = ({ children }: Props): React.ReactNode => {
   },
   [graphqlUrl]);
   return (
-    graphqlUrlapolloClient
+    graphqlUrlApolloClient
       ? (
         <ApolloProvider
-          client={graphqlUrlapolloClient}
+          client={graphqlUrlApolloClient}
         >
           {children}
         </ApolloProvider>
