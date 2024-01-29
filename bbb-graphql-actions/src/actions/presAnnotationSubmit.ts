@@ -17,6 +17,10 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
+  if(typeof input.annotations !== 'object' || !Array.isArray(input.annotations)) {
+    throw new ValidationError('Field `annotations` contains an invalid Json Array.', 400);
+  }
+
   const body = {
     whiteboardId: input.pageId,
     annotations: input.annotations,

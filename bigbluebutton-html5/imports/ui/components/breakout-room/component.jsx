@@ -257,8 +257,8 @@ class BreakoutRoom extends PureComponent {
   }
 
   transferUserToBreakoutRoom(breakoutId) {
-    const { transferToBreakout } = this.props;
-    transferToBreakout(breakoutId);
+    const { transferUserToMeeting, meetingId } = this.props;
+    transferUserToMeeting(meetingId, breakoutId);
     this.setState({ joinedAudioOnly: true, breakoutId });
   }
 

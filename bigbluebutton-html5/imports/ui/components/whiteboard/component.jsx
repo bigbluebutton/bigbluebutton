@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { Tldraw, track, useEditor } from "@tldraw/tldraw";
+import { Tldraw, track, useEditor, DefaultColorStyle, DefaultDashStyle, DefaultFillStyle, DefaultFontStyle, DefaultSizeStyle } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import SlideCalcUtil, {
   HUNDRED_PERCENT,
@@ -80,21 +80,6 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
   );
 };
 
-const cleanArrowShapeProps = (shapeProp) => {
-  if (!shapeProp) return;
-
-  if (shapeProp.type === "binding") {
-    delete shapeProp.x;
-    delete shapeProp.y;
-  }
-
-  if (shapeProp.type === "point") {
-    delete shapeProp.boundShapeId;
-    delete shapeProp.normalizedAnchor;
-    delete shapeProp.isExact;
-  }
-};
-
 export default Whiteboard = React.memo(function Whiteboard(props) {
   const {
     isPresenter,
@@ -117,6 +102,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     svgUri,
     maxStickyNoteLength,
     fontFamily,
+    colorStyle,
+    dashStyle,
+    fillStyle,
+    fontStyle,
+    sizeStyle,
     hasShapeAccess,
     presentationAreaHeight,
     presentationAreaWidth,
@@ -165,7 +155,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
   const whiteboardRef = React.useRef(null);
   const zoomValueRef = React.useRef(null);
-  const prevShapesRef = React.useRef({});
+  const prevShapesRef = React.useRef(shapes);
+  const prevOtherCursorsRef = useRef(otherCursors);
   const tlEditorRef = React.useRef(tlEditor);
   const slideChanged = React.useRef(false);
   const slideNext = React.useRef(null);
@@ -180,29 +171,36 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
-    const language = React.useMemo(() => {
+  const language = React.useMemo(() => {
     return mapLanguage(Settings?.application?.locale?.toLowerCase() || "en");
   }, [Settings?.application?.locale]);
 
-  const [cursorPosition, updateCursorPosition] = useCursor(publishCursorUpdate, whiteboardId);
+  const [cursorPosition, updateCursorPosition] = useCursor(
+    publishCursorUpdate,
+    whiteboardId
+  );
+
+  React.useEffect(() => {
+    if (!isEqual(prevShapesRef.current, shapes)) {
+      prevShapesRef.current = shapes;
+    }
+  }, [shapes]);
+
+  React.useEffect(() => {
+    if (!isEqual(prevOtherCursorsRef.current, otherCursors)) {
+      prevOtherCursorsRef.current = otherCursors;
+    }
+  }, [otherCursors]);
 
   const { shapesToAdd, shapesToUpdate, shapesToRemove } = React.useMemo(() => {
-    if (isEqual(prevShapesRef.current, shapes) || isMouseDownRef.current) {
-      return { shapesToAdd: [], shapesToUpdate: [], shapesToRemove: [] };
-    }
-
-    prevShapesRef.current = shapes;
-
-    const localShapes = tlEditor?.store?.allRecords();
+    const selectedShapeIds = tlEditorRef.current?.selectedShapeIds || [];
+    const localShapes = tlEditorRef.current?.currentPageShapes;
     const filteredShapes =
-      localShapes?.filter(
-        (item) => item.typeName === "shape" && item?.index !== "a0"
-      ) || [];
-
+      localShapes?.filter((item) => item?.index !== "a0") || [];
     const localLookup = new Map(
       filteredShapes.map((shape) => [shape.id, shape])
     );
-    const remoteShapeIds = Object.keys(shapes);
+    const remoteShapeIds = Object.keys(prevShapesRef.current);
     const toAdd = [];
     const toUpdate = [];
     const toRemove = [];
@@ -214,18 +212,21 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       }
     });
 
-    Object.values(shapes).forEach((remoteShape) => {
+    Object.values(prevShapesRef.current).forEach((remoteShape) => {
+      if (!remoteShape.id) return;
       const localShape = localLookup.get(remoteShape.id);
-
+      const prevShape = prevShapesRef.current[remoteShape.id];
       // Create a deep clone of remoteShape and remove the isModerator property
       const comparisonRemoteShape = deepCloneUsingShallow(remoteShape);
       delete comparisonRemoteShape.isModerator;
       delete comparisonRemoteShape.questionType;
 
       if (!localShape) {
-        // If the shape does not exist in local, add it to toAdd
-        toAdd.push(remoteShape);
-      } else if (!isEqual(localShape, comparisonRemoteShape)) {
+        if (prevShapesRef.current[`${remoteShape.id}`].meta?.createdBy !== currentUser?.userId) {
+          // If the shape does not exist in local, add it to toAdd
+          toAdd.push(remoteShape);
+        }
+      } else if (!isEqual(localShape, comparisonRemoteShape) && prevShape) {
         // Capture the differences
         const diff = {
           id: remoteShape.id,
@@ -233,42 +234,46 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           typeName: remoteShape.typeName,
         };
 
-        // Compare each property
-        Object.keys(remoteShape).forEach((key) => {
-          if (
-            key !== "isModerator" &&
-            !isEqual(remoteShape[key], localShape[key])
-          ) {
-            diff[key] = remoteShape[key];
-          }
-        });
-
-        if (remoteShape.props) {
-          Object.keys(remoteShape.props).forEach((key) => {
-            if (!isEqual(remoteShape.props[key], localShape.props[key])) {
-              diff.props = diff.props || {};
-              diff.props[key] = remoteShape.props[key];
+        if (!selectedShapeIds.includes(remoteShape.id) && prevShape?.meta?.updatedBy !== currentUser?.userId) {
+          // Compare each property
+          Object.keys(remoteShape).forEach((key) => {
+            if (
+              key !== "isModerator" &&
+              !isEqual(remoteShape[key], localShape[key])
+            ) {
+              diff[key] = remoteShape[key];
             }
           });
-        }
 
-        if (diff?.type === "arrow") {
-          cleanArrowShapeProps(diff?.props?.end);
-          cleanArrowShapeProps(diff?.props?.start);
+          if (remoteShape.props) {
+            Object.keys(remoteShape.props).forEach((key) => {
+              if (!isEqual(remoteShape.props[key], localShape.props[key])) {
+                diff.props = diff.props || {};
+                diff.props[key] = remoteShape.props[key];
+              }
+            });
+          }
+
+          toUpdate.push(diff);
         }
-        toUpdate.push(diff);
       }
     });
 
-    toAdd.forEach((shape) => { delete shape.isModerator; delete shape.questionType; });
-    toUpdate.forEach((shape) => { delete shape.isModerator; delete shape.questionType; });
+    toAdd.forEach((shape) => {
+      delete shape.isModerator;
+      delete shape.questionType;
+    });
+    toUpdate.forEach((shape) => {
+      delete shape.isModerator;
+      delete shape.questionType;
+    });
 
     return {
       shapesToAdd: toAdd,
       shapesToUpdate: toUpdate,
       shapesToRemove: toRemove,
     };
-  }, [shapes]);
+  }, [prevShapesRef.current]);
 
   const setCamera = (zoom, x = 0, y = 0) => {
     if (tlEditorRef.current) {
@@ -433,6 +438,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
               viewedRegionH,
               0,
               0,
+              presentationId
             );
           } else {
             setCamera(adjustedZoom);
@@ -524,6 +530,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   ]);
 
   React.useEffect(() => {
+    // Check if there are any changes to be made
     if (shapesToAdd.length || shapesToUpdate.length || shapesToRemove.length) {
       tlEditor?.store?.mergeRemoteChanges(() => {
         if (shapesToRemove.length > 0) {
@@ -543,19 +550,19 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     if (tlEditorRef.current) {
       const useElement = document.querySelector(".tl-cursor use");
-      if (useElement && !isMultiUserActive) {
+      if (useElement && !isMultiUserActive && !isPresenter) {
         useElement.setAttribute("href", "#redPointer");
       } else if (useElement) {
         useElement.setAttribute("href", "#cursor");
       }
 
-      const updatedPresences = otherCursors
+      const updatedPresences = prevOtherCursorsRef.current
         .map(({ userId, user, xPercent, yPercent }) => {
           const { presenter, name } = user;
           const id = InstancePresenceRecordType.createId(userId);
           const active = yPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
-          if (!active || (hideViewersCursor && user.role === 'VIEWER' && !currentUser?.presenter)) {
+          if (!active || (hideViewersCursor && user.role === 'VIEWER' && !currentUser?.presenter) || (!presenter && !isMultiUserActive)) {
             tlEditorRef.current?.store.remove([id]);
             return null;
           }
@@ -589,7 +596,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         tlEditorRef.current?.store.put(updatedPresences);
       }
     }
-  }, [otherCursors]);
+  }, [prevOtherCursorsRef.current]);
 
   // set current tldraw page when presentation id updates
   React.useEffect(() => {
@@ -669,7 +676,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     curPageId,
     isMultiUserActive,
     isPresenter,
-    animations
+    animations,
   ]);
 
   React.useEffect(() => {
@@ -678,7 +685,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       /// brings presentation toolbar back
       setTldrawIsMounting(false);
     }
-  }, [tlEditorRef?.current?.camera, presentationAreaWidth, presentationAreaHeight]);
+  }, [
+    tlEditorRef?.current?.camera,
+    presentationAreaWidth,
+    presentationAreaHeight,
+  ]);
 
   const handleTldrawMount = (editor) => {
     setTlEditor(editor);
@@ -689,33 +700,55 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
     const debouncePersistShape = debounce({ delay: 0 }, persistShape);
 
+    const colorStyles = ['black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'];
+    const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
+    const fillStyles = ['none', 'pattern', 'semi', 'solid'];
+    const fontStyles = ['draw','mono','sans', 'serif'];
+    const sizeStyles = ['l', 'm', 's', 'xl'];
+
+    if ( colorStyles.includes(colorStyle) ) {
+      editor.setStyleForNextShapes(DefaultColorStyle, colorStyle);
+    }
+    if ( dashStyles.includes(dashStyle) ) {
+      editor.setStyleForNextShapes(DefaultDashStyle, dashStyle);
+    }
+    if ( fillStyles.includes(fillStyle) ) {
+      editor.setStyleForNextShapes(DefaultFillStyle, fillStyle);
+    }
+    if ( fontStyles.includes(fontStyle)) {
+      editor.setStyleForNextShapes(DefaultFontStyle, fontStyle);
+    }
+    if ( sizeStyles.includes(sizeStyle) ) {
+      editor.setStyleForNextShapes(DefaultSizeStyle, sizeStyle);
+    }
+
     editor.store.listen(
       (entry) => {
         const { changes } = entry;
         const { added, updated, removed } = changes;
-    
+
         Object.values(added).forEach((record) => {
           const updatedRecord = {
             ...record,
             meta: {
               ...record.meta,
               createdBy: currentUser?.userId,
-            }
+            },
           };
           persistShape(updatedRecord, whiteboardId, isModerator);
         });
-    
+
         Object.values(updated).forEach(([_, record]) => {
           const updatedRecord = {
             ...record,
             meta: {
               updatedBy: currentUser?.userId,
               createdBy: shapes[record?.id]?.meta?.createdBy,
-            }
+            },
           };
           persistShape(updatedRecord, whiteboardId, isModerator);
         });
-    
+
         Object.values(removed).forEach((record) => {
           removeShapes([record.id], whiteboardId);
         });
@@ -911,6 +944,11 @@ Whiteboard.propTypes = {
   svgUri: PropTypes.string,
   maxStickyNoteLength: PropTypes.number.isRequired,
   fontFamily: PropTypes.string.isRequired,
+  colorStyle: PropTypes.string.isRequired,
+  dashStyle: PropTypes.string.isRequired,
+  fillStyle: PropTypes.string.isRequired,
+  fontStyle: PropTypes.string.isRequired,
+  sizeStyle: PropTypes.string.isRequired,
   hasShapeAccess: PropTypes.func.isRequired,
   presentationAreaHeight: PropTypes.number.isRequired,
   presentationAreaWidth: PropTypes.number.isRequired,

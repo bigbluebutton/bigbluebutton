@@ -176,8 +176,8 @@ case class PresentationPod(id: String, currentPresenter: String,
     // 100D-checkedWidth is the maximum the page can be moved over
     val checkedWidth = Math.min(widthRatio, 100D) //if (widthRatio <= 100D) widthRatio else 100D
     val checkedHeight = Math.min(heightRatio, 100D)
-    val checkedXOffset = Math.min(xOffset, 0D)
-    val checkedYOffset = Math.min(yOffset, 0D)
+    val checkedXOffset = xOffset
+    val checkedYOffset = yOffset
 
     for {
       pres <- presentations.get(presentationId)

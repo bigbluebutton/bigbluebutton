@@ -24,7 +24,7 @@ export default function CursorsAll() {
     (<table border="1">
       <thead>
         <tr>
-            <th colSpan="4">Private Chat Messages</th>
+            <th colSpan="4">Cursor</th>
         </tr>
         <tr>
             <th>userId</th>

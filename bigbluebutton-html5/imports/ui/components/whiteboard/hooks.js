@@ -202,7 +202,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
             whiteboardElement.addEventListener("mouseup", handleMouseUp);
             whiteboardElement.addEventListener("mouseenter", handleMouseEnter);
             whiteboardElement.addEventListener("mouseleave", handleMouseLeave);
-            whiteboardElement.addEventListener("wheel", handleMouseWheel, { capture: true });
+            whiteboardElement.addEventListener("wheel", handleMouseWheel, { passive: false, capture: true });
         }
 
         return () => {

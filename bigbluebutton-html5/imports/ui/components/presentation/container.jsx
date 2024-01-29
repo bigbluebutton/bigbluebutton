@@ -33,7 +33,11 @@ const PresentationContainer = (props) => {
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
+    variables: { pageId: currentPresentationPage?.pageId },
+    skip: !currentPresentationPage?.pageId,
+  });
+
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);

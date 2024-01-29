@@ -54,9 +54,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	defer c.Close(websocket.StatusInternalError, "the sky is falling")
 
 	var thisConnection = common.BrowserConnection{
-		Id:                  browserConnectionId,
-		ActiveSubscriptions: make(map[string]common.GraphQlSubscription, 1),
-		Context:             browserConnectionContext,
+		Id:                   browserConnectionId,
+		ActiveSubscriptions:  make(map[string]common.GraphQlSubscription, 1),
+		Context:              browserConnectionContext,
+		ConnAckSentToBrowser: false,
 	}
 
 	BrowserConnectionsMutex.Lock()
@@ -97,8 +98,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					BrowserConnectionsMutex.RLock()
 					thisBrowserConnection := BrowserConnections[browserConnectionId]
 					BrowserConnectionsMutex.RUnlock()
-					log.Debugf("created hasura client")
 					if thisBrowserConnection != nil {
+						log.Debugf("created hasura client")
 						hascli.HasuraClient(thisBrowserConnection, r.Cookies(), fromBrowserToHasuraChannel, fromHasuraToBrowserChannel)
 					}
 					time.Sleep(100 * time.Millisecond)
