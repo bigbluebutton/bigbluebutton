@@ -115,7 +115,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     minute: 'numeric',
   });
   const msgTime = formattedTime;
-  const clearMessage = `${intl.formatMessage(intlMessages.chatClear, { 0: msgTime })}`;
+  const clearMessage = `${msgTime} - ${intl.formatMessage(intlMessages.chatClear)}`;
 
   const messageContent: {
     name: string,
