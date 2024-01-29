@@ -3,9 +3,9 @@ import {
 } from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
+import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 
 interface Props {
   children: React.ReactNode;
@@ -24,6 +24,7 @@ interface Response {
 const ConnectionManager = ({ children }: Props): React.ReactNode => {
   const [graphqlUrlapolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
+  const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
     fetch(`https://${window.location.hostname}/bigbluebutton/api`, {
       headers: {
@@ -35,9 +36,11 @@ const ConnectionManager = ({ children }: Props): React.ReactNode => {
     }).catch((error) => {
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
+    loadingContextInfo.setLoading(true, 'Fetching GraphQL URL');
   }, []);
 
   useEffect(() => {
+    loadingContextInfo.setLoading(true, 'Connecting to GraphQL server');
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
@@ -82,17 +85,7 @@ const ConnectionManager = ({ children }: Props): React.ReactNode => {
         >
           {children}
         </ApolloProvider>
-      ) : (
-        <LoadingScreen>
-          {/* I made this because the component is in JS and requires a child, but it's optional */}
-          <div style={{
-            display: 'none',
-          }}
-          >
-            <h1>Loading...</h1>
-          </div>
-        </LoadingScreen>
-      )
+      ) : null
   );
 };
 

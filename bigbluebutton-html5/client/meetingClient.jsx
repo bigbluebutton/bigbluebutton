@@ -17,7 +17,7 @@
 */
 /* eslint no-unused-vars: 0 */
 
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
@@ -37,6 +37,7 @@ import adapter from 'webrtc-adapter';
 
 import collectionMirrorInitializer from './collection-mirror-initializer';
 import SettingsLoader from '../imports/ui/components/settings-loader/component';
+import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
@@ -47,9 +48,10 @@ liveDataEventBrokerInitializer();
 
 // eslint-disable-next-line import/prefer-default-export
 const Startup = () => {
+  const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
     const { disableWebsocketFallback } = window.meetingClientSettings.public.app;
-
+    loadingContextInfo.setLoading(false, '');
     if (disableWebsocketFallback) {
       Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
 

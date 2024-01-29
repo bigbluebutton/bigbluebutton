@@ -1,10 +1,11 @@
 import { useQuery } from '@apollo/client';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { getBigblueButtonSettings, getBigblueButtonSettingsResponse } from './queries';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
 import MeetingClientSettings from '../../Types/meetingClientSettings';
 import ClientStartup from '/client/clientStartup';
+import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 
 declare global {
   interface Window {
@@ -15,6 +16,10 @@ declare global {
 const SettingsLoader: React.FC = () => {
   const { loading, error, data } = useQuery<getBigblueButtonSettingsResponse>(getBigblueButtonSettings);
   const [allowToRender, setAllowToRender] = React.useState(false);
+  const loadingContextInfo = useContext(LoadingContext);
+  useEffect(() => {
+    loadingContextInfo.setLoading(true, 'Fetching settings');
+  }, []);
 
   useEffect(() => {
     if (!loading && !error) {

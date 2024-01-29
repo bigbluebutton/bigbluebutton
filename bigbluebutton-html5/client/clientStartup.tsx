@@ -1,23 +1,16 @@
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense, useContext, useEffect, useMemo } from 'react';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
+import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 const MeetingClientLazy = React.lazy(() => import('./meetingClient'));
 
 const ClientStartup: React.FC = () => {
-  const loadingScreen = useMemo(() => {
-    return (
-      <LoadingScreen>
-        {/* I made this because the component is in JS and requires a child, but it's optional */}
-        <div style={{
-          display: 'none',
-        }}
-        >
-          <h1>Loading...</h1>
-        </div>
-      </LoadingScreen>
-    );
+  const loadingContextInfo = useContext(LoadingContext);
+  useEffect(() => {
+    loadingContextInfo.setLoading(true, 'Loading Client');
   }, []);
+
   return (
-    <Suspense fallback={loadingScreen}>
+    <Suspense>
       {
         (() => {
           try {
