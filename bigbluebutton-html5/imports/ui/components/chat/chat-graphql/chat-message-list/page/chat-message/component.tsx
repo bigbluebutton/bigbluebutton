@@ -114,6 +114,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     hour: 'numeric',
     minute: 'numeric',
   });
+
   const msgTime = formattedTime;
   const clearMessage = `${msgTime} ${intl.formatMessage(intlMessages.chatClear)}`;
 
@@ -207,8 +208,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   }, []);
   return (
     <ChatWrapper isSystemSender={isSystemSender} sameSender={sameSender} ref={messageRef}>
-      {(!message?.user || !sameSender) &&
-        (message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
+      {(!message?.user || !sameSender) && (
+        message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
           && message.messageType !== ChatMessageType.CHAT_CLEAR) && (
           <ChatAvatar
             avatar={message.user?.avatar}
