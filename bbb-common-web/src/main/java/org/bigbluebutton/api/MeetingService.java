@@ -75,6 +75,7 @@ public class MeetingService implements MessageListener {
    */
   private final ConcurrentMap<String, Meeting> meetings;
   private final ConcurrentMap<String, UserSession> sessions;
+  private final ConcurrentMap<String, UserSessionBasicData> removedSessions;
 
   private RecordingService recordingService;
   private LearningDashboardService learningDashboardService;
@@ -88,6 +89,7 @@ public class MeetingService implements MessageListener {
 
   private long usersTimeout;
   private long waitingGuestUsersTimeout;
+  private int sessionsCleanupDelayInMinutes;
   private long enteredUsersTimeout;
 
   private ParamsProcessorUtil paramsProcessorUtil;
@@ -100,6 +102,7 @@ public class MeetingService implements MessageListener {
   public MeetingService() {
     meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);
     sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);
+    removedSessions = new ConcurrentHashMap<String, UserSessionBasicData>(8, 0.9f, 1);
     uploadAuthzTokens = new HashMap<String, PresentationUploadToken>();
   }
 
@@ -149,12 +152,16 @@ public class MeetingService implements MessageListener {
     return null;
   }
 
-  public UserSession getUserSessionWithAuthToken(String token) {
+  public UserSession getUserSessionWithSessionToken(String token) {
     return sessions.get(token);
   }
 
+  public UserSessionBasicData getRemovedUserSessionWithSessionToken(String sessionToken) {
+    return removedSessions.get(sessionToken);
+  }
+
   public Boolean getAllowRequestsWithoutSession(String token) {
-    UserSession us = getUserSessionWithAuthToken(token);
+    UserSession us = getUserSessionWithSessionToken(token);
     if (us == null) {
       return false;
     } else {
@@ -164,12 +171,21 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public UserSession removeUserSessionWithAuthToken(String token) {
-    UserSession user = sessions.remove(token);
-    if (user != null) {
-      log.debug("Found user {} token={} to meeting {}", user.fullname, token, user.meetingID);
+  public void removeUserSessionWithSessionToken(String token) {
+    log.debug("Removing token={}", token);
+    UserSession us = getUserSessionWithSessionToken(token);
+    if (us != null) {
+      log.debug("Found user {} token={} to meeting {}", us.fullname, token, us.meetingID);
+
+      UserSessionBasicData removedUser = new UserSessionBasicData();
+      removedUser.meetingId = us.meetingID;
+      removedUser.userId = us.internalUserId;
+      removedUser.sessionToken = us.authToken;
+      removedSessions.put(token, removedUser);
+      sessions.remove(token);
+    } else {
+      log.debug("Not found token={}", token);
     }
-    return user;
   }
 
   /**
@@ -295,16 +311,40 @@ public class MeetingService implements MessageListener {
     notifier.sendUploadFileTooLargeMessage(presUploadToken, uploadedFileSize, maxUploadFileSize);
   }
 
-  private void removeUserSessions(String meetingId) {
-    Iterator<Map.Entry<String, UserSession>> iterator = sessions.entrySet().iterator();
-    while (iterator.hasNext()) {
-      Map.Entry<String, UserSession> entry = iterator.next();
-      UserSession userSession = entry.getValue();
-
+  private void removeUserSessionsFromMeeting(String meetingId) {
+    for (String token : sessions.keySet()) {
+      UserSession userSession = sessions.get(token);
       if (userSession.meetingID.equals(meetingId)) {
-        iterator.remove();
+        System.out.println(token + " = " + userSession.authToken);
+        removeUserSessionWithSessionToken(token);
       }
     }
+
+    scheduleRemovedSessionsCleanUp(meetingId);
+  }
+
+  private void scheduleRemovedSessionsCleanUp(String meetingId) {
+    Calendar cleanUpDelayCalendar = Calendar.getInstance();
+    cleanUpDelayCalendar.add(Calendar.MINUTE, sessionsCleanupDelayInMinutes);
+
+    log.debug("Sessions for meeting={} will be removed within {} minutes.", meetingId, sessionsCleanupDelayInMinutes);
+    new java.util.Timer().schedule(
+            new java.util.TimerTask() {
+              @Override
+              public void run() {
+                Iterator<Map.Entry<String, UserSessionBasicData>> iterator = removedSessions.entrySet().iterator();
+                while (iterator.hasNext()) {
+                  Map.Entry<String, UserSessionBasicData> entry = iterator.next();
+                  UserSessionBasicData removedUserSession = entry.getValue();
+
+                  if (removedUserSession.meetingId.equals(meetingId)) {
+                    log.debug("Removed user {} session for meeting {}.",removedUserSession.userId, removedUserSession.meetingId);
+                    iterator.remove();
+                  }
+                }
+              }
+            }, cleanUpDelayCalendar.getTime()
+    );
   }
 
   private void destroyMeeting(String meetingId) {
@@ -703,7 +743,7 @@ public class MeetingService implements MessageListener {
       }
       destroyMeeting(m.getInternalId());
       meetings.remove(m.getInternalId());
-      removeUserSessions(m.getInternalId());
+      removeUserSessionsFromMeeting(m.getInternalId());
 
       Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", m.getInternalId());
@@ -1111,7 +1151,7 @@ public class MeetingService implements MessageListener {
         user.setRole(message.role);
         String sessionToken = getTokenByUserId(user.getInternalUserId());
         if (sessionToken != null) {
-            UserSession userSession = getUserSessionWithAuthToken(sessionToken);
+            UserSession userSession = getUserSessionWithSessionToken(sessionToken);
             userSession.role = message.role;
             sessions.replace(sessionToken, userSession);
         }
@@ -1361,6 +1401,10 @@ public class MeetingService implements MessageListener {
 
   public void setWaitingGuestUsersTimeout(long value) {
     waitingGuestUsersTimeout = value;
+  }
+
+  public void setSessionsCleanupDelayInMinutes(int value) {
+    sessionsCleanupDelayInMinutes = value;
   }
 
   public void setEnteredUsersTimeout(long value) {
