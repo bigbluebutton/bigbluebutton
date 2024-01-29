@@ -74,16 +74,23 @@ message MeetingInfoResp {
   MeetingInfo  meeting_info = 1;
 }
 
-message MeetingsReq {
-
+message ListMeetingsReq {
+  int32 page_size = 1;
+  string page_token = 2;
 }
 
-message MeetingsResp {
+message ListMeetingsResp {
   repeated MeetingInfo meetings = 1;
+  string next_page_token = 2;
+}
+
+message StreamMeetingsReq {
+  string meeting_id = 1;
 }
 
 service MeetingService {
   rpc isMeetingRunning(MeetingRunningReq) returns (MeetingRunningResp);
   rpc getMeetingInfo(MeetingInfoReq) returns (MeetingInfoResp);
-  rpc getMeetings(MeetingsReq) returns (MeetingsResp);
+  rpc listMeetings(ListMeetingsReq) returns (ListMeetingsResp);
+  rpc streamMeetings(StreamMeetingsReq) returns (stream MeetingInfoResp);
 }

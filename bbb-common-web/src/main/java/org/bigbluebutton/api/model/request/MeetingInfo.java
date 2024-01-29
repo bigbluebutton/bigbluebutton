@@ -19,7 +19,6 @@ public class MeetingInfo extends RequestWithChecksum<MeetingInfo.Params> {
     }
 
     @MeetingIDConstraint
-    @MeetingExistsConstraint
     private String meetingID;
 
     public MeetingInfo(Checksum checksum) {

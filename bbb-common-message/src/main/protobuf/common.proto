@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message ErrorResp {
+  string key = 1;
+  string message = 2;
+}

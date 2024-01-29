@@ -25,7 +25,7 @@ object Dependencies {
     val codec = "1.15"
 
     // BigBlueButton
-    val bbbCommons = "0.0.27-SNAPSHOT"
+    val bbbCommons = "0.0.28-SNAPSHOT"
 
     // Database
     val slick = "3.4.1"

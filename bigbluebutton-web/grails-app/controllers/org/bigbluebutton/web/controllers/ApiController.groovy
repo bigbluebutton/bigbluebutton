@@ -19,12 +19,17 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
+import com.google.rpc.Status
+import grails.async.Promise
+import grails.async.Promises
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusRuntimeException
+import io.grpc.protobuf.StatusProto
+import io.grpc.stub.StreamObserver
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -42,6 +47,7 @@ import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.presentation.SupportedFileTypes
+import org.bigbluebutton.protos.Common
 import org.bigbluebutton.protos.MeetingServiceGrpc
 import org.bigbluebutton.protos.MeetingServiceOuterClass
 import org.bigbluebutton.protos.MeetingServiceOuterClass.MeetingInfo;
@@ -55,6 +61,8 @@ import org.json.JSONArray
 
 
 import javax.servlet.ServletRequest
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
 
 class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'
@@ -74,6 +82,7 @@ class ApiController {
   ValidationService validationService
 
   ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8081).usePlaintext().build()
+  MeetingServiceGrpc.MeetingServiceStub asyncStub = MeetingServiceGrpc.newStub(channel)
   MeetingServiceGrpc.MeetingServiceBlockingStub blockingStub = MeetingServiceGrpc.newBlockingStub(channel)
 
   def initResponseBuilder = {
@@ -566,7 +575,6 @@ class ApiController {
     MeetingServiceOuterClass.MeetingRunningReq request = MeetingServiceOuterClass.MeetingRunningReq.newBuilder().setMeetingId(params.meetingID).build()
     try {
       MeetingServiceOuterClass.MeetingRunningResp response = blockingStub.isMeetingRunning(request)
-      log.info("isMeetingRunning request was successful. Returned {}", response.getIsRunning())
       isRunning = response.getIsRunning()
     } catch (StatusRuntimeException e) {
       log.error("RPC isMeetingRunning request failed")
@@ -651,18 +659,14 @@ class ApiController {
 
     try {
       MeetingServiceOuterClass.MeetingInfoResp response = blockingStub.getMeetingInfo(request)
-      log.info("isMeetingRunning request was successful")
-      log.info("***** Meeting Info ******")
-      log.info("{}", response.getMeetingInfo())
       meeting = meetingInfoToMeeting(response.getMeetingInfo())
     } catch (StatusRuntimeException e) {
       log.error("RPC getMeetingInfo request failed")
       log.error("Status code {}", e.getStatus())
       log.error("{}", e.getMessage())
-    }
-
-    if(meeting == null) {
-      invalid("meetingNotFound", "No meeting with the provided ID could be found")
+      Status status =  StatusProto.fromStatusAndTrailers(e.getStatus(), e.getTrailers())
+      Common.ErrorResp error = status.getDetails(0).unpack(Common.ErrorResp)
+      invalid(error.getKey(), error.getMessage())
       return
     }
 
@@ -692,15 +696,11 @@ class ApiController {
     }
 
     List<Meeting> meetings = new ArrayList<>()
-    MeetingServiceOuterClass.MeetingsReq request = MeetingServiceOuterClass.MeetingsReq.newBuilder().build()
-
+    MeetingServiceOuterClass.StreamMeetingsReq request = MeetingServiceOuterClass.StreamMeetingsReq.newBuilder().build()
     try {
-      MeetingServiceOuterClass.MeetingsResp response = blockingStub.getMeetings(request)
-      log.info("getMeetings request was successful")
-      log.info("***** Meetings ******")
-      log.info("{}", response.getMeetingsList())
-      for(MeetingInfo meetingInfo: response.getMeetingsList()) {
-        meetings.add(meetingInfoToMeeting(meetingInfo))
+      Iterator<MeetingServiceOuterClass.MeetingInfoResp> response = blockingStub.streamMeetings(request)
+      while (response.hasNext()) {
+        meetings.add(meetingInfoToMeeting(response.next().getMeetingInfo()))
       }
     } catch (StatusRuntimeException e) {
       log.error("RPC getMeetings request failed")
@@ -717,13 +717,13 @@ class ApiController {
       }
     } else {
       response.addHeader("Cache-Control", "no-cache")
-
       withFormat {
         xml {
           render(text: responseBuilder.buildGetMeetingsResponse(meetings, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }
+
   }
 
   /************************************

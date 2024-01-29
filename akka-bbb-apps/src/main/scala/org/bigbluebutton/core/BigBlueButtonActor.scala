@@ -228,7 +228,7 @@ class BigBlueButtonActor(
   }
 
   private def handleGetMeetings(sender: ActorRef, msg: GetMeetings): Unit = {
-    sender ! RunningMeetings.meetings(meetings)
+    sender ! RunningMeetings.meetingsMap(meetings)
   }
 
 }
