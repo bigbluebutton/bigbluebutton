@@ -13,6 +13,7 @@ import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
+import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -53,6 +54,7 @@ interface TalkingIndicatorProps {
   isBreakout: boolean;
   moreThanMaxIndicators: boolean;
   isModerator: boolean;
+  toggleVoice: (userId?: string | null, muted?: boolean | null) => void;
 }
 
 const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
@@ -60,6 +62,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   isBreakout,
   moreThanMaxIndicators,
   isModerator,
+  toggleVoice,
 }) => {
   const intl = useIntl();
   const talkingElements = useMemo(() => talkingUsers.map((talkingUser: Partial<UserVoice>) => {
@@ -97,7 +100,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - call signature is misse due the function being wrapped
-            muteUser(talkingUser.userId, muted, isBreakout, isModerator);
+            muteUser(talkingUser.userId, muted, isBreakout, isModerator, toggleVoice);
           }}
           label={name}
           tooltipLabel={!muted && isModerator
@@ -194,6 +197,8 @@ const TalkingIndicatorContainer: React.FC = (() => {
       error: isBreakoutError,
     } = useSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
 
+    const toggleVoice = useToggleVoice();
+
     if (talkingIndicatorLoading || isBreakoutLoading) return null;
 
     if (talkingIndicatorError || isBreakoutError) {
@@ -214,6 +219,7 @@ const TalkingIndicatorContainer: React.FC = (() => {
         isBreakout={isBreakout}
         moreThanMaxIndicators={talkingUsers.length >= TALKING_INDICATORS_MAX}
         isModerator={currentUser?.isModerator ?? false}
+        toggleVoice={toggleVoice}
       />
     );
   };

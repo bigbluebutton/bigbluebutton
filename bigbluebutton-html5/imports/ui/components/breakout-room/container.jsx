@@ -10,7 +10,6 @@ import {
   didUserSelectedMicrophone,
   didUserSelectedListenOnly,
 } from '/imports/ui/components/audio/audio-modal/service';
-import { makeCall } from '/imports/ui/services/api';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   BREAKOUT_ROOM_END_ALL,
@@ -20,6 +19,7 @@ import {
 } from './mutations';
 import logger from '/imports/startup/client/logger';
 import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
+import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 
 const BreakoutContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -97,6 +97,8 @@ export default withTracker((props) => {
     getBreakoutAudioTransferStatus,
   } = AudioService;
 
+  const toggleVoice = useToggleVoice();
+
   const logUserCouldNotRejoinAudio = () => {
     logger.warn({
       logCode: 'mainroom_audio_rejoin',
@@ -107,7 +109,7 @@ export default withTracker((props) => {
   const rejoinAudio = () => {
     if (didUserSelectedMicrophone()) {
       AudioManager.joinMicrophone().then(() => {
-        makeCall('toggleVoice', null, true).catch(() => {
+        toggleVoice(null, true).catch(() => {
           AudioManager.forceExitAudio();
           logUserCouldNotRejoinAudio();
         });

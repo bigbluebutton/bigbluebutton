@@ -41,6 +41,7 @@ import Styled from './styles';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 
 interface UserActionsProps {
   user: User;
@@ -215,6 +216,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
   const [getWriters, { data: usersData }] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
   const writers = usersData?.pres_page_writers || null;
+  const voiceToggle = useToggleVoice();
 
   // users will only be fetched when getWriters is called
   useEffect(() => {
@@ -405,7 +407,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
+        toggleVoice(user.userId, voiceToggle);
         setSelected(false);
       },
       icon: 'mute',
@@ -417,7 +419,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
+        toggleVoice(user.userId, voiceToggle);
         setSelected(false);
       },
       icon: 'unmute',

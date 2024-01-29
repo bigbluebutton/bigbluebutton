@@ -174,6 +174,7 @@ class App extends Component {
       layoutContextDispatch,
       isRTL,
       setMobileUser,
+      toggleVoice,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -217,7 +218,7 @@ class App extends Component {
 
     if (CONFIRMATION_ON_LEAVE) {
       window.onbeforeunload = (event) => {
-        AudioService.muteMicrophone();
+        AudioService.muteMicrophone(toggleVoice);
         event.stopImmediatePropagation();
         event.preventDefault();
         // eslint-disable-next-line no-param-reassign

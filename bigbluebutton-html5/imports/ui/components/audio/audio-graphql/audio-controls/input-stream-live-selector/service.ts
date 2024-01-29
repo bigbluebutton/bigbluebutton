@@ -39,7 +39,10 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   );
 };
 
-export const toggleMuteMicrophone = (muted: boolean) => {
+export const toggleMuteMicrophone = (
+  muted: boolean,
+  toggleVoice: (userId?: string | null, muted?: boolean | null) => void,
+) => {
   Storage.setItem(MUTED_KEY, !muted);
 
   if (muted) {
@@ -50,7 +53,7 @@ export const toggleMuteMicrophone = (muted: boolean) => {
       },
       'microphone unmuted by user',
     );
-    makeCall('toggleVoice');
+    toggleVoice();
   } else {
     logger.info(
       {
@@ -59,7 +62,7 @@ export const toggleMuteMicrophone = (muted: boolean) => {
       },
       'microphone muted by user',
     );
-    makeCall('toggleVoice');
+    toggleVoice();
   }
 };
 
