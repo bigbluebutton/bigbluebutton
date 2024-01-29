@@ -136,6 +136,22 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 	for _, browserConnection := range BrowserConnections {
 		if browserConnection.SessionToken == sessionTokenToInvalidate {
 			if browserConnection.HasuraConnection != nil {
+
+				// Wait until there are no active mutations
+				for iterationCount := 0; iterationCount < 100; iterationCount++ {
+					activeMutationFound := false
+					for _, subscription := range browserConnection.ActiveSubscriptions {
+						if subscription.Type == common.Mutation {
+							activeMutationFound = true
+							break
+						}
+					}
+					if !activeMutationFound {
+						break
+					}
+					time.Sleep(100 * time.Millisecond)
+				}
+
 				log.Debugf("Processing invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
 				browserConnection.HasuraConnection.ContextCancelFunc()
 				log.Debugf("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
