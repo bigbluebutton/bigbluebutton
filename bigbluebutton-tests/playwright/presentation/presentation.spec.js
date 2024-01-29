@@ -47,13 +47,13 @@ test.describe.parallel('Presentation', () => {
     await presentation.presentationFullscreen();
   });
 
-  test.only('Presentation snapshot @ci @flaky', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot @ci @flaky', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
   });
 
-  test.only('Hide Presentation Toolbar @ci @flaky', async ({ browser, context, page }) => {
+  test('Hide Presentation Toolbar @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hidePresentationToolbar();
