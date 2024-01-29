@@ -98,15 +98,15 @@ RangeLoop:
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
-						Id:                        queryId,
-						Message:                   fromBrowserMessageAsMap,
-						OperationName:             operationName,
-						StreamCursorField:         streamCursorField,
-						StreamCursorVariableName:  streamCursorVariableName,
-						StreamCursorCurrValue:     streamCursorInitialValue,
-						LastSeenOnHasuraConnetion: hc.Id,
-						JsonPatchSupported:        jsonPatchSupported,
-						Type:                      messageType,
+						Id:                         queryId,
+						Message:                    fromBrowserMessageAsMap,
+						OperationName:              operationName,
+						StreamCursorField:          streamCursorField,
+						StreamCursorVariableName:   streamCursorVariableName,
+						StreamCursorCurrValue:      streamCursorInitialValue,
+						LastSeenOnHasuraConnection: hc.Id,
+						JsonPatchSupported:         jsonPatchSupported,
+						Type:                       messageType,
 					}
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()

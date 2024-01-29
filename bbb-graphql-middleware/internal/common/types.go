@@ -18,15 +18,15 @@ const (
 )
 
 type GraphQlSubscription struct {
-	Id                        string
-	Message                   map[string]interface{}
-	Type                      QueryType
-	OperationName             string
-	StreamCursorField         string
-	StreamCursorVariableName  string
-	StreamCursorCurrValue     interface{}
-	JsonPatchSupported        bool   // indicate if client support Json Patch for this subscription
-	LastSeenOnHasuraConnetion string // id of the hasura connection that this query was active
+	Id                         string
+	Message                    map[string]interface{}
+	Type                       QueryType
+	OperationName              string
+	StreamCursorField          string
+	StreamCursorVariableName   string
+	StreamCursorCurrValue      interface{}
+	JsonPatchSupported         bool   // indicate if client support Json Patch for this subscription
+	LastSeenOnHasuraConnection string // id of the hasura connection that this query was active
 }
 
 type BrowserConnection struct {
