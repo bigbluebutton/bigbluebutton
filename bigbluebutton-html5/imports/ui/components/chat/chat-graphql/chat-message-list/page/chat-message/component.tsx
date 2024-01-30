@@ -27,10 +27,6 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
-  presentationLabel: {
-    id: 'app.presentationUploder.title',
-    description: 'presentation area element label',
-  },
   systemLabel: {
     id: 'app.toast.chat.system',
     description: 'presentation area element label',
@@ -122,6 +118,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     name: string,
     color: string,
     isModerator: boolean,
+    isPresentationUpload?: boolean,
     component: React.ReactElement,
   } = useMemo(() => {
     switch (message.messageType) {
@@ -136,11 +133,14 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         };
       case ChatMessageType.PRESENTATION:
         return {
-          name: intl.formatMessage(intlMessages.presentationLabel),
+          name: '',
           color: '#0F70D7',
-          isModerator: true,
+          isModerator: false,
+          isPresentationUpload: true,
           component: (
-            <ChatMessagePresentationContent metadata={message.messageMetadata} />
+            <ChatMessagePresentationContent
+              metadata={message.messageMetadata}
+            />
           ),
         };
       case ChatMessageType.CHAT_CLEAR:
@@ -207,19 +207,30 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     }
   }, []);
   return (
-    <ChatWrapper isSystemSender={isSystemSender} sameSender={sameSender} ref={messageRef}>
+    <ChatWrapper
+      isSystemSender={isSystemSender}
+      sameSender={sameSender}
+      ref={messageRef}
+      isPresentationUpload={messageContent.isPresentationUpload}
+    >
       {(!message?.user || !sameSender) && (
         message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
-          && message.messageType !== ChatMessageType.CHAT_CLEAR) && (
+        && message.messageType !== ChatMessageType.CHAT_CLEAR) && (
           <ChatAvatar
             avatar={message.user?.avatar}
             color={messageContent.color}
             moderator={messageContent.isModerator}
           >
-            {!message.user || message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) || '' : ''}
+            {message.messageType !== ChatMessageType.PRESENTATION ? (
+              !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
+            ) : (
+              <i className="icon-bbb-download" />
+            )}
           </ChatAvatar>
       )}
-      <ChatContent sameSender={message?.user ? sameSender : false}>
+      <ChatContent
+        sameSender={message?.user ? sameSender : false}
+      >
         {message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
           && message.messageType !== ChatMessageType.CHAT_CLEAR && (
             <ChatMessageHeader

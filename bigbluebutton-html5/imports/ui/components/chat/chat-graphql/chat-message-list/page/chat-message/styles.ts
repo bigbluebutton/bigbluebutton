@@ -18,6 +18,7 @@ import {
 interface ChatWrapperProps {
   sameSender: boolean;
   isSystemSender: boolean;
+  isPresentationUpload?: boolean;
 }
 
 interface ChatContentProps {
@@ -39,6 +40,12 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   display: flex;
   flex-flow: row;
   position: relative;
+  ${({ isPresentationUpload }) => isPresentationUpload && `
+      border-left: 2px solid #0F70D7;
+      padding: 0.5rem;
+      word-break: break-word;
+      background-color: #F3F6F9;
+    `}
   ${({ sameSender }) => sameSender && `
     flex: 1;
     margin: ${borderSize} 0 0 ${borderSize};

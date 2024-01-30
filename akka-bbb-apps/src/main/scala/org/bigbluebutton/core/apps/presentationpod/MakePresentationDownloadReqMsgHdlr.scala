@@ -256,7 +256,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     if (m.body.fileStateType == "Annotated") {
       val presentationDownloadInfo = Map(
         "fileURI" -> m.body.annotatedFileURI,
-        "filename" -> "annotated_slides.pdf"
+        "filename" -> "default.pdf (with whiteboard annotations)"
       )
       ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
     } else if (m.body.fileStateType == "Converted") {
