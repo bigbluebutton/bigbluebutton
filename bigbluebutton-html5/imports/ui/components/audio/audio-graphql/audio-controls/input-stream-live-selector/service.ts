@@ -3,7 +3,6 @@
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
-import { makeCall } from '/imports/ui/services/api';
 import AudioManager from '/imports/ui/services/audio-manager';
 
 const MUTED_KEY = 'muted';
