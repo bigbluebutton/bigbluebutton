@@ -5,7 +5,7 @@ import { USER_CHANGED_LOCAL_SETTINGS } from './mutations';
 const useUserChangedLocalSettings = () => {
   const [userChangedLocalSettings] = useMutation(USER_CHANGED_LOCAL_SETTINGS);
 
-  const setLocalSettings = (settings: object) => {
+  const setLocalSettings = (settings: Record<string, unknown>) => {
     return userChangedLocalSettings({
       variables: {
         settings: JSON.stringify(settings),
