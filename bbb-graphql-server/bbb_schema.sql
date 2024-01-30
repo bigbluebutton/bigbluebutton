@@ -428,6 +428,13 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
    FROM "user";
 
+--This view will be used by Meteor to validate if the provided authToken is valid
+--It is temporary while Meteor is not removed
+create view "v_user_connection_auth" as
+select "meetingId", "userId", "authToken"
+from "v_user_current"
+where "isOnline" is true;
+
 CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
@@ -583,7 +590,8 @@ CREATE TABLE "user_connectionStatus" (
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"connectionAliveAt" timestamp with time zone,
 	"userClientResponseAt" timestamp with time zone,
-	"rttInMs" numeric,
+	"networkRttInMs" numeric,
+	"applicationRttInMs" numeric,
 	"status" varchar(25),
 	"statusUpdatedAt" timestamp with time zone
 );
@@ -593,7 +601,7 @@ create view "v_user_connectionStatus" as select * from "user_connectionStatus";
 
 --CREATE TABLE "user_connectionStatusHistory" (
 --	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
---	"rttInMs" numeric,
+--	"applicationRttInMs" numeric,
 --	"status" varchar(25),
 --	"statusUpdatedAt" timestamp with time zone
 --);
@@ -601,7 +609,8 @@ create view "v_user_connectionStatus" as select * from "user_connectionStatus";
 --	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 --	"status" varchar(25),
 --	"totalOfOccurrences" integer,
---	"higherRttInMs" numeric,
+--	"highestNetworkRttInMs" numeric,
+--	"highestApplicationRttInMs" numeric,
 --	"statusInsertedAt" timestamp with time zone,
 --	"statusUpdatedAt" timestamp with time zone,
 --	CONSTRAINT "user_connectionStatusHistory_pkey" PRIMARY KEY ("userId","status")
@@ -613,9 +622,12 @@ CREATE TABLE "user_connectionStatusMetrics" (
 	"occurrencesCount" integer,
 	"firstOccurrenceAt" timestamp with time zone,
 	"lastOccurrenceAt" timestamp with time zone,
-	"lowestRttInMs" numeric,
-	"highestRttInMs" numeric,
-	"lastRttInMs" numeric,
+	"lowestNetworkRttInMs" numeric,
+    "highestNetworkRttInMs" numeric,
+    "lastNetworkRttInMs" numeric,
+	"lowestApplicationRttInMs" numeric,
+	"highestApplicationRttInMs" numeric,
+	"lastApplicationRttInMs" numeric,
 	CONSTRAINT "user_connectionStatusMetrics_pkey" PRIMARY KEY ("userId","status")
 );
 
@@ -624,31 +636,38 @@ create index "idx_user_connectionStatusMetrics_userId" on "user_connectionStatus
 --This function populate rtt, status and the table user_connectionStatusMetrics
 CREATE OR REPLACE FUNCTION "update_user_connectionStatus_trigger_func"() RETURNS TRIGGER AS $$
 DECLARE
-    "newRttInMs" numeric;
+    "newApplicationRttInMs" numeric;
     "newStatus" varchar(25);
 BEGIN
 	IF NEW."connectionAliveAt" IS NULL OR NEW."userClientResponseAt" IS NULL THEN
 		RETURN NEW;
 	END IF;
-	"newRttInMs" := (EXTRACT(EPOCH FROM (NEW."userClientResponseAt" - NEW."connectionAliveAt")) * 1000);
-	"newStatus" := CASE WHEN COALESCE("newRttInMs",0) > 2000 THEN 'critical'
-	   					WHEN COALESCE("newRttInMs",0) > 1000 THEN 'danger'
-	   					WHEN COALESCE("newRttInMs",0) > 500 THEN 'warning'
+	"newApplicationRttInMs" := (EXTRACT(EPOCH FROM (NEW."userClientResponseAt" - NEW."connectionAliveAt")) * 1000);
+	"newStatus" := CASE WHEN COALESCE(NEW."networkRttInMs",0) > 2000 THEN 'critical'
+	   					WHEN COALESCE(NEW."networkRttInMs",0) > 1000 THEN 'danger'
+	   					WHEN COALESCE(NEW."networkRttInMs",0) > 500 THEN 'warning'
 	   					ELSE 'normal' END;
     --Update table user_connectionStatusMetrics
     WITH upsert AS (UPDATE "user_connectionStatusMetrics" SET
     "occurrencesCount" = "user_connectionStatusMetrics"."occurrencesCount" + 1,
-    "highestRttInMs" = GREATEST("user_connectionStatusMetrics"."highestRttInMs","newRttInMs"),
-    "lowestRttInMs" = LEAST("user_connectionStatusMetrics"."lowestRttInMs","newRttInMs"),
-    "lastRttInMs" = "newRttInMs",
+    "highestApplicationRttInMs" = GREATEST("user_connectionStatusMetrics"."highestApplicationRttInMs","newApplicationRttInMs"),
+    "lowestApplicationRttInMs" = LEAST("user_connectionStatusMetrics"."lowestApplicationRttInMs","newApplicationRttInMs"),
+    "lastApplicationRttInMs" = "newApplicationRttInMs",
+    "highestNetworkRttInMs" = GREATEST("user_connectionStatusMetrics"."highestNetworkRttInMs",NEW."networkRttInMs"),
+    "lowestNetworkRttInMs" = LEAST("user_connectionStatusMetrics"."lowestNetworkRttInMs",NEW."networkRttInMs"),
+    "lastNetworkRttInMs" = NEW."networkRttInMs",
     "lastOccurrenceAt" = current_timestamp
     WHERE "userId"=NEW."userId" AND "status"= "newStatus" RETURNING *)
-    INSERT INTO "user_connectionStatusMetrics"("userId","status","occurrencesCount", "highestRttInMs", "lowestRttInMs", "lastRttInMs", "firstOccurrenceAt")
-    SELECT NEW."userId", "newStatus", 1, "newRttInMs", "newRttInMs", "newRttInMs", current_timestamp
+    INSERT INTO "user_connectionStatusMetrics"("userId","status","occurrencesCount", "firstOccurrenceAt",
+    "highestApplicationRttInMs", "lowestApplicationRttInMs", "lastApplicationRttInMs",
+    "highestNetworkRttInMs", "lowestNetworkRttInMs", "lastNetworkRttInMs")
+    SELECT NEW."userId", "newStatus", 1, current_timestamp,
+    "newApplicationRttInMs", "newApplicationRttInMs", "newApplicationRttInMs",
+    NEW."networkRttInMs", NEW."networkRttInMs", NEW."networkRttInMs"
     WHERE NOT EXISTS (SELECT * FROM upsert);
-    --Update rttInMs, status, statusUpdatedAt in user_connectionStatus
+    --Update networkRttInMs, applicationRttInMs, status, statusUpdatedAt in user_connectionStatus
     UPDATE "user_connectionStatus"
-    SET "rttInMs" = "newRttInMs",
+    SET "applicationRttInMs" = "newApplicationRttInMs",
     "status" = "newStatus",
 	"statusUpdatedAt" = now()
    	WHERE "userId" = NEW."userId";
@@ -659,12 +678,12 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER "update_user_connectionStatus_trigger" AFTER UPDATE OF "userClientResponseAt" ON "user_connectionStatus"
     FOR EACH ROW EXECUTE FUNCTION "update_user_connectionStatus_trigger_func"();
 
---This function clear userClientResponseAt and rttInMs when connectionAliveAt is updated
+--This function clear userClientResponseAt and applicationRttInMs when connectionAliveAt is updated
 CREATE OR REPLACE FUNCTION "update_user_connectionStatus_connectionAliveAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW."connectionAliveAt" <> OLD."connectionAliveAt" THEN
     	NEW."userClientResponseAt" := NULL;
-    	NEW."rttInMs" := NULL;
+    	NEW."applicationRttInMs" := NULL;
     END IF;
     RETURN NEW;
 END;
@@ -678,8 +697,8 @@ CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
 SELECT u."meetingId", u."userId",
 max(cs."connectionAliveAt") AS "connectionAliveAt",
 max(cs."status") AS "currentStatus",
---COALESCE(max(cs."rttInMs"),(EXTRACT(EPOCH FROM (current_timestamp - max(cs."connectionAliveAt"))) * 1000)) AS "rttInMs",
-CASE WHEN max(cs."connectionAliveAt") < current_timestamp - INTERVAL '10 seconds' THEN TRUE ELSE FALSE END AS "clientNotResponding",
+--COALESCE(max(cs."applicationRttInMs"),(EXTRACT(EPOCH FROM (current_timestamp - max(cs."connectionAliveAt"))) * 1000)) AS "applicationRttInMs",
+CASE WHEN max(cs."connectionAliveAt") < current_timestamp - INTERVAL '12 seconds' THEN TRUE ELSE FALSE END AS "clientNotResponding",
 (array_agg(csm."status" ORDER BY csm."lastOccurrenceAt" DESC))[1] as "lastUnstableStatus",
 max(csm."lastOccurrenceAt") AS "lastUnstableStatusAt"
 FROM "user" u
@@ -702,7 +721,7 @@ CREATE INDEX "idx_user_graphqlConnectionsessionToken" ON "user_graphqlConnection
 
 
 
---ALTER TABLE "user_connectionStatus" ADD COLUMN "rttInMs" NUMERIC GENERATED ALWAYS AS
+--ALTER TABLE "user_connectionStatus" ADD COLUMN "applicationRttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
 --ELSE EXTRACT(EPOCH FROM ("userClientResponseAt" - "connectionAliveAt")) * 1000
 --END) STORED;

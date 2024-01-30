@@ -101,8 +101,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
 
         const MAX_ZOOM = 4;
         const MIN_ZOOM = initialZoomRef.current;
-        const ZOOM_IN_FACTOR = 0.1; // Adjusted for finer control
-        const ZOOM_OUT_FACTOR = 0.1;
+        const ZOOM_IN_FACTOR = 0.100; // Adjusted for finer control
+        const ZOOM_OUT_FACTOR = 0.100;
 
         const { x: cx, y: cy, z: cz } = tlEditorRef.current.camera;
 
