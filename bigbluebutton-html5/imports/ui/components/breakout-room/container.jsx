@@ -36,6 +36,7 @@ const BreakoutContainer = (props) => {
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+  const toggleVoice = useToggleVoice();
 
   const sendUserUnshareWebcam = (cameraId) => {
     cameraBroadcastStop({ variables: { cameraId } });
@@ -67,38 +68,6 @@ const BreakoutContainer = (props) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
   };
 
-  return <BreakoutComponent
-    amIPresenter={amIPresenter}
-    endAllBreakouts={endAllBreakouts}
-    setBreakoutsTime={setBreakoutsTime}
-    transferUserToMeeting={transferUserToMeeting}
-    requestJoinURL={requestJoinURL}
-    sendUserUnshareWebcam={sendUserUnshareWebcam}
-    {...{ layoutContextDispatch, isRTL, amIModerator, ...props }}
-  />;
-};
-
-export default withTracker((props) => {
-  const {
-    isNewTimeHigherThanMeetingRemaining,
-    findBreakouts,
-    getBreakoutRoomUrl,
-    meetingId,
-    isUserInBreakoutRoom,
-  } = Service;
-
-  const breakoutRooms = findBreakouts();
-  const isMicrophoneUser = (AudioService.isConnectedToBreakout() || AudioService.isConnected())
-    && !AudioService.isListenOnly();
-  const isMeteorConnected = Meteor.status().connected;
-  const isReconnecting = AudioService.isReconnecting();
-  const {
-    setBreakoutAudioTransferStatus,
-    getBreakoutAudioTransferStatus,
-  } = AudioService;
-
-  const toggleVoice = useToggleVoice();
-
   const logUserCouldNotRejoinAudio = () => {
     logger.warn({
       logCode: 'mainroom_audio_rejoin',
@@ -123,6 +92,36 @@ export default withTracker((props) => {
     }
   };
 
+  return <BreakoutComponent
+    amIPresenter={amIPresenter}
+    endAllBreakouts={endAllBreakouts}
+    setBreakoutsTime={setBreakoutsTime}
+    transferUserToMeeting={transferUserToMeeting}
+    requestJoinURL={requestJoinURL}
+    sendUserUnshareWebcam={sendUserUnshareWebcam}
+    {...{ layoutContextDispatch, isRTL, amIModerator, rejoinAudio, ...props }}
+  />;
+};
+
+export default withTracker((props) => {
+  const {
+    isNewTimeHigherThanMeetingRemaining,
+    findBreakouts,
+    getBreakoutRoomUrl,
+    meetingId,
+    isUserInBreakoutRoom,
+  } = Service;
+
+  const breakoutRooms = findBreakouts();
+  const isMicrophoneUser = (AudioService.isConnectedToBreakout() || AudioService.isConnected())
+    && !AudioService.isListenOnly();
+  const isMeteorConnected = Meteor.status().connected;
+  const isReconnecting = AudioService.isReconnecting();
+  const {
+    setBreakoutAudioTransferStatus,
+    getBreakoutAudioTransferStatus,
+  } = AudioService;
+
   return {
     ...props,
     breakoutRooms,
@@ -133,7 +132,6 @@ export default withTracker((props) => {
     isMeteorConnected,
     isUserInBreakoutRoom,
     forceExitAudio: () => AudioManager.forceExitAudio(),
-    rejoinAudio,
     isReconnecting,
     setBreakoutAudioTransferStatus,
     getBreakoutAudioTransferStatus,
