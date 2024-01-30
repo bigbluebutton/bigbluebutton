@@ -8,11 +8,11 @@ import {
   DispatcherFunction, ObjectTo, ToRole, ToUserId,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { DataChannelHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
-
-import { PLUGIN_DATA_CHANNEL_FETCH_QUERY } from '../queries';
-import { PLUGIN_DATA_CHANNEL_DELETE_MUTATION, PLUGIN_DATA_CHANNEL_DISPATCH_MUTATION, PLUGIN_DATA_CHANNEL_RESET_MUTATION } from '../mutation';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { HookEventWrapper, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+
+import PLUGIN_DATA_CHANNEL_FETCH_QUERY from '../queries';
+import { PLUGIN_DATA_CHANNEL_DELETE_MUTATION, PLUGIN_DATA_CHANNEL_DISPATCH_MUTATION, PLUGIN_DATA_CHANNEL_RESET_MUTATION } from '../mutation';
 
 export interface DataChannelItemManagerProps {
   pluginName: string;
@@ -87,7 +87,7 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
   pluginApi.mapOfDispatchers[pluginIdentifier] = useDataChannelHandlerFunction;
   window.dispatchEvent(new Event(`${pluginIdentifier}::dispatcherFunction`));
 
-  const deleteOrResetHandler:  EventListener = (
+  const deleteOrResetHandler: EventListener = (
     (event: HookEventWrapper<void>) => {
       if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_DELETE) {
         const eventDetails = event.detail as UpdatedEventDetails<string>;
@@ -97,8 +97,8 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
             pluginName: hookArguments?.pluginName,
             dataChannel: hookArguments?.channelName,
             messageId: eventDetails.data,
-          }
-        })
+          },
+        });
       } else if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_RESET) {
         const eventDetails = event.detail as UpdatedEventDetails<void>;
         const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
@@ -106,8 +106,8 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
           variables: {
             pluginName: hookArguments?.pluginName,
             dataChannel: hookArguments?.channelName,
-          }
-        })
+          },
+        });
       }
     }) as EventListener;
 
@@ -123,8 +123,8 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
     window.addEventListener(HookEvents.UPDATED, deleteOrResetHandler);
     return () => {
       window.removeEventListener(HookEvents.UPDATED, deleteOrResetHandler);
-    }
-  }, [])
+    };
+  }, []);
 
   return null;
 };
