@@ -10,6 +10,7 @@ import {
 } from '/imports/ui/components/settings/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
+import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 
 const JoinVideoOptionsContainer = (props) => {
   const {
@@ -22,6 +23,7 @@ const JoinVideoOptionsContainer = (props) => {
   } = props;
 
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+  const setLocalSettings = useUserChangedLocalSettings();
 
   const sendUserUnshareWebcam = (cameraId) => {
     cameraBroadcastStop({ variables: { cameraId } });
@@ -44,6 +46,7 @@ const JoinVideoOptionsContainer = (props) => {
       disableReason,
       status,
       sendUserUnshareWebcam,
+      setLocalSettings,
       ...restProps,
     }}
     />

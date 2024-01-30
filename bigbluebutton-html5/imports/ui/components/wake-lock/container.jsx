@@ -5,6 +5,7 @@ import WakeLock from './component';
 import Service from './service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -31,6 +32,7 @@ const WakeLockContainer = (props) => {
   const { areAudioModalsOpen, autoJoin } = props;
   const wereAudioModalsOpen = usePrevious(areAudioModalsOpen);
   const [endedAudioSetup, setEndedAudioSetup] = useState(false || !autoJoin);
+  const setLocalSettings = useUserChangedLocalSettings();
 
   useEffect(() => {
     if (wereAudioModalsOpen && !areAudioModalsOpen && !endedAudioSetup) {
@@ -38,7 +40,7 @@ const WakeLockContainer = (props) => {
     }
   }, [areAudioModalsOpen]);
 
-  return endedAudioSetup ? <WakeLock {...props} /> : null;
+  return endedAudioSetup ? <WakeLock setLocalSettings={setLocalSettings} {...props} /> : null;
 };
 
 WakeLockContainer.propTypes = propTypes;

@@ -66,6 +66,7 @@ const propTypes = {
     type: PropTypes.string,
   })).isRequired,
   sendUserUnshareWebcam: PropTypes.func.isRequired,
+  setLocalSettings: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -76,6 +77,7 @@ const JoinVideoButton = ({
   updateSettings,
   cameraSettingsDropdownItems,
   sendUserUnshareWebcam,
+  setLocalSettings,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -103,7 +105,7 @@ const JoinVideoButton = ({
         application:
           { ...Settings.application, selfViewDisable: false },
       };
-      updateSettings(obj);
+      updateSettings(obj, null, setLocalSettings);
     }
   }, [isVideoPreviewModalOpen]);
 
@@ -246,7 +248,7 @@ const JoinVideoButton = ({
                     application:
                       { ...Settings.application, selfViewDisable: true },
                   };
-                  updateSettings(obj);
+                  updateSettings(obj, null, setLocalSettings);
                   setWasSelfViewDisabled(false);
                 }, 100);
               }

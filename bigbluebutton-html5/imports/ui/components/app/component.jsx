@@ -531,6 +531,7 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       enforceLayout,
+      setLocalSettings,
     } = this.props;
 
     return (
@@ -562,6 +563,7 @@ class App extends Component {
           shouldShowScreenshare,
           shouldShowExternalVideo: !!shouldShowExternalVideo,
           enforceLayout,
+          setLocalSettings,
         }}
       />
     );

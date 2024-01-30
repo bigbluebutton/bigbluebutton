@@ -35,6 +35,7 @@ import {
 
 import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
+import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
@@ -92,6 +93,7 @@ const AppContainer = (props) => {
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
   const toggleVoice = useToggleVoice();
+  const setLocalSettings = useUserChangedLocalSettings();
 
   const setMobileUser = (mobile) => {
     setMobileFlag({
@@ -241,6 +243,7 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           setMobileUser,
           toggleVoice,
+          setLocalSettings,
         }}
         {...otherProps}
       />
