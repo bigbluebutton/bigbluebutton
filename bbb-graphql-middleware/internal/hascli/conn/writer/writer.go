@@ -1,13 +1,13 @@
 package writer
 
 import (
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	"strings"
-	"sync"
-
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket/wsjson"
+	"strings"
+	"sync"
+	"time"
 )
 
 // HasuraConnectionWriter
@@ -39,6 +39,10 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
+		case <-hc.MsgReceivingActiveChan:
+			//Freeze channel once it's about to close Hasura connection
+			fromBrowserToHasuraChannel.FreezeChannel()
+			time.Sleep(1000 * time.Millisecond)
 		case fromBrowserMessage := <-fromBrowserToHasuraChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
