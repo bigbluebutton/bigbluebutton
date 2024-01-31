@@ -140,7 +140,7 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 				close(browserConnection.HasuraConnection.MsgReceivingActiveChan)
 
 				// Wait until there are no active mutations
-				for iterationCount := 0; iterationCount < 100; iterationCount++ {
+				for iterationCount := 0; iterationCount < 20; iterationCount++ {
 					activeMutationFound := false
 					browserConnection.ActiveSubscriptionsMutex.RLock()
 					for _, subscription := range browserConnection.ActiveSubscriptions {
