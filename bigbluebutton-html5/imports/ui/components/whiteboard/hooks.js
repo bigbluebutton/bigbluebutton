@@ -89,8 +89,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
 
         const MAX_ZOOM = 4;
         const MIN_ZOOM = .2;
-        const ZOOM_IN_FACTOR = 0.025; // Finer zoom control
-        const ZOOM_OUT_FACTOR = 0.025;
+        const ZOOM_IN_FACTOR = 0.100; // Finer zoom control
+        const ZOOM_OUT_FACTOR = 0.100;
 
         const { x: cx, y: cy, z: cz } = tlEditorRef.current.camera;
 
