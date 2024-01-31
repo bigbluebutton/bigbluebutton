@@ -33,11 +33,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
     cursorPosition,
     updateCursorPosition,
     toggleToolsAnimations,
-    zoomChanger,
-    presentationAreaWidth,
-    presentationAreaHeight,
-    calculateZoomValue,
     currentPresentationPage,
+    zoomChanger,
 }) => {
 
     const timeoutIdRef = React.useRef();
@@ -91,55 +88,39 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
 
 
     const handleMouseWheel = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         if (!tlEditorRef.current || !isPresenter) {
-            event.preventDefault();
-            event.stopPropagation();
             return;
         }
 
         isWheelZoomRef.current = true;
 
-        const MAX_ZOOM = 4;
-        const MIN_ZOOM = initialZoomRef.current;
-        const ZOOM_IN_FACTOR = 0.100; // Adjusted for finer control
-        const ZOOM_OUT_FACTOR = 0.100;
+        const MAX_ZOOM_FACTOR = 4; // Represents 400%
+        const MIN_ZOOM_FACTOR = 1; // Represents 100%
+        const ZOOM_IN_FACTOR = 0.1;
+        const ZOOM_OUT_FACTOR = 0.1;
 
         const { x: cx, y: cy, z: cz } = tlEditorRef.current.camera;
 
-        let zoom = cz;
+        let currentZoomLevel = tlEditorRef.current.camera.z / initialZoomRef.current;
         if (event.deltaY < 0) {
-            zoom = Math.min(cz + ZOOM_IN_FACTOR, MAX_ZOOM);
+            currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);
         } else {
-            zoom = Math.max(cz - ZOOM_OUT_FACTOR, MIN_ZOOM);
+            currentZoomLevel = Math.max(currentZoomLevel - ZOOM_OUT_FACTOR, MIN_ZOOM_FACTOR);
         }
 
-        // Base Zoom Calculation using the passed calculateZoomValue function
-        const baseZoom = calculateZoomValue(
-            currentPresentationPage.scaledWidth,
-            currentPresentationPage.scaledHeight
-        );
+        // Convert zoom level to a percentage for backend
+        const zoomPercentage = currentZoomLevel * 100;
+        zoomChanger(zoomPercentage);
 
-        // Apply aspect ratio adjustments
-        const displayAspectRatio = presentationAreaWidth / presentationAreaHeight;
-        const contentAspectRatio = currentPresentationPage.scaledWidth / currentPresentationPage.scaledHeight;
-
-        if (contentAspectRatio > displayAspectRatio) {
-            zoom *= contentAspectRatio / displayAspectRatio;
-        } else {
-            zoom *= displayAspectRatio / contentAspectRatio;
-        }
-
-        // Adjust zoom based on the base zoom calculation
-        zoom *= baseZoom;
-
-        const zoomRatio = zoom / initialZoomRef.current;
-        const backendZoomValue = zoomRatio * HUNDRED_PERCENT;
-        const adjustedBackendZoomValue = Math.min(Math.max(backendZoomValue, HUNDRED_PERCENT), MAX_PERCENT);
+        // Calculate the new camera zoom factor
+        const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
 
         const nextCamera = {
-            x: cx + (cursorPosition.x / zoom - cursorPosition.x) - (cursorPosition.x / cz - cursorPosition.x),
-            y: cy + (cursorPosition.y / zoom - cursorPosition.y) - (cursorPosition.y / cz - cursorPosition.y),
-            z: zoom,
+            x: cx + (cursorPosition.x / newCameraZoomFactor - cursorPosition.x) - (cursorPosition.x / cz - cursorPosition.x),
+            y: cy + (cursorPosition.y / newCameraZoomFactor - cursorPosition.y) - (cursorPosition.y / cz - cursorPosition.y),
+            z: newCameraZoomFactor,
         };
 
         // Apply the bounds restriction logic after the camera has been updated
@@ -160,11 +141,6 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         }
 
         tlEditorRef.current.setCamera(nextCamera, { duration: 300 });
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        zoomChanger(adjustedBackendZoomValue);
 
         if (isWheelZoomRef.currentTimeout) {
             clearTimeout(isWheelZoomRef.currentTimeout);
@@ -216,6 +192,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         };
     }, [whiteboardRef, tlEditorRef, handleMouseDown, handleMouseUp, handleMouseEnter, handleMouseLeave, handleMouseWheel]);
 };
+
+
 
 export {
     useMouseEvents,

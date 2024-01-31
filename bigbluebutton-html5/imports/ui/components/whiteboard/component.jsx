@@ -139,6 +139,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     isShapeOwner,
     ShapeStylesContext,
     hideViewersCursor,
+    presentationHeight,
+    presentationWidth,
   } = props;
 
   clearTldrawCache();
@@ -319,11 +321,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       cursorPosition,
       updateCursorPosition,
       toggleToolsAnimations,
-      zoomChanger,
-      presentationAreaWidth,
-      presentationAreaHeight,
-      calculateZoomValue,
       currentPresentationPage,
+      zoomChanger,
     }
   );
 
@@ -373,6 +372,24 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     // Update the previous zoom value ref with the current zoom value
     prevZoomValueRef.current = zoomValue;
   }, [zoomValue, tlEditor, curPageId, isWheelZoomRef.current]);
+
+  React.useEffect(() => {
+    if (
+      presentationHeight > 0
+      && presentationWidth > 0
+      && tlEditorRef.current 
+      && currentPresentationPage
+      && currentPresentationPage.scaledWidth > 0
+      && currentPresentationPage.scaledHeight > 0
+    ) {
+        const baseZoom = calculateZoomValue(
+          currentPresentationPage.scaledWidth,
+          currentPresentationPage.scaledHeight
+        );
+
+        initialZoomRef.current = baseZoom;
+    }
+  }, [presentationHeight, presentationWidth, tlEditorRef, currentPresentationPage]);
 
   React.useEffect(() => {
     // Calculate the absolute difference
@@ -889,7 +906,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
             next.y = 0;
           }
         }
-
         return next;
       };
     }
