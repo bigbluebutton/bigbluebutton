@@ -48,7 +48,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 				hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
 				if !ok {
 					log.Debugf("Subscription with Id %s doesn't exist anymore, skiping response.", queryId)
-					return
+					continue
 				}
 
 				//When Hasura send msg type "complete", this query is finished
