@@ -5,6 +5,8 @@ import audioManager from '/imports/ui/services/audio-manager';
 import { Session } from 'meteor/session';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
+import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
 import { OnProgressProps } from 'react-player/base';
 
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -217,6 +219,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: true,
     });
+
+    const handleExternalVideoVolumeSet = ((
+      event: CustomEvent<SetExternalVideoVolumeCommandArguments>,
+    ) => setVolume(event.detail.volume)) as EventListener;
+    window.addEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
+    return () => {
+      window.addEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
+    };
   }, []);
 
   useEffect(() => {

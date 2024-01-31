@@ -2,12 +2,8 @@ import styled from 'styled-components';
 import {
   systemMessageBackgroundColor,
   systemMessageBorderColor,
-  systemMessageFontColor,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  borderRadius,
-} from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, btnFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 
 interface ChatMessageProps {
@@ -25,10 +21,10 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   ${({ systemMsg }) => systemMsg && `
   background: ${systemMessageBackgroundColor};
   border: 1px solid ${systemMessageBorderColor};
-  border-radius: ${borderRadius};
+  border-radius: 1rem;
   font-weight: ${btnFontWeight};
   padding: ${fontSizeBase};
-  color: ${systemMessageFontColor};
+  text-color: #1f252b;
   margin-top: 0;
   margin-bottom: 0;
   overflow-wrap: break-word;

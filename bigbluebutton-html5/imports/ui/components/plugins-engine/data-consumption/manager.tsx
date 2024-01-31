@@ -17,10 +17,12 @@ import CustomSubscriptionHookContainer from './domain/shared/custom-subscription
 import { ObjectToCustomHookContainerMap, HookWithArgumentsContainerProps, HookWithArgumentContainerToRender } from './domain/shared/custom-subscription/types';
 import CurrentPresentationHookContainer from './domain/presentations/current-presentation/hook-manager';
 import LoadedChatMessagesHookContainer from './domain/chat/loaded-chat-messages/hook-manager';
+import TalkingIndicatorHookContainer from './domain/user-voice/talking-indicator/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent
 } = {
+  [DataConsumptionHooks.TALKING_INDICATOR]: TalkingIndicatorHookContainer,
   [DataConsumptionHooks.LOADED_CHAT_MESSAGES]: LoadedChatMessagesHookContainer,
   [DataConsumptionHooks.LOADED_USER_LIST]: LoadedUserListHookContainer,
   [DataConsumptionHooks.CURRENT_USER]: CurrentUserHookContainer,

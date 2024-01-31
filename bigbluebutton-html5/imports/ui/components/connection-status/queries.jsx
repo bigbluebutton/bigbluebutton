@@ -21,7 +21,6 @@ export const CONNECTION_STATUS_SUBSCRIPTION = gql`subscription {
   user_connectionStatus {
     connectionAliveAt
     userClientResponseAt
-    rttInMs
     status
     statusUpdatedAt
   }
