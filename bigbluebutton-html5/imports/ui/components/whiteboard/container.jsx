@@ -9,15 +9,12 @@ import { CURSOR_SUBSCRIPTION } from './cursors/queries';
 import {
   initDefaultPages,
   persistShape,
-  removeShapes,
-  changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
 import CursorService from './cursors/service';
-import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import SettingsService from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -34,7 +31,11 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   AssetRecordType,
 } from "@tldraw/tldraw";
-import { PRESENTATION_SET_ZOOM } from '../presentation/mutations';
+import {
+  PRESENTATION_SET_ZOOM,
+  PRES_ANNOTATION_DELETE,
+  PRES_ANNOTATION_SUBMIT,
+} from '../presentation/mutations';
 
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 
@@ -65,6 +66,17 @@ const WhiteboardContainer = (props) => {
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
+  const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
+  const [presentationSubmitAnnotations] = useMutation(PRES_ANNOTATION_SUBMIT);
+
+  const removeShapes = (shapeIds) => {
+    presentationDeleteAnnotations({
+      variables: {
+        pageId: currentPresentationPage?.pageId,
+        annotationsIds: shapeIds,
+      },
+    });
+  };
 
   const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
     const { pageId, num } = currentPresentationPage;
@@ -80,6 +92,21 @@ const WhiteboardContainer = (props) => {
         heightRatio,
       },
     });
+  };
+
+  const submitAnnotations = async (newAnnotations) => {
+    const isAnnotationSent = await presentationSubmitAnnotations({
+      variables: {
+        pageId: currentPresentationPage?.pageId,
+        annotations: newAnnotations,
+      },
+    });
+
+    return isAnnotationSent?.data?.presAnnotationSubmit;
+  };
+
+  const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
+    persistShape(shape, whiteboardId, isModerator, submitAnnotations);
   };
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
@@ -223,17 +250,13 @@ const WhiteboardContainer = (props) => {
         sidebarNavigationWidth,
         layoutContextDispatch,
         initDefaultPages,
-        persistShape,
+        persistShapeWrapper,
         isMultiUserActive,
-        changeCurrentSlide,
         shapes,
         bgShape,
         assets,
         removeShapes,
         zoomSlide,
-        skipToSlide: PresentationToolbarService.skipToSlide,
-        nextSlide: PresentationToolbarService.nextSlide,
-        previousSlide: PresentationToolbarService.previousSlide,
         numberOfSlides: currentPresentationPage?.totalPages,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,

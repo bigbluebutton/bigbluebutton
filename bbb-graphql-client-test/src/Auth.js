@@ -139,11 +139,11 @@ export default function Auth() {
                     <span>You are online, welcome {curr.name} ({curr.userId})</span>
                     <button onClick={() => handleDispatchUserLeave()}>Leave Now!</button>
 
-                    {/*<MyInfo userAuthToken={curr.authToken} />*/}
-                    {/*<br />*/}
+                    <MyInfo userAuthToken={curr.authToken} />
+                    <br />
 
-                    {/*<MeetingInfo />*/}
-                    {/*<br />*/}
+                    <MeetingInfo />
+                    <br />
 
                     <TotalOfUsers />
                     <TotalOfModerators />

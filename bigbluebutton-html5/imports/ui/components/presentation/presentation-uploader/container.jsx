@@ -1,9 +1,9 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { makeCall } from '/imports/ui/services/api';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
+import { useSubscription, useMutation } from '@apollo/client';
 import Service from './service';
 import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';
@@ -13,11 +13,16 @@ import {
   isDownloadPresentationConvertedToPdfEnabled,
   isPresentationEnabled,
 } from '/imports/ui/services/features';
-import { useSubscription } from '@apollo/client';
 import {
   PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import {
+  PRESENTATION_SET_DOWNLOADABLE,
+  PRESENTATION_EXPORT,
+  PRESENTATION_SET_CURRENT,
+  PRESENTATION_REMOVE,
+} from '../mutations';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -31,8 +36,36 @@ const PresentationUploaderContainer = (props) => {
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
 
+  const [presentationSetDownloadable] = useMutation(PRESENTATION_SET_DOWNLOADABLE);
+  const [presentationExport] = useMutation(PRESENTATION_EXPORT);
+  const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
+  const [presentationRemove] = useMutation(PRESENTATION_REMOVE);
+
   const exportPresentation = (presentationId, fileStateType) => {
-    makeCall('exportPresentation', presentationId, fileStateType);
+    presentationExport({
+      variables: {
+        presentationId,
+        fileStateType,
+      },
+    });
+  };
+
+  const dispatchChangePresentationDownloadable = (presentationId, downloadable, fileStateType) => {
+    presentationSetDownloadable({
+      variables: {
+        presentationId,
+        downloadable,
+        fileStateType,
+      },
+    });
+  };
+
+  const setPresentation = (presentationId) => {
+    presentationSetCurrent({ variables: { presentationId } });
+  };
+
+  const removePresentation = (presentationId) => {
+    presentationRemove({ variables: { presentationId } });
   };
 
   return userIsPresenter && (
@@ -42,6 +75,9 @@ const PresentationUploaderContainer = (props) => {
         presentations={presentations}
         currentPresentation={currentPresentation}
         exportPresentation={exportPresentation}
+        dispatchChangePresentationDownloadable={dispatchChangePresentationDownloadable}
+        setPresentation={setPresentation}
+        removePresentation={removePresentation}
         {...props}
       />
     </ErrorBoundary>
@@ -52,7 +88,6 @@ export default withTracker(() => {
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchChangePresentationDownloadable,
   } = Service;
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
@@ -70,7 +105,6 @@ export default withTracker(() => {
     renderPresentationItemStatus: PresUploaderToast.renderPresentationItemStatus,
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    dispatchChangePresentationDownloadable,
     isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),
