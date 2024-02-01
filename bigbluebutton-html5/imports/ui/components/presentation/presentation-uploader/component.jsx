@@ -1038,11 +1038,13 @@ class PresentationUploader extends Component {
 
     const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.filename}`;
 
-    const hasAnyAnnotation = hasAnnotations(item.id);
+    const isNew = item.id.indexOf(item.filename) !== -1;
+    const hasAnyAnnotation = isNew ? false : hasAnnotations(item.id);
+
     return (
       <Styled.PresentationItem
         key={item.id}
-        isNew={item.id.indexOf(item.filename) !== -1}
+        isNew={isNew}
         uploading={isUploading}
         converting={isConverting}
         error={hasError}
