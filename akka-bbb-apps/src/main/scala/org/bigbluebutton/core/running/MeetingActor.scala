@@ -695,8 +695,8 @@ class MeetingActor(
       createTime = liveMeeting.props.durationProps.createdTime,
       createdOn = liveMeeting.props.durationProps.createdDate,
       duration = liveMeeting.props.durationProps.duration,
-      startTime = 1000000L,
-      endTime = 1000000L,
+      startTime = 0L,
+      endTime = 0L,
       isRunning = MeetingStatus2x.hasMeetingEnded(liveMeeting.status),
       hasBeenForciblyEnded = false
     )
