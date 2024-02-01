@@ -1,11 +1,9 @@
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
-import { makeCall } from '/imports/ui/services/api';
 import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
-import { getTextSize } from './utils';
 
 const intlMessages = defineMessages({
   notifyNotAllowedChange: {
@@ -30,7 +28,7 @@ const annotationsRetryDelay = 1000;
 
 let annotationsSenderIsRunning = false;
 
-const proccessAnnotationsQueue = async () => {
+const proccessAnnotationsQueue = async (submitAnnotations) => {
   annotationsSenderIsRunning = true;
   const queueSize = annotationsQueue.length;
 
@@ -41,24 +39,29 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  const isAnnotationSent = await makeCall('sendBulkAnnotations', annotations);
+  try {
+    const isAnnotationSent = await submitAnnotations(annotations);
 
-  if (!isAnnotationSent) {
-    // undo splice
+    if (!isAnnotationSent) {
+      // undo splice
+      annotationsQueue.splice(0, 0, ...annotations);
+      setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsRetryDelay);
+    } else {
+      // ask tiago
+      const delayPerc = Math.min(
+        annotationsMaxDelayQueueSize, queueSize,
+      ) / annotationsMaxDelayQueueSize;
+      const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
+      const delayTime = annotationsBufferTimeMin + delayDelta * delayPerc;
+      setTimeout(() => proccessAnnotationsQueue(submitAnnotations), delayTime);
+    }
+  } catch (error) {
     annotationsQueue.splice(0, 0, ...annotations);
-    setTimeout(proccessAnnotationsQueue, annotationsRetryDelay);
-  } else {
-    // ask tiago
-    const delayPerc = Math.min(
-      annotationsMaxDelayQueueSize, queueSize,
-    ) / annotationsMaxDelayQueueSize;
-    const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
-    const delayTime = annotationsBufferTimeMin + delayDelta * delayPerc;
-    setTimeout(proccessAnnotationsQueue, delayTime);
+    setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsRetryDelay);
   }
 };
 
-const sendAnnotation = (annotation) => {
+const sendAnnotation = (annotation, submitAnnotations) => {
   // Prevent sending annotations while disconnected
   // TODO: Change this to add the annotation, but delay the send until we're
   // reconnected. With this it will miss things
@@ -70,7 +73,7 @@ const sendAnnotation = (annotation) => {
   } else {
     annotationsQueue.push(annotation);
   }
-  if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
+  if (!annotationsSenderIsRunning) setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsBufferTimeMin);
 };
 
 const getMultiUser = (whiteboardId) => {
@@ -87,7 +90,7 @@ const getMultiUser = (whiteboardId) => {
   return data.multiUser;
 };
 
-const persistShape = (shape, whiteboardId, isModerator) => {
+const persistShape = async (shape, whiteboardId, isModerator, submitAnnotations) => {
   const annotation = {
     id: shape.id,
     annotationInfo: { ...shape, isModerator },
@@ -95,13 +98,7 @@ const persistShape = (shape, whiteboardId, isModerator) => {
     userId: Auth.userID,
   };
 
-  sendAnnotation(annotation);
-};
-
-const removeShapes = (shapes, whiteboardId) => makeCall('deleteAnnotations', shapes, whiteboardId);
-
-const changeCurrentSlide = (s) => {
-  makeCall('changeCurrentSlide', s);
+  sendAnnotation(annotation, submitAnnotations);
 };
 
 const initDefaultPages = (count = 1) => {
@@ -283,8 +280,6 @@ export {
   sendAnnotation,
   getMultiUser,
   persistShape,
-  removeShapes,
-  changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
