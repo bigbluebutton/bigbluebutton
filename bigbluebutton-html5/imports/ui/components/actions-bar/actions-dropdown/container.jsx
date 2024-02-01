@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT, ACTIONS, PANELS } from '../../layout/enums';
@@ -12,6 +11,7 @@ import {
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
 import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
+import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
 
 const TIMER_CONFIG = Meteor.settings.public.timer;
 const MILLI_IN_MINUTE = 60000;
@@ -35,9 +35,14 @@ const ActionsDropdownContainer = (props) => {
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
   const [timerDeactivate] = useMutation(TIMER_DEACTIVATE);
+  const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
 
   const handleTakePresenter = () => {
     setPresenter({ variables: { userId: Auth.userID } });
+  };
+
+  const setPresentation = (presentationId) => {
+    presentationSetCurrent({ variables: { presentationId } });
   };
 
   const activateTimer = () => {
@@ -71,7 +76,7 @@ const ActionsDropdownContainer = (props) => {
         presentations,
         isTimerFeatureEnabled: isTimerFeatureEnabled(),
         isDropdownOpen: Session.get('dropdownOpen'),
-        setPresentation: PresentationUploaderService.setPresentation,
+        setPresentation,
         isCameraAsContentEnabled: isCameraAsContentEnabled(),
         handleTakePresenter,
         activateTimer,

@@ -31,7 +31,6 @@ const SUBSCRIPTIONS = [
   'pads-sessions',
   'pads-updates',
   'notifications',
-  'audio-captions',
   'layout-meetings',
   'user-reaction',
   'timer',

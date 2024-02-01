@@ -11,10 +11,13 @@ export const UPDATE_CONNECTION_ALIVE_AT = gql`
   }`;
 
 export const UPDATE_USER_CLIENT_RESPONSE_AT = gql`
-  mutation UpdateConnectionAliveAt($userId: String, $userClientResponseAt: timestamp) {
+  mutation UpdateConnectionClientResponse($networkRttInMs: numeric) {
     update_user_connectionStatus(
       where: {userClientResponseAt: {_is_null: true}}
-      _set: { userClientResponseAt: "now()" }
+      _set: { 
+        userClientResponseAt: "now()",
+        networkRttInMs: $networkRttInMs 
+      }
     ) {
       affected_rows
     }

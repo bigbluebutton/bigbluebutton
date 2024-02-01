@@ -134,6 +134,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -147,6 +148,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   };
 
   const [chatSetTyping] = useMutation(CHAT_SET_TYPING);
+
+  const [chatSendMessage, {
+    loading: chatSendMessageLoading, error: chatSendMessageError,
+  }] = useMutation(CHAT_SEND_MESSAGE);
 
   const handleUserTyping = throttle(
     (hasError?: boolean) => {
@@ -195,6 +200,17 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   useEffect(() => {
     setMessageHint();
   }, [connected, locked, partnerIsLoggedOut]);
+
+  useEffect(() => {
+    const shouldRestoreFocus = textAreaRef.current
+      && !chatSendMessageLoading
+      && isTextAreaFocused
+      && document.activeElement !== textAreaRef.current.textarea;
+
+    if (shouldRestoreFocus) {
+      textAreaRef.current.textarea.focus();
+    }
+  }, [chatSendMessageLoading, textAreaRef.current]);
 
   const setMessageHint = () => {
     let chatDisabledHint = null;
@@ -258,10 +274,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
 
-    const [chatSendMessage, {
-      loading: chatSendMessageLoading, error: chatSendMessageError,
-    }] = useMutation(CHAT_SEND_MESSAGE);
-
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
@@ -295,10 +307,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       setShowEmojiPicker(false);
       const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
       window.dispatchEvent(sentMessageEvent);
-
-      setTimeout(() => {
-        textAreaRef.current?.textarea.focus();
-      }, 100);
     };
 
     const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -364,9 +372,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             value={message}
             onFocus={() => {
               window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_FOCUSED));
+              setIsTextAreaFocused(true);
             }}
             onBlur={() => {
               window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_UNFOCUSED));
+              setIsTextAreaFocused(false);
             }}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}

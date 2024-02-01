@@ -1,13 +1,12 @@
 package writer
 
 import (
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	"strings"
-	"sync"
-
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket/wsjson"
+	"strings"
+	"sync"
 )
 
 // HasuraConnectionWriter
@@ -39,6 +38,10 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
+		case <-hc.MsgReceivingActiveChan.ReceiveChannel():
+			log.Debugf("freezing channel fromBrowserToHasuraChannel")
+			//Freeze channel once it's about to close Hasura connection
+			fromBrowserToHasuraChannel.FreezeChannel()
 		case fromBrowserMessage := <-fromBrowserToHasuraChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
@@ -98,15 +101,15 @@ RangeLoop:
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
-						Id:                        queryId,
-						Message:                   fromBrowserMessageAsMap,
-						OperationName:             operationName,
-						StreamCursorField:         streamCursorField,
-						StreamCursorVariableName:  streamCursorVariableName,
-						StreamCursorCurrValue:     streamCursorInitialValue,
-						LastSeenOnHasuraConnetion: hc.Id,
-						JsonPatchSupported:        jsonPatchSupported,
-						Type:                      messageType,
+						Id:                         queryId,
+						Message:                    fromBrowserMessageAsMap,
+						OperationName:              operationName,
+						StreamCursorField:          streamCursorField,
+						StreamCursorVariableName:   streamCursorVariableName,
+						StreamCursorCurrValue:      streamCursorInitialValue,
+						LastSeenOnHasuraConnection: hc.Id,
+						JsonPatchSupported:         jsonPatchSupported,
+						Type:                       messageType,
 					}
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()

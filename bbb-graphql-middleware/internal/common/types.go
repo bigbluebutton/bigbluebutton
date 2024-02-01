@@ -18,15 +18,15 @@ const (
 )
 
 type GraphQlSubscription struct {
-	Id                        string
-	Message                   map[string]interface{}
-	Type                      QueryType
-	OperationName             string
-	StreamCursorField         string
-	StreamCursorVariableName  string
-	StreamCursorCurrValue     interface{}
-	JsonPatchSupported        bool   // indicate if client support Json Patch for this subscription
-	LastSeenOnHasuraConnetion string // id of the hasura connection that this query was active
+	Id                         string
+	Message                    map[string]interface{}
+	Type                       QueryType
+	OperationName              string
+	StreamCursorField          string
+	StreamCursorVariableName   string
+	StreamCursorCurrValue      interface{}
+	JsonPatchSupported         bool   // indicate if client support Json Patch for this subscription
+	LastSeenOnHasuraConnection string // id of the hasura connection that this query was active
 }
 
 type BrowserConnection struct {
@@ -42,9 +42,10 @@ type BrowserConnection struct {
 }
 
 type HasuraConnection struct {
-	Id                string             // hasura connection id
-	Browserconn       *BrowserConnection // browser connection that originated this hasura connection
-	Websocket         *websocket.Conn    // websocket used to connect to hasura
-	Context           context.Context    // hasura connection context (child of browser connection context)
-	ContextCancelFunc context.CancelFunc // function to cancel the hasura context (and so, the hasura connection)
+	Id                     string             // hasura connection id
+	Browserconn            *BrowserConnection // browser connection that originated this hasura connection
+	Websocket              *websocket.Conn    // websocket used to connect to hasura
+	Context                context.Context    // hasura connection context (child of browser connection context)
+	ContextCancelFunc      context.CancelFunc // function to cancel the hasura context (and so, the hasura connection)
+	MsgReceivingActiveChan *SafeChannel       // indicate that it's waiting for the return of mutations before closing connection
 }

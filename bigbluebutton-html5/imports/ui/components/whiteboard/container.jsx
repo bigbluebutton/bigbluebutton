@@ -1,8 +1,7 @@
-import React from 'react';
-import { useQuery, useSubscription, useMutation } from '@apollo/client';
+import React, { useEffect, useState } from 'react';
+import { useSubscription, useMutation } from '@apollo/client';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-  CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from './queries';
@@ -10,15 +9,12 @@ import { CURSOR_SUBSCRIPTION } from './cursors/queries';
 import {
   initDefaultPages,
   persistShape,
-  removeShapes,
-  changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
 import CursorService from './cursors/service';
-import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import SettingsService from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -35,12 +31,13 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   AssetRecordType,
 } from "@tldraw/tldraw";
-import { PRESENTATION_SET_ZOOM } from '../presentation/mutations';
+import {
+  PRESENTATION_SET_ZOOM,
+  PRES_ANNOTATION_DELETE,
+  PRES_ANNOTATION_SUBMIT,
+} from '../presentation/mutations';
 
 const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
-
-let annotations = [];
-let lastUpdatedAt = null;
 
 const WhiteboardContainer = (props) => {
   const {
@@ -48,6 +45,8 @@ const WhiteboardContainer = (props) => {
     slidePosition,
     svgUri,
   } = props;
+
+  const [annotations, setAnnotations] = useState([]);
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -67,6 +66,17 @@ const WhiteboardContainer = (props) => {
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
+  const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
+  const [presentationSubmitAnnotations] = useMutation(PRES_ANNOTATION_SUBMIT);
+
+  const removeShapes = (shapeIds) => {
+    presentationDeleteAnnotations({
+      variables: {
+        pageId: currentPresentationPage?.pageId,
+        annotationsIds: shapeIds,
+      },
+    });
+  };
 
   const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
     const { pageId, num } = currentPresentationPage;
@@ -84,6 +94,21 @@ const WhiteboardContainer = (props) => {
     });
   };
 
+  const submitAnnotations = async (newAnnotations) => {
+    const isAnnotationSent = await presentationSubmitAnnotations({
+      variables: {
+        pageId: currentPresentationPage?.pageId,
+        annotations: newAnnotations,
+      },
+    });
+
+    return isAnnotationSent?.data?.presAnnotationSubmit;
+  };
+
+  const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
+    persistShape(shape, whiteboardId, isModerator, submitAnnotations);
+  };
+
   const isMultiUserActive = whiteboardWriters?.length > 0;
 
   const { data: pollData } = useSubscription(POLL_RESULTS_SUBSCRIPTION);
@@ -98,57 +123,46 @@ const WhiteboardContainer = (props) => {
   const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
   const { pres_page_cursor: cursorArray } = (cursorData || []);
 
-  const {
-    loading: annotationsLoading,
-    data: annotationsData,
-  } = useQuery(CURRENT_PAGE_ANNOTATIONS_QUERY);
-  const { pres_annotation_curr: history } = (annotationsData || []);
-
-  const lastHistoryTime = history?.[0]?.lastUpdatedAt || null;
-
-  if (!lastUpdatedAt) {
-    if (lastHistoryTime) {
-      if (new Date(lastUpdatedAt).getTime() < new Date(lastHistoryTime).getTime()) {
-        lastUpdatedAt = lastHistoryTime;
-      }
-    } else {
-      const newLastUpdatedAt = new Date();
-      lastUpdatedAt = newLastUpdatedAt.toISOString();
-    }
-  }
-
-  const { data: streamData } = useSubscription(
+  const { data: annotationStreamData } = useSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
     {
-      variables: { lastUpdatedAt },
+      variables: { lastUpdatedAt: new Date(0).toISOString() },
     },
   );
-  const { pres_annotation_curr_stream: streamDataItem } = (streamData || []);
 
-  if (streamDataItem) {
-    if (new Date(lastUpdatedAt).getTime() < new Date(streamDataItem[0].lastUpdatedAt).getTime()) {
-      if (streamDataItem[0].annotationInfo === '') {
-        // remove shape
-        annotations = annotations.filter(
-          (annotation) => annotation.annotationId !== streamDataItem[0].annotationId,
-        );
-      } else {
-        // add shape
-        annotations = annotations.concat(streamDataItem);
-      }
-      lastUpdatedAt = streamDataItem[0].lastUpdatedAt;
+  useEffect(() => {
+    const { pres_annotation_curr_stream: annotationStream } = annotationStreamData || {};
+
+    if (annotationStream) {
+      const newAnnotations = [];
+      const annotationsToBeRemoved = [];
+      annotationStream.forEach((item) => {
+        if (item.annotationInfo === '') {
+          annotationsToBeRemoved.push(item.annotationId);
+        } else {
+          newAnnotations.push(item);
+        }
+      });
+      const currentAnnotations = annotations.filter(
+        (annotation) => !annotationsToBeRemoved.includes(annotation.annotationId),
+      );
+      setAnnotations([...currentAnnotations, ...newAnnotations]);
     }
-  }
+  }, [annotationStreamData]);
+
   let shapes = {};
   let bgShape = [];
 
-  if (!annotationsLoading && history) {
-    const pageAnnotations = history
-      .concat(annotations)
-      .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
+  const pageAnnotations = annotations
+    .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
 
-    shapes = formatAnnotations(pageAnnotations, intl, curPageId, pollResults, currentPresentationPage);
-  }
+  shapes = formatAnnotations(
+    pageAnnotations,
+    intl,
+    curPageId,
+    pollResults,
+    currentPresentationPage,
+  );
 
   const { isIphone } = deviceInfo;
 
@@ -236,17 +250,13 @@ const WhiteboardContainer = (props) => {
         sidebarNavigationWidth,
         layoutContextDispatch,
         initDefaultPages,
-        persistShape,
+        persistShapeWrapper,
         isMultiUserActive,
-        changeCurrentSlide,
         shapes,
         bgShape,
         assets,
         removeShapes,
         zoomSlide,
-        skipToSlide: PresentationToolbarService.skipToSlide,
-        nextSlide: PresentationToolbarService.nextSlide,
-        previousSlide: PresentationToolbarService.previousSlide,
         numberOfSlides: currentPresentationPage?.totalPages,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,

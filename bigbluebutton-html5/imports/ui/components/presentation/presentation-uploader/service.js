@@ -41,10 +41,6 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   xhr.send(opts.body);
 });
 
-const dispatchChangePresentationDownloadable = (presentation, newState, fileStateType) => {
-  makeCall('setPresentationDownloadable', presentation.presentationId, newState, fileStateType);
-};
-
 const requestPresentationUploadToken = (
   temporaryPresentationId,
   meetingId,
@@ -183,19 +179,18 @@ const uploadAndConvertPresentations = (
   p.onUpload, p.onProgress, p.onConversion, p.current,
 )));
 
-const setPresentation = (presentationId) => {
-  makeCall('setPresentation', presentationId, POD_ID);
-};
-
-const removePresentation = (presentationId) => {
-  makeCall('removePresentation', presentationId, POD_ID);
-};
-
 const removePresentations = (
   presentationsToRemove,
-) => Promise.all(presentationsToRemove.map((p) => removePresentation(p.presentationId, POD_ID)));
+  removePresentation,
+) => Promise.all(presentationsToRemove.map((p) => removePresentation(p.presentationId)));
 
-const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
+const persistPresentationChanges = (
+  oldState,
+  newState,
+  uploadEndpoint,
+  setPresentation,
+  removePresentation,
+) => {
   const presentationsToUpload = newState.filter((p) => !p.uploadCompleted);
   const presentationsToRemove = oldState.filter((p) => !newState.find((u) => { return u.presentationId === p.presentationId }));
 
@@ -214,7 +209,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
     })
     .then((presentations) => {
       if (currentPresentation === undefined) {
-        setPresentation('', POD_ID);
+        setPresentation('');
         return Promise.resolve();
       }
 
@@ -229,13 +224,18 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
         return Promise.resolve();
       }
 
-      return setPresentation(currentPresentation?.presentationId, POD_ID);
+      return setPresentation(currentPresentation?.presentationId);
     })
-    .then(removePresentations.bind(null, presentationsToRemove, POD_ID));
+    .then(removePresentations.bind(null, presentationsToRemove, removePresentation));
 };
 
 const handleSavePresentation = (
-  presentations = [], isFromPresentationUploaderInterface = true, newPres = {}, currentPresentations = [],
+  presentations = [],
+  isFromPresentationUploaderInterface = true,
+  newPres = {},
+  currentPresentations = [],
+  setPresentation,
+  removePresentation,
 ) => {
   if (!isPresentationEnabled()) {
     return null;
@@ -257,7 +257,8 @@ const handleSavePresentation = (
     currentPresentations,
     presentations,
     PRESENTATION_CONFIG.uploadEndpoint,
-    'DEFAULT_PRESENTATION_POD',
+    setPresentation,
+    removePresentation,
   );
 };
 
@@ -352,8 +353,6 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
 export default {
   handleSavePresentation,
   persistPresentationChanges,
-  dispatchChangePresentationDownloadable,
-  setPresentation,
   requestPresentationUploadToken,
   getExternalUploadData,
   uploadAndConvertPresentation,

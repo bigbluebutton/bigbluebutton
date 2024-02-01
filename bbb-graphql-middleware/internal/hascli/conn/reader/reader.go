@@ -48,7 +48,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 				hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
 				if !ok {
 					log.Debugf("Subscription with Id %s doesn't exist anymore, skiping response.", queryId)
-					return
+					continue
 				}
 
 				//When Hasura send msg type "complete", this query is finished
@@ -83,6 +83,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 			// Retransmit the subscription start commands when hasura confirms the connection
 			// this is useful in case of a connection invalidation
 			if messageType == "connection_ack" {
+				log.Debugf("Received connection_ack")
 				//Hasura connection was initialized, now it's able to send new messages to Hasura
 				fromBrowserToHasuraChannel.UnfreezeChannel()
 

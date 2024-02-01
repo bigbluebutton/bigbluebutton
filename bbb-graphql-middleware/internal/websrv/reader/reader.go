@@ -41,7 +41,6 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 		}
 
 		log.Tracef("received from browser: %v", v)
-		//fmt.Println("received from browser: %v", v)
 
 		fromBrowserToHasuraChannel.Send(v)
 		fromBrowserToHasuraConnectionEstablishingChannel.Send(v)

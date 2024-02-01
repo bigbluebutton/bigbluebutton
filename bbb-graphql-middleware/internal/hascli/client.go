@@ -60,10 +60,11 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	defer hasuraConnectionContextCancel()
 
 	var thisConnection = common.HasuraConnection{
-		Id:                hasuraConnectionId,
-		Browserconn:       browserConnection,
-		Context:           hasuraConnectionContext,
-		ContextCancelFunc: hasuraConnectionContextCancel,
+		Id:                     hasuraConnectionId,
+		Browserconn:            browserConnection,
+		Context:                hasuraConnectionContext,
+		ContextCancelFunc:      hasuraConnectionContextCancel,
+		MsgReceivingActiveChan: common.NewSafeChannel(1),
 	}
 
 	browserConnection.HasuraConnection = &thisConnection
