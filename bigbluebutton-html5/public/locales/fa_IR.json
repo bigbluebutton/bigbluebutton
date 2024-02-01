@@ -812,6 +812,7 @@
     "app.toast.chat.system": "سیستم",
     "app.toast.chat.poll": "نتایج نظرسنجی",
     "app.toast.chat.pollClick": "نتایج نظرسنجی منتشر شد. برای دیدن اینجا کلیک کنید.",
+    "app.toast.chat.exportedPresentation": "پرونده ارائه",
     "app.toast.clearedEmoji.label": "وضعیت شکلک‌ها پاک شد",
     "app.toast.setEmoji.label": "وضعیت شکلک‌ها به {0} تغییر داده شد",
     "app.toast.meetingMuteOn.label": "همهٔ کاربران بی‌صدا شده‌اند",
