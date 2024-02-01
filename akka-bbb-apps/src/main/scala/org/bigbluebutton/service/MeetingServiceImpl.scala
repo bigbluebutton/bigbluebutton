@@ -51,10 +51,9 @@ class MeetingServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
 
     if (in.pageSize < 0) Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "invalidPageSize", Seq(new ErrorResp("invalidPageSize", "The page size cannot be negative"))))
     else {
-      val pageSize = math.min(in.pageSize, 50)
-
+      val pageSize = if (in.pageSize == 0) 50 else math.min(in.pageSize, 50)
       (bbbActor ? GetMeetings()).mapTo[VectorMap[String, RunningMeeting]].flatMap { runningMeetings =>
-        val nextPageIndex = if (Option(in.pageToken).forall(_.isBlank)) pageSize else runningMeetings.keys.toSeq.indexOf(in.pageToken) + pageSize
+        val nextPageIndex = if (Option(in.pageToken).forall(_.isBlank)) pageSize else runningMeetings.keys.indexOf(in.pageToken) + pageSize
         val meetingsToReturn = if (Option(in.pageToken).forall(_.isBlank)) runningMeetings.take(pageSize) else getPageStartingFromToken(runningMeetings, in.pageToken, pageSize)
         meetingsToReturn match {
           case Left(error: GrpcServiceException) => Future.failed(error)
