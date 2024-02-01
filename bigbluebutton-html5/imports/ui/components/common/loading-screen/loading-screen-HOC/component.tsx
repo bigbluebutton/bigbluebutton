@@ -34,7 +34,7 @@ const LoadingScreenHOC: React.FC<LoadingScreenHOCProps> = ({
     <LoadingContext.Provider value={{
       loadingMessage: loading.loadingMessage,
       isLoading: loading.isLoading,
-      setLoading: (isLoading: boolean, loadingMessage: string) => {
+      setLoading: (isLoading: boolean, loadingMessage: string = '') => {
         setLoading({
           isLoading,
           loadingMessage,

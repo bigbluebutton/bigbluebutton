@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export interface getBigblueButtonSettingsResponse {
+export interface getBigBlueButtonSettingsResponse {
   meeting: Meeting[]
 }
 
@@ -12,7 +12,7 @@ interface Meeting {
     clientSettings: ClientSettings;
 }
 
-export const getBigblueButtonSettings = gql`
+export const getBigBlueButtonSettings = gql`
   query getClientSettings {
     meeting {
       clientSettings {
@@ -23,5 +23,5 @@ export const getBigblueButtonSettings = gql`
 `;
 
 export default {
-  getBigblueButtonSettings,
+  getBigBlueButtonSettings,
 };

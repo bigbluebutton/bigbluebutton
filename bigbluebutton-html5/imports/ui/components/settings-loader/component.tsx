@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client';
 import React, { useContext, useEffect } from 'react';
-import { getBigblueButtonSettings, getBigblueButtonSettingsResponse } from './queries';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
+import { getBigBlueButtonSettings, getBigBlueButtonSettingsResponse } from './queries';
 import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
 import MeetingClientSettings from '../../Types/meetingClientSettings';
 import ClientStartup from '/client/clientStartup';
@@ -14,7 +13,7 @@ declare global {
 }
 
 const SettingsLoader: React.FC = () => {
-  const { loading, error, data } = useQuery<getBigblueButtonSettingsResponse>(getBigblueButtonSettings);
+  const { loading, error, data } = useQuery<getBigBlueButtonSettingsResponse>(getBigBlueButtonSettings);
   const [allowToRender, setAllowToRender] = React.useState(false);
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
@@ -36,18 +35,9 @@ const SettingsLoader: React.FC = () => {
     throw new Error('Error on requesting meeting settings data: ', error);
   }
   return (
-    (!allowToRender || loading) ? (
-      <LoadingScreen>
-        {/* I made this because the component is in JS and requires a child, but it's optional */}
-        <div style={{
-          display: 'none',
-        }}
-        >
-          <h1>Loading...</h1>
-        </div>
-      </LoadingScreen>
-    )
-      : <ClientStartup />
+    (allowToRender)
+      ? <ClientStartup />
+      : null
   );
 };
 

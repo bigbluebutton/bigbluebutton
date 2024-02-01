@@ -8,6 +8,7 @@ import { clone } from 'radash';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
+import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -278,6 +279,8 @@ class Settings extends Component {
 
             if (saved.application.locale !== current.application.locale) {
               const { language } = formatLocaleCode(saved.application.locale);
+              const { language: newLanguage } = formatLocaleCode(current.application.locale);
+              setUseCurrentLocale(newLanguage);
               document.body.classList.remove(`lang-${language}`);
             }
 

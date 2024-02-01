@@ -38,6 +38,7 @@ import adapter from 'webrtc-adapter';
 import collectionMirrorInitializer from './collection-mirror-initializer';
 import SettingsLoader from '../imports/ui/components/settings-loader/component';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import IntlAdapter from '/imports/startup/client/intlAdapter';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
@@ -87,9 +88,9 @@ const Startup = () => {
         <JoinHandler>
           <AuthenticatedHandler>
             <Subscriptions>
-              <IntlStartup>
+              <IntlAdapter>
                 <Base />
-              </IntlStartup>
+              </IntlAdapter>
             </Subscriptions>
           </AuthenticatedHandler>
         </JoinHandler>
