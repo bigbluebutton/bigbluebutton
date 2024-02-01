@@ -580,6 +580,10 @@ class ApiController {
       log.error("RPC isMeetingRunning request failed")
       log.error("Status code {}", e.getStatus())
       log.error("{}", e.getMessage())
+      Status status =  StatusProto.fromStatusAndTrailers(e.getStatus(), e.getTrailers())
+      Common.ErrorResp error = status.getDetails(0).unpack(Common.ErrorResp)
+      invalid(error.getKey(), error.getMessage())
+      return
     }
 
     response.addHeader("Cache-Control", "no-cache")
@@ -706,6 +710,10 @@ class ApiController {
       log.error("RPC getMeetings request failed")
       log.error("Status code {}", e.getStatus())
       log.error("{}", e.getMessage())
+      Status status =  StatusProto.fromStatusAndTrailers(e.getStatus(), e.getTrailers())
+      Common.ErrorResp error = status.getDetails(0).unpack(Common.ErrorResp)
+      invalid(error.getKey(), error.getMessage())
+      return
     }
 
     if (meetings == null || meetings.isEmpty()) {
@@ -723,7 +731,6 @@ class ApiController {
         }
       }
     }
-
   }
 
   /************************************
@@ -2081,7 +2088,10 @@ class ApiController {
     return response
   }
 
-  private Meeting meetingInfoToMeeting(MeetingInfo meetingInfo) {
+  private static Meeting meetingInfoToMeeting(MeetingInfo meetingInfo) {
+    // State from BBB Web is still required until meeting metadata, user custom data, and meeting start and end times are added to akka-apps
+    Meeting m = ServiceUtils.findMeetingFromMeetingID(meetingInfo.getMeetingIntId())
+
     Meeting meeting = new Meeting.Builder(meetingInfo.getMeetingExtId(), meetingInfo.getMeetingIntId(), meetingInfo.getDurationInfo().getCreateTime())
                   .withName(meetingInfo.getMeetingName())
                   .withMaxUsers(meetingInfo.getParticipantInfo().getMaxUsers())
@@ -2091,15 +2101,15 @@ class ApiController {
                   .withDuration(meetingInfo.getDurationInfo().getDuration())
                   .withTelVoice(meetingInfo.getVoiceBridge())
                   .withDialNumber(meetingInfo.getDialNumber())
-                  .withMetadata(meetingInfo.getMetadataMap())
+                  .withMetadata(m.getMetadata())
                   .isBreakout(meetingInfo.getBreakoutInfo().getIsBreakout())
                   .build()
 
     meeting.setIsRunning(meetingInfo.getDurationInfo().getIsRunning())
     meeting.setUserHasJoined(meetingInfo.getParticipantInfo().getHasUserJoined())
     meeting.setForciblyEnded(meetingInfo.getDurationInfo().getHasBeenForciblyEnded())
-    meeting.setStartTime(meetingInfo.getDurationInfo().getStartTime())
-    meeting.setEndTime(meetingInfo.getDurationInfo().getEndTime())
+    meeting.setStartTime(m.getStartTime())
+    meeting.setEndTime(m.getEndTime())
     meeting.setNumUsersOnline(meetingInfo.getParticipantInfo().getParticipantCount())
     meeting.setNumListenOnlyUsers(meetingInfo.getParticipantInfo().getListenerCount())
     meeting.setNumVoiceUsers(meetingInfo.getParticipantInfo().getVoiceParticipantCount())
@@ -2112,7 +2122,7 @@ class ApiController {
       user.setListeningOnly(attendee.getIsListeningOnly())
       user.setVoiceJoined(attendee.getHasJoinedVoice())
       user.setHasVideo(attendee.getHasVideo())
-      meeting.addUserCustomData(attendee.getUserId(), attendee.getCustomDataMap())
+      meeting.addUserCustomData(attendee.getUserId(), m.getUserCustomData(attendee.getUserId()))
       meeting.userJoined(user)
     }
 
