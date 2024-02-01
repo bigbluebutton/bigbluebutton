@@ -28,15 +28,21 @@ async function notifyMeetingActor() {
   await client.connect();
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
+  const annotated_slides = 'annotated_slides.pdf';
   const link = path.join('presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
-      exportJob.presId, 'pdf', jobId, filename);
+      exportJob.presId, 'pdf', jobId, annotated_slides);
 
-  const notification = new NewPresFileAvailableMsg(exportJob, link);
+  const notification = new NewPresFileAvailableMsg(exportJob, link,);
 
   logger.info(`Annotated PDF available at ${link}`);
+  logger.info(`\n\n\n\n\n  --->${JSON.stringify(exportJob)}`);
+  logger.info(`\n\n\n\n\n  --->${JSON.stringify(workerData)}`);
+
+
   await client.publish(config.redis.channels.publish, notification.build());
   client.disconnect();
+
 }
 
 /** Upload PDF to a BBB room
