@@ -34,11 +34,9 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   `}
 
   ${({ isToolbarVisible }) => (!isToolbarVisible) && `
-    .tlui-toolbar {
-      visibility: hidden;
-    }
-
-    .tlui-style-panel__wrapper {
+    .tlui-toolbar,
+    .tlui-style-panel__wrapper,
+    .tlui-menu-zone {
       visibility: hidden;
     }
   `}
