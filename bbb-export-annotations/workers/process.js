@@ -886,7 +886,7 @@ async function process_presentation_annotations() {
     fs.mkdirSync(outputDir, {recursive: true});
   }
 
-  const filename_with_extension = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.pdf`;
+  const filename_with_extension = `${sanitize(exportJob.fileNameToPath.replace(/\s/g, '_'))}.pdf`;
 
   const mergePDFs = [
     '-dNOPAUSE',
@@ -904,7 +904,8 @@ async function process_presentation_annotations() {
   // Launch Notifier Worker depending on job type
   logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename_with_extension}`);
 
-  const notifier = new WorkerStarter({jobType: exportJob.jobType, jobId, filename: filename_with_extension});
+  const notifier = new WorkerStarter({jobType: exportJob.jobType, jobId,
+    fileNameToPath: filename_with_extension, filename: exportJob.filename});
   notifier.notify();
   await client.disconnect();
 }

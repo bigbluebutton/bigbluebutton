@@ -41,7 +41,7 @@ case class NewPresentationEvtMsgBody(presentation: PresentationVO)
 object NewPresFileAvailableEvtMsg { val NAME = "NewPresFileAvailableEvtMsg" }
 case class NewPresFileAvailableEvtMsg(header: BbbClientMsgHeader, body: NewPresFileAvailableEvtMsgBody) extends BbbCoreMsg
 case class NewPresFileAvailableEvtMsgBody(annotatedFileURI: String, originalFileURI: String, convertedFileURI: String,
-                                          presId: String, fileStateType: String, fileName: String)
+                                          presId: String, fileStateType: String)
 
 object PresAnnStatusEvtMsg { val NAME = "PresAnnStatusEvtMsg" }
 case class PresAnnStatusEvtMsg(header: BbbClientMsgHeader, body: PresAnnStatusEvtMsgBody) extends BbbCoreMsg

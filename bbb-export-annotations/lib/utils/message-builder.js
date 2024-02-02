@@ -73,7 +73,7 @@ class NewPresFileAvailableMsg {
           annotatedFileURI: link,
           originalFileURI: '',
           convertedFileURI: '',
-          fileName: exportJob.originalFilename,
+          fileName: exportJob.filename,
           presId: exportJob.presId,
           fileStateType: 'Annotated',
         },

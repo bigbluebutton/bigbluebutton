@@ -60,8 +60,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       originalFileURI = newPresFileAvailableMsg.body.originalFileURI,
       convertedFileURI = newPresFileAvailableMsg.body.convertedFileURI,
       presId = newPresFileAvailableMsg.body.presId,
-      fileStateType = newPresFileAvailableMsg.body.fileStateType,
-      fileName = newPresFileAvailableMsg.body.fileName
+      fileStateType = newPresFileAvailableMsg.body.fileStateType
     )
     val event = NewPresFileAvailableEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
@@ -160,8 +159,8 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val presLocation = List("var", "bigbluebutton", meetingId, meetingId, presId).mkString(File.separator, File.separator, "");
       val pages: List[Int] = m.body.pages // Desired presentation pages for export
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
-      // aaa
-      val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, "annotated_slides", currentPres.get.name, presId, presLocation, allPages, pagesRange, meetingId, "");
+
+      val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, currentPres.get.name, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
       val isPresentationOriginalOrConverted = m.body.fileStateType == "Original" || m.body.fileStateType == "Converted"
