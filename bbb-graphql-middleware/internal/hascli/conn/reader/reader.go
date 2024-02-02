@@ -2,7 +2,10 @@ package reader
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/retransmiter"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
@@ -20,6 +23,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
 
+HasWebsocketLoop:
 	for {
 		// Read a message from hasura
 		var message interface{}
@@ -29,6 +33,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 				log.Debugf("Closing ws connection as Context was cancelled!")
 			} else {
 				log.Errorf("Error reading message from Hasura: %v", err)
+				continue HasWebsocketLoop
 			}
 			return
 		}
@@ -48,7 +53,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 				hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
 				if !ok {
 					log.Debugf("Subscription with Id %s doesn't exist anymore, skiping response.", queryId)
-					continue
+					continue HasWebsocketLoop
 				}
 
 				//When Hasura send msg type "complete", this query is finished
@@ -59,11 +64,40 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 					log.Debugf("Subscription with Id %s finished by Hasura.", queryId)
 				}
 
-				//Apply msg patch when it supports it
-				if subscription.JsonPatchSupported &&
-					messageType == "data" &&
+				if messageType == "data" &&
 					subscription.Type == common.Subscription {
-					msgpatch.PatchMessage(&messageAsMap, hc.Browserconn)
+
+					if payload, okPayload := messageAsMap["payload"].(map[string]interface{}); okPayload {
+						if data, okData := payload["data"].(map[string]interface{}); okData {
+							for dataKey, dataItem := range data {
+								if currentDataProp, okCurrentDataProp := dataItem.([]interface{}); okCurrentDataProp {
+									if dataAsJson, err := json.Marshal(currentDataProp); err == nil {
+										//Check whether ReceivedData is different from the LastReceivedData
+										//Otherwise stop forwarding this message
+										hasher := sha256.New()
+										hasher.Write(dataAsJson)
+										dataSha256 := fmt.Sprintf("%x", hasher.Sum(nil))
+										if subscription.LastReceivedDataSha256 == dataSha256 {
+											continue HasWebsocketLoop
+										}
+
+										//Store LastReceivedData Sha256
+										subscription.LastReceivedDataSha256 = dataSha256
+										hc.Browserconn.ActiveSubscriptionsMutex.Lock()
+										hc.Browserconn.ActiveSubscriptions[queryId] = subscription
+										hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
+
+										//Apply msg patch when it supports it
+										if subscription.JsonPatchSupported {
+											msgpatch.PatchMessage(&messageAsMap, queryId, dataKey, dataAsJson, hc.Browserconn)
+										}
+									}
+								}
+							}
+
+						}
+					}
+
 				}
 
 				//Set last cursor value for stream
