@@ -21,7 +21,6 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
 
-HasWebsocketLoop:
 	for {
 		// Read a message from hasura
 		var message interface{}
@@ -31,7 +30,7 @@ HasWebsocketLoop:
 				log.Debugf("Closing ws connection as Context was cancelled!")
 			} else {
 				log.Errorf("Error reading message from Hasura: %v", err)
-				continue HasWebsocketLoop
+				continue
 			}
 			return
 		}
