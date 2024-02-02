@@ -36,7 +36,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 
 		log.Tracef("received from hasura: %v", message)
 
-		go handleMessageReceivedFromHasura(hc, fromHasuraToBrowserChannel, fromBrowserToHasuraChannel, message)
+		handleMessageReceivedFromHasura(hc, fromHasuraToBrowserChannel, fromBrowserToHasuraChannel, message)
 	}
 }
 
