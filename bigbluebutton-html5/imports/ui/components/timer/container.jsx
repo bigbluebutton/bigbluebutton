@@ -49,6 +49,8 @@ const TimerContainer = ({ children, ...props }) => {
 
   const setTime = (time) => {
     timerSetTime({ variables: { time } });
+    timerStop();
+    timerReset();
   };
 
   const setHours = (hours, time) => {
