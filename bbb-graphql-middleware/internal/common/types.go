@@ -25,7 +25,7 @@ type GraphQlSubscription struct {
 	StreamCursorField          string
 	StreamCursorVariableName   string
 	StreamCursorCurrValue      interface{}
-	LastReceivedDataSha256     string
+	LastReceivedDataChecksum   uint32
 	JsonPatchSupported         bool   // indicate if client support Json Patch for this subscription
 	LastSeenOnHasuraConnection string // id of the hasura connection that this query was active
 }
