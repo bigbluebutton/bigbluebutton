@@ -71,7 +71,6 @@ class Options extends MultiUsers {
     };
 
     await this.modPage.closeAllToastNotifications();
-    
     await expect(modPageLocator).toHaveScreenshot('moderator-page-dark-mode.png', screenshotOptions);
     
     await openSettings(this.modPage);
