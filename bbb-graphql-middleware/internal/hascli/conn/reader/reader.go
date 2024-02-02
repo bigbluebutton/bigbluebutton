@@ -30,7 +30,6 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 				log.Debugf("Closing ws connection as Context was cancelled!")
 			} else {
 				log.Errorf("Error reading message from Hasura: %v", err)
-				continue
 			}
 			return
 		}
