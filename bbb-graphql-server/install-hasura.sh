@@ -55,7 +55,7 @@ systemctl restart nginx
 #chmod +x /usr/local/bin/hasura-graphql-engine
 
 #Hasura 2.29+ requires Ubuntu 22
-git clone --branch v2.36.0 https://github.com/iMDT/hasura-graphql-engine.git
+git clone --branch v2.37.0 https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
