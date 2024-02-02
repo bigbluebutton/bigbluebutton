@@ -33,6 +33,16 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  ${({ isToolbarVisible }) => (!isToolbarVisible) && `
+    .tlui-toolbar {
+      visibility: hidden;
+    }
+
+    .tlui-style-panel__wrapper {
+      visibility: hidden;
+    }
+  `}
+
   #presentationInnerWrapper > div:last-child {
     position: relative;
     height: 100%;

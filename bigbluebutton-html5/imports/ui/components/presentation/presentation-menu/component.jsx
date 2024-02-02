@@ -358,7 +358,7 @@ const PresentationMenu = (props) => {
       );
     }
     
-    const tools = document.querySelector('#TD-Tools');
+    const tools = document.querySelector('.tlui-toolbar, .tlui-style-panel__wrapper');
     if (tools && (props.hasWBAccess || props.amIPresenter)){
       menuItems.push(
         {
