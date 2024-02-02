@@ -666,8 +666,15 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       : calcedZoom;
   };
 
+  const setSafeTLDrawAPI = (api) => {
+    if (isMountedRef.current) {
+      setTldrawAPI(api);
+    }
+  };
+
   const handleTldrawMount = (editor) => {
     setTlEditor(editor);
+    setSafeTLDrawAPI(editor);
 
     editor?.user?.updateUserPreferences({ locale: language });
 
