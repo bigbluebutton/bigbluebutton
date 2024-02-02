@@ -27,8 +27,8 @@ class StoreExportJobInRedisPresAnnEvent extends AbstractPresentationWithAnnotati
 
   setEvent("StoreExportJobInRedisPresAnnEvent")
 
-  def setNameToSave(nameToSave: String) {
-    eventMap.put(NAME_TO_SAVE, nameToSave)
+  def setFileNameToPath(fileNameToPath: String) {
+    eventMap.put(FILE_NAME_TO_PATH, fileNameToPath)
   }
 
   def setJobId(jobId: String) {
@@ -72,7 +72,7 @@ object StoreExportJobInRedisPresAnnEvent {
   protected final val JOB_ID = "jobId"
   protected final val JOB_TYPE = "jobType"
   protected final val FILENAME = "filename"
-  protected final val NAME_TO_SAVE = "nameToSave"
+  protected final val FILE_NAME_TO_PATH = "fileNameToPath"
   protected final val PRES_ID = "presId"
   protected final val PRES_LOCATION = "presLocation"
   protected final val ALL_PAGES = "allPages"
