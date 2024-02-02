@@ -8,7 +8,7 @@ const path = require('path');
 const {NewPresFileAvailableMsg} = require('../lib/utils/message-builder');
 
 const {workerData} = require('worker_threads');
-const [jobType, jobId, filename] = [workerData.jobType, workerData.jobId, workerData.filename];
+const [jobType, jobId, nameToSave] = [workerData.jobType, workerData.jobId, workerData.nameToSave];
 
 const logger = new Logger('presAnn Notifier Worker');
 
@@ -28,18 +28,13 @@ async function notifyMeetingActor() {
   await client.connect();
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  const annotated_slides = 'annotated_slides.pdf';
   const link = path.join('presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
-      exportJob.presId, 'pdf', jobId, annotated_slides);
+      exportJob.presId, 'pdf', jobId, nameToSave);
 
-  const notification = new NewPresFileAvailableMsg(exportJob, link,);
+  const notification = new NewPresFileAvailableMsg(exportJob, link);
 
   logger.info(`Annotated PDF available at ${link}`);
-  logger.info(`\n\n\n\n\n  --->${JSON.stringify(exportJob)}`);
-  logger.info(`\n\n\n\n\n  --->${JSON.stringify(workerData)}`);
-
-
   await client.publish(config.redis.channels.publish, notification.build());
   client.disconnect();
 
@@ -69,10 +64,10 @@ async function upload(filePath) {
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
   notifyMeetingActor();
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
-  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${filename}`;
+  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${nameToSave}`;
   upload(filePath);
 } else if (jobType == 'PadCaptureJob') {
-  const filePath = `${dropbox}/${filename}`;
+  const filePath = `${dropbox}/${nameToSave}`;
   upload(filePath);
 } else {
   logger.error(`Notifier received unknown job type ${jobType}`);
