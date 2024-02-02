@@ -55,7 +55,7 @@ RangeLoop:
 
 					//Identify type based on query string
 					messageType := common.Query
-					lastReceivedDataSha256 := ""
+					var lastReceivedDataChecksum uint32
 					streamCursorField := ""
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
@@ -70,7 +70,7 @@ RangeLoop:
 							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
-								lastReceivedDataSha256 = existingSubscriptionData.LastReceivedDataSha256
+								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
 							}
 
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
@@ -115,7 +115,7 @@ RangeLoop:
 						LastSeenOnHasuraConnection: hc.Id,
 						JsonPatchSupported:         jsonPatchSupported,
 						Type:                       messageType,
-						LastReceivedDataSha256:     lastReceivedDataSha256,
+						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 					}
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()

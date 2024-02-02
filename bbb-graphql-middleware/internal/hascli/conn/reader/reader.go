@@ -8,6 +8,7 @@ import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/retransmiter"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
+	"hash/crc32"
 	"nhooyr.io/websocket/wsjson"
 	"sync"
 )
@@ -96,13 +97,13 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 					if dataAsJson, err := json.Marshal(currentDataProp); err == nil {
 						//Check whether ReceivedData is different from the LastReceivedData
 						//Otherwise stop forwarding this message
-						dataSha256 := common.GenerateSha256(dataAsJson)
-						if subscription.LastReceivedDataSha256 == dataSha256 {
+						dataChecksum := crc32.ChecksumIEEE(dataAsJson)
+						if subscription.LastReceivedDataChecksum == dataChecksum {
 							return false
 						}
 
-						//Store LastReceivedData Sha256
-						subscription.LastReceivedDataSha256 = dataSha256
+						//Store LastReceivedData Checksum
+						subscription.LastReceivedDataChecksum = dataChecksum
 						hc.Browserconn.ActiveSubscriptionsMutex.Lock()
 						hc.Browserconn.ActiveSubscriptions[queryId] = subscription
 						hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
