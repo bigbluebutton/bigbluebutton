@@ -36,18 +36,6 @@ select_permissions:
                   isModerator:
                     _eq: true
               - meetingId:
-                  _eq: X-Hasura-ModeratorInMeeting
-              - meetingId:
-                  _neq: X-Hasura-LockedInMeeting
+                  _eq: X-Hasura-CursorNotLockedInMeeting
               - userId:
-                  _eq: X-Hasura-LockedUserId
-              - _exists:
-                  _table:
-                    name: v_meeting_lockSettings
-                    schema: public
-                  _where:
-                    _and:
-                      - meetingId:
-                          _eq: X-Hasura-MeetingId
-                      - hideViewersCursor:
-                          _eq: false
+                  _eq: X-Hasura-CursorLockedUserId

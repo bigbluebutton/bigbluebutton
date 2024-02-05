@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import {
+  UserListItemAdditionalInformationType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
@@ -73,10 +76,10 @@ interface UserListItemProps {
 }
 
 const renderUserListItemIconsFromPlugin = (
-  userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformation[],
+  userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformationInterface[],
 ) => userItemsFromPlugin.filter(
-  (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.ICON,
-).map((item: PluginSdk.UserListItemAdditionalInformation) => {
+  (item) => item.type === UserListItemAdditionalInformationType.ICON,
+).map((item: PluginSdk.UserListItemAdditionalInformationInterface) => {
   const itemToRender = item as PluginSdk.UserListItemIcon;
   return (
     <Styled.IconRightContainer
@@ -92,13 +95,13 @@ const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
 );
 
 const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
-  const { pluginsProvidedAggregatedState } = useContext(PluginsContext);
-  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformation[];
-  if (pluginsProvidedAggregatedState.userListItemAdditionalInformation) {
-    userItemsFromPlugin = pluginsProvidedAggregatedState.userListItemAdditionalInformation.filter((item) => {
-      const userListItem = item as PluginSdk.UserListItemAdditionalInformation;
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformationInterface[];
+  if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
+    userItemsFromPlugin = pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
+      const userListItem = item as PluginSdk.UserListItemAdditionalInformationInterface;
       return userListItem.userId === user.userId;
-    }) as PluginSdk.UserListItemAdditionalInformation[];
+    }) as PluginSdk.UserListItemAdditionalInformationInterface[];
   }
 
   const intl = useIntl();
@@ -133,7 +136,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
       </span>
     ),
     ...userItemsFromPlugin.filter(
-      (item) => item.type === PluginSdk.UserListItemAdditionalInformationType.LABEL,
+      (item) => item.type === UserListItemAdditionalInformationType.LABEL,
     ).map((item) => {
       const itemToRender = item as PluginSdk.UserListItemLabel;
       return (
@@ -148,7 +151,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const reactionsEnabled = isReactionsEnabled();
 
-  const userAvatarFiltered = user.avatar;
+  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reaction && user.reaction.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const emojiIcons = [
     {

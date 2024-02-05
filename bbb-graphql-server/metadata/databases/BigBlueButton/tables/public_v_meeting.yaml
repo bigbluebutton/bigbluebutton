@@ -25,6 +25,15 @@ object_relationships:
         remote_table:
           name: v_meeting_clientSettings
           schema: public
+  - name: componentsFlags
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_componentsFlags
+          schema: public
   - name: externalVideo
     using:
       manual_configuration:
@@ -129,12 +138,18 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - bannerColor
+        - bannerText
+        - createdAt
         - createdTime
+        - customLogoUrl
         - disabledFeatures
         - durationInSeconds
         - extId
         - html5InstanceId
         - isBreakout
+        - logoutUrl
+        - ended
         - maxPinnedCameras
         - meetingCameraCap
         - meetingId
@@ -145,3 +160,17 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: not_joined_bbb_client
+    permission:
+      columns:
+        - bannerColor
+        - bannerText
+        - customLogoUrl
+        - logoutUrl
+        - ended
+        - meetingId
+        - name
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""

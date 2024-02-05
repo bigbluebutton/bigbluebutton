@@ -3,16 +3,16 @@ package websrv
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"strings"
 	"time"
 )
 
 var redisClient = redis.NewClient(&redis.Options{
-	Addr:     "127.0.0.1:6379",
-	Password: "",
+	Addr:     os.Getenv("BBB_GRAPHQL_MIDDLEWARE_REDIS_ADDRESS"),
+	Password: os.Getenv("BBB_GRAPHQL_MIDDLEWARE_REDIS_PASSWORD"),
 	DB:       0,
 })
 
@@ -34,7 +34,7 @@ func StartRedisListener() {
 		}
 
 		// Skip parsing unnecessary messages
-		if !strings.Contains(msg.Payload, "InvalidateUserGraphqlConnectionSysMsg") {
+		if !strings.Contains(msg.Payload, "ForceUserGraphqlReconnectionSysMsg") {
 			continue
 		}
 
@@ -49,14 +49,14 @@ func StartRedisListener() {
 
 		messageType := messageEnvelopeAsMap["name"]
 
-		if messageType == "InvalidateUserGraphqlConnectionSysMsg" {
+		if messageType == "ForceUserGraphqlReconnectionSysMsg" {
 			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
 			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
 			log.Debugf("Received invalidate request for sessionToken %v", sessionTokenToInvalidate)
 
 			//Not being used yet
-			InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
+			go InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
 		}
 	}
 }
@@ -88,34 +88,34 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 
 	messageJSON, err := json.Marshal(message)
 	if err != nil {
-		fmt.Printf("Error while marshaling message to json: %v\n", err)
+		log.Tracef("Error while marshaling message to json: %v\n", err)
 		return
 	}
 
 	err = GetRedisConn().Publish(context.Background(), channelName, messageJSON).Err()
 	if err != nil {
-		fmt.Printf("Error while sending msg to redis channel: %v\n", err)
+		log.Tracef("Error while sending msg to redis channel: %v\n", err)
 		return
 	}
 
-	fmt.Printf("JSON message sent to channel %s:\n%s\n", channelName, messageJSON)
+	log.Tracef("JSON message sent to channel %s:\n%s\n", channelName, messageJSON)
 }
 
-func SendUserGraphqlConnectionInvalidatedEvtMsg(sessionToken string) {
+func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 	var body = map[string]interface{}{
 		"sessionToken": sessionToken,
 	}
 
-	sendBbbCoreMsgToRedis("UserGraphqlConnectionInvalidatedEvtMsg", body)
+	sendBbbCoreMsgToRedis("UserGraphqlReconnectionForcedEvtMsg", body)
 }
 
-func SendUserGraphqlConnectionStablishedSysMsg(sessionToken string, browserConnectionId string) {
+func SendUserGraphqlConnectionEstablishedSysMsg(sessionToken string, browserConnectionId string) {
 	var body = map[string]interface{}{
 		"sessionToken":        sessionToken,
 		"browserConnectionId": browserConnectionId,
 	}
 
-	sendBbbCoreMsgToRedis("UserGraphqlConnectionStablishedSysMsg", body)
+	sendBbbCoreMsgToRedis("UserGraphqlConnectionEstablishedSysMsg", body)
 }
 
 func SendUserGraphqlConnectionClosedSysMsg(sessionToken string, browserConnectionId string) {

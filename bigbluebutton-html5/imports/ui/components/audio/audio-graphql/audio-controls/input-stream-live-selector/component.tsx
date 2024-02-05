@@ -106,7 +106,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
       .then((devices) => {
         const audioInputDevices = devices.filter((i) => i.kind === AUDIO_INPUT);
         const audioOutputDevices = devices.filter((i) => i.kind === AUDIO_OUTPUT);
-        setInputDevices(audioInputDevices);
+        setInputDevices(audioInputDevices as InputDeviceInfo[]);
         setOutputDevices(audioOutputDevices);
       });
     if (isAudioConnected) {

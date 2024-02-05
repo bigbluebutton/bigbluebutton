@@ -26,3 +26,4 @@ select_permissions:
                   _eq: true
               - pollOwnerId:
                   _eq: X-Hasura-UserId
+      allow_aggregations: true

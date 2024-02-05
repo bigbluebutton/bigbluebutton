@@ -122,7 +122,7 @@ object RegisteredUsers {
       u
     } else {
       users.delete(ejectedUser.id)
-//      UserDAO.delete(ejectedUser) it's being removed in User2x already
+//      UserDAO.softDelete(ejectedUser) it's being removed in User2x already
       ejectedUser
     }
   }
