@@ -149,6 +149,7 @@ select_permissions:
         - html5InstanceId
         - isBreakout
         - logoutUrl
+        - ended
         - maxPinnedCameras
         - meetingCameraCap
         - meetingId
@@ -159,13 +160,14 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
-  - role: pre_join_bbb_client
+  - role: not_joined_bbb_client
     permission:
       columns:
         - bannerColor
         - bannerText
         - customLogoUrl
         - logoutUrl
+        - ended
         - meetingId
         - name
       filter:

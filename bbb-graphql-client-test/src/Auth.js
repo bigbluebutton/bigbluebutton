@@ -89,6 +89,7 @@ export default function Auth() {
         }
         meeting {
             name
+            ended
         }
       }
     }`
@@ -107,7 +108,12 @@ export default function Auth() {
         {data.user_current.map((curr) => {
             console.log('user_current', curr);
 
-            if(curr.loggedOut) {
+            if(curr.meeting.ended) {
+                return <div>
+                    {curr.meeting.name}
+                    <br/><br/>
+                    Meeting has ended.</div>
+            } else if(curr.ejected) {
                 return <div>
                     {curr.meeting.name}
                     <br/><br/>
