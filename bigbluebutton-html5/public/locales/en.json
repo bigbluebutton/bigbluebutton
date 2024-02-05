@@ -300,6 +300,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Send out a download link for the presentation including whiteboard annotations",
     "app.presentationUploader.enableOriginalPresentationDownload": "Enable download of the presentation ({0})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Disable download of the original presentation ({0})",
+    "app.presentationUploader.withWhiteboardAnnotations": " (with whiteboard annotations)",
     "app.presentationUploader.dropdownExportOptions": "Export options",
     "app.presentationUploader.export.linkAvailable": "Link for downloading {0} available on the public chat.",
     "app.presentationUploader.export.downloadButtonAvailable": "Download button for presentation {0} is available.",

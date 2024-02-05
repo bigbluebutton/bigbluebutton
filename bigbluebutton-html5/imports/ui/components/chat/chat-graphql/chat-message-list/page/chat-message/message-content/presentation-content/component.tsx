@@ -35,6 +35,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploader.export.notAccessibleWarning',
     description: 'used for indicating that a link may be not accessible',
   },
+  withWhiteboardAnnotations: {
+    id: 'app.presentationUploader.withWhiteboardAnnotations',
+    description: 'used for indicating that presentation has annotations',
+  },
 });
 
 const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentProps> = ({
@@ -48,13 +52,16 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
 
   return (
     <Styled.ChatDowloadContainer data-test="downloadPresentationContainer">
-      <span>{presentationData.filename}</span>
+      <span>
+        {presentationData.filename}
+        {intl.formatMessage(intlMessages.withWhiteboardAnnotations)}
+      </span>
       <Styled.ChatLink
         href={downloadUrl}
         aria-label={intl.formatMessage(intlMessages.notAccessibleWarning)}
         type="application/pdf"
         rel="noopener, noreferrer"
-        download
+        download={presentationData.filename}
       >
         {intl.formatMessage(intlMessages.download)}
         <i className="icon-bbb-warning" />

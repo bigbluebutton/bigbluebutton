@@ -8,7 +8,7 @@ const path = require('path');
 const {NewPresFileAvailableMsg} = require('../lib/utils/message-builder');
 
 const {workerData} = require('worker_threads');
-const [jobType, jobId, fileNameToPath] = [workerData.jobType, workerData.jobId, workerData.fileNameToPath];
+const [jobType, jobId, serverSideFilename] = [workerData.jobType, workerData.jobId, workerData.serverSideFilename];
 
 const logger = new Logger('presAnn Notifier Worker');
 
@@ -30,7 +30,7 @@ async function notifyMeetingActor() {
 
   const link = path.join('presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
-      exportJob.presId, 'pdf', jobId, fileNameToPath);
+      exportJob.presId, 'pdf', jobId, serverSideFilename);
 
   const notification = new NewPresFileAvailableMsg(exportJob, link);
 
@@ -64,10 +64,10 @@ async function upload(filePath) {
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
   notifyMeetingActor();
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
-  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${fileNameToPath}`;
+  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${serverSideFilename}`;
   upload(filePath);
 } else if (jobType == 'PadCaptureJob') {
-  const filePath = `${dropbox}/${fileNameToPath}`;
+  const filePath = `${dropbox}/${serverSideFilename}`;
   upload(filePath);
 } else {
   logger.error(`Notifier received unknown job type ${jobType}`);
