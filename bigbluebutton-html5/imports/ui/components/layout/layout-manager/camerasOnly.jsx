@@ -297,6 +297,18 @@ const CamerasOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
+      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      value: {
+        display: false,
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: isRTL ? mediaBounds.right : null,
+      },
+    });
+
+    layoutContextDispatch({
       type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         display: false,
@@ -352,6 +364,9 @@ const CamerasOnlyLayout = (props) => {
           },
           externalVideo: {
             hasExternalVideo: false,
+          },
+          genericComponent: {
+            hasGenericComponent: false,
           },
           screenShare: {
             hasScreenShare: false,

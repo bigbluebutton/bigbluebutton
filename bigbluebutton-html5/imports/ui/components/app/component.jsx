@@ -29,6 +29,7 @@ import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
+import GenericComponentContainer from '../generic-component-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
@@ -631,6 +632,13 @@ class App extends Component {
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
           <ExternalVideoPlayerContainer />
+          <GenericComponentContainer
+            {...{
+              shouldShowScreenshare,
+              shouldShowSharedNotes,
+              shouldShowExternalVideo,
+            }}
+          />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
           {shouldShowSharedNotes

@@ -78,6 +78,7 @@ const AppContainer = (props) => {
   } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const genericComponent = layoutSelectInput((i) => i.genericComponent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
@@ -184,14 +185,18 @@ const AppContainer = (props) => {
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
+  const shouldShowGenericComponent = genericComponent.hasGenericComponent;
+
   const validateEnforceLayout = (currentUser) => {
     const layoutTypes = Object.values(LAYOUT_TYPE);
     const enforceLayout = currentUser?.enforceLayout;
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };
 
-  const shouldShowScreenshare = propsShouldShowScreenshare && (viewScreenshare || isPresenter);
-  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes && !shouldShowExternalVideo
+  const shouldShowScreenshare = propsShouldShowScreenshare 
+    && (viewScreenshare || isPresenter);
+  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes 
+    && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   return currentUserId
