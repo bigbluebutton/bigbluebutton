@@ -884,7 +884,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         onMount={handleTldrawMount}
       />
       <Styled.TldrawV2GlobalStyle
-        {...{ hasWBAccess, isPresenter, isRTL, isMultiUserActive }}
+        {...{ hasWBAccess, isPresenter, isRTL, isMultiUserActive, isToolbarVisible }}
       />
     </div>
   );
