@@ -812,6 +812,7 @@
     "app.toast.chat.system": "النظام",
     "app.toast.chat.poll": "نتائج الاستطلاع",
     "app.toast.chat.pollClick": "نتائج الاستطلاع تم نشرها. انقر هنا للرؤية.",
+    "app.toast.chat.exportedPresentation": "ملف العرض",
     "app.toast.clearedEmoji.label": "تم مسح تعيين الرمز التعبيري",
     "app.toast.setEmoji.label": "تم تعيين الرمز التعبيري إلى {0}",
     "app.toast.meetingMuteOn.label": "تم كتم صوت كل المستخدمين",
