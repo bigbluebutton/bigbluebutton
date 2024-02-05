@@ -39,6 +39,9 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     .tlui-menu-zone {
       visibility: hidden;
     }
+    #WhiteboardOptionButton {
+      opacity: 0.2;
+    }
   `}
 
   #presentationInnerWrapper > div:last-child {
