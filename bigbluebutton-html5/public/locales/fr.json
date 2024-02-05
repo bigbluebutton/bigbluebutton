@@ -612,7 +612,7 @@
     "app.settings.dataSavingTab.screenShare": "Autoriser le partage d'écran des autres participants",
     "app.settings.dataSavingTab.description": "Pour économiser votre bande passante, ajustez l'affichage actuel.",
     "app.settings.save-notification.label": "Les paramètres ont été enregistrés",
-    "app.statusNotifier.lowerHands": "Mains baissées",
+    "app.statusNotifier.lowerHands": "Baisser les mains",
     "app.statusNotifier.lowerHandDescOneUser": "Abaisser la main de {0}",
     "app.statusNotifier.raisedHandsTitle": "Mains levées",
     "app.statusNotifier.raisedHandDesc": "{0} ont levé la main",
