@@ -7,7 +7,7 @@ const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_
 
 test.describe.parallel('Presentation', () => {
   // https://docs.bigbluebutton.org/2.6/release-tests.html#navigation-automated
-  test('Skip slide @ci @flaky', async ({ browser, context, page }) => {
+  test('Skip slide @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.skipSlide();
