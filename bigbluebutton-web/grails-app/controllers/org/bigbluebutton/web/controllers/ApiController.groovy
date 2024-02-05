@@ -702,9 +702,12 @@ class ApiController {
     List<Meeting> meetings = new ArrayList<>()
     MeetingServiceOuterClass.StreamMeetingsReq request = MeetingServiceOuterClass.StreamMeetingsReq.newBuilder().build()
     try {
-      Iterator<MeetingServiceOuterClass.MeetingInfoResp> response = blockingStub.streamMeetings(request)
-      while (response.hasNext()) {
-        meetings.add(meetingInfoToMeeting(response.next().getMeetingInfo()))
+      Iterator<MeetingServiceOuterClass.MeetingInfoResp> responseItr = blockingStub.streamMeetings(request)
+      while (responseItr.hasNext()) {
+        MeetingServiceOuterClass.MeetingInfoResp response = responseItr.next()
+        MeetingInfo meetingInfo = response.getMeetingInfo()
+        if (meetingInfo.getMeetingIntId() == null || meetingInfo.getMeetingIntId().isBlank()) continue
+        meetings.add(meetingInfoToMeeting(meetingInfo))
       }
     } catch (StatusRuntimeException e) {
       log.error("RPC getMeetings request failed")
