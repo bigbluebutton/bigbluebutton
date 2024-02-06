@@ -71,6 +71,7 @@ And adjust it to the desired number of days. If you would instead like to comple
 
 ```bash
 remove_raw_of_published_recordings
+```
 
 #### Delete recordings older than N days
 
