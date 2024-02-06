@@ -841,9 +841,9 @@ class PresentationUploader extends Component {
     const isExporting = item?.exportToChatStatus === 'RUNNING';
 
     const shouldDisableExportButton = (isExporting
-      || item.uploadInProgress
+      || !item.uploadCompleted
       || hasError
-      || disableActions) && item.uploadInProgress;
+      || disableActions);
 
     const formattedDownloadLabel = isExporting
       ? intl.formatMessage(intlMessages.exporting)

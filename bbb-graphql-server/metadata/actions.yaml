@@ -389,7 +389,7 @@ actions:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
-      - role: pre_join_bbb_client
+      - role: not_joined_bbb_client
       - role: bbb_client
   - name: userLeaveMeeting
     definition:

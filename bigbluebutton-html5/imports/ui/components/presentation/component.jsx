@@ -840,6 +840,7 @@ class Presentation extends PureComponent {
                   height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
                   textAlign: 'center',
                   display: !presentationIsOpen ? 'none' : 'block',
+                  zIndex: 1,
                 }}
                 id="presentationInnerWrapper"
               >

@@ -44,6 +44,7 @@ const WhiteboardContainer = (props) => {
     intl,
     slidePosition,
     svgUri,
+    zoomChanger,
   } = props;
 
   const [annotations, setAnnotations] = useState([]);
@@ -270,6 +271,7 @@ const WhiteboardContainer = (props) => {
         presentationId,
         hasWBAccess,
         whiteboardWriters,
+        zoomChanger,
       }}
       {...props}
       meetingId={Auth.meetingID}

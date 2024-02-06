@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+    HUNDRED_PERCENT,
+    MAX_PERCENT,
+} from "/imports/utils/slideCalcUtils";
 
 const useCursor = (publishCursorUpdate, whiteboardId) => {
     const [cursorPosition, setCursorPosition] = useState({ x: -1, y: -1 });
@@ -18,7 +22,7 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
     return [cursorPosition, updateCursorPosition];
 };
 
-const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
+const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef }, {
     isPresenter,
     hasWBAccess,
     isMouseDownRef,
@@ -28,7 +32,9 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
     whiteboardId,
     cursorPosition,
     updateCursorPosition,
-    toggleToolsAnimations
+    toggleToolsAnimations,
+    currentPresentationPage,
+    zoomChanger,
 }) => {
 
     const timeoutIdRef = React.useRef();
@@ -80,41 +86,71 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
         }, 150);
     };
 
+
     const handleMouseWheel = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         if (!tlEditorRef.current || !isPresenter) {
-            event.preventDefault();
-            event.stopPropagation();
             return;
         }
 
-        const MAX_ZOOM = 4;
-        const MIN_ZOOM = .2;
-        const ZOOM_IN_FACTOR = 0.100; // Finer zoom control
-        const ZOOM_OUT_FACTOR = 0.100;
+        isWheelZoomRef.current = true;
+
+        const MAX_ZOOM_FACTOR = 4; // Represents 400%
+        const MIN_ZOOM_FACTOR = 1; // Represents 100%
+        const ZOOM_IN_FACTOR = 0.1;
+        const ZOOM_OUT_FACTOR = 0.1;
 
         const { x: cx, y: cy, z: cz } = tlEditorRef.current.camera;
 
-        let zoom = cz;
+        let currentZoomLevel = tlEditorRef.current.camera.z / initialZoomRef.current;
         if (event.deltaY < 0) {
-            // Zoom in
-            zoom = Math.min(cz + ZOOM_IN_FACTOR, MAX_ZOOM);
+            currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);
         } else {
-            // Zoom out
-            zoom = Math.max(cz - ZOOM_OUT_FACTOR, MIN_ZOOM);
+            currentZoomLevel = Math.max(currentZoomLevel - ZOOM_OUT_FACTOR, MIN_ZOOM_FACTOR);
         }
 
-        const { x, y } = { x: cursorPosition?.x, y: cursorPosition?.y };
+        // Convert zoom level to a percentage for backend
+        const zoomPercentage = currentZoomLevel * 100;
+        zoomChanger(zoomPercentage);
+
+        // Calculate the new camera zoom factor
+        const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
+
         const nextCamera = {
-            x: cx + (x / zoom - x) - (x / cz - x),
-            y: cy + (y / zoom - y) - (y / cz - y),
-            z: zoom,
+            x: cx + (cursorPosition.x / newCameraZoomFactor - cursorPosition.x) - (cursorPosition.x / cz - cursorPosition.x),
+            y: cy + (cursorPosition.y / newCameraZoomFactor - cursorPosition.y) - (cursorPosition.y / cz - cursorPosition.y),
+            z: newCameraZoomFactor,
         };
+
+        // Apply the bounds restriction logic after the camera has been updated
+        const { maxX, maxY, minX, minY } = tlEditorRef.current.viewportPageBounds;
+        const { scaledWidth, scaledHeight } = currentPresentationPage;
+
+        if (maxX > scaledWidth) {
+            nextCamera.x += maxX - scaledWidth;
+        }
+        if (maxY > scaledHeight) {
+            nextCamera.y += maxY - scaledHeight;
+        }
+        if (nextCamera.x > 0 || minX < 0) {
+            nextCamera.x = 0;
+        }
+        if (nextCamera.y > 0 || minY < 0) {
+            nextCamera.y = 0;
+        }
 
         tlEditorRef.current.setCamera(nextCamera, { duration: 300 });
 
-        event.preventDefault();
-        event.stopPropagation();
+        if (isWheelZoomRef.currentTimeout) {
+            clearTimeout(isWheelZoomRef.currentTimeout);
+        }
+
+        isWheelZoomRef.currentTimeout = setTimeout(() => {
+            isWheelZoomRef.current = false;
+        }, 300);
     };
+
 
     React.useEffect(() => {
         if (whiteboardToolbarAutoHide) {
@@ -156,6 +192,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef }, {
         };
     }, [whiteboardRef, tlEditorRef, handleMouseDown, handleMouseUp, handleMouseEnter, handleMouseLeave, handleMouseWheel]);
 };
+
+
 
 export {
     useMouseEvents,

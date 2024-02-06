@@ -46,9 +46,6 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
   if (!Array.isArray((metadata as Metadata).answers)) {
     throw new Error('metadata.answers is not an array');
   }
-  if ((metadata as Metadata).answers.length === 0) {
-    throw new Error('metadata.answers is empty');
-  }
 }
 
 const ChatPollContent: React.FC<ChatPollContentProps> = ({

@@ -135,7 +135,7 @@ object UserDAO {
   }
 
 
-  def delete(intId: String) = {
+  def softDelete(intId: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
         .filter(_.userId === intId)
@@ -147,7 +147,19 @@ object UserDAO {
     }
   }
 
-  def deleteAllFromMeeting(meetingId: String) = {
+  def softDeleteAllFromMeeting(meetingId: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[UserDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(u => (u.loggedOut))
+        .update((true))
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated loggedOut=true on user table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating loggedOut=true user: $e")
+    }
+  }
+
+  def permanentlyDeleteAllFromMeeting(meetingId: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
         .filter(_.meetingId === meetingId)

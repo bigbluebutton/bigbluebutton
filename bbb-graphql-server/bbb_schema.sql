@@ -25,9 +25,11 @@ create table "meeting" (
 	"bannerText" text,
 	"bannerColor" varchar(50),
 	"createdTime" bigint,
-	"durationInSeconds" integer
+	"durationInSeconds" integer,
+	"endedAt" timestamp with time zone
 );
 ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;
+ALTER TABLE "meeting" ADD COLUMN "ended" boolean GENERATED ALWAYS AS ("endedAt" is not null) STORED;
 
 create index "idx_meeting_extId" on "meeting"("extId");
 
