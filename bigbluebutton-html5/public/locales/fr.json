@@ -175,7 +175,7 @@
     "app.userList.userOptions.clearAllDesc": "Effacer toutes les icônes de statut des utilisateurs",
     "app.userList.userOptions.clearAllReactionsLabel": "Effacer toutes les réactions",
     "app.userList.userOptions.clearAllReactionsDesc": "Supprime tous les émoticônes de réaction des utilisateurs",
-    "app.userList.userOptions.muteAllExceptPresenterLabel": "Rendre silencieux tous les utilisateurs sauf le présentateur",
+    "app.userList.userOptions.muteAllExceptPresenterLabel": "Rendre silencieux tous les utilisateurs sauf les présentateurs",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Rend silencieux tous les utilisateurs de la réunion sauf le présentateur",
     "app.userList.userOptions.unmuteAllLabel": "Désactiver le mode silencieux de la réunion",
     "app.userList.userOptions.unmuteAllDesc": "Désactive le mode silencieux de la réunion",
