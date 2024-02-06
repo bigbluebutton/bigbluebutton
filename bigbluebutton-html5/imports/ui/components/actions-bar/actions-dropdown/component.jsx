@@ -191,6 +191,7 @@ class ActionsDropdown extends PureComponent {
       isCameraAsContentEnabled,
       isTimerFeatureEnabled,
       presentations,
+      isDirectLeaveButtonEnabled,
     } = this.props;
 
     const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
@@ -293,6 +294,7 @@ class ActionsDropdown extends PureComponent {
         key: 'layoutModal',
         onClick: () => this.setLayoutModalIsOpen(true),
         dataTest: 'manageLayoutBtn',
+        divider: !isDirectLeaveButtonEnabled,
       });
     }
 

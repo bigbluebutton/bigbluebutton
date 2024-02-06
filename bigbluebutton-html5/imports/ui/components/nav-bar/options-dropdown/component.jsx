@@ -81,7 +81,7 @@ const intlMessages = defineMessages({
     description: 'Describes help option',
   },
   endMeetingLabel: {
-    id: 'app.navBar.optionsDropdown.endMeetingLabel',
+    id: 'app.navBar.optionsDropdown.endMeetingForAllLabel',
     description: 'End meeting options label',
   },
   endMeetingDesc: {
@@ -372,7 +372,7 @@ class OptionsDropdown extends PureComponent {
       this.menuItems.push(
         {
           key: 'list-item-end-meeting',
-          icon: 'application',
+          icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
           customStyles,
