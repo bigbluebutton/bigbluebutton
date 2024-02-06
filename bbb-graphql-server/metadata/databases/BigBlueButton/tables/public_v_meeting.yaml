@@ -145,11 +145,15 @@ select_permissions:
         - customLogoUrl
         - disabledFeatures
         - durationInSeconds
+        - ended
+        - endedAt
+        - endedBy
+        - endedByUserName
+        - endedReasonCode
         - extId
         - html5InstanceId
         - isBreakout
         - logoutUrl
-        - ended
         - maxPinnedCameras
         - meetingCameraCap
         - meetingId
@@ -166,8 +170,12 @@ select_permissions:
         - bannerColor
         - bannerText
         - customLogoUrl
-        - logoutUrl
         - ended
+        - endedAt
+        - endedBy
+        - endedByUserName
+        - endedReasonCode
+        - logoutUrl
         - meetingId
         - name
       filter:

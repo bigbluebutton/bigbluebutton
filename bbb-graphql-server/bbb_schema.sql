@@ -26,14 +26,14 @@ create table "meeting" (
 	"bannerColor" varchar(50),
 	"createdTime" bigint,
 	"durationInSeconds" integer,
-	"endedAt" timestamp with time zone
+	"endedAt" timestamp with time zone,
+	"endedReasonCode" varchar(200),
+	"endedBy" varchar(50)
 );
 ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;
 ALTER TABLE "meeting" ADD COLUMN "ended" boolean GENERATED ALWAYS AS ("endedAt" is not null) STORED;
 
 create index "idx_meeting_extId" on "meeting"("extId");
-
-create view "v_meeting" as select * from "meeting";
 
 create table "meeting_breakout" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -788,6 +788,14 @@ SELECT u."meetingId", ur."userId", (array_agg(ur."reactionEmoji" ORDER BY ur."ex
 FROM "user" u
 JOIN "user_reaction" ur ON u."userId" = ur."userId" AND "expiresAt" > current_timestamp
 GROUP BY u."meetingId", ur."userId";
+
+
+
+create view "v_meeting" as
+select "meeting".*,  "user_ended"."name" as "endedByUserName"
+from "meeting"
+left join "user" "user_ended" on "user_ended"."userId" = "meeting"."endedBy"
+;
 
 
 -- ===================== CHAT TABLES
