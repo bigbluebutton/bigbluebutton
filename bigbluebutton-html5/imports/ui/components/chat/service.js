@@ -53,8 +53,8 @@ const intlMessages = defineMessages({
     description: 'Label to identify original presentation exported',
   },
   withWhiteboardAnnotations: {
-    id: 'app.presentationUploader.export.withWhiteboardAnnotations',
-    description: 'Label to identify in current state presentation exported',
+    id: 'app.presentationUploader.withWhiteboardAnnotations',
+    description: 'Used for indicating that presentation has annotations',
   },
 });
 
