@@ -8,7 +8,6 @@ import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
 
-const APP = Meteor.settings.public.app;
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
 
@@ -39,22 +38,6 @@ const intlMessages = defineMessages({
   pollResult: {
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
-  },
-  download: {
-    id: 'app.presentation.downloadLabel',
-    description: 'used as label for presentation download link',
-  },
-  notAccessibleWarning: {
-    id: 'app.presentationUploader.export.notAccessibleWarning',
-    description: 'used for indicating that a link may be not accessible',
-  },
-  original: {
-    id: 'app.presentationUploader.export.originalLabel',
-    description: 'Label to identify original presentation exported',
-  },
-  withWhiteboardAnnotations: {
-    id: 'app.presentationUploader.withWhiteboardAnnotations',
-    description: 'Used for indicating that presentation has annotations',
   },
 });
 
@@ -290,18 +273,6 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   });
 };
 
-const getExportedPresentationString = (fileURI, filename, intl, fileStateType) => {
-  const sanitizedFilename = stripTags(filename);
-  const intlFileStateType = fileStateType === 'Original' ? intlMessages.original : intlMessages.withWhiteboardAnnotations;
-  const href = `${APP.bbbWebBase}/${fileURI}`;
-  const warningIcon = '<i class="icon-bbb-warning"></i>';
-  const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
-  const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
-  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${href} type="application/pdf" target="_blank" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
-  const name = `<span>${sanitizedFilename} (${intl.formatMessage(intlFileStateType)})</span>`;
-  return `${name}</br>${link}`;
-};
-
 export default {
   setUserSentMessage,
   mapGroupMessage,
@@ -322,5 +293,4 @@ export default {
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
   removePackagedClassAttribute,
-  getExportedPresentationString,
 };
