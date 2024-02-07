@@ -165,7 +165,9 @@ class RaiseHandNotifier extends Component {
           <Styled.IconWrapper>
             <Icon iconName="hand" />
           </Styled.IconWrapper>
-          {this.raisedHandAvatars()}
+          <Styled.AvatarWrapper>
+            {this.raisedHandAvatars()}
+          </Styled.AvatarWrapper>
         </Styled.ToastContent>
         <Styled.ToastMessage>
           <div>{intl.formatMessage(messages.raisedHandsTitle)}</div>

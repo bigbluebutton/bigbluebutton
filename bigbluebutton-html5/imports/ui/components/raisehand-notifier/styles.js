@@ -124,6 +124,10 @@ const ClearButton = styled(Button)`
   }
 `;
 
+const AvatarWrapper = styled.div`
+  display: flex;
+`;
+
 const ToastSeparator = styled(ToastStyled.Separator)``;
 
 export default {
@@ -134,4 +138,5 @@ export default {
   ToastMessage,
   ClearButton,
   ToastSeparator,
+  AvatarWrapper,
 };
