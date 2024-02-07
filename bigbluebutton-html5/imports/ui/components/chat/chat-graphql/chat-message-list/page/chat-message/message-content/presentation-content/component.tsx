@@ -36,7 +36,7 @@ const intlMessages = defineMessages({
     description: 'used for indicating that a link may be not accessible',
   },
   withWhiteboardAnnotations: {
-    id: 'app.presentationUploader.withWhiteboardAnnotations',
+    id: 'app.presentationUploader.export.withWhiteboardAnnotations',
     description: 'used for indicating that presentation has annotations',
   },
 });
