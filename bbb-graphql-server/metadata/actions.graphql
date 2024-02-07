@@ -281,6 +281,13 @@ type Mutation {
 }
 
 type Mutation {
+  presentationExport(
+    presentationId: String!
+    fileStateType: String!
+  ): Boolean
+}
+
+type Mutation {
   presentationRemove(
     presentationId: String!
   ): Boolean

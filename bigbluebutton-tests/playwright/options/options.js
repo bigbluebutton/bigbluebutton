@@ -65,12 +65,12 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     const modPageLocator = this.modPage.getLocator('body');
+    await this.modPage.page.setViewportSize({ width: 1924, height: 1080 });
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
 
     await this.modPage.closeAllToastNotifications();
-
     await expect(modPageLocator).toHaveScreenshot('moderator-page-dark-mode.png', screenshotOptions);
     
     await openSettings(this.modPage);
@@ -85,6 +85,8 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     const modPageLocator = this.modPage.getLocator('body');
+
+    await this.modPage.page.setViewportSize({ width: 1924, height: 1080 });
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };

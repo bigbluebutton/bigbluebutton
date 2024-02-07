@@ -2,13 +2,17 @@ import React, { useEffect } from 'react';
 import { useMutation, useSubscription } from '@apollo/client';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/hooks';
+import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/utils';
 import {
+  DataChannelArguments,
   DispatcherFunction, ObjectTo, ToRole, ToUserId,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { DataChannelHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
+import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { HookEventWrapper, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 
-import { PLUGIN_DATA_CHANNEL_DISPATCH_QUERY, PLUGIN_DATA_CHANNEL_FETCH_QUERY } from '../queries';
+import PLUGIN_DATA_CHANNEL_FETCH_QUERY from '../queries';
+import { PLUGIN_DATA_CHANNEL_DELETE_MUTATION, PLUGIN_DATA_CHANNEL_DISPATCH_MUTATION, PLUGIN_DATA_CHANNEL_RESET_MUTATION } from '../mutation';
 
 export interface DataChannelItemManagerProps {
   pluginName: string;
@@ -35,7 +39,9 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
   const pluginIdentifier = createChannelIdentifier(channelName, pluginName);
 
   const dataChannelIdentifier = createChannelIdentifier(channelName, pluginName);
-  const [dispatchPluginDataChannelMessage] = useMutation(PLUGIN_DATA_CHANNEL_DISPATCH_QUERY);
+  const [dispatchPluginDataChannelMessage] = useMutation(PLUGIN_DATA_CHANNEL_DISPATCH_MUTATION);
+  const [deletePluginDataChannelMessage] = useMutation(PLUGIN_DATA_CHANNEL_DELETE_MUTATION);
+  const [resetPluginDataChannelMessage] = useMutation(PLUGIN_DATA_CHANNEL_RESET_MUTATION);
 
   const data = useSubscription(PLUGIN_DATA_CHANNEL_FETCH_QUERY, {
     variables: {
@@ -81,12 +87,44 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
   pluginApi.mapOfDispatchers[pluginIdentifier] = useDataChannelHandlerFunction;
   window.dispatchEvent(new Event(`${pluginIdentifier}::dispatcherFunction`));
 
+  const deleteOrResetHandler: EventListener = (
+    (event: HookEventWrapper<void>) => {
+      if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_DELETE) {
+        const eventDetails = event.detail as UpdatedEventDetails<string>;
+        const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
+        deletePluginDataChannelMessage({
+          variables: {
+            pluginName: hookArguments?.pluginName,
+            dataChannel: hookArguments?.channelName,
+            messageId: eventDetails.data,
+          },
+        });
+      } else if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_RESET) {
+        const eventDetails = event.detail as UpdatedEventDetails<void>;
+        const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
+        resetPluginDataChannelMessage({
+          variables: {
+            pluginName: hookArguments?.pluginName,
+            dataChannel: hookArguments?.channelName,
+          },
+        });
+      }
+    }) as EventListener;
+
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent(dataChannelIdentifier, {
-        detail: { hook: DataChannelHooks.DATA_CHANNEL, data },
+        detail: { hook: DataChannelHooks.DATA_CHANNEL_BUILDER, data },
       }),
     );
   }, [data]);
+
+  useEffect(() => {
+    window.addEventListener(HookEvents.UPDATED, deleteOrResetHandler);
+    return () => {
+      window.removeEventListener(HookEvents.UPDATED, deleteOrResetHandler);
+    };
+  }, []);
+
   return null;
 };

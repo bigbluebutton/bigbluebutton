@@ -145,6 +145,11 @@ select_permissions:
         - customLogoUrl
         - disabledFeatures
         - durationInSeconds
+        - ended
+        - endedAt
+        - endedBy
+        - endedByUserName
+        - endedReasonCode
         - extId
         - html5InstanceId
         - isBreakout
@@ -159,12 +164,17 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
-  - role: pre_join_bbb_client
+  - role: not_joined_bbb_client
     permission:
       columns:
         - bannerColor
         - bannerText
         - customLogoUrl
+        - ended
+        - endedAt
+        - endedBy
+        - endedByUserName
+        - endedReasonCode
         - logoutUrl
         - meetingId
         - name

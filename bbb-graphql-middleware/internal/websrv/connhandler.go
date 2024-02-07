@@ -136,16 +136,21 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 	for _, browserConnection := range BrowserConnections {
 		if browserConnection.SessionToken == sessionTokenToInvalidate {
 			if browserConnection.HasuraConnection != nil {
+				//Close chan to force stop receiving new messages from the browser
+				browserConnection.HasuraConnection.MsgReceivingActiveChan.Close()
 
 				// Wait until there are no active mutations
-				for iterationCount := 0; iterationCount < 100; iterationCount++ {
+				for iterationCount := 0; iterationCount < 20; iterationCount++ {
 					activeMutationFound := false
+					browserConnection.ActiveSubscriptionsMutex.RLock()
 					for _, subscription := range browserConnection.ActiveSubscriptions {
 						if subscription.Type == common.Mutation {
 							activeMutationFound = true
 							break
 						}
 					}
+					browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
 					if !activeMutationFound {
 						break
 					}

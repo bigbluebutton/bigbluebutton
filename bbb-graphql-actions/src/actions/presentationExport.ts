@@ -3,7 +3,7 @@ import {throwErrorIfNotPresenter} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotPresenter(sessionVariables);
-  const eventName = `SetPresentationDownloadablePubMsg`;
+  const eventName = `MakePresentationDownloadReqMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -17,10 +17,10 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    podId: 'DEFAULT_PRESENTATION_POD',
-    presentationId: input.presentationId,
-    downloadable: input.downloadable,
+    presId: input.presentationId,
+    allPages: true,
     fileStateType: input.fileStateType,
+    pages: [],
   };
 
   return { eventName, routing, header, body };

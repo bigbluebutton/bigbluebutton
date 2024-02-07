@@ -10,7 +10,7 @@ import (
 	"nhooyr.io/websocket/wsjson"
 )
 
-func BrowserConnectionWriter(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromHasuratoBrowserChannel *common.SafeChannel, wg *sync.WaitGroup) {
+func BrowserConnectionWriter(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromHasuraToBrowserChannel *common.SafeChannel, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "BrowserConnectionWriter").WithField("browserConnectionId", browserConnectionId)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
@@ -21,7 +21,7 @@ RangeLoop:
 		select {
 		case <-ctx.Done():
 			break RangeLoop
-		case toBrowserMessage := <-fromHasuratoBrowserChannel.ReceiveChannel():
+		case toBrowserMessage := <-fromHasuraToBrowserChannel.ReceiveChannel():
 			{
 				var toBrowserMessageAsMap = toBrowserMessage.(map[string]interface{})
 

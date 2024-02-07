@@ -25,13 +25,15 @@ create table "meeting" (
 	"bannerText" text,
 	"bannerColor" varchar(50),
 	"createdTime" bigint,
-	"durationInSeconds" integer
+	"durationInSeconds" integer,
+	"endedAt" timestamp with time zone,
+	"endedReasonCode" varchar(200),
+	"endedBy" varchar(50)
 );
 ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;
+ALTER TABLE "meeting" ADD COLUMN "ended" boolean GENERATED ALWAYS AS ("endedAt" is not null) STORED;
 
 create index "idx_meeting_extId" on "meeting"("extId");
-
-create view "v_meeting" as select * from "meeting";
 
 create table "meeting_breakout" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -428,6 +430,13 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
    FROM "user";
 
+--This view will be used by Meteor to validate if the provided authToken is valid
+--It is temporary while Meteor is not removed
+create view "v_user_connection_auth" as
+select "meetingId", "userId", "authToken"
+from "v_user_current"
+where "isOnline" is true;
+
 CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
@@ -779,6 +788,14 @@ SELECT u."meetingId", ur."userId", (array_agg(ur."reactionEmoji" ORDER BY ur."ex
 FROM "user" u
 JOIN "user_reaction" ur ON u."userId" = ur."userId" AND "expiresAt" > current_timestamp
 GROUP BY u."meetingId", ur."userId";
+
+
+
+create view "v_meeting" as
+select "meeting".*,  "user_ended"."name" as "endedByUserName"
+from "meeting"
+left join "user" "user_ended" on "user_ended"."userId" = "meeting"."endedBy"
+;
 
 
 -- ===================== CHAT TABLES

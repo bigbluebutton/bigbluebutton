@@ -23,6 +23,7 @@ import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.domain.User
+import org.bigbluebutton.api.domain.UserSessionBasicData
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.ParamsProcessorUtil
 import java.nio.charset.StandardCharsets
@@ -36,7 +37,7 @@ class ConnectionController {
     try {
       def uri = request.getHeader("x-original-uri")
       def sessionToken = ParamsUtil.getSessionToken(uri)
-      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
@@ -67,7 +68,7 @@ class ConnectionController {
 
       String sessionToken = request.getHeader("x-session-token")
 
-      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
@@ -75,8 +76,10 @@ class ConnectionController {
 
       if (userSession != null && !isSessionTokenInvalid) {
         Meeting m = meetingService.getMeeting(userSession.meetingID)
-        User u = m.getUserById(userSession.internalUserId)
-
+        User u
+        if(m) {
+          u = m.getUserById(userSession.internalUserId)
+        }
 
         Boolean cursorLocked = false
         Boolean annotationsLocked = false
@@ -95,7 +98,7 @@ class ConnectionController {
             def builder = new JsonBuilder()
             builder {
               "response" "authorized"
-              "X-Hasura-Role" u && !u.hasLeft() ? "bbb_client" : "pre_join_bbb_client"
+              "X-Hasura-Role" m && u && !u.hasLeft() ? "bbb_client" : "not_joined_bbb_client"
               "X-Hasura-ModeratorInMeeting" u && u.isModerator() ? userSession.meetingID : ""
               "X-Hasura-PresenterInMeeting" u && u.isPresenter() ? userSession.meetingID : ""
               "X-Hasura-UserId" userSession.internalUserId
@@ -112,10 +115,29 @@ class ConnectionController {
           }
         }
       } else {
-        throw new Exception("Invalid User Session")
+        UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
+        if(removedUserSession) {
+          response.setStatus(200)
+          withFormat {
+            json {
+              def builder = new JsonBuilder()
+              builder {
+                "response" "authorized"
+                "X-Hasura-Role" "not_joined_bbb_client"
+                "X-Hasura-ModeratorInMeeting" ""
+                "X-Hasura-PresenterInMeeting" ""
+                "X-Hasura-UserId" removedUserSession.userId
+                "X-Hasura-MeetingId" removedUserSession.meetingId
+              }
+              render(contentType: "application/json", text: builder.toPrettyString())
+            }
+          }
+        } else {
+          throw new Exception("Invalid User Session")
+        }
       }
     } catch (Exception e) {
-      log.error("Error while authenticating graphql connection.\n" + e.getMessage())
+      log.debug("Error while authenticating graphql connection: " + e.getMessage())
       response.setStatus(401)
       withFormat {
         json {
@@ -133,7 +155,7 @@ class ConnectionController {
     try {
       def uri = request.getHeader("x-original-uri")
       def sessionToken = ParamsUtil.getSessionToken(uri)
-      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
 
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
