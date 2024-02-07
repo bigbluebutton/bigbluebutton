@@ -11,6 +11,10 @@ interface ChatUserNameProps {
   isOnline: boolean;
 }
 
+interface ChatTimeProps {
+  isPresentationUpload?: boolean;
+}
+
 export const HeaderContent = styled.div`
   display: flex;
   flex-flow: row;
@@ -60,7 +64,7 @@ export const ChatUserOffline = styled.span`
   margin: 0 0 0 calc(${lineHeightComputed} / 2);
 `;
 
-export const ChatTime = styled.time`
+export const ChatTime = styled.time<ChatTimeProps>`
   flex-shrink: 0;
   flex-grow: 0;
   flex-basis: 3.5rem;
@@ -71,6 +75,15 @@ export const ChatTime = styled.time`
   [dir='rtl'] & {
     margin: 0 calc(${lineHeightComputed} / 2) 0 0;
   }
+
+  interface ChatUserNameProps {
+    isOnline: boolean;
+    isPresentationUpload?: boolean;
+  }
+
+  ${({ isPresentationUpload }) => isPresentationUpload && `
+    margin: 0 0 0 0;
+  `} 
 
   & > span {
     vertical-align: sub;

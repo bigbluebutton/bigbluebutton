@@ -14,6 +14,7 @@ interface ChatMessageHeaderProps {
   isOnline: boolean;
   dateTime: Date;
   sameSender: boolean;
+  isPresentationUpload: boolean;
 }
 
 const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
@@ -21,6 +22,7 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
   name,
   isOnline,
   dateTime,
+  isPresentationUpload,
 }) => {
   const intl = useIntl();
   if (sameSender) return null;
@@ -38,7 +40,9 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
             </Styled.ChatUserOffline>
           )
         }
-        <Styled.ChatTime>
+        <Styled.ChatTime
+          isPresentationUpload={isPresentationUpload}
+        >
           <FormattedTime value={dateTime} />
         </Styled.ChatTime>
       </Styled.ChatHeaderText>

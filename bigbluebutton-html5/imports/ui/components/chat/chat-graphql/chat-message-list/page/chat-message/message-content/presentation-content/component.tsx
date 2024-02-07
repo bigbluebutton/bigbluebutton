@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-one-expression-per-line */
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -53,8 +54,8 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   return (
     <Styled.ChatDowloadContainer data-test="downloadPresentationContainer">
       <span>
-        {presentationData.filename}
-        {intl.formatMessage(intlMessages.withWhiteboardAnnotations)}
+        {presentationData.filename}&nbsp;
+        ({intl.formatMessage(intlMessages.withWhiteboardAnnotations)})
       </span>
       <Styled.ChatLink
         href={downloadUrl}
@@ -64,7 +65,7 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
         download={presentationData.filename}
       >
         {intl.formatMessage(intlMessages.download)}
-        <i className="icon-bbb-warning" />
+        <i className="icon-bbb-warning" title={intl.formatMessage(intlMessages.notAccessibleWarning)} />
       </Styled.ChatLink>
     </Styled.ChatDowloadContainer>
   );
