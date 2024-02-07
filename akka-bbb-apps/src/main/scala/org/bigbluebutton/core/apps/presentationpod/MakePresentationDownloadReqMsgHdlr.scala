@@ -252,7 +252,6 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       liveMeeting.props.meetingProp.intId, m.body.presId
     )
 
-    //TODO let frontend choose the name in favor of internationalization
     if (m.body.fileStateType == "Annotated") {
       val presentationDownloadInfo = Map(
         "fileURI" -> m.body.annotatedFileURI,
