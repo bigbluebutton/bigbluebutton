@@ -162,6 +162,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const isWheelZoomRef = useRef(false);
   const whiteboardIdRef = React.useRef(whiteboardId);
   const curPageIdRef = React.useRef(curPageId);
+  const hasWBAccessRef = React.useRef(hasWBAccess);
 
   const THRESHOLD = 0.1;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
@@ -171,11 +172,17 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     curPageIdRef.current = curPageId;
   }, [curPageId]);
 
-  
   React.useEffect(() => {
     whiteboardIdRef.current = whiteboardId;
   }, [whiteboardId]);
-  
+
+  React.useEffect(() => {
+    hasWBAccessRef.current = hasWBAccess;
+
+    if (!hasWBAccess && !isPresenter) {
+      tlEditorRef?.current?.setCurrentTool('select');
+    }
+  }, [hasWBAccess]);
 
   const language = React.useMemo(() => {
     return mapLanguage(Settings?.application?.locale?.toLowerCase() || "en");
@@ -297,7 +304,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     { whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef },
     {
       isPresenter,
-      hasWBAccess,
+      hasWBAccess: hasWBAccessRef.current,
       isMouseDownRef,
       whiteboardToolbarAutoHide,
       animations,
@@ -659,7 +666,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           "fade-in",
           "fade-out",
           "0s",
-          hasWBAccess || isPresenter
+          hasWBAccessRef.current || isPresenter
         );
       slideChanged.current = false;
       slideNext.current = null;
@@ -935,16 +942,16 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     <div
       ref={whiteboardRef}
       id={"whiteboard-element"}
-      key={`animations=-${animations}-${hasWBAccess}-${isPresenter}-${isModerator}-${whiteboardToolbarAutoHide}-${language}`}
+      key={`animations=-${animations}-${isPresenter}-${isModerator}-${whiteboardToolbarAutoHide}-${language}`}
     >
       <Tldraw
         key={`tldrawv2-${presentationId}-${animations}`}
         forceMobile={true}
-        hideUi={hasWBAccess || isPresenter ? false : true}
+        hideUi={hasWBAccessRef.current || isPresenter ? false : true}
         onMount={handleTldrawMount}
       />
       <Styled.TldrawV2GlobalStyle
-        {...{ hasWBAccess, isPresenter, isRTL, isMultiUserActive, isToolbarVisible }}
+        {...{ hasWBAccess: hasWBAccessRef.current, isPresenter, isRTL, isMultiUserActive, isToolbarVisible }}
       />
     </div>
   );
