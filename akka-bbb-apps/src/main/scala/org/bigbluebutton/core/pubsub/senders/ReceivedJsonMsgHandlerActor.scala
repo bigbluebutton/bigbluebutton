@@ -410,6 +410,8 @@ class ReceivedJsonMsgHandlerActor(
       // AudioCaptions
       case UpdateTranscriptPubMsg.NAME =>
         routeGenericMsg[UpdateTranscriptPubMsg](envelope, jsonNode)
+      case TranscriptionProviderErrorMsg.NAME =>
+        routeGenericMsg[TranscriptionProviderErrorMsg](envelope, jsonNode)
 
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>
