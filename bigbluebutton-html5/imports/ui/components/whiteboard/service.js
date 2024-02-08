@@ -206,47 +206,69 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
         const xPosition = slideWidth - annotationWidth;
         const yPosition = slideHeight - annotationHeight;
 
-        annotationInfo.x = xPosition;
-        annotationInfo.y = yPosition;
-        annotationInfo.props = {
-          w: annotationWidth,
-          h: annotationHeight,
-          text: pollResult,
+        annotationInfo = {
+          x: xPosition,
+          y: yPosition,
+          isLocked: false,
+          rotation: 0,
+          typeName: 'shape',
+          opacity: 1,
+          parentId: `page:${curPageId}`,
+          index: 'a1',
+          id: `${annotationInfo.id}`,
+          meta: {},
+          type: 'geo',
+          props: {
+            url: '',
+            text: `${pollResult}`,
+            color: 'black',
+            font: 'mono',
+            fill: 'semi',
+            dash: 'draw',
+            w: annotationWidth,
+            h: annotationHeight,
+            size: 'm',
+            growY: 0,
+            align: 'middle',
+            geo: 'rectangle',
+            verticalAlign: 'middle',
+            labelColor: 'black',
+          },
+        };
+      } else {
+        annotationInfo = {
+          x: annotationInfo.x,
+          isLocked: annotationInfo.isLocked,
+          y: annotationInfo.y,
+          rotation: annotationInfo.rotation,
+          typeName: annotationInfo.typeName,
+          opacity: annotationInfo.opacity,
+          parentId: annotationInfo.parentId,
+          index: annotationInfo.index,
+          id: annotationInfo.id,
+          meta: annotationInfo.meta,
+          type: 'geo',
+          props: {
+            url: '',
+            text: annotationInfo.props.text,
+            color: annotationInfo.props.color,
+            font: annotationInfo.props.font,
+            fill: annotationInfo.props.fill,
+            dash: annotationInfo.props.dash,
+            h: annotationInfo.props.h,
+            w: annotationInfo.props.w,
+            size: annotationInfo.props.size,
+            growY: 0,
+            align: 'middle',
+            geo: annotationInfo.props.geo,
+            verticalAlign: 'middle',
+            labelColor: annotationInfo.props.labelColor,
+          },
         };
       }
 
       const cpg = parseInt(annotationInfo?.id?.split?.('/')?.[1], 10);
       if (cpg !== parseInt(curPageId, 10)) return;
-
-      annotationInfo = {
-        x: annotationInfo.x,
-        isLocked: false,
-        y: annotationInfo.y,
-        rotation: 0,
-        typeName: 'shape',
-        opacity: 1,
-        parentId: `page:${curPageId}`,
-        index: 'a1',
-        id: annotationInfo.id,
-        meta: {},
-        type: 'geo',
-        props: {
-          url: '',
-          text: `${annotationInfo.props.text}`,
-          color: 'black',
-          font: 'mono',
-          fill: 'semi',
-          dash: 'draw',
-          h: annotationInfo.props.h,
-          w: annotationInfo.props.w,
-          size: 'm',
-          growY: 0,
-          align: 'middle',
-          geo: 'rectangle',
-          verticalAlign: 'middle',
-          labelColor: 'black',
-        },
-      };
 
       annotationInfo.questionType = false;
     }
