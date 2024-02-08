@@ -38,12 +38,6 @@ const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 32;
 const MOUNTED_RESIZE_DELAY = 1500;
 
-const colorStyles = ['black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'];
-const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
-const fillStyles = ['none', 'pattern', 'semi', 'solid'];
-const fontStyles = ['draw','mono','sans', 'serif'];
-const sizeStyles = ['l', 'm', 's', 'xl'];
-
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
   const keysToRemove = Object.keys(localStorage).filter((key) =>
@@ -323,33 +317,53 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     tlEditorRef.current = tlEditor;
   }, [tlEditor]);
 
-
   React.useEffect(() => {
-    const debouncedUndo = debounce({ delay: 150 }, () => {
+    let undoRedoIntervalId = null;
+
+    const undo = () => {
       tlEditorRef?.current?.history?.undo();
-    });
-    const debouncedRedo = debounce({ delay: 150 }, () => {
+    };
+
+    const redo = () => {
       tlEditorRef?.current?.history?.redo();
-    });
+    };
 
     const handleKeyDown = (event) => {
-      if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
+      if ((event.ctrlKey && event.key === 'z' && !event.shiftKey) || (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
         event.preventDefault();
         event.stopPropagation();
-        debouncedUndo();
-      } else if (event.ctrlKey && event.shiftKey && event.key === 'Z') {
-        event.preventDefault();
-        event.stopPropagation();
-        debouncedRedo();
+
+        if (!undoRedoIntervalId) {
+          undoRedoIntervalId = setInterval(() => {
+            if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
+              undo();
+            } else if (event.ctrlKey && event.shiftKey && event.key === 'Z') {
+              redo();
+            }
+          }, 150);
+        }
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown, { capture: true });
+    const handleKeyUp = (event) => {
+      if ((event.key === 'z' || event.key === 'Z') && undoRedoIntervalId) {
+        clearInterval(undoRedoIntervalId);
+        undoRedoIntervalId = null;
+      }
+    };
+
+    whiteboardRef.current?.addEventListener('keydown', handleKeyDown, { capture: true });
+    whiteboardRef.current?.addEventListener('keyup', handleKeyUp, { capture: true });
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      whiteboardRef.current?.removeEventListener('keydown', handleKeyDown);
+      whiteboardRef.current?.removeEventListener('keyup', handleKeyUp);
+      if (undoRedoIntervalId) {
+        clearInterval(undoRedoIntervalId);
+      }
     };
-  }, []);
+  }, [whiteboardRef.current]);
+  
 
   React.useEffect(() => {
     zoomValueRef.current = zoomValue;
@@ -747,6 +761,12 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     console.log("EDITOR : ", editor);
 
     const debouncePersistShape = debounce({ delay: 0 }, persistShapeWrapper);
+
+    const colorStyles = ['black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'];
+    const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
+    const fillStyles = ['none', 'pattern', 'semi', 'solid'];
+    const fontStyles = ['draw','mono','sans', 'serif'];
+    const sizeStyles = ['l', 'm', 's', 'xl'];
 
     if ( colorStyles.includes(colorStyle) ) {
       editor.setStyleForNextShapes(DefaultColorStyle, colorStyle);
