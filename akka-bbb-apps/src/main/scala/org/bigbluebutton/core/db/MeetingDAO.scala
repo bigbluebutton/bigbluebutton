@@ -26,6 +26,8 @@ case class MeetingDbModel(
     createdTime:                           Long,
     durationInSeconds:                     Int,
     endedAt:                               Option[java.sql.Timestamp],
+    endedReasonCode:                       Option[String],
+    endedBy:                               Option[String],
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -47,7 +49,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     bannerColor,
     createdTime,
     durationInSeconds,
-    endedAt
+    endedAt,
+    endedReasonCode,
+    endedBy
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -67,6 +71,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val createdTime = column[Long]("createdTime")
   val durationInSeconds = column[Int]("durationInSeconds")
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
+  val endedReasonCode = column[Option[String]]("endedReasonCode")
+  val endedBy = column[Option[String]]("endedBy")
 }
 
 object MeetingDAO {
@@ -100,7 +106,9 @@ object MeetingDAO {
           },
           createdTime = meetingProps.durationProps.createdTime,
           durationInSeconds = meetingProps.durationProps.duration * 60,
-          endedAt = None
+          endedAt = None,
+          endedReasonCode = None,
+          endedBy = None
         )
       )
     ).onComplete {
@@ -151,15 +159,24 @@ object MeetingDAO {
     }
   }
 
-  def setMeetingEnded(meetingId: String) = {
+  def setMeetingEnded(meetingId: String, endedReasonCode: String, endedBy: String) = {
 
     UserDAO.softDeleteAllFromMeeting(meetingId)
 
     DatabaseConnection.db.run(
       TableQuery[MeetingDbTableDef]
         .filter(_.meetingId === meetingId)
-        .map(a => (a.endedAt))
-        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
+        .map(a => (a.endedAt, a.endedReasonCode, a.endedBy))
+        .update(
+              (
+              Some(new java.sql.Timestamp(System.currentTimeMillis())),
+              Some(endedReasonCode),
+                endedBy match {
+                  case "" => None
+                  case c => Some(c)
+                }
+              )
+        )
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated endedAt=now() on Meeting table!")
       case Failure(e) => DatabaseConnection.logger.debug(s"Error updating endedAt=now() Meeting: $e")

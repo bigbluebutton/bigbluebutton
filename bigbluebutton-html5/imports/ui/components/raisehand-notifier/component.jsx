@@ -161,14 +161,14 @@ class RaiseHandNotifier extends Component {
     const formattedRaisedHands = this.getRaisedHandNames();
     return (
       <div>
-        <Styled.ToastIcon>
+        <Styled.ToastContent>
           <Styled.IconWrapper>
             <Icon iconName="hand" />
           </Styled.IconWrapper>
-        </Styled.ToastIcon>
-        <Styled.AvatarsWrapper data-test="avatarsWrapper">
-          {this.raisedHandAvatars()}
-        </Styled.AvatarsWrapper>
+          <Styled.AvatarWrapper>
+            {this.raisedHandAvatars()}
+          </Styled.AvatarWrapper>
+        </Styled.ToastContent>
         <Styled.ToastMessage>
           <div>{intl.formatMessage(messages.raisedHandsTitle)}</div>
           {formattedRaisedHands}
