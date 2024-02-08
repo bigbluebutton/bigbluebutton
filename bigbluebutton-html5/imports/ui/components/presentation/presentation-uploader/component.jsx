@@ -595,6 +595,7 @@ class PresentationUploader extends Component {
 
     commands[newCurrentIndex] = {
       $apply: (presentation) => {
+        if (!presentation) return;
         const p = presentation;
         p.isCurrent = true;
         return p;
