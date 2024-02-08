@@ -64,7 +64,7 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 		Browserconn:            browserConnection,
 		Context:                hasuraConnectionContext,
 		ContextCancelFunc:      hasuraConnectionContextCancel,
-		MsgReceivingActiveChan: make(chan struct{}),
+		MsgReceivingActiveChan: common.NewSafeChannel(1),
 	}
 
 	browserConnection.HasuraConnection = &thisConnection

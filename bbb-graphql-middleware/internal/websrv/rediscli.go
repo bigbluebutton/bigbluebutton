@@ -56,7 +56,7 @@ func StartRedisListener() {
 			log.Debugf("Received invalidate request for sessionToken %v", sessionTokenToInvalidate)
 
 			//Not being used yet
-			InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
+			go InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
 		}
 	}
 }
