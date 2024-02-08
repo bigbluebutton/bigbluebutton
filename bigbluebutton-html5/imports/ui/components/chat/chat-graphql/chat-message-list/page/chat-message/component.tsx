@@ -238,7 +238,6 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               name={messageContent.name}
               isOnline={message.user?.isOnline ?? true}
               dateTime={dateTime}
-              isPresentationUpload={messageContent.isPresentationUpload || false}
             />
         )}
         {messageContent.component}

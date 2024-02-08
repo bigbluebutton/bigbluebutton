@@ -11,10 +11,6 @@ interface ChatUserNameProps {
   isOnline: boolean;
 }
 
-interface ChatTimeProps {
-  isPresentationUpload?: boolean;
-}
-
 export const HeaderContent = styled.div`
   display: flex;
   flex-flow: row;
@@ -26,6 +22,8 @@ export const ChatUserName = styled.div<ChatUserNameProps>`
   min-width: 0;
   font-weight: 600;
   position: relative;
+
+  margin-right: calc(${lineHeightComputed} / 2);
 
   min-width: 0;
   display: inline-block;
@@ -61,29 +59,18 @@ export const ChatUserOffline = styled.span`
   font-size: 90%;
   line-height: 1;
   user-select: none;
-  margin: 0 0 0 calc(${lineHeightComputed} / 2);
 `;
 
-export const ChatTime = styled.time<ChatTimeProps>`
+export const ChatTime = styled.time`
   flex-shrink: 0;
   flex-grow: 0;
   flex-basis: 3.5rem;
   color: ${palettePlaceholderText};
   text-transform: uppercase;
   font-size: 75%;
-  margin: 0 0 0 calc(${lineHeightComputed} / 2);
   [dir='rtl'] & {
     margin: 0 calc(${lineHeightComputed} / 2) 0 0;
   }
-
-  interface ChatUserNameProps {
-    isOnline: boolean;
-    isPresentationUpload?: boolean;
-  }
-
-  ${({ isPresentationUpload }) => isPresentationUpload && `
-    margin: 0 0 0 0;
-  `} 
 
   & > span {
     vertical-align: sub;

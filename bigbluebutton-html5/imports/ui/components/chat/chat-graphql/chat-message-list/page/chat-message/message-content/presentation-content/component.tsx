@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-one-expression-per-line */
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -54,8 +53,11 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   return (
     <Styled.ChatDowloadContainer data-test="downloadPresentationContainer">
       <span>
-        {presentationData.filename}&nbsp;
-        ({intl.formatMessage(intlMessages.withWhiteboardAnnotations)})
+        {presentationData.filename}
+        &nbsp;
+        (
+        {intl.formatMessage(intlMessages.withWhiteboardAnnotations)}
+        )
       </span>
       <Styled.ChatLink
         href={downloadUrl}
