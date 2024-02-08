@@ -161,7 +161,6 @@ const WhiteboardContainer = (props) => {
     pageAnnotations,
     intl,
     curPageId,
-    pollResults,
     currentPresentationPage,
   );
 
@@ -222,9 +221,8 @@ const WhiteboardContainer = (props) => {
   const hasShapeAccess = (id) => {
     const owner = shapes[id]?.meta?.createdBy;
     const isBackgroundShape = id?.includes(':BG-');
-    const isPollsResult = shapes[id]?.id?.includes('poll-result');
-    const hasAccess = (!isBackgroundShape && !isPollsResult) 
-      && ((owner && owner === currentUser?.userId) || (isPresenter) || (isModerator)) || !shapes[id];
+    const hasAccess = (!isBackgroundShape
+      && ((owner && owner === currentUser?.userId) || isPresenter || isModerator)) || !shapes[id];
 
     return hasAccess;
   };
