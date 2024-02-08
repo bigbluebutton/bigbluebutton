@@ -583,6 +583,7 @@ class MeetingActor(
 
       // AudioCaptions
       case m: UpdateTranscriptPubMsg                         => audioCaptionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: TranscriptionProviderErrorMsg                  => audioCaptionsApp2x.handleTranscriptionProviderErrorMsg(m, liveMeeting, msgBus)
 
       // GroupChat
       case m: CreateGroupChatReqMsg =>
