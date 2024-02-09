@@ -7,7 +7,7 @@ import React, { useContext, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 
-interface Props {
+interface ConnectionManagerProps {
   children: React.ReactNode;
 }
 
@@ -21,7 +21,7 @@ interface Response {
   }
 }
 
-const ConnectionManager = ({ children }: Props): React.ReactNode => {
+const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): React.ReactNode => {
   const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);

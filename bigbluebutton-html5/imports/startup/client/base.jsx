@@ -382,7 +382,7 @@ export default withTracker(() => {
     currentConnectionId: 1,
     connectionIdUpdateTime: 1,
   };
-  const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
+  const User = Users.findOne({ userId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
       meetingEnded: 1,
@@ -399,25 +399,21 @@ export default withTracker(() => {
   const ejected = User?.ejected;
   const ejectedReason = User?.ejectedReason;
   const meetingEndedReason = meeting?.meetingEndedReason;
-  const currentConnectionId = User?.currentConnectionId;
-  const { connectionID, connectionAuthTime } = Auth;
-  const connectionIdUpdateTime = User?.connectionIdUpdateTime;
 
   if (ejected) {
     // use the connectionID to block users, so we can detect if the user was
     // blocked by the current connection. This is the case when a a user is
     // ejected from a meeting but not permanently ejected. Permanent ejects are
     // managed by the server, not by the client.
-    BBBStorage.setItem(USER_WAS_EJECTED, connectionID);
+    BBBStorage.setItem(USER_WAS_EJECTED, User.userId);
   }
 
   let userSubscriptionHandler;
 
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
-
   return {
-    userWasEjected: (BBBStorage.getItem(USER_WAS_EJECTED) == connectionID),
+    userWasEjected: (BBBStorage.getItem(USER_WAS_EJECTED)),
     approved,
     ejected,
     ejectedReason,

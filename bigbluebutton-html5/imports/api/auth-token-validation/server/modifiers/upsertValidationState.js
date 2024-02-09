@@ -21,7 +21,6 @@ export default async function upsertValidationState(
       reason,
     },
   };
-  console.log('\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n upsertValidationState', selector, modifier);
 
   try {
     await AuthTokenValidation

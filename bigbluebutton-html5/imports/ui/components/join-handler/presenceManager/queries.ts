@@ -5,8 +5,15 @@ export interface GetUserCurrentResponse {
     userId: string;
     authToken: string;
     authed: boolean;
+    joined: boolean;
     joinErrorCode: string;
     joinErrorMessage: string;
+    ejectReasonCode: string;
+    meeting: {
+      ended: boolean;
+      endedReasonCode: string;
+      endedBy: string;
+    };
   }>;
 }
 
@@ -39,13 +46,20 @@ query getUserInfo {
 `;
 
 export const getUserCurrent = gql`
-subscription {
+subscription getUserCurrent {
     user_current {
       userId
       authToken
       authed
       joinErrorCode
       joinErrorMessage
+      joined
+      ejectReasonCode
+      meeting {
+        ended
+        endedReasonCode
+        endedBy
+      }
     }
   }
 `;

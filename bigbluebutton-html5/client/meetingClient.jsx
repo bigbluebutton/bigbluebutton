@@ -22,7 +22,7 @@ import { Meteor } from 'meteor/meteor';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
-import JoinHandler from '/imports/ui/components/join-handler/graphQL/component';
+import JoinHandler from '../imports/ui/components/join-handler/presenceManager/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
 import Subscriptions from '/imports/ui/components/subscriptions/component';
 import IntlStartup from '/imports/startup/client/intl';
@@ -39,6 +39,7 @@ import collectionMirrorInitializer from './collection-mirror-initializer';
 import SettingsLoader from '../imports/ui/components/settings-loader/component';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import IntlAdapter from '/imports/startup/client/intlAdapter';
+import PresenceAdapter from '/imports/ui/components/authenticated-handler/presence-adapter/component';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
@@ -85,15 +86,13 @@ const Startup = () => {
   return (
     <ContextProviders>
       <>
-        <JoinHandler>
-          <AuthenticatedHandler>
-            <Subscriptions>
-              <IntlAdapter>
-                <Base />
-              </IntlAdapter>
-            </Subscriptions>
-          </AuthenticatedHandler>
-        </JoinHandler>
+        <PresenceAdapter>
+          <Subscriptions>
+            <IntlAdapter>
+              <Base />
+            </IntlAdapter>
+          </Subscriptions>
+        </PresenceAdapter>
         <UsersAdapter />
         <ChatAdapter />
       </>

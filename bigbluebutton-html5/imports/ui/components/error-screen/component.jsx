@@ -128,7 +128,7 @@ class ErrorScreen extends PureComponent {
     }
 
     if (error) {
-      errorMessageDescription = `Error: ${error}
+      errorMessageDescription = `Error: ${JSON.stringify(error)}
        
       ErrorInfo: ${JSON.stringify(errorInfo)}`;
     }

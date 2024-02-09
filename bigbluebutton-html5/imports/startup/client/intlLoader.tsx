@@ -82,7 +82,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             const typedResp = resp as Array<LocaleJson | boolean>;
             const foundLocales = typedResp.filter((locale) => locale instanceof Object) as LocaleJson[];
             if (foundLocales.length === 0) {
-              const error = `${{ logCode: 'intl_fetch_locale_error' }},Could not fetch any locale file for ${languageSets.join(', ')}`
+              const error = `${{ logCode: 'intl_fetch_locale_error' }},Could not fetch any locale file for ${languageSets.join(', ')}`;
               console.error(error);
               throw new Error(error);
             }
@@ -116,7 +116,8 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
       loadingContextInfo.setLoading(true, 'Fetching locale');
     }
   }, [fetching]);
-  return !fetching || Object.keys(normalizedLocale).length > 0 ? (
+
+  return !fetching || Object.keys(messages).length > 0 ? (
     <IntlProvider
       fallbackOnEmptyString={fallbackOnEmptyLocaleString}
       locale={normalizedLocale.replace('_', '-').replace('@', '-')}
