@@ -24,7 +24,7 @@ test.describe('Polling', async () => {
     await polling.quickPoll();
   });
 
-  test('Create poll with user response @ci', async () => {
+  test('Create poll with user response @ci @flaky', async () => {
     await polling.pollUserResponse();
   });
 
