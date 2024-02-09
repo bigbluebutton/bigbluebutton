@@ -8,6 +8,9 @@ import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import { CurrentUser } from '/imports/api/users';
+import Settings from '/imports/ui/services/settings';
+import { updateSettings } from '/imports/ui/components/settings/service';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -178,6 +181,16 @@ class JoinHandler extends Component {
       Session.set('bannerColor', resp.bannerColor);
     };
 
+    const setUserDefaultLayout = (response) => {
+      const settings = {
+        application: {
+          ...Settings.application,
+          selectedLayout: LAYOUT_TYPE[response.defaultLayout] || 'custom',
+        },
+      };
+      updateSettings(settings);
+    };
+
     // use enter api to get params for the client
     const url = `${APP.bbbWebBase}/api/enter?sessionToken=${sessionToken}`;
     const fetchContent = await fetch(url, { credentials: 'include' });
@@ -199,6 +212,7 @@ class JoinHandler extends Component {
           .findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
         if (user) {
           await setCustomData(response);
+          setUserDefaultLayout(response);
           cd.stop();
         }
       });
