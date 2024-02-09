@@ -2119,13 +2119,13 @@ class ApiController {
     meeting.setNumVideoUsers(meetingInfo.getParticipantInfo().getVideoCount())
     meeting.setNumMods(meetingInfo.getParticipantInfo().getModeratorCount())
 
-    for(MeetingServiceOuterClass.Attendee attendee: meetingInfo.getAttendeesList()) {
-      User user = new User(attendee.getUserId(), attendee.getFullName(), attendee.getFullName(), attendee.getRole(), false, "", false, "", attendee.getClientType())
-      user.setIsPresenter(attendee.getIsPresenter())
-      user.setListeningOnly(attendee.getIsListeningOnly())
-      user.setVoiceJoined(attendee.getHasJoinedVoice())
-      user.setHasVideo(attendee.getHasVideo())
-      meeting.addUserCustomData(attendee.getUserId(), m.getUserCustomData(attendee.getUserId()))
+    for(MeetingServiceOuterClass.User u: meetingInfo.getUsersList()) {
+      User user = new User(u.getUserId(), u.getFullName(), u.getFullName(), u.getRole(), false, "", false, "", u.getClientType())
+      user.setIsPresenter(u.getIsPresenter())
+      user.setListeningOnly(u.getIsListeningOnly())
+      user.setVoiceJoined(u.getHasJoinedVoice())
+      user.setHasVideo(u.getHasVideo())
+      meeting.addUserCustomData(u.getUserId(), m.getUserCustomData(u.getUserId()))
       meeting.userJoined(user)
     }
 

@@ -10,7 +10,7 @@ message MeetingRunningResp {
   bool is_running = 1;
 }
 
-message Attendee {
+message User {
   string user_id = 1;
   string full_name = 2;
   string role = 3;
@@ -58,7 +58,7 @@ message MeetingInfo {
   string attendee_pw = 8;
   string moderator_pw = 9;
   bool recording = 10;
-  repeated Attendee attendees = 11;
+  repeated User users = 11;
   map<string, string> metadata = 12;
   repeated string breakout_rooms = 13;
   DurationInfo duration_info = 14;

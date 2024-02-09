@@ -46,7 +46,7 @@ import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, find
 import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.{ authUserHadJoined, hasAuthedUserJoined }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
-import org.bigbluebutton.protos.{ Attendee, BreakoutInfo, DurationInfo, MeetingInfo, ParticipantInfo }
+import org.bigbluebutton.protos.{ User, BreakoutInfo, DurationInfo, MeetingInfo, ParticipantInfo }
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -657,7 +657,7 @@ class MeetingActor(
     val isMeetingRecorded = MeetingStatus2x.isRecording(liveMeeting.status)
 
     // TODO: Placeholder values as required values not available
-    val screenshareStream: ScreenshareStream = ScreenshareStream(new User("", ""), List())
+    val screenshareStream: ScreenshareStream = ScreenshareStream(new org.bigbluebutton.common2.msgs.User("", ""), List())
     val screenshare: Screenshare = Screenshare(screenshareStream)
 
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
@@ -675,10 +675,10 @@ class MeetingActor(
   }
 
   private def handleGetMeetingInfo(): MeetingInfo = {
-    val attendees = for {
+    val users = for {
       u <- Users2x.findAll(liveMeeting.users2x)
     } yield {
-      Attendee(
+      User(
         userId = u.intId,
         fullName = u.name,
         role = u.role,
@@ -728,7 +728,7 @@ class MeetingActor(
       attendeePw = liveMeeting.props.password.viewerPass,
       moderatorPw = liveMeeting.props.password.moderatorPass,
       recording = liveMeeting.props.recordProp.record,
-      attendees = attendees,
+      users = users,
       metadata = Map(),
       breakoutRooms = if (state.breakout.isDefined) state.breakout.get.getRooms().map(_.name).toList else List(),
       durationInfo = Some(durationInfo),
@@ -748,7 +748,7 @@ class MeetingActor(
     val numOfLiveWebcams: Int = liveWebcams.length
     val broadcasts: List[Broadcast] = liveWebcams.map(webcam => Broadcast(
       webcam.streamId,
-      User(webcam.userId, resolveUserName(webcam.userId)), 0L
+      org.bigbluebutton.common2.msgs.User(webcam.userId, resolveUserName(webcam.userId)), 0L
     )).toList
     val subscribers: Set[String] = liveWebcams.flatMap(_.subscribers).toSet
     val webcamStream: msgs.WebcamStream = msgs.WebcamStream(broadcasts, subscribers)
@@ -763,14 +763,14 @@ class MeetingActor(
     val numOfListenOnlyUsers: Int = listenOnlyUsers.length
     val listenOnlyAudio = ListenOnlyAudio(
       numOfListenOnlyUsers,
-      listenOnlyUsers.map(voiceUserState => User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
+      listenOnlyUsers.map(voiceUserState => org.bigbluebutton.common2.msgs.User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
     )
 
     val freeswitchUsers: Vector[VoiceUserState] = findAllFreeswitchCallers(liveMeeting.voiceUsers)
     val numOfFreeswitchUsers: Int = freeswitchUsers.length
     val twoWayAudio = TwoWayAudio(
       numOfFreeswitchUsers,
-      freeswitchUsers.map(voiceUserState => User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
+      freeswitchUsers.map(voiceUserState => org.bigbluebutton.common2.msgs.User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
     )
 
     // TODO: Placeholder values
