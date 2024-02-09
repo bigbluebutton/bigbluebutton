@@ -5,6 +5,7 @@ import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
 import MeetingClientSettings from '../../Types/meetingClientSettings';
 import ClientStartup from '/client/clientStartup';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
+import { defineMessages, useIntl } from 'react-intl';
 
 declare global {
   interface Window {
@@ -12,12 +13,20 @@ declare global {
   }
 }
 
+const intlMessages = defineMessages({
+  fetchingSettings: {
+    id: 'app.meeting.fetchingSettings',
+    description: 'fetching settings label',
+  },
+});
+
 const SettingsLoader: React.FC = () => {
   const { loading, error, data } = useQuery<getBigBlueButtonSettingsResponse>(getBigBlueButtonSettings);
   const [allowToRender, setAllowToRender] = React.useState(false);
   const loadingContextInfo = useContext(LoadingContext);
+  const intl = useIntl();
   useEffect(() => {
-    loadingContextInfo.setLoading(true, 'Fetching settings');
+    loadingContextInfo.setLoading(true, intl.formatMessage(intlMessages.fetchingSettings));
   }, []);
 
   useEffect(() => {
