@@ -8,6 +8,8 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
 import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
 import { OnProgressProps } from 'react-player/base';
+import { ExternalVideoVolumeEventsNames } from 'bigbluebutton-html-plugin-sdk';
+import { ExternalVideoVolumeEventPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-events/external-video/volume/types';
 
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
@@ -153,6 +155,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     };
   }, [isPresenter]);
 
+  const currentVolume = React.useRef(1);
   const [autoPlayBlocked, setAutoPlayBlocked] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
   const [mute, setMute] = React.useState(false);
@@ -234,6 +237,16 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       playerRef.current.seekTo(currentTime, 'seconds');
     }
   }, [currentTime]);
+
+  if (playerRef.current?.getInternalPlayer()?.getVolume()
+    && playerRef.current?.getInternalPlayer()?.getVolume() !== currentVolume.current) {
+    currentVolume.current = playerRef.current?.getInternalPlayer()?.getVolume();
+    window.dispatchEvent(new CustomEvent(ExternalVideoVolumeEventsNames.VOLUME_VALUE_CHANGED, {
+      detail: {
+        value: playerRef.current?.getInternalPlayer()?.getVolume() / 100,
+      } as ExternalVideoVolumeEventPayloads[ExternalVideoVolumeEventsNames.VOLUME_VALUE_CHANGED],
+    }));
+  }
 
   useEffect(() => {
     if (playerRef.current) {
