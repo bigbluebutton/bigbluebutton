@@ -85,8 +85,8 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.helpDesc',
     description: 'Describes help option',
   },
-  endMeetingLabel: {
-    id: 'app.navBar.settingsDropdown.endMeetingLabel',
+  endMeetingForAllLabel: {
+    id: 'app.navBar.settingsDropdown.endMeetingForAllLabel',
     description: 'End meeting options label',
   },
   endMeetingDesc: {
@@ -362,7 +362,7 @@ class SettingsDropdown extends PureComponent {
         {
           key: 'list-item-end-meeting',
           icon: 'application',
-          label: intl.formatMessage(intlMessages.endMeetingLabel),
+          label: intl.formatMessage(intlMessages.endMeetingForAllLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
           customStyles,
           onClick: () => this.setEndMeetingConfirmationModalIsOpen(true),
