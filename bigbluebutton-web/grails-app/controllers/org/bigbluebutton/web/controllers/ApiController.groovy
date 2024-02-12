@@ -20,8 +20,7 @@ package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
 import com.google.rpc.Status
-import grails.async.Promise
-import grails.async.Promises
+import grails.core.GrailsApplication
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
@@ -29,7 +28,6 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusRuntimeException
 import io.grpc.protobuf.StatusProto
-import io.grpc.stub.StreamObserver
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -40,29 +38,27 @@ import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.User
 import org.bigbluebutton.api.domain.UserSession
-import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
+import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
-import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.presentation.SupportedFileTypes
+import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.protos.Common
 import org.bigbluebutton.protos.MeetingServiceGrpc
 import org.bigbluebutton.protos.MeetingServiceOuterClass
-import org.bigbluebutton.protos.MeetingServiceOuterClass.MeetingInfo;
+import org.bigbluebutton.protos.MeetingServiceOuterClass.MeetingInfo
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.web.services.turn.RemoteIceCandidate
+import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
-import org.bigbluebutton.web.services.turn.StunServer
-import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
-
+import javax.annotation.PostConstruct
 import javax.servlet.ServletRequest
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.CountDownLatch
 
 class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'
@@ -81,9 +77,20 @@ class ApiController {
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
 
-  ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8081).usePlaintext().build()
-  MeetingServiceGrpc.MeetingServiceStub asyncStub = MeetingServiceGrpc.newStub(channel)
-  MeetingServiceGrpc.MeetingServiceBlockingStub blockingStub = MeetingServiceGrpc.newBlockingStub(channel)
+  GrailsApplication grailsApplication
+
+  ManagedChannel channel
+  MeetingServiceGrpc.MeetingServiceStub asyncStub
+  MeetingServiceGrpc.MeetingServiceBlockingStub blockingStub
+
+  @PostConstruct
+  void init() {
+    String grpcHost = grailsApplication.config.getProperty('grpc.host', "127.0.0.1")
+    Integer grpcPort = grailsApplication.config.getProperty('grpc.port', Integer, 8081)
+    channel = ManagedChannelBuilder.forAddress(grpcHost, grpcPort).usePlaintext().build()
+    asyncStub = MeetingServiceGrpc.newStub(channel)
+    blockingStub = MeetingServiceGrpc.newBlockingStub(channel)
+  }
 
   def initResponseBuilder = {
     String protocol = this.getClass().getResource("").getProtocol();

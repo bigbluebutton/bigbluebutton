@@ -106,3 +106,7 @@ hibernate:
         queries: false
         use_second_level_cache: false
         use_query_cache: false
+
+grpc:
+    host: 127.0.0.1
+    port: 8081

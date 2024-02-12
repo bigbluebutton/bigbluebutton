@@ -120,17 +120,17 @@ object Boot extends App with SystemConfiguration {
 
   val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
 
-  new GrpcServer(system, bbbActor).run()
+  new GrpcServer(system, bbbActor, grpcHost, grpcPort).run()
 }
 
-class GrpcServer(system: ActorSystem, bbbActor: ActorRef) {
+class GrpcServer(system: ActorSystem, bbbActor: ActorRef, host: String, port: Int) {
   def run(): Future[Http.ServerBinding] = {
     implicit val sys: ActorSystem = system
     implicit val ec: ExecutionContext = sys.dispatcher
     implicit val bbb: ActorRef = bbbActor
 
     val service: HttpRequest => Future[HttpResponse] = MeetingServiceHandler(new MeetingServiceImpl())
-    val binding = Http().newServerAt("127.0.0.1", 8081).bind(service)
+    val binding = Http().newServerAt(host, port).bind(service)
     binding.foreach { binding => println(s"gRPC server bound to ${binding.localAddress}")}
     binding
   }
