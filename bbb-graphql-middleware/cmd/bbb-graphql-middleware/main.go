@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
 	log "github.com/sirupsen/logrus"
@@ -20,6 +21,9 @@ func main() {
 
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
+
+	common.InitUniqueID()
+	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
 
 	log.Infof("Logger level=%v", log.Logger.Level)
 

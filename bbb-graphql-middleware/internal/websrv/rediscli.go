@@ -3,6 +3,7 @@ package websrv
 import (
 	"context"
 	"encoding/json"
+	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -103,7 +104,8 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 
 func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 	var body = map[string]interface{}{
-		"sessionToken": sessionToken,
+		"middlewareUID": common.GetUniqueID(),
+		"sessionToken":  sessionToken,
 	}
 
 	sendBbbCoreMsgToRedis("UserGraphqlReconnectionForcedEvtMsg", body)
@@ -111,6 +113,7 @@ func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 
 func SendUserGraphqlConnectionEstablishedSysMsg(sessionToken string, browserConnectionId string) {
 	var body = map[string]interface{}{
+		"middlewareUID":       common.GetUniqueID(),
 		"sessionToken":        sessionToken,
 		"browserConnectionId": browserConnectionId,
 	}
@@ -120,6 +123,7 @@ func SendUserGraphqlConnectionEstablishedSysMsg(sessionToken string, browserConn
 
 func SendUserGraphqlConnectionClosedSysMsg(sessionToken string, browserConnectionId string) {
 	var body = map[string]interface{}{
+		"middlewareUID":       common.GetUniqueID(),
 		"sessionToken":        sessionToken,
 		"browserConnectionId": browserConnectionId,
 	}
