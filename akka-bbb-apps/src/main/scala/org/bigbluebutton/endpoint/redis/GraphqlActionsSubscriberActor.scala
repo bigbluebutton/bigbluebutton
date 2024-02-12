@@ -24,6 +24,7 @@ case class GraphqlUser(
                )
 
 case class GraphqlUserConnection(
+                 middlewareUID:       String,
                  browserConnectionId: String,
                  sessionToken:        String,
                  user:                GraphqlUser,
@@ -47,11 +48,12 @@ class GraphqlActionsActor(
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
+      case m: RegisterUserReqMsg                      => handleUserRegisteredRespMsg(m)
+      case m: DestroyMeetingSysCmdMsg                 => handleDestroyMeetingSysCmdMsg(m)
       // Messages from bbb-graphql-middleware
-      case m: RegisterUserReqMsg                 => handleUserRegisteredRespMsg(m)
-      case m: UserGraphqlConnectionEstablishedSysMsg       => handleUserGraphqlConnectionEstablishedSysMsg(m)
+      case m: UserGraphqlConnectionEstablishedSysMsg  => handleUserGraphqlConnectionEstablishedSysMsg(m)
       case m: UserGraphqlConnectionClosedSysMsg       => handleUserGraphqlConnectionClosedSysMsg(m)
-      case _                          => // message not to be handled.
+      case _                                          => // message not to be handled.
     }
   }
 
@@ -61,6 +63,11 @@ class GraphqlActionsActor(
       msg.body.meetingId,
       msg.body.sessionToken
     ))
+  }
+
+  private def handleDestroyMeetingSysCmdMsg(msg: DestroyMeetingSysCmdMsg): Unit = {
+    users = users.filter(u => u._2.meetingId != msg.body.meetingId)
+    graphqlConnections = graphqlConnections.filter(c => c._2.user.meetingId != msg.body.meetingId)
   }
 
   private def handleUserGraphqlConnectionEstablishedSysMsg(msg: UserGraphqlConnectionEstablishedSysMsg): Unit = {
@@ -76,6 +83,7 @@ class GraphqlActionsActor(
       }
 
       graphqlConnections += (msg.body.browserConnectionId -> GraphqlUserConnection(
+        msg.body.middlewareUID,
         msg.body.browserConnectionId,
         msg.body.sessionToken,
         user
