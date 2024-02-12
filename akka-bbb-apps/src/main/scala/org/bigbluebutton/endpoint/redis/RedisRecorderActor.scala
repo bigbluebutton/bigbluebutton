@@ -106,11 +106,6 @@ class RedisRecorderActor(
       // Pads
       case m: PadCreatedRespMsg                     => handlePadCreatedRespMsg(m)
 
-      // Screenshare
-      case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
-      case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
-      //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
-
       // AudioCaptions
       case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m)
 
@@ -493,33 +488,6 @@ class RedisRecorderActor(
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
-
-  private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
-    val ev = new DeskshareStartRtmpRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setStreamPath(msg.body.stream)
-
-    record(msg.header.meetingId, ev.toMap.asJava)
-  }
-
-  private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg) {
-    val ev = new DeskshareStopRtmpRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setStreamPath(msg.body.stream)
-
-    record(msg.header.meetingId, ev.toMap.asJava)
-  }
-
-  /*
-  private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
-    val ev = new DeskShareNotifyViewersRTMPRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setStreamPath(msg.streamPath)
-    ev.setBroadcasting(msg.broadcasting)
-
-    record(msg.header.meetingId, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-  }
-  */
 
   private def handleTranscriptUpdatedEvtMsg(msg: TranscriptUpdatedEvtMsg) {
     val ev = new TranscriptUpdatedRecordEvent()
