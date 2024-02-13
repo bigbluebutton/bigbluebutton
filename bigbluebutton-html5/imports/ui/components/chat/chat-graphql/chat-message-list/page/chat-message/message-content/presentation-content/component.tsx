@@ -49,6 +49,13 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   assertAsMetadata(presentationData);
 
   const downloadUrl = `${APP_CONFIG.bbbWebBase}/${presentationData.fileURI}`;
+  const parseFilename = (filename = '') => {
+    const substrings = filename.split('.');
+    substrings.pop();
+    const filenameWithoutExtension = substrings.join('');
+    return filenameWithoutExtension;
+  };
+  const parsedFileName = parseFilename(presentationData.filename);
 
   return (
     <Styled.ChatDowloadContainer data-test="downloadPresentationContainer">
@@ -64,7 +71,7 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
         aria-label={intl.formatMessage(intlMessages.notAccessibleWarning)}
         type="application/pdf"
         rel="noopener, noreferrer"
-        download={presentationData.filename}
+        download={`${parsedFileName}.pdf`}
       >
         {intl.formatMessage(intlMessages.download)}
         <i className="icon-bbb-warning" title={intl.formatMessage(intlMessages.notAccessibleWarning)} />
