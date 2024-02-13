@@ -35,7 +35,8 @@ func StartRedisListener() {
 		}
 
 		// Skip parsing unnecessary messages
-		if !strings.Contains(msg.Payload, "ForceUserGraphqlReconnectionSysMsg") {
+		if !strings.Contains(msg.Payload, "ForceUserGraphqlReconnectionSysMsg") &&
+			!strings.Contains(msg.Payload, "CheckGraphqlMiddlewareAlivePingSysMsg") {
 			continue
 		}
 
@@ -58,6 +59,18 @@ func StartRedisListener() {
 
 			//Not being used yet
 			go InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
+		}
+
+		//Ping message requires a response with a Pong message
+		if messageType == "CheckGraphqlMiddlewareAlivePingSysMsg" &&
+			strings.Contains(msg.Payload, common.GetUniqueID()) {
+			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
+			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
+			middlewareUID := messageBodyAsMap["middlewareUID"]
+			if middlewareUID == common.GetUniqueID() {
+				log.Debugf("Received ping message from akka-apps")
+				go SendCheckGraphqlMiddlewareAlivePongSysMsg()
+			}
 		}
 	}
 }
@@ -129,4 +142,12 @@ func SendUserGraphqlConnectionClosedSysMsg(sessionToken string, browserConnectio
 	}
 
 	sendBbbCoreMsgToRedis("UserGraphqlConnectionClosedSysMsg", body)
+}
+
+func SendCheckGraphqlMiddlewareAlivePongSysMsg() {
+	var body = map[string]interface{}{
+		"middlewareUID": common.GetUniqueID(),
+	}
+
+	sendBbbCoreMsgToRedis("CheckGraphqlMiddlewareAlivePongSysMsg", body)
 }
