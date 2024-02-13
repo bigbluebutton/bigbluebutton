@@ -34,21 +34,24 @@ func main() {
 	go websrv.StartRedisListener()
 
 	// Websocket listener
-	// set default port
-	var listenPort = 8378
 
-	// Check if the environment variable BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT exists
-	envListenPort := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT")
-	if envListenPort != "" {
-		envListenPortAsInt, err := strconv.Atoi(envListenPort)
-		if err == nil {
+	//Define IP to listen
+	listenIp := "127.0.0.1"
+	if envListenIp := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_LISTEN_IP"); envListenIp != "" {
+		listenIp = envListenIp
+	}
+
+	// Define port to listen on
+	listenPort := 8378
+	if envListenPort := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT"); envListenPort != "" {
+		if envListenPortAsInt, err := strconv.Atoi(envListenPort); err == nil {
 			listenPort = envListenPortAsInt
 		}
 	}
 
 	http.HandleFunc("/", websrv.ConnectionHandler)
 
-	log.Infof("listening on port %v", listenPort)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", listenPort), nil))
+	log.Infof("listening on %v:%v", listenIp, listenPort)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%v:%v", listenIp, listenPort), nil))
 
 }
