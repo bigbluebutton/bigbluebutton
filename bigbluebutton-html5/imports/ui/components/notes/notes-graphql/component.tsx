@@ -17,7 +17,7 @@ import useHasPermission from './hooks/useHasPermission';
 import Styled from './styles';
 import { PINNED_PAD_SUBSCRIPTION, PinnedPadSubscriptionResponse } from './queries';
 import { PIN_NOTES } from './mutations';
-import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
+import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import {
   screenshareHasEnded,
   isScreenBroadcasting,

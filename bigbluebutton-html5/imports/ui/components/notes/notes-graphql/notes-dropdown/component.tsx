@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
+import { useQuery, useSubscription } from '@apollo/client';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import NotesService from '/imports/ui/components/notes/notes-graphql/service';
 import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '/imports/ui/components/layout/context';
-import { useQuery, useSubscription } from '@apollo/client';
 import { PROCESSED_PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
