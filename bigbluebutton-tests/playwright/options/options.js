@@ -65,7 +65,7 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     const modPageLocator = this.modPage.getLocator('body');
-    await this.modPage.page.setViewportSize({ width: 1924, height: 1080 });
+    await this.modPage.page.setViewportSize({ width: 1600, height: 900 });
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
@@ -86,7 +86,7 @@ class Options extends MultiUsers {
 
     const modPageLocator = this.modPage.getLocator('body');
 
-    await this.modPage.page.setViewportSize({ width: 1924, height: 1080 });
+    await this.modPage.page.setViewportSize({ width: 1600, height: 900 });
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
