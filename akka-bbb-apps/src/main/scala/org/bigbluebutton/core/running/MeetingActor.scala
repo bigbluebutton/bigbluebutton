@@ -1,55 +1,49 @@
 package org.bigbluebutton.core.running
 
-import java.io.{ PrintWriter, StringWriter }
+import org.apache.pekko.actor.{ OneForOneStrategy, Props }
 import org.apache.pekko.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
-import org.bigbluebutton.core.apps.presentationpod._
-import org.bigbluebutton.core.apps.users._
-import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
-import org.bigbluebutton.core.domain._
-import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
+import org.bigbluebutton.common2.msgs
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
+import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
-import org.bigbluebutton.core.apps.pads.PadsApp2x
-import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
-import org.bigbluebutton.core.apps.timer.TimerApp2x
-import org.bigbluebutton.core.apps.presentation.PresentationApp2x
-import org.bigbluebutton.core.apps.users.UsersApp2x
-import org.bigbluebutton.core.apps.webcam.WebcamApp2x
-import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
-import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
-import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
-import org.bigbluebutton.core2.message.handlers._
-import org.bigbluebutton.core2.message.handlers.meeting._
-import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.breakout._
-import org.bigbluebutton.core.apps.polls._
-import org.bigbluebutton.core.apps.voice._
-import org.apache.pekko.actor.Props
-import org.apache.pekko.actor.OneForOneStrategy
-import org.bigbluebutton.common2.msgs
-
-import scala.concurrent.duration._
+import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
+import org.bigbluebutton.core.apps.pads.PadsApp2x
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
-import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
+import org.bigbluebutton.core.apps.polls._
+import org.bigbluebutton.core.apps.presentation.PresentationApp2x
+import org.bigbluebutton.core.apps.presentationpod._
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.apps.timer.TimerApp2x
+import org.bigbluebutton.core.apps.users._
+import org.bigbluebutton.core.apps.voice._
+import org.bigbluebutton.core.apps.webcam.WebcamApp2x
+import org.bigbluebutton.core.apps.whiteboard.{ ClientToServerLatencyTracerMsgHdlr, WhiteboardApp2x }
+import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.db.UserStateDAO
-import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers, findWIthIntId }
+import org.bigbluebutton.core.domain._
+import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
-import org.bigbluebutton.core2.MeetingStatus2x.{ authUserHadJoined, hasAuthedUserJoined }
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
+import org.bigbluebutton.core2.message.handlers._
+import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
-import org.bigbluebutton.protos.{ User, BreakoutInfo, DurationInfo, MeetingInfo, ParticipantInfo }
+import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 
+import java.io.{ PrintWriter, StringWriter }
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 object MeetingActor {
   def props(
@@ -97,7 +91,9 @@ class MeetingActor(
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
-  with UserActivitySignCmdMsgHdlr {
+  with UserActivitySignCmdMsgHdlr
+
+  with GetMeetingInfoMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
@@ -674,68 +670,68 @@ class MeetingActor(
     )
   }
 
-  private def handleGetMeetingInfo(): MeetingInfo = {
-    val users = for {
-      u <- Users2x.findAll(liveMeeting.users2x)
-    } yield {
-      User(
-        userId = u.intId,
-        fullName = u.name,
-        role = u.role,
-        isPresenter = u.presenter,
-        isListeningOnly = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers).exists(v => v.intId == u.intId),
-        hasJoinedVoice = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).exists(v => v.intId == u.intId),
-        hasVideo = findAll(liveMeeting.webcams).exists(w => w.userId == u.intId),
-        clientType = u.clientType,
-        customData = Map()
-      )
-    }
-
-    val durationInfo = DurationInfo(
-      createTime = liveMeeting.props.durationProps.createdTime,
-      createdOn = liveMeeting.props.durationProps.createdDate,
-      duration = liveMeeting.props.durationProps.duration,
-      startTime = 0L,
-      endTime = 0L,
-      isRunning = MeetingStatus2x.hasMeetingEnded(liveMeeting.status),
-      hasBeenForciblyEnded = false
-    )
-
-    val lc = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers).length
-    val participantInfo = ParticipantInfo(
-      hasUserJoined = hasAuthedUserJoined(liveMeeting.status),
-      participantCount = Users2x.findAll(liveMeeting.users2x).length,
-      listenerCount = lc,
-      voiceParticipantCount = VoiceUsers.findAll(liveMeeting.voiceUsers).length - lc,
-      videoCount = findAll(liveMeeting.webcams).length,
-      maxUsers = liveMeeting.props.usersProp.maxUsers,
-      moderatorCount = Users2x.findAll(liveMeeting.users2x).count(u => u.role.equalsIgnoreCase("moderator"))
-    )
-
-    val breakoutInfo = BreakoutInfo(
-      isBreakout = liveMeeting.props.meetingProp.isBreakout,
-      parentMeetingId = liveMeeting.props.breakoutProps.parentId,
-      sequence = liveMeeting.props.breakoutProps.sequence,
-      freeJoin = liveMeeting.props.breakoutProps.freeJoin
-    )
-
-    MeetingInfo(
-      meetingName = liveMeeting.props.meetingProp.name,
-      meetingExtId = liveMeeting.props.meetingProp.extId,
-      meetingIntId = liveMeeting.props.meetingProp.intId,
-      voiceBridge = liveMeeting.props.voiceProp.voiceConf,
-      dialNumber = liveMeeting.props.voiceProp.dialNumber,
-      attendeePw = liveMeeting.props.password.viewerPass,
-      moderatorPw = liveMeeting.props.password.moderatorPass,
-      recording = liveMeeting.props.recordProp.record,
-      users = users,
-      metadata = Map(),
-      breakoutRooms = if (state.breakout.isDefined) state.breakout.get.getRooms().map(_.name).toList else List(),
-      durationInfo = Some(durationInfo),
-      participantInfo = Some(participantInfo),
-      breakoutInfo = Some(breakoutInfo)
-    )
-  }
+  //  private def handleGetMeetingInfo(): MeetingInfo = {
+  //    val users = for {
+  //      u <- Users2x.findAll(liveMeeting.users2x)
+  //    } yield {
+  //      User(
+  //        userId = u.intId,
+  //        fullName = u.name,
+  //        role = u.role,
+  //        isPresenter = u.presenter,
+  //        isListeningOnly = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers).exists(v => v.intId == u.intId),
+  //        hasJoinedVoice = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).exists(v => v.intId == u.intId),
+  //        hasVideo = findAll(liveMeeting.webcams).exists(w => w.userId == u.intId),
+  //        clientType = u.clientType,
+  //        customData = Map()
+  //      )
+  //    }
+  //
+  //    val durationInfo = DurationInfo(
+  //      createTime = liveMeeting.props.durationProps.createdTime,
+  //      createdOn = liveMeeting.props.durationProps.createdDate,
+  //      duration = liveMeeting.props.durationProps.duration,
+  //      startTime = 0L,
+  //      endTime = 0L,
+  //      isRunning = MeetingStatus2x.hasMeetingEnded(liveMeeting.status),
+  //      hasBeenForciblyEnded = false
+  //    )
+  //
+  //    val lc = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers).length
+  //    val participantInfo = ParticipantInfo(
+  //      hasUserJoined = hasAuthedUserJoined(liveMeeting.status),
+  //      participantCount = Users2x.findAll(liveMeeting.users2x).length,
+  //      listenerCount = lc,
+  //      voiceParticipantCount = VoiceUsers.findAll(liveMeeting.voiceUsers).length - lc,
+  //      videoCount = findAll(liveMeeting.webcams).length,
+  //      maxUsers = liveMeeting.props.usersProp.maxUsers,
+  //      moderatorCount = Users2x.findAll(liveMeeting.users2x).count(u => u.role.equalsIgnoreCase("moderator"))
+  //    )
+  //
+  //    val breakoutInfo = BreakoutInfo(
+  //      isBreakout = liveMeeting.props.meetingProp.isBreakout,
+  //      parentMeetingId = liveMeeting.props.breakoutProps.parentId,
+  //      sequence = liveMeeting.props.breakoutProps.sequence,
+  //      freeJoin = liveMeeting.props.breakoutProps.freeJoin
+  //    )
+  //
+  //    MeetingInfo(
+  //      meetingName = liveMeeting.props.meetingProp.name,
+  //      meetingExtId = liveMeeting.props.meetingProp.extId,
+  //      meetingIntId = liveMeeting.props.meetingProp.intId,
+  //      voiceBridge = liveMeeting.props.voiceProp.voiceConf,
+  //      dialNumber = liveMeeting.props.voiceProp.dialNumber,
+  //      attendeePw = liveMeeting.props.password.viewerPass,
+  //      moderatorPw = liveMeeting.props.password.moderatorPass,
+  //      recording = liveMeeting.props.recordProp.record,
+  //      users = users,
+  //      metadata = Map(),
+  //      breakoutRooms = if (state.breakout.isDefined) state.breakout.get.getRooms().map(_.name).toList else List(),
+  //      durationInfo = Some(durationInfo),
+  //      participantInfo = Some(participantInfo),
+  //      breakoutInfo = Some(breakoutInfo)
+  //    )
+  //  }
 
   private def resolveUserName(userId: String): String = {
     val userName: String = Users2x.findWithIntId(liveMeeting.users2x, userId).map(_.name).getOrElse("")
