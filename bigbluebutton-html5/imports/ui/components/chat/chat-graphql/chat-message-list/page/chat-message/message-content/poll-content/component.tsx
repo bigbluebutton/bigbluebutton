@@ -53,12 +53,13 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
 }) => {
   const pollData = JSON.parse(string) as unknown;
   assertAsMetadata(pollData);
+  const height = pollData.answers.length * 50;
   return (
     <div data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
-      <ResponsiveContainer width="90%" height={500}>
+      <ResponsiveContainer width="90%" height={height}>
         <BarChart
           data={pollData.answers}
           layout="vertical"
