@@ -4,11 +4,13 @@ import { Meteor } from 'meteor/meteor';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import NotesService from '/imports/ui/components/notes/notes-graphql/service';
 import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '/imports/ui/components/layout/context';
-import { useSubscription } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client';
 import { PROCESSED_PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
+import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 
 const DEBOUNCE_TIMEOUT = 15000;
 const NOTES_CONFIG = Meteor.settings.public.notes;
@@ -38,11 +40,12 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   presentations: any;
   isRTL: boolean;
+  padId: string;
 }
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
-    amIPresenter, presentations, handlePinSharedNotes, isRTL,
+    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
@@ -64,7 +67,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           onClick: () => {
             setConverterButtonDisabled(true);
             setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload(presentations);
+            return Service.convertAndUpload(presentations, padId);
           },
         },
       );
@@ -131,12 +134,21 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
   const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
 
+  const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
+    GET_PAD_ID,
+    { variables: { externalId: NotesService.ID } },
+  );
+  const padId = padIdData?.sharedNotes?.[0]?.padId;
+
+  if (!padId) return null;
+
   return (
     <NotesDropdownGraphql
       amIPresenter={amIPresenter}
       isRTL={isRTL}
       presentations={presentations}
       handlePinSharedNotes={handlePinSharedNotes}
+      padId={padId}
     />
   );
 };

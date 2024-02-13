@@ -4,7 +4,7 @@ import { useMutation, useSubscription } from '@apollo/client';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Service from '/imports/ui/components/notes/service';
+import NotesService from '/imports/ui/components/notes/notes-graphql/service';
 import PadContainer from '/imports/ui/components/pads/container';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -17,6 +17,11 @@ import useHasPermission from './hooks/useHasPermission';
 import Styled from './styles';
 import { PINNED_PAD_SUBSCRIPTION, PinnedPadSubscriptionResponse } from './queries';
 import { PIN_NOTES } from './mutations';
+import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
+import {
+  screenshareHasEnded,
+  isScreenBroadcasting,
+} from '/imports/ui/components/screenshare/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const NOTES_CONFIG = Meteor.settings.public.notes;
@@ -214,7 +219,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         />
       ) : renderHeaderOnMedia()}
       <PadContainer
-        externalId={Service.ID}
+        externalId={NotesService.ID}
         hasPermission={hasPermission}
         isResizing={isResizing}
         isRTL={isRTL}
@@ -247,7 +252,13 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const shouldShowSharedNotesOnPresentationArea = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+
   const handlePinSharedNotes = (pinned: boolean) => {
+    if (pinned) {
+      stopExternalVideoShare();
+      if (isScreenBroadcasting()) screenshareHasEnded();
+    }
     pinSharedNotes({ variables: { pinned } });
   };
 

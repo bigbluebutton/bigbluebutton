@@ -1,15 +1,14 @@
 import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
-import PadsService from '/imports/ui/components/pads/service';
-import NotesService from '/imports/ui/components/notes/service';
+import PadsService from '/imports/ui/components/pads/pads-graphql/service';
 import { UploadingPresentations } from '/imports/api/presentations';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function convertAndUpload(presentations: any) {
+async function convertAndUpload(presentations: any, padId: string) {
   let filename = 'Shared_Notes';
   const duplicates = presentations.filter(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,7 +18,6 @@ async function convertAndUpload(presentations: any) {
   if (duplicates !== 0) { filename = `${filename}(${duplicates})`; }
 
   const params = PadsService.getParams();
-  const padId = await PadsService.getPadId(NotesService.ID);
   const extension = 'pdf';
   filename = `${filename}.${extension}`;
 
@@ -62,5 +60,4 @@ async function convertAndUpload(presentations: any) {
 
 export default {
   convertAndUpload,
-  pinSharedNotes: () => NotesService.pinSharedNotes(true),
 };
