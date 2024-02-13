@@ -84,7 +84,7 @@ message ListMeetingsResp {
   string next_page_token = 2;
 }
 
-message StreamMeetingsReq {
+message GetMeetingsStreamReq {
   string meeting_id = 1;
 }
 
@@ -92,5 +92,5 @@ service MeetingService {
   rpc isMeetingRunning(MeetingRunningReq) returns (MeetingRunningResp);
   rpc getMeetingInfo(MeetingInfoReq) returns (MeetingInfoResp);
   rpc listMeetings(ListMeetingsReq) returns (ListMeetingsResp);
-  rpc streamMeetings(StreamMeetingsReq) returns (stream MeetingInfoResp);
+  rpc getMeetingsStream(GetMeetingsStreamReq) returns (stream MeetingInfoResp);
 }

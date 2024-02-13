@@ -65,7 +65,7 @@ class MeetingServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
     }
   }
 
-  override def streamMeetings(in: StreamMeetingsReq): Source[MeetingInfoResp, NotUsed] = {
+  override def getMeetingsStream(in: GetMeetingsStreamReq): Source[MeetingInfoResp, NotUsed] = {
     implicit val timeout: Timeout = 3.seconds
 
     val runningMeetingFutures: Future[VectorMap[String, RunningMeeting]] = (bbbActor ? GetMeetings()).mapTo[VectorMap[String, RunningMeeting]]

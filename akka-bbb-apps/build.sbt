@@ -37,7 +37,7 @@ retrieveManaged := true
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
-libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.13" % "0.0.29-SNAPSHOT" % "protobuf-src" intransitive()
+libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.13" % "0.0.30-SNAPSHOT" % "protobuf-src" intransitive()
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
 

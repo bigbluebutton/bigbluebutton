@@ -707,9 +707,9 @@ class ApiController {
     }
 
     List<Meeting> meetings = new ArrayList<>()
-    MeetingServiceOuterClass.StreamMeetingsReq request = MeetingServiceOuterClass.StreamMeetingsReq.newBuilder().build()
+    MeetingServiceOuterClass.GetMeetingsStreamReq request = MeetingServiceOuterClass.GetMeetingsStreamReq.newBuilder().build()
     try {
-      Iterator<MeetingServiceOuterClass.MeetingInfoResp> responseItr = blockingStub.streamMeetings(request)
+      Iterator<MeetingServiceOuterClass.MeetingInfoResp> responseItr = blockingStub.getMeetingsStream(request)
       while (responseItr.hasNext()) {
         MeetingServiceOuterClass.MeetingInfoResp response = responseItr.next()
         MeetingInfo meetingInfo = response.getMeetingInfo()
