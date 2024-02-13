@@ -34,7 +34,7 @@ select_permissions:
           - meetingId:
               _eq: X-Hasura-ModeratorInMeeting
       allow_aggregations: true
-  - role: pre_join_bbb_client
+  - role: not_joined_bbb_client
     permission:
       columns:
         - guestLobbyMessage

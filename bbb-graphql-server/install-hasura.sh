@@ -18,6 +18,22 @@ sudo -u postgres psql -U postgres -d bbb_graphql -a -f bbb_schema.sql --set ON_E
 sudo -u postgres psql -c "drop database if exists hasura_app with (force)"
 sudo -u postgres psql -c "create database hasura_app"
 
+echo "Creating frontend in bbb_graphql"
+DATABASE_FRONTEND_USER="bbb_frontend"
+FRONT_USER_EXISTS=$(sudo -u postgres psql -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = '$DATABASE_FRONTEND_USER'")
+if [ "$FRONT_USER_EXISTS" = '1' ]
+then
+    echo "User $DATABASE_FRONTEND_USER already exists"
+else
+    sudo -u postgres psql -q -c "CREATE USER $DATABASE_FRONTEND_USER WITH PASSWORD '$DATABASE_FRONTEND_USER'"
+    sudo -u postgres psql -q -c "GRANT CONNECT ON DATABASE bbb_graphql TO $DATABASE_FRONTEND_USER"
+    sudo -u postgres psql -q -d bbb_graphql -c "REVOKE ALL ON ALL TABLES IN SCHEMA public FROM $DATABASE_FRONTEND_USER"
+    sudo -u postgres psql -q -d bbb_graphql -c "GRANT USAGE ON SCHEMA public TO $DATABASE_FRONTEND_USER"
+    echo "User $DATABASE_FRONTEND_USER created on database bbb_graphql"
+fi
+
+sudo -u postgres psql -q -d bbb_graphql -c "GRANT SELECT ON v_user_connection_auth TO $DATABASE_FRONTEND_USER"
+
 echo "Postgresql installed!"
 
 
@@ -39,7 +55,7 @@ systemctl restart nginx
 #chmod +x /usr/local/bin/hasura-graphql-engine
 
 #Hasura 2.29+ requires Ubuntu 22
-git clone --branch v2.36.0 https://github.com/iMDT/hasura-graphql-engine.git
+git clone --branch v2.37.0 https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql

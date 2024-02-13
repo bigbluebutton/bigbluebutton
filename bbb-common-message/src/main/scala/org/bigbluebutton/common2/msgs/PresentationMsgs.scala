@@ -17,7 +17,7 @@ case class MakePresentationDownloadReqMsgBody(presId: String, allPages: Boolean,
 object NewPresFileAvailableMsg { val NAME = "NewPresFileAvailableMsg" }
 case class NewPresFileAvailableMsg(header: BbbClientMsgHeader, body: NewPresFileAvailableMsgBody) extends StandardMsg
 case class NewPresFileAvailableMsgBody(annotatedFileURI: String, originalFileURI: String, convertedFileURI: String,
-                                       presId: String, fileStateType: String)
+                                       presId: String, fileStateType: String, fileName: String)
 
 object PresAnnStatusMsg { val NAME = "PresAnnStatusMsg" }
 case class PresAnnStatusMsg(header: BbbClientMsgHeader, body: PresAnnStatusMsgBody) extends StandardMsg

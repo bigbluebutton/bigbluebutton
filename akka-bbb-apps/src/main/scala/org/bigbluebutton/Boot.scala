@@ -68,7 +68,7 @@ object Boot extends App with SystemConfiguration {
   )
 
   val graphqlActionsActor = system.actorOf(
-    GraphqlActionsActor.props(system),
+    GraphqlActionsActor.props(system, eventBus),
     "GraphqlActionsActor"
   )
 

@@ -172,7 +172,7 @@ select_permissions:
       filter:
         userId:
           _eq: X-Hasura-UserId
-  - role: pre_join_bbb_client
+  - role: not_joined_bbb_client
     permission:
       columns:
         - authToken

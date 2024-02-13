@@ -276,7 +276,14 @@ type Mutation {
 type Mutation {
   presAnnotationSubmit(
     pageId: String!
-    annotations: [String]!
+    annotations: json!
+  ): Boolean
+}
+
+type Mutation {
+  presentationExport(
+    presentationId: String!
+    fileStateType: String!
   ): Boolean
 }
 
