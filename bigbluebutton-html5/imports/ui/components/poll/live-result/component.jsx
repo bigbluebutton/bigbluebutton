@@ -41,6 +41,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.liveResult.secretLabel',
     description: 'label shown instead of users in poll responses if poll is secret',
   },
+  noAnswersLabel: {
+    id: 'app.poll.noAnswerWarning',
+    description: 'label shown when no answers have been received',
+  },
 });
 
 const getResponseString = (obj) => {
@@ -213,7 +217,7 @@ class LiveResult extends PureComponent {
           ? (
             <Styled.ButtonsActions>
               <Styled.PublishButton
-                disabled={!isMeteorConnected}
+                disabled={!isMeteorConnected || currentPoll.answers.length === 0}
                 onClick={() => {
                   Session.set('pollInitiated', false);
                   publishPoll(currentPoll?.id);
@@ -246,6 +250,8 @@ class LiveResult extends PureComponent {
             />
           )
         }
+        {currentPoll && currentPoll.answers.length === 0
+        && intl.formatMessage(intlMessages.noAnswersLabel)}
         <Styled.Separator />
         { currentPoll && !currentPoll.secretPoll
           ? (

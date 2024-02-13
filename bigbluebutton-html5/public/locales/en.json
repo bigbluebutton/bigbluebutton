@@ -395,6 +395,7 @@
     "app.poll.showRespDesc": "Displays response configuration",
     "app.poll.addRespDesc": "Adds poll response input",
     "app.poll.deleteRespDesc": "Removes option {0}",
+    "app.poll.noAnswerWarning": "To publish a poll, at least one response is required",
     "app.poll.t": "True",
     "app.poll.f": "False",
     "app.poll.tf": "True / False",
