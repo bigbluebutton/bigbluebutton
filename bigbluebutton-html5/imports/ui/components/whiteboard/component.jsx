@@ -585,17 +585,21 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     // Check if there are any changes to be made
     if (shapesToAdd.length || shapesToUpdate.length || shapesToRemove.length) {
-      tlEditor?.store?.mergeRemoteChanges(() => {
-        if (shapesToRemove.length > 0) {
-          tlEditor?.store?.remove(shapesToRemove.map((shape) => shape.id));
-        }
-        if (shapesToAdd.length) {
-          tlEditor?.store?.put(shapesToAdd);
-        }
-        if (shapesToUpdate.length) {
-          tlEditor?.updateShapes(shapesToUpdate);
-        }
-      });
+      const tlStoreUpdateTimeoutId = setTimeout(() => {
+        tlEditor?.store?.mergeRemoteChanges(() => {
+          if (shapesToRemove.length > 0) {
+            tlEditor?.store?.remove(shapesToRemove);
+          }
+          if (shapesToAdd.length) {
+            tlEditor?.store?.put(shapesToAdd);
+          }
+          if (shapesToUpdate.length) {
+            tlEditor?.updateShapes(shapesToUpdate);
+          }
+        });
+      }, 150);
+
+      return () => clearTimeout(tlStoreUpdateTimeoutId);
     }
   }, [shapesToAdd, shapesToUpdate, shapesToRemove]);
 
