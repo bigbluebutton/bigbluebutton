@@ -710,6 +710,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
   const handleTldrawMount = (editor) => {
     setTlEditor(editor);
+    setTldrawAPI(editor);
 
     editor?.user?.updateUserPreferences({ locale: language });
 

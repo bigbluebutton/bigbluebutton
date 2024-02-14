@@ -10,18 +10,18 @@ case class UserGraphqlConnectionDbModel (
        graphqlConnectionId:     Option[Int],
        sessionToken:            String,
        middlewareConnectionId:  String,
-       stablishedAt:            java.sql.Timestamp,
+       establishedAt:           java.sql.Timestamp,
        closedAt:                Option[java.sql.Timestamp],
 )
 
 class UserGraphqlConnectionDbTableDef(tag: Tag) extends Table[UserGraphqlConnectionDbModel](tag, None, "user_graphqlConnection") {
   override def * = (
-    graphqlConnectionId, sessionToken, middlewareConnectionId, stablishedAt, closedAt
+    graphqlConnectionId, sessionToken, middlewareConnectionId, establishedAt, closedAt
   ) <> (UserGraphqlConnectionDbModel.tupled, UserGraphqlConnectionDbModel.unapply)
   val graphqlConnectionId = column[Option[Int]]("graphqlConnectionId", O.PrimaryKey, O.AutoInc)
   val sessionToken = column[String]("sessionToken")
   val middlewareConnectionId = column[String]("middlewareConnectionId")
-  val stablishedAt = column[java.sql.Timestamp]("stablishedAt")
+  val establishedAt = column[java.sql.Timestamp]("establishedAt")
   val closedAt = column[Option[java.sql.Timestamp]]("closedAt")
 }
 
@@ -34,7 +34,7 @@ object UserGraphqlConnectionDAO {
           graphqlConnectionId = None,
           sessionToken = sessionToken,
           middlewareConnectionId = middlewareConnectionId,
-          stablishedAt = new java.sql.Timestamp(System.currentTimeMillis()),
+          establishedAt = new java.sql.Timestamp(System.currentTimeMillis()),
           closedAt = None
         )
       )

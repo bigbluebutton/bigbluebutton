@@ -630,7 +630,6 @@ class App extends Component {
           <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
-          <Styled.TextMeasure id="text-measure" />
           <ExternalVideoPlayerContainer />
           <GenericComponentContainer
             {...{

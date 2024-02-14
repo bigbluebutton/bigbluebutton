@@ -190,7 +190,7 @@ class BigBlueButtonActor(
       }
 
       //      MeetingDAO.delete(msg.meetingId)
-      MeetingDAO.setMeetingEnded(msg.meetingId)
+      //      MeetingDAO.setMeetingEnded(msg.meetingId)
       //      Removing the meeting is enough, all other tables has "ON DELETE CASCADE"
       //      UserDAO.softDeleteAllFromMeeting(msg.meetingId)
       //      MeetingRecordingDAO.updateStopped(msg.meetingId, "")
