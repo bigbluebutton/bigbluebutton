@@ -3,6 +3,7 @@ import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import logger from '/imports/startup/client/logger';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
   SET_AWAY,
@@ -220,17 +221,18 @@ const UserActions: React.FC<UserActionsProps> = ({
   const handleWhiteboardAccessChange = async () => {
     try {
       // Fetch the writers data
-      const { data } = await getWriters({ variables: { pageId } });
-      const fetchedWriters = data?.pres_page_writers || [];
+      const { data } = await getWriters();
+      const allWriters = data?.pres_page_writers || [];
+      const currentWriters = allWriters?.filter(writer => writer.pageId === pageId);
 
       // Determine if the user has access
       const { userId, presPagesWritable } = user;
       const hasAccess = presPagesWritable.some(
-        (page: { userId: string; isCurrentPage: boolean }) => (page.userId === userId && page.isCurrentPage),
+        (page: { userId: string; isCurrentPage: boolean }) => (page?.userId === userId && page?.isCurrentPage),
       );
 
       // Prepare the updated list of user IDs for whiteboard access
-      const usersIds = fetchedWriters.map((writer: { userId: string }) => writer.userId);
+      const usersIds = currentWriters?.map((writer: { userId: string }) => writer?.userId);
       const newUsersIds: string[] = hasAccess
         ? usersIds.filter((id: string) => id !== userId)
         : [...usersIds, userId];
@@ -243,7 +245,9 @@ const UserActions: React.FC<UserActionsProps> = ({
         },
       });
     } catch (error) {
-      console.error('Error updating whiteboard access', error);
+      logger.warn({
+        logCode: 'user_action_whiteboard_access_failed',
+      }, 'Error updating whiteboard access.');
     }
   };
 
