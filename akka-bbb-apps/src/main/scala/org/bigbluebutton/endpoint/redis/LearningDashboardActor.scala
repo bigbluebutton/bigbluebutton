@@ -20,6 +20,7 @@ case class Meeting(
   intId: String,
   extId: String,
   name:  String,
+  downloadSessionDataEnabled: Boolean,
   users: Map[String, User] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
@@ -585,6 +586,7 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
+        downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
       )
 
       meetings += (newMeeting.intId -> newMeeting)
