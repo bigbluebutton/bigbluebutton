@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/hooks';
+import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/utils';
 import { DataChannelArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import {
   HookEventWrapper, UnsubscribedEventDetails, SubscribedEventDetails,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataChannelHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 
-import { PluginDataChannelManagerContainerProps } from './types';
+import { PluginDataChannelManagerProps } from './types';
 import { DataChannelItemManager } from './channel-manager/manager';
 
-const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelManagerContainerProps> = ((
-  props: PluginDataChannelManagerContainerProps,
+const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps> = ((
+  props: PluginDataChannelManagerProps,
 ) => {
   const {
     pluginApi,
@@ -38,11 +39,10 @@ const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelMana
     });
   };
 
-  // Alterar aqui
   useEffect(() => {
     const subscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
-        if (event.detail.hook === Hooks.DATA_CHANNEL) {
+        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_BUILDER) {
           const eventDetails = event.detail as SubscribedEventDetails;
           const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
           if (hookArguments?.channelName && hookArguments?.pluginName) {
@@ -52,7 +52,7 @@ const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelMana
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
-        if (event.detail.hook === Hooks.DATA_CHANNEL) {
+        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_BUILDER) {
           const eventDetails = event.detail as UnsubscribedEventDetails;
           const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
           if (hookArguments?.channelName && hookArguments?.pluginName) {
@@ -88,6 +88,6 @@ const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelMana
       }
     </>
   );
-}) as React.ElementType<PluginDataChannelManagerContainerProps>;
+}) as React.ElementType<PluginDataChannelManagerProps>;
 
-export default PluginDataChannelManagerContainer;
+export default PluginDataChannelManager;

@@ -21,7 +21,6 @@ import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
-  startUserTyping,
   textToMarkdown,
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
@@ -31,10 +30,11 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useMutation } from '@apollo/client';
-import { CHAT_SEND_MESSAGE } from './mutations';
+import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { throttle } from '/imports/utils/throttle';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -42,6 +42,7 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+const START_TYPING_THROTTLE_INTERVAL = 1000;
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -133,6 +134,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -144,6 +146,26 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     unsentMessages[chatId] = message;
     localStorage.setItem('unsentMessages', JSON.stringify(unsentMessages));
   };
+
+  const [chatSetTyping] = useMutation(CHAT_SET_TYPING);
+
+  const [chatSendMessage, {
+    loading: chatSendMessageLoading, error: chatSendMessageError,
+  }] = useMutation(CHAT_SEND_MESSAGE);
+
+  const handleUserTyping = throttle(
+    (hasError?: boolean) => {
+      if (hasError || !ENABLE_TYPING_INDICATOR) return;
+
+      chatSetTyping({
+        variables: {
+          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+        },
+      });
+    },
+    START_TYPING_THROTTLE_INTERVAL,
+    { leading: true, trailing: false },
+  );
 
   useEffect(() => {
     setMessageHint();
@@ -178,6 +200,17 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   useEffect(() => {
     setMessageHint();
   }, [connected, locked, partnerIsLoggedOut]);
+
+  useEffect(() => {
+    const shouldRestoreFocus = textAreaRef.current
+      && !chatSendMessageLoading
+      && isTextAreaFocused
+      && document.activeElement !== textAreaRef.current.textarea;
+
+    if (shouldRestoreFocus) {
+      textAreaRef.current.textarea.focus();
+    }
+  }, [chatSendMessageLoading, textAreaRef.current]);
 
   const setMessageHint = () => {
     let chatDisabledHint = null;
@@ -228,11 +261,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       newMessage = newMessage.substring(0, maxMessageLength);
     }
 
-    const handleUserTyping = (hasError?: boolean) => {
-      if (hasError || !ENABLE_TYPING_INDICATOR) return;
-      startUserTyping(chatId);
-    };
-
     window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED, {
       detail: {
         text: newMessage,
@@ -245,10 +273,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
-
-    const [chatSendMessage, {
-      loading: chatSendMessageLoading, error: chatSendMessageError,
-    }] = useMutation(CHAT_SEND_MESSAGE);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -283,10 +307,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       setShowEmojiPicker(false);
       const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
       window.dispatchEvent(sentMessageEvent);
-
-      setTimeout(() => {
-        textAreaRef.current?.textarea.focus();
-      }, 100);
     };
 
     const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -352,9 +372,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             value={message}
             onFocus={() => {
               window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_FOCUSED));
+              setIsTextAreaFocused(true);
             }}
             onBlur={() => {
               window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_UNFOCUSED));
+              setIsTextAreaFocused(false);
             }}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}

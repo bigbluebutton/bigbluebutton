@@ -12,6 +12,7 @@ import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const { isIphone } = deviceInfo;
 const { isSafari, isValidSafariVersion } = browserInfo;
@@ -30,11 +31,22 @@ const OptionsDropdownContainer = (props) => {
     ];
   }
 
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => {
+    return {
+      componentsFlags: m.componentsFlags,
+    };
+  });
+
+  const componentsFlags = currentMeeting?.componentsFlags;
+  const audioCaptionsEnabled = componentsFlags?.hasCaption;
+
   const [userLeaveMeeting] = useMutation(USER_LEAVE_MEETING);
 
   return (
     <OptionsDropdown {...{
-      isMobile, isRTL, optionsDropdownItems, userLeaveMeeting, ...props,
+      isMobile, isRTL, optionsDropdownItems, userLeaveMeeting, audioCaptionsEnabled, ...props,
     }}
     />
   );
@@ -44,7 +56,6 @@ export default withTracker((props) => {
   const handleToggleFullscreen = () => FullscreenService.toggleFullScreen();
   return {
     amIModerator: props.amIModerator,
-    audioCaptionsEnabled: audioCaptionsService.hasAudioCaptions(),
     audioCaptionsActive: audioCaptionsService.getAudioCaptions(),
     audioCaptionsSet: (value) => audioCaptionsService.setAudioCaptions(value),
     isMobile: deviceInfo.isMobile,

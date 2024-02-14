@@ -8,7 +8,6 @@ import LayoutModalContainer from '/imports/ui/components/layout/modal/container'
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
-import TimerService from '/imports/ui/components/timer/service';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -165,11 +164,11 @@ class ActionsDropdown extends PureComponent {
   }
 
   handleTimerClick() {
-    const { isTimerActive, layoutContextDispatch } = this.props;
+    const { isTimerActive, activateTimer, deactivateTimer } = this.props;
     if (!isTimerActive) {
-      TimerService.activateTimer(layoutContextDispatch);
+      activateTimer();
     } else {
-      TimerService.deactivateTimer();
+      deactivateTimer();
     }
   }
 

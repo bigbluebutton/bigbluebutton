@@ -243,7 +243,6 @@ object Polls {
 
   private def handleRespondToTypedPoll(poll: SimplePollResultOutVO, requesterId: String, pollId: String, questionId: Int,
                                        answer: String, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
-
     addQuestionResponse(poll.id, questionId, answer, requesterId, lm.polls)
     for {
       updatedPoll <- getSimplePollResult(poll.id, lm.polls)
@@ -362,10 +361,10 @@ object Polls {
     pvo
   }
 
-  def checkUserResponded(pollId: String, userId: String, polls: Polls): Boolean = {
+  def hasUserAlreadyResponded(pollId: String, userId: String, polls: Polls): Boolean = {
     polls.polls.get(pollId) match {
       case Some(p) => {
-        if (p.getResponders().filter(p => p.userId == userId).length > 0) {
+        if (p.getResponders().exists(p => p.userId == userId)) {
           true
         } else {
           false
@@ -375,10 +374,10 @@ object Polls {
     }
   }
 
-  def checkUserAddedQuestion(pollId: String, userId: String, polls: Polls): Boolean = {
+  def hasUserAlreadyAddedTypedAnswer(pollId: String, userId: String, polls: Polls): Boolean = {
     polls.polls.get(pollId) match {
       case Some(p) => {
-        if (p.getTypedPollResponders().filter(responderId => responderId == userId).length > 0) {
+        if (p.getTypedPollResponders().contains(userId)) {
           true
         } else {
           false
@@ -398,6 +397,17 @@ object Polls {
         }
       }
       case None => false
+    }
+  }
+
+  def findAnswerWithText(pollId: String, questionId: Int, answerText: String, polls: Polls): Option[Int] = {
+    for {
+      poll <- Polls.getPoll(pollId, polls)
+      question <- poll.questions.find(q => q.id == questionId)
+      answers <- question.answers
+      equalAnswer <- answers.find(ans => ans.text.getOrElse("") == answerText)
+    } yield {
+      equalAnswer.id
     }
   }
 

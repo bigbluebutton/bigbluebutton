@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPath
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
 import org.bigbluebutton.core.models.{ UserState, Users2x }
@@ -31,13 +31,7 @@ trait ChangeUserReactionEmojiReqMsgHdlr extends RightsManagementTrait {
     }
 
     //Get durationInSeconds from Client config
-    val userReactionExpire =
-      getConfigPropertyValueByPath(liveMeeting.clientSettings, "public.userReaction.expire") match {
-        case Some(durationInSeconds: Int) => durationInSeconds
-        case _ =>
-          log.debug("Config `public.userReaction.expire` not found.")
-          30
-      }
+    val userReactionExpire = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.userReaction.expire", 30)
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
       newUserState <- Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, msg.body.reactionEmoji, userReactionExpire)

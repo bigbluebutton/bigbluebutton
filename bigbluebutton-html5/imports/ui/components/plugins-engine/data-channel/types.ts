@@ -1,5 +1,5 @@
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-export interface PluginDataChannelManagerContainerProps {
+export interface PluginDataChannelManagerProps {
   pluginApi: PluginSdk.PluginApi;
 }

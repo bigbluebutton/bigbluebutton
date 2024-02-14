@@ -98,6 +98,7 @@ defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/join
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
 defaultGuestWaitURL=https://bbb-01.example.com/bbb-01/html5client/guestWait
+graphqlWebsocketUrl=wss://bbb-01.example.com/v1/graphql
 ```
 
 Add the following options to `/etc/bigbluebutton/bbb-html5.yml`:
@@ -108,7 +109,6 @@ public:
     basename: '/bbb-01/html5client'
     bbbWebBase: 'https://bbb-01.example.com/bigbluebutton'
     learningDashboardBase: 'https://bbb-01.example.com/learning-dashboard'
-    graphqlUrl: wss://bbb-01.example.com/v1/graphql
   media:
     stunTurnServersFetchAddress: 'https://bbb-01.example.com/bigbluebutton/api/stuns'
     sip_ws_host: 'bbb-01.example.com'

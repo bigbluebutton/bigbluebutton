@@ -29,6 +29,7 @@ const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
   width: ${fontSizeLarge};
   height: ${fontSizeLarge};
   font-size: ${fontSizeBase};
+  user-select: none;
 
   ${({ titleMargin }) => titleMargin && `
     [dir="ltr"] & {
@@ -40,6 +41,7 @@ const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
 const RecordingControl = styled.div<RecordingIndicatorProps>`
   display: flex;
   align-items: center;
+  user-select: none;
 
   span {
     border: none;

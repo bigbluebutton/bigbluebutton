@@ -145,7 +145,7 @@ const SidebarContent = (props) => {
       )}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer amIModerator={amIModerator} />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
-      {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
+      {sidebarContentPanel === PANELS.TIMER && <TimerContainer isModerator={amIModerator} />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}
       {sidebarContentPanel === PANELS.POLL && (
         <Styled.Poll

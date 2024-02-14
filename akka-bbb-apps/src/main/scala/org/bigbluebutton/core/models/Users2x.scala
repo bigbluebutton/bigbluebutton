@@ -27,7 +27,7 @@ object Users2x {
   }
 
   def remove(users: Users2x, intId: String): Option[UserState] = {
-    //UserDAO.delete(intId)
+    //UserDAO.softDelete(intId)
     users.remove(intId)
   }
 
@@ -125,7 +125,7 @@ object Users2x {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
-      //      UserDAO.delete(intId)  --it will keep the user on Db
+      //      UserDAO.softDelete(intId)  --it will keep the user on Db
       ejectedUser
     }
   }

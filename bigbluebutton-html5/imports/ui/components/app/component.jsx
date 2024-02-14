@@ -39,7 +39,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
-import PluginsEngineContainer from '../plugins-engine/container';
+import PluginsEngineManager from '../plugins-engine/manager';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -174,6 +174,7 @@ class App extends Component {
       layoutContextDispatch,
       isRTL,
       setMobileUser,
+      toggleVoice,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -217,7 +218,7 @@ class App extends Component {
 
     if (CONFIRMATION_ON_LEAVE) {
       window.onbeforeunload = (event) => {
-        AudioService.muteMicrophone();
+        AudioService.muteMicrophone(toggleVoice);
         event.stopImmediatePropagation();
         event.preventDefault();
         // eslint-disable-next-line no-param-reassign
@@ -530,6 +531,7 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       enforceLayout,
+      setLocalSettings,
     } = this.props;
 
     return (
@@ -561,6 +563,7 @@ class App extends Component {
           shouldShowScreenshare,
           shouldShowExternalVideo: !!shouldShowExternalVideo,
           enforceLayout,
+          setLocalSettings,
         }}
       />
     );
@@ -606,7 +609,7 @@ class App extends Component {
     } = this.state;
     return (
       <>
-        <PluginsEngineContainer />
+        <PluginsEngineManager />
         <FloatingWindowContainer />
         <TimeSync />
         <Notifications />
@@ -629,14 +632,9 @@ class App extends Component {
           <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
-          <Styled.TextMeasure id="text-measure" />
+          <ExternalVideoPlayerContainer />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
-          {
-            shouldShowExternalVideo
-              ? <ExternalVideoPlayerContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
-              : null
-          }
           {shouldShowSharedNotes
             ? (
               <NotesContainer

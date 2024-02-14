@@ -7,6 +7,9 @@ import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs
 import {
   SET_AWAY,
   SET_ROLE,
+  USER_EJECT_CAMERAS,
+  CHAT_CREATE_WITH_USER,
+  REQUEST_USER_INFO,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
@@ -18,14 +21,12 @@ import {
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
-  sendCreatePrivateChat,
   toggleVoice,
   isMe,
   generateActionsPermissions,
   isVoiceOnlyUser,
 } from './service';
 
-import { makeCall } from '/imports/ui/services/api';
 import { isChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
@@ -40,6 +41,7 @@ import Styled from './styles';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 
 interface UserActionsProps {
   user: User;
@@ -150,10 +152,10 @@ const messages = defineMessages({
   },
 });
 const makeDropdownPluginItem: (
-  userDropdownItems: PluginSdk.UserListDropdownItem[]) => DropdownItem[] = (
-    userDropdownItems: PluginSdk.UserListDropdownItem[],
+  userDropdownItems: PluginSdk.UserListDropdownInterface[]) => DropdownItem[] = (
+    userDropdownItems: PluginSdk.UserListDropdownInterface[],
   ) => userDropdownItems.map(
-    (userDropdownItem: PluginSdk.UserListDropdownItem) => {
+    (userDropdownItem: PluginSdk.UserListDropdownInterface) => {
       const returnValue: DropdownItem = {
         isSeparator: false,
         key: userDropdownItem.id,
@@ -213,6 +215,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
   const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const voiceToggle = useToggleVoice();
 
   const handleWhiteboardAccessChange = async () => {
     try {
@@ -277,7 +280,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     && lockSettings.hasActiveLockSetting
     && !user.isModerator;
 
-  let userListDropdownItems = [] as PluginSdk.UserListDropdownItem[];
+  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
   if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
     userListDropdownItems = [
       ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
@@ -285,7 +288,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   }
 
   const userDropdownItems = userListDropdownItems.filter(
-    (item: PluginSdk.UserListDropdownItem) => (user?.userId === item?.userId),
+    (item: PluginSdk.UserListDropdownInterface) => (user?.userId === item?.userId),
   );
 
   const hasWhiteboardAccess = user.presPagesWritable?.some(
@@ -294,12 +297,15 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
+  const [chatCreateWithUser] = useMutation(CHAT_CREATE_WITH_USER);
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
+  const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
+  const [requestUserInfo] = useMutation(REQUEST_USER_INFO);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -321,7 +327,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const dropdownOptions = [
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownItem) => (item?.type === UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownInterface) => (item?.type === UserListDropdownItemType.INFORMATION),
     )),
     {
       allowed: allowedToChangeStatus,
@@ -367,7 +373,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       onClick: () => {
         setPendingChat(user.userId);
         setSelected(false);
-        sendCreatePrivateChat(user);
+        chatCreateWithUser({
+          variables: {
+            userId: user.userId,
+          },
+        });
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: true,
@@ -405,7 +415,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
+        toggleVoice(user.userId, voiceToggle);
         setSelected(false);
       },
       icon: 'mute',
@@ -417,7 +427,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
+        toggleVoice(user.userId, voiceToggle);
         setSelected(false);
       },
       icon: 'unmute',
@@ -509,7 +519,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'directoryLookup',
       label: intl.formatMessage(messages.DirectoryLookupLabel),
       onClick: () => {
-        makeCall('requestUserInformation', user.extId);
+        requestUserInfo({
+          variables: {
+            extId: user.extId,
+          },
+        });
         setSelected(false);
       },
       icon: 'user',
@@ -532,7 +546,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'ejectUserCameras',
       label: intl.formatMessage(messages.ejectUserCamerasLabel),
       onClick: () => {
-        makeCall('ejectUserCameras', user.userId);
+        userEjectCameras({
+          variables: {
+            userId: user.userId,
+          },
+        });
         setSelected(false);
       },
       icon: 'video_off',
@@ -553,7 +571,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: 'time',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownItem) => (item?.type !== UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownInterface) => (item?.type !== UserListDropdownItemType.INFORMATION),
     )),
   ];
 

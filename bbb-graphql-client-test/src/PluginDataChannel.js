@@ -5,9 +5,9 @@ import {useState} from "react";
 export default function PluginDataChannel({userId}) {
     const [textAreaValue, setTextAreaValue] = useState(``);
 
-    const [dispatchPluginDataChannelMessage] = useMutation(gql`
-      mutation DispatchPluginDataChannelMessageMsg($pluginName: String!, $dataChannel: String!, $payloadJson: String!, $toRoles: [String]!,$toUserIds: [String]!) {
-        dispatchPluginDataChannelMessageMsg(
+    const [pluginDataChannelDispatchMessage] = useMutation(gql`
+      mutation PluginDataChannelDispatchMessage($pluginName: String!, $dataChannel: String!, $payloadJson: String!, $toRoles: [String]!,$toUserIds: [String]!) {
+        pluginDataChannelDispatchMessage(
           pluginName: $pluginName,
           dataChannel: $dataChannel,
           payloadJson: $payloadJson,
@@ -16,18 +16,54 @@ export default function PluginDataChannel({userId}) {
         )
       }
     `);
-    const handleDispatchPluginDataChannelMessage = (roles, userIds) => {
+    const handlePluginDataChannelDispatchMessage = (roles, userIds) => {
         if (textAreaValue.trim() !== '') {
-            dispatchPluginDataChannelMessage({
+            pluginDataChannelDispatchMessage({
                 variables: {
-                    pluginName: 'SamplePresentationToolbarPlugin',
-                    dataChannel: 'public-channel',
+                    pluginName: 'SelectRandomUserPlugin',
+                    dataChannel: 'pickRandomUser',
                     payloadJson: textAreaValue,
                     toRoles: roles,
                     toUserIds: userIds,
                 },
             });
         }
+    };
+
+    const [pluginDataChannelReset] = useMutation(gql`
+      mutation PluginDataChannelReset($pluginName: String!, $dataChannel: String!) {
+        pluginDataChannelReset(
+          pluginName: $pluginName,
+          dataChannel: $dataChannel
+        )
+      }
+    `);
+    const handlePluginDataChannelReset = () => {
+        pluginDataChannelReset({
+            variables: {
+                pluginName: 'SelectRandomUserPlugin',
+                dataChannel: 'pickRandomUser'
+            },
+        });
+    };
+
+    const [pluginDataChannelDeleteMessage] = useMutation(gql`
+      mutation PluginDataChannelDeleteMessage($pluginName: String!, $dataChannel: String!, $messageId: String!) {
+        pluginDataChannelDeleteMessage(
+          pluginName: $pluginName,
+          dataChannel: $dataChannel,
+          messageId: $messageId
+        )
+      }
+    `);
+    const handlePluginDataChannelDeleteMessage = (messageId) => {
+        pluginDataChannelDeleteMessage({
+            variables: {
+                pluginName: 'SelectRandomUserPlugin',
+                dataChannel: 'pickRandomUser',
+                messageId: messageId
+            },
+        });
     };
 
     const { loading, error, data } = usePatchedSubscription(
@@ -74,6 +110,9 @@ export default function PluginDataChannel({userId}) {
                         <td>{JSON.stringify(curr.payloadJson)}</td>
                         <td>{JSON.stringify(curr.toRoles)}</td>
                         <td>{curr.createdAt}</td>
+                        <td>
+                            <button onClick={() => handlePluginDataChannelDeleteMessage(curr.messageId)}>Delete!</button>
+                        </td>
                     </tr>
                 );
             })}
@@ -86,12 +125,13 @@ export default function PluginDataChannel({userId}) {
                               value={textAreaValue}
                               onChange={(e) => setTextAreaValue(e.target.value)}
                     ></textarea>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage([],[])}>Dispatch to All!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage(['moderator'], [])}>Dispatch to Moderators!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage(['viewer'], [])}>Dispatch to Viewers!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage(['moderator','viewer'], [])}>Dispatch to Moderators and Viewers!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage(['presenter'], [])}>Dispatch to Presenter!</button>
-                    <button onClick={() => handleDispatchPluginDataChannelMessage([], [userId, 'user-xxx'])}>Dispatch to Me!</button>
+                    <button onClick={() => handlePluginDataChannelDispatchMessage([],[])}>Dispatch to All!</button>
+                    <button onClick={() => handlePluginDataChannelDispatchMessage(['moderator'], [])}>Dispatch to Moderators!</button>
+                    <button onClick={() => handlePluginDataChannelDispatchMessage(['viewer'], [])}>Dispatch to Viewers!</button>
+                    <button onClick={() => handlePluginDataChannelDispatchMessage(['moderator','viewer'], [])}>Dispatch to Moderators and Viewers!</button>
+                    <button onClick={() => handlePluginDataChannelDispatchMessage(['presenter'], [])}>Dispatch to Presenter!</button>
+                    <button onClick={() => handlePluginDataChannelDispatchMessage([], [userId, 'user-xxx'])}>Dispatch to Me!</button>
+                    <button onClick={() => handlePluginDataChannelReset()}>Reset!</button>
                 </td>
             </tr>
             </tfoot>
