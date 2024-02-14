@@ -235,6 +235,26 @@ case class DeletedRecordingSysMsgBody(recordId: String)
 /**
  * Sent from akka-apps to graphql-middleware
  */
+object CheckGraphqlMiddlewareAlivePingSysMsg { val NAME = "CheckGraphqlMiddlewareAlivePingSysMsg" }
+case class CheckGraphqlMiddlewareAlivePingSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   CheckGraphqlMiddlewareAlivePingSysMsgBody
+) extends BbbCoreMsg
+case class CheckGraphqlMiddlewareAlivePingSysMsgBody(middlewareUID: String)
+
+/**
+ * Sent from graphql-middleware to akka-apps
+ */
+object CheckGraphqlMiddlewareAlivePongSysMsg { val NAME = "CheckGraphqlMiddlewareAlivePongSysMsg" }
+case class CheckGraphqlMiddlewareAlivePongSysMsg(
+    header: BbbCoreBaseHeader,
+    body:   CheckGraphqlMiddlewareAlivePongSysMsgBody
+) extends BbbCoreMsg
+case class CheckGraphqlMiddlewareAlivePongSysMsgBody(middlewareUID: String)
+
+/**
+ * Sent from akka-apps to graphql-middleware
+ */
 object ForceUserGraphqlReconnectionSysMsg { val NAME = "ForceUserGraphqlReconnectionSysMsg" }
 case class ForceUserGraphqlReconnectionSysMsg(
     header: BbbCoreHeaderWithMeetingId,

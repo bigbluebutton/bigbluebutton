@@ -9,6 +9,7 @@ import scala.util.{Failure, Success }
 case class UserGraphqlConnectionDbModel (
        graphqlConnectionId:     Option[Int],
        sessionToken:            String,
+       middlewareUID:           String,
        middlewareConnectionId:  String,
        establishedAt:           java.sql.Timestamp,
        closedAt:                Option[java.sql.Timestamp],
@@ -16,10 +17,11 @@ case class UserGraphqlConnectionDbModel (
 
 class UserGraphqlConnectionDbTableDef(tag: Tag) extends Table[UserGraphqlConnectionDbModel](tag, None, "user_graphqlConnection") {
   override def * = (
-    graphqlConnectionId, sessionToken, middlewareConnectionId, establishedAt, closedAt
+    graphqlConnectionId, sessionToken, middlewareUID, middlewareConnectionId, establishedAt, closedAt
   ) <> (UserGraphqlConnectionDbModel.tupled, UserGraphqlConnectionDbModel.unapply)
   val graphqlConnectionId = column[Option[Int]]("graphqlConnectionId", O.PrimaryKey, O.AutoInc)
   val sessionToken = column[String]("sessionToken")
+  val middlewareUID = column[String]("middlewareUID")
   val middlewareConnectionId = column[String]("middlewareConnectionId")
   val establishedAt = column[java.sql.Timestamp]("establishedAt")
   val closedAt = column[Option[java.sql.Timestamp]]("closedAt")
@@ -27,12 +29,13 @@ class UserGraphqlConnectionDbTableDef(tag: Tag) extends Table[UserGraphqlConnect
 
 
 object UserGraphqlConnectionDAO {
-  def insert(sessionToken: String, middlewareConnectionId: String) = {
+  def insert(sessionToken: String, middlewareUID:String, middlewareConnectionId: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserGraphqlConnectionDbTableDef].insertOrUpdate(
         UserGraphqlConnectionDbModel(
           graphqlConnectionId = None,
           sessionToken = sessionToken,
+          middlewareUID = middlewareUID,
           middlewareConnectionId = middlewareConnectionId,
           establishedAt = new java.sql.Timestamp(System.currentTimeMillis()),
           closedAt = None
@@ -46,11 +49,12 @@ object UserGraphqlConnectionDAO {
       }
   }
 
-  def updateClosed(sessionToken: String, middlewareConnectionId: String) = {
+  def updateClosed(sessionToken: String, middlewareUID: String, middlewareConnectionId: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserGraphqlConnectionDbTableDef]
         .filter(_.sessionToken === sessionToken)
         .filter(_.middlewareConnectionId === middlewareConnectionId)
+        .filter(_.middlewareUID === middlewareUID)
         .filter(_.closedAt.isEmpty)
         .map(u => u.closedAt)
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))

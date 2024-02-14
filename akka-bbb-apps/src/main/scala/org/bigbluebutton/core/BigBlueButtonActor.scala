@@ -83,6 +83,7 @@ class BigBlueButtonActor(
       case m: ValidateConnAuthTokenSysMsg            => handleValidateConnAuthTokenSysMsg(m)
       case _: UserGraphqlConnectionEstablishedSysMsg => //Ignore
       case _: UserGraphqlConnectionClosedSysMsg      => //Ignore
+      case _: CheckGraphqlMiddlewareAlivePongSysMsg  => //Ignore
       case _                                         => log.warning("Cannot handle " + msg.envelope.name)
     }
   }

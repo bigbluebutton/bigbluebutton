@@ -714,6 +714,7 @@ CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connecti
 CREATE TABLE "user_graphqlConnection" (
 	"graphqlConnectionId" serial PRIMARY KEY,
 	"sessionToken" varchar(16),
+	"middlewareUID" varchar(36),
 	"middlewareConnectionId" varchar(12),
 	"establishedAt" timestamp with time zone,
 	"closedAt" timestamp with time zone
