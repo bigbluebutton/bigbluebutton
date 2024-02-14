@@ -23,6 +23,8 @@ export const ChatUserName = styled.div<ChatUserNameProps>`
   font-weight: 600;
   position: relative;
 
+  margin-right: calc(${lineHeightComputed} / 2);
+
   min-width: 0;
   display: inline-block;
   white-space: nowrap;
@@ -57,7 +59,6 @@ export const ChatUserOffline = styled.span`
   font-size: 90%;
   line-height: 1;
   user-select: none;
-  margin: 0 0 0 calc(${lineHeightComputed} / 2);
 `;
 
 export const ChatTime = styled.time`
@@ -67,7 +68,6 @@ export const ChatTime = styled.time`
   color: ${palettePlaceholderText};
   text-transform: uppercase;
   font-size: 75%;
-  margin: 0 0 0 calc(${lineHeightComputed} / 2);
   [dir='rtl'] & {
     margin: 0 calc(${lineHeightComputed} / 2) 0 0;
   }

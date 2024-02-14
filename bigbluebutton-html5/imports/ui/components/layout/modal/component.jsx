@@ -17,6 +17,7 @@ const LayoutModalComponent = (props) => {
     updateSettings,
     onRequestClose,
     isOpen,
+    setLocalSettings,
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
@@ -82,7 +83,7 @@ const LayoutModalComponent = (props) => {
       application:
         { ...application, selectedLayout, pushLayout: updateAll },
     };
-    updateSettings(obj, intlMessages.layoutToastLabel);
+    updateSettings(obj, intlMessages.layoutToastLabel, setLocalSettings);
     setIsOpen(false);
   };
 
@@ -178,6 +179,7 @@ const propTypes = {
     selectedLayout: PropTypes.string.isRequired,
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
+  setLocalSettings: PropTypes.func.isRequired,
 };
 
 LayoutModalComponent.propTypes = propTypes;

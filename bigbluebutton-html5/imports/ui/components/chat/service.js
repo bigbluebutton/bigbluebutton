@@ -40,22 +40,6 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
-  download: {
-    id: 'app.presentation.downloadLabel',
-    description: 'used as label for presentation download link',
-  },
-  notAccessibleWarning: {
-    id: 'app.presentationUploader.export.notAccessibleWarning',
-    description: 'used for indicating that a link may be not accessible',
-  },
-  original: {
-    id: 'app.presentationUploader.export.originalLabel',
-    description: 'Label to identify original presentation exported',
-  },
-  withWhiteboardAnnotations: {
-    id: 'app.presentationUploader.export.withWhiteboardAnnotations',
-    description: 'Label to identify in current state presentation exported',
-  },
 });
 
 const setUserSentMessage = (bool) => {
@@ -290,18 +274,6 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   });
 };
 
-const getExportedPresentationString = (fileURI, filename, intl, fileStateType) => {
-  const sanitizedFilename = stripTags(filename);
-  const intlFileStateType = fileStateType === 'Original' ? intlMessages.original : intlMessages.withWhiteboardAnnotations;
-  const href = `${APP.bbbWebBase}/${fileURI}`;
-  const warningIcon = '<i class="icon-bbb-warning"></i>';
-  const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
-  const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
-  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${href} type="application/pdf" target="_blank" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
-  const name = `<span>${sanitizedFilename} (${intl.formatMessage(intlFileStateType)})</span>`;
-  return `${name}</br>${link}`;
-};
-
 export default {
   setUserSentMessage,
   mapGroupMessage,
@@ -322,5 +294,4 @@ export default {
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
   removePackagedClassAttribute,
-  getExportedPresentationString,
 };

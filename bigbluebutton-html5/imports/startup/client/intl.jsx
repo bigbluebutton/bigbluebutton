@@ -10,6 +10,7 @@ import Logger from '/imports/startup/client/logger';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import Intl from '/imports/ui/services/locale';
 import { isEmpty } from 'radash';
+import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -66,6 +67,7 @@ class IntlStartup extends Component {
   fetchLocalizedMessages(locale, init = false) {
     const url = `./locale?locale=${locale}&init=${init}`;
     const localesPath = 'locales';
+    const { setLocalSettings } = this.props;
 
     Intl.fetching = true;
     this.setState({ fetching: true }, () => {
@@ -155,7 +157,7 @@ class IntlStartup extends Component {
                 window.dispatchEvent(new Event('localeChanged'));
                 document.getElementsByTagName('html')[0].lang = formattedLocale;
                 document.body.classList.add(`lang-${language}`);
-                Settings.save();
+                Settings.save(setLocalSettings);
               });
             });
         });
@@ -186,9 +188,11 @@ class IntlStartup extends Component {
 const IntlStartupContainer = withTracker(() => {
   const { locale } = Settings.application;
   const overrideLocaleFromPassedParameter = getFromUserSettings('bbb_override_default_locale', null);
+  const setLocalSettings = useUserChangedLocalSettings();
   return {
     locale,
     overrideLocaleFromPassedParameter,
+    setLocalSettings,
   };
 })(IntlStartup);
 

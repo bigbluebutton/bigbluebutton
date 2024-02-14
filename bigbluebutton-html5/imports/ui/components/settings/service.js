@@ -31,9 +31,9 @@ const showGuestNotification = () => {
 
 const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
 
-const updateSettings = (obj, msgDescriptor) => {
+const updateSettings = (obj, msgDescriptor, mutation) => {
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
-  Settings.save();
+  Settings.save(mutation);
 
   if (msgDescriptor) {
     // prevents React state update on unmounted component

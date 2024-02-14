@@ -76,6 +76,7 @@ class MeetingActor(
 
   with UserJoinMeetingReqMsgHdlr
   with UserJoinMeetingAfterReconnectReqMsgHdlr
+  with UserEstablishedGraphqlConnectionInternalMsgHdlr
   with UserConnectedToGlobalAudioMsgHdlr
   with UserDisconnectedFromGlobalAudioMsgHdlr
   with MuteAllExceptPresentersCmdMsgHdlr
@@ -266,8 +267,14 @@ class MeetingActor(
     // internal messages
     case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
+    case msg: UserClosedAllGraphqlConnectionsInternalMsg =>
+      state = handleUserClosedAllGraphqlConnectionsInternalMsg(msg, state)
+      updateModeratorsPresence()
+    case msg: UserEstablishedGraphqlConnectionInternalMsg =>
+      state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
+      updateModeratorsPresence()
 
-    case msg: ExtendMeetingDuration               => handleExtendMeetingDuration(msg)
+    case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
       if (!liveMeeting.props.meetingProp.isBreakout) {
         // Update users of meeting remaining time.

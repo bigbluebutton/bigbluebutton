@@ -1,14 +1,46 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { useMutation } from '@apollo/client';
 import VideoProvider from './component';
 import VideoService from './service';
 import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
+import { CAMERA_BROADCAST_START, CAMERA_BROADCAST_STOP } from './mutations';
 
 const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
 const VideoProviderContainer = ({ children, ...props }) => {
   const { streams, isGridEnabled } = props;
-  return (!streams.length && !isGridEnabled ? null : <VideoProvider {...props}>{children}</VideoProvider>);
+  const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+
+  const sendUserShareWebcam = (cameraId) => {
+    cameraBroadcastStart({ variables: { cameraId } });
+  };
+
+  const sendUserUnshareWebcam = (cameraId) => {
+    cameraBroadcastStop({ variables: { cameraId } });
+  };
+
+  const playStart = (cameraId) => {
+    if (VideoService.isLocalStream(cameraId)) {
+      sendUserShareWebcam(cameraId);
+      VideoService.joinedVideo();
+    }
+  };
+
+  return (
+    !streams.length && !isGridEnabled
+      ? null
+      : (
+        <VideoProvider
+          {...props}
+          playStart={playStart}
+          sendUserUnshareWebcam={sendUserUnshareWebcam}
+        >
+          {children}
+        </VideoProvider>
+      )
+  );
 };
 
 export default withTracker(({ swapLayout, ...rest }) => {

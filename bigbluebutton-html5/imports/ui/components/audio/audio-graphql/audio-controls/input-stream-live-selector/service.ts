@@ -3,7 +3,6 @@
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
-import { makeCall } from '/imports/ui/services/api';
 import AudioManager from '/imports/ui/services/audio-manager';
 
 const MUTED_KEY = 'muted';
@@ -39,7 +38,10 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   );
 };
 
-export const toggleMuteMicrophone = (muted: boolean) => {
+export const toggleMuteMicrophone = (
+  muted: boolean,
+  toggleVoice: (userId?: string | null, muted?: boolean | null) => void,
+) => {
   Storage.setItem(MUTED_KEY, !muted);
 
   if (muted) {
@@ -50,7 +52,7 @@ export const toggleMuteMicrophone = (muted: boolean) => {
       },
       'microphone unmuted by user',
     );
-    makeCall('toggleVoice');
+    toggleVoice();
   } else {
     logger.info(
       {
@@ -59,7 +61,7 @@ export const toggleMuteMicrophone = (muted: boolean) => {
       },
       'microphone muted by user',
     );
-    makeCall('toggleVoice');
+    toggleVoice();
   }
 };
 

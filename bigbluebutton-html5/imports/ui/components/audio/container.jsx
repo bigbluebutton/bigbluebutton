@@ -22,6 +22,7 @@ import {
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 import Settings from '/imports/ui/services/settings';
+import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 
 const APP_CONFIG = window.meetingClientSettings.public.app;
 const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
@@ -201,11 +202,13 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks, i
     setVideoPreviewModalIsOpen(true);
   };
 
+  const toggleVoice = useToggleVoice();
+
   if (Service.isConnected() && !Service.isListenOnly()) {
     Service.updateAudioConstraints(microphoneConstraints);
 
     if (userMic && !Service.isMuted()) {
-      Service.toggleMuteMicrophone();
+      Service.toggleMuteMicrophone(toggleVoice);
       notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
     }
   }
@@ -244,7 +247,7 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks, i
     isAudioModalOpen, 
     setAudioModalIsOpen,
     init: async () => {
-      await Service.init(messages, intl);
+      await Service.init(messages, intl, toggleVoice);
       const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
       if ((!autoJoin || didMountAutoJoin)) {

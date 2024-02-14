@@ -480,11 +480,11 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const toggleVoice = (userId) => {
+const toggleVoice = (userId, voiceToggle) => {
   if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone();
+    AudioService.toggleMuteMicrophone(voiceToggle);
   } else {
-    makeCall('toggleVoice', userId);
+    voiceToggle(userId);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },

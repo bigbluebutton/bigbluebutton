@@ -9,6 +9,7 @@ import {
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
+  REQUEST_USER_INFO,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
@@ -26,7 +27,6 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { makeCall } from '/imports/ui/services/api';
 import { isChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
@@ -41,6 +41,7 @@ import Styled from './styles';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 
 interface UserActionsProps {
   user: User;
@@ -215,6 +216,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
   const [getWriters, { data: usersData }] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
   const writers = usersData?.pres_page_writers || null;
+  const voiceToggle = useToggleVoice();
 
   // users will only be fetched when getWriters is called
   useEffect(() => {
@@ -295,6 +297,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
+  const [requestUserInfo] = useMutation(REQUEST_USER_INFO);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -404,7 +407,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
+        toggleVoice(user.userId, voiceToggle);
         setSelected(false);
       },
       icon: 'mute',
@@ -416,7 +419,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
+        toggleVoice(user.userId, voiceToggle);
         setSelected(false);
       },
       icon: 'unmute',
@@ -508,7 +511,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'directoryLookup',
       label: intl.formatMessage(messages.DirectoryLookupLabel),
       onClick: () => {
-        makeCall('requestUserInformation', user.extId);
+        requestUserInfo({
+          variables: {
+            extId: user.extId,
+          },
+        });
         setSelected(false);
       },
       icon: 'user',

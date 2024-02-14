@@ -5,7 +5,6 @@ import {
 } from '/imports/ui/Types/meeting';
 import Auth from '/imports/ui/services/auth';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
 
@@ -128,11 +127,11 @@ export const isVideoPinEnabledForCurrentUser = (
 // so this code is duplicated from the old userlist service
 // session for chats the current user started
 
-export const toggleVoice = (userId: string) => {
+export const toggleVoice = (userId: string, voiceToggle: (userId?: string | null, muted?: boolean | null) => void) => {
   if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone();
+    AudioService.toggleMuteMicrophone(voiceToggle);
   } else {
-    makeCall('toggleVoice', userId);
+    voiceToggle(userId);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },

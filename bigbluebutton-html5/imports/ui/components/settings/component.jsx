@@ -265,6 +265,7 @@ class Settings extends Component {
       setIsOpen,
       isOpen,
       priority,
+      setLocalSettings,
     } = this.props;
     const {
       current,
@@ -275,7 +276,7 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current, intlMessages.savedAlertLabel);
+            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
 
             if (saved.application.locale !== current.application.locale) {
               const { language } = formatLocaleCode(saved.application.locale);

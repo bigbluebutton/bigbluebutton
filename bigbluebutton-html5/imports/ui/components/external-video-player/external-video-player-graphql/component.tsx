@@ -266,7 +266,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const handleOnPause = () => {
+  const handleOnStop = () => {
     if (isPresenter) {
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
@@ -341,7 +341,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
             setPlayed(state.played);
             setLoaded(state.loaded);
           }}
-          onPause={handleOnPause}
+          onPause={handleOnStop}
+          onEnded={handleOnStop}
           muted={mute}
         />
         {
