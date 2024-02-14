@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import { GenericComponentItemProps } from "./types";
+import React, { useEffect, useRef } from 'react';
+import { GenericComponentItemProps } from './types';
 
-
-export const GenericComponentItem: React.FC<GenericComponentItemProps> = (props) => {
+const GenericComponentItem: React.FC<GenericComponentItemProps> = (props) => {
   const {
     renderFunction,
   } = props;
@@ -17,10 +16,11 @@ export const GenericComponentItem: React.FC<GenericComponentItemProps> = (props)
   return (
     <div
       style={{
-        overflow: 'hidden'
+        overflow: 'hidden',
       }}
       ref={elementRef}
-    >
-    </div>
+    />
   );
-}
+};
+
+export default GenericComponentItem;

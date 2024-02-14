@@ -1,21 +1,23 @@
 import React, { useEffect } from 'react';
+import { useMutation } from '@apollo/client';
+import { GenericComponent } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
 import { GenericComponentProps } from './types';
-import { useMutation } from '@apollo/client';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import NotesService from '/imports/ui/components/notes/service';
-import { GenericComponentItem } from './generic-component-item/component';
-import { GenericComponent } from 'bigbluebutton-html-plugin-sdk';
+import GenericComponentItem from './generic-component-item/component';
 import { screenshareHasEnded } from '../screenshare/service';
 
-const mapGenericComponentItems = (genericComponents: GenericComponent[]) => genericComponents.map((genericComponent) => (
+const mapGenericComponentItems = (
+  genericComponents: GenericComponent[],
+) => genericComponents.map((genericComponent) => (
   <GenericComponentItem
     key={genericComponent.id}
     renderFunction={genericComponent.contentFunction}
   />
-))
+));
 
-export const GenericComponentContent: React.FC<GenericComponentProps> = ({
+const GenericComponentContent: React.FC<GenericComponentProps> = ({
   isResizing,
   genericComponent,
   renderFunctionComponents,
@@ -39,7 +41,7 @@ export const GenericComponentContent: React.FC<GenericComponentProps> = ({
     if (hasExternalVideoOnLayout) stopExternalVideoShare();
     if (isSharedNotesPinned) NotesService.pinSharedNotes(false);
     if (hasScreenShareOnLayout) screenshareHasEnded();
-  }, [])
+  }, []);
 
   return (
     <Styled.Container
@@ -57,3 +59,5 @@ export const GenericComponentContent: React.FC<GenericComponentProps> = ({
     </Styled.Container>
   );
 };
+
+export default GenericComponentContent;
