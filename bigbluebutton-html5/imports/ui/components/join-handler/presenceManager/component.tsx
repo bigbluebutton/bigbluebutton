@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { DDP } from 'meteor/ddp-client';
 import {
@@ -11,6 +11,8 @@ import {
 } from './queries';
 import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
 import MeetingEndedContainer from '../../meeting-ended/meeting-ended-ts/component';
+import { setUserDataToSessionStorage } from './service';
+import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
 
 const connectionTimeout = 60000;
 
@@ -55,9 +57,11 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const loadingContextInfo = useContext(LoadingContext);
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
+      loadingContextInfo.setLoading(false, '');
       throw new Error('Authentication timeout');
     }, connectionTimeout);
 
@@ -68,6 +72,16 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken') as string;
     setAuthData({
+      meetingId,
+      userId,
+      authToken,
+      logoutUrl,
+      sessionToken,
+      userName,
+      extId,
+      meetingName,
+    });
+    setUserDataToSessionStorage({
       meetingId,
       userId,
       authToken,
@@ -91,14 +105,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, [joined, authToken]);
 
   useEffect(() => {
-    console.log('joined', joined);
-    if (!joined || (meetingEnded || joinErrorCode || ejectReasonCode)) {
-      clearTimeout(timeoutRef.current);
-    }
-  }, [joined]);
-
-  useEffect(() => {
     if (joined) {
+      clearTimeout(timeoutRef.current);
       Meteor.callAsync('validateConnection', authToken, meetingId, userId).then(() => {
         setAllowToRender(true);
       });
@@ -107,6 +115,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   useEffect(() => {
     if (joinErrorCode) {
+      loadingContextInfo.setLoading(false, '');
       throw new Error(joinErrorMessage);
     }
   },
@@ -137,8 +146,10 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     error: userInfoError,
     data: userInfoData,
   } = useQuery<GetUserInfoResponse>(getUserInfo);
+  const loadingContextInfo = useContext(LoadingContext);
   if (loading || userInfoLoading) return null;
   if (error || userInfoError) {
+    loadingContextInfo.setLoading(false, '');
     throw new Error('Error on user authentication: ', error);
   }
 

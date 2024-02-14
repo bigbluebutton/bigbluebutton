@@ -29,6 +29,7 @@ const ClientStartup: React.FC = () => {
           try {
             return <MeetingClientLazy />;
           } catch (error) {
+            loadingContextInfo.setLoading(false, '');
             throw new Error('Error on rendering MeetingClientLazy: '.concat(JSON.stringify(error) || ''));
           }
         })()

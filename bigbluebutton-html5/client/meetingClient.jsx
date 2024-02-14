@@ -75,6 +75,7 @@ const Startup = () => {
     if (!stack.includes(message)) {
       stack = `${message}\n${stack}`;
     }
+    loadingContextInfo.setLoading(false, '');
     logger.error({
       logCode: 'startup_error',
       extraInfo: {

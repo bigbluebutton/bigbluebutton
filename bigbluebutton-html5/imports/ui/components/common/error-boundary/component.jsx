@@ -4,10 +4,12 @@ import PropTypes from 'prop-types';
 const propTypes = {
   children: PropTypes.element.isRequired,
   Fallback: PropTypes.element,
+  errorMessage: PropTypes.string,
 };
 
 const defaultProps = {
   Fallback: null,
+  errorMessage: 'Something went wrong',
 };
 
 class ErrorBoundary extends Component {
@@ -36,10 +38,10 @@ class ErrorBoundary extends Component {
 
   render() {
     const { error, errorInfo } = this.state;
-    const { children, Fallback } = this.props;
+    const { children, Fallback, errorMessage } = this.props;
 
     const fallbackElement = Fallback && error
-      ? <Fallback error={error || {}} errorInfo={errorInfo} /> : <div>Something went wrong</div>;
+      ? <Fallback error={error || {}} errorInfo={errorInfo} /> : <div>{errorMessage}</div>;
     return (error
       ? fallbackElement
       : children);

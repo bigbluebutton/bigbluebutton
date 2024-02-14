@@ -11,6 +11,26 @@ export const JoinErrorCodeTable = {
   MAX_PARTICIPANTS: 'max_participants_reason',
 };
 
+export const setUserDataToSessionStorage = (userData: {
+  meetingId: string,
+  userId: string,
+  authToken: string,
+  logoutUrl: string,
+  sessionToken: string,
+  userName: string,
+  extId: string,
+  meetingName: string,
+}) => {
+  sessionStorage.setItem('meetingId', userData.meetingId);
+  sessionStorage.setItem('userId', userData.userId);
+  sessionStorage.setItem('logoutUrl', userData.logoutUrl);
+  sessionStorage.setItem('sessionToken', userData.sessionToken);
+  sessionStorage.setItem('userName', userData.userName);
+  sessionStorage.setItem('extId', userData.extId);
+  sessionStorage.setItem('meetingName', userData.meetingName);
+};
+
 export default {
   JoinErrorCodeTable,
+  setUserDataToSessionStorage,
 };

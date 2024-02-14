@@ -34,6 +34,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       const responseJson: Response = await response.json();
       setGraphqlUrl(responseJson.response.graphqlWebsocketUrl);
     }).catch((error) => {
+      loadingContextInfo.setLoading(false, '');
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
     loadingContextInfo.setLoading(true, 'Fetching GraphQL URL');
@@ -45,8 +46,11 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
       if (!sessionToken) {
+        loadingContextInfo.setLoading(false, '');
         throw new Error('Missing session token');
       }
+      sessionStorage.setItem('sessionToken', sessionToken);
+
       let wsLink;
       try {
         const subscription = new SubscriptionClient(graphqlUrl, {
@@ -59,15 +63,18 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
         });
         subscription.onError(() => {
+          loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on subscription to server');
         });
         wsLink = new WebSocketLink(
           subscription,
         );
         wsLink.setOnError((error) => {
+          loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
         });
       } catch (error) {
+        loadingContextInfo.setLoading(false, '');
         throw new Error('Error creating WebSocketLink: '.concat(JSON.stringify(error) || ''));
       }
       let client;
@@ -79,6 +86,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         });
         setApolloClient(client);
       } catch (error) {
+        loadingContextInfo.setLoading(false, '');
         throw new Error('Error creating Apollo Client: '.concat(JSON.stringify(error) || ''));
       }
     }

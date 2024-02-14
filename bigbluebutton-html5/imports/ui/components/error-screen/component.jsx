@@ -128,9 +128,7 @@ class ErrorScreen extends PureComponent {
     }
 
     if (error) {
-      errorMessageDescription = `Error: ${JSON.stringify(error)}
-       
-      ErrorInfo: ${JSON.stringify(errorInfo)}`;
+      errorMessageDescription = error.message;
     }
 
     return (
@@ -147,6 +145,13 @@ class ErrorScreen extends PureComponent {
             </Styled.SessionMessage>
           )
         }
+        <textarea
+          rows="5"
+          cols="33"
+          disabled
+        >
+          {JSON.stringify(errorInfo)}
+        </textarea>
         <Styled.Separator />
         <Styled.CodeError>
           {code}
