@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 
-case object CheckGraphqlMiddlewareAlive
+case object MiddlewareHealthCheckScheduler10Sec
 
 object GraphqlConnectionsActor {
   def props(system: ActorSystem,
@@ -51,15 +51,15 @@ class GraphqlConnectionsActor(
   private var graphqlConnections: Map[String, GraphqlUserConnection] = Map()
   private var pendingResponseMiddlewareUIDs: Map[String, BigInt] = Map()
 
-  system.scheduler.schedule(10.seconds, 10.seconds, self, CheckGraphqlMiddlewareAlive)
+  system.scheduler.schedule(10.seconds, 10.seconds, self, MiddlewareHealthCheckScheduler10Sec)
   private val maxMiddlewareInactivityInMillis = 11000
 
   def receive = {
     //=============================
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-    case CheckGraphqlMiddlewareAlive => checkGraphqlMiddlewareAlive()
-    case _                        => // do nothing
+    case msg: BbbCommonEnvCoreMsg             => handleBbbCommonEnvCoreMsg(msg)
+    case MiddlewareHealthCheckScheduler10Sec  => runMiddlewareHealthCheck()
+    case _                                    => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -127,8 +127,26 @@ class GraphqlConnectionsActor(
     }
   }
 
-  private def checkGraphqlMiddlewareAlive(): Unit = {
-    //Remove all connections from middleware if it didn't answer within 11 seconds
+  private def runMiddlewareHealthCheck(): Unit = {
+    removeInactiveConnections()
+    sendPingMessageToAllMiddlewareServices()
+  }
+
+  private def sendPingMessageToAllMiddlewareServices(): Unit = {
+    graphqlConnections.map(c => {
+      c._2.middlewareUID
+    }).toVector.distinct.map(middlewareUID => {
+      val event = MsgBuilder.buildCheckGraphqlMiddlewareAlivePingSysMsg(middlewareUID)
+      outGW.send(event)
+      log.debug(s"Sent ping message from graphql middleware ${middlewareUID}.")
+      pendingResponseMiddlewareUIDs.get(middlewareUID) match {
+        case None => pendingResponseMiddlewareUIDs += (middlewareUID -> System.currentTimeMillis)
+        case _ => //Ignore
+      }
+    })
+  }
+
+  private def removeInactiveConnections(): Unit = {
     for {
       (middlewareUid, pingSentAt) <- pendingResponseMiddlewareUIDs
       if (System.currentTimeMillis - pingSentAt) > maxMiddlewareInactivityInMillis
@@ -143,19 +161,6 @@ class GraphqlConnectionsActor(
 
       pendingResponseMiddlewareUIDs -= middlewareUid
     }
-
-    //Send Ping message to all middlewares with established connections
-    graphqlConnections.map(c => {
-      c._2.middlewareUID
-    }).toVector.distinct.map(middlewareUID => {
-      val event = MsgBuilder.buildCheckGraphqlMiddlewareAlivePingSysMsg(middlewareUID)
-      outGW.send(event)
-      log.debug(s"Sent ping message from graphql middleware ${middlewareUID}.")
-      pendingResponseMiddlewareUIDs.get(middlewareUID) match {
-        case None => pendingResponseMiddlewareUIDs += (middlewareUID -> System.currentTimeMillis)
-        case _ => //Ignore
-      }
-    })
   }
 
   private def handleCheckGraphqlMiddlewareAlivePongSysMsg(msg: CheckGraphqlMiddlewareAlivePongSysMsg): Unit = {
