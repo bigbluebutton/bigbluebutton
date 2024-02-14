@@ -223,7 +223,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       // Fetch the writers data
       const { data } = await getWriters();
       const allWriters = data?.pres_page_writers || [];
-      const currentWriters = allWriters?.filter(writer => writer.pageId === pageId);
+      const currentWriters = allWriters?.filter((writer) => writer.pageId === pageId);
 
       // Determine if the user has access
       const { userId, presPagesWritable } = user;
