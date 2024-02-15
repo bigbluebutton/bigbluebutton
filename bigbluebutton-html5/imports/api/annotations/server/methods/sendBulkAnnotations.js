@@ -10,8 +10,6 @@ export default function sendBulkAnnotations(payload) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    console.log("!!!!!!! sendBulkAnnotations!!!!:", payload)
-
     sendAnnotationHelper(payload, meetingId, requesterUserId);
     //payload.forEach((annotation) => sendAnnotationHelper(annotation, meetingId, requesterUserId));
     return true;
