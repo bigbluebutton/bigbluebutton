@@ -184,11 +184,13 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     } return '';
   };
 
-  const isVoiceOnly = user.isDialIn;
+  // This is being done because destructing is not a real solution, isDialIn is just a variable name.
+  // eslint-disable-next-line prefer-destructuring
+  const isDialIn = user.isDialIn;
 
   const iconUser = getIconUser();
-  const iconVoiceOnlyUser = (<Icon iconName="volume_level_2" />);
-  const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
+  const iconDialInUser = (<Icon iconName="volume_level_2" />);
+  const userIcon = isDialIn ? iconDialInUser : iconUser;
 
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
