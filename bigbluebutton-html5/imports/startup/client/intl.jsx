@@ -185,18 +185,28 @@ class IntlStartup extends Component {
   }
 }
 
-const IntlStartupContainer = withTracker(() => {
+const IntlStartupContainer = (props) => {
+  const setLocalSettings = useUserChangedLocalSettings();
+
+  return (
+    <IntlStartup
+      {...{
+        setLocalSettings,
+        ...props,
+      }}
+    />
+  );
+};
+
+export default withTracker(() => {
   const { locale } = Settings.application;
   const overrideLocaleFromPassedParameter = getFromUserSettings('bbb_override_default_locale', null);
-  const setLocalSettings = useUserChangedLocalSettings();
+
   return {
     locale,
     overrideLocaleFromPassedParameter,
-    setLocalSettings,
   };
-})(IntlStartup);
-
-export default IntlStartupContainer;
+})(IntlStartupContainer);
 
 IntlStartup.propTypes = propTypes;
 IntlStartup.defaultProps = defaultProps;
