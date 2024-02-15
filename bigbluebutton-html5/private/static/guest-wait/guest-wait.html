@@ -152,7 +152,7 @@
     let positionInWaitingQueue = '';
     function updatePositionInWaitingQueue(newPositionInWaitingQueue) {
       if (positionInWaitingQueue !== newPositionInWaitingQueue) {
-        positionInWaitingQueue = newPositionInWaitingQueue;
+        positionInWaitingQueue = newPositionInWaitingQueue.toString();
         if (positionInWaitingQueue === '1') {
           updatePositionOnPage(_('app.guest.firstPositionInWaitingQueue'), '');
         } else {
@@ -171,6 +171,15 @@
       }
 
       return null;
+    }
+
+    function getClientJoinUrl() {
+      const joinEndpoint = '/html5client/join';
+      const sessionToken = getSearchParam('sessionToken');
+      const url = new URL(`${window.location.origin}${joinEndpoint}`);
+      url.search = `sessionToken=${sessionToken}`;
+
+      return url;
     }
 
     async function fetchLocalizedMessages() {
@@ -264,43 +273,16 @@
                 const sessionToken = getSearchParam('sessionToken');
 
                 if (!sessionToken) {
-                  disableAnimation()
+                  disableAnimation();
                   updateMessage(_('app.guest.noSessionToken'));
                   return;
                 }
-                //First, check that we already have a response
-                const statusFromStorage = sessionStorage.getItem(`guestStatus_${sessionToken}`);
-
-                if(statusFromStorage) {
-                  stopUpdatingWaitingPosition();
-
-                  const statusParsed = JSON.parse(statusFromStorage);
-                  const { status, response } = statusParsed;
-
-                  if(status === 'ALLOW'){
-                    updateLobbyMessage(_('app.guest.allow'));
-                    setTimeout(() => {
-                      disableAnimation();
-                      window.location = response.url;
-                    }, MESSAGE_TIMEOUT);
-                  } else {
-                    redirect(
-                      _('app.guest.' + response.messageKey),
-                      response.url,
-                    );
-                  }
-
-                  return;
-                }
-
                 pollGuestStatus(sessionToken, 0);
               } catch (e) {
                 disableAnimation();
                 console.error(e);
                 updateMessage(_('app.guest.errorSeeConsole'));
               }
-
-
             })
             .catch((e) => {
               console.error(e);
@@ -308,15 +290,21 @@
         });
     }
 
-    function fetchGuestWait(sessionToken) {
-      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
+    function fetchUserCurrent(sessionToken) {
+      const GUEST_WAIT_ENDPOINT = '/api/rest/usercurrent/';
       const url = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
-      url.search = `sessionToken=${sessionToken}&redirect=false`;
-      return fetch(url, { method: 'get' });
+
+      const headers = new Headers({
+        'X-Session-Token': sessionToken,
+        'Content-Type': 'application/json',
+      });
+
+      return fetch(url, { method: 'get', headers: headers });
     };
 
     function redirect(message, url) {
       disableAnimation();
+      stopUpdatingWaitingPosition();
       updateMessage(message);
       setTimeout(() => {
         window.location = url;
@@ -326,47 +314,50 @@
     function pollGuestStatus(token, everyMs) {
 
       setTimeout(function () {
-        fetchGuestWait(token)
-          .then(async (resp) => await resp.json())
-          .then((data) => {
-            const code = data.response.returncode;
+        fetchUserCurrent(token)
+                .then(async (resp) => await resp.json())
+                .then((data) => {
+                  if(data.hasOwnProperty('error') || !data.hasOwnProperty('user_current')) {
+                    disableAnimation();
+                    stopUpdatingWaitingPosition();
+                    updateMessage(_('app.guest.guestInvalid'));
+                    return;
+                  }
+                  const userData = data.user_current[0];
 
-            const response = data.response;
+                  if (userData.guestStatus === 'ALLOW') {
+                    updateLobbyMessage(_('app.guest.allow'));
+                    stopUpdatingWaitingPosition();
 
-            const saveStatusResponse = (status, response, token) => {
-              stopUpdatingWaitingPosition();
-              sessionStorage.setItem(`guestStatus_${token}`, JSON.stringify({ status, response }));
-            };
+                    // Timeout is required by accessibility to allow viewing of the message for a minimum of 3 seconds
+                    // before redirecting.
+                    setTimeout(() => {
+                      disableAnimation();
+                      window.location = getClientJoinUrl();
+                    }, MESSAGE_TIMEOUT);
+                    return;
+                  }
 
-            if (code === 'FAILED') {
-              saveStatusResponse(code, response, token);
-              return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
-            }
+                  if (userData.guestStatus === 'DENY') {
+                    stopUpdatingWaitingPosition();
+                    return redirect(_('app.guest.guestDeny'), userData.meeting.logoutUrl);
+                  }
 
-            const status = data.response.guestStatus;
+                  if (userData.guestStatus === 'WAIT') {
+                    //Wait message will be set by `updateLobbyMessage`
+                    //updateMessage(updateMessage(_('app.guest.guestWait')));
+                  }
 
-            if (status === 'DENY') {
-              saveStatusResponse(status, response, token);
-              return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
-            }
+                  if(userData.guestStatusDetails !== null) {
+                    updatePositionInWaitingQueue(userData.guestStatusDetails.positionInWaitingQueue);
+                    updateLobbyMessage(userData.guestStatusDetails.guestLobbyMessage || '');
+                  }
 
-            if (status === 'ALLOW') {
-              updateLobbyMessage(_('app.guest.allow'));
-              saveStatusResponse(status, response, token);
-              // Timeout is required by accessibility to allow viewing of the message for a minimum of 3 seconds
-              // before redirecting.
-              setTimeout(() => {
-                disableAnimation();
-                window.location = data.response.url;
-              }, MESSAGE_TIMEOUT);
-              return;
-            }
-            updatePositionInWaitingQueue(data.response.positionInWaitingQueue);
-            updateLobbyMessage(data.response.lobbyMessage);
+                  const ATTEMPT_EVERY_MS = 10 * 1000; // 10 seconds
+                  return pollGuestStatus(token, ATTEMPT_EVERY_MS);
 
-            const ATTEMPT_EVERY_MS = 10 * 1000; // 10 seconds
-            return pollGuestStatus(token, ATTEMPT_EVERY_MS);
-          });
+                });
+
       }, everyMs);
     };
 

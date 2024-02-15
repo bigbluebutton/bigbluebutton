@@ -71,6 +71,7 @@ And adjust it to the desired number of days. If you would instead like to comple
 
 ```bash
 remove_raw_of_published_recordings
+```
 
 #### Delete recordings older than N days
 
@@ -379,6 +380,27 @@ steps:
 This pattern can be repeated for additional recording formats. Note that it's very important to put the step names containing a colon (`:`) in quotes.
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
+
+The following script will enable the video recording format a BigBlueButton 2.6+ server.
+
+```
+!/bin/bash
+mkdir -p /etc/bigbluebutton/recording
+cat > /etc/bigbluebutton/recording/recording.yml << REC
+steps:
+  archive: "sanity"
+  sanity: "captions"
+  captions:
+    - process:presentation
+    - process:video
+  process:presentation: publish:presentation
+  process:video: publish:video
+REC
+if ! dpkg -l | grep -q bbb-playback-video; then
+  apt install -y bbb-playback-video
+  systemctl restart bbb-rap-resque-worker.service
+fi
+```
 
 #### Enable generating mp4 (H.264) video output
 
@@ -1049,7 +1071,7 @@ $ sudo apt-get purge bbb-demo
 The default HTML landing page is located in
 
 ```bash
-/var/www/bigbluebutton-default/index.html
+/var/www/bigbluebutton-default/assets/index.html
 ```
 
 Change this page to create your own landing page (and keep a back-up copy of it as it will be overwritten during package updates to `bbb-conf`).
@@ -1419,7 +1441,8 @@ Useful tools for development:
 | `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
-| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent.                                                                                                                   | `false`        |
+| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized, not permanent.                                                                                                                   | `false`        |
+| `userdata-bbb_show_animations_default` | (Introduced in BigBlueButton 2.7.4) If set to `false` the default value for the Animations toggle in Settings will be 'off' | `true` |
 
 #### Branding parameters
 

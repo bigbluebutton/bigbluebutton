@@ -12,11 +12,16 @@ import { uid } from 'radash';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Meeting } from '/imports/ui/Types/meeting';
 import {
-  onSaveUserNames, openLearningDashboardUrl, toggleMuteAllUsers, toggleMuteAllUsersExceptPresenter, toggleStatus,
+  onSaveUserNames, openLearningDashboardUrl,
 } from './service';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled, isCaptionsEnabled } from '/imports/ui/services/features';
+import { useMutation } from '@apollo/client';
+import { CLEAR_ALL_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SET_MUTED } from './mutations';
+import { notify } from '/imports/ui/services/notification';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -103,6 +108,10 @@ const intlMessages = defineMessages({
     id: 'app.modal.newTab',
     description: 'label used in aria description',
   },
+  clearStatusMessage: {
+    id: 'app.userList.content.participants.options.clearedStatus',
+    description: 'Used in toast notification when emojis have been cleared',
+  },
 });
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -172,6 +181,43 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   const [isLockViewersModalOpen, setLockViewersModalIsOpen] = useState(false);
   const [isWriterMenuModalOpen, setIsWriterMenuModalOpen] = useState(false);
 
+  const [clearAllEmoji] = useMutation(CLEAR_ALL_EMOJI);
+  const [setMuted] = useMutation(SET_MUTED);
+
+  const toggleStatus = () => {
+    clearAllEmoji();
+    notify(intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status');
+  };
+
+  const toggleMute = (muted: boolean, exceptPresenter: boolean) => {
+    setMuted({
+      variables: {
+        muted,
+        exceptPresenter,
+      },
+    });
+
+    if (!muted) {
+      return logger.info(
+        {
+          logCode: 'useroptions_unmute_all',
+          extraInfo: { logType: 'moderator_action' },
+        },
+        'moderator disabled meeting mute',
+      );
+    }
+
+    const logCode = exceptPresenter ? 'useroptions_mute_all_except_presenter' : 'useroptions_mute_all';
+    const logMessage = exceptPresenter ? 'moderator enabled meeting mute, all users muted except presenter' : 'moderator enabled meeting mute, all users muted';
+    return logger.info(
+      {
+        logCode,
+        extraInfo: { logType: 'moderator_action' },
+      },
+      logMessage,
+    );
+  };
+
   const actions = useMemo(() => {
     const canCreateBreakout = isModerator
       && !isBreakout
@@ -183,7 +229,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[0],
         label: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel']),
         description: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc']),
-        onClick: toggleMuteAllUsers.bind(null, !isMeetingMuted),
+        onClick: toggleMute.bind(null, !isMeetingMuted, false),
         icon: isMeetingMuted ? 'unmute' : 'mute',
         dataTest: 'muteAll',
       },
@@ -192,7 +238,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[1],
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
-        onClick: toggleMuteAllUsersExceptPresenter.bind(null, isMeetingMuted),
+        onClick: toggleMute.bind(null, isMeetingMuted, true),
         icon: 'mute',
         dataTest: 'muteAllExceptPresenter',
       },
@@ -227,7 +273,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[5],
         label: intl.formatMessage(intlMessages.clearAllLabel),
         description: intl.formatMessage(intlMessages.clearAllDesc),
-        onClick: toggleStatus.bind(null, intl),
+        onClick: () => toggleStatus(),
         icon: 'clear_status',
       },
       {

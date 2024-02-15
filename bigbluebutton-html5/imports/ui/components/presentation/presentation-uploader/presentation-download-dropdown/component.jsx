@@ -103,7 +103,7 @@ class PresentationDownloadDropdown extends PureComponent {
     const downloadableExtension = downloadFileUri?.split('.').slice(-1)[0];
     const originalFileExtension = name?.split('.').slice(-1)[0];
     const changeDownloadOriginalOrConvertedPresentation = (enableDownload, fileStateType) => {
-      handleDownloadableChange(item, fileStateType, enableDownload);
+      handleDownloadableChange(item?.presentationId, fileStateType, enableDownload);
       if (enableDownload) {
         handleDownloadingOfPresentation(fileStateType);
       }

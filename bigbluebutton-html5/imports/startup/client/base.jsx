@@ -20,8 +20,10 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
-import { makeCall } from '/imports/ui/services/api';
 import BBBStorage from '/imports/ui/services/storage';
+import { useMutation } from '@apollo/client';
+import { SET_EXIT_REASON } from '/imports/ui/core/graphql/mutations/userMutations';
+import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -62,6 +64,7 @@ class Base extends Component {
     };
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
+    this.setUserExitReason = this.setUserExitReason.bind(this);
   }
 
   handleFullscreenChange() {
@@ -113,6 +116,7 @@ class Base extends Component {
       sidebarContentPanel,
       usersVideo,
       User,
+      setLocalSettings,
     } = this.props;
     const {
       loading,
@@ -175,6 +179,14 @@ class Base extends Component {
 
     if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true))) {
       if (!checkedUserSettings) {
+        const showAnimationsDefault = getFromUserSettings(
+          'bbb_show_animations_default',
+          Meteor.settings.public.app.defaultSettings.application.animations
+        );
+
+        Settings.application.animations = showAnimationsDefault;
+        Settings.save(setLocalSettings);
+
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
           if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
             layoutContextDispatch({
@@ -227,6 +239,14 @@ class Base extends Component {
     });
   }
 
+  setUserExitReason(exitReason, callback) {
+    const { setExitReason } = this.props;
+
+    setExitReason({ variables: { exitReason } }).then(() => {
+      if (callback) callback();
+    });
+  }
+
   setMeetingExisted(meetingExisted) {
     this.setState({ meetingExisted });
   }
@@ -239,10 +259,6 @@ class Base extends Component {
     this.setState({
       loading,
     });
-  }
-
-  static async setExitReason(reason) {
-    return await makeCall('setExitReason', reason);
   }
 
   renderByState() {
@@ -264,7 +280,7 @@ class Base extends Component {
     }
     
     if (( meetingHasEnded || ejected || userRemoved ) && meetingIsBreakout) {
-      Base.setExitReason('breakoutEnded').finally(() => {
+      this.setUserExitReason('breakoutEnded', () => {
         Meteor.disconnect();
         window.close();
       });
@@ -276,7 +292,7 @@ class Base extends Component {
         <MeetingEnded
           code="403"
           ejectedReason={ejectedReason}
-          callback={() => Base.setExitReason('ejected')}
+          callback={() => this.setUserExitReason('ejected')}
         />
       );
     }
@@ -286,7 +302,7 @@ class Base extends Component {
         <MeetingEnded
           code={codeError}
           endedReason={meetingEndedReason}
-          callback={() => Base.setExitReason('meetingEnded')}
+          callback={() => this.setUserExitReason('meetingEnded')}
         />
       );
     }
@@ -294,9 +310,9 @@ class Base extends Component {
     if ((codeError && !meetingHasEnded) || userWasEjected) {
       // 680 is set for the codeError when the user requests a logout.
       if (codeError !== '680') {
-        return (<ErrorScreen code={codeError} callback={() => Base.setExitReason('error')} />);
+        return (<ErrorScreen code={codeError} callback={this.setUserExitReason} endedReason="error" />);
       }
-      return (<MeetingEnded code={codeError} callback={() => Base.setExitReason('logout')} />);
+      return (<MeetingEnded code={codeError} callback={this.setUserExitReason} endedReason="logout" />);
     }
 
     return (<AppContainer {...this.props} />);
@@ -330,7 +346,20 @@ const BaseContainer = (props) => {
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
 
-  return <Base {...{ sidebarContentPanel, layoutContextDispatch, ...props }} />;
+  const [setExitReason] = useMutation(SET_EXIT_REASON);
+  const setLocalSettings = useUserChangedLocalSettings();
+
+  return (
+    <Base
+      {...{
+        sidebarContentPanel,
+        layoutContextDispatch,
+        setExitReason,
+        setLocalSettings,
+        ...props,
+      }}
+    />
+  );
 };
 
 export default withTracker(() => {

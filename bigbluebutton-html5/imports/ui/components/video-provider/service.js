@@ -164,7 +164,7 @@ class VideoService {
     Session.set('deviceIds', deviceIds.join());
   }
 
-  exitVideo() {
+  exitVideo(sendUserUnshareWebcam) {
     if (this.isConnected) {
       logger.info({
         logCode: 'video_provider_unsharewebcam',
@@ -176,7 +176,7 @@ class VideoService {
         }, { fields: { stream: 1 } },
       ).fetch();
 
-      streams.forEach(s => this.sendUserUnshareWebcam(s.stream));
+      streams.forEach(s => sendUserUnshareWebcam(s.stream));
       this.exitedVideo();
     }
   }
@@ -187,7 +187,7 @@ class VideoService {
     this.isConnected = false;
   }
 
-  stopVideo(cameraId) {
+  stopVideo(cameraId, sendUserUnshareWebcam) {
     const streams = VideoStreams.find(
       {
         meetingId: Auth.meetingID,
@@ -201,7 +201,7 @@ class VideoService {
     // Check if the target (cameraId) stream exists in the remote collection.
     // If it does, means it was successfully shared. So do the full stop procedure.
     if (hasTargetStream) {
-      this.sendUserUnshareWebcam(cameraId);
+      sendUserUnshareWebcam(cameraId);
     }
 
     if (!hasOtherStream) {
@@ -433,10 +433,6 @@ class VideoService {
     const user = Users.findOne({ userId }, { fields: { pin: 1 } });
 
     return user.pin;
-  }
-
-  toggleVideoPin(userId, userIsPinned) {
-    makeCall('changePin', userId, !userIsPinned);
   }
 
   isGridEnabled() {
@@ -695,11 +691,7 @@ class VideoService {
   }
 
   // In user-list it is necessary to check if the user is sharing his webcam
-  isVideoPinEnabledForCurrentUser() {
-    const currentUser = Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } });
-
-    const isModerator = currentUser?.role === 'MODERATOR';
+  isVideoPinEnabledForCurrentUser(isModerator) {
     const isBreakout = meetingIsBreakout();
     const isPinEnabled = this.isPinEnabled();
 
@@ -728,9 +720,9 @@ class VideoService {
     }, { fields: {} }) && this.disableCam();
   }
 
-  lockUser() {
+  lockUser(sendUserUnshareWebcam) {
     if (this.isConnected) {
-      this.exitVideo();
+      this.exitVideo(sendUserUnshareWebcam);
     }
   }
 
@@ -784,8 +776,8 @@ class VideoService {
     }
   }
 
-  onBeforeUnload() {
-    this.exitVideo();
+  onBeforeUnload(sendUserUnshareWebcam) {
+    this.exitVideo(sendUserUnshareWebcam);
   }
 
   getStatus() {
@@ -1033,14 +1025,17 @@ const videoService = new VideoService();
 
 export default {
   storeDeviceIds: () => videoService.storeDeviceIds(),
-  exitVideo: () => videoService.exitVideo(),
+  exitVideo: (sendUserUnshareWebcam) => videoService.exitVideo(sendUserUnshareWebcam),
   joinVideo: deviceId => videoService.joinVideo(deviceId),
-  stopVideo: cameraId => videoService.stopVideo(cameraId),
+  stopVideo: (cameraId, sendUserUnshareWebcam) => videoService.stopVideo(
+    cameraId,
+    sendUserUnshareWebcam,
+  ),
   getVideoStreams: () => videoService.getVideoStreams(),
   getInfo: () => videoService.getInfo(),
   getMyStreamId: deviceId => videoService.getMyStreamId(deviceId),
   isUserLocked: () => videoService.isUserLocked(),
-  lockUser: () => videoService.lockUser(),
+  lockUser: (sendUserUnshareWebcam) => videoService.lockUser(sendUserUnshareWebcam),
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
   isLocalStream: cameraId => videoService.isLocalStream(cameraId),
   hasVideoStream: () => videoService.hasVideoStream(),
@@ -1058,7 +1053,7 @@ export default {
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   mirrorOwnWebcam: userId => videoService.mirrorOwnWebcam(userId),
   hasCapReached: () => videoService.hasCapReached(),
-  onBeforeUnload: () => videoService.onBeforeUnload(),
+  onBeforeUnload: (sendUserUnshareWebcam) => videoService.onBeforeUnload(sendUserUnshareWebcam),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
   applyCameraProfile: debounce(
@@ -1075,11 +1070,11 @@ export default {
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
   getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
-  toggleVideoPin: (userId, pin) => videoService.toggleVideoPin(userId, pin),
   getVideoPinByUser: (userId) => videoService.getVideoPinByUser(userId),
-  isVideoPinEnabledForCurrentUser: () => videoService.isVideoPinEnabledForCurrentUser(),
+  isVideoPinEnabledForCurrentUser: (user) => videoService.isVideoPinEnabledForCurrentUser(user),
   isPinEnabled: () => videoService.isPinEnabled(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
   getStats: () => videoService.getStats(),
   updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
+  joinedVideo: () => videoService.joinedVideo(),
 };

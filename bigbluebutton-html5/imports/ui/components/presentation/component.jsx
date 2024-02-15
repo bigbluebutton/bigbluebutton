@@ -19,6 +19,7 @@ import { colorContentBackground } from '/imports/ui/stylesheets/styled-component
 import browserInfo from '/imports/utils/browserInfo';
 import { addNewAlert } from '../screenreader-alert/service';
 import { debounce } from '/imports/utils/debounce';
+import { throttle } from '/imports/utils/throttle';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -56,6 +57,8 @@ const FULLSCREEN_CHANGE_EVENT = isSafari
   ? 'webkitfullscreenchange'
   : 'fullscreenchange';
 
+const PAN_ZOOM_INTERVAL = Meteor.settings.public.presentation.panZoomInterval || 200;
+
 const getToolbarHeight = () => {
   let height = 0;
   const toolbarEl = document.getElementById('presentationToolbarWrapper');
@@ -87,7 +90,7 @@ class Presentation extends PureComponent {
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
-    this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
+    this.panAndZoomChanger = throttle(this.panAndZoomChanger.bind(this), PAN_ZOOM_INTERVAL);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
@@ -567,9 +570,8 @@ class Presentation extends PureComponent {
   }
 
   panAndZoomChanger(w, h, x, y) {
-    const { currentSlide, zoomSlide, presentationId } = this.props;
-
-    zoomSlide(currentSlide.num, w, h, x, y, presentationId);
+    const { zoomSlide } = this.props;
+    zoomSlide(w, h, x, y);
   }
 
   renderPresentationToolbar(svgWidth = 0) {
@@ -699,6 +701,8 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
       userIsPresenter,
+      currentSlide,
+      currentUser,
     } = this.props;
     const { tldrawAPI, isToolbarVisible } = this.state;
 
@@ -712,6 +716,9 @@ class Presentation extends PureComponent {
         setIsToolbarVisible={this.setIsToolbarVisible}
         isToolbarVisible={isToolbarVisible}
         amIPresenter={userIsPresenter}
+        slideNum={currentSlide?.num}
+        currentUser={currentUser}
+        whiteboardId={currentSlide?.id}
       />
     );
   }
@@ -833,6 +840,7 @@ class Presentation extends PureComponent {
                   height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
                   textAlign: 'center',
                   display: !presentationIsOpen ? 'none' : 'block',
+                  zIndex: 1,
                 }}
                 id="presentationInnerWrapper"
               >

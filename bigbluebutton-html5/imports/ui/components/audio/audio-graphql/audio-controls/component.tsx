@@ -51,7 +51,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   updateEchoTestRunning,
 }) => {
   const intl = useIntl();
-  const joinAudioShourtcut = useShortcut('joinaudio');
+  const joinAudioShortcut = useShortcut('joinAudio');
   const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
@@ -79,10 +79,10 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         icon="no_audio"
         size="lg"
         circle
-        accessKey={joinAudioShourtcut}
+        accessKey={joinAudioShortcut}
       />
     );
-  }, [isConnected, disabled]);
+  }, [isConnected, disabled, joinAudioShortcut]);
 
   useEffect(() => {
     if (isEchoTest) {

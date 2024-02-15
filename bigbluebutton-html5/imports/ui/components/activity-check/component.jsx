@@ -97,6 +97,8 @@ class ActivityCheck extends Component {
         onRequestClose={handleInactivityDismiss}
         shouldCloseOnOverlayClick={false}
         shouldShowCloseButton={false}
+        priority="high"
+        isOpen
       >
         <Styled.ActivityModalContent>
           <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>

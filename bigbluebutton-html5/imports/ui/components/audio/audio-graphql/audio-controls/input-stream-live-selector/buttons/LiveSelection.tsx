@@ -6,6 +6,7 @@ import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { AudioSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/audio-settings-dropdown-item/enums';
 import Styled from '../styles';
 import {
   handleLeaveAudio,
@@ -62,7 +63,7 @@ interface MuteToggleProps {
   muted: boolean;
   disabled: boolean;
   isAudioLocked: boolean;
-  toggleMuteMicrophone: (muted: boolean) => void;
+  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId?: string | null, muted?: boolean | null) => void) => void;
 }
 
 interface LiveSelectionProps extends MuteToggleProps {
@@ -92,12 +93,12 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   const leaveAudioShourtcut = useShortcut('leaveAudio');
 
   const {
-    pluginsProvidedAggregatedState,
+    pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
-  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownItem[];
-  if (pluginsProvidedAggregatedState.audioSettingsDropdownItems) {
+  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownInterface[];
+  if (pluginsExtensibleAreasAggregatedState.audioSettingsDropdownItems) {
     audioSettingsDropdownItems = [
-      ...pluginsProvidedAggregatedState.audioSettingsDropdownItems,
+      ...pluginsExtensibleAreasAggregatedState.audioSettingsDropdownItems,
     ];
   }
 
@@ -208,9 +209,9 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     .concat(leaveAudioOption);
 
   audioSettingsDropdownItems.forEach((audioSettingsDropdownItem:
-    PluginSdk.AudioSettingsDropdownItem) => {
+    PluginSdk.AudioSettingsDropdownInterface) => {
     switch (audioSettingsDropdownItem.type) {
-      case PluginSdk.AudioSettingsDropdownItemType.OPTION: {
+      case AudioSettingsDropdownItemType.OPTION: {
         const audioSettingsDropdownOption = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
         dropdownListComplete.push({
           label: audioSettingsDropdownOption.label,
@@ -220,7 +221,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         });
         break;
       }
-      case PluginSdk.AudioSettingsDropdownItemType.SEPARATOR: {
+      case AudioSettingsDropdownItemType.SEPARATOR: {
         const audioSettingsDropdownSeparator = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
         dropdownListComplete.push({
           isSeparator: true,

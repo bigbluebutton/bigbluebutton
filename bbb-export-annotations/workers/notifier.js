@@ -8,7 +8,7 @@ const path = require('path');
 const {NewPresFileAvailableMsg} = require('../lib/utils/message-builder');
 
 const {workerData} = require('worker_threads');
-const [jobType, jobId, filename] = [workerData.jobType, workerData.jobId, workerData.filename];
+const [jobType, jobId, serverSideFilename] = [workerData.jobType, workerData.jobId, workerData.serverSideFilename];
 
 const logger = new Logger('presAnn Notifier Worker');
 
@@ -30,13 +30,14 @@ async function notifyMeetingActor() {
 
   const link = path.join('presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
-      exportJob.presId, 'pdf', jobId, filename);
+      exportJob.presId, 'pdf', jobId, serverSideFilename);
 
   const notification = new NewPresFileAvailableMsg(exportJob, link);
 
   logger.info(`Annotated PDF available at ${link}`);
   await client.publish(config.redis.channels.publish, notification.build());
   client.disconnect();
+
 }
 
 /** Upload PDF to a BBB room
@@ -63,10 +64,10 @@ async function upload(filePath) {
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
   notifyMeetingActor();
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
-  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${filename}`;
+  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${serverSideFilename}`;
   upload(filePath);
 } else if (jobType == 'PadCaptureJob') {
-  const filePath = `${dropbox}/${filename}`;
+  const filePath = `${dropbox}/${serverSideFilename}`;
   upload(filePath);
 } else {
   logger.error(`Notifier received unknown job type ${jobType}`);
