@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
@@ -45,23 +47,43 @@ class IntlStartup extends Component {
     }
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
+    this.sendUiDataToPlugins = this.sendUiDataToPlugins.bind(this);
   }
 
   componentDidMount() {
     const { locale, overrideLocaleFromPassedParameter } = this.props;
     this.fetchLocalizedMessages(overrideLocaleFromPassedParameter || locale, true);
+    window.addEventListener(`${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`, this.sendUiDataToPlugins);
   }
 
   componentDidUpdate(prevProps) {
     const { fetching, messages, normalizedLocale } = this.state;
     const { locale, overrideLocaleFromPassedParameter } = this.props;
 
+    console.log('teste aqui dentro do didupdate (**)');
+    this.sendUiDataToPlugins();
     if (overrideLocaleFromPassedParameter !== prevProps.overrideLocaleFromPassedParameter) {
       this.fetchLocalizedMessages(overrideLocaleFromPassedParameter);
     } else {
       const shouldFetch = (!fetching && isEmpty(messages)) || ((locale !== prevProps.locale) && (normalizedLocale && (locale !== normalizedLocale)));
       if (shouldFetch) this.fetchLocalizedMessages(locale);
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener(`${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`, this.sendUiDataToPlugins);
+  }
+
+  sendUiDataToPlugins() {
+    const {
+      locale,
+    } = this.props;
+    window.dispatchEvent(new CustomEvent(PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE, {
+      detail: {
+        locale,
+        fallbackLocale: DEFAULT_LANGUAGE,
+      },
+    }));
   }
 
   fetchLocalizedMessages(locale, init = false) {
