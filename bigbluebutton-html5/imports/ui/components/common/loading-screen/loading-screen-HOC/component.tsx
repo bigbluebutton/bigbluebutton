@@ -1,7 +1,5 @@
-
 import React from 'react';
 import LoadingScreen from '../component';
-
 
 interface LoadingContent {
   isLoading: boolean;

@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect } from 'react';
 import { IntlProvider } from 'react-intl';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
+import logger from './logger';
 
 interface LocaleEndpointResponse {
   defaultLocale: string;
@@ -34,7 +35,7 @@ const buildFetchLocale = (locale: string) => {
         return response.json()
           .then((jsonResponse) => resolve(jsonResponse))
           .catch(() => {
-            console.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${locale}.json, invalid json`);
+            logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${locale}.json, invalid json`);
             resolve(false);
           });
       });
@@ -85,7 +86,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             if (foundLocales.length === 0) {
               const error = `${{ logCode: 'intl_fetch_locale_error' }},Could not fetch any locale file for ${languageSets.join(', ')}`;
               loadingContextInfo.setLoading(false, '');
-              console.error(error);
+              logger.error(error);
               throw new Error(error);
             }
             const mergedLocale = foundLocales

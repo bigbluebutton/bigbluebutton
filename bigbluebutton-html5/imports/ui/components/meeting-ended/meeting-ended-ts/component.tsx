@@ -20,6 +20,7 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
 import Rating from '../rating/component';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
+import logger from '/imports/startup/client/logger';
 
 const intlMessage = defineMessages({
   410: {
@@ -239,7 +240,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         }, REDIRECT_WAIT_TIME);
       }
     }).catch((e) => {
-      console.warn({
+      logger.warn({
         logCode: 'user_feedback_not_sent_error',
         extraInfo: {
           errorName: e.name,
@@ -386,6 +387,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         allowDefaultLogoutUrl={false}
         askForFeedbackOnLogout={false}
         learningDashboardAccessToken=""
+        // eslint-disable-next-line jsx-a11y/aria-role
         role=""
         learningDashboardBase=""
         isBreakout={false}
@@ -394,7 +396,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   }
 
   if (meetingEndError) {
-    console.error('Error on fetching meeting end data: ', meetingEndError);
+    logger.error('Error on fetching meeting end data: ', meetingEndError);
     return (
       <MeetingEnded
         endedBy=""
@@ -403,6 +405,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         allowDefaultLogoutUrl={false}
         askForFeedbackOnLogout={false}
         learningDashboardAccessToken=""
+        // eslint-disable-next-line jsx-a11y/aria-role
         role=""
         learningDashboardBase=""
         isBreakout={false}

@@ -1,11 +1,11 @@
-import { useQuery } from '@apollo/client';
 import React, { useContext, useEffect } from 'react';
+import { useQuery } from '@apollo/client';
+import { defineMessages, useIntl } from 'react-intl';
 import { getBigBlueButtonSettings, getBigBlueButtonSettingsResponse } from './queries';
 import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
 import MeetingClientSettings from '../../Types/meetingClientSettings';
 import ClientStartup from '/client/clientStartup';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
-import { defineMessages, useIntl } from 'react-intl';
 
 declare global {
   interface Window {
