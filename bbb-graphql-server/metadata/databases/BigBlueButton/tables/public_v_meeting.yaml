@@ -153,6 +153,7 @@ select_permissions:
         - extId
         - html5InstanceId
         - isBreakout
+        - learningDashboardAccessToken
         - logoutUrl
         - maxPinnedCameras
         - meetingCameraCap
@@ -175,6 +176,8 @@ select_permissions:
         - endedBy
         - endedByUserName
         - endedReasonCode
+        - isBreakout
+        - learningDashboardAccessToken
         - logoutUrl
         - meetingId
         - name

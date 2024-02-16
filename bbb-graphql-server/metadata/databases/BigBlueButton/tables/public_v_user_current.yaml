@@ -184,11 +184,11 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - expired
-        - isOnline
-        - isModerator
         - extId
         - guest
         - guestStatus
+        - isModerator
+        - isOnline
         - joinErrorCode
         - joinErrorMessage
         - joined
@@ -196,6 +196,7 @@ select_permissions:
         - name
         - registeredAt
         - registeredOn
+        - role
         - userId
       filter:
         userId:
