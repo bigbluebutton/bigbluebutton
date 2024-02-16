@@ -41,6 +41,7 @@ const SettingsLoader: React.FC = () => {
   }, [loading]);
   if (loading) return null;
   if (error) {
+    loadingContextInfo.setLoading(false, '');
     throw new Error('Error on requesting meeting settings data: ', error);
   }
   return (

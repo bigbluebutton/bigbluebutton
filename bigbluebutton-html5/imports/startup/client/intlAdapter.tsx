@@ -1,15 +1,9 @@
-import React, { Component, useContext, useEffect } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import { IntlProvider, useIntl } from 'react-intl';
+import React, { useContext, useEffect } from 'react';
+import { useIntl } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { Session } from 'meteor/session';
-import Logger from '/imports/startup/client/logger';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import Intl from '/imports/ui/services/locale';
-import { isEmpty } from 'radash';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 

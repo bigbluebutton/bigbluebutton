@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import logger, { generateLoggerStreams } from '/imports/startup/client/logger';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -18,11 +19,21 @@ class ErrorBoundary extends Component {
     this.state = { error: '', errorInfo: null };
   }
 
-  componentDidUpdate() {
-    const { error, errorInfo } = this.state;
+  componentDidMount() {
+    const data = JSON.parse((sessionStorage.getItem('clientStartupSettings')) || {});
+    const logConfig = data?.clientLog;
+    if (logConfig) {
+      generateLoggerStreams(logConfig).forEach((stream) => {
+        logger.addStream(stream);
+      });
+    }
+  }
 
+  componentDidUpdate() {
+    const { code, error, errorInfo } = this.state;
+    const log = code === '403' ? 'warn' : 'error';
     if (error || errorInfo) {
-      console.error({
+      logger[log]({
         logCode: 'Error_Boundary_wrapper',
         extraInfo: { error, errorInfo },
       }, 'generic error boundary logger');

@@ -235,6 +235,7 @@
     "app.meeting.loadingClient": "Loading client",
     "app.meeting.fetchingLocale": "Fetching locale",
     "app.meeting.fetchingSettings": "Fetching settings",
+    "app.meeting.fetchingStartupSettings": "Fetching startup settings",
     "app.meeting.endedFromAPI": "The meeting was terminated by the system",
     "app.meeting.endedWhenNoUserJoined": "The meeting was ended because no users joined",
     "app.meeting.endedWhenLastUserLeft": "The meeting was ended when the last user left",

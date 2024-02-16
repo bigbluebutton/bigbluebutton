@@ -1,5 +1,4 @@
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { Meteor } from 'meteor/meteor';
 import { useEffect, useState } from 'react';
 
 interface ShortcutObject {

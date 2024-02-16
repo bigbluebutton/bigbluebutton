@@ -112,7 +112,9 @@ class Settings {
       const { status } = Meteor.status();
       if (status === 'connected') {
         c.stop();
-        mutation(userSettings);
+        if (typeof mutation === 'function') {
+          mutation(userSettings);
+        }
       }
     });
   }

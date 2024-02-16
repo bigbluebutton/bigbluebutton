@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import { useSubscription } from '@apollo/client';
 import { GET_GUESTS_COUNT, GuestUsersCountResponse } from './queries';

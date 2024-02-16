@@ -1,6 +1,5 @@
 import { useSubscription, useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
-import { Meteor } from 'meteor/meteor';
 import GET_TIMER, { GetTimerResponse } from './queries';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
@@ -27,6 +26,8 @@ interface TimerIndicatorProps {
   sidebarContentIsOpen: boolean;
   startedAt: number;
 }
+
+type ObjectKey = keyof typeof trackName;
 
 const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   passedTime,
@@ -59,7 +60,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   useEffect(() => {
     alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
     if (songTrack in trackName) {
-      music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack]}.mp3`);
+      music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`);
       music.current.addEventListener('timeupdate', () => {
         const buffer = 0.19;
         // Start playing the music before it ends to make the loop gapless

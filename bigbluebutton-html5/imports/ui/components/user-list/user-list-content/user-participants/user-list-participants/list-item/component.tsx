@@ -225,7 +225,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
         </Styled.UserName>
         <Styled.UserNameSub data-test={user.mobile ? 'mobileUser' : undefined}>
-          {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
+          {subs.length ? subs.join(' | ') : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
       {renderUserListItemIconsFromPlugin(userItemsFromPlugin)}

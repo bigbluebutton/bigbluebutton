@@ -5,7 +5,6 @@ import React, {
   useState,
   useMemo,
 } from 'react';
-import { Meteor } from 'meteor/meteor';
 import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import LAST_SEEN_MUTATION from './queries';

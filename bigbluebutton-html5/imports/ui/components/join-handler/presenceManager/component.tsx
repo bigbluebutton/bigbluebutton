@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import React, { useContext, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
+// @ts-ignore - type avaible only to server package
 import { DDP } from 'meteor/ddp-client';
 import {
   getUserCurrent,
@@ -159,7 +160,6 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       || userInfoData.user_current.length === 0) return null;
   const {
     authToken,
-    authed,
     joinErrorCode,
     joinErrorMessage,
     joined,
@@ -172,7 +172,6 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   return (
     <PresenceManager
       authToken={authToken}
-      authed={authed}
       logoutUrl={logoutUrl}
       meetingId={meetingId}
       meetingName={meetingName}

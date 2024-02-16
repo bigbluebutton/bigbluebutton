@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from 'ramda';
-import { Meteor } from 'meteor/meteor';
 import { uniqueId } from '/imports/utils/string-utils';
 import { isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, isImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';

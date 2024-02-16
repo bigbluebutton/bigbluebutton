@@ -4,7 +4,6 @@ export interface GetUserCurrentResponse {
   user_current: Array<{
     userId: string;
     authToken: string;
-    authed: boolean;
     joined: boolean;
     joinErrorCode: string;
     joinErrorMessage: string;
@@ -50,7 +49,6 @@ subscription getUserCurrent {
     user_current {
       userId
       authToken
-      authed
       joinErrorCode
       joinErrorMessage
       joined

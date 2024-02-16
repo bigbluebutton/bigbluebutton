@@ -87,7 +87,7 @@ const defaultProps = {
   callback: () => {},
   endedReason: null,
   error: {},
-  errorInfo: {},
+  errorInfo: null,
 };
 
 class ErrorScreen extends PureComponent {
@@ -145,13 +145,19 @@ class ErrorScreen extends PureComponent {
             </Styled.SessionMessage>
           )
         }
-        <textarea
-          rows="5"
-          cols="33"
-          disabled
-        >
-          {JSON.stringify(errorInfo)}
-        </textarea>
+        {
+          errorInfo
+            ? (
+              <textarea
+                rows="5"
+                cols="33"
+                disabled
+              >
+                {JSON.stringify(errorInfo)}
+              </textarea>
+            )
+            : null
+        }
         <Styled.Separator />
         <Styled.CodeError>
           {code}

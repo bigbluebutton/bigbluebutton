@@ -9,23 +9,26 @@ import PresenceManager from '/imports/ui/components/join-handler/presenceManager
 import LoadingScreenHOC from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import IntlLoaderContainer from '/imports/startup/client/intlLoader';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
+import StartupDataFetch from '/imports/ui/components/connection-manager/startup-data-fetch/component';
 
 const Main: React.FC = () => {
   return (
-    <ErrorBoundary Fallback={ErrorScreen}>
-      <LoadingScreenHOC>
-        <IntlLoaderContainer>
-          {/* from there the error messages are located */}
-          <LocatedErrorBoundary Fallback={ErrorScreen}>
-            <ConnectionManager>
-              <PresenceManager>
-                <SettingsLoader />
-              </PresenceManager>
-            </ConnectionManager>
-          </LocatedErrorBoundary>
-        </IntlLoaderContainer>
-      </LoadingScreenHOC>
-    </ErrorBoundary>
+    <StartupDataFetch>
+      <ErrorBoundary Fallback={ErrorScreen}>
+        <LoadingScreenHOC>
+          <IntlLoaderContainer>
+            {/* from there the error messages are located */}
+            <LocatedErrorBoundary Fallback={ErrorScreen}>
+              <ConnectionManager>
+                <PresenceManager>
+                  <SettingsLoader />
+                </PresenceManager>
+              </ConnectionManager>
+            </LocatedErrorBoundary>
+          </IntlLoaderContainer>
+        </LoadingScreenHOC>
+      </ErrorBoundary>
+    </StartupDataFetch>
   );
 };
 
