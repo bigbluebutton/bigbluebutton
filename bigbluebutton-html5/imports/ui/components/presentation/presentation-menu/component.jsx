@@ -377,21 +377,18 @@ const PresentationMenu = (props) => {
         },
       );
     }
-    
-    const tools = document.querySelector('.tlui-toolbar, .tlui-style-panel__wrapper, .tlui-menu-zone');
-    if (tools && (props.hasWBAccess || props.amIPresenter)){
-      menuItems.push(
-        {
-          key: 'list-item-toolvisibility',
-          dataTest: 'toolVisibility',
-          label: formattedVisibilityLabel(isToolbarVisible),
-          icon: isToolbarVisible ? 'close' : 'pen_tool',
-          onClick: () => {
-            setIsToolbarVisible(!isToolbarVisible);
-          },
+
+    menuItems.push(
+      {
+        key: 'list-item-toolvisibility',
+        dataTest: 'toolVisibility',
+        label: formattedVisibilityLabel(isToolbarVisible),
+        icon: isToolbarVisible ? 'close' : 'pen_tool',
+        onClick: () => {
+          setIsToolbarVisible(!isToolbarVisible);
         },
-      );
-    }
+      },
+    );
 
     if (props.amIPresenter) {
       menuItems.push({

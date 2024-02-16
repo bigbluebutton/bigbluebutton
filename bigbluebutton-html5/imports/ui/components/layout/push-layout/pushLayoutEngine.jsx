@@ -44,6 +44,7 @@ const propTypes = {
   shouldShowScreenshare: PropTypes.bool,
   shouldShowExternalVideo: PropTypes.bool,
   enforceLayout: PropTypes.string,
+  setLocalSettings: PropTypes.func.isRequired,
 };
 
 class PushLayoutEngine extends React.Component {
@@ -65,6 +66,7 @@ class PushLayoutEngine extends React.Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       enforceLayout,
+      setLocalSettings,
     } = this.props;
 
     const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
@@ -77,7 +79,7 @@ class PushLayoutEngine extends React.Component {
     }
     Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
 
-    Settings.save();
+    Settings.save(setLocalSettings);
 
     const initialPresentation = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
     MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
@@ -145,6 +147,7 @@ class PushLayoutEngine extends React.Component {
       setMeetingLayout,
       setPushLayout,
       enforceLayout,
+      setLocalSettings,
     } = this.props;
 
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
@@ -172,7 +175,7 @@ class PushLayoutEngine extends React.Component {
           ...Settings.application,
           selectedLayout: contextLayout,
         },
-      });
+      }, null, setLocalSettings);
     }
 
     if (!enforceLayout && pushLayoutMeetingDidChange) {
@@ -181,7 +184,7 @@ class PushLayoutEngine extends React.Component {
           ...Settings.application,
           pushLayout: pushLayoutMeeting,
         },
-      });
+      }, null, setLocalSettings);
     }
 
     if (meetingLayout === "custom" && selectedLayout === "custom" && !isPresenter) {

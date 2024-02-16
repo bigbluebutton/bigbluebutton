@@ -1,14 +1,16 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import logger from '/imports/startup/client/logger';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
   SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
+  REQUEST_USER_INFO,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
@@ -26,7 +28,6 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { makeCall } from '/imports/ui/services/api';
 import { isChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
@@ -41,6 +42,7 @@ import Styled from './styles';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 
 interface UserActionsProps {
   user: User;
@@ -62,6 +64,11 @@ interface DropdownItem {
   textColor: string | undefined;
   isSeparator: boolean | undefined;
   onClick: (() => void) | undefined;
+}
+
+interface Writer {
+  pageId: string;
+  userId: string;
 }
 
 const messages = defineMessages({
@@ -213,29 +220,39 @@ const UserActions: React.FC<UserActionsProps> = ({
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters, { data: usersData }] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
-  const writers = usersData?.pres_page_writers || null;
+  const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const voiceToggle = useToggleVoice();
 
-  // users will only be fetched when getWriters is called
-  useEffect(() => {
-    if (writers) {
-      changeWhiteboardAccess();
-    }
-  }, [writers]);
+  const handleWhiteboardAccessChange = async () => {
+    try {
+      // Fetch the writers data
+      const { data } = await getWriters();
+      const allWriters: Writer[] = data?.pres_page_writers || [];
+      const currentWriters = allWriters?.filter((writer: Writer) => writer.pageId === pageId);
 
-  const changeWhiteboardAccess = () => {
-    if (pageId) {
-      const { userId } = user;
-      const usersIds = writers.map((writer: { userId: string }) => writer.userId);
-      const hasAccess = writers?.some((writer: { userId: string }) => writer.userId === userId);
-      const newUsersIds = hasAccess ? usersIds.filter((id: string) => id !== userId) : [...usersIds, userId];
+      // Determine if the user has access
+      const { userId, presPagesWritable } = user;
+      const hasAccess = presPagesWritable.some(
+        (page: { userId: string; isCurrentPage: boolean }) => (page?.userId === userId && page?.isCurrentPage),
+      );
 
-      presentationSetWriters({
+      // Prepare the updated list of user IDs for whiteboard access
+      const usersIds = currentWriters?.map((writer: { userId: string }) => writer?.userId);
+      const newUsersIds: string[] = hasAccess
+        ? usersIds.filter((id: string) => id !== userId)
+        : [...usersIds, userId];
+
+      // Update the writers
+      await presentationSetWriters({
         variables: {
           pageId,
           usersIds: newUsersIds,
         },
       });
+    } catch (error) {
+      logger.warn({
+        logCode: 'user_action_whiteboard_access_failed',
+      }, 'Error updating whiteboard access.');
     }
   };
 
@@ -283,7 +300,9 @@ const UserActions: React.FC<UserActionsProps> = ({
     (item: PluginSdk.UserListDropdownInterface) => (user?.userId === item?.userId),
   );
 
-  const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
+  const hasWhiteboardAccess = user.presPagesWritable?.some(
+    (page: { pageId: string; userId: string }) => (page.pageId === pageId && page.userId === user.userId),
+  );
 
   const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
@@ -295,6 +314,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
+  const [requestUserInfo] = useMutation(REQUEST_USER_INFO);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -404,7 +424,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
+        toggleVoice(user.userId, voiceToggle);
         setSelected(false);
       },
       icon: 'mute',
@@ -416,7 +436,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
+        toggleVoice(user.userId, voiceToggle);
         setSelected(false);
       },
       icon: 'unmute',
@@ -431,7 +451,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        getWriters();
+        handleWhiteboardAccessChange();
         setSelected(false);
       },
       icon: 'pen_tool',
@@ -508,7 +528,11 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'directoryLookup',
       label: intl.formatMessage(messages.DirectoryLookupLabel),
       onClick: () => {
-        makeCall('requestUserInformation', user.extId);
+        requestUserInfo({
+          variables: {
+            extId: user.extId,
+          },
+        });
         setSelected(false);
       },
       icon: 'user',

@@ -174,6 +174,7 @@ class App extends Component {
       layoutContextDispatch,
       isRTL,
       setMobileUser,
+      toggleVoice,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -217,7 +218,7 @@ class App extends Component {
 
     if (CONFIRMATION_ON_LEAVE) {
       window.onbeforeunload = (event) => {
-        AudioService.muteMicrophone();
+        AudioService.muteMicrophone(toggleVoice);
         event.stopImmediatePropagation();
         event.preventDefault();
         // eslint-disable-next-line no-param-reassign
@@ -530,6 +531,7 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       enforceLayout,
+      setLocalSettings,
     } = this.props;
 
     return (
@@ -561,6 +563,7 @@ class App extends Component {
           shouldShowScreenshare,
           shouldShowExternalVideo: !!shouldShowExternalVideo,
           enforceLayout,
+          setLocalSettings,
         }}
       />
     );
@@ -629,7 +632,6 @@ class App extends Component {
           <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
-          <Styled.TextMeasure id="text-measure" />
           <ExternalVideoPlayerContainer />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}

@@ -13,11 +13,19 @@ import {
   updateSettings,
   getAvailableLocales,
 } from './service';
+import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 
 const SettingsContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
+  const setLocalSettings = useUserChangedLocalSettings();
 
-  return <Settings {...props} layoutContextDispatch={layoutContextDispatch} />;
+  return (
+    <Settings
+      {...props}
+      layoutContextDispatch={layoutContextDispatch}
+      setLocalSettings={setLocalSettings}
+    />
+  );
 };
 
 export default withTracker((props) => ({
