@@ -10,12 +10,12 @@ import updateUserConnectionId from '../modifiers/updateUserConnectionId';
 async function validateConnection(requesterToken, meetingId, userId) {
   try {
     const client = new Client({
-      host: 'localhost',
-      port: 5432,
-      database: 'bbb_graphql',
-      user: 'bbb_frontend',
-      password: 'bbb_frontend',
-      query_timeout: 30000,
+      host: process.env.POSTGRES_HOST || Meteor.settings.postgresql.host,
+      port: process.env.POSTGRES_PORT || Meteor.settings.postgresql.port,
+      database: process.env.POSTGRES_HOST || Meteor.settings.postgresql.host,
+      user: process.env.POSTGRES_USER || Meteor.settings.postgresql.user,
+      password: process.env.POSTGRES_PASSWORD || Meteor.settings.postgresql.PASSWORD,
+      query_timeout: process.env.POSTGRES_TIMEOUT || Meteor.settings.postgresql.timeout,
     });
 
     await client.connect();
