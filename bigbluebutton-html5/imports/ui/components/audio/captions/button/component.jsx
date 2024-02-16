@@ -3,9 +3,13 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Service from '/imports/ui/components/audio/captions/service';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';
+import ServiceOldCaptions from '/imports/ui/components/captions/service';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
+import OldCaptionsService from '/imports/ui/components/captions/service';
+
+const TRANSCRIPTION_DEFAULT_PAD = Meteor.settings.public.captions.defaultPad;
 
 const intlMessages = defineMessages({
   start: {
@@ -33,6 +37,10 @@ const intlMessages = defineMessages({
   language: {
     id: 'app.audio.captions.button.language',
     description: 'Audio speech recognition language label',
+  },
+  autoDetect: {
+    id: 'app.audio.captions.button.autoDetect',
+    description: 'Audio speech recognition language auto detect',
   },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
@@ -89,6 +97,14 @@ const CaptionsButton = ({
   isSupported,
   isVoiceUser,
 }) => {
+  const usePrevious = (value) => {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
+
   const isTranscriptionDisabled = () => (
     currentSpeechLocale === DISABLED
   );
@@ -104,7 +120,12 @@ const CaptionsButton = ({
     if (!isTranscriptionDisabled()) selectedLocale.current = getSelectedLocaleValue;
   }, [currentSpeechLocale]);
 
+  const prevEnabled = usePrevious(enabled);
+
   if (!enabled) return null;
+  if (!prevEnabled && enabled) {
+    OldCaptionsService.createCaptions(TRANSCRIPTION_DEFAULT_PAD);
+  }
 
   const shouldRenderChevron = isSupported && isVoiceUser;
 
@@ -117,7 +138,7 @@ const CaptionsButton = ({
         iconRight: selectedLocale.current === availableVoice ? 'check' : null,
         customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
         disabled: isTranscriptionDisabled(),
-        dividerTop: availableVoice === availableVoices[0],
+        dividerTop: !SpeechService.isGladia() && availableVoice === availableVoices[0],
         onClick: () => {
           selectedLocale.current = availableVoice;
           SpeechService.setSpeechLocale(selectedLocale.current);
@@ -125,6 +146,20 @@ const CaptionsButton = ({
       }
     ))
   );
+
+  const autoLanguage = SpeechService.isGladia() ? {
+    icon: '',
+    label: intl.formatMessage(intlMessages.autoDetect),
+    key: 'auto',
+    iconRight: selectedLocale.current === 'auto' ? 'check' : null,
+    customStyles: (selectedLocale.current === 'auto') && Styled.SelectedLabel,
+    disabled: isTranscriptionDisabled(),
+    dividerTop: true,
+    onClick: () => {
+      selectedLocale.current = 'auto';
+      SpeechService.setSpeechLocale(selectedLocale.current);
+    },
+  } : undefined;
 
   const toggleTranscription = () => {
     SpeechService.setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED);
@@ -138,6 +173,7 @@ const CaptionsButton = ({
       disabled: true,
       dividerTop: false,
     },
+    autoLanguage,
     ...getAvailableLocales(),
     {
       key: 'divider',
@@ -156,7 +192,7 @@ const CaptionsButton = ({
       disabled: false,
       dividerTop: true,
       onClick: toggleTranscription,
-    }]
+    }].filter((e) => e) // filter undefined elements because of 'autoLanguage'
   );
 
   const onToggleClick = (e) => {

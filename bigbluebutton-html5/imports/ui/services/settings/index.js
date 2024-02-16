@@ -14,6 +14,7 @@ const SETTINGS = [
   'dataSaving',
   'animations',
   'selfViewDisable',
+  'transcription',
 ];
 
 const CHANGED_SETTINGS = 'changed_settings';

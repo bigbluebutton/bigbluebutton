@@ -47,8 +47,8 @@ const intlMessages = defineMessages({
     description: 'Timer seconds label',
   },
   songs: {
-    id: 'app.timer.songs',
-    description: 'Songs title label',
+    id: 'app.timer.music',
+    description: 'Music title label',
   },
   noTrack: {
     id: 'app.timer.noTrack',

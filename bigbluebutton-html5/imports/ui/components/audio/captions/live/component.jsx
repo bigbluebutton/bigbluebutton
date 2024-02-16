@@ -14,6 +14,7 @@ class LiveCaptions extends PureComponent {
 
   componentDidUpdate(prevProps) {
     const { clear } = this.state;
+    const { index, nCaptions } = this.props;
 
     if (clear) {
       const { transcript } = this.props;
@@ -23,7 +24,7 @@ class LiveCaptions extends PureComponent {
       }
     } else {
       this.resetTimer();
-      this.timer = setTimeout(() => this.setState({ clear: true }), CAPTIONS_CONFIG.time);
+      this.timer = setTimeout(() => this.setState({ clear: true }), (CAPTIONS_CONFIG.time / nCaptions) * (index+1));
     }
   }
 
@@ -42,6 +43,8 @@ class LiveCaptions extends PureComponent {
     const {
       transcript,
       transcriptId,
+      index,
+      nCaptions,
     } = this.props;
 
     const { clear } = this.state;

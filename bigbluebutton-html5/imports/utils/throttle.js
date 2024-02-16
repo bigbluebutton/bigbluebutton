@@ -22,6 +22,10 @@ export function throttle(func, delay, options = {}) {
     if (leadingExec && leading) {
       execute();
       leadingExec = false;
+      const nextExecDelay = elapsed < delay ? delay - elapsed : delay;
+      setTimeout(function () {
+        leadingExec = true;
+      }, nextExecDelay);
     } else if (!timeoutId && trailing) {
       timeoutId = setTimeout(function () {
         execute();

@@ -14,6 +14,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { isEqual } from 'radash';
+import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -170,6 +171,8 @@ class NavBar extends Component {
       isPinned,
       sidebarNavigation,
       currentUserId,
+      isDirectLeaveButtonEnabled,
+      isMeteorConnected,
     } = this.props;
 
     const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
@@ -245,7 +248,13 @@ class NavBar extends Component {
           </Styled.Center>
           <Styled.Right>
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
-            <SettingsDropdownContainer amIModerator={amIModerator} />
+            {isDirectLeaveButtonEnabled && isMeteorConnected
+              ? <LeaveMeetingButtonContainer amIModerator={amIModerator} />
+              : null}
+            <SettingsDropdownContainer
+              amIModerator={amIModerator}
+              isDirectLeaveButtonEnabled={isDirectLeaveButtonEnabled}
+            />
           </Styled.Right>
         </Styled.Top>
         <Styled.Bottom>

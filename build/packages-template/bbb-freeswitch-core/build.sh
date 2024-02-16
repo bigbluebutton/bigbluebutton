@@ -31,7 +31,7 @@ if [ ! -d sofia-sip ]; then
   git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
-git checkout v1.13.15
+git checkout v1.13.17
 ./bootstrap.sh
 ./configure
 
@@ -62,7 +62,7 @@ if [ ! -d libks ]; then
   git clone https://github.com/signalwire/libks.git
 fi
 cd libks/
-git checkout v1.8.2
+git checkout v2.0.3
 
 cmake .
 make

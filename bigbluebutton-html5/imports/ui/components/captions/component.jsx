@@ -11,6 +11,10 @@ import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
+  title: {
+    id: 'app.captions.title',
+    description: 'Title for the pad header',
+  },
   hide: {
     id: 'app.captions.hide',
     description: 'Label for hiding closed captions',
@@ -67,6 +71,7 @@ const Captions = ({
   hasPermission,
   layoutContextDispatch,
   isResizing,
+  autoTranscription,
 }) => {
   const { isChrome } = browserInfo;
 
@@ -85,7 +90,7 @@ const Captions = ({
             });
           },
           'aria-label': intl.formatMessage(intlMessages.hide),
-          label: name,
+          label: autoTranscription ? intl.formatMessage(intlMessages.title) : name,
         }}
         customRightButton={Service.amICaptionsOwner(ownerId) ? (
           <span>

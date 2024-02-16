@@ -1074,7 +1074,7 @@ $ sudo apt-get purge bbb-demo
 The default HTML landing page is located in
 
 ```bash
-/var/www/bigbluebutton-default/index.html
+/var/www/bigbluebutton-default/assets/index.html
 ```
 
 Change this page to create your own landing page (and keep a back-up copy of it as it will be overwritten during package updates to `bbb-conf`).
@@ -1432,6 +1432,8 @@ Useful tools for development:
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
 | `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent.                                                                                                                   | `false`        |
+| `userdata-bbb_direct_leave_button`        | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu.                                                                                                                   | `false`        |
+| `userdata-bbb_show_animations_default` | (Introduced in BigBlueButton 2.7.4) If set to `false` the default value for the Animations toggle in Settings will be 'off' | `true` |
 
 #### Branding parameters
 

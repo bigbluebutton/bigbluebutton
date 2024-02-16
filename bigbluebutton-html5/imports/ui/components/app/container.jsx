@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Meetings, { LayoutMeetings } from '/imports/api/meetings';
-import AudioCaptionsLiveContainer from '/imports/ui/components/audio/captions/live/container';
+import AudioCaptionsLiveContainer from '/imports/ui/components/audio/captions/history/container';
 import AudioCaptionsService from '/imports/ui/components/audio/captions/service';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/live/container';
@@ -281,6 +281,11 @@ export default withTracker(() => {
 
   const isPresenter = currentUser?.presenter;
 
+  const transcriptionSettings = {
+    partialUtterances: getFromUserSettings('bbb_transcription_partial_utterances'),
+    minUtteranceLength: getFromUserSettings('bbb_transcription_min_utterance_length'),
+  };
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     audioCaptions: AudioCaptionsService.getAudioCaptions() ? <AudioCaptionsLiveContainer /> : null,
@@ -325,5 +330,6 @@ export default withTracker(() => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
     isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
+    transcriptionSettings,
   };
 })(AppContainer);

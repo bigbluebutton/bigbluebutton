@@ -42,6 +42,7 @@ import {
   btnDangerBorder,
   btnDangerColor,
   btnDangerBg,
+  btnDangerBgHover,
   btnDarkBorder,
   btnDarkColor,
   btnDarkBg,
@@ -924,6 +925,7 @@ const Button = styled(BaseButton)`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnDangerColor};
+      background-color: ${btnDangerBgHover};
     }
   `}
 

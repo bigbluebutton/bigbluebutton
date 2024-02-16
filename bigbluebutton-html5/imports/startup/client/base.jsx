@@ -26,6 +26,7 @@ import BBBStorage from '/imports/ui/services/storage';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const USER_WAS_EJECTED = 'userWasEjected';
+const CAPTIONS_ALWAYS_VISIBLE = Meteor.settings.public.app.audioCaptions.alwaysVisible;
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -98,6 +99,7 @@ class Base extends Component {
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, this.handleFullscreenChange);
     });
+    Session.set('audioCaptions', CAPTIONS_ALWAYS_VISIBLE);
     Session.set('isFullscreen', false);
   }
 
@@ -175,6 +177,14 @@ class Base extends Component {
 
     if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true))) {
       if (!checkedUserSettings) {
+        const showAnimationsDefault = getFromUserSettings(
+          'bbb_show_animations_default',
+          Meteor.settings.public.app.defaultSettings.application.animations
+        );
+
+        Settings.application.animations = showAnimationsDefault;
+        Settings.save();
+
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
           if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
             layoutContextDispatch({

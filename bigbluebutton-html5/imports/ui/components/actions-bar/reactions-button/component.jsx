@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
@@ -21,6 +22,7 @@ const ReactionsButton = (props) => {
     isMobile,
     currentUserReaction,
     autoCloseReactionsBar,
+    shortcuts,
   } = props;
 
   // initialize emoji-mart data, need for the new version
@@ -101,7 +103,7 @@ const ReactionsButton = (props) => {
   });
 
   actions.push({
-    label: <Styled.RaiseHandButtonWrapper isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><em-emoji key={handReaction.id} native={handReaction.native} emoji={{ id: handReaction.id }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
+    label: <Styled.RaiseHandButtonWrapper accessKey={shortcuts.raisehand} isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><em-emoji key={handReaction.id} native={handReaction.native} emoji={{ id: handReaction.id }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
     key: 'hand',
     onClick: () => handleRaiseHandButtonClick(),
     customStyles: {...actionCustomStyles, width: 'auto'},
@@ -176,4 +178,4 @@ const propTypes = {
 
 ReactionsButton.propTypes = propTypes;
 
-export default ReactionsButton;
+export default withShortcutHelper(ReactionsButton, ['raiseHand']);

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
-import deviceInfo from '/imports/utils/deviceInfo';
 
 const propTypes = {
   children: PropTypes.node,
@@ -37,7 +36,6 @@ const defaultProps = {
 };
 
 const { animations } = Settings.application;
-const { isIos } = deviceInfo;
 
 const UserAvatar = ({
   children,
@@ -70,7 +68,6 @@ const UserAvatar = ({
         listenOnly={listenOnly}
         voice={voice}
         noVoice={noVoice && !listenOnly}
-        isIos={isIos}
         style={{
           backgroundColor: color,
           color, // We need the same color on both for the border

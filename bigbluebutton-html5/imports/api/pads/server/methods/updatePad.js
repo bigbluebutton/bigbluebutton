@@ -17,6 +17,7 @@ export default function updatePad(meetingId, userId, externalId, text) {
     const payload = {
       externalId,
       text,
+      transcript: false,
     };
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);

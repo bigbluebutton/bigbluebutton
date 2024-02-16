@@ -252,6 +252,8 @@ export default function Whiteboard(props) {
         canvas.dispatchEvent(newEvent);
       }
     }
+
+    window.dispatchEvent(new Event('resize'));
   }
 
   React.useEffect(() => {
@@ -460,14 +462,6 @@ export default function Whiteboard(props) {
       }
     }
   }, [tldrawAPI?.getPageState()?.camera, presentationWidth, presentationHeight]);
-
-  React.useEffect(() => {
-    if (isPresenter && slidePosition && tldrawAPI) {
-      const camera = tldrawAPI?.getPageState()?.camera;
-      const newZoom = calculateZoom(slidePosition?.viewBoxWidth, slidePosition?.viewBoxHeight);
-      tldrawAPI?.setCamera([camera?.point[0], camera?.point[1]], newZoom);
-    }
-  }, [slidePosition?.viewBoxWidth, slidePosition?.viewBoxHeight]);
 
   // change tldraw camera when slidePosition changes
   React.useEffect(() => {

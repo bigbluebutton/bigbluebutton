@@ -23,7 +23,7 @@ export default function setSpeechLocale(locale, provider) {
       provider: provider !== 'webspeech' ? provider : '',
     };
 
-    if (LANGUAGES.includes(locale) || locale === '') {
+    if (LANGUAGES.includes(locale) || locale === '' || locale === 'auto') {
       RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
     }
   } catch (err) {

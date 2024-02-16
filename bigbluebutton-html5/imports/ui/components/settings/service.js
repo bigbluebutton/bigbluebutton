@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import {notify} from '/imports/ui/services/notification';
 import GuestService from '/imports/ui/components/waiting-users/service';
+import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 import Intl from '/imports/ui/services/locale';
 
 const getUserRoles = () => {
@@ -34,6 +35,11 @@ const isKeepPushingLayoutEnabled = () => Meteor.settings.public.layout.showPushL
 const updateSettings = (obj, msgDescriptor) => {
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
   Settings.save();
+
+  if (obj.transcription) {
+    const { partialUtterances, minUtteranceLength } = obj.transcription;
+    SpeechService.setSpeechOptions(partialUtterances, parseInt(minUtteranceLength, 10));
+  }
 
   if (msgDescriptor) {
     // prevents React state update on unmounted component
