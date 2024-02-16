@@ -71,8 +71,8 @@ const LayoutEngine = ({ layoutType }) => {
     const navBarHeight = calculatesNavbarHeight();
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation
-      && !hasExternalVideo && !hasScreenShare 
-      && !isSharedNotesPinned && !hasgenericComponent;
+      && !hasExternalVideo && !hasScreenShare
+      && !isSharedNotesPinned && !hasGenericComponent;
 
     if (!isOpen || isGeneralMediaOff) {
       cameraDockBounds.width = mediaAreaBounds.width;
