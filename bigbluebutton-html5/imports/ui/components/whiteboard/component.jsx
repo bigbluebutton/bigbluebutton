@@ -714,8 +714,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
     editor?.user?.updateUserPreferences({ locale: language });
 
-    console.log("EDITOR : ", editor);
-
     const debouncePersistShape = debounce({ delay: 0 }, persistShapeWrapper);
 
     const colorStyles = ['black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'];
@@ -934,17 +932,17 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 });
 
 Whiteboard.propTypes = {
-  isPresenter: PropTypes.bool.isRequired,
+  isPresenter: PropTypes.bool,
   isIphone: PropTypes.bool.isRequired,
   removeShapes: PropTypes.func.isRequired,
   initDefaultPages: PropTypes.func.isRequired,
   persistShapeWrapper: PropTypes.func.isRequired,
   notifyNotAllowedChange: PropTypes.func.isRequired,
   shapes: PropTypes.objectOf(PropTypes.shape).isRequired,
-  assets: PropTypes.objectOf(PropTypes.shape).isRequired,
+  assets: PropTypes.arrayOf(PropTypes.shape).isRequired,
   currentUser: PropTypes.shape({
     userId: PropTypes.string.isRequired,
-  }).isRequired,
+  }),
   whiteboardId: PropTypes.string,
   zoomSlide: PropTypes.func.isRequired,
   curPageId: PropTypes.string.isRequired,
@@ -980,7 +978,7 @@ Whiteboard.propTypes = {
   fullscreenAction: PropTypes.string.isRequired,
   fullscreenRef: PropTypes.instanceOf(Element),
   handleToggleFullScreen: PropTypes.func.isRequired,
-  numberOfSlides: PropTypes.number.isRequired,
+  numberOfPages: PropTypes.number,
   sidebarNavigationWidth: PropTypes.number,
   presentationId: PropTypes.string,
 };
@@ -991,4 +989,9 @@ Whiteboard.defaultProps = {
   whiteboardId: undefined,
   sidebarNavigationWidth: 0,
   presentationId: undefined,
+  currentUser: {
+    userId: '',
+  },
+  isPresenter: false,
+  numberOfPages: 0,
 };

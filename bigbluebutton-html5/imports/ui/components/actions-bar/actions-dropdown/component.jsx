@@ -17,11 +17,11 @@ import { screenshareHasEnded } from '/imports/ui/components/screenshare/service'
 import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
-  amIPresenter: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  amIModerator: PropTypes.bool.isRequired,
+  amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
   isTimerActive: PropTypes.bool.isRequired,
@@ -45,6 +45,8 @@ const propTypes = {
 const defaultProps = {
   shortcuts: '',
   settingsLayout: LAYOUT_TYPE.SMART_LAYOUT,
+  amIPresenter: false,
+  amIModerator: false,
 };
 
 const intlMessages = defineMessages({

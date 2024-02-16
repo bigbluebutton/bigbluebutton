@@ -93,7 +93,7 @@ Meteor.startup(() => {
           </AuthenticatedHandler>
         </JoinHandler>
         <UsersAdapter />
-        <ChatAdapter />
+        {/* <ChatAdapter /> */}
       </>
     </ContextProviders>,
     document.getElementById('app'),
