@@ -87,7 +87,7 @@ export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQu
 }`;
 
 export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStream($lastUpdatedAt: timestamptz){
-  pres_annotation_curr_stream(batch_size: 10, cursor: {initial_value: {lastUpdatedAt: $lastUpdatedAt}}) {
+  pres_annotation_curr_stream(batch_size: 30, cursor: {initial_value: {lastUpdatedAt: $lastUpdatedAt}}) {
     annotationId
     annotationInfo
     lastUpdatedAt

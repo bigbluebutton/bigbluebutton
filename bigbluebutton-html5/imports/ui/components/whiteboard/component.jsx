@@ -187,9 +187,12 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     whiteboardIdRef.current
   );
 
+  const [shapesVersion, setShapesVersion] = React.useState(0);
+
   React.useEffect(() => {
     if (!isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
+      setShapesVersion(v => v + 1);
     }
   }, [shapes]);
 
@@ -261,7 +264,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       shapesToUpdate: toUpdate,
       shapesToRemove: toRemove,
     };
-  }, [prevShapesRef.current, curPageIdRef.current]);
+  }, [shapesVersion]);
 
   const setCamera = (zoom, x = 0, y = 0) => {
     if (tlEditorRef.current) {
