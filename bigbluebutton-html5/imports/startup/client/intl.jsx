@@ -60,7 +60,6 @@ class IntlStartup extends Component {
     const { fetching, messages, normalizedLocale } = this.state;
     const { locale, overrideLocaleFromPassedParameter } = this.props;
 
-    console.log('teste aqui dentro do didupdate (**)');
     this.sendUiDataToPlugins();
     if (overrideLocaleFromPassedParameter !== prevProps.overrideLocaleFromPassedParameter) {
       this.fetchLocalizedMessages(overrideLocaleFromPassedParameter);
