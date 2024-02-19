@@ -224,11 +224,9 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       const prevShape = prevShapesRef.current[remoteShape.id];
 
       if (!localShape) {
-        if (prevShapesRef.current[`${remoteShape.id}`].meta?.createdBy !== currentUser?.userId) {
           delete remoteShape.isModerator
           delete remoteShape.questionType
           toAdd.push(remoteShape);
-        }
       } else if (!isEqual(localShape, remoteShape) && prevShape) {
         const diff = {
           id: remoteShape.id,
@@ -264,7 +262,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       shapesToUpdate: toUpdate,
       shapesToRemove: toRemove,
     };
-  }, [shapesVersion]);
+  }, [prevShapesRef.current, curPageIdRef.current]);
 
   const setCamera = (zoom, x = 0, y = 0) => {
     if (tlEditorRef.current) {
