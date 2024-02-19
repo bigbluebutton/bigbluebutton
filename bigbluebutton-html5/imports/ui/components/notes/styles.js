@@ -1,14 +1,10 @@
 import styled from 'styled-components';
-import {
-  mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import CommonHeader from '/imports/ui/components/common/control-header/component';
 
 const Notes = styled.div`
   background-color: ${colorWhite};
-  padding: ${mdPaddingX};
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -21,14 +17,13 @@ const Notes = styled.div`
 
   @media ${smallOnly} {
     transform: none !important;
-    &.no-padding {
-      padding: 0;
-    }
   }
 `;
 
 const Header = styled(CommonHeader)`
   padding-bottom: .2rem;
+  padding-right: 1rem;
+  padding-top: .5rem;
 `;
 
 export default {
