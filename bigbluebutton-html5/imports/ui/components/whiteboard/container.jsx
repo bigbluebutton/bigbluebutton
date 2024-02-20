@@ -256,7 +256,6 @@ const WhiteboardContainer = (props) => {
         assets,
         removeShapes,
         zoomSlide,
-        numberOfSlides: currentPresentationPage?.totalPages,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
         whiteboardToolbarAutoHide:
