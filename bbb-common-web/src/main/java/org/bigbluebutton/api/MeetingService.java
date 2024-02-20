@@ -181,6 +181,7 @@ public class MeetingService implements MessageListener {
       removedUser.meetingId = us.meetingID;
       removedUser.userId = us.internalUserId;
       removedUser.sessionToken = us.authToken;
+      removedUser.role = us.role;
       removedSessions.put(token, removedUser);
       sessions.remove(token);
     } else {
