@@ -16,10 +16,9 @@ if [ "$hasura_status" = "active" ]; then
 fi
 
 echo "Restarting database bbb_graphql"
-sudo -u postgres psql -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname = 'bbb_graphql'"
-sudo -u postgres psql -c "drop database if exists bbb_graphql with (force)"
-sudo -u postgres psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
-sudo -u postgres psql -c "alter database bbb_graphql set timezone to 'UTC'"
+sudo -u postgres psql -q -c "drop database if exists bbb_graphql with (force)"
+sudo -u postgres psql -q -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
+sudo -u postgres psql -q -c "alter database bbb_graphql set timezone to 'UTC'"
 
 echo "Creating tables in bbb_graphql"
 sudo -u postgres psql -U postgres -d bbb_graphql -q -f bbb_schema.sql --set ON_ERROR_STOP=on
@@ -40,21 +39,20 @@ fi
 
 sudo -u postgres psql -q -d bbb_graphql -c "GRANT SELECT ON v_user_connection_auth TO $DATABASE_FRONTEND_USER"
 
-if [ "$hasura_status" = "active" ]; then
-  echo "Starting Hasura"
-  sudo systemctl start bbb-graphql-server
+echo "Starting Hasura"
+sudo systemctl start bbb-graphql-server
 
-  #Check if Hasura is ready before applying metadata
-  HASURA_PORT=8080
-  while ! netstat -tuln | grep ":$HASURA_PORT " > /dev/null; do
-      echo "Waiting for Hasura's port ($HASURA_PORT) to be ready..."
-      sleep 1
-  done
-fi
+#Check if Hasura is ready before applying metadata
+HASURA_PORT=8080
+while ! netstat -tuln | grep ":$HASURA_PORT " > /dev/null; do
+    echo "Waiting for Hasura's port ($HASURA_PORT) to be ready..."
+    sleep 1
+done
+
 if [ "$akka_apps_status" = "active" ]; then
   echo "Starting Akka-apps"
   sudo systemctl start bbb-apps-akka
 fi
 
 echo "Applying new metadata to Hasura"
-hasura metadata apply --skip-update-check
+timeout 15s hasura metadata apply --skip-update-check
