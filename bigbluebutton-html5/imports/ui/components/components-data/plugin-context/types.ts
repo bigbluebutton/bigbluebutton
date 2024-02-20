@@ -18,9 +18,6 @@ export type ChatMessagesVariables = {
 export interface PluginsContextType {
     pluginsExtensibleAreasAggregatedState: ExtensibleArea;
     setPluginsExtensibleAreasAggregatedState: React.Dispatch<React.SetStateAction<ExtensibleArea>>;
-    userListGraphqlVariables: UserListGraphqlVariables;
-    setUserListGraphqlVariables: React.Dispatch<
-        React.SetStateAction<UserListGraphqlVariables>>;
     domElementManipulationMessageIds: string[];
     setDomElementManipulationMessageIds: React.Dispatch<
         React.SetStateAction<string[]>>;
