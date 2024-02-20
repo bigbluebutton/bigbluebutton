@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { NavBarItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/nav-bar-item/enums';
 import Styled from './styles';
 import RecordingIndicator from './nav-bar-graphql/recording-indicator/component';
 import TalkingIndicator from '/imports/ui/components/nav-bar/nav-bar-graphql/talking-indicator/component';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
+import ConnectionStatus from '/imports/ui/components/connection-status/component';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import OptionsDropdownContainer from './options-dropdown/container';
@@ -67,12 +69,13 @@ const renderPluginItems = (pluginItems) => {
           pluginItems.map((pluginItem) => {
             let returnComponent;
             switch (pluginItem.type) {
-              case PluginSdk.NavBarItemType.BUTTON:
+              case NavBarItemType.BUTTON:
                 returnComponent = (
                   <Styled.PluginComponentWrapper
-                    key={pluginItem.id}
+                    key={`${pluginItem.id}-${pluginItem.type}`}
                   >
                     <Button
+                      disabled={pluginItem.disabled}
                       icon={pluginItem.icon}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
@@ -83,10 +86,10 @@ const renderPluginItems = (pluginItems) => {
                   </Styled.PluginComponentWrapper>
                 );
                 break;
-              case PluginSdk.NavBarItemType.INFO:
+              case NavBarItemType.INFO:
                 returnComponent = (
                   <Styled.PluginComponentWrapper
-                    key={pluginItem.id}
+                    key={`${pluginItem.id}-${pluginItem.type}`}
                     tooltip={pluginItem.tooltip}
                   >
                     <Styled.PluginInfoComponent>
@@ -105,14 +108,18 @@ const renderPluginItems = (pluginItems) => {
                   returnComponent = (
                     <>
                       {returnComponent}
-                      <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                      <Styled.PluginSeparatorWrapper key={`${pluginItem.id}-${pluginItem.type}-separator`}>
+                        |
+                      </Styled.PluginSeparatorWrapper>
                     </>
                   );
                   break;
                 default:
                   returnComponent = (
                     <>
-                      <Styled.PluginSeparatorWrapper>|</Styled.PluginSeparatorWrapper>
+                      <Styled.PluginSeparatorWrapper key={`${pluginItem.id}-${pluginItem.type}-separator`}>
+                        |
+                      </Styled.PluginSeparatorWrapper>
                       {returnComponent}
                     </>
                   );
@@ -293,7 +300,7 @@ class NavBar extends Component {
     const { selectedLayout } = Settings.application;
     const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
     return (
       <Styled.Navbar
@@ -357,6 +364,7 @@ class NavBar extends Component {
           <Styled.Right>
             {renderPluginItems(rightPluginItems)}
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
+            {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
             <OptionsDropdownContainer amIModerator={amIModerator} />
           </Styled.Right>
         </Styled.Top>

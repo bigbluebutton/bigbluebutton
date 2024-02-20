@@ -13,7 +13,7 @@ const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const PresentationOnlyLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+  const { bannerAreaHeight, calculatesNavbarHeight, isMobile } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -41,10 +41,13 @@ const PresentationOnlyLayout = (props) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
+    const navBarHeight = calculatesNavbarHeight();
+
     if (
       fullscreenElement === 'Presentation'
       || fullscreenElement === 'Screenshare'
       || fullscreenElement === 'ExternalVideo'
+      || fullscreenElement === 'GenericComponent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -57,7 +60,7 @@ const PresentationOnlyLayout = (props) => {
 
     mediaBounds.height = mediaAreaBounds.height;
     mediaBounds.width = mediaAreaBounds.width;
-    mediaBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
+    mediaBounds.top = navBarHeight + bannerAreaHeight();
     mediaBounds.left = !isRTL ? mediaAreaBounds.left : null;
     mediaBounds.right = isRTL ? sidebarSize : null;
     mediaBounds.zIndex = 1;
@@ -286,6 +289,17 @@ const PresentationOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
+      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      value: {
+        width: isOpen ? mediaBounds.width : 0,
+        height: isOpen ? mediaBounds.height : 0,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: mediaBounds.right,
+      },
+    });
+
+    layoutContextDispatch({
       type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         width: isOpen ? mediaBounds.width : 0,
@@ -342,6 +356,9 @@ const PresentationOnlyLayout = (props) => {
           },
           externalVideo: {
             hasExternalVideo: input.externalVideo.hasExternalVideo,
+          },
+          genericComponent: {
+            hasGenericComponent: input.genericComponent.hasGenericComponent,
           },
           screenShare: {
             hasScreenShare: input.screenShare.hasScreenShare,

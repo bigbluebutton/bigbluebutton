@@ -44,13 +44,13 @@ const propTypes = {
   allowDownloadConverted: PropTypes.bool.isRequired,
   allowDownloadWithAnnotations: PropTypes.bool.isRequired,
   item: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    filename: PropTypes.string.isRequired,
+    id: PropTypes.string,
+    filename: PropTypes.string,
     filenameConverted: PropTypes.string,
-    isCurrent: PropTypes.bool.isRequired,
+    isCurrent: PropTypes.bool,
     temporaryPresentationId: PropTypes.string,
-    isDownloadable: PropTypes.bool.isRequired,
-    isRemovable: PropTypes.bool.isRequired,
+    isDownloadable: PropTypes.bool,
+    isRemovable: PropTypes.bool,
     conversion: PropTypes.shape({
       done: PropTypes.bool,
       error: PropTypes.bool,
@@ -61,15 +61,19 @@ const propTypes = {
     upload: PropTypes.shape({
       done: PropTypes.bool,
       error: PropTypes.bool,
-    }).isRequired,
+    }),
     exportation: PropTypes.shape({
       status: PropTypes.string,
     }),
     uploadTimestamp: PropTypes.string,
     downloadableExtension: PropTypes.string,
-  }).isRequired,
+  }),
   closeModal: PropTypes.func.isRequired,
   disabled: PropTypes.bool.isRequired,
+};
+
+const defaultProps = {
+  item: {},
 };
 
 class PresentationDownloadDropdown extends PureComponent {
@@ -103,7 +107,7 @@ class PresentationDownloadDropdown extends PureComponent {
     const downloadableExtension = downloadFileUri?.split('.').slice(-1)[0];
     const originalFileExtension = name?.split('.').slice(-1)[0];
     const changeDownloadOriginalOrConvertedPresentation = (enableDownload, fileStateType) => {
-      handleDownloadableChange(item, fileStateType, enableDownload);
+      handleDownloadableChange(item?.presentationId, fileStateType, enableDownload);
       if (enableDownload) {
         handleDownloadingOfPresentation(fileStateType);
       }
@@ -204,5 +208,6 @@ class PresentationDownloadDropdown extends PureComponent {
 }
 
 PresentationDownloadDropdown.propTypes = propTypes;
+PresentationDownloadDropdown.defaultProps = defaultProps;
 
 export default injectIntl(PresentationDownloadDropdown);

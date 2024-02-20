@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/container';
 import OptionsMenuContainer from '/imports/ui/components/settings/container';
@@ -11,7 +10,7 @@ import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/componen
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { OptionsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/options-dropdown-item/enums';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -110,7 +109,7 @@ const propTypes = {
   isBreakoutRoom: PropTypes.bool,
   isMeteorConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
-  audioCaptionsEnabled: PropTypes.bool.isRequired,
+  audioCaptionsEnabled: PropTypes.bool,
   audioCaptionsActive: PropTypes.bool.isRequired,
   audioCaptionsSet: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
@@ -118,6 +117,7 @@ const propTypes = {
     id: PropTypes.string,
     type: PropTypes.string,
   })).isRequired,
+  userLeaveMeeting: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -126,6 +126,7 @@ const defaultProps = {
   shortcuts: '',
   isBreakoutRoom: false,
   isDropdownOpen: false,
+  audioCaptionsEnabled: false,
 };
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
@@ -208,7 +209,9 @@ class OptionsDropdown extends PureComponent {
   }
 
   leaveSession() {
-    makeCall('userLeftMeeting');
+    const { userLeaveMeeting } = this.props;
+    
+    userLeaveMeeting();
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
     Session.set('codeError', this.LOGOUT_CODE);
@@ -331,7 +334,7 @@ class OptionsDropdown extends PureComponent {
 
     optionsDropdownItems.forEach((item) => {
       switch (item.type) {
-        case PluginSdk.OptionsDropdownItemType.OPTION:
+        case OptionsDropdownItemType.OPTION:
           this.menuItems.push({
             key: item.id,
             icon: item.icon,
@@ -339,7 +342,7 @@ class OptionsDropdown extends PureComponent {
             label: item.label,
           });
           break;
-        case PluginSdk.OptionsDropdownItemType.SEPARATOR:
+        case OptionsDropdownItemType.SEPARATOR:
           this.menuItems.push({
             key: item.id,
             isSeparator: true,

@@ -63,6 +63,20 @@ export interface ExternalVideo {
     zIndex?: number;
     right?: number;
 }
+
+export interface GenericComponent {
+    hasGenericComponent?: boolean;
+    browserHeight?: number;
+    browserWidth?: number;
+    height: number;
+    width: number;
+    display?: boolean;
+    left?: number;
+    tabOrder?: number;
+    top?: number;
+    zIndex?: number;
+    right?: number;
+}
 interface NavBar {
     hasNavBar?: boolean;
     height: number;
@@ -215,7 +229,8 @@ interface Input {
     browser: Browser;
     cameraDock: CameraDock
     customParameters: NonNullable<unknown>;
-    externalVideo: ExternalVideo
+    externalVideo: ExternalVideo;
+    genericComponent: GenericComponent;
     navBar: NavBar;
     notificationsBar: NotificationsBar;
     presentation: Presentation;
@@ -228,17 +243,18 @@ interface Input {
 
 interface Output {
     actionBar: ActionBar;
-cameraDock: CameraDock;
-captions: Captions;
-dropZoneAreas: DropzoneAreas;
-externalVideo: ExternalVideo;
-mediaArea: Size;
-navBar: NavBar;
-presentation: Presentation;
-screenShare: ScreenShare;
-sharedNotes: SharedNotes;
-sidebarContent: SidebarContent;
-sidebarNavigation: SidebarNavigation;
+    cameraDock: CameraDock;
+    captions: Captions;
+    dropZoneAreas: DropzoneAreas;
+    externalVideo: ExternalVideo;
+    genericComponent: GenericComponent;
+    mediaArea: Size;
+    navBar: NavBar;
+    presentation: Presentation;
+    screenShare: ScreenShare;
+    sharedNotes: SharedNotes;
+    sidebarContent: SidebarContent;
+    sidebarNavigation: SidebarNavigation;
 }
 
 interface Layout {

@@ -4,6 +4,7 @@ import { AutoSizer } from 'react-virtualized';
 import { debounce } from 'radash';
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { findDOMNode } from 'react-dom';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import ListItem from './list-item/component';
 import Skeleton from './list-item/skeleton/component';
@@ -14,7 +15,6 @@ import {
 } from './queries';
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
-import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
@@ -23,6 +23,8 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import Service from '/imports/ui/components/user-list/service';
+import useLoadedUserList from '/imports/ui/core/hooks/useLoadedUserList';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -102,6 +104,13 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
     if (fourthChild && fourthChild instanceof HTMLElement) fourthChild.focus();
   }, [selectedUser]);
 
+  useEffect(() => {
+    window.dispatchEvent(new Event(PluginSdk.UserListEventsNames.USER_LIST_OPENED));
+    return () => {
+      window.dispatchEvent(new Event(PluginSdk.UserListEventsNames.USER_LIST_CLOSED));
+    };
+  }, []);
+
   const rove = (event: React.KeyboardEvent) => {
     // eslint-disable-next-line react/no-find-dom-node
     const usrItemsRef = findDOMNode(userItemsRef.current);
@@ -148,16 +157,6 @@ const UserListParticipantsContainer: React.FC = () => {
   const [limit, setLimit] = React.useState(0);
 
   const {
-    data: usersData,
-  } = useSubscription(USER_LIST_SUBSCRIPTION, {
-    variables: {
-      offset,
-      limit,
-    },
-  });
-  const { user: users } = (usersData || {});
-
-  const {
     data: meetingData,
   } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION);
   const { meeting: meetingArray } = (meetingData || {});
@@ -168,6 +167,10 @@ const UserListParticipantsContainer: React.FC = () => {
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
+
+  const {
+    data: users,
+  } = useLoadedUserList((u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
 
   const { data: currentUser } = useCurrentUser((c: Partial<User>) => ({
     isModerator: c.isModerator,

@@ -5,6 +5,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
+import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
@@ -14,6 +15,7 @@ import {
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
 import { parsePayloads } from 'sdp-transform';
+import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
 
 const { isMobile } = deviceInfo;
 const { isSafari, isTabletApp } = browserInfo;
@@ -21,10 +23,14 @@ const { isSafari, isTabletApp } = browserInfo;
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
   enabled: PropTypes.bool.isRequired,
-  amIPresenter: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool,
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
+};
+
+const defaultProps = {
+  amIPresenter: false,
 };
 
 const intlMessages = defineMessages({
@@ -118,6 +124,8 @@ const ScreenshareButton = ({
   amIPresenter,
   isMeteorConnected,
 }) => {
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
   const handleFailure = (error) => {
@@ -189,7 +197,7 @@ const ScreenshareButton = ({
               if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
                 setScreenshareUnavailableModalIsOpen(true);
               } else {
-                shareScreen(amIPresenter, handleFailure);
+                shareScreen(stopExternalVideoShare, amIPresenter, handleFailure);
               }
             }}
           id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
@@ -210,4 +218,5 @@ const ScreenshareButton = ({
 };
 
 ScreenshareButton.propTypes = propTypes;
+ScreenshareButton.defaultProps = defaultProps;
 export default injectIntl(memo(ScreenshareButton));

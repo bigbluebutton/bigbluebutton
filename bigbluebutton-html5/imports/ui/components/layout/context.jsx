@@ -189,6 +189,24 @@ const reducer = (state, action) => {
     }
 
     // NAV BAR
+
+    case ACTIONS.SET_HAS_NAVBAR: {
+      const { navBar } = state.input;
+      if (navBar.hasNavBar === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          navBar: {
+            ...navBar,
+            hasNavBar: action.value,
+          },
+        },
+      };
+    }
+
     case ACTIONS.SET_NAVBAR_OUTPUT: {
       const {
         display, width, height, top, left, tabOrder, zIndex,
@@ -222,6 +240,23 @@ const reducer = (state, action) => {
     }
 
     // ACTION BAR
+    case ACTIONS.SET_HAS_ACTIONBAR: {
+      const { actionBar } = state.input;
+      if (actionBar.hasActionBar === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          actionBar: {
+            ...actionBar,
+            hasActionBar: action.value,
+          },
+        },
+      };
+    }
+
     case ACTIONS.SET_ACTIONBAR_OUTPUT: {
       const {
         display, width, height, innerHeight, top, left, padding, tabOrder, zIndex,
@@ -1140,6 +1175,56 @@ const reducer = (state, action) => {
           ...state.output,
           externalVideo: {
             ...externalVideo,
+            width,
+            height,
+            top,
+            left,
+            right,
+          },
+        },
+      };
+    }
+
+    // GENERIC COMPONENT
+    case ACTIONS.SET_HAS_GENERIC_COMPONENT: {
+      const { genericComponent } = state.input;
+      if (genericComponent.hasGenericComponent === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          genericComponent: {
+            ...genericComponent,
+            hasGenericComponent: action.value,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_GENERIC_COMPONENT_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        right,
+      } = action.value;
+      const { genericComponent } = state.output;
+      if (genericComponent.width === width
+        && genericComponent.height === height
+        && genericComponent.top === top
+        && genericComponent.left === left
+        && genericComponent.right === right) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          genericComponent: {
+            ...genericComponent,
             width,
             height,
             top,

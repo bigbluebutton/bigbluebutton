@@ -11,7 +11,7 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 
 const CamerasOnlyLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -43,7 +43,7 @@ const CamerasOnlyLayout = (props) => {
       return baseBounds;
     }
 
-    const { navBarHeight } = DEFAULT_VALUES;
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
@@ -110,6 +110,7 @@ const CamerasOnlyLayout = (props) => {
       sidebarNavWidth.width,
       sidebarContentWidth.width,
     );
+    console.log({mediaAreaBounds})
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
@@ -296,6 +297,18 @@ const CamerasOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
+      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      value: {
+        display: false,
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: isRTL ? mediaBounds.right : null,
+      },
+    });
+
+    layoutContextDispatch({
       type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         display: false,
@@ -351,6 +364,9 @@ const CamerasOnlyLayout = (props) => {
           },
           externalVideo: {
             hasExternalVideo: false,
+          },
+          genericComponent: {
+            hasGenericComponent: false,
           },
           screenShare: {
             hasScreenShare: false,

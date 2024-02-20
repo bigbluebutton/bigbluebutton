@@ -1,7 +1,6 @@
 import {default as LocalStorage} from '/imports/ui/services/storage/local';
 import {default as SessionStorage} from '/imports/ui/services/storage/session';
 
-import { makeCall } from '/imports/ui/services/api';
 import { isEmpty } from 'radash';
 
 const APP_CONFIG = Meteor.settings.public.app;
@@ -77,7 +76,7 @@ class Settings {
     });
   }
 
-  save(settings = CHANGED_SETTINGS) {
+  save(mutation, settings = CHANGED_SETTINGS) {
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
@@ -112,7 +111,9 @@ class Settings {
       const { status } = Meteor.status();
       if (status === 'connected') {
         c.stop();
-        makeCall('userChangedLocalSettings', userSettings);
+        if (typeof mutation === 'function') {
+          mutation(userSettings);
+        }
       }
     });
   }

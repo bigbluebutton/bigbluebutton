@@ -51,7 +51,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)
     clearExpiredUserState(regUser)
-    invalidateUserGraphqlConnection(regUser)
+    ForceUserGraphqlReconnection(regUser)
 
     newState
   }
@@ -71,7 +71,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
   private def resetUserLeftFlag(msg: UserJoinMeetingReqMsg) = {
     log.info("Resetting flag that user left meeting. user {}", msg.body.userId)
-    sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, false)
+    sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, leftFlag = false)
     Users2x.resetUserLeftFlag(liveMeeting.users2x, msg.body.userId)
   }
 
@@ -146,7 +146,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   private def clearExpiredUserState(regUser: RegisteredUser) =
     UserStateDAO.updateExpired(regUser.id, false)
 
-  private def invalidateUserGraphqlConnection(regUser: RegisteredUser) =
-    Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "user_joined", outGW)
+  private def ForceUserGraphqlReconnection(regUser: RegisteredUser) =
+    Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "user_joined", outGW)
 
 }

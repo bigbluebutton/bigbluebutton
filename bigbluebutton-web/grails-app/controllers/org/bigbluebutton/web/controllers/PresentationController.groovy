@@ -30,6 +30,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.util.ParamsUtil;
 import org.bigbluebutton.api.Util;
 
 class PresentationController {
@@ -164,6 +165,7 @@ class PresentationController {
       // Gets the name minus the path from a full fileName.
       // a/b/c.txt --> c.txt
       presFilename =  FilenameUtils.getName(presOrigFilename)
+      presFilename = ParamsUtil.stripTags(presFilename)
       filenameExt = FilenameUtils.getExtension(presFilename)
     } else {
       log.warn "Upload failed. File Empty."

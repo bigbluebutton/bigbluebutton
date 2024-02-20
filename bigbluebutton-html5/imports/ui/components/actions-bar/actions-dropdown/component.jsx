@@ -2,13 +2,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import ExternalVideoModal from '/imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
-import TimerService from '/imports/ui/components/timer/service';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -18,11 +17,11 @@ import { screenshareHasEnded } from '/imports/ui/components/screenshare/service'
 import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
-  amIPresenter: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  amIModerator: PropTypes.bool.isRequired,
+  amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
   isTimerActive: PropTypes.bool.isRequired,
@@ -46,6 +45,8 @@ const propTypes = {
 const defaultProps = {
   shortcuts: '',
   settingsLayout: LAYOUT_TYPE.SMART_LAYOUT,
+  amIPresenter: false,
+  amIModerator: false,
 };
 
 const intlMessages = defineMessages({
@@ -165,11 +166,11 @@ class ActionsDropdown extends PureComponent {
   }
 
   handleTimerClick() {
-    const { isTimerActive, layoutContextDispatch } = this.props;
+    const { isTimerActive, activateTimer, deactivateTimer } = this.props;
     if (!isTimerActive) {
-      TimerService.activateTimer(layoutContextDispatch);
+      activateTimer();
     } else {
-      TimerService.deactivateTimer();
+      deactivateTimer();
     }
   }
 
@@ -285,7 +286,7 @@ class ActionsDropdown extends PureComponent {
     const { selectedLayout } = Settings.application;
     const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
     if (shouldShowManageLayoutButton && isLayoutsEnabled()) {
       actions.push({
@@ -316,7 +317,7 @@ class ActionsDropdown extends PureComponent {
 
     actionButtonDropdownItems.forEach((actionButtonItem) => {
       switch (actionButtonItem.type) {
-        case PluginSdk.ActionButtonDropdownItemType.OPTION:
+        case ActionButtonDropdownItemType.OPTION:
           actions.push({
             icon: actionButtonItem.icon,
             label: actionButtonItem.label,
@@ -325,7 +326,7 @@ class ActionsDropdown extends PureComponent {
             allowed: actionButtonItem.allowed,
           });
           break;
-        case PluginSdk.ActionButtonDropdownItemType.SEPARATOR:
+        case ActionButtonDropdownItemType.SEPARATOR:
           actions.push({
             key: actionButtonItem.id,
             allowed: actionButtonItem.allowed,

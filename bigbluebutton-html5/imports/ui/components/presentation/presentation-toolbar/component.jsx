@@ -9,7 +9,9 @@ import {
   MAX_PERCENT,
   STEP,
 } from '/imports/utils/slideCalcUtils';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import {
+  PresentationToolbarItemType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-toolbar-item/enums';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
@@ -148,12 +150,12 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleSkipToSlideChange(event) {
-    const { skipToSlide, presentationId } = this.props;
+    const { skipToSlide } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    skipToSlide(requestedSlideNum, presentationId);
+    skipToSlide(requestedSlideNum);
   }
 
   handleSwitchWhiteboardMode() {
@@ -192,29 +194,21 @@ class PresentationToolbar extends PureComponent {
   }
 
   nextSlideHandler(event) {
-    const {
-      nextSlide,
-      currentSlideNum,
-      numberOfSlides,
-      endCurrentPoll,
-      presentationId,
-    } = this.props;
+    const { nextSlide, endCurrentPoll } = this.props;
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
-    nextSlide(currentSlideNum, numberOfSlides, presentationId);
+    nextSlide();
   }
 
   previousSlideHandler(event) {
-    const {
-      previousSlide, currentSlideNum, endCurrentPoll, presentationId
-    } = this.props;
+    const { previousSlide, endCurrentPoll } = this.props;
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
-    previousSlide(currentSlideNum, presentationId);
+    previousSlide();
   }
 
   switchSlide(event) {
@@ -258,7 +252,7 @@ class PresentationToolbar extends PureComponent {
       const ppbId = ppb.id;
 
       switch (ppb.type) {
-        case PluginSdk.PresentationToolbarItemType.BUTTON:
+        case PresentationToolbarItemType.BUTTON:
           componentToReturn = (
             <Button
               key={ppbId}
@@ -269,14 +263,14 @@ class PresentationToolbar extends PureComponent {
             />
           );
           break;
-        case PluginSdk.PresentationToolbarItemType.SPINNER:
+        case PresentationToolbarItemType.SPINNER:
           componentToReturn = (
             <Spinner
               key={ppbId}
             />
           );
           break;
-        case PluginSdk.PresentationToolbarItemType.SEPARATOR:
+        case PresentationToolbarItemType.SEPARATOR:
           componentToReturn = (
             <Separator />
           );

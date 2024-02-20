@@ -46,9 +46,6 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
   if (!Array.isArray((metadata as Metadata).answers)) {
     throw new Error('metadata.answers is not an array');
   }
-  if ((metadata as Metadata).answers.length === 0) {
-    throw new Error('metadata.answers is empty');
-  }
 }
 
 const ChatPollContent: React.FC<ChatPollContentProps> = ({
@@ -56,18 +53,19 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
 }) => {
   const pollData = JSON.parse(string) as unknown;
   assertAsMetadata(pollData);
+  const height = pollData.answers.length * 50;
   return (
     <div data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
-      <ResponsiveContainer width="90%" height={250}>
+      <ResponsiveContainer width="90%" height={height}>
         <BarChart
           data={pollData.answers}
           layout="vertical"
         >
           <XAxis type="number" />
-          <YAxis width={70} type="category" dataKey="key" />
+          <YAxis width={80} type="category" dataKey="key" />
           <Bar dataKey="numVotes" fill="#0C57A7" />
         </BarChart>
       </ResponsiveContainer>

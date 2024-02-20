@@ -13,6 +13,7 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
         color
       }
       messageType
+      chatEmphasizedText
       chatId
       message
       messageId
@@ -43,6 +44,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       chatId
       message
       messageType
+      chatEmphasizedText
       messageId
       createdAt
       messageMetadata

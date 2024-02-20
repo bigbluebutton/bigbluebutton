@@ -17,7 +17,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <style>
     html {
       box-sizing: border-box;
@@ -135,7 +135,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="files/source-code-pro-latin-400-normal.woff2" as="font" crossorigin="anonymous"/>
 
   <style>
     @font-face {
@@ -150,6 +149,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 <body style="background-color: #06172A">
   <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
+  <svg style="display: none; width: 1px; height: 1px;">
+    <defs>
+      <symbol id="redPointer" viewBox="0 0 10 10">
+        <circle cx="5" cy="5" r="4" fill="red" />
+      </symbol>
+    </defs>
+  </svg>
   <main>
     <div id="app" role="document">
   </main>

@@ -1,11 +1,9 @@
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
-import { makeCall } from '/imports/ui/services/api';
 import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
-import { getTextSize } from './utils';
 
 const intlMessages = defineMessages({
   notifyNotAllowedChange: {
@@ -30,7 +28,7 @@ const annotationsRetryDelay = 1000;
 
 let annotationsSenderIsRunning = false;
 
-const proccessAnnotationsQueue = async () => {
+const proccessAnnotationsQueue = async (submitAnnotations) => {
   annotationsSenderIsRunning = true;
   const queueSize = annotationsQueue.length;
 
@@ -41,24 +39,29 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  const isAnnotationSent = await makeCall('sendBulkAnnotations', annotations);
+  try {
+    const isAnnotationSent = await submitAnnotations(annotations);
 
-  if (!isAnnotationSent) {
-    // undo splice
+    if (!isAnnotationSent) {
+      // undo splice
+      annotationsQueue.splice(0, 0, ...annotations);
+      setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsRetryDelay);
+    } else {
+      // ask tiago
+      const delayPerc = Math.min(
+        annotationsMaxDelayQueueSize, queueSize,
+      ) / annotationsMaxDelayQueueSize;
+      const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
+      const delayTime = annotationsBufferTimeMin + delayDelta * delayPerc;
+      setTimeout(() => proccessAnnotationsQueue(submitAnnotations), delayTime);
+    }
+  } catch (error) {
     annotationsQueue.splice(0, 0, ...annotations);
-    setTimeout(proccessAnnotationsQueue, annotationsRetryDelay);
-  } else {
-    // ask tiago
-    const delayPerc = Math.min(
-      annotationsMaxDelayQueueSize, queueSize,
-    ) / annotationsMaxDelayQueueSize;
-    const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
-    const delayTime = annotationsBufferTimeMin + delayDelta * delayPerc;
-    setTimeout(proccessAnnotationsQueue, delayTime);
+    setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsRetryDelay);
   }
 };
 
-const sendAnnotation = (annotation) => {
+const sendAnnotation = (annotation, submitAnnotations) => {
   // Prevent sending annotations while disconnected
   // TODO: Change this to add the annotation, but delay the send until we're
   // reconnected. With this it will miss things
@@ -70,7 +73,7 @@ const sendAnnotation = (annotation) => {
   } else {
     annotationsQueue.push(annotation);
   }
-  if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
+  if (!annotationsSenderIsRunning) setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsBufferTimeMin);
 };
 
 const getMultiUser = (whiteboardId) => {
@@ -87,33 +90,7 @@ const getMultiUser = (whiteboardId) => {
   return data.multiUser;
 };
 
-const addGlobalAccess = (whiteboardId) => {
-  makeCall('addGlobalAccess', whiteboardId);
-};
-
-const addIndividualAccess = (whiteboardId, userId) => {
-  makeCall('addIndividualAccess', whiteboardId, userId);
-};
-
-const removeGlobalAccess = (whiteboardId) => {
-  makeCall('removeGlobalAccess', whiteboardId);
-};
-
-const removeIndividualAccess = (whiteboardId, userId) => {
-  makeCall('removeIndividualAccess', whiteboardId, userId);
-};
-
-const changeWhiteboardAccess = (pageId, userId, access) => {
-  if (!pageId) return;
-
-  if (access) {
-    addIndividualAccess(pageId, userId);
-  } else {
-    removeIndividualAccess(pageId, userId);
-  }
-};
-
-const persistShape = (shape, whiteboardId, isModerator) => {
+const persistShape = async (shape, whiteboardId, isModerator, submitAnnotations) => {
   const annotation = {
     id: shape.id,
     annotationInfo: { ...shape, isModerator },
@@ -121,13 +98,7 @@ const persistShape = (shape, whiteboardId, isModerator) => {
     userId: Auth.userID,
   };
 
-  sendAnnotation(annotation);
-};
-
-const removeShapes = (shapes, whiteboardId) => makeCall('deleteAnnotations', shapes, whiteboardId);
-
-const changeCurrentSlide = (s) => {
-  makeCall('changeCurrentSlide', s);
+  sendAnnotation(annotation, submitAnnotations);
 };
 
 const initDefaultPages = (count = 1) => {
@@ -162,56 +133,40 @@ const notifyShapeNumberExceeded = (intl, limit) => {
   if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { 0: limit }), 'warning', 'whiteboard');
 };
 
-const toggleToolsAnimations = (activeAnim, anim, time) => {
-  const tdTools = document.querySelector('#TD-Tools');
-  const topToolbar = document.getElementById('TD-Styles')?.parentElement;
-  const optionsDropdown = document.getElementById('WhiteboardOptionButton');
-  if (tdTools && topToolbar) {
-    tdTools.classList.remove(activeAnim);
-    topToolbar.classList.remove(activeAnim);
-    topToolbar.style.transition = `opacity ${time} ease-in-out`;
-    tdTools.style.transition = `opacity ${time} ease-in-out`;
-    tdTools?.classList?.add(anim);
-    topToolbar?.classList?.add(anim);
-  }
-  if (optionsDropdown) {
-    optionsDropdown.classList.remove(activeAnim);
-    optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
-    optionsDropdown?.classList?.add(anim);
-  }
-}
-
-const formatAnnotations = (annotations, intl, curPageId, pollResults) => {
-  const result = {};
-
-  if (pollResults) {
-    // check if pollResults is already added to annotations
-    const hasPollResultsAnnotation = annotations.find(
-      (annotation) => annotation.annotationId === pollResults.pollId,
-    );
-
-    if (!hasPollResultsAnnotation) {
-      const answers = pollResults.responses.map((response) => ({
-        id: response.optionId,
-        key: response.optionDesc,
-        numVotes: response.optionResponsesCount,
-      }));
-
-      const pollResultsAnnotation = {
-        id: pollResults.pollId,
-        annotationInfo: JSON.stringify({
-          answers,
-          id: pollResults.pollId,
-          whiteboardId: curPageId,
-          questionType: true,
-          questionText: pollResults.questionText,
-        }),
-        wbId: curPageId,
-        userId: Auth.userID,
-      };
-      annotations.push(pollResultsAnnotation);
+const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
+  const handleOptionsDropdown = () => {
+    const optionsDropdown = document.getElementById('WhiteboardOptionButton');
+    if (optionsDropdown) {
+      optionsDropdown.classList.remove(activeAnim);
+      optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
+      optionsDropdown.classList.add(anim);
     }
   }
+
+  if (hasWBAccess === false) {
+    return handleOptionsDropdown();
+  }
+
+  const checkElementsAndRun = () => {
+    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper');
+    if (tlEls.length) {
+      tlEls?.forEach(el => {
+        el.classList.remove(activeAnim);
+        el.style.transition = `opacity ${time} ease-in-out`;
+        el.classList.add(anim);
+      });
+      handleOptionsDropdown();
+    } else {
+      // If the elements are not yet in the DOM, wait for 50ms and try again
+      setTimeout(checkElementsAndRun, 300);
+    }
+  };
+
+  checkElementsAndRun();
+};
+
+const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage) => {
+  const result = {};
 
   annotations.forEach((annotation) => {
     if (annotation.annotationInfo === '') return;
@@ -220,48 +175,101 @@ const formatAnnotations = (annotations, intl, curPageId, pollResults) => {
 
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
-      annotationInfo.answers = annotationInfo.answers.reduce(
-        caseInsensitiveReducer, [],
-      );
-      let pollResult = PollService.getPollResultString(annotationInfo, intl)
-        .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
+      if (!annotationInfo.props) {
+        annotationInfo.answers = annotationInfo.answers.reduce(
+          caseInsensitiveReducer, [],
+        );
+        let pollResult = PollService.getPollResultString(annotationInfo, intl)
+          .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
 
-      const lines = pollResult.split('\n');
-      const longestLine = lines.reduce((a, b) => a.length > b.length ? a : b, '').length;
+        const lines = pollResult.split('\n');
+        const longestLine = lines.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 
-      // add empty spaces before first | in each of the lines to make them all the same length
-      pollResult = lines.map((line) => {
-        if (!line.includes('|') || line.length === longestLine) return line;
+        // add empty spaces before first | in each of the lines to make them all the same length
+        pollResult = lines.map((line) => {
+          if (!line.includes('|') || line.length === longestLine) return line;
 
-        const splitLine = line.split(' |');
-        const spaces = ' '.repeat(longestLine - line.length);
-        return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
-      }).join('\n');
+          const splitLine = line.split(' |');
+          const spaces = ' '.repeat(longestLine - line.length);
+          return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
+        }).join('\n');
 
-      const style = {
-        color: 'white',
-        dash: 'solid',
-        font: 'mono',
-        isFilled: true,
-        size: 'small',
-        scale: 1,
-      };
+        // Text measurement estimation
+        const averageCharWidth = 16;
+        const lineHeight = 32;
 
-      const padding = 20;
-      const textSize = getTextSize(pollResult, style, padding);
+        const annotationWidth = longestLine * averageCharWidth; // Estimate width
+        const annotationHeight = lines.length * lineHeight; // Estimate height
 
-      annotationInfo = {
-        childIndex: 0,
-        id: annotationInfo.id,
-        name: `poll-result-${annotationInfo.id}`,
-        type: 'rectangle',
-        label: pollResult,
-        labelPoint: [0.5, 0.5],
-        parentId: `${curPageId}`,
-        point: [0, 0],
-        size: textSize,
-        style,
-      };
+        const slideWidth = currentPresentationPage?.scaledWidth;
+        const slideHeight = currentPresentationPage?.scaledHeight;
+        const xPosition = slideWidth - annotationWidth;
+        const yPosition = slideHeight - annotationHeight;
+
+        annotationInfo = {
+          x: xPosition,
+          y: yPosition,
+          isLocked: false,
+          rotation: 0,
+          typeName: 'shape',
+          opacity: 1,
+          parentId: `page:${curPageId}`,
+          index: 'a1',
+          id: `${annotationInfo.id}`,
+          meta: {},
+          type: 'geo',
+          props: {
+            url: '',
+            text: `${pollResult}`,
+            color: 'black',
+            font: 'mono',
+            fill: 'semi',
+            dash: 'draw',
+            w: annotationWidth,
+            h: annotationHeight,
+            size: 'm',
+            growY: 0,
+            align: 'middle',
+            geo: 'rectangle',
+            verticalAlign: 'middle',
+            labelColor: 'black',
+          },
+        };
+      } else {
+        annotationInfo = {
+          x: annotationInfo.x,
+          isLocked: annotationInfo.isLocked,
+          y: annotationInfo.y,
+          rotation: annotationInfo.rotation,
+          typeName: annotationInfo.typeName,
+          opacity: annotationInfo.opacity,
+          parentId: annotationInfo.parentId,
+          index: annotationInfo.index,
+          id: annotationInfo.id,
+          meta: annotationInfo.meta,
+          type: 'geo',
+          props: {
+            url: '',
+            text: annotationInfo.props.text,
+            color: annotationInfo.props.color,
+            font: annotationInfo.props.font,
+            fill: annotationInfo.props.fill,
+            dash: annotationInfo.props.dash,
+            h: annotationInfo.props.h,
+            w: annotationInfo.props.w,
+            size: annotationInfo.props.size,
+            growY: 0,
+            align: 'middle',
+            geo: annotationInfo.props.geo,
+            verticalAlign: 'middle',
+            labelColor: annotationInfo.props.labelColor,
+          },
+        };
+      }
+
+      const cpg = parseInt(annotationInfo?.id?.split?.('/')?.[1], 10);
+      if (cpg !== parseInt(curPageId, 10)) return;
+
       annotationInfo.questionType = false;
     }
     result[annotationInfo.id] = annotationInfo;
@@ -273,14 +281,7 @@ export {
   initDefaultPages,
   sendAnnotation,
   getMultiUser,
-  changeWhiteboardAccess,
-  addGlobalAccess,
-  addIndividualAccess,
-  removeGlobalAccess,
-  removeIndividualAccess,
   persistShape,
-  removeShapes,
-  changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,

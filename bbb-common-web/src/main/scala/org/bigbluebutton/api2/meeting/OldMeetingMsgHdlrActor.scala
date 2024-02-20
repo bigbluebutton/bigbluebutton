@@ -1,8 +1,7 @@
 package org.bigbluebutton.api2.meeting
 
 import java.util
-
-import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
+import org.apache.pekko.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
 import org.bigbluebutton.common2.msgs._
@@ -41,6 +40,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: GuestsWaitingApprovedEvtMsg       => handleGuestsWaitingApprovedEvtMsg(m)
       case m: PosInWaitingQueueUpdatedRespMsg   => handlePosInWaitingQueueUpdatedRespMsg(m)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
+      case m: LockSettingsInMeetingChangedEvtMsg => handleLockSettingsInMeetingChangedEvtMsg(m)
+      case m: WebcamsOnlyForModeratorChangedEvtMsg => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: GuestLobbyMessageChangedEvtMsg    => handleGuestLobbyMessageChangedEvtMsg(m)
       case m: PrivateGuestLobbyMsgChangedEvtMsg => handlePrivateGuestLobbyMsgChangedEvtMsg(m)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
@@ -53,6 +54,25 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleGuestPolicyChangedEvtMsg(msg: GuestPolicyChangedEvtMsg): Unit = {
     olgMsgGW.handle(new GuestPolicyChanged(msg.header.meetingId, msg.body.policy))
+  }
+
+  def handleLockSettingsInMeetingChangedEvtMsg(msg: LockSettingsInMeetingChangedEvtMsg): Unit = {
+    olgMsgGW.handle(new LockSettingsChanged(msg.header.meetingId,
+                                            msg.body.disableCam,
+                                            msg.body.disableMic,
+                                            msg.body.disablePrivChat,
+                                            msg.body.disablePubChat,
+                                            msg.body.disableNotes,
+                                            msg.body.hideUserList,
+                                            msg.body.lockOnJoin,
+                                            msg.body.lockOnJoinConfigurable,
+                                            msg.body.hideViewersCursor,
+                                            msg.body.hideViewersAnnotation,
+    ))
+  }
+
+  def handleWebcamsOnlyForModeratorChangedEvtMsg(msg: WebcamsOnlyForModeratorChangedEvtMsg): Unit = {
+    olgMsgGW.handle(new WebcamsOnlyForModeratorChanged(msg.header.meetingId, msg.body.webcamsOnlyForModerator))
   }
 
   def handleGuestLobbyMessageChangedEvtMsg(msg: GuestLobbyMessageChangedEvtMsg): Unit = {

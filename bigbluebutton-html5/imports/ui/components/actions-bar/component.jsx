@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
 import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import deviceInfo from '/imports/utils/deviceInfo';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
-import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
+import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
 import CaptionsReaderMenuContainer from '/imports/ui/components/captions/reader-menu/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import ReactionsButtonContainer from './reactions-button/container';
@@ -40,10 +40,10 @@ class ActionsBar extends PureComponent {
     return (
       <>
         {
-          actionBarItems.filter((plugin) => plugin.position === position).map((plugin, index) => {
+          actionBarItems.filter((plugin) => plugin.position === position).map((plugin) => {
             let actionBarItemToReturn;
             switch (plugin.type) {
-              case PluginSdk.ActionsBarItemType.BUTTON:
+              case ActionsBarItemType.BUTTON:
                 actionBarItemToReturn = (
                   <Button
                     key={`${plugin.type}-${plugin.id}`}
@@ -57,7 +57,7 @@ class ActionsBar extends PureComponent {
                   />
                 );
                 break;
-              case PluginSdk.ActionsBarItemType.SEPARATOR:
+              case ActionsBarItemType.SEPARATOR:
                 actionBarItemToReturn = (
                   <Styled.Separator
                     key={`${plugin.type}-${plugin.id}`}
@@ -77,7 +77,7 @@ class ActionsBar extends PureComponent {
 
   renderRaiseHand() {
     const {
-      isReactionsButtonEnabled, isRaiseHandButtonEnabled, setEmojiStatus, currentUser, intl,
+      isReactionsButtonEnabled, isRaiseHandButtonEnabled, currentUser, intl,
     } = this.props;
 
     return (
@@ -89,7 +89,7 @@ class ActionsBar extends PureComponent {
               <ReactionsButtonContainer actionsBarRef={this.actionsBarRef} />
             </>
           )
-          : isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{ setEmojiStatus, currentUser, intl }} />
+          : isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{ currentUser, intl }} />
             : null}
       </>
     );
@@ -102,7 +102,6 @@ class ActionsBar extends PureComponent {
       enableVideo,
       presentationIsOpen,
       setPresentationIsOpen,
-      handleTakePresenter,
       intl,
       isSharingVideo,
       isSharedNotesPinned,
@@ -131,9 +130,9 @@ class ActionsBar extends PureComponent {
 
     const { selectedLayout } = Settings.application;
     const shouldShowPresentationButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
     const shouldShowVideoButton = selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
     const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation)
       || isSharingVideo || hasScreenshare || isSharedNotesPinned;
@@ -154,7 +153,6 @@ class ActionsBar extends PureComponent {
             isPollingEnabled,
             isSelectRandomUserEnabled,
             allowExternalVideo,
-            handleTakePresenter,
             intl,
             isSharingVideo,
             stopExternalVideoShare,
@@ -199,7 +197,7 @@ class ActionsBar extends PureComponent {
             : null}
         </Styled.Left>
         <Styled.Center>
-          {this.renderPluginsActionBarItems(PluginSdk.ActionsBarPosition.LEFT)}
+          {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
           <AudioControlsContainer />
           {shouldShowVideoButton && enableVideo
             ? (
@@ -214,7 +212,7 @@ class ActionsBar extends PureComponent {
             />
           )}
           {isRaiseHandButtonCentered && this.renderRaiseHand()}
-          {this.renderPluginsActionBarItems(PluginSdk.ActionsBarPosition.RIGHT)}
+          {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
         </Styled.Center>
         <Styled.Right>
           {shouldShowPresentationButton && shouldShowOptionsButton

@@ -18,9 +18,7 @@ import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
-import { indexOf } from '/imports/utils/array-utils';
-import { isEmpty, throttle } from 'radash';
-import ChatService from '/imports/ui/components/chat/service';
+import { isEmpty } from 'radash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -482,53 +480,16 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
-  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
-  return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, emoji)
-    : makeCall('setEmojiStatus', userId, 'none');
-});
-
-const setUserAway = throttle({ interval: 1000 }, (userId, away) => {
-  return makeCall('changeAway', away);
-}, 250, { leading: false, trailing: true });
-
-const setUserRaiseHand = throttle({ interval: 1000 }, (userId, raiseHand) => {
-  return makeCall('changeRaiseHand', raiseHand);
-}, 250, { leading: false, trailing: true });
-
-const clearAllEmojiStatus = () => {
-  makeCall('clearAllUsersEmoji');
-};
-
-const clearAllReactions = () => {
-  makeCall('clearAllUsersReaction');
-};
-
-const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
-
-const removeUser = (userId, banUser) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId, banUser);
-  } else {
-    makeCall('removeUser', userId, banUser);
-  }
-};
-
-const toggleVoice = (userId) => {
+const toggleVoice = (userId, voiceToggle) => {
   if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone();
+    AudioService.toggleMuteMicrophone(voiceToggle);
   } else {
-    makeCall('toggleVoice', userId);
+    voiceToggle(userId);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
-};
-
-const ejectUserCameras = (userId) => {
-  makeCall('ejectUserCameras', userId);
 };
 
 const getEmoji = () => {
@@ -541,12 +502,6 @@ const getEmoji = () => {
 
   return currentUser.emoji;
 };
-
-const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
-
-const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
-
-const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
@@ -617,10 +572,6 @@ const roving = (...args) => {
     dropdownTrigger?.click();
     focusFirstDropDownItem();
   }
-};
-
-const toggleUserLock = (userId, lockStatus) => {
-  makeCall('toggleUserLock', userId, lockStatus);
 };
 
 const requestUserInformation = (userId) => {
@@ -743,17 +694,7 @@ const UserLeftMeetingAlert = (obj) => {
 export default {
   sortUsersByName,
   sortUsers,
-  setEmojiStatus,
-  setUserAway,
-  setUserRaiseHand,
-  clearAllEmojiStatus,
-  clearAllReactions,
-  assignPresenter,
-  removeUser,
   toggleVoice,
-  muteAllUsers,
-  muteAllExceptPresenter,
-  changeRole,
   getUsers,
   formatUsers,
   getActiveChats,
@@ -767,14 +708,12 @@ export default {
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji,
-  toggleUserLock,
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
-  ejectUserCameras,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
 };

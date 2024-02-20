@@ -1,25 +1,20 @@
-import React from 'react';
-import { useQuery, useSubscription } from '@apollo/client';
-import {
-  ColorStyle, DashStyle, SizeStyle, TDShapeType,
-} from '@tldraw/tldraw';
+import React, { useEffect, useState } from 'react';
+import { useSubscription, useMutation } from '@apollo/client';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-  CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from './queries';
+import { CURSOR_SUBSCRIPTION } from './cursors/queries';
 import {
   initDefaultPages,
   persistShape,
-  removeShapes,
-  changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import PresentationToolbarService from '../presentation/presentation-toolbar/service';
+import CursorService from './cursors/service';
 import SettingsService from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -30,19 +25,33 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
 import POLL_RESULTS_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollResultsSubscription';
+
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import {
+  AssetRecordType,
+} from "@tldraw/tldraw";
+import {
+  PRESENTATION_SET_ZOOM,
+  PRES_ANNOTATION_DELETE,
+  PRES_ANNOTATION_SUBMIT,
+} from '../presentation/mutations';
 
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
-
-let annotations = [];
-let lastUpdatedAt = null;
 
 const WhiteboardContainer = (props) => {
   const {
     intl,
     slidePosition,
     svgUri,
+    zoomChanger,
   } = props;
+
+  const [annotations, setAnnotations] = useState([]);
+
+  const meeting = useMeeting((m) => ({
+    lockSettings: m?.lockSettings,
+  }));
 
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
@@ -50,9 +59,56 @@ const WhiteboardContainer = (props) => {
   const curPageId = currentPresentationPage?.num;
   const presentationId = currentPresentationPage?.presentationId;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
+    variables: { pageId: currentPresentationPage?.pageId },
+    skip: !currentPresentationPage?.pageId,
+  });
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
+
+  const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
+  const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
+  const [presentationSubmitAnnotations] = useMutation(PRES_ANNOTATION_SUBMIT);
+
+  const removeShapes = (shapeIds) => {
+    presentationDeleteAnnotations({
+      variables: {
+        pageId: currentPresentationPage?.pageId,
+        annotationsIds: shapeIds,
+      },
+    });
+  };
+
+  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
+    const { pageId, num } = currentPresentationPage;
+
+    presentationSetZoom({
+      variables: {
+        presentationId,
+        pageId,
+        pageNum: num,
+        xOffset,
+        yOffset,
+        widthRatio,
+        heightRatio,
+      },
+    });
+  };
+
+  const submitAnnotations = async (newAnnotations) => {
+    const isAnnotationSent = await presentationSubmitAnnotations({
+      variables: {
+        pageId: currentPresentationPage?.pageId,
+        annotations: newAnnotations,
+      },
+    });
+
+    return isAnnotationSent?.data?.presAnnotationSubmit;
+  };
+
+  const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
+    persistShape(shape, whiteboardId, isModerator, submitAnnotations);
+  };
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
 
@@ -65,66 +121,66 @@ const WhiteboardContainer = (props) => {
     userId: user.userId,
   }));
 
-  const {
-    loading: annotationsLoading,
-    data: annotationsData,
-  } = useQuery(CURRENT_PAGE_ANNOTATIONS_QUERY);
-  const { pres_annotation_curr: history } = (annotationsData || []);
+  const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
+  const { pres_page_cursor: cursorArray } = (cursorData || []);
 
-  const lastHistoryTime = history?.[0]?.lastUpdatedAt || null;
-
-  if (!lastUpdatedAt) {
-    if (lastHistoryTime) {
-      if (new Date(lastUpdatedAt).getTime() < new Date(lastHistoryTime).getTime()) {
-        lastUpdatedAt = lastHistoryTime;
-      }
-    } else {
-      const newLastUpdatedAt = new Date();
-      lastUpdatedAt = newLastUpdatedAt.toISOString();
-    }
-  }
-
-  const { data: streamData } = useSubscription(
+  const { data: annotationStreamData } = useSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
     {
-      variables: { lastUpdatedAt },
+      variables: { lastUpdatedAt: new Date(0).toISOString() },
     },
   );
-  const { pres_annotation_curr_stream: streamDataItem } = (streamData || []);
 
-  if (streamDataItem) {
-    if (new Date(lastUpdatedAt).getTime() < new Date(streamDataItem[0].lastUpdatedAt).getTime()) {
-      if (streamDataItem[0].annotationInfo === '') {
-        // remove shape
-        annotations = annotations.filter(
-          (annotation) => annotation.annotationId !== streamDataItem[0].annotationId,
-        );
-      } else {
-        // add shape
-        annotations = annotations.concat(streamDataItem);
-      }
-      lastUpdatedAt = streamDataItem[0].lastUpdatedAt;
+  useEffect(() => {
+    const { pres_annotation_curr_stream: annotationStream } = annotationStreamData || {};
+
+    if (annotationStream) {
+      const newAnnotations = [];
+      const annotationsToBeRemoved = [];
+      annotationStream.forEach((item) => {
+        if (item.annotationInfo === '') {
+          annotationsToBeRemoved.push(item.annotationId);
+        } else {
+          newAnnotations.push(item);
+        }
+      });
+      const currentAnnotations = annotations.filter(
+        (annotation) => !annotationsToBeRemoved.includes(annotation.annotationId),
+      );
+      setAnnotations([...currentAnnotations, ...newAnnotations]);
     }
-  }
+  }, [annotationStreamData]);
+
   let shapes = {};
+  let bgShape = [];
 
-  if (!annotationsLoading && history) {
-    const pageAnnotations = history
-      .concat(annotations)
-      .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
+  const pageAnnotations = annotations
+    .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
 
-    shapes = formatAnnotations(pageAnnotations, intl, curPageId, pollResults);
-  }
+  shapes = formatAnnotations(
+    pageAnnotations,
+    intl,
+    curPageId,
+    currentPresentationPage,
+  );
 
   const { isIphone } = deviceInfo;
 
-  const assets = {};
-  assets[`slide-background-asset-${curPageId}`] = {
-    id: `slide-background-asset-${curPageId}`,
-    size: [slidePosition?.width || 0, slidePosition?.height || 0],
-    src: svgUri,
+  const assetId = AssetRecordType.createId(curPageId);
+  const assets = [{
+    id: assetId,
+    typeName: "asset",
     type: 'image',
-  };
+    meta: {},
+    props: {
+      w: currentPresentationPage?.scaledWidth,
+      h: currentPresentationPage?.scaledHeight,
+      src: currentPresentationPage?.svgUrl,
+      name: "",
+      isAnimated: false,
+      mimeType: null,
+    }
+  }];
 
   const isRTL = layoutSelect((i) => i.isRTL);
   const width = layoutSelect((i) => i?.output?.presentation?.width);
@@ -136,46 +192,40 @@ const WhiteboardContainer = (props) => {
   const isModerator = currentUser?.isModerator;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
+  const { colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const layoutContextDispatch = layoutDispatch();
 
-  shapes['slide-background-shape'] = {
-    assetId: `slide-background-asset-${curPageId}`,
-    childIndex: -1,
-    id: 'slide-background-shape',
-    name: 'Image',
-    type: TDShapeType.Image,
-    parentId: `${curPageId}`,
-    point: [0, 0],
+  bgShape.push({
+    x: 1,
+    y: 1,
+    rotation: 0,
     isLocked: true,
-    size: [slidePosition?.width || 0, slidePosition?.height || 0],
-    style: {
-      dash: DashStyle.Draw,
-      size: SizeStyle.Medium,
-      color: ColorStyle.Blue,
+    opacity: 1,
+    meta: {},
+    id: `shape:BG-${curPageId}`,
+    type: "image",
+    props: {
+      w: currentPresentationPage?.scaledWidth || 1,
+      h: currentPresentationPage?.scaledHeight || 1,
+      assetId: assetId,
+      playing: true,
+      url: "",
+      crop: null,
     },
-  };
+    parentId: `page:${curPageId}`,
+    index: "a0",
+    typeName: "shape",
+  });
 
   const hasShapeAccess = (id) => {
-    const owner = shapes[id]?.userId;
-    const isBackgroundShape = id?.includes('slide-background');
-    const isPollsResult = shapes[id]?.name?.includes('poll-result');
-    const hasAccess = (!isBackgroundShape && !isPollsResult)
-      || (isPresenter
-        && ((owner && owner === currentUser?.userId)
-          || !owner
-          || isPresenter
-          || isModerator));
+    const owner = shapes[id]?.meta?.createdBy;
+    const isBackgroundShape = id?.includes(':BG-');
+    const hasAccess = (!isBackgroundShape
+      && ((owner && owner === currentUser?.userId) || isPresenter || isModerator)) || !shapes[id];
 
     return hasAccess;
   };
-  // set shapes as locked for those who aren't allowed to edit it
-  Object.entries(shapes).forEach(([shapeId, shape]) => {
-    if (!shape.isLocked && !hasShapeAccess(shapeId) && !shape.name?.includes('poll-result')) {
-      const modShape = shape;
-      modShape.isLocked = true;
-    }
-  });
 
   return (
     <Whiteboard
@@ -189,22 +239,23 @@ const WhiteboardContainer = (props) => {
         maxStickyNoteLength,
         maxNumberOfAnnotations,
         fontFamily,
+        colorStyle,
+        dashStyle,
+        fillStyle,
+        fontStyle,
+        sizeStyle,
         hasShapeAccess,
         handleToggleFullScreen,
         sidebarNavigationWidth,
         layoutContextDispatch,
         initDefaultPages,
-        persistShape,
+        persistShapeWrapper,
         isMultiUserActive,
-        changeCurrentSlide,
         shapes,
+        bgShape,
         assets,
         removeShapes,
-        zoomSlide: PresentationToolbarService.zoomSlide,
-        skipToSlide: PresentationToolbarService.skipToSlide,
-        nextSlide: PresentationToolbarService.nextSlide,
-        previousSlide: PresentationToolbarService.previousSlide,
-        numberOfSlides: currentPresentationPage?.totalPages,
+        zoomSlide,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
         whiteboardToolbarAutoHide:
@@ -217,9 +268,13 @@ const WhiteboardContainer = (props) => {
         presentationId,
         hasWBAccess,
         whiteboardWriters,
+        zoomChanger,
       }}
       {...props}
       meetingId={Auth.meetingID}
+      publishCursorUpdate={CursorService.publishCursorUpdate}
+      otherCursors={cursorArray}
+      hideViewersCursor={meeting?.data?.lockSettings?.hideViewersCursor}
     />
   );
 };

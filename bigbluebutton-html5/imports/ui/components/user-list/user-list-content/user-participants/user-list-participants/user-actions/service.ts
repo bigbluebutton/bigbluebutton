@@ -5,11 +5,8 @@ import {
 } from '/imports/ui/Types/meeting';
 import Auth from '/imports/ui/services/auth';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-import * as WhiteboardService from '/imports/ui/components/whiteboard/service';
-import { throttle } from 'radash';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -116,7 +113,7 @@ export const isVideoPinEnabledForCurrentUser = (
   currentUser: User,
   isBreakout: boolean,
 ) => {
-  const isModerator = currentUser;
+  const { isModerator } = currentUser;
   const isPinEnabled = PIN_WEBCAM;
 
   return !!(isModerator
@@ -130,37 +127,14 @@ export const isVideoPinEnabledForCurrentUser = (
 // so this code is duplicated from the old userlist service
 // session for chats the current user started
 
-export const sendCreatePrivateChat = (receiver: User) => {
-  makeCall('createGroupChat', receiver);
-};
-
-export const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
-  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
-  return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, emoji)
-    : makeCall('setEmojiStatus', userId, 'none');
-});
-
-export const toggleVoice = (userId: string) => {
+export const toggleVoice = (userId: string, voiceToggle: (userId?: string | null, muted?: boolean | null) => void) => {
   if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone();
+    AudioService.toggleMuteMicrophone(voiceToggle);
   } else {
-    makeCall('toggleVoice', userId);
+    voiceToggle(userId);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
-  }
-};
-
-export const changeWhiteboardAccess = (pageId: string, userId: string, whiteboardAccess: boolean) => {
-  WhiteboardService.changeWhiteboardAccess(pageId, userId, !whiteboardAccess);
-};
-
-export const removeUser = (userId: string, banUser: boolean) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId, banUser);
-  } else {
-    makeCall('removeUser', userId, banUser);
   }
 };

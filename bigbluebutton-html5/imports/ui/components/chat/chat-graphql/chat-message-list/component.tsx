@@ -120,6 +120,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const messagesEndObserverRef = React.useRef<IntersectionObserver | null>(null);
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
@@ -238,6 +239,26 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       toggleFollowingTail(false);
     };
   }, [contentRef]);
+
+  useEffect(() => {
+    if (!messageListRef.current || !messagesEndRef.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const { isIntersecting, target } = entry;
+        if (isIntersecting && target === messagesEndRef.current) {
+          toggleFollowingTail(true);
+        }
+      });
+    }, {
+      root: messageListRef.current,
+      threshold: 1.0,
+    });
+    if (messagesEndObserverRef.current) {
+      messagesEndObserverRef.current.disconnect();
+    }
+    messagesEndObserverRef.current = observer;
+    observer.observe(messagesEndRef.current);
+  }, [messagesEndRef.current, messageListRef.current]);
 
   const firstPageToLoad = userLoadedBackUntilPage !== null
     ? userLoadedBackUntilPage : Math.max(totalPages - 2, 0);
