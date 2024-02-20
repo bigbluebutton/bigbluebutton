@@ -36,7 +36,7 @@ test.describe.parallel('Whiteboard @ci', () => {
   });
 });
 
-test.describe.parallel('Whiteboard tools - visual regression', () => {
+test.describe.parallel.only('Whiteboard tools - visual regression', () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
       'Drawing visual regression tests are enabled for Chromium only');
@@ -56,28 +56,28 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await drawEllipse.test();
   });
 
-  test('Draw triangle', async ({ browser, context, page }) => {
+  test.only('Draw triangle', async ({ browser, context, page }) => {
     const drawTriangle = new DrawTriangle(browser, context);
     await drawTriangle.initModPage(page, true, { customMeetingId: 'draw_triangle_meeting', createParameter: hidePresentationToast });
     await drawTriangle.initUserPage(true, context, { createParameter: hidePresentationToast });
     await drawTriangle.test();
   });
 
-  test('Draw line', async ({ browser, context, page }) => {
+  test.only('Draw line', async ({ browser, context, page }) => {
     const drawLine = new DrawLine(browser, context);
     await drawLine.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await drawLine.initUserPage(true, context, { createParameter: hidePresentationToast });
     await drawLine.test();
   });
 
-  test('Draw with pencil', async ({ browser, context, page }) => {
+  test.only('Draw with pencil', async ({ browser, context, page }) => {
     const drawPencil = new DrawPencil(browser, context);
     await drawPencil.initModPage(page, true, { customMeetingId: 'draw_pencil_meeting', createParameter: hidePresentationToast });
     await drawPencil.initUserPage(true, context, { createParameter: hidePresentationToast });
     await drawPencil.test();
   });
 
-  test('Type text', async ({ browser, context, page }) => {
+  test.only('Type text', async ({ browser, context, page }) => {
     const drawText = new DrawText(browser, context);
     await drawText.initModPage(page, true, { customMeetingId: 'draw_text_meeting', createParameter: hidePresentationToast });
     await drawText.initUserPage(true, context, { createParameter: hidePresentationToast });
