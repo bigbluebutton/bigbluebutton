@@ -38,6 +38,9 @@ object ClientSettings extends SystemConfiguration {
             Map[String, Object]()
         }
       )
+
+    //Remove `:private` once it's used only by Meteor internally configs
+    clientSettingsFromFile -= "private"
   }
 
   def getClientSettingsWithOverride(clientSettingsOverrideJson: String): Map[String, Object] = {
