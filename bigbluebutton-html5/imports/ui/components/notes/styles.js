@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import {
-  mdPaddingX,
+  smPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -8,7 +8,7 @@ import CommonHeader from '/imports/ui/components/common/control-header/component
 
 const Notes = styled.div`
   background-color: ${colorWhite};
-  padding: ${mdPaddingX};
+  padding: ${smPaddingX};
   display: flex;
   flex-grow: 1;
   flex-direction: column;

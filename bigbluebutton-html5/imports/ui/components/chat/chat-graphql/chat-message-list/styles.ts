@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 import {
-  smPaddingX,
   mdPaddingX,
-  mdPaddingY,
   borderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
@@ -17,18 +15,7 @@ export const MessageListWrapper = styled.div`
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-left: ${smPaddingX};
-  margin-left: calc(-1 * ${mdPaddingX});
-  padding-right: ${smPaddingX};
-  margin-right: calc(-1 * ${mdPaddingY});
-  padding-bottom: ${mdPaddingX};
   z-index: 2;
-  [dir='rtl'] & {
-    padding-right: ${mdPaddingX};
-    margin-right: calc(-1 * ${mdPaddingX});
-    padding-left: ${mdPaddingY};
-    margin-left: calc(-1 * ${mdPaddingX});
-  }
 `;
 
 export const MessageList = styled(ScrollboxVertical)`
