@@ -23,6 +23,11 @@ public class UserSessionBasicData {
   public String sessionToken = null;
   public String userId = null;
   public String meetingId = null;
+  public String role = null;
+
+  public Boolean isModerator() {
+    return "MODERATOR".equalsIgnoreCase(this.role);
+  }
 
   public String toString() {
     return meetingId + " " + userId + " " + sessionToken;
