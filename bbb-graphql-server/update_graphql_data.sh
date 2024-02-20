@@ -16,12 +16,12 @@ if [ "$hasura_status" = "active" ]; then
 fi
 
 echo "Restarting database bbb_graphql"
-sudo -u postgres psql -q -c "drop database if exists bbb_graphql with (force)"
-sudo -u postgres psql -q -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
-sudo -u postgres psql -q -c "alter database bbb_graphql set timezone to 'UTC'"
+runuser -u postgres -- psql -q -c "drop database if exists bbb_graphql with (force)"
+runuser -u postgres -- psql -q -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
+runuser -u postgres -- psql -q -c "alter database bbb_graphql set timezone to 'UTC'"
 
 echo "Creating tables in bbb_graphql"
-sudo -u postgres psql -U postgres -d bbb_graphql -q -f bbb_schema.sql --set ON_ERROR_STOP=on
+runuser -u postgres -- psql -U postgres -d bbb_graphql -q -f bbb_schema.sql --set ON_ERROR_STOP=on
 
 echo "Creating frontend in bbb_graphql"
 DATABASE_FRONTEND_USER="bbb_frontend"
