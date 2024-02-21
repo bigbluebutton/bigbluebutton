@@ -93,7 +93,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     fillStyle,
     fontStyle,
     sizeStyle,
-    hasShapeAccess,
     presentationAreaHeight,
     presentationAreaWidth,
     maxNumberOfAnnotations,
@@ -162,6 +161,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
+  const [shapesVersion, setShapesVersion] = React.useState(0);
+
   React.useEffect(() => {
     curPageIdRef.current = curPageId;
   }, [curPageId]);
@@ -190,6 +191,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     if (!isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
+      setShapesVersion(v => v + 1);
     }
   }, [shapes]);
 
@@ -221,11 +223,9 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       const prevShape = prevShapesRef.current[remoteShape.id];
 
       if (!localShape) {
-        if (prevShapesRef.current[`${remoteShape.id}`].meta?.createdBy !== currentUser?.userId) {
           delete remoteShape.isModerator
           delete remoteShape.questionType
           toAdd.push(remoteShape);
-        }
       } else if (!isEqual(localShape, remoteShape) && prevShape) {
         const diff = {
           id: remoteShape.id,
@@ -807,8 +807,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           const updatedRecord = {
             ...record,
             meta: {
+              ...prevShapesRef.current[record?.id]?.meta,
               updatedBy: currentUser?.userId,
-              createdBy: shapes[record?.id]?.meta?.createdBy,
             },
           };
           persistShapeWrapper(updatedRecord, whiteboardIdRef.current, isModerator);
@@ -915,10 +915,20 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
       editor.store.onBeforeChange = (prev, next, source) => {
         if (next?.typeName === "instance_page_state") {
+          if (isPresenter || isModerator) return next;
+          // Filter selectedShapeIds based on shape owner
           if (!isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
-            // Filter the selectedShapeIds
-            next.selectedShapeIds =
-              next.selectedShapeIds.filter(hasShapeAccess);
+            next.selectedShapeIds = next.selectedShapeIds.filter(shapeId => {
+              const shapeOwner = prevShapesRef.current[shapeId]?.meta?.createdBy;
+              return shapeOwner === currentUser?.userId;
+            });
+          }
+
+          if (!isEqual(prev.hoveredShapeId, next.hoveredShapeId)) {
+            const hoveredShapeOwner = prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
+            if (hoveredShapeOwner !== currentUser?.userId) {
+              next.hoveredShapeId = null;
+            }
           }
 
           return next;
@@ -1012,7 +1022,6 @@ Whiteboard.propTypes = {
   fillStyle: PropTypes.string.isRequired,
   fontStyle: PropTypes.string.isRequired,
   sizeStyle: PropTypes.string.isRequired,
-  hasShapeAccess: PropTypes.func.isRequired,
   presentationAreaHeight: PropTypes.number.isRequired,
   presentationAreaWidth: PropTypes.number.isRequired,
   maxNumberOfAnnotations: PropTypes.number.isRequired,
