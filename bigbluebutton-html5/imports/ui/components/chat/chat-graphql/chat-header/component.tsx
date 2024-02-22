@@ -36,7 +36,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId, isPublicChat, title, isRTL }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({
+  chatId, isPublicChat, title, isRTL,
+}) => {
   const HIDE_CHAT_AK = useShortcut('hideprivatechat');
   const CLOSE_CHAT_AK = useShortcut('closeprivatechat');
   const layoutContextDispatch = layoutDispatch();
