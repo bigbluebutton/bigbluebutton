@@ -168,6 +168,7 @@ class LiveResult extends PureComponent {
       handleBackClick,
       currentPoll,
       publishPoll,
+      handleChatFormsOpen,
     } = this.props;
 
     const { userAnswers, pollStats, currentPollQuestion } = this.state;
@@ -218,6 +219,7 @@ class LiveResult extends PureComponent {
                   Session.set('pollInitiated', false);
                   publishPoll(currentPoll?.id);
                   stopPoll();
+                  handleChatFormsOpen();
                 }}
                 label={intl.formatMessage(intlMessages.publishLabel)}
                 data-test="publishPollingLabel"
@@ -281,6 +283,7 @@ LiveResult.propTypes = {
       users: PropTypes.arrayOf(PropTypes.string),
     }),
   ]),
+  handleChatFormsOpen: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
   handleBackClick: PropTypes.func.isRequired,
 };
