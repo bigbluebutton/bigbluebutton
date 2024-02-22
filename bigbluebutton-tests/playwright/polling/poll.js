@@ -253,7 +253,6 @@ class Polling extends MultiUsers {
     
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage, true);
-    await this.modPage.waitAndClick(e.chatButton);
 
     const lastChatPollMessageTextModerator = await this.modPage.getLocator(e.chatPollMessageText).last();
     if(!pollChatMessage) {
