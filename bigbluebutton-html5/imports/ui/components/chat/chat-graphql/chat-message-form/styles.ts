@@ -19,13 +19,25 @@ import TextareaAutosize from 'react-autosize-textarea';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
 import Button from '/imports/ui/components/common/button/component';
 
-const Form = styled.form`
+interface FormProps {
+  isRTL: boolean;
+}
+
+const Form = styled.form<FormProps>`
   flex-grow: 0;
   flex-shrink: 0;
   align-self: flex-end;
   width: 100%;
   position: relative;
   margin-top: .2rem;
+
+  ${({ isRTL }) => isRTL && `
+    padding-left: ${smPaddingX};
+  `}
+
+  ${({ isRTL }) => !isRTL && `
+    padding-right: ${smPaddingX};
+  `}
 `;
 
 const Wrapper = styled.div`

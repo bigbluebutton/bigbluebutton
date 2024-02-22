@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components';
 import {
   borderSize,
   userIndicatorsOffset,
+  smPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   lineHeightComputed,
@@ -14,6 +15,8 @@ import {
   userListBg,
   colorSuccess,
 } from '/imports/ui/stylesheets/styled-components/palette';
+
+import Header from '/imports/ui/components/common/control-header/component';
 
 interface ChatWrapperProps {
   sameSender: boolean;
@@ -74,6 +77,16 @@ export const ChatContent = styled.div<ChatContentProps>`
 
   ${({ sameSender }) => sameSender && `
     margin-left: 2.6rem;
+  `}
+`;
+
+export const ChatHeader = styled(Header)`
+  ${({ isRTL }) => isRTL && `
+    padding-left: ${smPaddingX};
+  `}
+
+  ${({ isRTL }) => !isRTL && `
+    padding-right: ${smPaddingX};
   `}
 `;
 
