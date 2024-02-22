@@ -6,6 +6,9 @@ const Header = styled.header`
   justify-content: space-between;
   align-items: center;
   padding-bottom: ${jumboPaddingY};
+  padding-right: 1rem;
+  padding-top: 1rem;
+  padding-left: 1rem;
 `;
 
 const RightWrapper = styled.div`
