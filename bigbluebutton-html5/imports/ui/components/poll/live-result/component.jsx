@@ -217,7 +217,7 @@ class LiveResult extends PureComponent {
           ? (
             <Styled.ButtonsActions>
               <Styled.PublishButton
-                disabled={!isMeteorConnected || currentPoll.answers.length === 0}
+                disabled={!isMeteorConnected || !currentPoll.responses}
                 onClick={() => {
                   Session.set('pollInitiated', false);
                   publishPoll(currentPoll?.id);
@@ -248,9 +248,8 @@ class LiveResult extends PureComponent {
               color="primary"
               data-test="restartPoll"
             />
-          )
-        }
-        {currentPoll && currentPoll.answers.length === 0
+          )}
+        {currentPoll && !currentPoll.responses
         && intl.formatMessage(intlMessages.noAnswersLabel)}
         <Styled.Separator />
         { currentPoll && !currentPoll.secretPoll
