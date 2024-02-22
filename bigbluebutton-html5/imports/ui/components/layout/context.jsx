@@ -1185,6 +1185,56 @@ const reducer = (state, action) => {
       };
     }
 
+    // GENERIC COMPONENT
+    case ACTIONS.SET_HAS_GENERIC_COMPONENT: {
+      const { genericComponent } = state.input;
+      if (genericComponent.hasGenericComponent === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          genericComponent: {
+            ...genericComponent,
+            hasGenericComponent: action.value,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_GENERIC_COMPONENT_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        right,
+      } = action.value;
+      const { genericComponent } = state.output;
+      if (genericComponent.width === width
+        && genericComponent.height === height
+        && genericComponent.top === top
+        && genericComponent.left === left
+        && genericComponent.right === right) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          genericComponent: {
+            ...genericComponent,
+            width,
+            height,
+            top,
+            left,
+            right,
+          },
+        },
+      };
+    }
+
     // NOTES
     case ACTIONS.SET_SHARED_NOTES_OUTPUT: {
       const {

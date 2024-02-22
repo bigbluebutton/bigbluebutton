@@ -36,6 +36,7 @@ const PresentationFocusLayout = (props) => {
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const genericComponentInput = layoutSelectInput((i) => i.genericComponent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
 
@@ -106,6 +107,9 @@ const PresentationFocusLayout = (props) => {
             externalVideo: {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
+            genericComponent: {
+              hasGenericComponent: input.genericComponent.hasGenericComponent,
+            },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
               width: input.screenShare.width,
@@ -144,6 +148,9 @@ const PresentationFocusLayout = (props) => {
             externalVideo: {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
+            genericComponent: {
+              hasGenericComponent: input.genericComponent.hasGenericComponent,
+            },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
               width: input.screenShare.width,
@@ -161,12 +168,14 @@ const PresentationFocusLayout = (props) => {
   const calculatesSidebarContentHeight = () => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
+    const { hasGenericComponent } = genericComponentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+      !hasPresentation && !hasExternalVideo && 
+      !hasScreenShare && !isSharedNotesPinned && !hasGenericComponent;
 
     const { navBarHeight, sidebarContentMinHeight } = DEFAULT_VALUES;
     let height = 0;
@@ -267,7 +276,8 @@ const PresentationFocusLayout = (props) => {
     if (
       fullscreenElement === 'Presentation' ||
       fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo'
+      fullscreenElement === 'ExternalVideo' ||
+      fullscreenElement === 'GenericComponent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -487,6 +497,17 @@ const PresentationFocusLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: isOpen ? mediaBounds.width : 0,
+        height: isOpen ? mediaBounds.height : 0,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: mediaBounds.right,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
       value: {
         width: isOpen ? mediaBounds.width : 0,
         height: isOpen ? mediaBounds.height : 0,

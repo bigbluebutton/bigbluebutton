@@ -77,7 +77,17 @@ class Tooltip extends Component {
       animation: animations ? DEFAULT_ANIMATION : ANIMATION_NONE,
       appendTo: document.body,
       arrow: roundArrow,
-      boundary: 'window',
+      popperOptions: {
+        modifiers: [
+          {
+            name: 'preventOverflow',
+            options: {
+              altAxis: true,
+              boundary: document.documentElement,
+            },
+          },
+        ],
+      },
       content: title,
       delay: overrideDelay,
       duration: animations ? ANIMATION_DURATION : 0,
@@ -89,7 +99,6 @@ class Tooltip extends Component {
       placement: overridePlacement,
       touch: ['hold', 1000],
       theme: 'bbbtip',
-      multiple: false,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }

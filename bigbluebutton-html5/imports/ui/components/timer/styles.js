@@ -2,9 +2,7 @@ import styled from 'styled-components';
 import {
   borderSize,
   borderSizeLarge,
-  mdPaddingX,
-  mdPaddingY,
-  pollHeaderOffset,
+  smPaddingX,
   toastContentWidth,
   borderRadius,
 } from '../../stylesheets/styled-components/general';
@@ -22,12 +20,7 @@ import Button from '/imports/ui/components/common/button/component';
 
 const TimerSidebarContent = styled.div`
   background-color: ${colorWhite};
-  padding:
-    ${mdPaddingX}
-    ${mdPaddingY}
-    ${mdPaddingX}
-    ${mdPaddingX};
-
+  padding: ${smPaddingX};
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -39,7 +32,6 @@ const TimerSidebarContent = styled.div`
 
 const TimerHeader = styled.header`
   position: relative;
-  top: ${pollHeaderOffset};
   display: flex;
   flex-direction: row;
   align-items: center;

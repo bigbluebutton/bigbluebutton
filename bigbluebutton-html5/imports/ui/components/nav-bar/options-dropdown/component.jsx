@@ -109,7 +109,7 @@ const propTypes = {
   isBreakoutRoom: PropTypes.bool,
   isMeteorConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
-  audioCaptionsEnabled: PropTypes.bool.isRequired,
+  audioCaptionsEnabled: PropTypes.bool,
   audioCaptionsActive: PropTypes.bool.isRequired,
   audioCaptionsSet: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
@@ -126,6 +126,7 @@ const defaultProps = {
   shortcuts: '',
   isBreakoutRoom: false,
   isDropdownOpen: false,
+  audioCaptionsEnabled: false,
 };
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;

@@ -798,6 +798,10 @@ from "meeting"
 left join "user" "user_ended" on "user_ended"."userId" = "meeting"."endedBy"
 ;
 
+create view "v_meeting_learningDashboard" as
+select "meetingId", "learningDashboardAccessToken"
+from "v_meeting";
+
 
 -- ===================== CHAT TABLES
 

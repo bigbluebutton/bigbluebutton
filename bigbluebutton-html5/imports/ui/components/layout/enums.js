@@ -107,6 +107,9 @@ export const ACTIONS = {
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
   SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
 
+  SET_HAS_GENERIC_COMPONENT: 'setHasGenericComponent',
+  SET_GENERIC_COMPONENT_OUTPUT: 'setGenericComponentOutput',
+
   SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
   SET_NOTES_IS_PINNED: 'setNotesIsPinned',
 };

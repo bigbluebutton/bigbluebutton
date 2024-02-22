@@ -104,7 +104,7 @@ object Polls {
       } yield {
         val pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
         val updatedShape = shape + ("whiteboardId" -> pageId)
-        val annotation = new AnnotationVO(poll.id, updatedShape, pageId, requesterId)
+        val annotation = new AnnotationVO(s"shape:poll-result-${poll.id}", updatedShape, pageId, requesterId)
         annotation
       }
     }
@@ -253,12 +253,13 @@ object Polls {
 
   private def pollResultToWhiteboardShape(result: SimplePollResultOutVO): scala.collection.immutable.Map[String, Object] = {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
-    shape += "numRespondents" -> new Integer(result.numRespondents)
-    shape += "numResponders" -> new Integer(result.numResponders)
+    shape += "numRespondents" -> Integer.valueOf(result.numRespondents)
+    shape += "numResponders" -> Integer.valueOf(result.numResponders)
     shape += "questionType" -> result.questionType
-    shape += "questionText" -> result.questionText
-    shape += "id" -> result.id
+    shape += "questionText" -> result.questionText.getOrElse("")
+    shape += "id" -> s"shape:poll-result-${result.id}"
     shape += "answers" -> result.answers
+    shape += "type" -> "geo"
     shape.toMap
   }
 

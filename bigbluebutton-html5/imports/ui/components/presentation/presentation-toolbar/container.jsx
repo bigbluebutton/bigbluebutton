@@ -117,9 +117,6 @@ PresentationToolbarContainer.propTypes = {
   numberOfSlides: PropTypes.number.isRequired,
 
   // Actions required for the presenter toolbar
-  nextSlide: PropTypes.func.isRequired,
-  previousSlide: PropTypes.func.isRequired,
-  skipToSlide: PropTypes.func.isRequired,
   layoutSwapped: PropTypes.bool,
 };
 

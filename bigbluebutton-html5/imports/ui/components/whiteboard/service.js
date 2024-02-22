@@ -165,37 +165,8 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
   checkElementsAndRun();
 };
 
-const formatAnnotations = (annotations, intl, curPageId, pollResults, currentPresentationPage) => {
+const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage) => {
   const result = {};
-
-  if (pollResults) {
-    // check if pollResults is already added to annotations
-    const hasPollResultsAnnotation = annotations.find(
-      (annotation) => annotation.annotationId === pollResults.pollId,
-    );
-
-    if (!hasPollResultsAnnotation) {
-      const answers = pollResults.responses.map((response) => ({
-        id: response.optionId,
-        key: response.optionDesc,
-        numVotes: response.optionResponsesCount,
-      }));
-
-      const pollResultsAnnotation = {
-        id: pollResults.pollId,
-        annotationInfo: JSON.stringify({
-          answers,
-          id: pollResults.pollId,
-          whiteboardId: curPageId,
-          questionType: true,
-          questionText: pollResults.questionText,
-        }),
-        wbId: curPageId,
-        userId: Auth.userID,
-      };
-      annotations.push(pollResultsAnnotation);
-    }
-  }
 
   annotations.forEach((annotation) => {
     if (annotation.annotationInfo === '') return;
@@ -204,69 +175,100 @@ const formatAnnotations = (annotations, intl, curPageId, pollResults, currentPre
 
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
-      annotationInfo.answers = annotationInfo.answers.reduce(
-        caseInsensitiveReducer, [],
-      );
-      let pollResult = PollService.getPollResultString(annotationInfo, intl)
-        .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
+      if (!annotationInfo.props) {
+        annotationInfo.answers = annotationInfo.answers.reduce(
+          caseInsensitiveReducer, [],
+        );
+        let pollResult = PollService.getPollResultString(annotationInfo, intl)
+          .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
 
-      const lines = pollResult.split('\n');
-      const longestLine = lines.reduce((a, b) => a.length > b.length ? a : b, '').length;
+        const lines = pollResult.split('\n');
+        const longestLine = lines.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 
-      // add empty spaces before first | in each of the lines to make them all the same length
-      pollResult = lines.map((line) => {
-        if (!line.includes('|') || line.length === longestLine) return line;
+        // add empty spaces before first | in each of the lines to make them all the same length
+        pollResult = lines.map((line) => {
+          if (!line.includes('|') || line.length === longestLine) return line;
 
-        const splitLine = line.split(' |');
-        const spaces = ' '.repeat(longestLine - line.length);
-        return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
-      }).join('\n');
+          const splitLine = line.split(' |');
+          const spaces = ' '.repeat(longestLine - line.length);
+          return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
+        }).join('\n');
 
-      // Text measurement estimation
-      const averageCharWidth = 16;
-      const lineHeight = 32;
+        // Text measurement estimation
+        const averageCharWidth = 16;
+        const lineHeight = 32;
 
-      const annotationWidth = longestLine * averageCharWidth; // Estimate width
-      const annotationHeight = lines.length * lineHeight; // Estimate height
+        const annotationWidth = longestLine * averageCharWidth; // Estimate width
+        const annotationHeight = lines.length * lineHeight; // Estimate height
 
-      const slideWidth = currentPresentationPage?.scaledWidth;
-      const slideHeight = currentPresentationPage?.scaledHeight;
-      const xPosition = slideWidth - annotationWidth;
-      const yPosition = slideHeight - annotationHeight;
+        const slideWidth = currentPresentationPage?.scaledWidth;
+        const slideHeight = currentPresentationPage?.scaledHeight;
+        const xPosition = slideWidth - annotationWidth;
+        const yPosition = slideHeight - annotationHeight;
 
-      let cpg = parseInt(annotationInfo?.id?.split('/')[1]);
-      if (cpg !== parseInt(curPageId)) return;
-
-      annotationInfo = {
-        "x": xPosition,
-        "isLocked": false,
-        "y": yPosition,
-        "rotation": 0,
-        "typeName": "shape",
-        "opacity": 1,
-        "parentId": `page:${curPageId}`,
-        "index": "a1",
-        "id": `shape:poll-result-${annotationInfo.id}`,
-        "meta": {
-        },
-        "type": "geo",
-        "props": {
-          "url": "",
-          "text": `${pollResult}`,
-          "color": "black",
-          "font": "mono",
-          "fill": "semi",
-          "dash": "draw",
-          "h": annotationHeight,
-          "w": annotationWidth,
-          "size": "m",
-          "growY": 0,
-          "align": "middle",
-          "geo": "rectangle",
-          "verticalAlign": "middle",
-          "labelColor": "black"
-        }
+        annotationInfo = {
+          x: xPosition,
+          y: yPosition,
+          isLocked: false,
+          rotation: 0,
+          typeName: 'shape',
+          opacity: 1,
+          parentId: `page:${curPageId}`,
+          index: 'a1',
+          id: `${annotationInfo.id}`,
+          meta: {},
+          type: 'geo',
+          props: {
+            url: '',
+            text: `${pollResult}`,
+            color: 'black',
+            font: 'mono',
+            fill: 'semi',
+            dash: 'draw',
+            w: annotationWidth,
+            h: annotationHeight,
+            size: 'm',
+            growY: 0,
+            align: 'middle',
+            geo: 'rectangle',
+            verticalAlign: 'middle',
+            labelColor: 'black',
+          },
+        };
+      } else {
+        annotationInfo = {
+          x: annotationInfo.x,
+          isLocked: annotationInfo.isLocked,
+          y: annotationInfo.y,
+          rotation: annotationInfo.rotation,
+          typeName: annotationInfo.typeName,
+          opacity: annotationInfo.opacity,
+          parentId: annotationInfo.parentId,
+          index: annotationInfo.index,
+          id: annotationInfo.id,
+          meta: annotationInfo.meta,
+          type: 'geo',
+          props: {
+            url: '',
+            text: annotationInfo.props.text,
+            color: annotationInfo.props.color,
+            font: annotationInfo.props.font,
+            fill: annotationInfo.props.fill,
+            dash: annotationInfo.props.dash,
+            h: annotationInfo.props.h,
+            w: annotationInfo.props.w,
+            size: annotationInfo.props.size,
+            growY: 0,
+            align: 'middle',
+            geo: annotationInfo.props.geo,
+            verticalAlign: 'middle',
+            labelColor: annotationInfo.props.labelColor,
+          },
+        };
       }
+
+      const cpg = parseInt(annotationInfo?.id?.split?.('/')?.[1], 10);
+      if (cpg !== parseInt(curPageId, 10)) return;
 
       annotationInfo.questionType = false;
     }
