@@ -105,14 +105,14 @@ test.describe.parallel.only('Whiteboard tools - visual regression', () => {
     await eraser.test();
   });
 
-  test('Draw arrow', async ({ browser, context, page }) => {
+  test.only('Draw arrow', async ({ browser, context, page }) => {
     const drawArrow = new DrawArrow(browser, context);
     await drawArrow.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await drawArrow.initUserPage(true, context, { createParameter: hidePresentationToast });
     await drawArrow.test();
   });
 
-  test('Delete drawing', async ({ browser, context, page }) => {
+  test.only('Delete drawing', async ({ browser, context, page }) => {
     const deleteDrawing = new DeleteDrawing(browser, context);
     await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await deleteDrawing.initUserPage(true, context, { createParameter: hidePresentationToast });
