@@ -93,7 +93,7 @@ class LeaveMeetingButton extends PureComponent {
       this.menuItems.push(
         {
           key: 'list-item-logout',
-          dataTest: 'logout-button',
+          dataTest: 'logoutButton',
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           description: intl.formatMessage(intlMessages.leaveSessionDesc),
@@ -108,6 +108,7 @@ class LeaveMeetingButton extends PureComponent {
       this.menuItems.push(
         {
           key: 'list-item-end-meeting',
+          dataTest: 'endMeetingButton',
           icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
@@ -163,6 +164,7 @@ class LeaveMeetingButton extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               description={intl.formatMessage(intlMessages.leaveMeetingBtnDesc)}
+              data-test="leaveMeetingDropdown"
               icon="logout"
               color="danger"
               size="lg"
