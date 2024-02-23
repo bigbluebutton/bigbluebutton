@@ -63,6 +63,7 @@ const Notes = ({
   amIPresenter,
   isToSharedNotesBeShow,
   shouldShowSharedNotesOnPresentationArea,
+  isGridEnabled,
 }) => {
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
 
@@ -81,6 +82,9 @@ const Notes = ({
   if (isHidden && !isOnMediaArea) {
     style.padding = 0;
     style.display = 'none';
+  }
+  if (isGridEnabled && !sidebarContent.isOpen) {
+    style.padding = 0;
   }
   useEffect(() => {
     if (isToSharedNotesBeShow) {
