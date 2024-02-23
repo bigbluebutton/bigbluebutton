@@ -703,6 +703,10 @@ function overlay_triangle(svg, annotation) {
 }
 
 function overlay_text(svg, annotation) {
+  if (annotation.size == null || annotation.size.length < 2) {
+    return
+  }
+  
   const [textBoxWidth, textBoxHeight] = annotation.size;
   const fontColor = color_to_hex(annotation.style.color);
   const font = determine_font_from_family(annotation.style.font);
@@ -731,30 +735,34 @@ function overlay_text(svg, annotation) {
 }
 
 function overlay_annotation(svg, currentAnnotation) {
-  switch (currentAnnotation.type) {
-    case 'arrow':
-      overlay_arrow(svg, currentAnnotation);
-      break;
-    case 'draw':
-      overlay_draw(svg, currentAnnotation);
-      break;
-    case 'ellipse':
-      overlay_ellipse(svg, currentAnnotation);
-      break;
-    case 'rectangle':
-      overlay_rectangle(svg, currentAnnotation);
-      break;
-    case 'sticky':
-      overlay_sticky(svg, currentAnnotation);
-      break;
-    case 'triangle':
-      overlay_triangle(svg, currentAnnotation);
-      break;
-    case 'text':
-      overlay_text(svg, currentAnnotation);
-      break;
-    default:
-      logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
+  try {
+    switch (currentAnnotation.type) {
+      case 'arrow':
+        overlay_arrow(svg, currentAnnotation);
+        break;
+      case 'draw':
+        overlay_draw(svg, currentAnnotation);
+        break;
+      case 'ellipse':
+        overlay_ellipse(svg, currentAnnotation);
+        break;
+      case 'rectangle':
+        overlay_rectangle(svg, currentAnnotation);
+        break;
+      case 'sticky':
+        overlay_sticky(svg, currentAnnotation);
+        break;
+      case 'triangle':
+        overlay_triangle(svg, currentAnnotation);
+        break;
+      case 'text':
+        overlay_text(svg, currentAnnotation);
+        break;
+      default:
+        logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
+    }
+  } catch (error) {
+    logger.warn("Failed to overlay annotation", { failedAnnotation: currentAnnotation, error: error });
   }
 }
 
