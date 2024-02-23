@@ -67,6 +67,7 @@ class PushLayoutEngine extends React.Component {
       shouldShowExternalVideo,
       enforceLayout,
       setLocalSettings,
+      pushLayoutMeeting,
     } = this.props;
 
     const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
@@ -81,9 +82,12 @@ class PushLayoutEngine extends React.Component {
 
     Settings.save(setLocalSettings);
 
-    const initialPresentation = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
-    MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
-    Session.set('presentationLastState', initialPresentation);
+    const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
+    let presentationIsOpen = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
+    presentationIsOpen = pushLayoutMeeting ? meetingPresentationIsOpen : presentationIsOpen;
+    presentationIsOpen = shouldOpenPresentation || presentationIsOpen;
+    MediaService.setPresentationIsOpen(layoutContextDispatch, presentationIsOpen);
+    Session.set('presentationLastState', presentationIsOpen);
 
     if (selectedLayout === 'custom') {
       setTimeout(() => {
