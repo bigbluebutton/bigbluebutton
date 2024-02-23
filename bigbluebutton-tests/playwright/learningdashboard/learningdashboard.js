@@ -4,7 +4,7 @@ const { openPublicChat } = require('../chat/util');
 const { expect } = require("@playwright/test");
 const Page = require("../core/page");
 const { sleep } = require("../core/helpers");
-const { ELEMENT_WAIT_EXTRA_LONG_TIME } = require("../core/constants");
+const { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } = require("../core/constants");
 const { openPoll, timeInSeconds, rowFilter } = require("./util");
 const { checkTextContent } = require('../core/util');
 
@@ -118,7 +118,7 @@ class LearningDashboard extends MultiUsers {
 
   async basicInfos() {
     // Meeting Status check
-    await this.dashboardPage.hasText(e.meetingStatusActiveDashboard, 'Active');
+    await this.dashboardPage.hasText(e.meetingStatusActiveDashboard, 'Active', ELEMENT_WAIT_LONGER_TIME);
     await this.dashboardPage.reloadPage();
 
     // Meeting Time Duration check
@@ -131,7 +131,7 @@ class LearningDashboard extends MultiUsers {
     const timeContentGreater = await (timeLocator).textContent();
     const arrayGreater = timeContentGreater.split(':').map(Number);
     const secondTime = arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
-    
+
     await expect(secondTime).toBeGreaterThan(firstTime);
   }
 
@@ -157,8 +157,7 @@ class LearningDashboard extends MultiUsers {
   }
 
   async downloadSessionLearningDashboard(testInfo) {
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.waitAndClick(e.logout);
+    await this.modPage.logoutFromMeeting();
     await this.modPage.waitAndClick('button');
 
     const downloadSessionLocator = this.dashboardPage.getLocator(e.downloadSessionLearningDashboard);

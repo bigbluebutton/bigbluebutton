@@ -42,6 +42,7 @@ import {
   btnDangerBorder,
   btnDangerColor,
   btnDangerBg,
+  btnDangerBgHover,
   btnDarkBorder,
   btnDarkColor,
   btnDarkBg,
@@ -522,6 +523,7 @@ const ButtonSpan = styled.span`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnDangerColor};
+      background-color: ${btnDangerBgHover};
     }
   `}
 
