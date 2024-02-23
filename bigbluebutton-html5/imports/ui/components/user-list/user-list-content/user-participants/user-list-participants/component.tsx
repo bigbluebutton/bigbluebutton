@@ -4,6 +4,8 @@ import { AutoSizer } from 'react-virtualized';
 import { debounce } from 'radash';
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { findDOMNode } from 'react-dom';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import ListItem from './list-item/component';
@@ -104,12 +106,38 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
     if (fourthChild && fourthChild instanceof HTMLElement) fourthChild.focus();
   }, [selectedUser]);
 
+  // --- Plugin related code ---
   useEffect(() => {
-    window.dispatchEvent(new Event(PluginSdk.UserListEventsNames.USER_LIST_OPENED));
+    const updateUiDataHookCurrentVolumeForPlugin = () => {
+      window.dispatchEvent(new CustomEvent(PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN, {
+        detail: {
+          value: true,
+        } as UserListUiDataPayloads[PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN],
+      }));
+    };
+
+    window.dispatchEvent(new CustomEvent(PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN, {
+      detail: {
+        value: true,
+      } as UserListUiDataPayloads[PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN],
+    }));
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
+      updateUiDataHookCurrentVolumeForPlugin,
+    );
     return () => {
-      window.dispatchEvent(new Event(PluginSdk.UserListEventsNames.USER_LIST_CLOSED));
+      window.removeEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE}`,
+        updateUiDataHookCurrentVolumeForPlugin,
+      );
+      window.dispatchEvent(new CustomEvent(PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN, {
+        detail: {
+          value: false,
+        } as UserListUiDataPayloads[PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN],
+      }));
     };
   }, []);
+  // --- End of plugin related code ---
 
   const rove = (event: React.KeyboardEvent) => {
     // eslint-disable-next-line react/no-find-dom-node
