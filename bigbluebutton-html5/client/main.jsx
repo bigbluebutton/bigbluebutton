@@ -37,6 +37,7 @@ import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEve
 import adapter from 'webrtc-adapter';
 
 import collectionMirrorInitializer from './collection-mirror-initializer';
+import UserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/userGrapQlMiniMongoAdapter/component';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
@@ -84,11 +85,13 @@ Meteor.startup(() => {
         <JoinHandler>
           <AuthenticatedHandler>
             <GraphqlProvider>
-              <Subscriptions>
-                <IntlStartup>
-                  <Base />
-                </IntlStartup>
-              </Subscriptions>
+              <UserGrapQlMiniMongoAdapter>
+                <Subscriptions>
+                  <IntlStartup>
+                    <Base />
+                  </IntlStartup>
+                </Subscriptions>
+              </UserGrapQlMiniMongoAdapter>
             </GraphqlProvider>
           </AuthenticatedHandler>
         </JoinHandler>

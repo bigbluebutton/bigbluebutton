@@ -395,7 +395,7 @@ export default withTracker(() => {
     currentConnectionId: 1,
     connectionIdUpdateTime: 1,
   };
-  const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
+  const User = Users.findOne({ userId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
       meetingEnded: 1,

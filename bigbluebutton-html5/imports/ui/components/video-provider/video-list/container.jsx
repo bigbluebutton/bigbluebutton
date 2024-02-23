@@ -34,11 +34,6 @@ export default withTracker((props) => {
   return {
     ...props,
     numberOfPages: VideoService.getNumberOfPages(),
-    streams: streams.filter((stream) => Users.findOne({ userId: stream.userId },
-      {
-        fields: {
-          userId: 1,
-        },
-      })),
+    streams,
   };
 })(VideoListContainer);

@@ -12,7 +12,7 @@ import { isChatEnabled } from '/imports/ui/services/features';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
-  'users',
+  // 'users',
   'meetings',
   'polls',
   'captions',

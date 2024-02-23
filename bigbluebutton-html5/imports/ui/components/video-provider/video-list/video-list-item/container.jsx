@@ -41,6 +41,8 @@ const VideoListItemContainer = (props) => {
 export default withTracker((props) => {
   const {
     userId,
+    users,
+    stream,
   } = props;
 
   return {
@@ -51,20 +53,9 @@ export default withTracker((props) => {
           muted: 1, listenOnly: 1, talking: 1, joined: 1,
         },
       }),
-    user: Users.findOne({ intId: userId }, {
-      fields: {
-        pin: 1,
-        userId: 1,
-        name: 1,
-        avatar: 1,
-        role: 1,
-        color: 1,
-        emoji: 1,
-        presenter: 1,
-        clientType: 1,
-      },
-    }),
+    user: (users?.find((u) => u.userId === userId) || {}),
     disabledCams: Session.get('disabledCams') || [],
+    stream,
   };
 })(VideoListItemContainer);
 

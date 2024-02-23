@@ -432,7 +432,7 @@ class VideoService {
   getVideoPinByUser(userId) {
     const user = Users.findOne({ userId }, { fields: { pin: 1 } });
 
-    return user.pin;
+    return user?.pin || false;
   }
 
   isGridEnabled() {
@@ -508,7 +508,68 @@ class VideoService {
     return { streams: paginatedStreams, gridUsers, totalNumberOfStreams: streams.length };
   }
 
-  stopConnectingStream () {
+  fetchVideoStreams() {
+    const pageSize = this.getMyPageSize();
+    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
+
+    let streams = [...VideoStreams.find(
+      { meetingId: Auth.meetingID },
+    ).fetch()];
+
+    const { viewParticipantsWebcams } = Settings.dataSaving;
+    if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
+
+    if (!isPaginationDisabled) {
+      return this.getVideoPage(streams, pageSize);
+    }
+
+    const moderatorOnly = this.webcamsOnlyForModerator();
+    if (moderatorOnly) streams = this.filterModeratorOnly(streams);
+    const connectingStream = this.getConnectingStream(streams);
+    if (connectingStream) {
+      streams.push(connectingStream);
+    }
+
+    return streams;
+  }
+
+  getGridUsers(users, streams) {
+    const pageSize = this.getMyPageSize();
+    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
+
+    const isGridEnabled = this.isGridEnabled();
+    let gridUsers = [];
+
+    if (isPaginationDisabled) {
+      if (isGridEnabled) {
+        const streamUsers = streams.map((stream) => stream.userId);
+
+        gridUsers = users.filter(
+          (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
+        ).map((user) => ({
+          isGridItem: true,
+          ...user,
+        }));
+      }
+
+      return gridUsers;
+    }
+    const paginatedStreams = this.getVideoPage(streams, pageSize);
+
+    if (isGridEnabled) {
+      const streamUsers = paginatedStreams.map((stream) => stream.userId);
+
+      gridUsers = users.filter(
+        (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
+      ).map((user) => ({
+        isGridItem: true,
+        ...user,
+      }));
+    }
+    return gridUsers;
+  }
+
+  stopConnectingStream() {
     this.deviceId = null;
     this.isConnecting = false;
   }
@@ -1077,4 +1138,6 @@ export default {
   getStats: () => videoService.getStats(),
   updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
   joinedVideo: () => videoService.joinedVideo(),
+  fetchVideoStreams: () => videoService.fetchVideoStreams(),
+  getGridUsers: (users = [], streams = []) => videoService.getGridUsers(users, streams),
 };
