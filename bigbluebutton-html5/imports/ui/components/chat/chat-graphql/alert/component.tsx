@@ -86,16 +86,16 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
   const prevPrivateUnreadMessages = usePreviousValue(privateUnreadMessages);
   const publicMessagesDidChange = !isEqual(prevPublicUnreadMessages, publicUnreadMessages);
   const privateMessagesDidChange = !isEqual(prevPrivateUnreadMessages, privateUnreadMessages);
-  const shouldRenderPublicAlerts = publicMessagesDidChange && publicUnreadMessages;
-  const shouldRenderPrivateAlerts = privateMessagesDidChange && privateUnreadMessages;
+  const shouldRenderPublicChatAlerts = publicMessagesDidChange && publicUnreadMessages;
+  const shouldRenderPrivateChatAlerts = privateMessagesDidChange && privateUnreadMessages;
 
   useEffect(() => {
     let shouldPlayAudioAlert = false;
 
-    if (publicMessagesDidChange && publicUnreadMessages) {
+    if (shouldRenderPublicChatAlerts) {
       shouldPlayAudioAlert = publicUnreadMessages.some((m) => m.chatId !== idChatOpen);
     }
-    if (privateMessagesDidChange && privateUnreadMessages && !shouldPlayAudioAlert) {
+    if (shouldRenderPrivateChatAlerts && !shouldPlayAudioAlert) {
       shouldPlayAudioAlert = privateUnreadMessages.some((m) => m.chatId !== idChatOpen);
     }
     shouldPlayAudioAlert ||= document.hidden;
@@ -138,7 +138,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
   return pushAlertEnabled
     ? [
-      shouldRenderPublicAlerts && publicUnreadMessages.map((message) => {
+      shouldRenderPublicChatAlerts && publicUnreadMessages.map((message) => {
         if (message.chatId === idChatOpen) return null;
 
         const isPollResult = message.messageType === ChatMessageType.POLL;
@@ -161,7 +161,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
           />
         );
       }),
-      shouldRenderPrivateAlerts && privateUnreadMessages.map((message) => {
+      shouldRenderPrivateChatAlerts && privateUnreadMessages.map((message) => {
         if (message.chatId === idChatOpen) return null;
 
         const content = createMessage(message);
