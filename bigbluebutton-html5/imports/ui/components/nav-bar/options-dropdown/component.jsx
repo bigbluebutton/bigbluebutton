@@ -301,7 +301,7 @@ class OptionsDropdown extends PureComponent {
           icon: 'popout_window',
           label: intl.formatMessage(intlMessages.openAppLabel),
           onClick: () => this.setMobileAppModalIsOpen(true),
-         }
+        },
       );
     }
 
@@ -327,10 +327,6 @@ class OptionsDropdown extends PureComponent {
         description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => this.setShortcutHelpModalIsOpen(true),
       },
-      {
-        key: 'separator-01',
-        isSeparator: true,
-      },
     );
 
     optionsDropdownItems.forEach((item) => {
@@ -354,32 +350,37 @@ class OptionsDropdown extends PureComponent {
       }
     });
 
-    if (allowLogoutSetting && isMeteorConnected && !isDirectLeaveButtonEnabled) {
-      this.menuItems.push(
-        {
+    if (isMeteorConnected && !isDirectLeaveButtonEnabled) {
+      const bottomItems = [{
+        key: 'list-item-separator',
+        isSeparator: true,
+      }];
+
+      if (allowLogoutSetting) {
+        bottomItems.push({
           key: 'list-item-logout',
           dataTest: 'logout',
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           description: intl.formatMessage(intlMessages.leaveSessionDesc),
           onClick: () => this.leaveSession(),
-        },
-      );
-    }
+        });
+      }
 
-    if (allowedToEndMeeting && isMeteorConnected && !isDirectLeaveButtonEnabled) {
-      const customStyles = { background: colorDanger, color: colorWhite };
+      if (allowedToEndMeeting) {
+        const customStyles = { background: colorDanger, color: colorWhite };
 
-      this.menuItems.push(
-        {
+        bottomItems.push({
           key: 'list-item-end-meeting',
           icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
           customStyles,
           onClick: () => this.setEndMeetingConfirmationModalIsOpen(true),
-        },
-      );
+        });
+      }
+
+      if (bottomItems.length > 1) this.menuItems.push(...bottomItems);
     }
 
     return this.menuItems;
