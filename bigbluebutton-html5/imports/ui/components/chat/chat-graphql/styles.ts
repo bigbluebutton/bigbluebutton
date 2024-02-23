@@ -5,6 +5,7 @@ import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 
 interface ChatProps {
   isChrome: boolean;
+  isRTL: boolean;
 }
 
 export const Chat = styled.div<ChatProps>`
@@ -17,6 +18,14 @@ export const Chat = styled.div<ChatProps>`
   justify-content: space-around;
   overflow: hidden;
   height: 100%;
+
+  ${({ isRTL }) => isRTL && `
+    padding-left: 0.1rem;
+  `}
+
+  ${({ isRTL }) => !isRTL && `
+    padding-right: 0.1rem;
+  `}
 
   a {
     color: ${colorPrimary};
