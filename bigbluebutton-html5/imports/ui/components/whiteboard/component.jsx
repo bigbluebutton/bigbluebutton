@@ -365,7 +365,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       const undoCondition = event.ctrlKey && event.key === 'z' && !event.shiftKey;
       const redoCondition = event.ctrlKey && event.shiftKey && event.key === 'Z';
 
-      if (undoCondition || redoCondition) {
+      if ((undoCondition || redoCondition) && (isPresenter || hasWBAccessRef.current)) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -377,7 +377,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         }
       }
 
-      if (event.keyCode === KEY_CODES.ARROW_RIGHT || event.keyCode === KEY_CODES.ARROW_LEFT) {
+      if ((event.keyCode === KEY_CODES.ARROW_RIGHT || event.keyCode === KEY_CODES.ARROW_LEFT) && isPresenter) {
         handleArrowPress(event)
       }
     };
