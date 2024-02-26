@@ -21,6 +21,8 @@ export interface GetUserInfoResponse {
     meetingId: string;
     name: string;
     logoutUrl: string;
+    bannerColor: string;
+    bannerText: string;
   }>;
   user_current: Array<{
     extId: string;
@@ -35,6 +37,8 @@ query getUserInfo {
     meetingId
     name
     logoutUrl
+    bannerColor
+    bannerText
   }
   user_current {
     extId

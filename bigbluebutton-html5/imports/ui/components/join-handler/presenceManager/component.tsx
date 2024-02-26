@@ -3,6 +3,7 @@ import React, { useContext, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
 // @ts-ignore - type avaible only to server package
 import { DDP } from 'meteor/ddp-client';
+import { Session } from 'meteor/session';
 import {
   getUserCurrent,
   GetUserCurrentResponse,
@@ -36,6 +37,8 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     endedReasonCode: string;
     endedBy: string;
     ejectReasonCode: string;
+    bannerColor: string;
+    bannerText: string;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -54,6 +57,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   endedReasonCode,
   endedBy,
   ejectReasonCode,
+  bannerColor,
+  bannerText,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -93,6 +98,13 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       meetingName,
     });
   }, []);
+
+  useEffect(() => {
+    if (bannerColor || bannerText) {
+      Session.set('bannerText', bannerText);
+      Session.set('bannerColor', bannerColor);
+    }
+  },[bannerColor, bannerText]);
 
   useEffect(() => {
     if (authToken && !joined) {
@@ -166,7 +178,13 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     ejectReasonCode,
     meeting,
   } = data.user_current[0];
-  const { logoutUrl, meetingId, name: meetingName } = userInfoData.meeting[0];
+  const {
+    logoutUrl,
+    meetingId,
+    name: meetingName,
+    bannerColor,
+    bannerText,
+  } = userInfoData.meeting[0];
   const { extId, name: userName, userId } = userInfoData.user_current[0];
 
   return (
@@ -185,6 +203,8 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       endedReasonCode={meeting.endedReasonCode}
       endedBy={meeting.endedBy}
       ejectReasonCode={ejectReasonCode}
+      bannerColor={bannerColor}
+      bannerText={bannerText}
     >
       {children}
     </PresenceManager>
