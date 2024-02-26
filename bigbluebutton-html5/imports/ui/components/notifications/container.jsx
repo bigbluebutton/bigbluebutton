@@ -5,11 +5,17 @@ import { notify } from '/imports/ui/services/notification';
 import { withTracker } from 'meteor/react-meteor-data';
 import WaitingUsersAlertService from '/imports/ui/components/waiting-users/alert/service';
 import UserService from '/imports/ui/components/user-list/service';
+import Settings from '/imports/ui/services/settings';
 
 export default injectIntl(withTracker(({ intl }) => {
   NotificationsCollection.find({}).observe({
     added: (obj) => {
       NotificationsCollection.remove(obj);
+
+      if (
+        obj.messageId === 'app.whiteboard.annotations.poll'
+        && Settings.application.chatPushAlerts
+      ) return null;
 
       if (obj.messageId === 'app.userList.guest.pendingGuestAlert') {
         return WaitingUsersAlertService.alert(obj, intl);
