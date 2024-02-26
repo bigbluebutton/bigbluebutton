@@ -48,6 +48,7 @@ const WhiteboardContainer = (props) => {
   } = props;
 
   const [annotations, setAnnotations] = useState([]);
+  const [shapes, setShapes] = useState({});
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -151,19 +152,17 @@ const WhiteboardContainer = (props) => {
     }
   }, [annotationStreamData]);
 
-  let shapes = {};
   let bgShape = [];
 
-  const pageAnnotations = annotations
-    .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
-
-  shapes = formatAnnotations(
-    pageAnnotations,
-    intl,
-    curPageId,
-    pollResults,
-    currentPresentationPage,
-  );
+  React.useEffect(() => {
+    const updatedShapes = formatAnnotations(
+      annotations.filter((annotation) => annotation.pageId === currentPresentationPage?.pageId),
+      intl,
+      curPageId,
+      currentPresentationPage,
+    );
+    setShapes(updatedShapes);
+  }, [annotations, intl, curPageId, currentPresentationPage]);
 
   const { isIphone } = deviceInfo;
 
@@ -219,16 +218,6 @@ const WhiteboardContainer = (props) => {
     typeName: "shape",
   });
 
-  const hasShapeAccess = (id) => {
-    const owner = shapes[id]?.meta?.createdBy;
-    const isBackgroundShape = id?.includes(':BG-');
-    const isPollsResult = shapes[id]?.id?.includes('poll-result');
-    const hasAccess = (!isBackgroundShape && !isPollsResult) 
-      && ((owner && owner === currentUser?.userId) || (isPresenter) || (isModerator)) || !shapes[id];
-
-    return hasAccess;
-  };
-
   return (
     <Whiteboard
       {...{
@@ -246,7 +235,6 @@ const WhiteboardContainer = (props) => {
         fillStyle,
         fontStyle,
         sizeStyle,
-        hasShapeAccess,
         handleToggleFullScreen,
         sidebarNavigationWidth,
         layoutContextDispatch,
@@ -258,7 +246,6 @@ const WhiteboardContainer = (props) => {
         assets,
         removeShapes,
         zoomSlide,
-        numberOfSlides: currentPresentationPage?.totalPages,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
         whiteboardToolbarAutoHide:

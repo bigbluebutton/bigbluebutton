@@ -90,6 +90,9 @@ export default function Auth() {
         meeting {
             name
             ended
+            learningDashboard {
+              learningDashboardAccessToken
+            }
         }
       }
     }`
@@ -130,6 +133,12 @@ export default function Auth() {
                     <span>You are waiting for approval.</span>
                     <span>{curr.guestStatusDetails.guestLobbyMessage}</span>
                     <span>Your position is: {curr.guestStatusDetails.positionInWaitingQueue}</span>
+                </div>
+            } else if(curr.loggedOut) {
+                return <div>
+                    {curr.meeting.name}
+                    <br/><br/>
+                    <span>You left the meeting.</span>
                 </div>
             } else if(!curr.joined) {
                 return <div>

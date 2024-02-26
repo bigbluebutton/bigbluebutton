@@ -15,19 +15,9 @@ import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useChat from '/imports/ui/core/hooks/useChat';
 
 const PUBLIC_CONFIG = window.meetingClientSettings.public;
-
-const checkUnreadMessages = ({
-  groupChatsMessages, groupChats, users, idChatOpen,
-}) => {
-  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users });
-  const hasUnreadMessages = activeChats
-    .filter((chat) => chat.userId !== idChatOpen)
-    .some((chat) => chat.unreadCounter > 0);
-
-  return hasUnreadMessages;
-};
 
 const NavBarContainer = ({ children, ...props }) => {
   const usingChatContext = useContext(ChatContext);
@@ -51,9 +41,12 @@ const NavBarContainer = ({ children, ...props }) => {
   const { sidebarNavPanel } = sidebarNavigation;
 
   const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
-  const hasUnreadMessages = checkUnreadMessages(
-    { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
-  );
+
+  const { data: chats } = useChat((chat) => ({
+    totalUnread: chat.totalUnread,
+  }));
+
+  const hasUnreadMessages = chats && chats.reduce((acc, chat) => acc + chat?.totalUnread, 0) > 0;
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
@@ -126,6 +119,11 @@ export default withTracker(() => {
     }
   }
 
+  const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
+    'bbb_direct_leave_button',
+    PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
+  );
+
   return {
     isPinned: NotesService.isSharedNotesPinned(),
     currentUserId: Auth.userID,
@@ -135,5 +133,7 @@ export default withTracker(() => {
     breakoutName,
     meetingName,
     unread,
+    isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(NavBarContainer);

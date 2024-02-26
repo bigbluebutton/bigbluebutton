@@ -1,5 +1,4 @@
 import React from 'react';
-import Header from '/imports/ui/components/common/control-header/component';
 import { useMutation, useQuery } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { GET_CHAT_DATA, GetChatDataResponse, CLOSE_PRIVATE_CHAT_MUTATION } from './queries';
@@ -9,11 +8,13 @@ import { useShortcut } from '../../../../core/hooks/useShortcut';
 import { Layout } from '../../../layout/layoutTypes';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import ChatActions from './chat-actions/component';
+import { ChatHeader as Header } from '../chat-message-list/page/chat-message/styles';
 
 interface ChatHeaderProps {
   chatId: string;
   isPublicChat: boolean;
   title: string;
+  isRTL: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -35,7 +36,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId, isPublicChat, title }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({
+  chatId, isPublicChat, title, isRTL,
+}) => {
   const HIDE_CHAT_AK = useShortcut('hideprivatechat');
   const CLOSE_CHAT_AK = useShortcut('closeprivatechat');
   const layoutContextDispatch = layoutDispatch();
@@ -43,6 +46,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId, isPublicChat, title }) 
   const [updateVisible] = useMutation(CLOSE_PRIVATE_CHAT_MUTATION);
   return (
     <Header
+      isRTL={isRTL}
       data-test="chatTitle"
       leftButtonProps={{
         accessKey: chatId !== 'public' ? HIDE_CHAT_AK : null,
@@ -99,6 +103,8 @@ const isChatResponse = (data: unknown): data is GetChatDataResponse => {
 const ChatHeaderContainer: React.FC = () => {
   const intl = useIntl();
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+
   const {
     data: chatData,
     loading: chatDataLoading,
@@ -132,6 +138,7 @@ const ChatHeaderContainer: React.FC = () => {
       chatId={idChatOpen}
       isPublicChat={isPublicChat}
       title={title}
+      isRTL={isRTL}
     />
   );
 };

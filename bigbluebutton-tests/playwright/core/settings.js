@@ -11,6 +11,7 @@ async function generateSettingsData(page) {
     settings = {
       reactionsButton: settingsData.app.reactionsButton.enabled,
       sharedNotesEnabled: settingsData.notes.enabled,
+      directLeaveButton: settingsData.app.defaultSettings.application.directLeaveButton,
       // Audio
       autoJoinAudioModal: settingsData.app.autoJoin,
       listenOnlyMode: settingsData.app.listenOnlyMode,

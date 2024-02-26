@@ -89,12 +89,18 @@ class Page {
   }
 
   async logoutFromMeeting() {
-    await this.waitAndClick(e.optionsButton);
-    await this.waitAndClick(e.logout);
+    const { directLeaveButton } = this.settings;
+
+    if (directLeaveButton) {
+      await this.waitAndClick(e.leaveMeetingDropdown);
+    } else {
+      await this.waitAndClick(e.optionsButton);
+    }
+    await this.waitAndClick(e.logoutBtn);
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
-    const { webcamSharingEnabled } = getSettings();
+    const { webcamSharingEnabled } = this.settings;
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
     if(!webcamSharingEnabled) {

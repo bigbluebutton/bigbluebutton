@@ -383,6 +383,11 @@ def parse_events(directory="."):
                 have_record_events = True
             elif name == "EditCaptionHistoryEvent":
                 parse_caption_edit(event, element)
+                if event["locale"] is None:
+                    logger.warn(
+                        "Skipping invalid caption event with unset locale. See https://github.com/bigbluebutton/bigbluebutton/issues/19178 for details"
+                    )
+                    continue
             else:
                 logger.debug("Unhandled event: %s", name)
                 continue

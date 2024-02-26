@@ -50,6 +50,7 @@ interface ChatMessageFormProps {
   // Lint disable here because this variable can be undefined
   // eslint-disable-next-line react/no-unused-prop-types
   idChatOpen: string,
+  isRTL: boolean,
   chatId: string,
   connected: boolean,
   disabled: boolean,
@@ -127,6 +128,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   chatId,
   connected,
   locked,
+  isRTL,
 }) => {
   if (!isChatEnabled()) return null;
   const intl = useIntl();
@@ -348,6 +350,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       <Styled.Form
         ref={formRef}
         onSubmit={handleSubmit}
+        isRTL={isRTL}
       >
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper>
@@ -439,6 +442,7 @@ const ChatMessageFormContainer: React.FC = ({
   const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
@@ -495,6 +499,7 @@ const ChatMessageFormContainer: React.FC = ({
         connected: true, // TODO: monitoring network status
         disabled: locked ?? false,
         title,
+        isRTL,
         // if participant is not defined, it means that the chat is public
         partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
         locked: locked ?? false,

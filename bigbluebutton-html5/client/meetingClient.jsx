@@ -95,7 +95,7 @@ const Startup = () => {
         </PresenceAdapter>
         <CustomUsersSettings />
         <UsersAdapter />
-        <ChatAdapter />
+        {/* <ChatAdapter /> */}
       </>
     </ContextProviders>
   );
