@@ -812,6 +812,7 @@
     "app.toast.chat.system": "Система",
     "app.toast.chat.poll": "Результаты голосования",
     "app.toast.chat.pollClick": "Результаты голосования опубликованы. Нажмите сюда для просмотра",
+    "app.toast.chat.exportedPresentation": "Файл презентации",
     "app.toast.clearedEmoji.label": "Статус эмодзи очищен",
     "app.toast.setEmoji.label": "Ваш статус эмодзи: {0}",
     "app.toast.meetingMuteOn.label": "Всем пользователям выключены микрофоны",
