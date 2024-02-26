@@ -6,6 +6,7 @@ import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
 import MeetingClientSettings from '../../Types/meetingClientSettings';
 import ClientStartup from '/client/clientStartup';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
+import CustomUsersSettings from '../join-handler/custom-users-settings/component';
 
 declare global {
   interface Window {
@@ -46,7 +47,11 @@ const SettingsLoader: React.FC = () => {
   }
   return (
     (allowToRender)
-      ? <ClientStartup />
+      ? (
+        <CustomUsersSettings>
+          <ClientStartup />
+        </CustomUsersSettings>
+      )
       : null
   );
 };

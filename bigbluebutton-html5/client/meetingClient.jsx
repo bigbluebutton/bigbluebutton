@@ -93,7 +93,6 @@ const Startup = () => {
             </IntlAdapter>
           </Subscriptions>
         </PresenceAdapter>
-        <CustomUsersSettings />
         <UsersAdapter />
         {/* <ChatAdapter /> */}
       </>
