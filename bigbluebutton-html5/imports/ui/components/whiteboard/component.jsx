@@ -126,6 +126,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     hideViewersCursor,
     presentationHeight,
     presentationWidth,
+    skipToSlide,
   } = props;
 
   clearTldrawCache();
@@ -328,20 +329,56 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       tlEditorRef?.current?.history?.redo();
     };
 
+    const handleArrowPress = (event) => {
+      const currPageNum = parseInt(curPageIdRef.current);
+      const shapeSelected = tlEditorRef.current.selectedShapes.length > 0;
+      const changeSlide = (direction) => {
+        let newSlideNum = currPageNum + direction;
+        const outOfBounds = direction > 0
+          ? newSlideNum > currentPresentationPage?.totalPages
+          : newSlideNum < 1;
+
+        if (outOfBounds) return;
+
+        skipToSlide(newSlideNum);
+        setZoom(HUNDRED_PERCENT);
+        zoomChanger(HUNDRED_PERCENT);
+        zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
+      };
+
+      if (!shapeSelected) {
+        if (event.key === 'ArrowRight') {
+          changeSlide(1); // Move to the next slide
+        } else if (event.key === 'ArrowLeft') {
+          changeSlide(-1); // Move to the previous slide
+        }
+      }
+    }
+
+    const handleUndoRedoOnCondition = (condition, action) => {
+      if (condition) {
+        action();
+      }
+    };
+
     const handleKeyDown = (event) => {
-      if ((event.ctrlKey && event.key === 'z' && !event.shiftKey) || (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
+      const undoCondition = event.ctrlKey && event.key === 'z' && !event.shiftKey;
+      const redoCondition = event.ctrlKey && event.shiftKey && event.key === 'Z';
+
+      if (undoCondition || redoCondition) {
         event.preventDefault();
         event.stopPropagation();
 
         if (!undoRedoIntervalId) {
           undoRedoIntervalId = setInterval(() => {
-            if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
-              undo();
-            } else if (event.ctrlKey && event.shiftKey && event.key === 'Z') {
-              redo();
-            }
+            handleUndoRedoOnCondition(undoCondition, undo);
+            handleUndoRedoOnCondition(redoCondition, redo);
           }, 150);
         }
+      }
+
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        handleArrowPress(event)
       }
     };
 
@@ -363,7 +400,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       }
     };
   }, [whiteboardRef.current]);
-  
 
   React.useEffect(() => {
     zoomValueRef.current = zoomValue;
