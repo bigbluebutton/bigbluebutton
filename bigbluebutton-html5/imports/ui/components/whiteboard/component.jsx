@@ -347,9 +347,9 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       };
 
       if (!shapeSelected) {
-        if (event.key === 'ArrowRight') {
+        if (event.keyCode === KEY_CODES.ARROW_RIGHT) {
           changeSlide(1); // Move to the next slide
-        } else if (event.key === 'ArrowLeft') {
+        } else if (event.keyCode === KEY_CODES.ARROW_LEFT) {
           changeSlide(-1); // Move to the previous slide
         }
       }
@@ -377,7 +377,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         }
       }
 
-      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      if (event.keyCode === KEY_CODES.ARROW_RIGHT || event.keyCode === KEY_CODES.ARROW_LEFT) {
         handleArrowPress(event)
       }
     };
