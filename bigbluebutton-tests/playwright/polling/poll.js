@@ -63,7 +63,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitForSelector(e.restartPoll);
 
-    await this.modPage.hasElement(e.wbDrawnRectangle);
+    await this.modPage.hasElement(e.wbDrawnRectangle, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.wbDrawnRectangle);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
@@ -130,7 +130,7 @@ class Polling extends MultiUsers {
   }
 
   async customInput() {
-    await uploadSinglePresentation(this.modPage, e.questionSlideFileName);
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.polling);
@@ -139,6 +139,8 @@ class Polling extends MultiUsers {
     await this.modPage.type(e.pollQuestionArea, 'Test');
     await this.modPage.waitAndClick(e.addPollItem);
     await this.modPage.type(e.pollOptionItem, 'test1');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.type(e.pollOptionItem2, 'test2');
     await this.modPage.waitAndClick(e.startPoll);
 
     await this.userPage.hasElement(e.pollingContainer);

@@ -22,6 +22,8 @@ exports.rating = 'div[data-test="rating"]';
 exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 exports.errorMessageLabel = 'span[id="error-message"]';
 exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
+exports.closePopup = 'button[data-test="closePopup"]';
+exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
 
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';
