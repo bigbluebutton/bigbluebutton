@@ -41,6 +41,7 @@ class Page {
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
+    await this.page.waitForSelector('div#layout');
     this.settings = await generateSettingsData(this.page);
     const { autoJoinAudioModal } = this.settings;
     if (isRecording && !isModerator) await this.closeRecordingModal();
