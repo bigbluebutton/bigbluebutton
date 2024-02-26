@@ -60,15 +60,17 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
     outGW.send(msgEvent)
 
-    val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
-      fromUserId,
-      liveMeeting.props.meetingProp.intId,
-      "info",
-      "user",
-      "app.layoutUpdate.label",
-      "Notification to when the presenter changes dize of cams",
-      Vector()
-    )
-    outGW.send(notifyEvent)
+    if (body.pushLayout) {
+      val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+        fromUserId,
+        liveMeeting.props.meetingProp.intId,
+        "info",
+        "user",
+        "app.layoutUpdate.label",
+        "Notification to when the presenter changes size of cams",
+        Vector()
+      )
+      outGW.send(notifyEvent)
+    }
   }
 }
