@@ -1,9 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useSubscription } from '@apollo/client';
 import { Meteor } from 'meteor/meteor';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
-import AudioService from '/imports/ui/components/audio/service';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PANELS } from '/imports/ui/components/layout/enums';
@@ -19,6 +18,7 @@ import {
 } from './queries';
 import ChatPushAlert from './push-alert/component';
 import Styled from './styles';
+import Service from './service';
 
 const intlMessages = defineMessages({
   appToastChatPublic: {
@@ -57,6 +57,7 @@ const intlMessages = defineMessages({
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
 const ALERT_DURATION = 4000; // 4 seconds
 
@@ -82,31 +83,31 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     privateUnreadMessages,
   } = props;
   const intl = useIntl();
+  const history = useRef(new Set<string>());
   const prevPublicUnreadMessages = usePreviousValue(publicUnreadMessages);
   const prevPrivateUnreadMessages = usePreviousValue(privateUnreadMessages);
   const publicMessagesDidChange = !isEqual(prevPublicUnreadMessages, publicUnreadMessages);
   const privateMessagesDidChange = !isEqual(prevPrivateUnreadMessages, privateUnreadMessages);
   const shouldRenderPublicChatAlerts = publicMessagesDidChange && publicUnreadMessages;
   const shouldRenderPrivateChatAlerts = privateMessagesDidChange && privateUnreadMessages;
+  const shouldPlayAudioAlert = useCallback(
+    (m: Message) => m.chatId !== idChatOpen && !history.current.has(m.messageId),
+    [idChatOpen, history.current],
+  );
 
-  useEffect(() => {
-    let shouldPlayAudioAlert = false;
+  let playAudioAlert = false;
 
-    if (shouldRenderPublicChatAlerts) {
-      shouldPlayAudioAlert = publicUnreadMessages.some((m) => m.chatId !== idChatOpen);
-    }
-    if (shouldRenderPrivateChatAlerts && !shouldPlayAudioAlert) {
-      shouldPlayAudioAlert = privateUnreadMessages.some((m) => m.chatId !== idChatOpen);
-    }
-    shouldPlayAudioAlert ||= document.hidden;
+  if (shouldRenderPublicChatAlerts) {
+    playAudioAlert = publicUnreadMessages.some(shouldPlayAudioAlert);
+  }
+  if (shouldRenderPrivateChatAlerts && !playAudioAlert) {
+    playAudioAlert = privateUnreadMessages.some(shouldPlayAudioAlert);
+  }
+  playAudioAlert ||= document.hidden;
 
-    if (audioAlertEnabled && shouldPlayAudioAlert) {
-      AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-        + Meteor.settings.public.app.basename
-        + Meteor.settings.public.app.instanceId}`
-        + '/resources/sounds/notify.mp3');
-    }
-  }, [publicUnreadMessages, privateUnreadMessages]);
+  if (audioAlertEnabled && playAudioAlert) {
+    Service.playAlertSound();
+  }
 
   const mapTextContent = (msg: Message) => {
     if (msg.messageType === ChatMessageType.CHAT_CLEAR) {
@@ -136,47 +137,41 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     </Styled.PushMessageContent>
   );
 
+  const renderToast = (message: Message) => {
+    if (history.current.has(message.messageId)) return null;
+    history.current.add(message.messageId);
+    if (message.chatId === idChatOpen) return null;
+
+    const messageChatId = message.chatId === PUBLIC_GROUP_CHAT_ID ? PUBLIC_CHAT_ID : message.chatId;
+    const isPollResult = message.messageType === ChatMessageType.POLL;
+    let content;
+
+    if (isPollResult) {
+      content = createPollMessage();
+    } else {
+      content = createMessage(message);
+    }
+
+    return (
+      <ChatPushAlert
+        key={messageChatId}
+        chatId={messageChatId}
+        content={content}
+        title={
+          messageChatId === PUBLIC_CHAT_ID
+            ? <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>
+            : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
+        }
+        alertDuration={ALERT_DURATION}
+        layoutContextDispatch={layoutContextDispatch}
+      />
+    );
+  };
+
   return pushAlertEnabled
     ? [
-      shouldRenderPublicChatAlerts && publicUnreadMessages.map((message) => {
-        if (message.chatId === idChatOpen) return null;
-
-        const isPollResult = message.messageType === ChatMessageType.POLL;
-        let content;
-
-        if (isPollResult) {
-          content = createPollMessage();
-        } else {
-          content = createMessage(message);
-        }
-
-        return (
-          <ChatPushAlert
-            key={PUBLIC_CHAT_ID}
-            chatId={PUBLIC_CHAT_ID}
-            content={content}
-            title={<span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>}
-            alertDuration={ALERT_DURATION}
-            layoutContextDispatch={layoutContextDispatch}
-          />
-        );
-      }),
-      shouldRenderPrivateChatAlerts && privateUnreadMessages.map((message) => {
-        if (message.chatId === idChatOpen) return null;
-
-        const content = createMessage(message);
-
-        return (
-          <ChatPushAlert
-            key={message.chatId}
-            chatId={message.chatId}
-            content={content}
-            title={<span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>}
-            alertDuration={ALERT_DURATION}
-            layoutContextDispatch={layoutContextDispatch}
-          />
-        );
-      }),
+      shouldRenderPublicChatAlerts && publicUnreadMessages.map(renderToast),
+      shouldRenderPrivateChatAlerts && privateUnreadMessages.map(renderToast),
     ]
     : null;
 };
