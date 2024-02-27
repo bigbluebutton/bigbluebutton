@@ -129,7 +129,7 @@ class Page {
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitForSelector(e.audioModal, 15000);
     await this.waitAndClick(e.closeModal);
   }
 
@@ -255,7 +255,7 @@ class Page {
 
   async checkElementCount(selector, count) {
     const locator = await this.page.locator(selector);
-    await expect(locator).toHaveCount(count);
+    await expect(locator).toHaveCount(count, {timeout: 10000});
   }
 
   async hasValue(selector, value) {

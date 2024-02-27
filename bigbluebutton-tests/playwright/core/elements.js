@@ -485,7 +485,7 @@ exports.wbDelete = 'span[id="TD-Delete"]';
 exports.wbUndo = 'button[data-testid="main.undo"]';
 exports.wbRedo = 'button[id="TD-TopPanel-Redo"]';
 exports.wbStyles = 'button[id="TD-Styles"]';
-exports.wbColorRed = 'button[id="TD-Styles-Color-Swatch-red"]';
+exports.wbColorRed = 'button[data-testid="style.color.red"]';
 exports.wbFillDrawing = 'button[data-testid="style.fill.solid"]';
 exports.wbDashDotted = 'div[id="TD-Styles-Dash-dotted"]';
 exports.wbSizeLarge = 'div[id="TD-Styles-Dash-large"]';

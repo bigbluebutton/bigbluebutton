@@ -112,7 +112,7 @@ test.describe.parallel.only('Whiteboard tools - visual regression', () => {
     await drawArrow.test();
   });
 
-  test.only('Delete drawing', async ({ browser, context, page }) => {
+  test('Delete drawing', async ({ browser, context, page }) => {
     const deleteDrawing = new DeleteDrawing(browser, context);
     await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await deleteDrawing.initUserPage(true, context, { createParameter: hidePresentationToast });
@@ -133,7 +133,7 @@ test.describe.parallel.only('Whiteboard tools - visual regression', () => {
     await redoDrawing.test();
   });
 
-  test('Change color', async ({ browser, context, page }) => {
+  test.only('Change color', async ({ browser, context, page }) => {
     const changeColor = new ChangeStyles(browser, context);
     await changeColor.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await changeColor.initUserPage(true, context, { createParameter: hidePresentationToast });
