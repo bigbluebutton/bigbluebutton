@@ -16,7 +16,6 @@ import PadsSessionsContainer from '/imports/ui/components/pads/sessions/containe
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
-import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
@@ -55,6 +54,7 @@ import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
+import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = window.meetingClientSettings.public.app;
@@ -666,7 +666,7 @@ class App extends Component {
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
             && (
-              <ChatAlertContainer
+              <ChatAlertContainerGraphql
                 audioAlertEnabled={audioAlertEnabled}
                 pushAlertEnabled={pushAlertEnabled}
               />
