@@ -21,7 +21,7 @@ const intlMessages = defineMessages({
     description: 'Leave session button label',
   },
   leaveSessionDesc: {
-    id: 'app.navBar.settingsDropdown.leaveSessionDesc',
+    id: 'app.navBar.optionsDropdown.leaveSessionDesc',
     description: 'Describes leave session option',
   },
   endMeetingLabel: {
@@ -29,7 +29,7 @@ const intlMessages = defineMessages({
     description: 'End meeting button label',
   },
   endMeetingDesc: {
-    id: 'app.navBar.settingsDropdown.endMeetingDesc',
+    id: 'app.navBar.optionsDropdown.endMeetingDesc',
     description: 'Describes settings option closing the current meeting',
   },
 });
