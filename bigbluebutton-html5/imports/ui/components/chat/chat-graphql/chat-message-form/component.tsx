@@ -8,7 +8,8 @@ import React, {
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
-import { ChatFormEventPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-events/chat/form/types';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/chat/form/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
@@ -262,16 +263,18 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       );
       newMessage = newMessage.substring(0, maxMessageLength);
     }
-
-    window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED, {
-      detail: {
-        text: newMessage,
-      } as ChatFormEventPayloads[PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED],
-    }));
     setMessage(newMessage);
     setError(newError);
     handleUserTyping(newError != null);
   };
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT, {
+      detail: {
+        text: message,
+      },
+    }));
+  }, [message]);
 
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
@@ -328,11 +331,47 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       event: CustomEvent<FillChatFormCommandArguments>,
     ) => setMessage(event.detail.text)) as EventListener;
     useEffect(() => {
+      // Define functions to first inform ui data hooks that subscribe to these events
+      const updateUiDataHookChatFormChangedForPlugin = () => {
+        window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+          detail: {
+            value: isTextAreaFocused,
+          } as ChatFormUiDataPayloads[PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED],
+        }));
+      };
+      const updateUiDataHookChatInputTextPlugin = () => {
+        window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT, {
+          detail: {
+            text: message,
+          } as ChatFormUiDataPayloads[PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT],
+        }));
+      };
+
+      // When component mount, add event listener to send first information
+      // about these ui data hooks to plugin
+      window.addEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED}`,
+        updateUiDataHookChatFormChangedForPlugin,
+      );
+      window.addEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT}`,
+        updateUiDataHookChatInputTextPlugin,
+      );
       window.addEventListener(ChatFormCommandsEnum.FILL, handleFillChatFormThroughPlugin);
+
+      // Before component unmount, remove event listeners for plugin ui data hooks
       return () => {
+        window.removeEventListener(
+          `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED}`,
+          updateUiDataHookChatFormChangedForPlugin,
+        );
+        window.removeEventListener(
+          `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT}`,
+          updateUiDataHookChatInputTextPlugin,
+        );
         window.removeEventListener(ChatFormCommandsEnum.FILL, handleFillChatFormThroughPlugin);
       };
-    });
+    }, []);
 
     document.addEventListener('click', (event) => {
       const chatList = document.getElementById('chat-list');
@@ -374,11 +413,19 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             value={message}
             onFocus={() => {
-              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_FOCUSED));
+              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+                detail: {
+                  value: true,
+                },
+              }));
               setIsTextAreaFocused(true);
             }}
             onBlur={() => {
-              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_UNFOCUSED));
+              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+                detail: {
+                  value: false,
+                },
+              }));
               setIsTextAreaFocused(false);
             }}
             onChange={handleMessageChange}
