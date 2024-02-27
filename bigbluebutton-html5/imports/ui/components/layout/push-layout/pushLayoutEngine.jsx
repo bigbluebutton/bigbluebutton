@@ -56,7 +56,6 @@ class PushLayoutEngine extends React.Component {
       cameraHeight,
       horizontalPosition,
       layoutContextDispatch,
-      meetingLayout,
       meetingLayoutCameraPosition,
       meetingLayoutFocusedCamera,
       meetingLayoutVideoRate,
@@ -65,10 +64,12 @@ class PushLayoutEngine extends React.Component {
       shouldShowExternalVideo,
     } = this.props;
 
-    const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
-    Settings.application.selectedLayout = userLayout || meetingLayout;
+    const changedLayout = getFromUserSettings('bbb_change_layout', null);
+    if (changedLayout) {
+      Settings.application.selectedLayout = LAYOUT_TYPE[changedLayout];
+    }
 
-    let selectedLayout = Settings.application.selectedLayout;
+    let { selectedLayout } = Settings.application;
     if (isMobile()) {
       selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
       Settings.application.selectedLayout = selectedLayout;

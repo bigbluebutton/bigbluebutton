@@ -47,7 +47,7 @@ const joinEndpointTableData = [
     "name": "defaultLayout",
     "required": false,
     "type": "String",
-    "description": (<>The layout name to be loaded first when the application is loaded.</>)
+    "description": (<>The layout name to be loaded first when the application is loaded. If none is provided, the meeting layout will be used.</>)
   },
   {
     "name": "avatarURL",
