@@ -93,7 +93,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     fillStyle,
     fontStyle,
     sizeStyle,
-    hasShapeAccess,
     presentationAreaHeight,
     presentationAreaWidth,
     maxNumberOfAnnotations,
@@ -127,6 +126,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     hideViewersCursor,
     presentationHeight,
     presentationWidth,
+    skipToSlide,
   } = props;
 
   clearTldrawCache();
@@ -162,6 +162,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
+  const [shapesVersion, setShapesVersion] = React.useState(0);
+
   React.useEffect(() => {
     curPageIdRef.current = curPageId;
   }, [curPageId]);
@@ -190,6 +192,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     if (!isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
+      setShapesVersion(v => v + 1);
     }
   }, [shapes]);
 
@@ -221,11 +224,9 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       const prevShape = prevShapesRef.current[remoteShape.id];
 
       if (!localShape) {
-        if (prevShapesRef.current[`${remoteShape.id}`].meta?.createdBy !== currentUser?.userId) {
           delete remoteShape.isModerator
           delete remoteShape.questionType
           toAdd.push(remoteShape);
-        }
       } else if (!isEqual(localShape, remoteShape) && prevShape) {
         const diff = {
           id: remoteShape.id,
@@ -328,20 +329,56 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       tlEditorRef?.current?.history?.redo();
     };
 
+    const handleArrowPress = (event) => {
+      const currPageNum = parseInt(curPageIdRef.current);
+      const shapeSelected = tlEditorRef.current.selectedShapes.length > 0;
+      const changeSlide = (direction) => {
+        let newSlideNum = currPageNum + direction;
+        const outOfBounds = direction > 0
+          ? newSlideNum > currentPresentationPage?.totalPages
+          : newSlideNum < 1;
+
+        if (outOfBounds) return;
+
+        skipToSlide(newSlideNum);
+        setZoom(HUNDRED_PERCENT);
+        zoomChanger(HUNDRED_PERCENT);
+        zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
+      };
+
+      if (!shapeSelected) {
+        if (event.keyCode === KEY_CODES.ARROW_RIGHT) {
+          changeSlide(1); // Move to the next slide
+        } else if (event.keyCode === KEY_CODES.ARROW_LEFT) {
+          changeSlide(-1); // Move to the previous slide
+        }
+      }
+    }
+
+    const handleUndoRedoOnCondition = (condition, action) => {
+      if (condition) {
+        action();
+      }
+    };
+
     const handleKeyDown = (event) => {
-      if ((event.ctrlKey && event.key === 'z' && !event.shiftKey) || (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
+      const undoCondition = event.ctrlKey && event.key === 'z' && !event.shiftKey;
+      const redoCondition = event.ctrlKey && event.shiftKey && event.key === 'Z';
+
+      if ((undoCondition || redoCondition) && (isPresenter || hasWBAccessRef.current)) {
         event.preventDefault();
         event.stopPropagation();
 
         if (!undoRedoIntervalId) {
           undoRedoIntervalId = setInterval(() => {
-            if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
-              undo();
-            } else if (event.ctrlKey && event.shiftKey && event.key === 'Z') {
-              redo();
-            }
+            handleUndoRedoOnCondition(undoCondition, undo);
+            handleUndoRedoOnCondition(redoCondition, redo);
           }, 150);
         }
+      }
+
+      if ((event.keyCode === KEY_CODES.ARROW_RIGHT || event.keyCode === KEY_CODES.ARROW_LEFT) && isPresenter) {
+        handleArrowPress(event)
       }
     };
 
@@ -363,7 +400,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       }
     };
   }, [whiteboardRef.current]);
-  
 
   React.useEffect(() => {
     zoomValueRef.current = zoomValue;
@@ -807,8 +843,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           const updatedRecord = {
             ...record,
             meta: {
+              ...prevShapesRef.current[record?.id]?.meta,
               updatedBy: currentUser?.userId,
-              createdBy: shapes[record?.id]?.meta?.createdBy,
             },
           };
           persistShapeWrapper(updatedRecord, whiteboardIdRef.current, isModerator);
@@ -915,10 +951,20 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
       editor.store.onBeforeChange = (prev, next, source) => {
         if (next?.typeName === "instance_page_state") {
+          if (isPresenter || isModerator) return next;
+          // Filter selectedShapeIds based on shape owner
           if (!isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
-            // Filter the selectedShapeIds
-            next.selectedShapeIds =
-              next.selectedShapeIds.filter(hasShapeAccess);
+            next.selectedShapeIds = next.selectedShapeIds.filter(shapeId => {
+              const shapeOwner = prevShapesRef.current[shapeId]?.meta?.createdBy;
+              return shapeOwner === currentUser?.userId;
+            });
+          }
+
+          if (!isEqual(prev.hoveredShapeId, next.hoveredShapeId)) {
+            const hoveredShapeOwner = prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
+            if (hoveredShapeOwner !== currentUser?.userId) {
+              next.hoveredShapeId = null;
+            }
           }
 
           return next;
@@ -1012,7 +1058,6 @@ Whiteboard.propTypes = {
   fillStyle: PropTypes.string.isRequired,
   fontStyle: PropTypes.string.isRequired,
   sizeStyle: PropTypes.string.isRequired,
-  hasShapeAccess: PropTypes.func.isRequired,
   presentationAreaHeight: PropTypes.number.isRequired,
   presentationAreaWidth: PropTypes.number.isRequired,
   maxNumberOfAnnotations: PropTypes.number.isRequired,

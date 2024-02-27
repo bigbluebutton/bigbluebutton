@@ -1,5 +1,5 @@
 import { useSubscription } from '@apollo/client';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
   IsBreakoutSubscriptionData,
@@ -11,8 +11,13 @@ import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
-import useTalkingIndicator from '/imports/ui/core/hooks/useTalkingIndicator';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
+import TALKING_INDICATOR_SUBSCRIPTION from '/imports/ui/core/graphql/queries/userVoiceSubscription';
+import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
+
+interface TalkingIndicatorSubscriptionData {
+  user_voice: Array<Partial<UserVoice>>;
+}
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -64,6 +69,12 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   toggleVoice,
 }) => {
   const intl = useIntl();
+  useEffect(() => {
+    // component will unmount
+    return () => {
+      setTalkingIndicatorList([]);
+    };
+  }, []);
   const talkingElements = useMemo(() => talkingUsers.map((talkingUser: Partial<UserVoice>) => {
     const {
       talking,
@@ -180,8 +191,15 @@ const TalkingIndicatorContainer: React.FC = (() => {
     const {
       data: talkingIndicatorData,
       loading: talkingIndicatorLoading,
-      errors: talkingIndicatorError,
-    } = useTalkingIndicator((c) => c);
+      error: talkingIndicatorError,
+    } = useSubscription<TalkingIndicatorSubscriptionData>(
+      TALKING_INDICATOR_SUBSCRIPTION,
+      {
+        variables: {
+          limit: TALKING_INDICATORS_MAX,
+        },
+      },
+    );
 
     const {
       data: isBreakoutData,
@@ -202,9 +220,9 @@ const TalkingIndicatorContainer: React.FC = (() => {
       );
     }
 
-    const talkingUsers = talkingIndicatorData ?? [];
+    const talkingUsers = talkingIndicatorData?.user_voice ?? [];
     const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
-
+    setTalkingIndicatorList(talkingUsers);
     return (
       <TalkingIndicator
         talkingUsers={talkingUsers}

@@ -20,7 +20,7 @@ test.describe('Polling', async () => {
     await polling.pollAnonymous();
   });
 
-  test('Create quick poll - from the slide @ci @flaky', async () => {
+  test('Create quick poll - from the slide @ci', async () => {
     await polling.quickPoll();
   });
 
@@ -40,7 +40,7 @@ test.describe('Polling', async () => {
     await polling.notAbleStartNewPollWithoutPresentation();
   });
 
-  test('Custom input @ci @flaky', async () => {
+  test('Custom input @ci', async () => {
     await polling.customInput();
   });
 
@@ -53,7 +53,7 @@ test.describe('Polling', async () => {
   });
 
   // Results
-  test('Poll results in chat message @ci', async () => {
+  test('Poll results in chat message @ci @flaky', async () => {
     await polling.pollResultsOnChat();
   });
 

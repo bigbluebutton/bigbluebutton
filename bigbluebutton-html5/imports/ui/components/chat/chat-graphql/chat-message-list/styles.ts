@@ -1,11 +1,16 @@
 import styled from 'styled-components';
 import {
   mdPaddingX,
+  smPaddingX,
   borderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+
+interface ChatMessagesProps {
+  isRTL: boolean;
+}
 
 export const MessageListWrapper = styled.div`
   height: 100%;
@@ -16,6 +21,18 @@ export const MessageListWrapper = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   z-index: 2;
+`;
+
+export const ChatMessages = styled.div<ChatMessagesProps>`
+  ${({ isRTL }) => isRTL && `
+    padding-left: ${smPaddingX};
+  `}
+
+  ${({ isRTL }) => !isRTL && `
+    padding-right: ${smPaddingX};
+  `}
+
+  padding-bottom: ${smPaddingX};
 `;
 
 export const MessageList = styled(ScrollboxVertical)`
@@ -54,4 +71,5 @@ export default {
   MessageListWrapper,
   MessageList,
   UnreadButton,
+  ChatMessages,
 };

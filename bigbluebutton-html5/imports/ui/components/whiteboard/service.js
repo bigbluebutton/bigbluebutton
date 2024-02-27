@@ -176,6 +176,7 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
       if (!annotationInfo.props) {
+        const { POLL_BAR_CHAR } = PollService;
         annotationInfo.answers = annotationInfo.answers.reduce(
           caseInsensitiveReducer, [],
         );
@@ -185,13 +186,13 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
         const lines = pollResult.split('\n');
         const longestLine = lines.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 
-        // add empty spaces before first | in each of the lines to make them all the same length
+        // add empty spaces after last ∎ in each of the lines to make them all the same length
         pollResult = lines.map((line) => {
-          if (!line.includes('|') || line.length === longestLine) return line;
+          if (!line.includes(POLL_BAR_CHAR) || line.length === longestLine) return line;
 
-          const splitLine = line.split(' |');
+          const splitLine = line.split(`${POLL_BAR_CHAR} `);
           const spaces = ' '.repeat(longestLine - line.length);
-          return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
+          return `${splitLine[0]} ${spaces} ${splitLine[1]}`;
         }).join('\n');
 
         // Text measurement estimation

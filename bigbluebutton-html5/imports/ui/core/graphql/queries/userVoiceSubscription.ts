@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const TALKING_INDICATOR_SUBSCRIPTION = gql`
-  subscription TalkingIndicatorSubscription($limit: Int!) {
+  subscription talkingIndicatorSubscription($limit: Int!) {
     user_voice(
       where: { showTalkingIndicator: { _eq: true } }
       order_by: [{ startTime: asc_nulls_last }]

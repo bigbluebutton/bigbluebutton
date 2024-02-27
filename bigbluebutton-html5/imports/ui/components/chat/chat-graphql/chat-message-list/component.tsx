@@ -14,6 +14,7 @@ import {
   MessageList,
   MessageListWrapper,
   UnreadButton,
+  ChatMessages,
 } from './styles';
 import { layoutSelect } from '../../../layout/context';
 import ChatListPage from './page/component';
@@ -48,6 +49,7 @@ interface ChatListProps {
   totalUnread: number;
   totalPages: number;
   chatId: string;
+  isRTL: boolean;
   setMessageAsSeenMutation: (
     data: {
       variables: {
@@ -113,6 +115,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   setMessageAsSeenMutation,
   lastSeenAt,
   totalUnread,
+  isRTL,
 }) => {
   const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement>(null);
@@ -303,7 +306,12 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     ) : null
                 }
               </span>
-              <div id="contentRef" ref={contentRef} data-test="chatMessages">
+              <ChatMessages
+                id="contentRef"
+                ref={contentRef}
+                data-test="chatMessages"
+                isRTL={isRTL}
+              >
                 <ChatPopupContainer />
                 {
                   // @ts-ignore
@@ -323,7 +331,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     );
                   })
                 }
-              </div>
+              </ChatMessages>
               <div ref={messagesEndRef} />
             </MessageList>
           </MessageListWrapper>,
@@ -336,6 +344,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
 const ChatMessageListContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
   const { data: currentChat } = useChat((chat) => {
@@ -358,6 +367,7 @@ const ChatMessageListContainer: React.FC = () => {
       chatId={chatId}
       setMessageAsSeenMutation={setMessageAsSeenMutation}
       totalUnread={currentChat?.totalUnread || 0}
+      isRTL={isRTL}
     />
   );
 };
