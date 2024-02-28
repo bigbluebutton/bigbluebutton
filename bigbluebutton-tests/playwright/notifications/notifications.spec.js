@@ -69,9 +69,10 @@ test.describe.parallel('Notifications', () => {
   });
 
   test.describe.parallel('Presenter @ci', () => {
-    test('Poll results notification @flaky', async ({ browser, context, page }) => {
+    test('Poll results notification', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initModPage(page);
+      await presenterNotifications.initUserPage(true, context);
       await presenterNotifications.publishPollResults();
     });
 
