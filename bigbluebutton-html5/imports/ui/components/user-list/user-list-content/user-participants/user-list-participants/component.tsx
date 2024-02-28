@@ -47,7 +47,7 @@ interface RowRendererProps extends ListProps {
   setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
 }
 const rowRenderer: React.FC<RowRendererProps> = ({
-  index, key, style, users, validCurrentUser, offset, meeting, isRTL, pageId, openUserAction, setOpenUserAction
+  index, key, style, users, validCurrentUser, offset, meeting, isRTL, pageId, openUserAction, setOpenUserAction,
 }) => {
   const userIndex = index - offset;
   const user = users && users[userIndex];
