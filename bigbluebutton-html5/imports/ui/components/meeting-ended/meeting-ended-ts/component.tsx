@@ -414,24 +414,24 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   }
 
   const {
-    meeting,
-    meeting_clientSettings,
     user_current,
   } = meetingEndData;
   const {
     role,
+    meeting,
   } = user_current[0];
 
   const {
-    learningDashboardAccessToken,
+    learningDashboard,
     isBreakout,
-  } = meeting[0];
+    clientSettings,
+  } = meeting;
 
   const {
     askForFeedbackOnLogout,
     allowDefaultLogoutUrl,
     learningDashboardBase,
-  } = meeting_clientSettings[0];
+  } = clientSettings;
 
   return (
     <MeetingEnded
@@ -440,7 +440,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
       meetingEndedCode={meetingEndedCode}
       allowDefaultLogoutUrl={allowDefaultLogoutUrl}
       askForFeedbackOnLogout={askForFeedbackOnLogout}
-      learningDashboardAccessToken={learningDashboardAccessToken}
+      learningDashboardAccessToken={learningDashboard?.learningDashboardAccessToken}
       role={role}
       learningDashboardBase={learningDashboardBase}
       isBreakout={isBreakout}
