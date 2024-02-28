@@ -268,7 +268,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           typeName: remoteShape.typeName,
         };
 
-        if (!selectedShapeIds.includes(remoteShape.id) && prevShape?.meta?.updatedBy !== currentUser?.userId) {
+        if (
+          (prevShape?.meta?.updatedBy !== currentUser?.userId && !selectedShapeIds.includes(remoteShape.id)) ||
+          (prevShape?.meta?.createdBy === currentUser?.userId) ||
+          (prevShape?.meta?.createdBy !== currentUser?.userId && selectedShapeIds.includes(remoteShape.id) && (isPresenter || isModerator))
+        ) {
           Object.keys(remoteShape).forEach((key) => {
             if (key !== "isModerator" && !isEqual(remoteShape[key], localShape[key])) {
               diff[key] = remoteShape[key];
