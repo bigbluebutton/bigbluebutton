@@ -288,9 +288,11 @@ function overlayAnnotations(svg, slideAnnotations) {
  */
 async function processPresentationAnnotations() {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   await client.connect();
@@ -383,6 +385,7 @@ async function processPresentationAnnotations() {
       SVGfile,
       '--output-width', toPx(slideWidth),
       '--output-height', toPx(slideHeight),
+      '-u',
       '-o', PDFfile,
     ];
 
