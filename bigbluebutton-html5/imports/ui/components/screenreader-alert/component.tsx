@@ -1,0 +1,22 @@
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { shiftAlert } from './service';
+import { ScreenReaderAlert } from './queue';
+
+const ARIA_ALERT_EXT_TIMEOUT = 15000;
+
+interface Props {
+  olderAlert: ScreenReaderAlert | undefined;
+}
+
+const ScreenReaderAlert: React.FC<Props> = ({ olderAlert }) => {
+  useEffect(() => {
+    if (olderAlert) setTimeout(() => shiftAlert(), ARIA_ALERT_EXT_TIMEOUT);
+  }, [olderAlert?.id]);
+
+  return olderAlert
+    ? createPortal(olderAlert.text, document.getElementById('aria-polite-alert') as HTMLElement)
+    : null;
+};
+
+export default ScreenReaderAlert;

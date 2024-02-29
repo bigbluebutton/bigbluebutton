@@ -24,6 +24,7 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
+import ScreenReaderAlertAdapter from '../screenreader-alert/adapter';
 import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
@@ -627,6 +628,7 @@ class App extends Component {
           {this.renderActivityCheck()}
           {this.renderUserInformation()}
           <ScreenReaderAlertContainer />
+          <ScreenReaderAlertAdapter />
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
