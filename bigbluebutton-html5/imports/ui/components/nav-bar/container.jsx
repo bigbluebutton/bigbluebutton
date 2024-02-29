@@ -5,10 +5,6 @@ import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import userListService from '/imports/ui/components/user-list/service';
-import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
-import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
@@ -20,14 +16,7 @@ import useChat from '/imports/ui/core/hooks/useChat';
 const PUBLIC_CONFIG = Meteor.settings.public;
 
 const NavBarContainer = ({ children, ...props }) => {
-  const usingChatContext = useContext(ChatContext);
-  const usingUsersContext = useContext(UsersContext);
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  const usingGroupChatContext = useContext(GroupChatContext);
-  const { chats: groupChatsMessages } = usingChatContext;
-  const { users } = usingUsersContext;
-  const { groupChat: groupChats } = usingGroupChatContext;
-  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { unread, ...rest } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -78,7 +67,6 @@ const NavBarContainer = ({ children, ...props }) => {
         sidebarContent,
         layoutContextDispatch,
         isExpanded,
-        activeChats,
         currentUserId: Auth.userID,
         pluginNavBarItems,
         ...rest,
