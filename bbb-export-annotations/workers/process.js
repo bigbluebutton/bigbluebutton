@@ -794,9 +794,11 @@ function overlay_annotations(svg, currentSlideAnnotations) {
 // Process the presentation pages and annotations into a PDF file
 async function process_presentation_annotations() {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   await client.connect();
@@ -873,6 +875,7 @@ async function process_presentation_annotations() {
       SVGfile,
       '--output-width', to_px(slideWidth),
       '--output-height', to_px(slideHeight),
+      '-u',
       '-o', PDFfile,
     ];
 

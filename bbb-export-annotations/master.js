@@ -11,9 +11,11 @@ logger.info('Running bbb-export-annotations');
 
 (async () => {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   await client.connect();
