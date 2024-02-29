@@ -251,9 +251,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, [playerRef.current]);
 
   // --- Plugin related code ---;
-  if (playerRef.current?.getInternalPlayer()
+  if (playerRef.current?.getInternalPlayer() && playerRef.current?.getInternalPlayer()?.isMuted
     && playerRef.current?.getInternalPlayer()?.isMuted() !== isMuted.current) {
-    // Cody, is there a method to get the muted value out of the playerRef variable
     isMuted.current = playerRef.current?.getInternalPlayer()?.isMuted();
     window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED, {
       detail: {
