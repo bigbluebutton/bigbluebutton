@@ -1,24 +1,41 @@
-import { DocumentNode } from 'graphql';
-import createUseSubscription from './createUseSubscription';
-import TALKING_INDICATOR_SUBSCRIPTION from '../graphql/queries/userVoiceSubscription';
 import { UserVoice } from '/imports/ui/Types/userVoice';
+import { makeVar, useReactiveVar } from '@apollo/client';
+import { isEqual } from 'radash';
 
-const TALKING_INDICATORS_MAX = 8;
+const createTalkingIndicatorListDataGathering = (): [
+  (fn: (c: Partial<UserVoice>) => Partial<UserVoice>) => [
+    Partial<UserVoice>[],
+    (result: Partial<UserVoice>[]) => void,
+  ],
+  (result: Partial<UserVoice>[]) => void,
+] => {
+  const talkingIndicatorList = makeVar<Partial<UserVoice>[]>([]);
 
-const createUseTalkingIndicatorSubscription = (
-  query: DocumentNode,
-  variables: object,
-) => createUseSubscription<UserVoice>(
-  query,
-  { ...variables },
-);
+  const setTalkingIndicatorList = (result: Partial<UserVoice>[]): void => {
+    const talkingIndicators = talkingIndicatorList();
+    const hasUserVoices = talkingIndicators && talkingIndicators.length > 0;
+    const shouldAdd = !hasUserVoices || !isEqual(talkingIndicators, result);
+    if (shouldAdd) {
+      const a = {
+        ...talkingIndicatorList(),
+        result,
+      };
+      talkingIndicatorList(a);
+    }
+  };
 
-const useTalkingIndicator = (fn: (c: Partial<UserVoice>) => Partial<UserVoice>) => {
-  const useTalkingIndicatorSubscription = createUseTalkingIndicatorSubscription(TALKING_INDICATOR_SUBSCRIPTION, {
-    limit: TALKING_INDICATORS_MAX,
-  });
-  const loadedChatMessages = useTalkingIndicatorSubscription(fn);
-  return loadedChatMessages;
+  const useTalkingIndicatorList = (fn: ((c: Partial<UserVoice>) => Partial<UserVoice>)): [
+    Partial<UserVoice>[],
+    (result: Partial<UserVoice>[]) => void,
+  ] => {
+    const gatheredTalkingIndicator = useReactiveVar(talkingIndicatorList);
+    const talkingIndicatorData = Object.values(gatheredTalkingIndicator).filter((i) => Array.isArray(i)).flat();
+    return [talkingIndicatorData.map(fn), setTalkingIndicatorList];
+  };
+
+  return [useTalkingIndicatorList, setTalkingIndicatorList];
 };
 
-export default useTalkingIndicator;
+const [useTalkingIndicatorList, setTalkingIndicatorList] = createTalkingIndicatorListDataGathering();
+
+export { useTalkingIndicatorList, setTalkingIndicatorList };

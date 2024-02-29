@@ -124,7 +124,7 @@ class ConnectionController {
               builder {
                 "response" "authorized"
                 "X-Hasura-Role" "not_joined_bbb_client"
-                "X-Hasura-ModeratorInMeeting" ""
+                "X-Hasura-ModeratorInMeeting" removedUserSession.isModerator()  ? removedUserSession.meetingId : ""
                 "X-Hasura-PresenterInMeeting" ""
                 "X-Hasura-UserId" removedUserSession.userId
                 "X-Hasura-MeetingId" removedUserSession.meetingId

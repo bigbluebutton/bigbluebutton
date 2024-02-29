@@ -13,8 +13,20 @@ import { isChatEnabled } from '/imports/ui/services/features';
 import UserTitleContainer from '../user-list-graphql/user-participants-title/component';
 
 const propTypes = {
-  currentUser: PropTypes.shape({}).isRequired,
+  currentUser: PropTypes.shape({
+    role: PropTypes.string.isRequired,
+    presenter: PropTypes.bool.isRequired,
+  }),
+  compact: PropTypes.bool,
   isTimerActive: PropTypes.bool.isRequired,
+};
+
+const defaultProps = {
+  currentUser: {
+    role: '',
+    presenter: false,
+  },
+  compact: false,
 };
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -46,5 +58,6 @@ class UserContent extends PureComponent {
 }
 
 UserContent.propTypes = propTypes;
+UserContent.defaultProps = defaultProps;
 
 export default UserContent;

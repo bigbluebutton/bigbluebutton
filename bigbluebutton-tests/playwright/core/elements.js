@@ -16,11 +16,14 @@ exports.raiseHandBtn = 'div[data-test="raiseHandBtn"]';
 exports.lowerHandBtn = 'div[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
-exports.logout = 'li[data-test="logout"]';
+exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
+exports.logoutBtn = 'li[data-test="logoutButton"]';
 exports.rating = 'div[data-test="rating"]';
 exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 exports.errorMessageLabel = 'span[id="error-message"]';
 exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
+exports.closePopup = 'button[data-test="closePopup"]';
+exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
 
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';

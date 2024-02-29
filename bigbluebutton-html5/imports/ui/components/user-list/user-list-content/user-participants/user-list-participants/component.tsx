@@ -1,9 +1,11 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
 import { AutoSizer } from 'react-virtualized';
 import { debounce } from 'radash';
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { findDOMNode } from 'react-dom';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import ListItem from './list-item/component';
@@ -21,10 +23,9 @@ import {
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import Service from '/imports/ui/components/user-list/service';
-import useLoadedUserList from '/imports/ui/core/hooks/useLoadedUserList';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { setLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -104,12 +105,38 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
     if (fourthChild && fourthChild instanceof HTMLElement) fourthChild.focus();
   }, [selectedUser]);
 
+  // --- Plugin related code ---
   useEffect(() => {
-    window.dispatchEvent(new Event(PluginSdk.UserListEventsNames.USER_LIST_OPENED));
+    const updateUiDataHookCurrentVolumeForPlugin = () => {
+      window.dispatchEvent(new CustomEvent(PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN, {
+        detail: {
+          value: true,
+        } as UserListUiDataPayloads[PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN],
+      }));
+    };
+
+    window.dispatchEvent(new CustomEvent(PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN, {
+      detail: {
+        value: true,
+      } as UserListUiDataPayloads[PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN],
+    }));
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
+      updateUiDataHookCurrentVolumeForPlugin,
+    );
     return () => {
-      window.dispatchEvent(new Event(PluginSdk.UserListEventsNames.USER_LIST_CLOSED));
+      window.removeEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE}`,
+        updateUiDataHookCurrentVolumeForPlugin,
+      );
+      window.dispatchEvent(new CustomEvent(PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN, {
+        detail: {
+          value: false,
+        } as UserListUiDataPayloads[PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN],
+      }));
     };
   }, []);
+  // --- End of plugin related code ---
 
   const rove = (event: React.KeyboardEvent) => {
     // eslint-disable-next-line react/no-find-dom-node
@@ -161,16 +188,26 @@ const UserListParticipantsContainer: React.FC = () => {
   } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION);
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
-
-  const { setUserListGraphqlVariables } = useContext(PluginsContext);
   const {
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
+  useEffect(() => {
+    return () => {
+      setLoadedUserList([]);
+    };
+  }, []);
+
   const {
-    data: users,
-  } = useLoadedUserList((u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
+    data: usersData,
+  } = useSubscription(USER_LIST_SUBSCRIPTION, {
+    variables: {
+      offset,
+      limit,
+    },
+  });
+  const { user: users } = (usersData || {});
 
   const { data: currentUser } = useCurrentUser((c: Partial<User>) => ({
     isModerator: c.isModerator,
@@ -182,13 +219,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const presentationPage = presentationData?.pres_page_curr[0] || {};
   const pageId = presentationPage?.pageId;
 
-  useEffect(() => {
-    setUserListGraphqlVariables({
-      offset,
-      limit,
-    });
-  }, [offset, limit]);
-
+  setLoadedUserList(users);
   return (
     <>
       <UserListParticipants

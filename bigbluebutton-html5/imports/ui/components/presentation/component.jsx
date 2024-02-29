@@ -906,7 +906,7 @@ export default injectIntl(Presentation);
 
 Presentation.propTypes = {
   // Defines a boolean value to detect whether a current user is a presenter
-  userIsPresenter: PropTypes.bool.isRequired,
+  userIsPresenter: PropTypes.bool,
   currentSlide: PropTypes.shape({
     presentationId: PropTypes.string.isRequired,
     current: PropTypes.bool.isRequired,
@@ -929,9 +929,9 @@ Presentation.propTypes = {
   multiUser: PropTypes.bool.isRequired,
   setPresentationIsOpen: PropTypes.func.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
-  presentationIsDownloadable: PropTypes.bool.isRequired,
-  presentationName: PropTypes.string.isRequired,
-  currentPresentationId: PropTypes.string.isRequired,
+  presentationIsDownloadable: PropTypes.bool,
+  presentationName: PropTypes.string,
+  currentPresentationId: PropTypes.string,
   presentationIsOpen: PropTypes.bool.isRequired,
   totalPages: PropTypes.number.isRequired,
   publishedPoll: PropTypes.bool.isRequired,
@@ -970,4 +970,8 @@ Presentation.defaultProps = {
   presentationAreaSize: undefined,
   presentationBounds: undefined,
   downloadPresentationUri: undefined,
+  userIsPresenter: false,
+  presentationIsDownloadable: false,
+  currentPresentationId: '',
+  presentationName: '',
 };

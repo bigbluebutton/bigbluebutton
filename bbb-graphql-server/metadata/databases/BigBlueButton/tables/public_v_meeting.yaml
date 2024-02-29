@@ -52,6 +52,15 @@ object_relationships:
         remote_table:
           name: v_layout
           schema: public
+  - name: learningDashboard
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_learningDashboard
+          schema: public
   - name: lockSettings
     using:
       manual_configuration:
