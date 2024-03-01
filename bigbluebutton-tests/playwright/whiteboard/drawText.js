@@ -27,7 +27,9 @@ class DrawText extends MultiUsers {
     await this.modPage.press('B');
     await this.modPage.page.mouse.click(wbBox.x + 0.6 * wbBox.width, wbBox.y + 0.6 * wbBox.height);
 
+    await this.modPage.setViewPortSize(1366, 768);
     await expect(modWbLocator).toHaveScreenshot('moderator-text.png', screenshotOptions);
+    await this.userPage.setViewPortSize(1366, 768);
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-text.png', screenshotOptions);
   }

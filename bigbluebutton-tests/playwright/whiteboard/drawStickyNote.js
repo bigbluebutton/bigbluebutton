@@ -30,7 +30,9 @@ class DrawStickyNote extends MultiUsers {
     await this.modPage.hasText(e.wbTypedStickyNote, 'AB');
     await this.userPage.hasText(e.wbTypedStickyNote, 'AB');
 
+    await this.modPage.setViewPortSize(1366, 768);
     await expect(modWbLocator).toHaveScreenshot('moderator-sticky.png', screenshotOptions);
+    await this.userPage.setViewPortSize(1366, 768);
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-sticky.png', screenshotOptions);
   }

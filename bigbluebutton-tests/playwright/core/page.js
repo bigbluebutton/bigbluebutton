@@ -304,6 +304,10 @@ class Page {
         await helpers.sleep(1000);  // expected time to toast notification disappear
       }
   }
+
+  async setViewPortSize(width, height) {
+    await this.page.setViewportSize({ width, height});
+  }
 }
 
 module.exports = exports = Page;

@@ -25,11 +25,11 @@ test.describe('Options', () => {
     await options.localesTest();
   });
 
-  test('Dark mode @ci @flaky', async () => {
+  test('Dark mode @ci', async () => {
     await options.darkMode();
   });
 
-  test('Font size @ci @flaky', async () => {
+  test('Font size @ci', async () => {
     await options.fontSizeTest();
   });
 });

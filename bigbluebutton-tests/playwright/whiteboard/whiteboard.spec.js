@@ -23,7 +23,7 @@ const { ShapeOptions } = require('./shapeOptions');
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Whiteboard @ci', () => {
-  test('Draw rectangle @flaky', async ({ browser, page }) => {
+  test('Draw rectangle', async ({ browser, page }) => {
     const draw = new Draw(browser, page);
     await draw.init(true, true);
     await draw.test();
@@ -36,10 +36,10 @@ test.describe.parallel('Whiteboard @ci', () => {
   });
 });
 
-test.describe.parallel.only('Whiteboard tools - visual regression', () => {
+test.describe.parallel('Whiteboard tools - visual regression', () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
-      'Drawing visual regression tests are enabled for Chromium only');
+      'Drawing visual regression tests are enabled for Chromium');
   });
 
   test('Draw rectangle', async ({ browser, context, page }) => {
@@ -56,28 +56,28 @@ test.describe.parallel.only('Whiteboard tools - visual regression', () => {
     await drawEllipse.test();
   });
 
-  test.only('Draw triangle', async ({ browser, context, page }) => {
+  test('Draw triangle', async ({ browser, context, page }) => {
     const drawTriangle = new DrawTriangle(browser, context);
     await drawTriangle.initModPage(page, true, { customMeetingId: 'draw_triangle_meeting', createParameter: hidePresentationToast });
     await drawTriangle.initUserPage(true, context, { createParameter: hidePresentationToast });
     await drawTriangle.test();
   });
 
-  test.only('Draw line', async ({ browser, context, page }) => {
+  test('Draw line', async ({ browser, context, page }) => {
     const drawLine = new DrawLine(browser, context);
     await drawLine.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await drawLine.initUserPage(true, context, { createParameter: hidePresentationToast });
     await drawLine.test();
   });
 
-  test.only('Draw with pencil', async ({ browser, context, page }) => {
+  test('Draw with pencil', async ({ browser, context, page }) => {
     const drawPencil = new DrawPencil(browser, context);
     await drawPencil.initModPage(page, true, { customMeetingId: 'draw_pencil_meeting', createParameter: hidePresentationToast });
     await drawPencil.initUserPage(true, context, { createParameter: hidePresentationToast });
     await drawPencil.test();
   });
 
-  test.only('Type text', async ({ browser, context, page }) => {
+  test('Type text', async ({ browser, context, page }) => {
     const drawText = new DrawText(browser, context);
     await drawText.initModPage(page, true, { customMeetingId: 'draw_text_meeting', createParameter: hidePresentationToast });
     await drawText.initUserPage(true, context, { createParameter: hidePresentationToast });
@@ -91,21 +91,21 @@ test.describe.parallel.only('Whiteboard tools - visual regression', () => {
     await drawStickyNote.test();
   });
 
-  test.only('Pan', async ({ browser, context, page }) => {
+  test('Pan', async ({ browser, context, page }) => {
     const pan = new Pan(browser, context);
     await pan.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await pan.initUserPage(true, context, { createParameter: hidePresentationToast });
     await pan.test();
   });
 
-  test.only('Eraser', async ({ browser, context, page }) => {
+  test('Eraser', async ({ browser, context, page }) => {
     const eraser = new Eraser(browser, context);
     await eraser.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await eraser.initUserPage(true, context, { createParameter: hidePresentationToast });
     await eraser.test();
   });
 
-  test.only('Draw arrow', async ({ browser, context, page }) => {
+  test('Draw arrow', async ({ browser, context, page }) => {
     const drawArrow = new DrawArrow(browser, context);
     await drawArrow.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await drawArrow.initUserPage(true, context, { createParameter: hidePresentationToast });
@@ -133,7 +133,7 @@ test.describe.parallel.only('Whiteboard tools - visual regression', () => {
     await redoDrawing.test();
   });
 
-  test.only('Change color', async ({ browser, context, page }) => {
+  test('Change color', async ({ browser, context, page }) => {
     const changeColor = new ChangeStyles(browser, context);
     await changeColor.initModPage(page, true, { customMeetingId: 'draw_line_meeting', createParameter: hidePresentationToast });
     await changeColor.initUserPage(true, context, { createParameter: hidePresentationToast });
