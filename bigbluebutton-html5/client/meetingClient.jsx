@@ -27,7 +27,6 @@ import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/c
 import Subscriptions from '/imports/ui/components/subscriptions/component';
 import IntlStartup from '/imports/startup/client/intl';
 import ContextProviders from '/imports/ui/components/context-providers/component';
-import ChatAdapter from '/imports/ui/components/components-data/chat-context/adapter';
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
 import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
@@ -94,7 +93,6 @@ const Startup = () => {
           </Subscriptions>
         </PresenceAdapter>
         <UsersAdapter />
-        {/* <ChatAdapter /> */}
       </>
     </ContextProviders>
   );
