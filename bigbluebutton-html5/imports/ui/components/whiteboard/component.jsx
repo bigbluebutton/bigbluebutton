@@ -396,10 +396,10 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       if (maxY > scaledHeight) {
         nextCamera.y += maxY - scaledHeight;
       }
-      if (nextCamera.x > 0 || minX < 0) {
+      if (nextCamera.x > 0 || minX < 0 || zoomValueRef.current === HUNDRED_PERCENT) {
         nextCamera.x = 0;
       }
-      if (nextCamera.y > 0 || minY < 0) {
+      if (nextCamera.y > 0 || minY < 0 || zoomValueRef.current === HUNDRED_PERCENT) {
         nextCamera.y = 0;
       }
 
