@@ -92,10 +92,11 @@ class Page {
 
     if (directLeaveButton) {
       await this.waitAndClick(e.leaveMeetingDropdown);
+      await this.waitAndClick(e.directLogoutButton);
     } else {
       await this.waitAndClick(e.optionsButton);
+      await this.waitAndClick(e.optionsLogoutButton);
     }
-    await this.waitAndClick(e.logoutBtn);
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
