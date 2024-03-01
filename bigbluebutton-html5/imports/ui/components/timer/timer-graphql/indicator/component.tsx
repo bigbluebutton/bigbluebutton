@@ -64,7 +64,6 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     if (songTrack in trackName) {
       music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack]}.mp3`);
       setSongTrackState(songTrack);
-      console.log('music.current', music.current);
       music.current.addEventListener('timeupdate', () => {
         const buffer = 0.19;
         // Start playing the music before it ends to make the loop gapless
@@ -130,9 +129,9 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   }, [time]);
 
   useEffect(() => {
-    if (running) {
+    if (running && songTrack !== 'noTrack') {
       if (music.current) music.current.play();
-    } else if (!running) {
+    } else if (!running || songTrack === 'noTrack') {
       if (music.current) music.current.pause();
     }
     if (running && alreadyNotified.current) {
