@@ -8,16 +8,13 @@ import Styled from './styles';
 import RecordingIndicator from './nav-bar-graphql/recording-indicator/component';
 import TalkingIndicator from '/imports/ui/components/nav-bar/nav-bar-graphql/talking-indicator/component';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
-import ConnectionStatus from '/imports/ui/components/connection-status/component';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import OptionsDropdownContainer from './options-dropdown/container';
 import TimerIndicatorContainer from '/imports/ui/components/timer/timer-graphql/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
-import { isEqual } from 'radash';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 import Settings from '/imports/ui/services/settings';
 
@@ -139,13 +136,10 @@ const renderPluginItems = (pluginItems) => {
   }
   return (<></>);
 };
+
 class NavBar extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      acs: props.activeChats,
-    };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
@@ -187,12 +181,6 @@ class NavBar extends Component {
           this.handleToggleUserList();
         }
       });
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (!isEqual(prevProps.activeChats, this.props.activeChats)) {
-      this.setState({ acs: this.props.activeChats });
     }
   }
 
@@ -272,7 +260,6 @@ class NavBar extends Component {
     const {
       hasUnreadMessages,
       hasUnreadNotes,
-      activeChats,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       presentationTitle,
@@ -293,14 +280,6 @@ class NavBar extends Component {
 
     const isExpanded = sidebarNavigation.isOpen;
     const { isPhone } = deviceInfo;
-
-    const { acs } = this.state;
-
-    activeChats.map((c, i) => {
-      if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
-        addNewAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`);
-      }
-    });
 
     const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
 

@@ -557,6 +557,64 @@ LEFT JOIN "user_voice" user_talking ON (user_talking."userId" = u."userId" and u
                                        OR (user_talking."userId" = u."userId" and user_talking."hideTalkingIndicatorAt" > now())
 WHERE "user_voice"."joined" is true;
 
+
+
+---TEMPORARY MINIMONGO ADAPTER START
+alter table "user" add "voiceUpdatedAt" timestamp with time zone;
+
+CREATE OR REPLACE FUNCTION "update_user_voiceUpdatedAt_func"() RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE "user"
+  SET "voiceUpdatedAt" = current_timestamp
+  WHERE "userId" = NEW."userId";
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_user_voice_trigger" BEFORE UPDATE ON "user_voice" FOR EACH ROW
+EXECUTE FUNCTION "update_user_voiceUpdatedAt_func"();
+
+CREATE TRIGGER "insert_user_voice_trigger" BEFORE INSERT ON "user_voice" FOR EACH ROW
+EXECUTE FUNCTION "update_user_voiceUpdatedAt_func"();
+
+CREATE TRIGGER "delete_user_voice_trigger" AFTER DELETE ON "user_voice" FOR EACH ROW
+EXECUTE FUNCTION "update_user_voiceUpdatedAt_func"();
+
+CREATE OR REPLACE VIEW "v_user_voice_mongodb_adapter" AS
+SELECT
+	u."meetingId",
+	u."userId",
+	u."voiceUpdatedAt",
+	"user_voice"."voiceUserId",
+	"user_voice"."callerName",
+	"user_voice"."callerNum",
+	"user_voice"."callingWith",
+	"user_voice"."joined",
+	"user_voice"."listenOnly",
+	"user_voice"."muted",
+	"user_voice"."spoke",
+	"user_voice"."talking",
+	"user_voice"."floor",
+	"user_voice"."lastFloorTime",
+	"user_voice"."voiceConf",
+	"user_voice"."voiceConfCallSession",
+	"user_voice"."voiceConfClientSession",
+	"user_voice"."voiceConfCallState",
+	"user_voice"."endTime",
+	"user_voice"."startTime",
+	"user_voice"."hideTalkingIndicatorAt",
+	"user_voice"."startedAt",
+	"user_voice"."endedAt",
+	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt",
+	user_talking."userId" IS NOT NULL "showTalkingIndicator"
+FROM "user" u
+LEFT JOIN "user_voice" ON "user_voice"."userId" = u."userId"
+LEFT JOIN "user_voice" user_talking ON (user_talking."userId" = u."userId" and user_talking."talking" IS TRUE)
+                                       OR (user_talking."userId" = u."userId" and user_talking."hideTalkingIndicatorAt" > now());
+---TEMPORARY MINIMONGO ADAPTER END
+
+
+
 CREATE TABLE "user_camera" (
 	"streamId" varchar(100) PRIMARY KEY,
 	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE
@@ -1409,13 +1467,31 @@ CREATE TABLE "timer" (
 	"active" boolean,
 	"time" bigint,
 	"accumulated" bigint,
-	"startedAt" bigint,
-	"endedAt" bigint,
+	"startedOn" bigint,
+	"endedOn" bigint,
 	"songTrack" varchar(50)
 );
 
-CREATE VIEW "v_timer" AS
-SELECT * FROM "timer";
+ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("startedOn"::double precision / 1000)) STORED;
+ALTER TABLE "timer" ADD COLUMN "endedAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("endedOn"::double precision / 1000)) STORED;
+
+CREATE OR REPLACE VIEW "v_timer" AS
+SELECT
+     "meetingId",
+     "stopwatch",
+     case
+        when "stopwatch" is true or "running" is false then "running"
+        when "startedAt" + ("time" * interval '1 milliseconds') >= current_timestamp then true else false
+     end "running",
+     "active",
+     "time",
+     "accumulated",
+     "startedAt",
+     "startedOn",
+     "endedAt",
+     "endedOn",
+     "songTrack"
+ FROM "timer";
 
 ------------------------------------
 ----breakoutRoom
