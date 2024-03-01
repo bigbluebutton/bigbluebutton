@@ -6,7 +6,7 @@ const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
 const { MultiUsers } = require('../user/multiusers');
 const { sleep } = require('../core/helpers');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 
 class Chat extends MultiUsers {
   constructor(browser, context) {
@@ -382,7 +382,7 @@ class Chat extends MultiUsers {
     await openPrivateChat(this.modPage);
     await this.modPage.waitForSelector(e.sendButton);
     await this.userPage.logoutFromMeeting();
-    await this.modPage.hasElement(e.partnerDisconnectedMessage, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.partnerDisconnectedMessage, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.modPage.wasRemoved(e.sendButton);
   }  
 }
