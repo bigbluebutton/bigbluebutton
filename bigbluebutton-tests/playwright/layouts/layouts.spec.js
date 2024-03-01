@@ -12,7 +12,7 @@ test.describe("Layout management", () => {
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(layouts, browser, true, { isMultiUser: true, createParameter: hidePresentationToast });
+    await initializePages(layouts, browser, { isMultiUser: true, createParameter: hidePresentationToast });
     await layouts.modPage.shareWebcam();
     await layouts.userPage.shareWebcam();
   });
