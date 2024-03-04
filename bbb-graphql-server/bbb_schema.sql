@@ -1481,7 +1481,7 @@ SELECT
      "stopwatch",
      case
         when "stopwatch" is true or "running" is false then "running"
-        when "startedAt" + ("time" * interval '1 milliseconds') >= current_timestamp then true else false
+        when "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') >= current_timestamp then true else false
      end "running",
      "active",
      "time",
