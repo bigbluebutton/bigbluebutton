@@ -91,7 +91,7 @@ object RegisteredUsers {
           // will fail and can't join.
           // ralam april 21, 2020
           val bannedUser = user.copy(banned = true)
-          //UserDAO.insert(meetingId, bannedUser)
+          UserDAO.insert(meetingId, bannedUser)
           users.save(bannedUser)
         } else {
           // If user hasn't been ejected, we allow user to join
