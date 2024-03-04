@@ -23,7 +23,7 @@ const { ShapeOptions } = require('./shapeOptions');
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Whiteboard @ci', () => {
-  test('Draw rectangle', async ({ browser, page }) => {
+  test('Draw rectangle @flaky', async ({ browser, page }) => {
     const draw = new Draw(browser, page);
     await draw.init(true, true);
     await draw.test();
