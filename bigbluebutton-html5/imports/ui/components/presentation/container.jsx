@@ -117,10 +117,15 @@ export default lockContextContainer(
       }
     }
     const currentPresentation = PresentationService.getCurrentPresentation(podId);
+
+    const downloadPresentationUri = currentPresentation
+      ? `${APP_CONFIG.bbbWebBase}/${currentPresentation?.originalFileURI}`
+      : null;
+
     return {
       currentSlide,
       slidePosition,
-      downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
+      downloadPresentationUri,
       multiUser:
         (WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
           || WhiteboardService.isMultiUserActive(currentSlide?.id)
