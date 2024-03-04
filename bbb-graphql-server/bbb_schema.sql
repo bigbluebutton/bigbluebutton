@@ -1472,8 +1472,8 @@ CREATE TABLE "timer" (
 	"songTrack" varchar(50)
 );
 
-ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("startedOn"::double precision / 1000)) STORED;
-ALTER TABLE "timer" ADD COLUMN "endedAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("endedOn"::double precision / 1000)) STORED;
+ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "startedOn" = 0 THEN NULL ELSE to_timestamp("startedOn"::double precision / 1000) END) STORED;
+ALTER TABLE "timer" ADD COLUMN "endedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "endedOn" = 0 THEN NULL ELSE  to_timestamp("endedOn"::double precision / 1000) END) STORED;
 
 CREATE OR REPLACE VIEW "v_timer" AS
 SELECT
