@@ -13,11 +13,10 @@ async function openPoll(testPage) {
   await testPage.waitForSelector(e.pollOptionItem);
 }
 
-async function startPoll(test, shouldPublishPoll = false, isAnonymous = false) {
+async function startPoll(test, isAnonymous = false) {
   await openPoll(test);
   if (isAnonymous) await test.getLocator(e.anonymousPoll).setChecked();
   await test.waitAndClick(e.startPoll);
-  if (shouldPublishPoll) await test.waitAndClick(e.publishPollingLabel);
 }
 
 exports.openPoll = openPoll;
