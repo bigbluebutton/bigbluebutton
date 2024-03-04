@@ -47,6 +47,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const alreadyNotified = useRef<boolean>(false);
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
+  const [songTrackState, setSongTrackState] = useState<string>(songTrack);
 
   const startTimer = () => {
     startTimerMutation();
@@ -57,9 +58,12 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   };
 
   useEffect(() => {
-    alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
+    if (songTrackState !== songTrack) {
+      if (music.current) music.current.pause();
+    }
     if (songTrack in trackName) {
       music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack]}.mp3`);
+      setSongTrackState(songTrack);
       music.current.addEventListener('timeupdate', () => {
         const buffer = 0.19;
         // Start playing the music before it ends to make the loop gapless
@@ -76,6 +80,10 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (music.current) music.current.pause();
     };
+  }, [songTrack]);
+
+  useEffect(() => {
+    alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
   }, []);
 
   useEffect(() => {
@@ -119,6 +127,17 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (alarm.current) alarm.current.pause();
     }
   }, [time]);
+
+  useEffect(() => {
+    if (running && songTrack !== 'noTrack') {
+      if (music.current) music.current.play();
+    } else if (!running || songTrack === 'noTrack') {
+      if (music.current) music.current.pause();
+    }
+    if (running && alreadyNotified.current) {
+      alreadyNotified.current = false;
+    }
+  }, [running, songTrackState]);
 
   useEffect(() => {
     if (startedOn === 0) {
