@@ -1467,13 +1467,31 @@ CREATE TABLE "timer" (
 	"active" boolean,
 	"time" bigint,
 	"accumulated" bigint,
-	"startedAt" bigint,
-	"endedAt" bigint,
+	"startedOn" bigint,
+	"endedOn" bigint,
 	"songTrack" varchar(50)
 );
 
-CREATE VIEW "v_timer" AS
-SELECT * FROM "timer";
+ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("startedOn"::double precision / 1000)) STORED;
+ALTER TABLE "timer" ADD COLUMN "endedAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("endedOn"::double precision / 1000)) STORED;
+
+CREATE OR REPLACE VIEW "v_timer" AS
+SELECT
+     "meetingId",
+     "stopwatch",
+     case
+        when "stopwatch" is true or "running" is false then "running"
+        when "startedAt" + ("time" * interval '1 milliseconds') >= current_timestamp then true else false
+     end "running",
+     "active",
+     "time",
+     "accumulated",
+     "startedAt",
+     "startedOn",
+     "endedAt",
+     "endedOn",
+     "songTrack"
+ FROM "timer";
 
 ------------------------------------
 ----breakoutRoom
