@@ -374,7 +374,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           }}
           onPause={handleOnStop}
           onEnded={handleOnStop}
-          muted={mute}
+          muted={mute || isEchoTest}
         />
         {
           !isPresenter ? (
