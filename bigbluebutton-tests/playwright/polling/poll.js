@@ -24,7 +24,7 @@ class Polling extends MultiUsers {
 
   async pollAnonymous() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await util.startPoll(this.modPage, false, true);
+    await util.startPoll(this.modPage, true);
     await this.modPage.waitForSelector(e.publishPollingLabel);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.userPage.wasRemoved(e.receivedAnswer);
