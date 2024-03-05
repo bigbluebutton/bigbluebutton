@@ -37,7 +37,6 @@ import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
-import { is } from 'ramda';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
@@ -289,7 +288,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       }
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
-      console.log(currentTime, 'currentTime');
       sendMessage('play', {
         rate,
         time: currentTime,
