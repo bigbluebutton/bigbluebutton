@@ -23,6 +23,7 @@ query getChatMessageHistory {
     messageId
     messageType
     messageMetadata
+    senderName
     chatEmphasizedText
     createdAt
     user {

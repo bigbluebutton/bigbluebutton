@@ -43,9 +43,11 @@ interface RowRendererProps extends ListProps {
   meeting: Meeting;
   offset: number;
   index: number;
+  openUserAction: string | null;
+  setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
 }
 const rowRenderer: React.FC<RowRendererProps> = ({
-  index, key, style, users, validCurrentUser, offset, meeting, isRTL, pageId,
+  index, key, style, users, validCurrentUser, offset, meeting, isRTL, pageId, openUserAction, setOpenUserAction,
 }) => {
   const userIndex = index - offset;
   const user = users && users[userIndex];
@@ -61,6 +63,8 @@ const rowRenderer: React.FC<RowRendererProps> = ({
           usersPolicies={meeting.usersPolicies}
           isBreakout={meeting.isBreakout}
           pageId={pageId}
+          open={user.userId === openUserAction}
+          setOpenUserAction={setOpenUserAction}
         >
           <ListItem user={user} lockSettings={meeting.lockSettings} />
         </UserActions>
@@ -88,6 +92,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const userListRef = React.useRef<HTMLDivElement | null>(null);
   const userItemsRef = React.useRef<HTMLDivElement | null>(null);
   const [selectedUser, setSelectedUser] = React.useState<HTMLElement>();
+  const [openUserAction, setOpenUserAction] = React.useState<string | null>(null);
   const { roving } = Service;
 
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -156,7 +161,15 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
             rowRenderer={
               (props: RowRendererProps) => rowRenderer(
                 {
-                  ...props, users: users || previousUsersData, validCurrentUser, offset, meeting, isRTL, pageId,
+                  ...props,
+                  users: users || previousUsersData,
+                  validCurrentUser,
+                  offset,
+                  meeting,
+                  isRTL,
+                  pageId,
+                  openUserAction,
+                  setOpenUserAction,
                 },
               )
             }

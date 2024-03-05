@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import Styled from './styles';
 
 interface ChatPollContentProps {
@@ -53,7 +54,12 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
 }) => {
   const pollData = JSON.parse(string) as unknown;
   assertAsMetadata(pollData);
-  const height = pollData.answers.length * 50;
+
+  const answers = pollData.answers.reduce(
+    caseInsensitiveReducer, [],
+  );
+
+  const height = answers.length * 50;
   return (
     <div data-test="chatPollMessageText">
       <Styled.PollText>
@@ -61,7 +67,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
       </Styled.PollText>
       <ResponsiveContainer width="90%" height={height}>
         <BarChart
-          data={pollData.answers}
+          data={answers}
           layout="vertical"
         >
           <XAxis type="number" />

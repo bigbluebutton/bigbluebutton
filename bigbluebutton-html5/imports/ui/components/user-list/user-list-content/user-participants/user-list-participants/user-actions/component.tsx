@@ -52,6 +52,8 @@ interface UserActionsProps {
   isBreakout: boolean;
   children: React.ReactNode;
   pageId: string;
+  open: boolean;
+  setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 interface DropdownItem {
@@ -212,11 +214,12 @@ const UserActions: React.FC<UserActionsProps> = ({
   isBreakout,
   children,
   pageId,
+  open,
+  setOpenUserAction,
 }) => {
   const intl = useIntl();
   const [showNestedOptions, setShowNestedOptions] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
@@ -381,7 +384,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
         setPendingChat(user.userId);
-        setSelected(false);
+        setOpenUserAction(null);
         chatCreateWithUser({
           variables: {
             userId: user.userId,
@@ -414,7 +417,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             emoji: 'none',
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'clear_status',
     },
@@ -425,7 +428,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
         toggleVoice(user.userId, voiceToggle);
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'mute',
     },
@@ -437,7 +440,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
         toggleVoice(user.userId, voiceToggle);
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'unmute',
       dataTest: 'unmuteUser',
@@ -452,7 +455,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
         handleWhiteboardAccessChange();
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'pen_tool',
       dataTest: 'changeWhiteboardAccess',
@@ -469,7 +472,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             userId: user.userId,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'presentation',
       dataTest: isMe(user.userId) ? 'takePresenter' : 'makePresenter',
@@ -485,7 +488,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             role: 'MODERATOR',
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'promote',
       dataTest: 'promoteToModerator',
@@ -501,7 +504,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             role: 'VIEWER',
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'user',
       dataTest: 'demoteToViewer',
@@ -518,7 +521,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             locked: !userLocked,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: userLocked ? 'unlock' : 'lock',
       dataTest: 'unlockUserButton',
@@ -533,7 +536,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             extId: user.extId,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'user',
     },
@@ -543,7 +546,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
       onClick: () => {
         setIsConfirmationModalOpen(true);
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'circle_close',
       dataTest: 'removeUser',
@@ -560,7 +563,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             userId: user.userId,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'video_off',
       dataTest: 'ejectCamera',
@@ -575,7 +578,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             away: !user.away,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'time',
     },
@@ -607,7 +610,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             emoji: key,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
         setShowNestedOptions(false);
       },
       icon: (EMOJI_STATUSES as Record<string, string>)[key],
@@ -632,13 +635,13 @@ const UserActions: React.FC<UserActionsProps> = ({
         trigger={
           (
             <Styled.UserActionsTrigger
-              isActionsOpen={selected}
-              selected={selected === true}
+              isActionsOpen={open}
+              selected={open}
               tabIndex={-1}
-              onClick={() => setSelected(true)}
+              onClick={() => setOpenUserAction(user.userId)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  setSelected(true);
+                  setOpenUserAction(user.userId);
                 }
               }}
               role="button"
@@ -650,10 +653,10 @@ const UserActions: React.FC<UserActionsProps> = ({
         actions={actions}
         selectedEmoji={user.emoji}
         onCloseCallback={() => {
-          setSelected(false);
+          setOpenUserAction(null);
           setShowNestedOptions(false);
         }}
-        open={selected}
+        open={open}
       />
       {isConfirmationModalOpen ? (
         <ConfirmationModal
