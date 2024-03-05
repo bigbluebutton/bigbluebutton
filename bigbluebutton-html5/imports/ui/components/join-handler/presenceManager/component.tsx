@@ -104,7 +104,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       Session.set('bannerText', bannerText);
       Session.set('bannerColor', bannerColor);
     }
-  },[bannerColor, bannerText]);
+  }, [bannerColor, bannerText]);
 
   useEffect(() => {
     if (authToken && !joined) {
@@ -129,7 +129,6 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   useEffect(() => {
     if (joinErrorCode) {
       loadingContextInfo.setLoading(false, '');
-      throw new Error(joinErrorMessage);
     }
   },
   [joinErrorCode, joinErrorMessage]);
@@ -154,11 +153,13 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
 const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ children }) => {
   const { loading, error, data } = useSubscription<GetUserCurrentResponse>(getUserCurrent);
+
   const {
     loading: userInfoLoading,
     error: userInfoError,
     data: userInfoData,
   } = useQuery<GetUserInfoResponse>(getUserInfo);
+
   const loadingContextInfo = useContext(LoadingContext);
   if (loading || userInfoLoading) return null;
   if (error || userInfoError) {
