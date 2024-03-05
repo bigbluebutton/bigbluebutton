@@ -498,7 +498,4 @@ custom_types:
   input_objects:
     - name: BreakoutRoom
     - name: GuestUserApprovalStatus
-    - name: SampleInput
-  objects:
-    - name: SampleOutput
   scalars: []

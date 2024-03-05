@@ -554,13 +554,3 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
-
-input SampleInput {
-  username: String!
-  password: String!
-}
-
-type SampleOutput {
-  accessToken: String!
-}
-
