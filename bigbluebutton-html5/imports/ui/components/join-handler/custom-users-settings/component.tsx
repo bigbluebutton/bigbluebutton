@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { getCustomParameter } from './queries';
+import { UserCustomParameterResponse, getCustomParameter } from './queries';
 
 interface CustomUsersSettingsProps {
   children: React.ReactNode;
@@ -14,9 +14,9 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
     data: customParameterData,
     loading: customParameterLoading,
     error: customParameterError,
-  } = useQuery(getCustomParameter);
+  } = useQuery<UserCustomParameterResponse>(getCustomParameter);
   const [allowToRender, setAllowToRender] = React.useState(false);
-  const sendToServer = useCallback((data, count = 0) => {
+  const sendToServer = useCallback((data: Array<{[x: string]: string}>, count = 0) => {
     Meteor.callAsync('addUserSettings', data).then(() => {
       setAllowToRender(true);
     })
@@ -32,7 +32,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
   }, []);
   useEffect(() => {
     if (customParameterData && !customParameterLoading) {
-      const filteredData = customParameterData.user_customParameter.map(uc => {
+      const filteredData = customParameterData.user_customParameter.map((uc) => {
         const { parameter, value } = uc;
         return { [parameter]: value };
       });
