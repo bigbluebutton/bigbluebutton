@@ -37,6 +37,7 @@ import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
+import { is } from 'ramda';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
@@ -288,6 +289,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       }
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
+      console.log(currentTime, 'currentTime');
       sendMessage('play', {
         rate,
         time: currentTime,
@@ -505,13 +507,14 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const currentDate = new Date(Date.now() + timeSync);
   const currentTime = (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
   + playerCurrentTime) * playerPlaybackRate;
+  const isPresenter = currentUser.presenter ?? false;
 
   return (
     <ExternalVideoPlayer
       currentVolume={currentVolume}
       isMuted={isMuted}
       isEchoTest={isEchoTest}
-      isPresenter={currentUser.presenter ?? false}
+      isPresenter={isPresenter ?? false}
       videoUrl={currentMeeting.externalVideo?.externalVideoUrl ?? ''}
       playing={currentMeeting.externalVideo?.playerPlaying ?? false}
       playerPlaybackRate={currentMeeting.externalVideo?.playerPlaybackRate ?? 1}
@@ -519,7 +522,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       layoutContextDispatch={layoutContextDispatch}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
-      currentTime={currentTime}
+      currentTime={isPresenter ? playerCurrentTime : currentTime}
       key={key}
       setKey={setKey}
     />
