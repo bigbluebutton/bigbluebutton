@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { LAYOUT_TYPE, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import { LAYOUT_TYPE, CAMERADOCK_POSITION, HIDDEN_LAYOUTS } from '/imports/ui/components/layout/enums';
 import SettingsService from '/imports/ui/components/settings/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
@@ -17,6 +17,7 @@ const LayoutModalComponent = (props) => {
     updateSettings,
     onRequestClose,
     isOpen,
+    setLocalSettings,
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
@@ -80,9 +81,9 @@ const LayoutModalComponent = (props) => {
   const handleUpdateLayout = (updateAll) => {
     const obj = {
       application:
-      { ...application, selectedLayout, pushLayout: updateAll },
+        { ...application, selectedLayout, pushLayout: updateAll },
     };
-    updateSettings(obj, intlMessages.layoutToastLabel);
+    updateSettings(obj, intlMessages.layoutToastLabel, setLocalSettings);
     setIsOpen(false);
   };
 
@@ -107,6 +108,7 @@ const LayoutModalComponent = (props) => {
   const renderLayoutButtons = () => (
     <Styled.ButtonsContainer>
       {Object.values(LAYOUT_TYPE)
+        .filter((layout) => !HIDDEN_LAYOUTS.includes(layout))
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
             <Styled.LayoutBtn
@@ -116,7 +118,7 @@ const LayoutModalComponent = (props) => {
                   src={`${LAYOUTS_PATH}${layout}.svg`}
                   alt={`${layout} ${intl.formatMessage(intlMessages.layoutSingular)}`}
                 />
-                )}
+              )}
               onClick={() => {
                 handleSwitchLayout(layout);
                 if (layout === LAYOUT_TYPE.CUSTOM_LAYOUT && application.selectedLayout !== layout) {
@@ -170,15 +172,20 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isModerator: PropTypes.bool.isRequired,
+  isModerator: PropTypes.bool,
   isPresenter: PropTypes.bool.isRequired,
-  showToggleLabel: PropTypes.bool.isRequired,
   application: PropTypes.shape({
     selectedLayout: PropTypes.string.isRequired,
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
+  setLocalSettings: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+  isModerator: false,
 };
 
 LayoutModalComponent.propTypes = propTypes;
+LayoutModalComponent.defaultProps = defaultProps;
 
 export default injectIntl(LayoutModalComponent);

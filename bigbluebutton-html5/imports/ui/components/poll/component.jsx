@@ -576,6 +576,8 @@ class Poll extends Component {
       pollAnswerIds,
       usernames,
       isDefaultPoll,
+      publishPoll,
+      handleChatFormsOpen,
     } = this.props;
 
     return (
@@ -591,6 +593,8 @@ class Poll extends Component {
             pollAnswerIds,
             usernames,
             isDefaultPoll,
+            publishPoll,
+            handleChatFormsOpen,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -600,7 +604,7 @@ class Poll extends Component {
 
   renderStartPollButton() {
     const {
-      startPoll, startCustomPoll, intl, pollTypes, checkPollType,
+      startPoll, intl, pollTypes, checkPollType,
     } = this.props;
     const {
       type, secretPoll, optList, isMultipleResponse, question,
@@ -641,7 +645,7 @@ class Poll extends Component {
               return null;
             });
             if (verifiedPollType === pollTypes.Custom) {
-              startCustomPoll(
+              startPoll(
                 verifiedPollType,
                 secretPoll,
                 question,
@@ -953,10 +957,10 @@ class Poll extends Component {
     const { isPolling } = this.state;
     const {
       currentPoll,
-      currentSlide,
+      currentSlideId,
     } = this.props;
 
-    if (!currentSlide) return this.renderNoSlidePanel();
+    if (!currentSlideId) return this.renderNoSlidePanel();
     if (isPolling || currentPoll) {
       return this.renderActivePollOptions();
     }
@@ -1028,6 +1032,5 @@ Poll.propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
   pollTypes: PropTypes.instanceOf(Object).isRequired,
   startPoll: PropTypes.func.isRequired,
-  startCustomPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
 };

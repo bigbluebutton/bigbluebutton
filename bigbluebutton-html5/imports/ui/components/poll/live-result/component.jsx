@@ -41,6 +41,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.liveResult.secretLabel',
     description: 'label shown instead of users in poll responses if poll is secret',
   },
+  noAnswersLabel: {
+    id: 'app.poll.noAnswerWarning',
+    description: 'label shown when no answers have been received',
+  },
 });
 
 const getResponseString = (obj) => {
@@ -167,6 +171,8 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
+      publishPoll,
+      handleChatFormsOpen,
     } = this.props;
 
     const { userAnswers, pollStats, currentPollQuestion } = this.state;
@@ -212,11 +218,12 @@ class LiveResult extends PureComponent {
           ? (
             <Styled.ButtonsActions>
               <Styled.PublishButton
-                disabled={!isMeteorConnected}
+                disabled={!isMeteorConnected || !currentPoll.numResponders}
                 onClick={() => {
                   Session.set('pollInitiated', false);
-                  Service.publishPoll();
+                  publishPoll(currentPoll?.id);
                   stopPoll();
+                  handleChatFormsOpen();
                 }}
                 label={intl.formatMessage(intlMessages.publishLabel)}
                 data-test="publishPollingLabel"
@@ -243,8 +250,9 @@ class LiveResult extends PureComponent {
               color="primary"
               data-test="restartPoll"
             />
-          )
-        }
+          )}
+        {currentPoll && !currentPoll.numResponders
+        && intl.formatMessage(intlMessages.noAnswersLabel)}
         <Styled.Separator />
         { currentPoll && !currentPoll.secretPoll
           ? (
@@ -280,6 +288,7 @@ LiveResult.propTypes = {
       users: PropTypes.arrayOf(PropTypes.string),
     }),
   ]),
+  handleChatFormsOpen: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
   handleBackClick: PropTypes.func.isRequired,
 };

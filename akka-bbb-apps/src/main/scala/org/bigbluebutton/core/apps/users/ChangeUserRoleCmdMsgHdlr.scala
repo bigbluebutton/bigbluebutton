@@ -73,7 +73,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
         for {
           u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "role_changed", outGW)
+          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "role_changed", outGW)
         }
       }
     }

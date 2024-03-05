@@ -1,18 +1,16 @@
 const { test } = require('@playwright/test');
 const { fullyParallel } = require('../playwright.config');
-const { linkIssue } = require('../core/helpers');
+const { linkIssue, initializePages } = require('../core/helpers');
 const { Chat } = require('./chat');
-
-if (!fullyParallel) test.describe.configure({ mode: 'serial' });
 
 test.describe('Chat', () => {
   const chat = new Chat();
   let context;
-  test.beforeAll(async ({ browser }) => {
-    context = await browser.newContext();
-    const page = await context.newPage();
-    await chat.initModPage(page, true);
-    await chat.initUserPage(true, context);
+
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    const { context: innerContext } = await initializePages(chat, browser, { isMultiUser: true });
+    context = innerContext;
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
@@ -64,8 +62,8 @@ test.describe('Chat', () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji @ci', async () => {
-    await chat.emojiSaveChat();
+  test('Save chat with emoji @ci', async ({}, testInfo) => {
+    await chat.emojiSaveChat(testInfo);
   });
 
   test('Send emoji on private chat', async () => {

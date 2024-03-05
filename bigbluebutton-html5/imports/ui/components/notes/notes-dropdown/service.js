@@ -7,10 +7,8 @@ import { uniqueId } from '/imports/utils/string-utils';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
 
-async function convertAndUpload() {
-
+async function convertAndUpload(presentations, setPresentation, removePresentation) {
   let filename = 'Shared_Notes';
-  const presentations = PresentationUploaderService.getPresentations();
   const duplicates = presentations.filter((pres) => pres.filename?.startsWith(filename) || pres.name?.startsWith(filename)).length;
 
   if (duplicates !== 0) { filename = `${filename}(${duplicates})`; }
@@ -54,10 +52,12 @@ async function convertAndUpload() {
     onUpload: () => { },
     onProgress: () => { },
     onDone: () => { },
-  });
+  },
+  setPresentation,
+  removePresentation);
 }
 
 export default {
   convertAndUpload,
-  pinSharedNotes: () => NotesService.pinSharedNotes(true),
+  pinSharedNotes: (stopWatching) => NotesService.pinSharedNotes(true, stopWatching),
 };

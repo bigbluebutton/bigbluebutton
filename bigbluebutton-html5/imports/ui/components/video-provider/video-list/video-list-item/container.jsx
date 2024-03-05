@@ -6,6 +6,7 @@ import Users from '/imports/api/users/';
 import VideoListItem from './component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import Settings from '/imports/ui/services/settings';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const VideoListItemContainer = (props) => {
   const { cameraId, user } = props;
@@ -16,6 +17,12 @@ const VideoListItemContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i) => i.isRTL);
 
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    isModerator: user.isModerator,
+  }));
+
+  const amIModerator = currentUserData?.isModerator;
+
   if (!user) return null;
 
   return (
@@ -25,6 +32,7 @@ const VideoListItemContainer = (props) => {
         isFullscreenContext,
         layoutContextDispatch,
         isRTL,
+        amIModerator,
       }}
     />
   );

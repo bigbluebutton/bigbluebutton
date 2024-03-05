@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components';
 import {
   borderSize,
   userIndicatorsOffset,
+  smPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   lineHeightComputed,
@@ -15,9 +16,12 @@ import {
   colorSuccess,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
+import Header from '/imports/ui/components/common/control-header/component';
+
 interface ChatWrapperProps {
   sameSender: boolean;
   isSystemSender: boolean;
+  isPresentationUpload?: boolean;
 }
 
 interface ChatContentProps {
@@ -39,6 +43,13 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   display: flex;
   flex-flow: row;
   position: relative;
+  ${({ isPresentationUpload }) => isPresentationUpload && `
+      border-left: 2px solid #0F70D7;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      word-break: break-word;
+      background-color: #F3F6F9;
+    `}
   ${({ sameSender }) => sameSender && `
     flex: 1;
     margin: ${borderSize} 0 0 ${borderSize};
@@ -66,6 +77,16 @@ export const ChatContent = styled.div<ChatContentProps>`
 
   ${({ sameSender }) => sameSender && `
     margin-left: 2.6rem;
+  `}
+`;
+
+export const ChatHeader = styled(Header)`
+  ${({ isRTL }) => isRTL && `
+    padding-left: ${smPaddingX};
+  `}
+
+  ${({ isRTL }) => !isRTL && `
+    padding-right: ${smPaddingX};
   `}
 `;
 

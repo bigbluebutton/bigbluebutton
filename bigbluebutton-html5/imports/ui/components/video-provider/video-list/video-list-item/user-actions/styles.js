@@ -6,6 +6,7 @@ import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typog
 import Button from '/imports/ui/components/common/button/component';
 
 const DropdownTrigger = styled(DivElipsis)`
+  user-select: none;
   position: relative;
   // Keep the background with 0.5 opacity, but leave the text with 1
   background-color: rgba(0, 0, 0, 0.5);
@@ -23,6 +24,9 @@ const DropdownTrigger = styled(DivElipsis)`
     content: "\\203a";
     position: absolute;
     transform: rotate(90deg);
+    ${({ isRTL }) => isRTL && `
+      transform: rotate(-90deg);
+    `}
     top: 45%;
     width: 0;
     line-height: 0;

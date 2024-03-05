@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Meetings, { LayoutMeetings } from '/imports/api/meetings';
-import AudioCaptionsLiveContainer from '/imports/ui/components/audio/captions/live/container';
+import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import AudioCaptionsService from '/imports/ui/components/audio/captions/service';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/live/container';
@@ -13,8 +13,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
-import LayoutService from '/imports/ui/components/layout/service';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -22,8 +21,12 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import { isEqual } from 'radash';
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { useMutation } from '@apollo/client';
+import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
 
 import {
   getFontSize,
@@ -31,6 +34,8 @@ import {
 } from './service';
 
 import App from './component';
+import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
+import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
@@ -57,9 +62,9 @@ const AppContainer = (props) => {
     pushLayout,
     pushLayoutMeeting,
     currentUserId,
-    shouldShowPresentation: propsShouldShowPresentation,
+    shouldShowScreenshare: propsShouldShowScreenshare,
+    shouldShowSharedNotes,
     presentationRestoreOnUpdate,
-    isPresenter,
     randomlySelectedUser,
     isModalOpen,
     meetingLayout,
@@ -70,10 +75,12 @@ const AppContainer = (props) => {
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
     isSharedNotesPinned,
+    viewScreenshare,
     ...otherProps
   } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const genericComponent = layoutSelectInput((i) => i.genericComponent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
@@ -83,13 +90,33 @@ const AppContainer = (props) => {
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
+  const [setMobileFlag] = useMutation(SET_MOBILE_FLAG);
+  const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
+  const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
+  const toggleVoice = useToggleVoice();
+  const setLocalSettings = useUserChangedLocalSettings();
+
+  const setMobileUser = (mobile) => {
+    setMobileFlag({
+      variables: {
+        mobile,
+      },
+    });
+  };
+
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    enforceLayout: user.enforceLayout,
+    isModerator: user.isModerator,
+    presenter: user.presenter,
+  }));
+
+  const isModerator = currentUserData?.isModerator;
+  const isPresenter = currentUserData?.presenter;
+
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
   const { isOpen } = presentation;
   const presentationIsOpen = isOpen;
-
-  const shouldShowPresentation = (propsShouldShowPresentation
-    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   const { focusedId } = cameraDock;
 
@@ -127,25 +154,54 @@ const AppContainer = (props) => {
   }, [isPresenter, prevRandomUser, randomlySelectedUser, isModalOpen]);
 
   const setPushLayout = () => {
-    LayoutService.setPushLayout(pushLayout);
-  }
-
-  const setMeetingLayout = () => {
-    const { isResizing } = cameraDockInput;
-    LayoutService.setMeetingLayout({
-      layout: selectedLayout,
-      presentationIsOpen,
-      isResizing,
-      cameraPosition: cameraDock.position,
-      focusedCamera: focusedId,
-      presentationVideoRate,
-      pushLayout,
+    setSyncWithPresenterLayout({
+      variables: {
+        syncWithPresenterLayout: pushLayout,
+      },
     });
   };
 
+  const setMeetingLayout = () => {
+    const { isResizing } = cameraDockInput;
+
+    setMeetingLayoutProps({
+      variables: {
+        layout: selectedLayout,
+        syncWithPresenterLayout: pushLayout,
+        presentationIsOpen,
+        isResizing,
+        cameraPosition: cameraDock.position,
+        focusedCamera: focusedId,
+        presentationVideoRate,
+      },
+    });
+  };
+
+  const { data: currentMeeting } = useMeeting((m) => ({
+    externalVideo: m.externalVideo,
+  }));
+
+  const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
+
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo);
   });
+
+  const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
+
+  const shouldShowGenericComponent = genericComponent.hasGenericComponent;
+
+  const validateEnforceLayout = (currentUser) => {
+    const layoutTypes = Object.values(LAYOUT_TYPE);
+    const enforceLayout = currentUser?.enforceLayout;
+    return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
+  };
+
+  const shouldShowScreenshare = propsShouldShowScreenshare 
+    && (viewScreenshare || isPresenter);
+  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes 
+    && !shouldShowExternalVideo && !shouldShowGenericComponent
+    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   return currentUserId
     ? (
@@ -180,11 +236,19 @@ const AppContainer = (props) => {
           sidebarNavigationIsOpen,
           sidebarContentPanel,
           sidebarContentIsOpen,
-          shouldShowPresentation,
+          shouldShowExternalVideo,
           mountRandomUserModal,
           setMountRandomUserModal,
           isPresenter,
           numCameras: cameraDockInput.numCameras,
+          enforceLayout: validateEnforceLayout(currentUserData),
+          isModerator,
+          shouldShowScreenshare,
+          shouldShowSharedNotes,
+          shouldShowPresentation,
+          setMobileUser,
+          toggleVoice,
+          setLocalSettings,
         }}
         {...otherProps}
       />
@@ -231,7 +295,7 @@ export default withTracker(() => {
     {
       fields:
       {
-        approved: 1, emoji: 1, raiseHand: 1, away: 1, userId: 1, presenter: 1, role: 1,
+        approved: 1, emoji: 1, raiseHand: 1, away: 1, userId: 1, role: 1,
       },
     },
   );
@@ -268,9 +332,7 @@ export default withTracker(() => {
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
-  const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
-  const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || currentUser?.presenter);
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare();
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
@@ -278,8 +340,6 @@ export default withTracker(() => {
   }
 
   const LAYOUT_CONFIG = Meteor.settings.public.layout;
-
-  const isPresenter = currentUser?.presenter;
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -297,8 +357,6 @@ export default withTracker(() => {
     currentUserRaiseHand: currentUser.raiseHand,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
-    isPresenter,
-    isModerator: currentUser?.role === ROLE_MODERATOR,
     meetingLayout,
     meetingLayoutUpdatedAt,
     meetingPresentationIsOpen,
@@ -313,8 +371,7 @@ export default withTracker(() => {
     pushAlertEnabled: AppSettings.chatPushAlerts,
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo && !shouldShowSharedNotes,
-    shouldShowExternalVideo,
+    viewScreenshare,
     shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
@@ -323,6 +380,7 @@ export default withTracker(() => {
     ),
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
+    hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
     isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
   };

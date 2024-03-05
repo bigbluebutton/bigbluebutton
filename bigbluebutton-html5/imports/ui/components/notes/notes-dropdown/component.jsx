@@ -50,6 +50,10 @@ class NotesDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
+      presentations,
+      setPresentation,
+      removePresentation,
+      stopExternalVideoShare,
     } = this.props;
 
     const { converterButtonDisabled } = this.state;
@@ -70,7 +74,7 @@ class NotesDropdown extends PureComponent {
           onClick: () => {
             this.setConverterButtonDisabled(true);
             setTimeout(() => this.setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload();
+            return Service.convertAndUpload(presentations, setPresentation, removePresentation);
           },
         },
       );
@@ -84,7 +88,7 @@ class NotesDropdown extends PureComponent {
           dataTest: 'pinNotes',
           label: intl.formatMessage(intlMessages.pinNotes),
           onClick: () => {
-            Service.pinSharedNotes();
+            Service.pinSharedNotes(stopExternalVideoShare);
           },
         },
       );

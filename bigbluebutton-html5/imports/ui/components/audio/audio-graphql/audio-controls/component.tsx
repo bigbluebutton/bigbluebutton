@@ -51,7 +51,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   updateEchoTestRunning,
 }) => {
   const intl = useIntl();
-  const joinAudioShourtcut = useShortcut('joinaudio');
+  const joinAudioShortcut = useShortcut('joinAudio');
   const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
@@ -79,10 +79,10 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         icon="no_audio"
         size="lg"
         circle
-        accessKey={joinAudioShourtcut}
+        accessKey={joinAudioShortcut}
       />
     );
-  }, [isConnected, disabled]);
+  }, [isConnected, disabled, joinAudioShortcut]);
 
   useEffect(() => {
     if (isEchoTest) {
@@ -113,7 +113,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 };
 
 export const AudioControlsContainer: React.FC = () => {
-  const currentUser: Partial<User> = useCurrentUser((u: Partial<User>) => {
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => {
     return {
       presenter: u.presenter,
       isModerator: u.isModerator,
@@ -122,7 +122,7 @@ export const AudioControlsContainer: React.FC = () => {
     };
   });
 
-  const currentMeeting: Partial<Meeting> = useMeeting((m: Partial<Meeting>) => {
+  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
     return {
       lockSettings: m.lockSettings,
     };

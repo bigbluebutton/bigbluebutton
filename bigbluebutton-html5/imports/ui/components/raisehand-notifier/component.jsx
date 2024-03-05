@@ -121,7 +121,7 @@ class RaiseHandNotifier extends Component {
   }
 
   raisedHandAvatars() {
-    const { raiseHandUsers, clearUserStatus, intl } = this.props;
+    const { raiseHandUsers, lowerUserHands, intl } = this.props;
     let users = raiseHandUsers;
     if (raiseHandUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
@@ -134,8 +134,8 @@ class RaiseHandNotifier extends Component {
           role="button"
           tabIndex={0}
           style={{ backgroundColor: `${u.color}` }}
-          onClick={() => clearUserStatus(u.userId)}
-          onKeyDown={(e) => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
+          onClick={() => lowerUserHands(u.userId)}
+          onKeyDown={(e) => (e.keyCode === ENTER ? lowerUserHands(u.userId) : null)}
           data-test="avatarsWrapperAvatar"
           moderator={u.role === ROLE_MODERATOR}
           avatar={u.avatar}
@@ -161,14 +161,14 @@ class RaiseHandNotifier extends Component {
     const formattedRaisedHands = this.getRaisedHandNames();
     return (
       <div>
-        <Styled.ToastIcon>
+        <Styled.ToastContent>
           <Styled.IconWrapper>
             <Icon iconName="hand" />
           </Styled.IconWrapper>
-        </Styled.ToastIcon>
-        <Styled.AvatarsWrapper data-test="avatarsWrapper">
-          {this.raisedHandAvatars()}
-        </Styled.AvatarsWrapper>
+          <Styled.AvatarWrapper>
+            {this.raisedHandAvatars()}
+          </Styled.AvatarWrapper>
+        </Styled.ToastContent>
         <Styled.ToastMessage>
           <div>{intl.formatMessage(messages.raisedHandsTitle)}</div>
           {formattedRaisedHands}

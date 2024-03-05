@@ -3,8 +3,9 @@ import {useSubscription, gql, useQuery} from '@apollo/client';
 
 export default function CursorsStream() {
   const { loading, error, data } = useSubscription(
+      //2023-03-29T20:26:29.002
     gql`subscription {
-          pres_page_cursor_stream(batch_size: 10, cursor: {initial_value: {lastUpdatedAt: "\\"2023-03-29T20:26:29.002\\""}}) {
+          pres_page_cursor_stream(batch_size: 10, cursor: { initial_value: { lastUpdatedAt: "2024-01-20T13:12:20.945+00:00" } }) {
             isCurrentPage
             lastUpdatedAt
             pageId

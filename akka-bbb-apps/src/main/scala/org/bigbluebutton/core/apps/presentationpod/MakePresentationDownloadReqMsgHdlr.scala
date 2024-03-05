@@ -46,7 +46,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   def buildNewPresFileAvailable(annotatedFileURI: String, originalFileURI: String, convertedFileURI: String,
                                 presId: String, fileStateType: String): NewPresFileAvailableMsg = {
     val header = BbbClientMsgHeader(NewPresFileAvailableMsg.NAME, "not-used", "not-used")
-    val body = NewPresFileAvailableMsgBody(annotatedFileURI, originalFileURI, convertedFileURI, presId, fileStateType)
+    val body = NewPresFileAvailableMsgBody(annotatedFileURI, originalFileURI, convertedFileURI, presId, fileStateType, "")
 
     NewPresFileAvailableMsg(header, body)
   }
@@ -160,7 +160,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val pages: List[Int] = m.body.pages // Desired presentation pages for export
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
 
-      val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
+      val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, currentPres.get.name, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
       val isPresentationOriginalOrConverted = m.body.fileStateType == "Original" || m.body.fileStateType == "Converted"
@@ -226,7 +226,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
 
-      val exportJob: ExportJob = ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
+      val exportJob: ExportJob = ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
       val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
@@ -252,11 +252,10 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       liveMeeting.props.meetingProp.intId, m.body.presId
     )
 
-    //TODO let frontend choose the name in favor of internationalization
     if (m.body.fileStateType == "Annotated") {
       val presentationDownloadInfo = Map(
         "fileURI" -> m.body.annotatedFileURI,
-        "filename" -> "annotated_slides.pdf"
+        "filename" -> m.body.fileName
       )
       ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
     } else if (m.body.fileStateType == "Converted") {
@@ -295,7 +294,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
     bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename, presentationId))
 
-    val exportJob = new ExportJob(jobId, JobTypes.CAPTURE_NOTES, filename, m.body.padId, "", true, List(), m.body.parentMeetingId, presentationUploadToken)
+    val exportJob = new ExportJob(jobId, JobTypes.CAPTURE_NOTES, filename, filename, m.body.padId, "", true, List(), m.body.parentMeetingId, presentationUploadToken)
     val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
 
     bus.outGW.send(job)

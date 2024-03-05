@@ -6,8 +6,9 @@ import axios from 'axios';
 import path from 'path';
 import {NewPresFileAvailableMsg} from '../lib/utils/message-builder.js';
 import {workerData} from 'worker_threads';
-const [jobType, jobId, filename] =
-        [workerData.jobType, workerData.jobId, workerData.filename];
+const [jobType, jobId, serverSideFilename] = [workerData.jobType,
+  workerData.jobId,
+  workerData.serverSideFilename];
 
 const logger = new Logger('presAnn Notifier Worker');
 const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
@@ -31,7 +32,7 @@ async function notifyMeetingActor() {
   const link = path.join(
       'presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
-      exportJob.presId, 'pdf', jobId, filename);
+      exportJob.presId, 'pdf', jobId, serverSideFilename);
 
   const notification = new NewPresFileAvailableMsg(exportJob, link);
 
@@ -68,10 +69,13 @@ async function upload(filePath) {
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
   notifyMeetingActor();
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
-  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${filename}`;
+  const baseDirectory = exportJob.presLocation;
+  const subDirectory = 'pdfs';
+  const filePath = path.join(baseDirectory, subDirectory,
+      jobId, serverSideFilename);
   upload(filePath);
 } else if (jobType == 'PadCaptureJob') {
-  const filePath = `${dropbox}/${filename}`;
+  const filePath = `${dropbox}/${serverSideFilename}`;
   upload(filePath);
 } else {
   logger.error(`Notifier received unknown job type ${jobType}`);

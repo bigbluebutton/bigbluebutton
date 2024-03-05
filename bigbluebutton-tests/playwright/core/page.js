@@ -7,7 +7,6 @@ const helpers = require('./helpers');
 const e = require('./elements');
 const { env } = require('node:process');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
-const { recordMeeting } = require('../parameters/constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData, getSettings } = require('./settings');
 
@@ -89,14 +88,23 @@ class Page {
   }
 
   async logoutFromMeeting() {
-    await this.waitAndClick(e.optionsButton);
-    await this.waitAndClick(e.logout);
+    const { directLeaveButton } = this.settings;
+
+    if (directLeaveButton) {
+      await this.waitAndClick(e.leaveMeetingDropdown);
+    } else {
+      await this.waitAndClick(e.optionsButton);
+    }
+    await this.waitAndClick(e.logoutBtn);
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
-    const { webcamSharingEnabled } = getSettings();
+    const { webcamSharingEnabled } = this.settings;
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
+    if(!webcamSharingEnabled) {
+      return this.wasRemoved(e.joinVideo)
+    }
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.bringToFront();

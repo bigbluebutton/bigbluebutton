@@ -24,7 +24,7 @@ trait ClearAllUsersReactionCmdMsgHdlr extends RightsManagementTrait {
         user <- Users2x.findAll(liveMeeting.users2x)
       } yield {
         //Don't clear away and RaiseHand
-        Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, "none")
+        Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, "none", 0)
       }
       sendClearedAllUsersReactionEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.header.userId)
     } else {

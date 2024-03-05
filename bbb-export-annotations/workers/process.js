@@ -143,6 +143,10 @@ function overlaySticky(svg, annotation) {
  * @return {void}
  */
 function overlayText(svg, annotation) {
+  if (annotation?.props?.size == null || annotation?.props?.text?.length == 0) {
+    return;
+  }
+
   const text = new TextShape(annotation);
   const textDrawn = text.draw();
   svg.add(textDrawn);
@@ -158,38 +162,36 @@ function overlayText(svg, annotation) {
  * @return {void}
  */
 function overlayAnnotation(svg, annotation) {
-  switch (annotation.type) {
-    case 'draw':
-      overlayDraw(svg, annotation);
-      break;
-
-    case 'geo':
-      overlayGeo(svg, annotation);
-      break;
-
-    case 'highlight':
-      overlayHighlight(svg, annotation);
-      break;
-
-    case 'line':
-      overlayLine(svg, annotation);
-      break;
-
-    case 'arrow':
-      overlayArrow(svg, annotation);
-      break;
-
-    case 'text':
-      overlayText(svg, annotation);
-      break;
-
-    case 'note':
-      overlaySticky(svg, annotation);
-      break;
-
-    default:
-      logger.info(`Unknown annotation type ${annotation.type}.`);
-      logger.info(annotation);
+  try {
+    switch (annotation.type) {
+      case 'draw':
+        overlayDraw(svg, annotation);
+        break;
+      case 'geo':
+        overlayGeo(svg, annotation);
+        break;
+      case 'highlight':
+        overlayHighlight(svg, annotation);
+        break;
+      case 'line':
+        overlayLine(svg, annotation);
+        break;
+      case 'arrow':
+        overlayArrow(svg, annotation);
+        break;
+      case 'text':
+        overlayText(svg, annotation);
+        break;
+      case 'note':
+        overlaySticky(svg, annotation);
+        break;
+      default:
+        logger.info(`Unknown annotation type ${annotation.type}.`);
+        logger.info(annotation);
+    }
+  } catch (error) {
+    logger.warn('Failed to overlay annotation',
+        {failedAnnotation: annotation, error: error});
   }
 }
 
@@ -353,13 +355,13 @@ async function processPresentationAnnotations() {
     fs.mkdirSync(outputDir, {recursive: true});
   }
 
-  const sanitizedFilename = sanitize(exportJob.filename.replace(/\s/g, '_'));
-  const filenameWithExtension = `${sanitizedFilename}.pdf`;
-
+  const serverFilename = exportJob.serverSideFilename.replace(/\s/g, '_');
+  const sanitizedServerFilename = sanitize(serverFilename);
+  const serverFilenameWithExtension = `${sanitizedServerFilename}.pdf`;
   const mergePDFs = [
     '-dNOPAUSE',
     '-sDEVICE=pdfwrite',
-    `-sOUTPUTFILE="${path.join(outputDir, filenameWithExtension)}"`,
+    `-sOUTPUTFILE="${path.join(outputDir, serverFilenameWithExtension)}"`,
     `-dBATCH`].concat(ghostScriptInput);
 
   // Resulting PDF file is stored in the presentation dir
@@ -372,12 +374,13 @@ async function processPresentationAnnotations() {
   }
 
   // Launch Notifier Worker depending on job type
-  logger.info(`Saved PDF at ${outputDir}/${jobId}/${filenameWithExtension}`);
+  logger.info('Saved PDF at ',
+      `${outputDir}/${jobId}/${serverFilenameWithExtension}`);
 
   const notifier = new WorkerStarter({
-    jobType: exportJob.jobType,
-    jobId,
-    filename: filenameWithExtension});
+    jobType: exportJob.jobType, jobId,
+    serverSideFilename: serverFilenameWithExtension,
+    filename: exportJob.filename});
 
   notifier.notify();
   await client.disconnect();

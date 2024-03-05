@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  mdPaddingX,
+  smPaddingX,
   borderSize,
   listItemBgHover, borderSizeSmall,
   borderRadius,
@@ -14,7 +14,7 @@ import {
   colorWhite,
   colorGrayLighter,
   colorGrayLightest,
-  colorBlueLight
+  colorBlueLight,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   headingsFontWeight,
@@ -91,7 +91,7 @@ const ellipsis = keyframes`
   to {
     width: 1.5em;
   }
-`
+`;
 
 const ConnectingAnimation = styled.span`
   &:after {
@@ -224,7 +224,7 @@ const Panel = styled(ScrollboxVertical)`
     radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
 
   background-color: #fff;
-  padding: ${mdPaddingX};
+  padding: ${smPaddingX};
   display: flex;
   flex-grow: 1;
   flex-direction: column;

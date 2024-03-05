@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const USER_LIST_SUBSCRIPTION = gql`subscription Users($offset: Int!, $limit: Int!) {
+export const USER_LIST_SUBSCRIPTION = gql`
+subscription UserListSubscription($offset: Int!, $limit: Int!) {
   user(limit:$limit, offset: $offset, 
                 order_by: [
                   {role: asc},
@@ -78,8 +79,17 @@ subscription Users {
   }
 }`;
 
+export const GET_USER_IDS = gql`
+  query Users {
+    user {
+      userId
+    }
+  }
+`;
+
 export default {
   USER_LIST_SUBSCRIPTION,
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
   USERS_OVERVIEW,
+  GET_USER_IDS,
 };

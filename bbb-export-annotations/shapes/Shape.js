@@ -422,8 +422,20 @@ export class Shape {
 
     // Sticky notes have a width and height of 200 and can't be resized,
     // unless the text becomes too long.
-    const width = this.w || 200;
-    const height = (this.h || 200) + this.growY;
+    if (!this.w) {
+      this.w = 200;
+    }
+
+    if (!this.h) {
+      this.h = 200;
+    }
+
+    if (!this.growY) {
+      this.growY = 0;
+    }
+
+    const width = this.w;
+    const height = this.h + this.growY;
 
     const x = Shape.alignHorizontally(this.align, width);
     let y = Shape.alignVertically(this.verticalAlign, height);

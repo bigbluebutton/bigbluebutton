@@ -152,6 +152,14 @@ public:
       # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
       # If both reactionsButton and raiseHandActionButton are enabled, reactionsButton takes precedence.
       enabled: true
+    emojiRain:
+      # If true, new reactions will be activated
+      enabled: false
+      # Can set the throttle, the number of emojis that will be displayed and their size
+      intervalEmojis: 2000
+      numberOfEmojis: 5
+      # emojiSize: size of the emoji in 'em' units
+      emojiSize: 2
     # If enabled, before joining microphone the client will perform a trickle
     # ICE against Kurento and use the information about successfull
     # candidate-pairs to filter out local candidates in SIP.js's SDP.
@@ -192,6 +200,7 @@ public:
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
         autoCloseReactionsBar: true
+        directLeaveButton: true
         darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
@@ -592,13 +601,25 @@ public:
     autoConvertEmoji: true
     emojiPicker:
       enable: false
-      frequentEmojiSortOnClick: false
-    # e.g.: disableEmojis: ['1F595','1F922']
+    # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
   userReaction:
     enabled: true
-    expire: 60
+    expire: 30
+    reactions:
+      - id: 'smiley'
+        native: '😃'
+      - id: 'neutral_face'
+        native: '😐'
+      - id: 'slightly_frowning_face'
+        native: '🙁'
+      - id: '+1'
+        native: '👍'
+      - id: '-1'
+        native: '👎'
+      - id: 'clap'
+        native: '👏'
   userStatus:
     enabled: false
   notes:
@@ -837,6 +858,18 @@ public:
         update: DRAW_UPDATE
         end: DRAW_END
     styles:
+      # color is one of 'black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'
+      colorStyle: 'black'
+      # dash is one of 'dashed', 'dotted', 'draw', 'solid'
+      dashStyle: 'draw'
+      # fill is one of 'none', 'pattern', 'semi', 'solid'
+      fillStyle: 'none'
+      # font is one of 'draw','mono','sans', 'serif'
+      fontStyle: 'draw'
+      # size is one of 'l', 'm', 's', 'xl'
+      sizeStyle: 'm'
+
+      # this one is obsoleted now
       text:
         # Initial font family.
         # family: mono|sans|script|serif

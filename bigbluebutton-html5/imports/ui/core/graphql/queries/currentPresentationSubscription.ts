@@ -7,7 +7,8 @@ subscription currentPresentationSubscription {
         pages (where: {isCurrentPage: {_eq: true}}) {
             num
             pageId
-            urls
+            urlsJson
+            svgUrl: urlsJson(path: "$.svg")
         }
     }
 }

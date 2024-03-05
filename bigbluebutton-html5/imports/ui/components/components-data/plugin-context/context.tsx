@@ -1,26 +1,24 @@
 import React, { createContext, useState } from 'react';
-import { PluginProvidedState } from '/imports/ui/components/plugins-engine/types';
-import { PluginsContextType, UserListGraphqlVariables } from './types';
+import { ExtensibleArea } from '/imports/ui/components/plugins-engine/extensible-areas/types';
+import { PluginsContextType } from './types';
 
 export const PluginsContext = createContext<PluginsContextType>({} as PluginsContextType);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const PluginsContextProvider = ({ children, ...props }: any) => {
-  const [pluginsProvidedAggregatedState, setPluginsProvidedAggregatedState] = useState<PluginProvidedState>(
-    {} as PluginProvidedState,
+  const [pluginsExtensibleAreasAggregatedState, setPluginsExtensibleAreasAggregatedState] = useState<ExtensibleArea>(
+    {} as ExtensibleArea,
   );
-  const [userListGraphqlVariables, setUserListGraphqlVariables] = useState<UserListGraphqlVariables>(
-    {} as UserListGraphqlVariables,
-  );
+  const [domElementManipulationMessageIds, setDomElementManipulationMessageIds] = useState<string[]>([]);
 
   return (
     <PluginsContext.Provider
       value={{
         ...props,
-        setPluginsProvidedAggregatedState,
-        pluginsProvidedAggregatedState,
-        userListGraphqlVariables,
-        setUserListGraphqlVariables,
+        setPluginsExtensibleAreasAggregatedState,
+        pluginsExtensibleAreasAggregatedState,
+        domElementManipulationMessageIds,
+        setDomElementManipulationMessageIds,
       }}
     >
       {children}

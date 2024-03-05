@@ -71,6 +71,7 @@ And adjust it to the desired number of days. If you would instead like to comple
 
 ```bash
 remove_raw_of_published_recordings
+```
 
 #### Delete recordings older than N days
 
@@ -380,6 +381,27 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
+The following script will enable the video recording format a BigBlueButton 2.6+ server.
+
+```
+!/bin/bash
+mkdir -p /etc/bigbluebutton/recording
+cat > /etc/bigbluebutton/recording/recording.yml << REC
+steps:
+  archive: "sanity"
+  sanity: "captions"
+  captions:
+    - process:presentation
+    - process:video
+  process:presentation: publish:presentation
+  process:video: publish:video
+REC
+if ! dpkg -l | grep -q bbb-playback-video; then
+  apt install -y bbb-playback-video
+  systemctl restart bbb-rap-resque-worker.service
+fi
+```
+
 #### Enable generating mp4 (H.264) video output
 
 By default, BigBlueButton generates recording videos as `.webm` files using the VP9 video codec. These are supported in most desktop web browsers, but might not work on iOS mobile devices. You can additionally enable the H.264 video codec in some recording formats (Keep in mind that the following `.yml` files mentioned ahead only exist when the respective format package is installed):
@@ -491,6 +513,46 @@ yq e -i '.public.kurento.cameraProfiles.(id==medium).default = false' $HTML5_CON
 yq e -i '.public.kurento.cameraProfiles.(id==high).default = false' $HTML5_CONFIG 
 yq e -i '.public.kurento.cameraProfiles.(id==hd).default = false' $HTML5_CONFIG 
 chown meteor:meteor $HTML5_CONFIG
+```
+
+#### Change screen sharing quality parameters
+
+Screen sharing quality can be tweaked to either improve quality or reduce bandwidth usage.
+There are different configurations for live meetings and recordings and they need to be changed independently from each other.
+
+For **recordings**, the following parameters can be changed (presentation format):
+  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_width` (default: 1280)
+  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_height` (default: 720)
+  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_framerate` (default: 5)
+
+As an example, suppose you want to increase the output resolution and framerate of the recorded screen share media to match a 1080p/15 FPS stream. The following changes would be necessary:
+  -  `$ yq w -i /usr/local/bigbluebutton/core/scripts/presentation.yml deskshare_output_width 1920`
+  -  `$ yq w -i /usr/local/bigbluebutton/core/scripts/presentation.yml deskshare_output_height 1080`
+  -  `$ yq w -i /usr/local/bigbluebutton/core/scripts/presentation.yml deskshare_output_framerate 15`
+
+For **live meetings**, the following parameters can be changed:
+  - `/etc/bigbluebutton/bbb-html5.yml`: `public.kurento.screenshare.bitrate`
+  - `/etc/bigbluebutton/bbb-html5.yml`: `public.kurento.screenshare.constraints`
+
+The bitrate is specified in kbps and represents screen sharing's maximum bandwidth usage. Setting it to a higher value *may* improve quality but also increase bandwidth usage, while setting it to a lower value *may* reduce quality but will reduce average bandwidth usage.
+The constraints are specified as an YAML object with the same semantics as the [MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints) from the WebRTC specification. We recommend checking the aforementioned MDN link as well as the [Media Capture and Streams API spec](https://www.w3.org/TR/mediacapture-streams) for an extensive list of constraints.
+To set new screen sharing constraints, translate the JSON constraints object into an YAML format object and put it into `public.kurento.screenshare.constraints`. Restart bbb-html5 afterwards.
+As an example, suppose you want to set the maximum screen sharing resolution to 1080p, alter the maxium bitrate to 2000 kbps and set a 10 FPS target. The following would need to be added to `etc/bigbluebutton/bbb-html5.yml`:
+```yaml
+public:
+  kurento:
+    screenshare:
+      bitrate: 2000
+      constraints:
+        audio: true
+        video:
+          width:
+            max: 1920
+          height:
+            max: 1080
+          frameRate:
+            ideal: 10
+            max: 10
 ```
 
 #### Run three parallel Kurento media servers
@@ -1009,7 +1071,7 @@ $ sudo apt-get purge bbb-demo
 The default HTML landing page is located in
 
 ```bash
-/var/www/bigbluebutton-default/index.html
+/var/www/bigbluebutton-default/assets/index.html
 ```
 
 Change this page to create your own landing page (and keep a back-up copy of it as it will be overwritten during package updates to `bbb-conf`).
@@ -1379,7 +1441,9 @@ Useful tools for development:
 | `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
-| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent.                                                                                                                   | `false`        |
+| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent. 
+
+| `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false` |                                                                                                                  | `false`        |
 
 #### Branding parameters
 

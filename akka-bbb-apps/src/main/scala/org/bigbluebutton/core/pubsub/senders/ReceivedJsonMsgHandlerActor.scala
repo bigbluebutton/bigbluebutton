@@ -346,8 +346,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateNewPresentationPodPubMsg](envelope, jsonNode)
       case RemovePresentationPodPubMsg.NAME =>
         routeGenericMsg[RemovePresentationPodPubMsg](envelope, jsonNode)
-      case SetPresenterInPodReqMsg.NAME =>
-        routeGenericMsg[SetPresenterInPodReqMsg](envelope, jsonNode)
 
       // Caption
       case EditCaptionHistoryPubMsg.NAME =>
@@ -418,8 +416,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
       //Plugin
-      case DispatchPluginDataChannelMessageMsg.NAME =>
-        routeGenericMsg[DispatchPluginDataChannelMessageMsg](envelope, jsonNode)
+      case PluginDataChannelDispatchMessageMsg.NAME =>
+        routeGenericMsg[PluginDataChannelDispatchMessageMsg](envelope, jsonNode)
+
+      case PluginDataChannelDeleteMessageMsg.NAME =>
+        routeGenericMsg[PluginDataChannelDeleteMessageMsg](envelope, jsonNode)
+
+      case PluginDataChannelResetMsg.NAME =>
+        routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
 
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>
@@ -452,11 +456,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
 
       // Messages from Graphql Middleware
-      case UserGraphqlConnectionStablishedSysMsg.NAME =>
-        route[UserGraphqlConnectionStablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
+      case UserGraphqlConnectionEstablishedSysMsg.NAME =>
+        route[UserGraphqlConnectionEstablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case UserGraphqlConnectionClosedSysMsg.NAME =>
         route[UserGraphqlConnectionClosedSysMsg](meetingManagerChannel, envelope, jsonNode)
+
+      case CheckGraphqlMiddlewareAlivePongSysMsg.NAME =>
+        route[CheckGraphqlMiddlewareAlivePongSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

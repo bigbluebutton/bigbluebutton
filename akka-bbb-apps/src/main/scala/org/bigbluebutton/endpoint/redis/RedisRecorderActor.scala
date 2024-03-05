@@ -85,6 +85,9 @@ class RedisRecorderActor(
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
       case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserAwayChangedEvtMsg                 => handleUserAwayChangedEvtMsg(m)
+      case m: UserRaiseHandChangedEvtMsg            => handleUserRaiseHandChangedEvtMsg(m)
+      case m: UserReactionEmojiChangedEvtMsg        => handleUserReactionEmojiChangedEvtMsg(m)
       case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
@@ -377,6 +380,18 @@ class RedisRecorderActor(
   }
   private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
+  }
+
+  private def handleUserAwayChangedEvtMsg(msg: UserAwayChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "away", if (msg.body.away) "true" else "false")
+  }
+
+  private def handleUserRaiseHandChangedEvtMsg(msg: UserRaiseHandChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "raiseHand", if (msg.body.raiseHand) "true" else "false")
+  }
+
+  private def handleUserReactionEmojiChangedEvtMsg(msg: UserReactionEmojiChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "reactionEmoji", msg.body.reactionEmoji)
   }
 
   private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {

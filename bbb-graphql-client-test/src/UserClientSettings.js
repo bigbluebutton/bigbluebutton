@@ -36,7 +36,7 @@ export default function UserClientSettings({userId}) {
     (<table border="1">
       <thead>
           <tr>
-              <th colSpan={2}>Local Settings
+              <th colSpan={2}>User Client Settings
                   <button onClick={() => handleUpdateClientSettings(
                       {
                           application: {

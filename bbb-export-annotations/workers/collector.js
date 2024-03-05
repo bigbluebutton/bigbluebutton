@@ -147,10 +147,11 @@ async function collectSharedNotes(retries = 3) {
   const padId = exportJob.presId;
   const notesFormat = 'pdf';
 
-  const sanitizedFilename = sanitize(exportJob.filename.replace(/\s/g, '_'));
-  const filename = sanitizedFilename + '.' + notesFormat;
+  const underscoredFilename = exportJob.serverSideFilename.replace(/\s/g, '_');
+  const sanitizedFilename = sanitize(underscoredFilename);
+  const serverSideFilename = `${sanitizedFilename}.${notesFormat}`;
   const notesEndpoint = `${config.bbbPadsAPI}/p/${padId}/export/${notesFormat}`;
-  const filePath = path.join(dropbox, filename);
+  const filePath = path.join(dropbox, serverSideFilename);
 
   const finishedDownload = promisify(stream.finished);
   const writer = fs.createWriteStream(filePath);
@@ -176,7 +177,8 @@ async function collectSharedNotes(retries = 3) {
     }
   }
 
-  const notifier = new WorkerStarter({jobType, jobId, filename});
+  const notifier = new WorkerStarter({jobType, jobId,
+    serverSideFilename, filename: exportJob.filename});
   notifier.notify();
 }
 
