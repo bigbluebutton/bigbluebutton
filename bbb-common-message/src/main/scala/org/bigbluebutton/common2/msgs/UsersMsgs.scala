@@ -294,6 +294,20 @@ case class ChangeUserMobileFlagReqMsg(header: BbbClientMsgHeader, body: ChangeUs
 case class ChangeUserMobileFlagReqMsgBody(userId: String, mobile: Boolean)
 
 /**
+ * Sent from client to inform the connection is alive.
+ */
+object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
+case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
+case class UserConnectionAliveReqMsgBody(userId: String)
+
+/**
+ * Sent from client to inform the RTT (time it took to send the Alive and receive confirmation).
+ */
+object UserConnectionUpdateRttReqMsg { val NAME = "UserConnectionUpdateRttReqMsg" }
+case class UserConnectionUpdateRttReqMsg(header: BbbClientMsgHeader, body: UserConnectionUpdateRttReqMsgBody) extends StandardMsg
+case class UserConnectionUpdateRttReqMsgBody(userId: String, networkRttInMs: Double)
+
+/**
  * Sent to all clients about a user mobile flag.
  */
 object UserMobileFlagChangedEvtMsg { val NAME = "UserMobileFlagChangedEvtMsg" }
