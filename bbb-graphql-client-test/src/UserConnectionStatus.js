@@ -3,7 +3,6 @@ import React, {useEffect, useState, useRef } from "react";
 import {applyPatch} from "fast-json-patch";
 
 export default function UserConnectionStatus() {
-    alert('oie');
     const networkRttInMs = useRef(null); // Ref to store the current timeout
     const lastStatusUpdatedAtReceived = useRef(null); // Ref to store the current timeout
 
