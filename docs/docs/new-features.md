@@ -287,6 +287,11 @@ Also check the official docs for managing NodeJS installations https://github.co
 Up to BigBlueButton 2.6.12 we were using Java 11 (and were installing version 16 in bbb-install-26.sh) for several of the core components. Given that the LTS premium support ends in September 2023, we have backported support for Java 17 LTS and are modifying bbb-install-2.6.sh to install this newer version too.
 Whether you upgrade to BigBlueButton 2.6.14+ via bbb-install-2.6.sh or just through packages, the upgrade should go smoothly. No extra steps are required.
 
+#### Improved support for various SHA algorithms for checksum calculation
+
+In BigBlueButton 2.6.17 we added a new configuration property for bbb-apps-akka package under `services` called `checkSumAlgorithmForBreakouts`. By default the value is `"sha256"`. It controls the algorithm for checksum calculation for the breakout rooms join link. In case you overwrite bbb-web's `supportedChecksumAlgorithms` property removing sha256 you will need to set a supported algorithm here too. For example if you want to only use `sha512`, set `supportedChecksumAlgorithms=sha512` in `/etc/bigbluebutton/bbb-web.properties` and also set `checkSumAlgorithmForBreakouts="sha512"` in `/etc/bigbluebutton/bbb-apps-akka.conf` and then restart BigBlueButton.
+
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 2.6](/development/guide).
