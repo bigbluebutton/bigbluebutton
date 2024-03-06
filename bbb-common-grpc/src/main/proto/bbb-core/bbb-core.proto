@@ -4,6 +4,8 @@ import "common/meeting.proto";
 
 package org.bigbluebutton.protos;
 
+option go_package = "/bbb-core";
+
 message MeetingRunningRequest {
     // The ID, either internal or external, of the meeting to be found.
     string meeting_id = 1;
