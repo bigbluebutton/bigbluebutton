@@ -130,8 +130,8 @@ const defaultProps = {
   audioCaptionsEnabled: false,
 };
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 const { isSafari, isTabletApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
@@ -252,7 +252,7 @@ class OptionsDropdown extends PureComponent {
       showHelpButton: helpButton,
       helpLink,
       allowLogout: allowLogoutSetting,
-    } = Meteor.settings.public.app;
+    } = window.meetingClientSettings.public.app;
 
     this.menuItems = [];
 

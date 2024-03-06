@@ -8,7 +8,7 @@ import Styled from './styles';
 import { Meteor } from 'meteor/meteor';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const messages = defineMessages({
   lowerHandsLabel: {
@@ -45,7 +45,7 @@ class RaiseHandNotifier extends Component {
 
     this.statusNotifierId = null;
 
-    this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}/resources/sounds/bbb-handRaise.mp3`);
+    this.audio = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename + window.meetingClientSettings.public.app.instanceId}/resources/sounds/bbb-handRaise.mp3`);
 
     this.renderRaisedHands = this.renderRaisedHands.bind(this);
     this.getRaisedHandNames = this.getRaisedHandNames.bind(this);

@@ -34,7 +34,7 @@ import Settings from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { uniqueId } from '/imports/utils/string-utils';
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 const MOBILE_HOVER_TIMEOUT = 5000;
 const MEDIA_FLOW_PROBE_INTERVAL = 500;
 const SCREEN_SIZE_DISPATCH_INTERVAL = 500;

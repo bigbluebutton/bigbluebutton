@@ -50,9 +50,9 @@ const messages = defineMessages({
 });
 
 // @ts-ignore - temporary, while meteor exists in the project
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 // @ts-ignore - temporary, while meteor exists in the project
-const LABEL = Meteor.settings.public.user.label;
+const LABEL = window.meetingClientSettings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
@@ -225,7 +225,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
         </Styled.UserName>
         <Styled.UserNameSub data-test={user.mobile ? 'mobileUser' : undefined}>
-          {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
+          {subs.length ? subs.join(' | ') : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
       {renderUserListItemIconsFromPlugin(userItemsFromPlugin)}

@@ -19,7 +19,7 @@ import Service from '../service';
 
 const AudioModalContainer = (props) => <AudioModal {...props} />;
 
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 const isRTL = document.documentElement.getAttribute('dir') === 'rtl';

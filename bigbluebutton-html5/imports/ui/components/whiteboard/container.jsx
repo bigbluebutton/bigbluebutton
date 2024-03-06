@@ -38,7 +38,7 @@ import {
   PRESENTATION_SET_PAGE,
 } from '../presentation/mutations';
 
-const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
+const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
 
 const WhiteboardContainer = (props) => {
   const {

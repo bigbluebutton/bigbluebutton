@@ -21,7 +21,7 @@ interface TalkingIndicatorSubscriptionData {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
 
 const TALKING_INDICATORS_MAX = 8;

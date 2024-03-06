@@ -9,7 +9,7 @@ import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 import { Session } from 'meteor/session';
 
-const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentationOnJoin;
+const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
