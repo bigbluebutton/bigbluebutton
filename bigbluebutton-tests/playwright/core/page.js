@@ -27,7 +27,7 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording, isConnectionNotExpected } = initOptions || {};
+    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording, shouldCheckAllInitialSteps } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
@@ -41,7 +41,7 @@ class Page {
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
-    if (!isConnectionNotExpected) {
+    if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
       await this.waitForSelector('div#layout', ELEMENT_WAIT_LONGER_TIME);
       this.settings = await generateSettingsData(this.page);
       const { autoJoinAudioModal } = this.settings;
