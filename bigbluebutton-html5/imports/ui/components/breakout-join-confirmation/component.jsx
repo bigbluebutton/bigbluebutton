@@ -54,6 +54,7 @@ const propTypes = {
   requestJoinURL: PropTypes.func.isRequired,
   breakouts: PropTypes.arrayOf(Object).isRequired,
   breakoutName: PropTypes.string.isRequired,
+  sendUserUnshareWebcam: PropTypes.func.isRequired,
 };
 
 let interval = null;
@@ -101,6 +102,7 @@ class BreakoutJoinConfirmation extends Component {
       voiceUserJoined,
       requestJoinURL,
       amIPresenter,
+      sendUserUnshareWebcam,
     } = this.props;
 
     const { selectValue } = this.state;
@@ -120,7 +122,7 @@ class BreakoutJoinConfirmation extends Component {
     }
 
     VideoService.storeDeviceIds();
-    VideoService.exitVideo();
+    VideoService.exitVideo(sendUserUnshareWebcam);
     if (amIPresenter) screenshareHasEnded();
     if (url === '') {
       logger.error({

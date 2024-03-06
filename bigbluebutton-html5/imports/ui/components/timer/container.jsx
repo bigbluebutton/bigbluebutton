@@ -115,13 +115,9 @@ const TimerContainer = ({ children, ...props }) => {
   );
 };
 
-export default withTracker(() => {
-  const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-  return {
-    isRTL,
-    isActive: Service.isActive(),
-    timeOffset: Service.getTimeOffset(),
-    timer: Service.getTimer(),
-    currentTrack: Service.getCurrentTrack(),
-  };
-})(TimerContainer);
+export default withTracker(() => ({
+  isActive: Service.isActive(),
+  timeOffset: Service.getTimeOffset(),
+  timer: Service.getTimer(),
+  currentTrack: Service.getCurrentTrack(),
+}))(TimerContainer);

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import React, { useEffect, useMemo, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
@@ -8,6 +9,10 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
 import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
 import { OnProgressProps } from 'react-player/base';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { ExternalVideoVolumeUiDataNames } from 'bigbluebutton-html-plugin-sdk';
+import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/external-video/volume/types';
 
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
@@ -55,6 +60,8 @@ const intlMessages = defineMessages({
 });
 
 interface ExternalVideoPlayerProps {
+  currentVolume: React.MutableRefObject<number>;
+  isMuted: React.MutableRefObject<boolean>;
   isEchoTest: boolean;
   isPresenter: boolean;
   videoUrl: string;
@@ -75,6 +82,8 @@ Styled.VideoPlayer.addCustomPlayer(PeerTube);
 Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 
 const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
+  currentVolume,
+  isMuted,
   isResizing,
   externalVideo,
   fullscreenContext,
@@ -241,6 +250,28 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   }, [playerRef.current]);
 
+  // --- Plugin related code ---;
+  if (playerRef.current?.getInternalPlayer()
+    && playerRef.current?.getInternalPlayer()?.isMuted() !== isMuted.current) {
+    // Cody, is there a method to get the muted value out of the playerRef variable
+    isMuted.current = playerRef.current?.getInternalPlayer()?.isMuted();
+    window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED, {
+      detail: {
+        value: playerRef.current?.getInternalPlayer()?.isMuted(),
+      } as ExternalVideoVolumeUiDataPayloads[ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED],
+    }));
+  }
+  if (playerRef.current?.getInternalPlayer()?.getVolume()
+    && playerRef.current?.getInternalPlayer()?.getVolume() !== currentVolume.current) {
+    currentVolume.current = playerRef.current?.getInternalPlayer()?.getVolume();
+    window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE, {
+      detail: {
+        value: playerRef.current?.getInternalPlayer()?.getVolume() / 100,
+      } as ExternalVideoVolumeUiDataPayloads[ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE],
+    }));
+  }
+  // --- End of plugin related code ---
+
   useEffect(() => {
     if (isPresenter !== presenterRef.current) {
       setKey(uniqueId('react-player'));
@@ -266,7 +297,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const handleOnPause = () => {
+  const handleOnStop = () => {
     if (isPresenter) {
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
@@ -341,8 +372,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
             setPlayed(state.played);
             setLoaded(state.loaded);
           }}
-          onPause={handleOnPause}
-          muted={mute}
+          onPause={handleOnStop}
+          onEnded={handleOnStop}
+          muted={mute || isEchoTest}
         />
         {
           !isPresenter ? (
@@ -379,6 +411,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+  const currentVolume = React.useRef(0);
+  const isMuted = React.useRef(false);
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
@@ -407,6 +441,49 @@ const ExternalVideoPlayerContainer: React.FC = () => {
     }
   }, [currentMeeting]);
 
+  // --- Plugin related code ---
+  useEffect(() => {
+    // Define functions to first inform ui data hooks that subscribe to these events
+    const updateUiDataHookCurrentVolumeForPlugin = () => {
+      window.dispatchEvent(new CustomEvent(PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE, {
+        detail: {
+          value: currentVolume.current,
+        } as ExternalVideoVolumeUiDataPayloads[PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE],
+      }));
+    };
+    const updateUiDataHookIsMutedPlugin = () => {
+      window.dispatchEvent(new CustomEvent(PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED, {
+        detail: {
+          value: isMuted.current,
+        } as ExternalVideoVolumeUiDataPayloads[PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED],
+      }));
+    };
+
+    // When component mount, add event listener to send first information
+    // about these ui data hooks to plugin
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE}`,
+      updateUiDataHookCurrentVolumeForPlugin,
+    );
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
+      updateUiDataHookIsMutedPlugin,
+    );
+
+    // Before component unmount, remove event listeners for plugin ui data hooks
+    return () => {
+      window.removeEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE}`,
+        updateUiDataHookCurrentVolumeForPlugin,
+      );
+      window.removeEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
+        updateUiDataHookIsMutedPlugin,
+      );
+    };
+  }, []);
+  // --- End of plugin related code ---
+
   const [timeSync] = useTimeSync();
 
   const fullscreenElementId = 'ExternalVideo';
@@ -431,6 +508,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   return (
     <ExternalVideoPlayer
+      currentVolume={currentVolume}
+      isMuted={isMuted}
       isEchoTest={isEchoTest}
       isPresenter={currentUser.presenter ?? false}
       videoUrl={currentMeeting.externalVideo?.externalVideoUrl ?? ''}

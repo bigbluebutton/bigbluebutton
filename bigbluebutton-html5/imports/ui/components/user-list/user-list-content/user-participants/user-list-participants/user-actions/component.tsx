@@ -1,14 +1,16 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import logger from '/imports/startup/client/logger';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
   SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
+  REQUEST_USER_INFO,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
@@ -26,7 +28,6 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { makeCall } from '/imports/ui/services/api';
 import { isChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
@@ -41,6 +42,7 @@ import Styled from './styles';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 
 interface UserActionsProps {
   user: User;
@@ -50,6 +52,8 @@ interface UserActionsProps {
   isBreakout: boolean;
   children: React.ReactNode;
   pageId: string;
+  open: boolean;
+  setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 interface DropdownItem {
@@ -62,6 +66,11 @@ interface DropdownItem {
   textColor: string | undefined;
   isSeparator: boolean | undefined;
   onClick: (() => void) | undefined;
+}
+
+interface Writer {
+  pageId: string;
+  userId: string;
 }
 
 const messages = defineMessages({
@@ -205,37 +214,48 @@ const UserActions: React.FC<UserActionsProps> = ({
   isBreakout,
   children,
   pageId,
+  open,
+  setOpenUserAction,
 }) => {
   const intl = useIntl();
   const [showNestedOptions, setShowNestedOptions] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters, { data: usersData }] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
-  const writers = usersData?.pres_page_writers || null;
+  const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const voiceToggle = useToggleVoice();
 
-  // users will only be fetched when getWriters is called
-  useEffect(() => {
-    if (writers) {
-      changeWhiteboardAccess();
-    }
-  }, [writers]);
+  const handleWhiteboardAccessChange = async () => {
+    try {
+      // Fetch the writers data
+      const { data } = await getWriters();
+      const allWriters: Writer[] = data?.pres_page_writers || [];
+      const currentWriters = allWriters?.filter((writer: Writer) => writer.pageId === pageId);
 
-  const changeWhiteboardAccess = () => {
-    if (pageId) {
-      const { userId } = user;
-      const usersIds = writers.map((writer: { userId: string }) => writer.userId);
-      const hasAccess = writers?.some((writer: { userId: string }) => writer.userId === userId);
-      const newUsersIds = hasAccess ? usersIds.filter((id: string) => id !== userId) : [...usersIds, userId];
+      // Determine if the user has access
+      const { userId, presPagesWritable } = user;
+      const hasAccess = presPagesWritable.some(
+        (page: { userId: string; isCurrentPage: boolean }) => (page?.userId === userId && page?.isCurrentPage),
+      );
 
-      presentationSetWriters({
+      // Prepare the updated list of user IDs for whiteboard access
+      const usersIds = currentWriters?.map((writer: { userId: string }) => writer?.userId);
+      const newUsersIds: string[] = hasAccess
+        ? usersIds.filter((id: string) => id !== userId)
+        : [...usersIds, userId];
+
+      // Update the writers
+      await presentationSetWriters({
         variables: {
           pageId,
           usersIds: newUsersIds,
         },
       });
+    } catch (error) {
+      logger.warn({
+        logCode: 'user_action_whiteboard_access_failed',
+      }, 'Error updating whiteboard access.');
     }
   };
 
@@ -283,7 +303,9 @@ const UserActions: React.FC<UserActionsProps> = ({
     (item: PluginSdk.UserListDropdownInterface) => (user?.userId === item?.userId),
   );
 
-  const hasWhiteboardAccess = user.presPagesWritable?.length > 0;
+  const hasWhiteboardAccess = user.presPagesWritable?.some(
+    (page: { pageId: string; userId: string }) => (page.pageId === pageId && page.userId === user.userId),
+  );
 
   const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
@@ -295,6 +317,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
+  const [requestUserInfo] = useMutation(REQUEST_USER_INFO);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -361,7 +384,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
         setPendingChat(user.userId);
-        setSelected(false);
+        setOpenUserAction(null);
         chatCreateWithUser({
           variables: {
             userId: user.userId,
@@ -394,7 +417,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             emoji: 'none',
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'clear_status',
     },
@@ -404,8 +427,8 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
-        setSelected(false);
+        toggleVoice(user.userId, voiceToggle);
+        setOpenUserAction(null);
       },
       icon: 'mute',
     },
@@ -416,8 +439,8 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId);
-        setSelected(false);
+        toggleVoice(user.userId, voiceToggle);
+        setOpenUserAction(null);
       },
       icon: 'unmute',
       dataTest: 'unmuteUser',
@@ -431,8 +454,8 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        getWriters();
-        setSelected(false);
+        handleWhiteboardAccessChange();
+        setOpenUserAction(null);
       },
       icon: 'pen_tool',
       dataTest: 'changeWhiteboardAccess',
@@ -449,7 +472,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             userId: user.userId,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'presentation',
       dataTest: isMe(user.userId) ? 'takePresenter' : 'makePresenter',
@@ -465,7 +488,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             role: 'MODERATOR',
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'promote',
       dataTest: 'promoteToModerator',
@@ -481,7 +504,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             role: 'VIEWER',
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'user',
       dataTest: 'demoteToViewer',
@@ -498,7 +521,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             locked: !userLocked,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: userLocked ? 'unlock' : 'lock',
       dataTest: 'unlockUserButton',
@@ -508,8 +531,12 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'directoryLookup',
       label: intl.formatMessage(messages.DirectoryLookupLabel),
       onClick: () => {
-        makeCall('requestUserInformation', user.extId);
-        setSelected(false);
+        requestUserInfo({
+          variables: {
+            extId: user.extId,
+          },
+        });
+        setOpenUserAction(null);
       },
       icon: 'user',
     },
@@ -519,7 +546,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
       onClick: () => {
         setIsConfirmationModalOpen(true);
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'circle_close',
       dataTest: 'removeUser',
@@ -536,7 +563,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             userId: user.userId,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'video_off',
       dataTest: 'ejectCamera',
@@ -551,7 +578,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             away: !user.away,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
       },
       icon: 'time',
     },
@@ -583,7 +610,7 @@ const UserActions: React.FC<UserActionsProps> = ({
             emoji: key,
           },
         });
-        setSelected(false);
+        setOpenUserAction(null);
         setShowNestedOptions(false);
       },
       icon: (EMOJI_STATUSES as Record<string, string>)[key],
@@ -608,13 +635,13 @@ const UserActions: React.FC<UserActionsProps> = ({
         trigger={
           (
             <Styled.UserActionsTrigger
-              isActionsOpen={selected}
-              selected={selected === true}
+              isActionsOpen={open}
+              selected={open}
               tabIndex={-1}
-              onClick={() => setSelected(true)}
+              onClick={() => setOpenUserAction(user.userId)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  setSelected(true);
+                  setOpenUserAction(user.userId);
                 }
               }}
               role="button"
@@ -626,10 +653,10 @@ const UserActions: React.FC<UserActionsProps> = ({
         actions={actions}
         selectedEmoji={user.emoji}
         onCloseCallback={() => {
-          setSelected(false);
+          setOpenUserAction(null);
           setShowNestedOptions(false);
         }}
-        open={selected}
+        open={open}
       />
       {isConfirmationModalOpen ? (
         <ConfirmationModal

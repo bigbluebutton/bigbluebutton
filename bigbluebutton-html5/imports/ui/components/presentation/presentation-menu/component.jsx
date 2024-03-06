@@ -12,7 +12,7 @@ import Styled from './styles';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import AppService from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
@@ -280,9 +280,9 @@ const PresentationMenu = (props) => {
       );
     }
 
-    const { isSafari } = browserInfo;
+    const { isIos } = deviceInfo;
 
-    if (!isSafari && allowSnapshotOfCurrentSlide) {
+    if (allowSnapshotOfCurrentSlide) {
       menuItems.push(
         {
           key: 'list-item-screenshot',
@@ -322,18 +322,38 @@ const PresentationMenu = (props) => {
                   && shape.y >= 0,
               );
               const svgElem = await tldrawAPI.getSvg(shapes.map((shape) => shape.id));
-              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
-              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
 
-              const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+              // workaround for ios
+              if (isIos) {
+                svgElem.setAttribute('width', backgroundShape.props.w);
+                svgElem.setAttribute('height', backgroundShape.props.h);
+                svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
 
-              const anchor = document.createElement('a');
-              anchor.href = data;
-              anchor.setAttribute(
-                'download',
-                `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
-              );
-              anchor.click();
+                const svgString = new XMLSerializer().serializeToString(svgElem);
+                const blob = new Blob([svgString], { type: 'image/svg+xml' });
+
+                const data = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = data;
+                anchor.setAttribute(
+                  'download',
+                  `${elementName}_${meetingName}_${new Date().toISOString()}.svg`,
+                );
+                anchor.click();
+              } else {
+                const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+                const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+                const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+
+                const anchor = document.createElement('a');
+                anchor.href = data;
+                anchor.setAttribute(
+                  'download',
+                  `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
+                );
+                anchor.click();
+              }
 
               setState({
                 loading: false,
@@ -357,21 +377,18 @@ const PresentationMenu = (props) => {
         },
       );
     }
-    
-    const tools = document.querySelector('.tlui-toolbar, .tlui-style-panel__wrapper, .tlui-menu-zone');
-    if (tools && (props.hasWBAccess || props.amIPresenter)){
-      menuItems.push(
-        {
-          key: 'list-item-toolvisibility',
-          dataTest: 'toolVisibility',
-          label: formattedVisibilityLabel(isToolbarVisible),
-          icon: isToolbarVisible ? 'close' : 'pen_tool',
-          onClick: () => {
-            setIsToolbarVisible(!isToolbarVisible);
-          },
+
+    menuItems.push(
+      {
+        key: 'list-item-toolvisibility',
+        dataTest: 'toolVisibility',
+        label: formattedVisibilityLabel(isToolbarVisible),
+        icon: isToolbarVisible ? 'close' : 'pen_tool',
+        onClick: () => {
+          setIsToolbarVisible(!isToolbarVisible);
         },
-      );
-    }
+      },
+    );
 
     if (props.amIPresenter) {
       menuItems.push({

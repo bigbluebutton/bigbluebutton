@@ -25,7 +25,7 @@ interface TimerIndicatorProps {
   isModerator: boolean;
   sidebarNavigationIsOpen: boolean;
   sidebarContentIsOpen: boolean;
-  startedAt: number;
+  startedOn: number;
 }
 
 const TimerIndicator: React.FC<TimerIndicatorProps> = ({
@@ -36,7 +36,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   isModerator,
   sidebarNavigationIsOpen,
   sidebarContentIsOpen,
-  startedAt,
+  startedOn,
 }) => {
   const [time, setTime] = useState<number>(0);
   const timeRef = useRef<HTMLSpanElement>(null);
@@ -47,6 +47,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const alreadyNotified = useRef<boolean>(false);
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
+  const [songTrackState, setSongTrackState] = useState<string>(songTrack);
 
   const startTimer = () => {
     startTimerMutation();
@@ -57,9 +58,12 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   };
 
   useEffect(() => {
-    alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
+    if (songTrackState !== songTrack) {
+      if (music.current) music.current.pause();
+    }
     if (songTrack in trackName) {
       music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack]}.mp3`);
+      setSongTrackState(songTrack);
       music.current.addEventListener('timeupdate', () => {
         const buffer = 0.19;
         // Start playing the music before it ends to make the loop gapless
@@ -76,6 +80,10 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (music.current) music.current.pause();
     };
+  }, [songTrack]);
+
+  useEffect(() => {
+    alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
   }, []);
 
   useEffect(() => {
@@ -110,7 +118,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (timePassed > prev) return timePassed;
       return prev;
     });
-  }, [passedTime, stopwatch, startedAt]);
+  }, [passedTime, stopwatch, startedOn]);
 
   useEffect(() => {
     if (!timeRef.current) {
@@ -121,10 +129,21 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   }, [time]);
 
   useEffect(() => {
-    if (startedAt === 0) {
+    if (running && songTrack !== 'noTrack') {
+      if (music.current) music.current.play();
+    } else if (!running || songTrack === 'noTrack') {
+      if (music.current) music.current.pause();
+    }
+    if (running && alreadyNotified.current) {
+      alreadyNotified.current = false;
+    }
+  }, [running, songTrackState]);
+
+  useEffect(() => {
+    if (startedOn === 0) {
       setTime(passedTime);
     }
-  }, [startedAt]);
+  }, [startedOn]);
 
   const onClick = running ? stopTimer : startTimer;
 
@@ -189,13 +208,13 @@ const TimerIndicatorContainer: React.FC = () => {
   const {
     accumulated,
     running,
-    startedAt,
+    startedOn,
     stopwatch,
     songTrack,
     time,
   } = currentTimer;
   const currentDate: Date = new Date();
-  const startedAtDate: Date = new Date(startedAt || Date.now());
+  const startedAtDate: Date = new Date(startedOn || Date.now());
   const adjustedCurrent: Date = new Date(currentDate.getTime() + timeSync);
   const timeDifferenceMs: number = adjustedCurrent.getTime() - startedAtDate.getTime();
 
@@ -214,7 +233,7 @@ const TimerIndicatorContainer: React.FC = () => {
       isModerator={currentUser.isModerator ?? false}
       sidebarNavigationIsOpen={sidebarNavigationIsOpen}
       sidebarContentIsOpen={sidebarContentIsOpen}
-      startedAt={startedAt}
+      startedOn={startedOn}
     />
   );
 };

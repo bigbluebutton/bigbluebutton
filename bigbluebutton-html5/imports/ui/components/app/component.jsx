@@ -16,7 +16,6 @@ import PadsSessionsContainer from '/imports/ui/components/pads/pads-graphql/sess
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
-import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
@@ -29,6 +28,7 @@ import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
+import GenericComponentContainer from '../generic-component-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
@@ -54,6 +54,7 @@ import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
+import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -174,6 +175,7 @@ class App extends Component {
       layoutContextDispatch,
       isRTL,
       setMobileUser,
+      toggleVoice,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -217,7 +219,7 @@ class App extends Component {
 
     if (CONFIRMATION_ON_LEAVE) {
       window.onbeforeunload = (event) => {
-        AudioService.muteMicrophone();
+        AudioService.muteMicrophone(toggleVoice);
         event.stopImmediatePropagation();
         event.preventDefault();
         // eslint-disable-next-line no-param-reassign
@@ -530,6 +532,7 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       enforceLayout,
+      setLocalSettings,
     } = this.props;
 
     return (
@@ -561,6 +564,7 @@ class App extends Component {
           shouldShowScreenshare,
           shouldShowExternalVideo: !!shouldShowExternalVideo,
           enforceLayout,
+          setLocalSettings,
         }}
       />
     );
@@ -630,6 +634,13 @@ class App extends Component {
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <ExternalVideoPlayerContainer />
+          <GenericComponentContainer
+            {...{
+              shouldShowScreenshare,
+              shouldShowSharedNotes,
+              shouldShowExternalVideo,
+            }}
+          />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
           {shouldShowSharedNotes
@@ -655,7 +666,7 @@ class App extends Component {
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
             && (
-              <ChatAlertContainer
+              <ChatAlertContainerGraphql
                 audioAlertEnabled={audioAlertEnabled}
                 pushAlertEnabled={pushAlertEnabled}
               />

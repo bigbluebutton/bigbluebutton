@@ -8,6 +8,7 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutJoinConfirmationComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../breakout-room/mutations';
+import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
 
 const BreakoutJoinConfirmationContrainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -16,6 +17,11 @@ const BreakoutJoinConfirmationContrainer = (props) => {
   const amIPresenter = currentUserData?.presenter;
 
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+
+  const sendUserUnshareWebcam = (cameraId) => {
+    cameraBroadcastStop({ variables: { cameraId } });
+  };
 
   const requestJoinURL = (breakoutRoomId) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
@@ -25,6 +31,7 @@ const BreakoutJoinConfirmationContrainer = (props) => {
     {...props}
     amIPresenter={amIPresenter}
     requestJoinURL={requestJoinURL}
+    sendUserUnshareWebcam={sendUserUnshareWebcam}
   />
 };
 

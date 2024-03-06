@@ -34,6 +34,8 @@ import {
 } from './service';
 
 import App from './component';
+import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
+import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
@@ -79,6 +81,7 @@ const AppContainer = (props) => {
   } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const genericComponent = layoutSelectInput((i) => i.genericComponent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
@@ -91,7 +94,8 @@ const AppContainer = (props) => {
   const [setMobileFlag] = useMutation(SET_MOBILE_FLAG);
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
- 
+  const toggleVoice = useToggleVoice();
+  const setLocalSettings = useUserChangedLocalSettings();
   const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
   const shouldShowSharedNotes = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
@@ -189,14 +193,18 @@ const AppContainer = (props) => {
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
+  const shouldShowGenericComponent = genericComponent.hasGenericComponent;
+
   const validateEnforceLayout = (currentUser) => {
     const layoutTypes = Object.values(LAYOUT_TYPE);
     const enforceLayout = currentUser?.enforceLayout;
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };
 
-  const shouldShowScreenshare = propsShouldShowScreenshare && (viewScreenshare || isPresenter);
-  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes && !shouldShowExternalVideo
+  const shouldShowScreenshare = propsShouldShowScreenshare 
+    && (viewScreenshare || isPresenter);
+  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes 
+    && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   return currentUserId
@@ -243,6 +251,8 @@ const AppContainer = (props) => {
           shouldShowSharedNotes,
           shouldShowPresentation,
           setMobileUser,
+          toggleVoice,
+          setLocalSettings,
         }}
         {...otherProps}
       />

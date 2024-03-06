@@ -24,7 +24,7 @@ class Polling extends MultiUsers {
 
   async pollAnonymous() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await util.startPoll(this.modPage, false, true);
+    await util.startPoll(this.modPage, true);
     await this.modPage.waitForSelector(e.publishPollingLabel);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.userPage.wasRemoved(e.receivedAnswer);
@@ -63,7 +63,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitForSelector(e.restartPoll);
 
-    await this.modPage.hasElement(e.wbDrawnRectangle);
+    await this.modPage.hasElement(e.wbDrawnRectangle, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.wbDrawnRectangle);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
@@ -130,7 +130,7 @@ class Polling extends MultiUsers {
   }
 
   async customInput() {
-    await uploadSinglePresentation(this.modPage, e.questionSlideFileName);
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.polling);
@@ -139,6 +139,8 @@ class Polling extends MultiUsers {
     await this.modPage.type(e.pollQuestionArea, 'Test');
     await this.modPage.waitAndClick(e.addPollItem);
     await this.modPage.type(e.pollOptionItem, 'test1');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.type(e.pollOptionItem2, 'test2');
     await this.modPage.waitAndClick(e.startPoll);
 
     await this.userPage.hasElement(e.pollingContainer);
@@ -252,8 +254,11 @@ class Polling extends MultiUsers {
     const { pollChatMessage } = getSettings();
     
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await util.startPoll(this.modPage, true);
-    await this.modPage.waitAndClick(e.chatButton);
+    await util.startPoll(this.modPage);
+    await this.modPage.hasElementDisabled(e.publishPollingLabel);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.modPage.hasElement(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.publishPollingLabel);
 
     const lastChatPollMessageTextModerator = await this.modPage.getLocator(e.chatPollMessageText).last();
     if(!pollChatMessage) {
@@ -266,14 +271,20 @@ class Polling extends MultiUsers {
 
   async pollResultsOnWhiteboard() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await util.startPoll(this.modPage, true);
+    await util.startPoll(this.modPage);
+
+    await this.modPage.hasElementDisabled(e.publishPollingLabel);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.modPage.hasElement(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+
     const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle).last();
     await expect(wbDrawnRectangleLocator).toBeVisible({ timeout: ELEMENT_WAIT_TIME});
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
 
-    await wbDrawnRectangleLocator.click();
+    await wbDrawnRectangleLocator.dblclick();
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
@@ -284,6 +295,9 @@ class Polling extends MultiUsers {
     // user turns to presenter to edit the poll results
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);
+
+    await this.userPage.waitAndClick(e.zoomInButton);
+    await this.userPage.waitAndClick(e.resetZoomButton);
 
     const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbDrawnRectangle).last();
     await wbDrawnRectangleUserLocator.dblclick();

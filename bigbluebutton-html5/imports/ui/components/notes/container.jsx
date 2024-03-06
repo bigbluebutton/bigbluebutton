@@ -36,6 +36,7 @@ withTracker(() => {
     hasPermission,
     isRTL,
     shouldShowSharedNotesOnPresentationArea,
+    isGridEnabled: Session.get('isGridEnabled') || false,
   };
 })(Container);
 

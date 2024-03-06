@@ -10,7 +10,6 @@ import {
   didUserSelectedMicrophone,
   didUserSelectedListenOnly,
 } from '/imports/ui/components/audio/audio-modal/service';
-import { makeCall } from '/imports/ui/services/api';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   BREAKOUT_ROOM_END_ALL,
@@ -19,6 +18,8 @@ import {
   BREAKOUT_ROOM_REQUEST_JOIN_URL,
 } from './mutations';
 import logger from '/imports/startup/client/logger';
+import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
+import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 
 const BreakoutContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -34,6 +35,12 @@ const BreakoutContainer = (props) => {
   const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+  const toggleVoice = useToggleVoice();
+
+  const sendUserUnshareWebcam = (cameraId) => {
+    cameraBroadcastStop({ variables: { cameraId } });
+  };
 
   const endAllBreakouts = () => {
     Service.setCapturedContentUploading();
@@ -61,13 +68,38 @@ const BreakoutContainer = (props) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
   };
 
+  const logUserCouldNotRejoinAudio = () => {
+    logger.warn({
+      logCode: 'mainroom_audio_rejoin',
+      extraInfo: { logType: 'user_action' },
+    }, 'leaving breakout room couldn\'t rejoin audio in the main room');
+  };
+
+  const rejoinAudio = () => {
+    if (didUserSelectedMicrophone()) {
+      AudioManager.joinMicrophone().then(() => {
+        toggleVoice(null, true).catch(() => {
+          AudioManager.forceExitAudio();
+          logUserCouldNotRejoinAudio();
+        });
+      }).catch(() => {
+        logUserCouldNotRejoinAudio();
+      });
+    } else if (didUserSelectedListenOnly()) {
+      AudioManager.joinListenOnly().catch(() => {
+        logUserCouldNotRejoinAudio();
+      });
+    }
+  };
+
   return <BreakoutComponent
     amIPresenter={amIPresenter}
     endAllBreakouts={endAllBreakouts}
     setBreakoutsTime={setBreakoutsTime}
     transferUserToMeeting={transferUserToMeeting}
     requestJoinURL={requestJoinURL}
-    {...{ layoutContextDispatch, isRTL, amIModerator, ...props }}
+    sendUserUnshareWebcam={sendUserUnshareWebcam}
+    {...{ layoutContextDispatch, isRTL, amIModerator, rejoinAudio, ...props }}
   />;
 };
 
@@ -90,30 +122,6 @@ export default withTracker((props) => {
     getBreakoutAudioTransferStatus,
   } = AudioService;
 
-  const logUserCouldNotRejoinAudio = () => {
-    logger.warn({
-      logCode: 'mainroom_audio_rejoin',
-      extraInfo: { logType: 'user_action' },
-    }, 'leaving breakout room couldn\'t rejoin audio in the main room');
-  };
-
-  const rejoinAudio = () => {
-    if (didUserSelectedMicrophone()) {
-      AudioManager.joinMicrophone().then(() => {
-        makeCall('toggleVoice', null, true).catch(() => {
-          AudioManager.forceExitAudio();
-          logUserCouldNotRejoinAudio();
-        });
-      }).catch(() => {
-        logUserCouldNotRejoinAudio();
-      });
-    } else if (didUserSelectedListenOnly()) {
-      AudioManager.joinListenOnly().catch(() => {
-        logUserCouldNotRejoinAudio();
-      });
-    }
-  };
-
   return {
     ...props,
     breakoutRooms,
@@ -124,7 +132,6 @@ export default withTracker((props) => {
     isMeteorConnected,
     isUserInBreakoutRoom,
     forceExitAudio: () => AudioManager.forceExitAudio(),
-    rejoinAudio,
     isReconnecting,
     setBreakoutAudioTransferStatus,
     getBreakoutAudioTransferStatus,

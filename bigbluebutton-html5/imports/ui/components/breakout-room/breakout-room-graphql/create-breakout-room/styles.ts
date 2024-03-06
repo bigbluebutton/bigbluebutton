@@ -246,7 +246,7 @@ const AssignBtns = styled(Button)`
   white-space: nowrap;
   margin-bottom: 0.5rem;
 
-  ${({ random }) => random && `
+  ${({ $random }) => $random && `
   color: ${colorPrimary};
   `}
 `;

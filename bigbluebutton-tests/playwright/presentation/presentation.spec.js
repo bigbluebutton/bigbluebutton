@@ -59,7 +59,7 @@ test.describe.parallel('Presentation', () => {
     await presentation.hidePresentationToolbar();
   });
 
-  test('Zoom In, Zoom Out, Reset Zoom @ci @flaky', async ({ browser, context, page }) => {
+  test('Zoom In, Zoom Out, Reset Zoom @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();
