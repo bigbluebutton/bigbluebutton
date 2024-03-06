@@ -190,6 +190,11 @@ preUploadedPresentationName=ScientificPaper.pdf
 In the above example on meeting creation BigBlueButton will pull the pdf, will convert it and when you join the meeting there will be only one presentation based on the sample.pdf url, named ScientificPaper.pdf.
 If `preUploadedPresentationOverrideDefault=false` (or omitted, since `false` is the default value), in the meeting you will see `default.pdf` as the current presentation and one more preloaded presentation called ScientificPaper.pdf to which you can switch at any point without having to wait for conversion to take place.
 
+#### Improved support for various SHA algorithms for checksum calculation
+
+In BigBlueButton 2.6.17 we added a new configuration property for bbb-apps-akka package under `services` called `checkSumAlgorithmForBreakouts`. By default the value is `"sha256"`. It controls the algorithm for checksum calculation for the breakout rooms join link. In case you overwrite bbb-web's `supportedChecksumAlgorithms` property removing sha256 you will need to set a supported algorithm here too. For example if you want to only use `sha512`, set `supportedChecksumAlgorithms=sha512` in `/etc/bigbluebutton/bbb-web.properties` and also set `checkSumAlgorithmForBreakouts="sha512"` in `/etc/bigbluebutton/bbb-apps-akka.conf` and then restart BigBlueButton.
+
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 2.7](/development/guide).

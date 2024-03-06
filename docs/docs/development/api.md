@@ -167,7 +167,26 @@ $ sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+
 
 There are other configuration values in bbb-web's configuration `bigbluebutton.properties` (overwritten by `/etc/bigbluebutton/bbb-web.properties` ) related to the lifecycle of a meeting. You don't need to understand all of these to start using the BigBlueButton API. For most BigBlueButton servers, you can leave the [default values](https://github.com/bigbluebutton/bigbluebutton/blob/main/bigbluebutton-web/grails-app/conf/bigbluebutton.properties).
 
-In 2.5 support for additional hashing algorithms, besides sha1 and sha256, were added. These include sha384 and sha512. The `supportedChecksumAlgorithms` property in `bigbluebutton.properties` defines which algorithms are supported. By default checksums can be validated with any of the supported algorithms. To remove support for one or more of these algorithms simply delete it from the configuration file.
+In BigBlueButton 2.5 support for additional hashing algorithms, besides sha1 and sha256, were added. These include sha384 and sha512. The `supportedChecksumAlgorithms` property in bbb-web defines which algorithms are supported. By default checksums can be validated with any of the supported algorithms. To remove support for one or more of these algorithms simply delete it from the configuration file.
+If you drop support for sha256, (for example if you want to force only sha512 to be used) you will also need to update the `checkSumAlgorithmForBreakouts` property in akka-apps.
+
+In `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+supportedChecksumAlgorithms=sha512
+```
+
+In `/etc/bigbluebutton/bbb-apps-akka.conf`:
+
+```properties
+services {
+  checkSumAlgorithmForBreakouts = "sha512"
+  #...
+}
+```
+
+And make sure to restart BigBlueButton.
+
 
 ### Usage
 
