@@ -252,6 +252,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   // --- Plugin related code ---;
   if (playerRef.current?.getInternalPlayer() && playerRef.current?.getInternalPlayer()?.isMuted
+    && typeof playerRef.current?.getInternalPlayer()?.isMuted === 'function'
     && playerRef.current?.getInternalPlayer()?.isMuted() !== isMuted.current) {
     isMuted.current = playerRef.current?.getInternalPlayer()?.isMuted();
     window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED, {
