@@ -67,6 +67,7 @@ export interface User {
   cameras: Array<Cameras>;
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
+  clientType: string;
   authed: boolean;
   size: number;
   away: boolean;
