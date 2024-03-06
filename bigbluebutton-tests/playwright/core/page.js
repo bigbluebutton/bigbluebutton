@@ -13,6 +13,7 @@ const { generateSettingsData, getSettings } = require('./settings');
 class Page {
   constructor(browser, page) {
     this.browser = browser;
+    this.context = page.context();
     this.page = page;
     this.initParameters = Object.assign({}, parameters);
   }

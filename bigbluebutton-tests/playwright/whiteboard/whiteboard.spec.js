@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { Draw } = require('./draw');
 const { DrawRectangle } = require('./drawRectangle');
 const { DrawEllipse } = require('./drawEllipse');
