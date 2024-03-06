@@ -96,7 +96,9 @@ class MeetingActor(
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
-  with UserActivitySignCmdMsgHdlr {
+  with UserActivitySignCmdMsgHdlr
+
+  with GetMeetingInfoMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
@@ -266,6 +268,9 @@ class MeetingActor(
     // internal messages
     case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
+
+    // Internal gRPC messages
+    case msg: GetMeetingInfo                      => sender() ! handleGetMeetingInfo()
 
     case msg: ExtendMeetingDuration               => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>

@@ -6,6 +6,7 @@ import com.typesafe.sbt.SbtNativePackager.autoImport._
 enablePlugins(JavaServerAppPackaging)
 enablePlugins(UniversalPlugin)
 enablePlugins(DebianPlugin)
+enablePlugins(PekkoGrpcPlugin)
 
 version := "0.0.4"
 
@@ -36,6 +37,10 @@ retrieveManaged := true
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
+//libraryDependencies ++= Seq(
+//  "io.grpc" % "grpc-netty" % scalapb.compiler.Version.grpcJavaVersion,
+//  "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
+//)
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
 
@@ -43,6 +48,8 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 
 Seq(Revolver.settings: _*)
 lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
+
+PB.protoSources in Compile += baseDirectory.value / "../bbb-common-grpc/src/main/proto"
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
