@@ -196,7 +196,7 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
         }).join('\n');
 
         // Text measurement estimation
-        const averageCharWidth = 16;
+        const averageCharWidth = 14;
         const lineHeight = 32;
 
         const annotationWidth = longestLine * averageCharWidth; // Estimate width

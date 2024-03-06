@@ -439,6 +439,7 @@
     "app.muteWarning.disableMessage": "Mute alerts disabled until unmute",
     "app.muteWarning.tooltip": "Click to close and disable warning until next unmute",
     "app.navBar.leaveMeetingBtnLabel": "Leave",
+    "app.navBar.leaveMeetingBtnDesc": "Leave the meeting",
     "app.navBar.optionsDropdown.optionsLabel": "Options",
     "app.navBar.optionsDropdown.fullscreenLabel": "Fullscreen Application",
     "app.navBar.optionsDropdown.settingsLabel": "Settings",
