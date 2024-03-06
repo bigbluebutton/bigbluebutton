@@ -6,22 +6,11 @@ import { safeMatch } from '/imports/utils/string-utils';
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
-const APP = Meteor.settings.public.app;
 
 const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
   current: true,
 });
-
-const downloadPresentationUri = (podId) => {
-  const currentPresentation = getCurrentPresentation(podId);
-  if (!currentPresentation) {
-    return null;
-  }
-
-  const { originalFileURI: uri } = currentPresentation;
-  return `${APP.bbbWebBase}/${uri}`;
-};
 
 const isPresentationDownloadable = (podId) => {
   const currentPresentation = getCurrentPresentation(podId);
@@ -248,7 +237,6 @@ export default {
   getCurrentSlide,
   getSlidePosition,
   isPresentationDownloadable,
-  downloadPresentationUri,
   currentSlidHasContent,
   parseCurrentSlideContent,
   getCurrentPresentation,

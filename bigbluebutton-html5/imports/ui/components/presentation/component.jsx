@@ -206,6 +206,7 @@ class Presentation extends PureComponent {
       numPages,
       currentPresentationId,
       fitToWidth,
+      downloadPresentationUri,
     } = this.props;
     const {
       presentationWidth,
@@ -258,8 +259,9 @@ class Presentation extends PureComponent {
       );
 
       if (
-        prevProps?.currentPresentation?.id !== currentPresentation.id ||
-        (downloadableOn && !userIsPresenter)
+        prevProps?.currentPresentation?.id !== currentPresentation.id
+        || prevProps?.downloadPresentationUri !== downloadPresentationUri
+        || (downloadableOn && !userIsPresenter)
       ) {
         if (this.currentPresentationToastId) {
           toast.update(this.currentPresentationToastId, {
