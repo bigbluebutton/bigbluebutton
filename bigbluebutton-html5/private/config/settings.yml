@@ -245,7 +245,7 @@ public:
         # Indicates if the transcription backend should include partial results
         partialUtterances: true
         # The minumum length (in seconds) an utterance has to have for we to use it
-        minUtteranceLength: 3
+        minUtteranceLength: 1
     shortcuts:
       openOptions:
         accesskey: O

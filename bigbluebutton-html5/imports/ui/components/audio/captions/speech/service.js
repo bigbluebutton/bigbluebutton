@@ -59,10 +59,24 @@ const setSpeechLocale = (value) => {
   }
 };
 
+const setDefaultLocale = () => {
+  if (useFixedLocale() || localeAsDefaultSelected()) {
+    setSpeechLocale(getLocale());
+  } else {
+    setSpeechLocale(navigator.language);
+  }
+}
+
 const useFixedLocale = () => isEnabled() && CONFIG.language.forceLocale;
 
 const initSpeechRecognition = () => {
-  if (!isEnabled() || !isWebSpeechApi()) return null;
+  if (!isEnabled()) return null;
+
+  if (!isWebSpeechApi()) {
+    setDefaultLocale();
+    return;
+  }
+
   if (hasSpeechRecognitionSupport()) {
     // Effectivate getVoices
     setSpeechVoices();
@@ -70,11 +84,7 @@ const initSpeechRecognition = () => {
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
 
-    if (useFixedLocale() || localeAsDefaultSelected()) {
-      setSpeechLocale(getLocale());
-    } else {
-      setSpeechLocale(navigator.language);
-    }
+    setDefaultLocale();
 
     return speechRecognition;
   }

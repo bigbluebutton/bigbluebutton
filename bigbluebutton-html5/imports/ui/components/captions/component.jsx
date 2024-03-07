@@ -92,7 +92,8 @@ const Captions = ({
           'aria-label': intl.formatMessage(intlMessages.hide),
           label: autoTranscription ? intl.formatMessage(intlMessages.title) : name,
         }}
-        customRightButton={Service.amICaptionsOwner(ownerId) ? (
+        customRightButton={dictation ? (
+          Service.amICaptionsOwner(ownerId) ? (
           <span>
             <Button
               onClick={dictating
@@ -103,7 +104,6 @@ const Captions = ({
                 : intl.formatMessage(intlMessages.dictationStart)}
               aria-describedby="dictationBtnDesc"
               color={dictating ? 'danger' : 'primary'}
-              disabled={!dictation}
             />
             <div id="dictationBtnDesc" hidden>
               {dictating
@@ -111,7 +111,7 @@ const Captions = ({
                 : intl.formatMessage(intlMessages.dictationOnDesc)}
             </div>
           </span>
-        ) : (
+          ) : (
           <Button
             color="primary"
             tooltipLabel={intl.formatMessage(intlMessages.takeOwnershipTooltip, { 0: name })}
@@ -119,7 +119,7 @@ const Captions = ({
             aria-label={intl.formatMessage(intlMessages.takeOwnership)}
             label={intl.formatMessage(intlMessages.takeOwnership)}
           />
-        )}
+        )) : null}
       />
       <PadContainer
         externalId={locale}
