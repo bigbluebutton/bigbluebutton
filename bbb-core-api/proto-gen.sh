@@ -1,12 +1,9 @@
 #! /bin/bash
 
-# This script requires the Go plugins for protoc these can be installed with the following commands:
-# go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-# go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
-# Add the plugins to you path:
-# export GOPATH=$HOME/go
-# export PATH=$PATH:$GOPATH/bin
+echo "This script requires the Go plugins for protoc. These can be installed with the following commands:"
+echo "go install google.golang.org/protobuf/cmd/protoc-gen-go@latest"
+echo "go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest"
+echo "Then add ~/go/bin to your PATH to run them."
 
 PROTO_DIR="../bbb-common-grpc/src/main/proto"
 OUT_DIR="./gen"
