@@ -12,7 +12,7 @@ const chalk = require('chalk');
 const parameters = require('./parameters');
 
 function getChecksum(text, secret) {
-  let algorithm = (process.env.CHECKSUM || '').toLocaleLowerCase();
+  let algorithm = (process.env.CHECKSUM || '').toLowerCase();
   if (!['sha1', 'sha256', 'sha512'].includes(algorithm)) {
     switch (secret.length) {
       case 128:
