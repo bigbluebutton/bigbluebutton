@@ -13,6 +13,10 @@ import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
 let guestWaitHtml = '';
 
+const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
+const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
+const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
+
 const env = Meteor.isDevelopment ? 'development' : 'production';
 
 const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
@@ -273,6 +277,8 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   res.end(JSON.stringify({
     normalizedLocale: localeFile,
     regionDefaultLocale: (regionDefault && regionDefault !== localeFile) ? regionDefault : '',
+    defaultLocale: DEFAULT_LANGUAGE,
+    fallbackOnEmptyLocaleString: FALLBACK_ON_EMPTY_STRING,
   }));
 });
 

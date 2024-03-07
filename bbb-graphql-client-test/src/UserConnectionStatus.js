@@ -27,16 +27,10 @@ export default function UserConnectionStatus() {
     //where is not necessary once user can update only its own status
     //Hasura accepts "now()" as value to timestamp fields
     const [updateUserClientResponseAtToMeAsNow] = useMutation(gql`
-      mutation UpdateConnectionClientResponse($networkRttInMs: numeric) {
-        update_user_connectionStatus(
-            where: {userClientResponseAt: {_is_null: true}}
-            _set: { 
-                userClientResponseAt: "now()",
-                networkRttInMs: $networkRttInMs
-             }
-          ) {
-            affected_rows
-          }
+      mutation UpdateConnectionRtt($networkRttInMs: Float!) {
+        userSetConnectionRtt(
+          networkRttInMs: $networkRttInMs
+        )
       }
     `);
 
@@ -50,13 +44,8 @@ export default function UserConnectionStatus() {
 
 
     const [updateConnectionAliveAtToMeAsNow] = useMutation(gql`
-      mutation UpdateConnectionAliveAt($userId: String, $connectionAliveAt: timestamp) {
-        update_user_connectionStatus(
-            where: {},
-            _set: { connectionAliveAt: "now()" }
-          ) {
-            affected_rows
-          }
+     mutation UpdateConnectionAliveAt {
+        userSetConnectionAlive
       }
     `);
 

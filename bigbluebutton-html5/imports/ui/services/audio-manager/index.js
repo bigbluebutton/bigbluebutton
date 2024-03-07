@@ -25,14 +25,14 @@ import {
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 
-const STATS = Meteor.settings.public.stats;
-const MEDIA = Meteor.settings.public.media;
+const STATS = window.meetingClientSettings.public.stats;
+const MEDIA = window.meetingClientSettings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
-  Meteor.settings.public.app.experimentalUseKmsTrickleIceForMicrophone;
+  window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
@@ -879,9 +879,9 @@ class AudioManager {
   playHangUpSound() {
     this.playAlertSound(
       `${
-        Meteor.settings.public.app.cdn +
-        Meteor.settings.public.app.basename +
-        Meteor.settings.public.app.instanceId
+        window.meetingClientSettings.public.app.cdn +
+        window.meetingClientSettings.public.app.basename +
+        window.meetingClientSettings.public.app.instanceId
       }` + '/resources/sounds/LeftCall.mp3'
     );
   }

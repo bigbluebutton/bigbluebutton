@@ -1,13 +1,13 @@
 import LocalPCLoopback from '/imports/ui/services/webrtc-base/local-pc-loopback';
 import browserInfo from '/imports/utils/browserInfo';
 
-const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
-const USE_RTC_LOOPBACK_CHR = Meteor.settings.public.media.localEchoTest.useRtcLoopbackInChromium;
+const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+const USE_RTC_LOOPBACK_CHR = window.meetingClientSettings.public.media.localEchoTest.useRtcLoopbackInChromium;
 const {
   enabled: DELAY_ENABLED = true,
   delayTime = 0.5,
   maxDelayTime = 2,
-} = Meteor.settings.public.media.localEchoTest.delay;
+} = window.meetingClientSettings.public.media.localEchoTest.delay;
 
 let audioContext = null;
 let sourceContext = null;

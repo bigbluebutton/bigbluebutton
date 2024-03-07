@@ -12,7 +12,7 @@ class GuestPolicy extends MultiUsers {
   async messageToGuestLobby() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await sleep(500);
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.modPage.hasElement(e.waitingUsersBtn);
 
     await this.modPage.waitAndClick(e.waitingUsersBtn);
@@ -24,7 +24,7 @@ class GuestPolicy extends MultiUsers {
   async allowEveryone() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await sleep(500);
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasText(e.guestMessage, /wait/);
     await this.userPage.hasText(e.positionInWaitingQueue, /first/);
     await this.modPage.waitAndClick(e.waitingUsersBtn);
@@ -39,7 +39,7 @@ class GuestPolicy extends MultiUsers {
   async denyEveryone() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await sleep(500);
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.modPage.waitAndClick(e.waitingUsersBtn);
     await this.modPage.waitAndClick(e.denyEveryone);
     
@@ -55,14 +55,14 @@ class GuestPolicy extends MultiUsers {
     await this.modPage.hasElementEnabled(e.rememberCheckboxId);
     await this.modPage.waitAndClick(e.denyEveryone);
 
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasElement(e.deniedMessageElement);
   }
 
   async messageToSpecificUser() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await sleep(500);
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.modPage.waitAndClick(e.waitingUsersBtn);
 
     await this.modPage.waitAndClick(e.privateMessageGuest);
@@ -74,7 +74,7 @@ class GuestPolicy extends MultiUsers {
   async acceptSpecificUser() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await sleep(500);
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasText(e.guestMessage, /wait/);
     await this.userPage.hasText(e.positionInWaitingQueue, /first/);
     await this.modPage.waitAndClick(e.waitingUsersBtn);
@@ -88,7 +88,7 @@ class GuestPolicy extends MultiUsers {
   async denySpecificUser() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await sleep(500);
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.modPage.waitAndClick(e.waitingUsersBtn);
 
     await this.modPage.waitAndClick(e.denyGuest);
@@ -99,14 +99,14 @@ class GuestPolicy extends MultiUsers {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await setGuestPolicyOption(this.modPage, e.alwaysAccept);
     await sleep(500);
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasElement(e.audioModal);
   }
 
   async alwaysDeny() {
     await setGuestPolicyOption(this.modPage, e.alwaysDeny);
     await sleep(1500);
-    await this.initUserPage(false);
+    await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasElement(e.deniedMessageElement);
   }
 }

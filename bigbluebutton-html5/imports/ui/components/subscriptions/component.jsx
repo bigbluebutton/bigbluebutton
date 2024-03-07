@@ -9,7 +9,7 @@ import SubscriptionRegistry, {
 } from '../../services/subscription-registry/subscriptionRegistry';
 import { isChatEnabled } from '/imports/ui/services/features';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   'users',

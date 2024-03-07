@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import Styled from './styles';
 import Meetings from '/imports/api/meetings';
 
-const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 
 const intlMessages = defineMessages({
   title: {

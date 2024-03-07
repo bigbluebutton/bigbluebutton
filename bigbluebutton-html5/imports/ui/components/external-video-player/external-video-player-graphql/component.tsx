@@ -251,22 +251,24 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, [playerRef.current]);
 
   // --- Plugin related code ---;
-  if (playerRef.current?.getInternalPlayer()
-    && playerRef.current?.getInternalPlayer()?.isMuted() !== isMuted.current) {
-    // Cody, is there a method to get the muted value out of the playerRef variable
-    isMuted.current = playerRef.current?.getInternalPlayer()?.isMuted();
+  const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
+  if (internalPlayer && internalPlayer?.isMuted
+    && typeof internalPlayer?.isMuted === 'function'
+    && internalPlayer?.isMuted() !== isMuted.current) {
+    isMuted.current = internalPlayer?.isMuted();
     window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED, {
       detail: {
-        value: playerRef.current?.getInternalPlayer()?.isMuted(),
+        value: internalPlayer?.isMuted(),
       } as ExternalVideoVolumeUiDataPayloads[ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED],
     }));
   }
-  if (playerRef.current?.getInternalPlayer()?.getVolume()
-    && playerRef.current?.getInternalPlayer()?.getVolume() !== currentVolume.current) {
-    currentVolume.current = playerRef.current?.getInternalPlayer()?.getVolume();
+  if (internalPlayer && internalPlayer?.getVolume
+    && typeof internalPlayer?.getVolume === 'function'
+    && internalPlayer?.getVolume() !== currentVolume.current) {
+    currentVolume.current = internalPlayer?.getVolume();
     window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE, {
       detail: {
-        value: playerRef.current?.getInternalPlayer()?.getVolume() / 100,
+        value: internalPlayer?.getVolume() / 100,
       } as ExternalVideoVolumeUiDataPayloads[ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE],
     }));
   }
