@@ -24,7 +24,7 @@ import {
   PRESENTATION_REMOVE,
 } from '../mutations';
 
-const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
+const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
 const PresentationUploaderContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({

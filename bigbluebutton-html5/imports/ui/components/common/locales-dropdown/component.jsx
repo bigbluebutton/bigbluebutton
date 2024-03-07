@@ -22,7 +22,7 @@ class LocalesDropdown extends PureComponent {
   filterLocaleVariations(value) {
     const { allLocales } = this.props;
     if (allLocales) {
-      if (Meteor.settings.public.app.showAllAvailableLocales) {
+      if (window.meetingClientSettings.public.app.showAllAvailableLocales) {
         return allLocales;
       }
 
