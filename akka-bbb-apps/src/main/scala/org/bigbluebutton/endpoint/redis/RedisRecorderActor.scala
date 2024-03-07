@@ -115,7 +115,7 @@ class RedisRecorderActor(
       //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
 
       // AudioCaptions
-      case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m)
+      //case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m) // temporarily disabling due to issue https://github.com/bigbluebutton/bigbluebutton/issues/19701
 
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
@@ -536,6 +536,7 @@ class RedisRecorderActor(
   }
   */
 
+  /* temporarily disabling due to issue https://github.com/bigbluebutton/bigbluebutton/issues/19701
   private def handleTranscriptUpdatedEvtMsg(msg: TranscriptUpdatedEvtMsg) {
     val ev = new TranscriptUpdatedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -544,6 +545,7 @@ class RedisRecorderActor(
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
+  */
 
   private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
     val ev = new StartExternalVideoRecordEvent()
