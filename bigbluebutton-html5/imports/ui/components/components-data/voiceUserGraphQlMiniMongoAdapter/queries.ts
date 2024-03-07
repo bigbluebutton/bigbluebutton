@@ -28,7 +28,7 @@ interface UserVoiceStream {
 }
 
 export interface UserVoiceStreamResponse {
-  user_voice_mongodb_adapter: UserVoiceStream[];
+  user_voice_mongodb_adapter_stream: UserVoiceStream[];
 }
 
 export const voiceUserStream = gql`

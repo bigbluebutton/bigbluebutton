@@ -25,8 +25,9 @@ const VoiceUserGrapQlMiniMongoAdapter: React.FC<VoiceUserGrapQlMiniMongoAdapterP
   }, [error]);
 
   useEffect(() => {
-    if (data && data.user_voice_mongodb_adapter) {
-      const usersVoice = data.user_voice_mongodb_adapter;
+    if (data && data.user_voice_mongodb_adapter_stream) {
+      const usersVoice = data.user_voice_mongodb_adapter_stream;
+
       usersVoice.forEach((userVoice) => {
         VoiceUsers.upsert({ userId: userVoice.userId }, userVoice);
       });
