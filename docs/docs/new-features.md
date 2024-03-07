@@ -76,6 +76,11 @@ Recent releases:
 
 We have removed all use of Kurento Media Server. For the live media transmission we still rely on mediasoup. For the recording portion we make use of our own component `bbb-webrtc-recorder`. BigBlueButton 3.0 is the first release where we do not even install Kurento.
 
+#### Improved support for various SHA algorithms for checksum calculation
+
+In BigBlueButton 2.6.17/2.7.5 we added a new configuration property for bbb-apps-akka package under `services` called `checkSumAlgorithmForBreakouts`. By default the value is `"sha256"`. It controls the algorithm for checksum calculation for the breakout rooms join link. In case you overwrite bbb-web's `supportedChecksumAlgorithms` property removing sha256 you will need to set a supported algorithm here too. For example if you want to only use `sha512`, set `supportedChecksumAlgorithms=sha512` in `/etc/bigbluebutton/bbb-web.properties` and also set `checkSumAlgorithmForBreakouts="sha512"` in `/etc/bigbluebutton/bbb-apps-akka.conf` and then restart BigBlueButton.
+
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 3.0](/development/guide).
