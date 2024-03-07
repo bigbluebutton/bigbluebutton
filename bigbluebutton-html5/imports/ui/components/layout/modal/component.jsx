@@ -22,7 +22,7 @@ const LayoutModalComponent = (props) => {
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
   const [updateAllUsed, setUpdateAllUsed] = useState(false);
 
-  const BASE_NAME = Meteor.settings.public.app.basename;
+  const BASE_NAME = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
 
   const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
