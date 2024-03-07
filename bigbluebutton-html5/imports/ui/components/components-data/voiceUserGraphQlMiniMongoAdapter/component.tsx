@@ -4,13 +4,7 @@ import VoiceUsers from '/imports/api/voice-users/';
 import logger from '/imports/startup/client/logger';
 import { UserVoiceStreamResponse, voiceUserStream } from './queries';
 
-interface VoiceUserGrapQlMiniMongoAdapterProps {
-  children: React.ReactNode;
-}
-
-const VoiceUserGrapQlMiniMongoAdapter: React.FC<VoiceUserGrapQlMiniMongoAdapterProps> = ({
-  children,
-}) => {
+const VoiceUserGrapQlMiniMongoAdapter: React.FC = () => {
   const {
     loading,
     error,
@@ -41,11 +35,7 @@ const VoiceUserGrapQlMiniMongoAdapter: React.FC<VoiceUserGrapQlMiniMongoAdapterP
       }
     }
   }, [loading]);
-  return (
-    <>
-      {voiceUserDataSetted && children}
-    </>
-  );
+  return null;
 };
 
 export default VoiceUserGrapQlMiniMongoAdapter;

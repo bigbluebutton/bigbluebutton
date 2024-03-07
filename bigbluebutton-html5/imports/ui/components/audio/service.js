@@ -73,7 +73,7 @@ const init = (messages, intl, toggleVoice) => {
 
 const muteMicrophone = (toggleVoice) => {
   const user = VoiceUsers.findOne({
-    meetingId: Auth.meetingID, userId: Auth.userID,
+    userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
   if (!user.muted) {
@@ -94,7 +94,7 @@ const isVoiceUser = () => {
 
 const toggleMuteMicrophone = throttle((toggleVoice) => {
   const user = VoiceUsers.findOne({
-    meetingId: Auth.meetingID, userId: Auth.userID,
+    userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
   Storage.setItem(MUTED_KEY, !user.muted);
