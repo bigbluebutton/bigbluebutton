@@ -23,8 +23,8 @@ const Main: React.FC = () => {
               <ConnectionManager>
                 <PresenceManager>
                   <SettingsLoader />
+                  <VoiceUserGrapQlMiniMongoAdapter />
                 </PresenceManager>
-                <VoiceUserGrapQlMiniMongoAdapter />
               </ConnectionManager>
             </LocatedErrorBoundary>
           </IntlLoaderContainer>
