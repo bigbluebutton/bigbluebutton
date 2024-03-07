@@ -6,7 +6,7 @@ const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
 const { env } = require('node:process');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('./constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData, getSettings } = require('./settings');
 
@@ -135,7 +135,7 @@ class Page {
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioModal, 15000);
+    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
   }
 
@@ -261,7 +261,7 @@ class Page {
 
   async checkElementCount(selector, count) {
     const locator = await this.page.locator(selector);
-    await expect(locator).toHaveCount(count, {timeout: 10000});
+    await expect(locator).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
   }
 
   async hasValue(selector, value) {
@@ -305,7 +305,7 @@ class Page {
       }
   }
 
-  async setViewPortSize(width, height) {
+  async setViewPortSize({ width, height }) {
     await this.page.setViewportSize({ width, height});
   }
 }
