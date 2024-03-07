@@ -11,7 +11,7 @@ export interface GetUserCurrentResponse {
     meeting: {
       ended: boolean;
       endedReasonCode: string;
-      endedBy: string;
+      endedByUserName: string;
     };
   }>;
 }
@@ -60,7 +60,7 @@ subscription getUserCurrent {
       meeting {
         ended
         endedReasonCode
-        endedBy
+        endedByUserName
       }
     }
   }
