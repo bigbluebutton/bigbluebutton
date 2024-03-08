@@ -10,6 +10,7 @@ import LoadingScreenHOC from '/imports/ui/components/common/loading-screen/loadi
 import IntlLoaderContainer from '/imports/startup/client/intlLoader';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import StartupDataFetch from '/imports/ui/components/connection-manager/startup-data-fetch/component';
+import UserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/userGrapQlMiniMongoAdapter/component';
 
 const Main: React.FC = () => {
   return (
@@ -22,6 +23,7 @@ const Main: React.FC = () => {
               <ConnectionManager>
                 <PresenceManager>
                   <SettingsLoader />
+                  <UserGrapQlMiniMongoAdapter />
                 </PresenceManager>
               </ConnectionManager>
             </LocatedErrorBoundary>

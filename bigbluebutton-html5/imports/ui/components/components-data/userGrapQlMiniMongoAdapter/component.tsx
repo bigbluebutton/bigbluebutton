@@ -9,15 +9,8 @@ interface UserCurrentResponse {
   user_current: Array<User>;
 }
 
-interface UserGrapQlMiniMongoAdapterProps {
-  children: React.ReactNode;
-}
-
-const UserGrapQlMiniMongoAdapter: React.FC<UserGrapQlMiniMongoAdapterProps> = ({
-  children,
-}) => {
+const UserGrapQlMiniMongoAdapter: React.FC = () => {
   const {
-    loading,
     error,
     data,
   } = useSubscription<UserCurrentResponse>(CURRENT_USER_SUBSCRIPTION);
@@ -38,11 +31,7 @@ const UserGrapQlMiniMongoAdapter: React.FC<UserGrapQlMiniMongoAdapterProps> = ({
       }
     }
   }, [data]);
-  return (
-    <>
-      {userDataSetted && children}
-    </>
-  );
+  return null;
 };
 
 export default UserGrapQlMiniMongoAdapter;
