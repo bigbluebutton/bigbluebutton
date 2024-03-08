@@ -7,7 +7,7 @@ import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-s
 import { CAMERA_BROADCAST_START, CAMERA_BROADCAST_STOP } from './mutations';
 import { getVideoData, getVideoDataGrid } from './queries';
 
-const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
+const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
 const VideoProviderContainer = ({ children, ...props }) => {
   const { streams, isGridEnabled } = props;

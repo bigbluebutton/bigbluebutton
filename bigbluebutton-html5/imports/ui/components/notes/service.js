@@ -6,8 +6,8 @@ import { Session } from 'meteor/session';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { isSharedNotesEnabled } from '/imports/ui/services/features';
 
-const NOTES_CONFIG = Meteor.settings.public.notes;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const hasPermission = () => {
   const user = Users.findOne(

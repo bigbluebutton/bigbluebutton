@@ -16,11 +16,14 @@ exports.raiseHandBtn = 'div[data-test="raiseHandBtn"]';
 exports.lowerHandBtn = 'div[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
-exports.logout = 'li[data-test="logout"]';
+exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
+exports.logoutBtn = 'li[data-test="logoutButton"]';
 exports.rating = 'div[data-test="rating"]';
 exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 exports.errorMessageLabel = 'span[id="error-message"]';
 exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
+exports.closePopup = 'button[data-test="closePopup"]';
+exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
 
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';
@@ -387,7 +390,7 @@ exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]'
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
 exports.userBannedMessage1 = 'div[id="app"] >> div >> div:nth-child(1)';
 exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
-exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
+exports.meetingEndedModalTitle = 'div[data-test="meetingEndedModal"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
 

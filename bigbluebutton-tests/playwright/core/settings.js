@@ -5,12 +5,13 @@ async function generateSettingsData(page) {
 
   try {
     const settingsData = await page.evaluate(() => {
-      return Meteor.settings.public;
+      return window.meetingClientSettings.public;
     });
 
     settings = {
       reactionsButton: settingsData.app.reactionsButton.enabled,
       sharedNotesEnabled: settingsData.notes.enabled,
+      directLeaveButton: settingsData.app.defaultSettings.application.directLeaveButton,
       // Audio
       autoJoinAudioModal: settingsData.app.autoJoin,
       listenOnlyMode: settingsData.app.listenOnlyMode,

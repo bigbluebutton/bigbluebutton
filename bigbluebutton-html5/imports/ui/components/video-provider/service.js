@@ -24,19 +24,19 @@ import {
 } from '/imports/ui/components/video-provider/stream-sorting';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
-const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
-const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
+const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles;
+const MULTIPLE_CAMERAS = window.meetingClientSettings.public.app.enableMultipleCameras;
 
-const SFU_URL = Meteor.settings.public.kurento.wsUrl;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
-const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
-const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
+const SFU_URL = window.meetingClientSettings.public.kurento.wsUrl;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
+const MIRROR_WEBCAM = window.meetingClientSettings.public.app.mirrorOwnWebcam;
+const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
 const {
   thresholds: CAMERA_QUALITY_THRESHOLDS = [],
   applyConstraints: CAMERA_QUALITY_THR_CONSTRAINTS = false,
   debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
-} = Meteor.settings.public.kurento.cameraQualityThresholds;
+} = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
 const {
   paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
@@ -44,15 +44,15 @@ const {
   mobilePageSizes: MOBILE_PAGE_SIZES,
   desktopGridSizes: DESKTOP_GRID_SIZES,
   mobileGridSizes: MOBILE_GRID_SIZES,
-} = Meteor.settings.public.kurento.pagination;
-const PAGINATION_THRESHOLDS_CONF = Meteor.settings.public.kurento.paginationThresholds;
+} = window.meetingClientSettings.public.kurento.pagination;
+const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
 const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
 const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
 const {
   paginationSorting: PAGINATION_SORTING,
   defaultSorting: DEFAULT_SORTING,
-} = Meteor.settings.public.kurento.cameraSortingModes;
-const DEFAULT_VIDEO_MEDIA_SERVER = Meteor.settings.public.kurento.videoMediaServer;
+} = window.meetingClientSettings.public.kurento.cameraSortingModes;
+const DEFAULT_VIDEO_MEDIA_SERVER = window.meetingClientSettings.public.kurento.videoMediaServer;
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',

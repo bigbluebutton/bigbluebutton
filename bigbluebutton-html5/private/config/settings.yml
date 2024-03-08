@@ -12,6 +12,7 @@ public:
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
     skipCheck: false
+    instanceId: ''
     # Skips the echo test when connecting with microphone right after user
     # joins the room the first time. Subsequent joins to microphone won't
     # have echo test skipped, for example if user leaves and joins the mic
@@ -30,7 +31,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2023 BigBlueButton Inc.'
+    copyright: '©2024 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -200,6 +201,7 @@ public:
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
         autoCloseReactionsBar: true
+        directLeaveButton: true
         darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
@@ -973,6 +975,13 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
+  postgresql:
+    host: localhost
+    port: 5432
+    database: bbb_graphql
+    user: bbb_frontend
+    password: bbb_frontend
+    timeout: 30000
   analytics:
     includeChat: true
   app:

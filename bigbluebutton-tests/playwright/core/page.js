@@ -8,7 +8,7 @@ const e = require('./elements');
 const { env } = require('node:process');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
-const { generateSettingsData, getSettings } = require('./settings');
+const { generateSettingsData } = require('./settings');
 
 class Page {
   constructor(browser, page) {
@@ -27,12 +27,12 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording } = initOptions || {};
+    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording, shouldCheckAllInitialSteps } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
     this.username = this.initParameters.fullName;
-    
+
     if (env.CONSOLE !== undefined) await helpers.setBrowserLogs(this.page);
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId, this.page);
@@ -41,10 +41,13 @@ class Page {
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
-    this.settings = await generateSettingsData(this.page);
-    const { autoJoinAudioModal } = this.settings;
-    if (isRecording && !isModerator) await this.closeRecordingModal();
-    if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
+    if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
+      await this.waitForSelector('div#layout', ELEMENT_WAIT_LONGER_TIME);
+      this.settings = await generateSettingsData(this.page);
+      const { autoJoinAudioModal } = this.settings;
+      if (isRecording && !isModerator) await this.closeRecordingModal();
+      if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
+    }
   }
 
   async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
@@ -88,12 +91,18 @@ class Page {
   }
 
   async logoutFromMeeting() {
-    await this.waitAndClick(e.optionsButton);
-    await this.waitAndClick(e.logout);
+    const { directLeaveButton } = this.settings;
+
+    if (directLeaveButton) {
+      await this.waitAndClick(e.leaveMeetingDropdown);
+    } else {
+      await this.waitAndClick(e.optionsButton);
+    }
+    await this.waitAndClick(e.logoutBtn);
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
-    const { webcamSharingEnabled } = getSettings();
+    const { webcamSharingEnabled } = this.settings;
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
     if(!webcamSharingEnabled) {

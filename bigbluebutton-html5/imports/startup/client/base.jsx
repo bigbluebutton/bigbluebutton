@@ -25,7 +25,7 @@ import { useMutation } from '@apollo/client';
 import { SET_EXIT_REASON } from '/imports/ui/core/graphql/mutations/userMutations';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
 const USER_WAS_EJECTED = 'userWasEjected';
 
@@ -412,30 +412,21 @@ export default withTracker(() => {
   const ejected = User?.ejected;
   const ejectedReason = User?.ejectedReason;
   const meetingEndedReason = meeting?.meetingEndedReason;
-  const currentConnectionId = User?.currentConnectionId;
-  const { connectionID, connectionAuthTime } = Auth;
-  const connectionIdUpdateTime = User?.connectionIdUpdateTime;
-  
+
   if (ejected) {
     // use the connectionID to block users, so we can detect if the user was
     // blocked by the current connection. This is the case when a a user is
     // ejected from a meeting but not permanently ejected. Permanent ejects are
     // managed by the server, not by the client.
-    BBBStorage.setItem(USER_WAS_EJECTED, connectionID);
-  }
-
-  if (currentConnectionId && currentConnectionId !== connectionID && connectionIdUpdateTime > connectionAuthTime) {
-    Session.set('codeError', '409');
-    Session.set('errorMessageDescription', 'joined_another_window_reason')
+    BBBStorage.setItem(USER_WAS_EJECTED, User.userId);
   }
 
   let userSubscriptionHandler;
 
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
-
   return {
-    userWasEjected: (BBBStorage.getItem(USER_WAS_EJECTED) == connectionID),
+    userWasEjected: (BBBStorage.getItem(USER_WAS_EJECTED)),
     approved,
     ejected,
     ejectedReason,

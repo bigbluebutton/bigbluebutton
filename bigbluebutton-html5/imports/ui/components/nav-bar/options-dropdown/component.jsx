@@ -81,7 +81,7 @@ const intlMessages = defineMessages({
     description: 'Describes help option',
   },
   endMeetingLabel: {
-    id: 'app.navBar.optionsDropdown.endMeetingLabel',
+    id: 'app.navBar.optionsDropdown.endMeetingForAllLabel',
     description: 'End meeting options label',
   },
   endMeetingDesc: {
@@ -113,6 +113,7 @@ const propTypes = {
   audioCaptionsActive: PropTypes.bool.isRequired,
   audioCaptionsSet: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
+  isDirectLeaveButtonEnabled: PropTypes.bool.isRequired,
   optionsDropdownItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
     type: PropTypes.string,
@@ -129,8 +130,8 @@ const defaultProps = {
   audioCaptionsEnabled: false,
 };
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 const { isSafari, isTabletApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
@@ -143,7 +144,7 @@ class OptionsDropdown extends PureComponent {
       isShortcutHelpModalOpen: false,
       isOptionsMenuModalOpen: false,
       isEndMeetingConfirmationModalOpen: false,
-      isMobileAppModalOpen:false,
+      isMobileAppModalOpen: false,
       isFullscreen: false,
     };
 
@@ -240,7 +241,7 @@ class OptionsDropdown extends PureComponent {
   renderMenuItems() {
     const {
       intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
-      audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
+      audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems, isDirectLeaveButtonEnabled,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -251,7 +252,7 @@ class OptionsDropdown extends PureComponent {
       showHelpButton: helpButton,
       helpLink,
       allowLogout: allowLogoutSetting,
-    } = Meteor.settings.public.app;
+    } = window.meetingClientSettings.public.app;
 
     this.menuItems = [];
 
@@ -300,7 +301,7 @@ class OptionsDropdown extends PureComponent {
           icon: 'popout_window',
           label: intl.formatMessage(intlMessages.openAppLabel),
           onClick: () => this.setMobileAppModalIsOpen(true),
-         }
+        },
       );
     }
 
@@ -326,10 +327,6 @@ class OptionsDropdown extends PureComponent {
         description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => this.setShortcutHelpModalIsOpen(true),
       },
-      {
-        key: 'separator-01',
-        isSeparator: true,
-      },
     );
 
     optionsDropdownItems.forEach((item) => {
@@ -353,32 +350,37 @@ class OptionsDropdown extends PureComponent {
       }
     });
 
-    if (allowLogoutSetting && isMeteorConnected) {
-      this.menuItems.push(
-        {
+    if (isMeteorConnected && !isDirectLeaveButtonEnabled) {
+      const bottomItems = [{
+        key: 'list-item-separator',
+        isSeparator: true,
+      }];
+
+      if (allowLogoutSetting) {
+        bottomItems.push({
           key: 'list-item-logout',
           dataTest: 'logout',
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           description: intl.formatMessage(intlMessages.leaveSessionDesc),
           onClick: () => this.leaveSession(),
-        },
-      );
-    }
+        });
+      }
 
-    if (allowedToEndMeeting && isMeteorConnected) {
-      const customStyles = { background: colorDanger, color: colorWhite };
+      if (allowedToEndMeeting) {
+        const customStyles = { background: colorDanger, color: colorWhite };
 
-      this.menuItems.push(
-        {
+        bottomItems.push({
           key: 'list-item-end-meeting',
-          icon: 'application',
+          icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
           customStyles,
           onClick: () => this.setEndMeetingConfirmationModalIsOpen(true),
-        },
-      );
+        });
+      }
+
+      if (bottomItems.length > 1) this.menuItems.push(...bottomItems);
     }
 
     return this.menuItems;

@@ -13,6 +13,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
+  userAway: {
+    id: 'app.chat.away',
+    description: 'message when user is away',
+  },
+  userNotAway: {
+    id: 'app.chat.notAway',
+    description: 'message when user is no longer away',
+  },
 });
 
 export const htmlDecode = (input: string) => {
@@ -48,6 +56,14 @@ export const generateExportedMessages = (
         const pollText = htmlDecode(PollService.getPollResultString(metadata, intl).split('<br/>').join('\n'));
         // remove last \n to avoid empty line
         messageText = pollText.slice(0, -1);
+        break;
+      }
+      case ChatMessageType.USER_AWAY_STATUS_MSG: {
+        const { away } = JSON.parse(message.messageMetadata);
+
+        messageText = (away)
+          ? `${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
+          : `${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
         break;
       }
       case ChatMessageType.TEXT:

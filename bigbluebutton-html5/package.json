@@ -18,7 +18,7 @@
   },
   "meteor": {
     "mainModule": {
-      "web.browser": "client/main.jsx",
+      "web.browser": "client/main.tsx",
       "legacy": "client/legacy.jsx",
       "server": "server/main.js"
     }
@@ -47,7 +47,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.6.4",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.37",
+    "bigbluebutton-html-plugin-sdk": "0.0.38",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
@@ -67,6 +67,7 @@
     "makeup-screenreader-trap": "0.0.5",
     "meteor-node-stubs": "^1.2.1",
     "mobx": "6.4.2",
+    "pg": "^8.11.3",
     "postcss-nested": "^5.0.6",
     "probe-image-size": "^7.2.3",
     "prom-client": "^13.2.0",

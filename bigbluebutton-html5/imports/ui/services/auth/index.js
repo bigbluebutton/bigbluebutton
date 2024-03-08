@@ -8,8 +8,7 @@ import { ValidationStates } from '/imports/api/auth-token-validation';
 import logger from '/imports/startup/client/logger';
 import { makeVar } from '@apollo/client';
 
-const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
-
+const CONNECTION_TIMEOUT = window.meetingClientSettings.public.app.connectionTimeout;
 class Auth {
   constructor() {
     this._loggedIn = {
