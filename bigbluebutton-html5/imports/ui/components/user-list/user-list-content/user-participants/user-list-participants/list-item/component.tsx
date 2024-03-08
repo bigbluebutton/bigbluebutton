@@ -106,48 +106,60 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const intl = useIntl();
   const voiceUser = user.voice;
-  const subs = [
-    (user.role === ROLE_MODERATOR && LABEL.moderator) && intl.formatMessage(messages.moderator),
-    (user.guest && LABEL.guest) && intl.formatMessage(messages.guest),
-    (user.mobile && LABEL.mobile) && intl.formatMessage(messages.mobile),
-    (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) && (
+  const subs = [];
+
+  if (user.role === ROLE_MODERATOR && LABEL.moderator) {
+    subs.push(intl.formatMessage(messages.moderator));
+  }
+  if (user.guest && LABEL.guest) {
+    subs.push(intl.formatMessage(messages.guest));
+  }
+  if (user.mobile && LABEL.mobile) {
+    subs.push(intl.formatMessage(messages.mobile));
+  }
+  if (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) {
+    subs.push(
       <span key={uniqueId('lock-')}>
         <Icon iconName="lock" />
         &nbsp;
         {intl.formatMessage(messages.locked)}
-      </span>
-    ),
-    user.lastBreakoutRoom?.currentlyInRoom && (
+      </span>,
+    );
+  }
+  if (user.lastBreakoutRoom?.currentlyInRoom) {
+    subs.push(
       <span key={uniqueId('breakout-')}>
         <Icon iconName="rooms" />
         &nbsp;
         {user.lastBreakoutRoom?.shortName
           ? intl.formatMessage(messages.breakoutRoom, { 0: user.lastBreakoutRoom?.sequence })
           : user.lastBreakoutRoom?.shortName}
-      </span>
-    ),
-    (user.cameras.length > 0 && LABEL.sharingWebcam) && (
+      </span>,
+    );
+  }
+  if (user.cameras.length > 0 && LABEL.sharingWebcam) {
+    subs.push(
       <span key={uniqueId('breakout-')}>
         {user.pinned === true
           ? <Icon iconName="pin-video_on" />
           : <Icon iconName="video" />}
         &nbsp;
         {intl.formatMessage(messages.sharingWebcam)}
-      </span>
-    ),
-    ...userItemsFromPlugin.filter(
-      (item) => item.type === UserListItemAdditionalInformationType.LABEL,
-    ).map((item) => {
-      const itemToRender = item as PluginSdk.UserListItemLabel;
-      return (
-        <span key={itemToRender.id}>
-          { itemToRender.icon
-            && <Icon iconName={itemToRender.icon} /> }
-          {itemToRender.label}
-        </span>
-      );
-    }),
-  ].filter(Boolean);
+      </span>,
+    );
+  }
+  userItemsFromPlugin.filter(
+    (item) => item.type === UserListItemAdditionalInformationType.LABEL,
+  ).forEach((item) => {
+    const itemToRender = item as PluginSdk.UserListItemLabel;
+    subs.push(
+      <span key={itemToRender.id}>
+        { itemToRender.icon
+          && <Icon iconName={itemToRender.icon} /> }
+        {itemToRender.label}
+      </span>,
+    );
+  });
 
   const reactionsEnabled = isReactionsEnabled();
 
@@ -192,6 +204,18 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
 
+  function addSeparator(elements: (string | JSX.Element)[]) {
+    const modifiedElements: (string | JSX.Element)[] = [];
+
+    elements.forEach((element, index) => {
+      modifiedElements.push(element);
+      if (index !== elements.length - 1) {
+        modifiedElements.push(<span key={uniqueId('separator-')}> | </span>);
+      }
+    });
+    return modifiedElements;
+  }
+
   return (
     <Styled.UserItemContents tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
@@ -225,7 +249,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
         </Styled.UserName>
         <Styled.UserNameSub data-test={user.mobile ? 'mobileUser' : undefined}>
-          {subs.length ? subs.join(' | ') : null}
+          {subs.length ? addSeparator(subs) : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
       {renderUserListItemIconsFromPlugin(userItemsFromPlugin)}
