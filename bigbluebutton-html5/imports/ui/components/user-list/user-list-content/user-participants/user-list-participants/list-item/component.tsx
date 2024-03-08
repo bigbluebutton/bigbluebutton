@@ -50,8 +50,6 @@ const messages = defineMessages({
 });
 
 // @ts-ignore - temporary, while meteor exists in the project
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-// @ts-ignore - temporary, while meteor exists in the project
 const LABEL = window.meetingClientSettings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
@@ -108,7 +106,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const voiceUser = user.voice;
   const subs = [];
 
-  if (user.role === ROLE_MODERATOR && LABEL.moderator) {
+  if (user.isModerator && LABEL.moderator) {
     subs.push(intl.formatMessage(messages.moderator));
   }
   if (user.guest && LABEL.guest) {
@@ -219,10 +217,10 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   return (
     <Styled.UserItemContents tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
-        data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
+        data-test={user.isModerator ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
         data-test-avatar="userAvatar"
-        moderator={user.role === ROLE_MODERATOR}
+        moderator={user.isModerator}
         presenter={user.presenter}
         talking={voiceUser?.talking}
         muted={voiceUser?.muted}
