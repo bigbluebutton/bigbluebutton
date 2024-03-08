@@ -305,8 +305,8 @@ class Page {
       }
   }
 
-  async setViewPortSize({ width, height }) {
-    await this.page.setViewportSize({ width, height});
+  async setViewPortSize() {
+    await this.page.setViewportSize({ width: 1366, height: 768 });
   }
 }
 

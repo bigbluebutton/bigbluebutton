@@ -24,8 +24,8 @@ class ChangeStyles extends MultiUsers {
 
     
     await this.modPage.waitAndClick(e.wbColorRed);
-    await this.modPage.setViewPortSize(1366, 768);
-    await this.userPage.setViewPortSize(1366, 768);
+    await this.modPage.setViewPortSize();
+    await this.userPage.setViewPortSize();
 
     await expect(modWbLocator).toHaveScreenshot('moderator-change-color.png');
 
@@ -50,8 +50,8 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.waitAndClick(e.wbFillDrawing);
     await this.modPage.press('Escape');
 
-    await this.modPage.setViewPortSize(1366, 768);
-    await this.userPage.setViewPortSize(1366, 768);
+    await this.modPage.setViewPortSize();
+    await this.userPage.setViewPortSize();
 
     await expect(modWbLocator).toHaveScreenshot('moderator-fill-drawing.png');
 
@@ -75,8 +75,8 @@ class ChangeStyles extends MultiUsers {
 
     await this.modPage.waitAndClick(e.wbDashDotted);
 
-    await this.modPage.setViewPortSize(1366, 768);
-    await this.userPage.setViewPortSize(1366, 768);
+    await this.modPage.setViewPortSize();
+    await this.userPage.setViewPortSize();
 
     await expect(this.modPage.page).toHaveScreenshot('moderator-dash-drawing.png');
 
@@ -100,8 +100,8 @@ class ChangeStyles extends MultiUsers {
 
     await this.modPage.waitAndClick(e.wbSizeLarge);
 
-    await this.modPage.setViewPortSize(1366, 768);
-    await this.userPage.setViewPortSize(1366, 768);
+    await this.modPage.setViewPortSize();
+    await this.userPage.setViewPortSize();
     
     await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png');
 

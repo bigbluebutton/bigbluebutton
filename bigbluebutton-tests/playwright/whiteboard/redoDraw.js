@@ -24,8 +24,8 @@ class RedoDrawing extends MultiUsers {
     await this.modPage.waitAndClick(e.wbUndo);
     await this.modPage.waitAndClick(e.wbRedo);
 
-    await this.modPage.setViewPortSize(1366, 768);
-    await this.userPage.setViewPortSize(1366, 768);
+    await this.modPage.setViewPortSize();
+    await this.userPage.setViewPortSize();
 
     await expect(modWbLocator).toHaveScreenshot('moderator-redo-drawing.png');
 

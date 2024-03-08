@@ -25,7 +25,7 @@ class Draw extends Page {
 
     await this.waitForSelector(e.wbDrawnRectangle);
     
-    await this.setViewPortSize(1366, 768);
+    await this.setViewPortSize();
     await expect(modWbLocator).toHaveScreenshot('moderator-rect-ci.png', screenshotOptions);
   }
 
