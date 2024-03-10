@@ -124,7 +124,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                 if (!doneFile.exists())
                     log.error("Failed to create {} file.", done);
             } catch (IOException e) {
-                log.error("Exception occured when trying to create {} file", done);
+                log.error("Exception occurred when trying to create {} file", done);
             }
         } else {
             log.error("{} file already exists.", done);
@@ -141,7 +141,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                 if (!doneFile.exists())
                     log.error("Failed to create {} file.", done);
             } catch (IOException e) {
-                log.error("Exception occured when trying to create {} file.", done);
+                log.error("Exception occurred when trying to create {} file.", done);
             }
         } else {
             log.error("{} file already exists.", done);
@@ -158,7 +158,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                 if (!doneFile.exists())
                     log.error("Failed to create " + done + " file.");
             } catch (IOException e) {
-                log.error("Exception occured when trying to create {} file.", done);
+                log.error("Exception occurred when trying to create {} file.", done);
             }
         } else {
             log.error(done + " file already exists.");

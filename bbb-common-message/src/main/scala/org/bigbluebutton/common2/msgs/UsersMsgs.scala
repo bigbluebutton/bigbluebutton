@@ -143,7 +143,7 @@ case class SetRecordingStatusCmdMsg(header: BbbClientMsgHeader, body: SetRecordi
 case class SetRecordingStatusCmdMsgBody(recording: Boolean, setBy: String)
 
 /**
- * Sent by user to start recording mark and ignore previsous marks
+ * Sent by user to start recording mark and ignore previous marks
  */
 object RecordAndClearPreviousMarkersCmdMsg { val NAME = "RecordAndClearPreviousMarkersCmdMsg" }
 case class RecordAndClearPreviousMarkersCmdMsg(header: BbbClientMsgHeader, body: RecordAndClearPreviousMarkersCmdMsgBody) extends StandardMsg

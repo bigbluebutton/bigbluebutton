@@ -21,7 +21,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     recording: input.recording
   };
 
-  //TODO check if backend velidate it
+  //TODO check if backend validates it
 
   // const recordObject = await RecordMeetings.findOneAsync({ meetingId });
   //

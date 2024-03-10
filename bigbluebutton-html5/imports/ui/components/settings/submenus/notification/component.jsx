@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
   },
   pushAlertLabel: {
     id: 'app.submenu.notification.pushAlertLabel',
-    description: 'push notifiation label',
+    description: 'push notification label',
   },
   messagesLabel: {
     id: 'app.submenu.notification.messagesLabel',

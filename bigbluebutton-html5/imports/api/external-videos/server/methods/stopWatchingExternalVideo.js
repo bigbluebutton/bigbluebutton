@@ -16,10 +16,10 @@ export default function stopWatchingExternalVideo() {
 
     const payload = {};
 
-    Logger.info(`User ${requesterUserId} stoping an external video for meeting ${meetingId}`);
+    Logger.info(`User ${requesterUserId} stopping an external video for meeting ${meetingId}`);
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (error) {
-    Logger.error(`Error on stoping an external video for meeting ${meetingId}: ${error}`);
+    Logger.error(`Error on stopping an external video for meeting ${meetingId}: ${error}`);
   }
 }

@@ -29,7 +29,7 @@ const isBoolean = (v: unknown): boolean => {
   } if (v === 'false') {
     return false;
   }
-  // if v is not difined it shouldn't be considered on comparation, so it returns true
+  // if v is not defined it shouldn't be considered on comparison, so it returns true
   return true;
 };
 

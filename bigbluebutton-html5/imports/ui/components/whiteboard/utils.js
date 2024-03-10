@@ -147,7 +147,7 @@ const sendShapeChanges = (
     .forEach(([id, shape]) => {
       if (!shape) deletedShapes.push(id);
       else {
-        // checks to find any bindings assosiated with the changed shapes.
+        // checks to find any bindings associated with the changed shapes.
         // If any, they may need to be updated as well.
         const pageBindings = app.page.bindings;
         if (pageBindings) {

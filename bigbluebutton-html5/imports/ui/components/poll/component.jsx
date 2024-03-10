@@ -62,7 +62,7 @@ const intlMessages = defineMessages({
   },
   customInputToggleLabel: {
     id: 'app.poll.customInput.label',
-    description: 'poll custom input toogle button label',
+    description: 'poll custom input toggle button label',
   },
   customInputInstructionsLabel: {
     id: 'app.poll.customInputInstructions.label',

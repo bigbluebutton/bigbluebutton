@@ -72,7 +72,7 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
    * CREATE (API)
    ***********************************/
 
-  def "Test create a meeting wihtout a checksum"() {
+  def "Test create a meeting without a checksum"() {
     when: "A checksum is not provided"
     params[ApiParams.CHECKSUM] = null
     controller.create()

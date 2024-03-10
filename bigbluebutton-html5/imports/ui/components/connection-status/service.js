@@ -263,7 +263,7 @@ const getNetworkData = async () => {
 };
 
 /**
- * Calculates both upload and download rates using data retreived from getStats
+ * Calculates both upload and download rates using data retrieved from getStats
  * API. For upload (outbound-rtp) we use both bytesSent and timestamp fields.
  * byteSent field contains the number of octets sent at the given timestamp,
  * more information can be found in:

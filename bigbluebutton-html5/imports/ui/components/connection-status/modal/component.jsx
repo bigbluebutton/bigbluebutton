@@ -30,7 +30,7 @@ const intlMessages = defineMessages({
   },
   more: {
     id: 'app.connection-status.more',
-    description: 'More about conectivity issues',
+    description: 'More about connectivity issues',
   },
   audioLabel: {
     id: 'app.settings.audioTab.label',
@@ -386,7 +386,7 @@ class ConnectionStatusComponent extends PureComponent {
   }
 
   /**
-   * Render network data , containing information abount current upload and
+   * Render network data , containing information about current upload and
    * download rates
    * @return {Object} The component to be renderized.
    */
