@@ -158,7 +158,7 @@ all of these tests.
 
 2. Click "Options" (three dots icon on top-right of the presentation area), select "Snapshot of current presentation".
 
-3. You should get promted to save the file. The file should contains the image of the current slide of the presentation, including the annotations applied.
+3. You should get prompted to save the file. The file should contains the image of the current slide of the presentation, including the annotations applied.
 
 ### Fit to width option
 
