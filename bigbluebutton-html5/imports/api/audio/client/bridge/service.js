@@ -97,7 +97,7 @@ const doGUM = async (constraints, retryOnFailure = false) => {
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     return stream;
   } catch (error) {
-    // This is probably a deviceId mistmatch. Retry with base constraints
+    // This is probably a deviceId mismatch. Retry with base constraints
     // without an exact deviceId.
     if (error.name === 'OverconstrainedError' && retryOnFailure) {
       logger.warn({

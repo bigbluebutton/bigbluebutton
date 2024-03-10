@@ -208,7 +208,7 @@ class AudioSettings extends React.Component {
     const { outputDeviceId: currentOutputDeviceId } = this.state;
 
     // withEcho usage (isLive arg): if local echo is enabled we need the device
-    // change to be performed seamlessly (which is what the isLive parameter guarantes)
+    // change to be performed seamlessly (which is what the isLive parameter guarantees)
     changeOutputDevice(deviceId, withEcho)
       .then(() => {
         this.setState({

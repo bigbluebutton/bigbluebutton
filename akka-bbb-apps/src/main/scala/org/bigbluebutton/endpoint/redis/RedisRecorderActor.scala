@@ -284,7 +284,7 @@ class RedisRecorderActor(
   }
 
   private def getPresentationId(whiteboardId: String): String = {
-    // Need to split the whiteboard id into presenation id and page num as the old
+    // Need to split the whiteboard id into presentation id and page num as the old
     // recording expects them
     val strId = new StringOps(whiteboardId)
     val ids = strId.split('/')

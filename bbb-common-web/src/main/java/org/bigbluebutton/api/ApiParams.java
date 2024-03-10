@@ -111,7 +111,7 @@ public class ApiParams {
     public static final String RECORD_FULL_DURATION_MEDIA = "recordFullDurationMedia";
 
     private ApiParams() {
-        throw new IllegalStateException("ApiParams is a utility class. Instanciation is forbidden.");
+        throw new IllegalStateException("ApiParams is a utility class. Instantiation is forbidden.");
     }
 
 }
