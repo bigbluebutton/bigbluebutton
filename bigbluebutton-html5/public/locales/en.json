@@ -607,7 +607,6 @@
     "app.settings.audioTab.label": "Audio",
     "app.settings.videoTab.label": "Video",
     "app.settings.usersTab.label": "Participants",
-    "app.settings.transcriptionTab.label": "Transcription",
     "app.settings.main.label": "Settings",
     "app.settings.main.cancel.label": "Cancel",
     "app.settings.main.cancel.label.description": "Discards the changes and closes the settings menu",
