@@ -1,5 +1,6 @@
 package org.bigbluebutton.api.model.validator;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -21,6 +22,12 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
     public boolean isValid(GetChecksum checksum, ConstraintValidatorContext context) {
         String securitySalt = ServiceUtils.getValidationService().getSecuritySalt();
         String supportedChecksumAlgorithms = ServiceUtils.getValidationService().getSupportedChecksumAlgorithms();
+
+        HttpServletRequest request = checksum.getRequest();
+        boolean queryStringPresent = request.getQueryString() != null && !request.getQueryString().isEmpty();
+        boolean requestBodyPresent = request.getContentLength() > 0;
+
+        if (queryStringPresent && requestBodyPresent) return false;
 
         if (securitySalt.isEmpty()) {
             log.warn("Security is disabled in this service. Make sure this is intentional.");
