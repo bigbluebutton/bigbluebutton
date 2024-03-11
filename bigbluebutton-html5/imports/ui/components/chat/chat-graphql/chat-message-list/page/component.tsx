@@ -116,7 +116,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   }, []);
 
   if (!chatMessageData) return null;
-  if (chatId !== chatMessageData[0].chatId) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+  if (chatMessageData.length > 0 && chatId !== chatMessageData[0].chatId) return <ChatLoading isRTL={document.dir === 'rtl'} />;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
   }
