@@ -200,7 +200,7 @@ class VideoList extends Component {
           canvasWidth, canvasHeight, gridGutter,
           ASPECT_RATIO, numItems, col,
         );
-        // We need a minimun of 2 rows and columns for the focused
+        // We need a minimum of 2 rows and columns for the focused
         const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;

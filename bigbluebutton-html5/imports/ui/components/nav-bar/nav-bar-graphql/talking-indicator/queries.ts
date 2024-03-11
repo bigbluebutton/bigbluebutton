@@ -38,7 +38,7 @@ export const TALKING_INDICATOR_SUBSCRIPTION = gql`
   }
 `;
 
-// TODO: rework when useMeeting hook be avaible
+// TODO: rework when useMeeting hook be available
 export const MEETING_ISBREAKOUT_SUBSCRIPTION = gql`
   subscription getIsBreakout {
     meeting {

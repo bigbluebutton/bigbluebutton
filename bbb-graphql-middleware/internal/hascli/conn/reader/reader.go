@@ -41,7 +41,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 				subscription, ok := hc.Browserconn.ActiveSubscriptions[queryId]
 				hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
 				if !ok {
-					log.Debugf("Subscription with Id %s doesn't exist anymore, skiping response.", queryId)
+					log.Debugf("Subscription with Id %s doesn't exist anymore, skipping response.", queryId)
 					return
 				}
 

@@ -141,7 +141,7 @@ Here's a sample return
     Secret: ECCJZNJWLPEA3YB6Y2LTQGQD3GJZ3F93
 ```
 
-You should _not_ embed the shared secret within a web page and make BigBlueButton API calls within JavaScript running within a browser. The built-in debugging tools for modern browser would make this secret easily accessibile to any user. Once someone has the shared secret for your BigBlueButton server, they could create their own API calls. The shared secret should only be accessibile to the server-side components of your application (and thus not visible to end users).
+You should _not_ embed the shared secret within a web page and make BigBlueButton API calls within JavaScript running within a browser. The built-in debugging tools for modern browser would make this secret easily accessible to any user. Once someone has the shared secret for your BigBlueButton server, they could create their own API calls. The shared secret should only be accessible to the server-side components of your application (and thus not visible to end users).
 
 ### Configuration
 
@@ -310,7 +310,7 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
 ```
 
 #### POST request
-You can also include a payload in the request, it may be usefull in cases where some of the query parameters are big enough to exceed the maximum number of characters in URLs. BigBlueButton supports a POST request where the parameters that usually would be passed in the URL, can be sent through the body, see example below:
+You can also include a payload in the request, it may be useful in cases where some of the query parameters are big enough to exceed the maximum number of characters in URLs. BigBlueButton supports a POST request where the parameters that usually would be passed in the URL, can be sent through the body, see example below:
 
 ```bash
 curl --request POST \

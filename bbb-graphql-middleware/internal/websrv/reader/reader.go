@@ -36,7 +36,7 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 		var v interface{}
 		err := wsjson.Read(ctx, c, &v)
 		if err != nil {
-			log.Debugf("Browser is disconnected, skiping reading of ws message: %v", err)
+			log.Debugf("Browser is disconnected, skipping reading of ws message: %v", err)
 			return
 		}
 

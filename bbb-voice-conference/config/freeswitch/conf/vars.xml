@@ -166,7 +166,7 @@
 
       rtp_secure_media_suites
       ____________________________________________________________________________
-      Optionaly you can use rtp_secure_media_suites to dictate the suite list
+      Optionally you can use rtp_secure_media_suites to dictate the suite list
       and only use rtp_secure_media=[optional|mandatory|false|true] without having
       to dictate the suite list with the rtp_secure_media* variables.
   -->
@@ -175,7 +175,7 @@
 
        codecname[@8000h|16000h|32000h[@XXi]]
 
-       XX is the frame size must be multples allowed for the codec
+       XX is the frame size must be multiples allowed for the codec
        FreeSWITCH can support 10-120ms on some codecs.
        We do not support exceeding the MTU of the RTP packet.
 
@@ -414,7 +414,7 @@
 
      openssl ciphers -v 'ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH'
 
-     Will show you what is available in your verion of openssl.
+     Will show you what is available in your version of openssl.
   -->
   <X-PRE-PROCESS cmd="set" data="sip_tls_ciphers=ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"/>
 
@@ -431,7 +431,7 @@
   <X-PRE-PROCESS cmd="set" data="external_ssl_enable=false"/>
 
   <!-- Video Settings -->
-  <!-- Setting the max bandwdith -->
+  <!-- Setting the max bandwidth -->
   <X-PRE-PROCESS cmd="set" data="rtp_video_max_bandwidth_in=1mb"/>
   <X-PRE-PROCESS cmd="set" data="rtp_video_max_bandwidth_out=1mb"/>
 

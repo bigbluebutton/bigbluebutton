@@ -69,7 +69,7 @@ const intlMessages = defineMessages({
   },
   reconectingAsListener: {
     id: 'app.audioNotificaion.reconnectingAsListenOnly',
-    description: 'ice negociation error messsage',
+    description: 'ice negotiation error messsage',
   },
 });
 
@@ -97,7 +97,7 @@ class AudioContainer extends PureComponent {
   }
 
   /**
-   * Helper function to determine wheter user is returning from breakout room
+   * Helper function to determine whether user is returning from breakout room
    * to main room.
    * @param  {Object} prevProps prevProps param from componentDidUpdate
    * @return {boolean}           True if user is returning from breakout room
