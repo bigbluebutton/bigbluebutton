@@ -12,6 +12,7 @@ public:
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
     skipCheck: false
+    instanceId: ''
     # Skips the echo test when connecting with microphone right after user
     # joins the room the first time. Subsequent joins to microphone won't
     # have echo test skipped, for example if user leaves and joins the mic
@@ -974,6 +975,13 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
+  postgresql:
+    host: localhost
+    port: 5432
+    database: bbb_graphql
+    user: bbb_frontend
+    password: bbb_frontend
+    timeout: 30000
   analytics:
     includeChat: true
   app:

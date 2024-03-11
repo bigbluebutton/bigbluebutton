@@ -14,7 +14,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useHasUnreadNotes from '../notes/notes-graphql/hooks/useHasUnreadNotes';
 
-const PUBLIC_CONFIG = Meteor.settings.public;
+const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
 const NavBarContainer = ({ children, ...props }) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);

@@ -11,7 +11,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import browserInfo from '/imports/utils/browserInfo';
 import NotesService from '/imports/ui/components/notes/service';
 
-const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
+const VOLUME_CONTROL_ENABLED = window.meetingClientSettings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
 const DEFAULT_SCREENSHARE_STATS_TYPES = [
@@ -336,9 +336,9 @@ const viewScreenshare = (options = {}) => {
 };
 
 const screenShareEndAlert = () => AudioService
-  .playAlertSound(`${Meteor.settings.public.app.cdn
-    + Meteor.settings.public.app.basename
-    + Meteor.settings.public.app.instanceId}`
+  .playAlertSound(`${window.meetingClientSettings.public.app.cdn
+    + window.meetingClientSettings.public.app.basename
+    + window.meetingClientSettings.public.app.instanceId}`
     + '/resources/sounds/ScreenshareOff.mp3');
 
 const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;

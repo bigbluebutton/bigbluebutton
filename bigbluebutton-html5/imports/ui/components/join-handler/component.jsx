@@ -85,7 +85,7 @@ class JoinHandler extends Component {
 
   async fetchToken() {
     const { hasAlreadyJoined } = this.state;
-    const APP = Meteor.settings.public.app;
+    const APP = window.meetingClientSettings.public.app;
     if (!this._isMounted) return;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -112,7 +112,7 @@ class JoinHandler extends Component {
         userAgent: userInfo.userAgent,
         screenSize: { width: window.screen.width, height: window.screen.height },
         windowSize: { width: window.innerWidth, height: window.innerHeight },
-        bbbVersion: Meteor.settings.public.app.bbbServerVersion,
+        bbbVersion: window.meetingClientSettings.public.app.bbbServerVersion,
         location: window.location.href,
       };
 
@@ -210,14 +210,13 @@ class JoinHandler extends Component {
         },
       }, 'User successfully went through main.joinRouteHandler');
     } else {
-
-      if(['missingSession','meetingForciblyEnded','notFound'].includes(response.messageKey)) {
+      if (['missingSession', 'meetingForciblyEnded', 'notFound'].includes(response.messageKey)) {
         JoinHandler.setError('410');
         Session.set('errorMessageDescription', 'meeting_ended');
-      } else if(response.messageKey == "guestDeny") {
+      } else if (response.messageKey == "guestDeny") {
         JoinHandler.setError('401');
         Session.set('errorMessageDescription', 'guest_deny');
-      } else if(response.messageKey == "maxParticipantsReached") {
+      } else if (response.messageKey == "maxParticipantsReached") {
         JoinHandler.setError('401');
         Session.set('errorMessageDescription', 'max_participants_reason');
       } else {

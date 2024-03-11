@@ -10,7 +10,7 @@ const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
 
-const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+const baseName = window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename;
 const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
 const TOOL_CURSORS = {

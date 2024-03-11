@@ -8,7 +8,7 @@ import RaiseHandNotifier from './component';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
 
 const StatusNotifierContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({

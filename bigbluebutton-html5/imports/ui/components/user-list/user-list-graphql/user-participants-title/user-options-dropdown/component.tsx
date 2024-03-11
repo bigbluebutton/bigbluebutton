@@ -116,7 +116,7 @@ const intlMessages = defineMessages({
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
-const { dynamicGuestPolicy } = Meteor.settings.public.app;
+const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
 
 interface RenderModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;

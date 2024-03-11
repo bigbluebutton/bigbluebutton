@@ -8,7 +8,8 @@ import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const APP = window.meetingClientSettings.public.app;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
 
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -19,7 +20,7 @@ const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const ScrollCollection = new Mongo.Collection(null);
 

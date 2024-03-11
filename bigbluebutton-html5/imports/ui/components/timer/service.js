@@ -5,7 +5,7 @@ import { makeCall } from '/imports/ui/services/api';
 import { Session } from 'meteor/session';
 import { ACTIONS, PANELS } from '../layout/enums';
 
-const TIMER_CONFIG = Meteor.settings.public.timer;
+const TIMER_CONFIG = window.meetingClientSettings.public.timer;
 const OFFSET_INTERVAL = TIMER_CONFIG.interval.offset;
 
 const MILLI_IN_HOUR = 3600000;

@@ -5,7 +5,7 @@ import { LockStruct } from './context';
 import Users from '/imports/api/users';
 import { withLockContext } from './withContext';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const lockContextContainer = (component) => withTracker(() => {
   const lockSetting = new LockStruct();

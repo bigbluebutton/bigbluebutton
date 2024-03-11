@@ -21,6 +21,7 @@ const propTypes = {
   isTimerActive: PropTypes.bool.isRequired,
 };
 
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 const defaultProps = {
   currentUser: {
     role: '',
@@ -28,8 +29,6 @@ const defaultProps = {
   },
   compact: false,
 };
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
   render() {

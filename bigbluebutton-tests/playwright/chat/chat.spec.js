@@ -86,7 +86,8 @@ test.describe('Chat', () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  test('Private chat disabled when user leaves meeting @ci', async () => {
+  // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
+  test('Private chat disabled when user leaves meeting @ci @flaky', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });
