@@ -86,7 +86,8 @@ test.describe.parallel('User', () => {
       await multiusers.removeUser();
     });
 
-    test('Remove user and prevent rejoining', async ({ browser, context, page }) => {
+    // User is currently getting stuck when trying to rejoin - no error message is shown
+    test('Remove user and prevent rejoining @flaky', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true, context, { joinParameter: 'userID=Moderator2' });

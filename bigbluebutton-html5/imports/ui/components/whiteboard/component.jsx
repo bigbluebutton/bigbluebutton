@@ -432,10 +432,10 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       if (maxY > scaledHeight) {
         nextCamera.y += maxY - scaledHeight;
       }
-      if (nextCamera.x > 0 || minX < 0) {
+      if (nextCamera.x > 0 || minX < 0 || zoomValueRef.current === HUNDRED_PERCENT) {
         nextCamera.x = 0;
       }
-      if (nextCamera.y > 0 || minY < 0) {
+      if (nextCamera.y > 0 || minY < 0 || zoomValueRef.current === HUNDRED_PERCENT) {
         nextCamera.y = 0;
       }
 
@@ -485,12 +485,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
   React.useEffect(() => {
     // Calculate the absolute difference
-    const heightDifference = Math.abs(
-      presentationAreaHeight - lastKnownHeight.current
-    );
-    const widthDifference = Math.abs(
-      presentationAreaWidth - lastKnownWidth.current
-    );
+    const heightDifference = Math.abs(presentationAreaHeight - lastKnownHeight.current);
+    const widthDifference = Math.abs(presentationAreaWidth - lastKnownWidth.current);
 
     // Check if the difference is greater than the threshold
     if (heightDifference > THRESHOLD || widthDifference > THRESHOLD) {
@@ -506,23 +502,19 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         currentPresentationPage.scaledWidth > 0 &&
         currentPresentationPage.scaledHeight > 0
       ) {
-        let adjustedZoom = HUNDRED_PERCENT;
+        const currentZoom = zoomValueRef.current || HUNDRED_PERCENT;
+        const baseZoom = calculateZoomValue(
+          currentPresentationPage.scaledWidth,
+          currentPresentationPage.scaledHeight
+        );
+        let adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
 
         if (isPresenter) {
-          // Presenter logic
-          const currentZoom = zoomValueRef.current || HUNDRED_PERCENT;
-          const baseZoom = calculateZoomValue(
-            currentPresentationPage.scaledWidth,
-            currentPresentationPage.scaledHeight
-          );
-
-          adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
+          const camera = tlEditorRef.current.camera;
 
           if (fitToWidth && currentPresentationPage) {
             const currentAspectRatio =
-              Math.round(
-                (presentationAreaWidth / presentationAreaHeight) * 100
-              ) / 100;
+              Math.round((presentationAreaWidth / presentationAreaHeight) * 100) / 100;
             const previousAspectRatio =
               Math.round(
                 (currentPresentationPage.scaledViewBoxWidth /
@@ -530,11 +522,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
                   100
               ) / 100;
 
-            if (currentAspectRatio !== previousAspectRatio) {
-              setCamera(adjustedZoom);
-            } else {
-              setCamera(adjustedZoom);
-            }
+            setCamera(adjustedZoom, camera.x, camera.y);
 
             const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
               tlEditorRef.current?.viewportPageBounds.height,
@@ -545,12 +533,12 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
             zoomSlide(
               HUNDRED_PERCENT,
               viewedRegionH,
-              0,
-              0,
+              camera.x,
+              camera.y,
               presentationId
             );
           } else {
-            setCamera(adjustedZoom);
+            setCamera(adjustedZoom, camera.x, camera.y);
           }
         } else {
           // Viewer logic
@@ -558,13 +546,10 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
             initialViewBoxWidth,
             currentPresentationPage.scaledViewBoxWidth
           );
-          const baseZoom = calculateZoomValue(
-            currentPresentationPage.scaledWidth,
-            currentPresentationPage.scaledHeight,
-            true
-          );
           adjustedZoom = baseZoom * (effectiveZoom / HUNDRED_PERCENT);
-          setCamera(adjustedZoom);
+
+          const camera = tlEditorRef.current.camera;
+          setCamera(adjustedZoom, camera.x, camera.y);
         }
       }
     }

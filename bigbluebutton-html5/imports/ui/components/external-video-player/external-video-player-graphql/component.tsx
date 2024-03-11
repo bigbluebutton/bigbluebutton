@@ -251,22 +251,24 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, [playerRef.current]);
 
   // --- Plugin related code ---;
-  if (playerRef.current?.getInternalPlayer() && playerRef.current?.getInternalPlayer()?.isMuted
-    && typeof playerRef.current?.getInternalPlayer()?.isMuted === 'function'
-    && playerRef.current?.getInternalPlayer()?.isMuted() !== isMuted.current) {
-    isMuted.current = playerRef.current?.getInternalPlayer()?.isMuted();
+  const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
+  if (internalPlayer && internalPlayer?.isMuted
+    && typeof internalPlayer?.isMuted === 'function'
+    && internalPlayer?.isMuted() !== isMuted.current) {
+    isMuted.current = internalPlayer?.isMuted();
     window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED, {
       detail: {
-        value: playerRef.current?.getInternalPlayer()?.isMuted(),
+        value: internalPlayer?.isMuted(),
       } as ExternalVideoVolumeUiDataPayloads[ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED],
     }));
   }
-  if (playerRef.current?.getInternalPlayer()?.getVolume()
-    && playerRef.current?.getInternalPlayer()?.getVolume() !== currentVolume.current) {
-    currentVolume.current = playerRef.current?.getInternalPlayer()?.getVolume();
+  if (internalPlayer && internalPlayer?.getVolume
+    && typeof internalPlayer?.getVolume === 'function'
+    && internalPlayer?.getVolume() !== currentVolume.current) {
+    currentVolume.current = internalPlayer?.getVolume();
     window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE, {
       detail: {
-        value: playerRef.current?.getInternalPlayer()?.getVolume() / 100,
+        value: internalPlayer?.getVolume() / 100,
       } as ExternalVideoVolumeUiDataPayloads[ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE],
     }));
   }
@@ -505,13 +507,14 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const currentDate = new Date(Date.now() + timeSync);
   const currentTime = (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
   + playerCurrentTime) * playerPlaybackRate;
+  const isPresenter = currentUser.presenter ?? false;
 
   return (
     <ExternalVideoPlayer
       currentVolume={currentVolume}
       isMuted={isMuted}
       isEchoTest={isEchoTest}
-      isPresenter={currentUser.presenter ?? false}
+      isPresenter={isPresenter ?? false}
       videoUrl={currentMeeting.externalVideo?.externalVideoUrl ?? ''}
       playing={currentMeeting.externalVideo?.playerPlaying ?? false}
       playerPlaybackRate={currentMeeting.externalVideo?.playerPlaybackRate ?? 1}
@@ -519,7 +522,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       layoutContextDispatch={layoutContextDispatch}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
-      currentTime={currentTime}
+      currentTime={isPresenter ? playerCurrentTime : currentTime}
       key={key}
       setKey={setKey}
     />

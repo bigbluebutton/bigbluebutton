@@ -6,12 +6,12 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import browserInfo from '/imports/utils/browserInfo';
 
-const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
+const GUM_TIMEOUT = window.meetingClientSettings.public.kurento.gUMTimeout;
 // GUM retry + delay params (Chrome only for now)
 const GUM_MAX_RETRIES = 5;
 const GUM_RETRY_DELAY = 200;
 // Unfiltered, includes hidden profiles
-const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles || [];
+const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
 // Filtered, without hidden profiles
 const PREVIEW_CAMERA_PROFILES = CAMERA_PROFILES.filter(p => !p.hidden);
 const CAMERA_AS_CONTENT_PROFILE_ID = 'fhd';
@@ -95,7 +95,7 @@ const promiseTimeout = (ms, promise) => {
 };
 
 const getSkipVideoPreview = () => {
-  const KURENTO_CONFIG = Meteor.settings.public.kurento;
+  const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
 
   const skipVideoPreviewOnFirstJoin = getFromUserSettings(
     'bbb_skip_video_preview_on_first_join',

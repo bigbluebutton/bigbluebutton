@@ -14,7 +14,7 @@ import { notify } from '/imports/ui/services/notification';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
-const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
+const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
 const POD_ID = 'DEFAULT_PRESENTATION_POD';
 

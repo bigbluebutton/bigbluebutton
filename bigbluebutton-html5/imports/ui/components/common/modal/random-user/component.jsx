@@ -5,7 +5,7 @@ import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import AudioService from '/imports/ui/components/audio/service';
 import Styled from './styles';
 
-const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
+const SELECT_RANDOM_USER_COUNTDOWN = window.meetingClientSettings.public.selectRandomUser.countdown;
 
 const messages = defineMessages({
   noViewers: {
@@ -102,9 +102,9 @@ class RandomUserSelect extends Component {
   }
 
   play() {
-    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename
-      + Meteor.settings.public.app.instanceId}`
+    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
+      + window.meetingClientSettings.public.app.basename
+      + window.meetingClientSettings.public.app.instanceId}`
       + '/resources/sounds/Poll.mp3');
   }
 
