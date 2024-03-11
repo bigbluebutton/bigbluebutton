@@ -152,13 +152,15 @@ export const useSubscription = <T>(
     && Array.isArray(data.patch)
   ) {
     currentData = applyPatch(deepClone(dataRef.current), data.patch).newDocument;
-    dataRef.current = currentData;
   } else if (
     data
     && typeof data === 'object'
   ) {
     const resultSetKey = Object.keys(data)[0];
     currentData = data[resultSetKey as keyof typeof data];
+  }
+  if (patched) {
+    dataRef.current = currentData;
   }
 
   const newProjectionOfData = projection ? currentData.map(projection) : currentData;
