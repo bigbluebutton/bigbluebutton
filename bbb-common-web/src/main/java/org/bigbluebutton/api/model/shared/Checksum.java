@@ -3,6 +3,8 @@ package org.bigbluebutton.api.model.shared;
 import org.bigbluebutton.api.model.constraint.NotEmpty;
 import org.bigbluebutton.api.util.ParamsUtil;
 
+import javax.servlet.http.HttpServletRequest;
+
 public abstract class Checksum {
 
     @NotEmpty(message = "You must provide the API call", groups = ChecksumValidationGroup.class)
@@ -13,9 +15,12 @@ public abstract class Checksum {
 
     protected String queryStringWithoutChecksum;
 
-    public Checksum(String apiCall, String checksum) {
+    protected HttpServletRequest request;
+
+    public Checksum(String apiCall, String checksum, HttpServletRequest request) {
         this.apiCall = ParamsUtil.sanitizeString(apiCall);
         this.checksum = ParamsUtil.sanitizeString(checksum);
+        this.request = request;
     }
 
     public String getApiCall() {
@@ -30,9 +35,13 @@ public abstract class Checksum {
         return checksum;
     }
 
+    public HttpServletRequest getRequest() { return request; }
+
     public void setChecksum(String checksum) {
         this.checksum = checksum;
     }
+
+    public void setRequest(HttpServletRequest request) { this.request = request; }
 
     public String getQueryStringWithoutChecksum() {
         return queryStringWithoutChecksum;
