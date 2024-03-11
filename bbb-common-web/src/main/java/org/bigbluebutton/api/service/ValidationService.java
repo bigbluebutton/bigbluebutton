@@ -9,6 +9,7 @@ import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -70,11 +71,13 @@ public class ValidationService {
         validator = validatorFactory.getValidator();
     }
 
-    public Map<String, String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
+    public Map<String, String> validate(ApiCall apiCall, HttpServletRequest servletRequest) {
+        String queryString = servletRequest.getQueryString();
+        Map<String, String[]> params = servletRequest.getParameterMap();
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
         params = sanitizeParams(params);
 
-        Request request = initializeRequest(apiCall, params, queryString);
+        Request request = initializeRequest(apiCall, params, queryString, servletRequest);
         Map<String,String> violations = new HashMap<>();
 
         if(request == null) {
@@ -101,7 +104,7 @@ public class ValidationService {
         }
     }
 
-    private Request initializeRequest(ApiCall apiCall, Map<String, String[]> params, String queryString) {
+    private Request initializeRequest(ApiCall apiCall, Map<String, String[]> params, String queryString, HttpServletRequest servletRequest) {
         Request request = null;
         Checksum checksum;
 
@@ -116,7 +119,7 @@ public class ValidationService {
 
         switch(apiCall.requestType) {
             case GET:
-                checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString);
+                checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString, servletRequest);
                 switch(apiCall) {
                     case CREATE:
                         request = new CreateMeeting(checksum);
