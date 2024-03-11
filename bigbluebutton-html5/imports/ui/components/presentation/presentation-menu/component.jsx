@@ -13,6 +13,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
@@ -281,6 +282,7 @@ const PresentationMenu = (props) => {
     }
 
     const { isIos } = deviceInfo;
+    const { isSafari } = browserInfo;
 
     if (allowSnapshotOfCurrentSlide) {
       menuItems.push(
@@ -324,7 +326,7 @@ const PresentationMenu = (props) => {
               const svgElem = await tldrawAPI.getSvg(shapes.map((shape) => shape.id));
 
               // workaround for ios
-              if (isIos) {
+              if (isIos || isSafari) {
                 svgElem.setAttribute('width', backgroundShape.props.w);
                 svgElem.setAttribute('height', backgroundShape.props.h);
                 svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
