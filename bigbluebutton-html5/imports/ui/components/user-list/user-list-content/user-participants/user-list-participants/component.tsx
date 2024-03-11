@@ -24,8 +24,8 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import Service from '/imports/ui/components/user-list/service';
-import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
-import { setLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -206,21 +206,14 @@ const UserListParticipantsContainer: React.FC = () => {
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
-  useEffect(() => {
-    return () => {
-      setLoadedUserList([]);
-    };
+  useEffect(() => () => {
+    setLocalUserList([]);
   }, []);
 
   const {
     data: usersData,
-  } = useSubscription(USER_LIST_SUBSCRIPTION, {
-    variables: {
-      offset,
-      limit,
-    },
-  });
-  const { user: users } = (usersData || {});
+  } = useLoadedUserList({ offset, limit }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
+  const users = usersData ?? [];
 
   const { data: currentUser } = useCurrentUser((c: Partial<User>) => ({
     isModerator: c.isModerator,
@@ -232,7 +225,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const presentationPage = presentationData?.pres_page_curr[0] || {};
   const pageId = presentationPage?.pageId;
 
-  setLoadedUserList(users);
+  setLocalUserList(users);
   return (
     <>
       <UserListParticipants
