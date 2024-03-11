@@ -46,6 +46,6 @@ timeoutSecs="${timeoutSecs:0:3}"
 
 # The timeout is important.
 
-timeout $(printf %03d $timeoutSecs)s curl $INSECURE -F "data=@${source}" https://$HOST:9980/cool/convert-to/$convertTo > "${dest}"
+timeout $(printf %03d $timeoutSecs)s curl $UNSECURE -F "data=@${source}" https://$HOST:9980/cool/convert-to/$convertTo > "${dest}"
 
 exit 0
