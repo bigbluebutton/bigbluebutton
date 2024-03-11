@@ -507,13 +507,14 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const currentDate = new Date(Date.now() + timeSync);
   const currentTime = (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
   + playerCurrentTime) * playerPlaybackRate;
+  const isPresenter = currentUser.presenter ?? false;
 
   return (
     <ExternalVideoPlayer
       currentVolume={currentVolume}
       isMuted={isMuted}
       isEchoTest={isEchoTest}
-      isPresenter={currentUser.presenter ?? false}
+      isPresenter={isPresenter ?? false}
       videoUrl={currentMeeting.externalVideo?.externalVideoUrl ?? ''}
       playing={currentMeeting.externalVideo?.playerPlaying ?? false}
       playerPlaybackRate={currentMeeting.externalVideo?.playerPlaybackRate ?? 1}
@@ -521,7 +522,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       layoutContextDispatch={layoutContextDispatch}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
-      currentTime={currentTime}
+      currentTime={isPresenter ? playerCurrentTime : currentTime}
       key={key}
       setKey={setKey}
     />
