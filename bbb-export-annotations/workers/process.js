@@ -380,12 +380,18 @@ async function processPresentationAnnotations() {
       }
     });
 
-    // Scale slide back to its original size
+/**
+ * Constructs the command arguments for converting an annotated slide from SVG to PDF format.
+ * `cairoSVGUnsafeFlag` should be enabled (true) for CairoSVG versions >= 2.7.0
+ * to allow external resources, such as presentation slides, to be loaded.
+ *
+ * @const {string[]} convertAnnotatedSlide - The command arguments for the conversion process.
+ */
     const convertAnnotatedSlide = [
       SVGfile,
       '--output-width', toPx(slideWidth),
       '--output-height', toPx(slideHeight),
-      '-u',
+      ...(config.process.cairoSVGUnsafeFlag ? ['-u'] : []),
       '-o', PDFfile,
     ];
 
