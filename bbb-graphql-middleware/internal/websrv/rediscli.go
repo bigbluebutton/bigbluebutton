@@ -55,7 +55,8 @@ func StartRedisListener() {
 			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
 			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
-			log.Debugf("Received invalidate request for sessionToken %v", sessionTokenToInvalidate)
+			reason := messageBodyAsMap["reason"]
+			log.Debugf("Received invalidate request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
 
 			//Not being used yet
 			go InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
