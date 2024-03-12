@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bigbluebutton.api.model.constraint.GetChecksumConstraint;
 import org.bigbluebutton.api.model.shared.GetChecksum;
@@ -27,7 +28,12 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
         boolean queryStringPresent = request.getQueryString() != null && !request.getQueryString().isEmpty();
         boolean requestBodyPresent = request.getContentLength() > 0;
 
-        if (queryStringPresent && requestBodyPresent) return false;
+        String contentType = request.getContentType();
+        if (contentType != null) {
+            if (contentType.equalsIgnoreCase(MediaType.APPLICATION_FORM_URLENCODED) || contentType.equalsIgnoreCase(MediaType.MULTIPART_FORM_DATA)) {
+                if (queryStringPresent && requestBodyPresent) return false;
+            }
+        }
 
         if (securitySalt.isEmpty()) {
             log.warn("Security is disabled in this service. Make sure this is intentional.");
