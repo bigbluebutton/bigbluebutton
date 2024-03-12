@@ -110,7 +110,6 @@ class ApiController {
 
     log.info("attendeePW [${attendeePW}]")
     log.info("moderatorPW [${moderatorPW}]")
-    log.info("Content length type [${}]")
 
     if(attendeePW.equals("")) log.info("attendeePW is empty")
     if(moderatorPW.equals("")) log.info("moderatorPW is empty")
