@@ -44,19 +44,21 @@ const ConnectionStatus = () => {
 
   const { loading, error, data } = useSubscription(CONNECTION_STATUS_SUBSCRIPTION);
 
-  if (!loading && !error && data) {
-    data.user_connectionStatus.forEach((curr) => {
-      if (curr.connectionAliveAt != null
-          && curr.userClientResponseAt == null
-          && (curr.statusUpdatedAt == null
-              || curr.statusUpdatedAt !== lastStatusUpdatedAtReceived.current
-          )
-      ) {
-        lastStatusUpdatedAtReceived.current = curr.statusUpdatedAt;
-        handleUpdateUserClientResponseAt();
-      }
-    });
-  }
+  useEffect(() => {
+    if (!loading && !error && data) {
+      data.user_connectionStatus.forEach((curr) => {
+        if (curr.connectionAliveAt != null
+            && curr.userClientResponseAt == null
+            && (curr.statusUpdatedAt == null
+                || curr.statusUpdatedAt !== lastStatusUpdatedAtReceived.current
+            )
+        ) {
+          lastStatusUpdatedAtReceived.current = curr.statusUpdatedAt;
+          handleUpdateUserClientResponseAt();
+        }
+      });
+    }
+  }, [data]);
 
   return null;
 };
