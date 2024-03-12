@@ -465,8 +465,6 @@ class VideoService {
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
-    const moderatorOnly = this.webcamsOnlyForModerator();
-    if (moderatorOnly) streams = this.filterModeratorOnly(streams);
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) streams.push(connectingStream);
 
@@ -476,13 +474,13 @@ class VideoService {
     if (isPaginationDisabled) {
       if (isGridEnabled) {
         const streamUsers = streams.map((stream) => stream.userId);
-  
+
         gridUsers = users.filter(
           (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId)
         ).map((user) => ({
           isGridItem: true,
           ...user,
-          }));
+        }));
       }
 
       return {
@@ -502,7 +500,7 @@ class VideoService {
       ).map((user) => ({
         isGridItem: true,
         ...user,
-        }));
+      }));
     }
 
     return { streams: paginatedStreams, gridUsers, totalNumberOfStreams: streams.length };
@@ -523,8 +521,6 @@ class VideoService {
       return this.getVideoPage(streams, pageSize);
     }
 
-    const moderatorOnly = this.webcamsOnlyForModerator();
-    if (moderatorOnly) streams = this.filterModeratorOnly(streams);
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) {
       streams.push(connectingStream);
@@ -1138,4 +1134,5 @@ export default {
   joinedVideo: () => videoService.joinedVideo(),
   fetchVideoStreams: () => videoService.fetchVideoStreams(),
   getGridUsers: (users = [], streams = []) => videoService.getGridUsers(users, streams),
+  webcamsOnlyForModerators: () => videoService.webcamsOnlyForModerator(),
 };

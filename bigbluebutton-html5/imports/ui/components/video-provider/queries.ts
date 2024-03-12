@@ -21,6 +21,7 @@ subscription getvideoData($userIds: [String]!) {
     clientType
     userId
     raiseHand
+    isModerator
     reaction {
       reactionEmoji
     }

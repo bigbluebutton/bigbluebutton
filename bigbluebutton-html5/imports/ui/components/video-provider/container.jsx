@@ -6,6 +6,7 @@ import VideoService from './service';
 import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
 import { CAMERA_BROADCAST_START, CAMERA_BROADCAST_STOP } from './mutations';
 import { getVideoData, getVideoDataGrid } from './queries';
+import Auth from '/imports/ui/services/auth';
 
 const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
@@ -47,6 +48,7 @@ const VideoProviderContainer = ({ children, ...props }) => {
 export default withTracker(({ swapLayout, ...rest }) => {
   const isGridLayout = Session.get('isGridEnabled');
   const graphqlQuery = isGridLayout ? getVideoDataGrid : getVideoData;
+  const currUserId = Auth.userID;
 
   const fetchedStreams = VideoService.fetchVideoStreams();
 
@@ -85,6 +87,18 @@ export default withTracker(({ swapLayout, ...rest }) => {
   if (gridUsers.length > 0) {
     const items = usersVideo.concat(gridUsers);
     usersVideo = sortVideoStreams(items, DEFAULT_SORTING);
+  }
+
+  if (VideoService.webcamsOnlyForModerators()) {
+    if (users.length > 0) {
+      usersVideo = usersVideo.filter((uv) => {
+        if (uv.userId === currUserId) {
+          return true;
+        }
+        const user = users.find((u) => u.userId === uv.userId);
+        return user?.isModerator;
+      });
+    }
   }
 
   return {
