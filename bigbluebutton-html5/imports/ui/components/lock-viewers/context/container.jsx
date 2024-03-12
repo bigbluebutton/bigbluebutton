@@ -11,7 +11,7 @@ const lockContextContainer = (component) => withTracker(() => {
   const lockSetting = new LockStruct();
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { lockSettingsProps: 1 } });
-  const User = Users.findOne({ userId: Auth.userID, meetingId: Auth.meetingID },
+  const User = Users.findOne({ userId: Auth.userID },
     { fields: { role: 1, locked: 1 } });
   const userIsLocked = User ? User.locked && User.role !== ROLE_MODERATOR : true;
   const lockSettings = Meeting.lockSettingsProps;
