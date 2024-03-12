@@ -39,9 +39,11 @@ RangeLoop:
 		case <-hc.Context.Done():
 			break RangeLoop
 		case <-hc.MsgReceivingActiveChan.ReceiveChannel():
-			log.Debugf("freezing channel fromBrowserToHasuraChannel")
-			//Freeze channel once it's about to close Hasura connection
-			fromBrowserToHasuraChannel.FreezeChannel()
+			if !fromBrowserToHasuraChannel.Frozen() {
+				log.Debugf("freezing channel fromBrowserToHasuraChannel")
+				//Freeze channel once it's about to close Hasura connection
+				fromBrowserToHasuraChannel.FreezeChannel()
+			}
 		case fromBrowserMessage := <-fromBrowserToHasuraChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {

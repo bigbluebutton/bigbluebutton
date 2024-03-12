@@ -47,6 +47,10 @@ func (s *SafeChannel) Close() {
 	}
 }
 
+func (s *SafeChannel) Frozen() bool {
+	return s.freezeFlag
+}
+
 func (s *SafeChannel) FreezeChannel() {
 	if !s.freezeFlag {
 		s.mux.Lock()
