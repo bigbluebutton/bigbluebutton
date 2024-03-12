@@ -229,7 +229,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     }
 
     return () => {
-      whiteboardRef.current.removeEventListener('keydown', handleKeyDown);
+      whiteboardRef?.current.removeEventListener('keydown', handleKeyDown);
     };
   }, [whiteboardRef.current]);
 
