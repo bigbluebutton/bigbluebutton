@@ -4,6 +4,10 @@ import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { throttle } from '/imports/utils/throttle';
+import { makeCall } from '/imports/ui/services/api';
+
+const { cursorInterval: CURSOR_INTERVAL } = window.meetingClientSettings.public.whiteboard;
 
 const intlMessages = defineMessages({
   notifyNotAllowedChange: {
@@ -278,6 +282,11 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
   return result;
 };
 
+const publishCursorUpdate = throttle(
+  (payload) => makeCall('publishCursorUpdate', Auth.meetingID, Auth.userID, payload),
+  CURSOR_INTERVAL,
+);
+
 export {
   initDefaultPages,
   sendAnnotation,
@@ -287,4 +296,5 @@ export {
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
   formatAnnotations,
+  publishCursorUpdate,
 };

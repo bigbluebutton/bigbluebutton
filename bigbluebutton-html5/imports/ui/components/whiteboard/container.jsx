@@ -7,8 +7,8 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  CURSOR_SUBSCRIPTION,
 } from './queries';
-import { CURSOR_SUBSCRIPTION } from './cursors/queries';
 import {
   initDefaultPages,
   persistShape,
@@ -16,8 +16,8 @@ import {
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
   formatAnnotations,
+  publishCursorUpdate,
 } from './service';
-import CursorService from './cursors/service';
 import SettingsService from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -282,7 +282,7 @@ const WhiteboardContainer = (props) => {
       }}
       {...props}
       meetingId={Auth.meetingID}
-      publishCursorUpdate={CursorService.publishCursorUpdate}
+      publishCursorUpdate={publishCursorUpdate}
       otherCursors={cursorArray}
       hideViewersCursor={meeting?.data?.lockSettings?.hideViewersCursor}
     />
