@@ -39,7 +39,7 @@ test.describe.parallel('Whiteboard @ci', () => {
 test.describe.parallel('Whiteboard tools - visual regression', () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
-      'Drawing visual regression tests are enabled for Chromium only');
+      'Drawing visual regression tests are enabled for Chromium');
   });
 
   test('Draw rectangle', async ({ browser, context, page }) => {
