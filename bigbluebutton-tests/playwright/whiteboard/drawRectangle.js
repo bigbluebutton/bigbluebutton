@@ -25,8 +25,8 @@ class DrawRectangle extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await this.modPage.setViewPortSize();
-    await this.userPage.setViewPortSize();
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
 
     await expect(modWbLocator).toHaveScreenshot('moderator-rectangle.png', screenshotOptions);
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
