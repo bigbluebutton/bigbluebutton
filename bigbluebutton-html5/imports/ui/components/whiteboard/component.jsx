@@ -154,6 +154,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const isMouseDownRef = useRef(false);
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
+  const isPresenterRef = useRef(isPresenter);
   const whiteboardIdRef = React.useRef(whiteboardId);
   const curPageIdRef = React.useRef(curPageId);
   const hasWBAccessRef = React.useRef(hasWBAccess);
@@ -189,6 +190,29 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     whiteboardIdRef.current
   );
 
+  const handleKeyDown = (event) => {
+    if (!isPresenterRef.current) {
+      if (!hasWBAccessRef.current || (hasWBAccessRef.current && (!tlEditorRef.current.editingShape))) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    if (!isEqual(isPresenterRef.current, isPresenter)) {
+      isPresenterRef.current = isPresenter;
+    }
+  }, [isPresenter]);
+
+  React.useEffect(() => {
+    if (!isEqual(hasWBAccessRef.current, hasWBAccess)) {
+      hasWBAccessRef.current = hasWBAccess;
+    }
+  }, [hasWBAccess]);
+
+
   React.useEffect(() => {
     if (!isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
@@ -201,6 +225,16 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       prevOtherCursorsRef.current = otherCursors;
     }
   }, [otherCursors]);
+
+  React.useEffect(() => {
+    if (whiteboardRef.current) {
+      whiteboardRef.current.addEventListener('keydown', handleKeyDown, { capture: true });
+    }
+
+    return () => {
+      whiteboardRef.current?.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [whiteboardRef.current]);
 
   const { shapesToAdd, shapesToUpdate, shapesToRemove } = React.useMemo(() => {
     const selectedShapeIds = tlEditorRef.current?.selectedShapeIds || [];
@@ -859,7 +893,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
           const panned = prevCam.x !== nextCam.x || prevCam.y !== nextCam.y;
 
-          if (panned) {
+          if (panned && isPresenter) {
             let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
               editor?.viewportPageBounds.width,
               currentPresentationPage?.scaledWidth
@@ -960,7 +994,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           next?.id?.includes("camera") &&
           (prev.x !== next.x || prev.y !== next.y);
         const zoomed = next?.id?.includes("camera") && prev.z !== next.z;
-        if (panned && isPresenter) {
+        if (panned) {
           // // limit bounds
           if (
             editor?.viewportPageBounds?.maxX >
