@@ -65,7 +65,6 @@ const AppContainer = (props) => {
     shouldShowScreenshare: propsShouldShowScreenshare,
     shouldShowSharedNotes,
     presentationRestoreOnUpdate,
-    randomlySelectedUser,
     isModalOpen,
     meetingLayout,
     meetingLayoutUpdatedAt,
@@ -141,17 +140,6 @@ const AppContainer = (props) => {
     presentationVideoRate = cameraDock.height / window.innerHeight;
   }
   presentationVideoRate = parseFloat(presentationVideoRate.toFixed(2));
-
-  const prevRandomUser = usePrevious(randomlySelectedUser);
-
-  const [mountRandomUserModal, setMountRandomUserModal] = useState(false);
-
-  useEffect(() => {
-    setMountRandomUserModal(!isPresenter
-      && !isEqual(prevRandomUser, randomlySelectedUser)
-      && randomlySelectedUser.length > 0
-      && !isModalOpen);
-  }, [isPresenter, prevRandomUser, randomlySelectedUser, isModalOpen]);
 
   const setPushLayout = () => {
     setSyncWithPresenterLayout({
@@ -237,8 +225,6 @@ const AppContainer = (props) => {
           sidebarContentPanel,
           sidebarContentIsOpen,
           shouldShowExternalVideo,
-          mountRandomUserModal,
-          setMountRandomUserModal,
           isPresenter,
           numCameras: cameraDockInput.numCameras,
           enforceLayout: validateEnforceLayout(currentUserData),
@@ -300,17 +286,6 @@ export default withTracker(() => {
     },
   );
 
-  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    {
-      fields: {
-        randomlySelectedUser: 1,
-        layout: 1,
-      },
-    });
-  const {
-    randomlySelectedUser,
-  } = currentMeeting;
-
   const meetingLayoutObj = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
   const {
     layout: meetingLayout,
@@ -355,7 +330,6 @@ export default withTracker(() => {
     currentUserEmoji: currentUserEmoji(currentUser),
     currentUserAway: currentUser.away,
     currentUserRaiseHand: currentUser.raiseHand,
-    randomlySelectedUser,
     currentUserId: currentUser?.userId,
     meetingLayout,
     meetingLayoutUpdatedAt,

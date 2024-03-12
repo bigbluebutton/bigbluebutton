@@ -77,7 +77,6 @@ const ActionsBarContainer = (props) => {
   );
 };
 
-const SELECT_RANDOM_USER_ENABLED = window.meetingClientSettings.public.selectRandomUser.enabled;
 const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings.public.app.raiseHandActionButton.enabled;
 const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings.public.app.raiseHandActionButton.centered;
 
@@ -99,7 +98,6 @@ export default withTracker(() => ({
   isTimerEnabled: TimerService.isEnabled(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
-  isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
   isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
