@@ -1,5 +1,6 @@
 package org.bigbluebutton.api.model.shared;
 
+import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.NotEmpty;
 import org.bigbluebutton.api.util.ParamsUtil;
 
@@ -15,6 +16,7 @@ public abstract class Checksum {
 
     protected String queryStringWithoutChecksum;
 
+    @ContentTypeConstraint
     protected HttpServletRequest request;
 
     public Checksum(String apiCall, String checksum, HttpServletRequest request) {
