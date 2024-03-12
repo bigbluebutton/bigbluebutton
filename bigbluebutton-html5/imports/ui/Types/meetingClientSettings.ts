@@ -28,7 +28,7 @@ export interface Public {
 }
 
 export interface App {
-  instanceId: ''
+  instanceId: string
   mobileFontSize: string
   desktopFontSize: string
   audioChatNotification: boolean
