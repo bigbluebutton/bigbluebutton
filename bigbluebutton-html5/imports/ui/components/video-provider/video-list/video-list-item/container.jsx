@@ -45,7 +45,7 @@ export default withTracker((props) => {
 
   return {
     settingsSelfViewDisable: Settings.application.selfViewDisable,
-    voiceUser: VoiceUsers.findOne({ intId: userId },
+    voiceUser: VoiceUsers.findOne({ userId },
       {
         fields: {
           muted: 1, listenOnly: 1, talking: 1, joined: 1,

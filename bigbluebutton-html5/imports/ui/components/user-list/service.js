@@ -386,8 +386,8 @@ const getUsersProp = () => {
   };
 };
 
-const curatedVoiceUser = (intId) => {
-  const voiceUser = VoiceUsers.findOne({ intId });
+const curatedVoiceUser = (userId) => {
+  const voiceUser = VoiceUsers.findOne({ userId });
   return {
     isVoiceUser: voiceUser ? voiceUser.joined : false,
     isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
