@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export interface MeetingEndDataResponse {
   user_current: Array<{
-    role: string;
+    isModerator: boolean;
     meeting: {
       learningDashboard: {
         learningDashboardAccessToken: string;
@@ -21,7 +21,7 @@ export interface MeetingEndDataResponse {
 export const getMeetingEndData = gql`
 query getMeetingEndData {
   user_current {
-    role
+    isModerator
     meeting {
       learningDashboard {
         learningDashboardAccessToken

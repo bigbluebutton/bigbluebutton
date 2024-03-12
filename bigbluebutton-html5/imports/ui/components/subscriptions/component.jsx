@@ -16,7 +16,7 @@ const SUBSCRIPTIONS = [
   'meetings',
   'polls',
   'captions',
-  'voiceUsers',
+  // 'voiceUsers',
   'screenshare',
   'users-settings',
   'users-infos',

@@ -81,11 +81,11 @@ class ShapeOptions extends MultiUsers {
     await this.modPage.page.mouse.up();
 
     await this.modPage.page.mouse.click(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
-    await this.modPage.waitAndClick(e.wbStyles);
+    
     await this.modPage.waitAndClick(e.wbFillDrawing);
-    await this.modPage.waitAndClick(e.wbStyles);
-    await this.modPage.waitAndClick(e.wbOptions);
+    
     await this.modPage.waitAndClick(e.wbDuplicate);
+    await this.modPage.waitAndClick(e.wbOptions);
     await this.modPage.waitAndClick(e.wbMoveBackward);
     
     await expect(modWbLocator).toHaveScreenshot('moderator-move-backward.png', screenshotOptions);

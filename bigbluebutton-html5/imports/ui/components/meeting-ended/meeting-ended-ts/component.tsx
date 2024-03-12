@@ -171,7 +171,7 @@ interface MeetingEndedProps extends MeetingEndedContainerProps {
   allowDefaultLogoutUrl: boolean;
   askForFeedbackOnLogout: boolean
   learningDashboardAccessToken: string;
-  role: string;
+  isModerator: boolean;
   learningDashboardBase: string;
   isBreakout: boolean;
 }
@@ -183,7 +183,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   allowDefaultLogoutUrl,
   askForFeedbackOnLogout,
   learningDashboardAccessToken,
-  role,
+  isModerator,
   learningDashboardBase,
   isBreakout,
 }) => {
@@ -220,7 +220,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       authToken,
       meetingId,
       comment,
-      userRole: role,
+      isModerator,
     };
     const url = './feedback';
     const options = {
@@ -233,7 +233,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     setDispatched(true);
 
     fetch(url, options).then(() => {
-      if (role === 'VIEWER') {
+      if (!isModerator) {
         const REDIRECT_WAIT_TIME = 5000;
         setTimeout(() => {
           window.location.href = logoutUrl;
@@ -263,7 +263,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       (
         <Styled.Wrapper>
           {
-            learningDashboardAccessToken && role === 'moderator'
+            learningDashboardAccessToken && isModerator
             // Always set cookie in case Dashboard is already opened
             && setLearningDashboardCookie(learningDashboardAccessToken, meetingId) === true
               ? (
@@ -298,7 +298,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         </Styled.Wrapper>
       )
     );
-  }, [learningDashboardAccessToken, role, meetingId, authToken, learningDashboardBase]);
+  }, [learningDashboardAccessToken, isModerator, meetingId, authToken, learningDashboardBase]);
 
   const feedbackScreen = useMemo(() => {
     const shouldShowFeedback = askForFeedbackOnLogout && !dispatched;
@@ -387,8 +387,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         allowDefaultLogoutUrl={false}
         askForFeedbackOnLogout={false}
         learningDashboardAccessToken=""
-        // eslint-disable-next-line jsx-a11y/aria-role
-        role=""
+        isModerator={false}
         learningDashboardBase=""
         isBreakout={false}
       />
@@ -405,8 +404,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         allowDefaultLogoutUrl={false}
         askForFeedbackOnLogout={false}
         learningDashboardAccessToken=""
-        // eslint-disable-next-line jsx-a11y/aria-role
-        role=""
+        isModerator={false}
         learningDashboardBase=""
         isBreakout={false}
       />
@@ -417,7 +415,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
     user_current,
   } = meetingEndData;
   const {
-    role,
+    isModerator,
     meeting,
   } = user_current[0];
 
@@ -441,7 +439,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
       allowDefaultLogoutUrl={allowDefaultLogoutUrl}
       askForFeedbackOnLogout={askForFeedbackOnLogout}
       learningDashboardAccessToken={learningDashboard?.learningDashboardAccessToken}
-      role={role}
+      isModerator={isModerator}
       learningDashboardBase={learningDashboardBase}
       isBreakout={isBreakout}
     />
