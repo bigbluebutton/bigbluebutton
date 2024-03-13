@@ -175,31 +175,28 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   ];
 
   const getIconUser = () => {
-    const emojiSize = convertRemToPixels(1.3);
-    let userIcon;
+  const emojiSize = convertRemToPixels(1.3);
 
-    if (user.isDialIn) {
-      userIcon = <Icon iconName="volume_level_2" />;
-    } else if (user.raiseHand === true) {
-      userIcon = reactionsEnabled
-        ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
-        : <Icon iconName={normalizeEmojiName('raiseHand')} />;
-    } else if (user.away === true) {
-      userIcon = reactionsEnabled
-        ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
-        : <Icon iconName={normalizeEmojiName('away')} />;
-    } else if (user.emoji !== 'none' && user.emoji !== 'notAway') {
-      userIcon = <Icon iconName={normalizeEmojiName(user.emoji)} />;
-    } else if (user.reaction && user.reaction.reactionEmoji !== 'none') {
-      userIcon = user.reaction.reactionEmoji;
-    } else if (user.name && userAvatarFiltered.length === 0) {
-      userIcon = user.name.toLowerCase().slice(0, 2);
-    } else {
-      userIcon = '';
-    }
-
-    return userIcon;
-  };
+  if (user.isDialIn) {
+    return <Icon iconName="volume_level_2" />;
+  } else if (user.raiseHand === true) {
+    return reactionsEnabled
+      ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
+      : <Icon iconName={normalizeEmojiName('raiseHand')} />;
+  } else if (user.away === true) {
+    return reactionsEnabled
+      ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
+      : <Icon iconName={normalizeEmojiName('away')} />;
+  } else if (user.emoji !== 'none' && user.emoji !== 'notAway') {
+    return <Icon iconName={normalizeEmojiName(user.emoji)} />;
+  } else if (user.reaction && user.reaction.reactionEmoji !== 'none') {
+    return user.reaction.reactionEmoji;
+  } else if (user.name && userAvatarFiltered.length === 0) {
+    return user.name.toLowerCase().slice(0, 2);
+  } else {
+    return '';
+  }
+};
 
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
