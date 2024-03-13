@@ -457,7 +457,7 @@
     "app.navBar.settingsDropdown.helpDesc": "ユーザーをビデオチュートリアルへつなげる（新しいタブを開く）",
     "app.navBar.settingsDropdown.endMeetingDesc": "現在の会議を終了する",
     "app.navBar.settingsDropdown.endMeetingLabel": "会議を終了する",
-    "app.navBar.settingsDropdown.endMeetingForAllLabel": "参加者全員に対し会議を終了する",
+    "app.navBar.settingsDropdown.endMeetingForAllLabel": "全員退出させて会議を終了する",
     "app.navBar.userListToggleBtnLabel": "ユーザーリストのトグル",
     "app.navBar.toggleUserList.ariaLabel": "ユーザーとメッセージの切替",
     "app.navBar.toggleUserList.newMessages": "メッセージを通知する",
