@@ -29,6 +29,7 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
         boolean requestBodyPresent = request.getContentLength() > 0;
 
         String contentType = request.getContentType();
+        log.info("Request content type: {}", contentType);
         if (contentType != null) {
             if (contentType.equalsIgnoreCase(MediaType.APPLICATION_FORM_URLENCODED) || contentType.equalsIgnoreCase(MediaType.MULTIPART_FORM_DATA)) {
                 if (queryStringPresent && requestBodyPresent) return false;
