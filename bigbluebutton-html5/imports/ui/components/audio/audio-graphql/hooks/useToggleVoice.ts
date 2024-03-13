@@ -7,7 +7,9 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 const useToggleVoice = () => {
   const [userSetMuted] = useMutation(USER_SET_MUTED);
   const { data: currentUserData } = useCurrentUser((u) => ({
-    voice: u.voice,
+    voice: {
+      muted: u.voice?.muted,
+    },
   }));
 
   const toggleVoice = async (userId?: string | null, muted?: boolean | null) => {
