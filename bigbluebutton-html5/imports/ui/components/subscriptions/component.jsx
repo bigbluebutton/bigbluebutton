@@ -49,8 +49,11 @@ const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-rea
 let oldRole = '';
 
 class Subscriptions extends Component {
+  componentDidMount() {
+    Session.set('subscriptionsReady', false);
+  }
+
   componentDidUpdate() {
-    const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
       Session.set('subscriptionsReady', true);
       const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
@@ -67,7 +70,7 @@ class Subscriptions extends Component {
 
 export default withTracker(() => {
   const { credentials } = Auth;
-  const { meetingId, requesterUserId } = credentials;
+  const { requesterUserId } = credentials;
   const userWillAuth = Session.get('userWillAuth');
   // This if exist because when a unauth user try to subscribe to a publisher
   // it returns a empty collection to the subscription
