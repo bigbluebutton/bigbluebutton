@@ -17,7 +17,6 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
 
     private static final Set<String> SUPPORTED_CONTENT_TYPES = Sets.newHashSet(
             MediaType.APPLICATION_XML,
-            MediaType.APPLICATION_JSON,
             MediaType.APPLICATION_FORM_URLENCODED,
             MediaType.MULTIPART_FORM_DATA
     );
