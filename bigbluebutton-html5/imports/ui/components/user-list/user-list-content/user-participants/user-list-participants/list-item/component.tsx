@@ -166,35 +166,34 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const getIconUser = () => {
     const emojiSize = convertRemToPixels(1.3);
+    let userIcon;
 
-    if (user.raiseHand === true) {
-      return reactionsEnabled
+    if (user.isDialIn) {
+      userIcon = <Icon iconName="volume_level_2" />;
+    } else if (user.raiseHand === true) {
+      userIcon = reactionsEnabled
         ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
-    } if (user.away === true) {
-      return reactionsEnabled
+    } else if (user.away === true) {
+      userIcon = reactionsEnabled
         ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('away')} />;
-    } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
-      return <Icon iconName={normalizeEmojiName(user.emoji)} />;
-    } if (user.reaction && user.reaction.reactionEmoji !== 'none') {
-      return user.reaction.reactionEmoji;
-    } if (user.name && userAvatarFiltered.length === 0) {
-      return user.name.toLowerCase().slice(0, 2);
-    } return '';
+    } else if (user.emoji !== 'none' && user.emoji !== 'notAway') {
+      userIcon = <Icon iconName={normalizeEmojiName(user.emoji)} />;
+    } else if (user.reaction && user.reaction.reactionEmoji !== 'none') {
+      userIcon = user.reaction.reactionEmoji;
+    } else if (user.name && userAvatarFiltered.length === 0) {
+      userIcon = user.name.toLowerCase().slice(0, 2);
+    } else {
+      userIcon = '';
+    }
+
+    return userIcon;
   };
-
-  // This is being done because destructing is not a real solution, isDialIn is just a variable name.
-  // eslint-disable-next-line prefer-destructuring
-  const isDialIn = user.isDialIn;
-
-  const iconUser = getIconUser();
-  const iconDialInUser = (<Icon iconName="volume_level_2" />);
-  const userIcon = isDialIn ? iconDialInUser : iconUser;
 
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
-    : userIcon;
+    : getIconUser();
 
   const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
 
