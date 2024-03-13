@@ -54,7 +54,6 @@ export interface UserClientSettings {
 }
 
 export interface User {
-  isDialIn: boolean;
   authToken: string;
   userId: string;
   extId: string;
