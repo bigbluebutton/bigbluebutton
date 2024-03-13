@@ -5,14 +5,13 @@ import {
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import formatTalkingIndicatorDataFromGraphql from './utils';
 import { UserVoice } from '/imports/ui/Types/userVoice';
-import useTalkingIndicator from '/imports/ui/core/hooks/useTalkingIndicator';
+import { useTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
 
 const TalkingIndicatorHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
-  const userVoice: GraphqlDataHookSubscriptionResponse<Partial<UserVoice>[]> = useTalkingIndicator(
+  const [userVoice] = useTalkingIndicatorList(
     (uv: Partial<UserVoice>) => ({
       talking: uv.talking,
       startTime: uv.startTime,
@@ -23,7 +22,7 @@ const TalkingIndicatorHookContainer = () => {
 
   const updateTalkingIndicatorForPlugin = () => {
     window.dispatchEvent(new CustomEvent<
-      UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.UserVoice>>
+      UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.UserVoice[]>>
     >(HookEvents.UPDATED, {
       detail: {
         data: formatTalkingIndicatorDataFromGraphql(userVoice),

@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSubscription, useMutation } from '@apollo/client';
+import {
+  AssetRecordType,
+} from '@tldraw/tldraw';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
@@ -24,30 +27,26 @@ import {
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
-import POLL_RESULTS_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollResultsSubscription';
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
-  AssetRecordType,
-} from "@tldraw/tldraw";
-import {
   PRESENTATION_SET_ZOOM,
   PRES_ANNOTATION_DELETE,
   PRES_ANNOTATION_SUBMIT,
+  PRESENTATION_SET_PAGE,
 } from '../presentation/mutations';
 
-const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
+const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
 
 const WhiteboardContainer = (props) => {
   const {
     intl,
-    slidePosition,
-    svgUri,
     zoomChanger,
   } = props;
 
   const [annotations, setAnnotations] = useState([]);
+  const [shapes, setShapes] = useState({});
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -56,24 +55,46 @@ const WhiteboardContainer = (props) => {
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
-  const curPageId = currentPresentationPage?.num;
+  const curPageNum = currentPresentationPage?.num;
+  const curPageId = currentPresentationPage?.pageId;
+  const curPageIdRef = useRef();
+
+  React.useEffect(() => {
+    curPageIdRef.current = curPageId;
+  }, [curPageId]);
+
   const presentationId = currentPresentationPage?.presentationId;
 
   const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
-    variables: { pageId: currentPresentationPage?.pageId },
-    skip: !currentPresentationPage?.pageId,
+    variables: { pageId: curPageId },
+    skip: !curPageId,
   });
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
+  const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
   const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
   const [presentationSubmitAnnotations] = useMutation(PRES_ANNOTATION_SUBMIT);
+
+  const setPresentationPage = (pageId) => {
+    presentationSetPage({
+      variables: {
+        presentationId,
+        pageId,
+      },
+    });
+  };
+
+  const skipToSlide = (slideNum) => {
+    const slideId = `${presentationId}/${slideNum}`;
+    setPresentationPage(slideId);
+  };
 
   const removeShapes = (shapeIds) => {
     presentationDeleteAnnotations({
       variables: {
-        pageId: currentPresentationPage?.pageId,
+        pageId: curPageIdRef.current,
         annotationsIds: shapeIds,
       },
     });
@@ -98,7 +119,7 @@ const WhiteboardContainer = (props) => {
   const submitAnnotations = async (newAnnotations) => {
     const isAnnotationSent = await presentationSubmitAnnotations({
       variables: {
-        pageId: currentPresentationPage?.pageId,
+        pageId: curPageIdRef.current,
         annotations: newAnnotations,
       },
     });
@@ -111,9 +132,6 @@ const WhiteboardContainer = (props) => {
   };
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
-
-  const { data: pollData } = useSubscription(POLL_RESULTS_SUBSCRIPTION);
-  const pollResults = pollData?.poll[0] || null;
 
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
@@ -151,36 +169,34 @@ const WhiteboardContainer = (props) => {
     }
   }, [annotationStreamData]);
 
-  let shapes = {};
-  let bgShape = [];
+  const bgShape = [];
 
-  const pageAnnotations = annotations
-    .filter((annotation) => annotation.pageId === currentPresentationPage?.pageId);
-
-  shapes = formatAnnotations(
-    pageAnnotations,
-    intl,
-    curPageId,
-    pollResults,
-    currentPresentationPage,
-  );
+  React.useEffect(() => {
+    const updatedShapes = formatAnnotations(
+      annotations.filter((annotation) => annotation.pageId === curPageIdRef.current),
+      intl,
+      curPageNum,
+      currentPresentationPage,
+    );
+    setShapes(updatedShapes);
+  }, [annotations, intl, curPageNum, currentPresentationPage]);
 
   const { isIphone } = deviceInfo;
 
-  const assetId = AssetRecordType.createId(curPageId);
+  const assetId = AssetRecordType.createId(curPageNum);
   const assets = [{
     id: assetId,
-    typeName: "asset",
+    typeName: 'asset',
     type: 'image',
     meta: {},
     props: {
       w: currentPresentationPage?.scaledWidth,
       h: currentPresentationPage?.scaledHeight,
       src: currentPresentationPage?.svgUrl,
-      name: "",
+      name: '',
       isAnimated: false,
       mimeType: null,
-    }
+    },
   }];
 
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -193,7 +209,9 @@ const WhiteboardContainer = (props) => {
   const isModerator = currentUser?.isModerator;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
-  const { colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle } = WHITEBOARD_CONFIG.styles;
+  const {
+    colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
+  } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const layoutContextDispatch = layoutDispatch();
 
@@ -204,30 +222,20 @@ const WhiteboardContainer = (props) => {
     isLocked: true,
     opacity: 1,
     meta: {},
-    id: `shape:BG-${curPageId}`,
-    type: "image",
+    id: `shape:BG-${curPageNum}`,
+    type: 'image',
     props: {
       w: currentPresentationPage?.scaledWidth || 1,
       h: currentPresentationPage?.scaledHeight || 1,
-      assetId: assetId,
+      assetId,
       playing: true,
-      url: "",
+      url: '',
       crop: null,
     },
-    parentId: `page:${curPageId}`,
-    index: "a0",
-    typeName: "shape",
+    parentId: `page:${curPageNum}`,
+    index: 'a0',
+    typeName: 'shape',
   });
-
-  const hasShapeAccess = (id) => {
-    const owner = shapes[id]?.meta?.createdBy;
-    const isBackgroundShape = id?.includes(':BG-');
-    const isPollsResult = shapes[id]?.id?.includes('poll-result');
-    const hasAccess = (!isBackgroundShape && !isPollsResult) 
-      && ((owner && owner === currentUser?.userId) || (isPresenter) || (isModerator)) || !shapes[id];
-
-    return hasAccess;
-  };
 
   return (
     <Whiteboard
@@ -246,7 +254,6 @@ const WhiteboardContainer = (props) => {
         fillStyle,
         fontStyle,
         sizeStyle,
-        hasShapeAccess,
         handleToggleFullScreen,
         sidebarNavigationWidth,
         layoutContextDispatch,
@@ -258,7 +265,6 @@ const WhiteboardContainer = (props) => {
         assets,
         removeShapes,
         zoomSlide,
-        numberOfSlides: currentPresentationPage?.totalPages,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
         whiteboardToolbarAutoHide:
@@ -272,6 +278,7 @@ const WhiteboardContainer = (props) => {
         hasWBAccess,
         whiteboardWriters,
         zoomChanger,
+        skipToSlide,
       }}
       {...props}
       meetingId={Auth.meetingID}

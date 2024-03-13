@@ -18,7 +18,6 @@ RestartSec=60
 SuccessExitStatus=143
 TimeoutStopSec=5
 PermissionsStartOnly=true
-LimitNOFILE=1024
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target

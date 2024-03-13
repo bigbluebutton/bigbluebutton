@@ -7,7 +7,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import { unique } from 'radash';
 
-const CONFIG = Meteor.settings.public.app.audioCaptions;
+const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
 const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;

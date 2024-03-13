@@ -34,13 +34,13 @@ import {
 } from '../mutations';
 
 // @ts-ignore - temporary, while meteor exists in the project
-const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
+const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
 // @ts-ignore - temporary, while meteor exists in the project
-const { guestPolicyExtraAllowOptions } = Meteor.settings.public.app;
+const { guestPolicyExtraAllowOptions } = window.meetingClientSettings.public.app;
 
 // We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
 // @ts-ignore - temporary, while meteor exists in the project
-const allowRememberChoice = Meteor.settings.public.app.dynamicGuestPolicy;
+const allowRememberChoice = window.meetingClientSettings.public.app.dynamicGuestPolicy;
 
 interface LayoutDispatchProps {
   type: string,

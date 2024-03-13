@@ -12,6 +12,7 @@ import Styled from './styles';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
 
@@ -280,9 +281,10 @@ const PresentationMenu = (props) => {
       );
     }
 
+    const { isIos } = deviceInfo;
     const { isSafari } = browserInfo;
 
-    if (!isSafari && allowSnapshotOfCurrentSlide) {
+    if (allowSnapshotOfCurrentSlide) {
       menuItems.push(
         {
           key: 'list-item-screenshot',
@@ -322,18 +324,38 @@ const PresentationMenu = (props) => {
                   && shape.y >= 0,
               );
               const svgElem = await tldrawAPI.getSvg(shapes.map((shape) => shape.id));
-              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
-              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
 
-              const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+              // workaround for ios
+              if (isIos || isSafari) {
+                svgElem.setAttribute('width', backgroundShape.props.w);
+                svgElem.setAttribute('height', backgroundShape.props.h);
+                svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
 
-              const anchor = document.createElement('a');
-              anchor.href = data;
-              anchor.setAttribute(
-                'download',
-                `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
-              );
-              anchor.click();
+                const svgString = new XMLSerializer().serializeToString(svgElem);
+                const blob = new Blob([svgString], { type: 'image/svg+xml' });
+
+                const data = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = data;
+                anchor.setAttribute(
+                  'download',
+                  `${elementName}_${meetingName}_${new Date().toISOString()}.svg`,
+                );
+                anchor.click();
+              } else {
+                const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+                const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+                const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+
+                const anchor = document.createElement('a');
+                anchor.href = data;
+                anchor.setAttribute(
+                  'download',
+                  `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
+                );
+                anchor.click();
+              }
 
               setState({
                 loading: false,

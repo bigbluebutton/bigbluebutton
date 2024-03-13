@@ -59,13 +59,15 @@ class Options extends MultiUsers {
   }
 
   async darkMode() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.closePopup);
     await openSettings(this.modPage);
 
     await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     const modPageLocator = this.modPage.getLocator('body');
-    await this.modPage.page.setViewportSize({ width: 1924, height: 1080 });
+    await this.modPage.page.setViewportSize({ width: 1366, height: 768 });
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
@@ -76,9 +78,14 @@ class Options extends MultiUsers {
     await openSettings(this.modPage);
     await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
     await this.modPage.waitAndClick(e.modalConfirmButton);
+
+    await this.modPage.waitAndClick(e.chatOptions);
+    await this.modPage.waitAndClick(e.restoreWelcomeMessages);
   }
 
   async fontSizeTest() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.closePopup);
     // Increasing font size
     await openSettings(this.modPage);
     await this.modPage.waitAndClick(e.increaseFontSize);
@@ -86,7 +93,7 @@ class Options extends MultiUsers {
 
     const modPageLocator = this.modPage.getLocator('body');
 
-    await this.modPage.page.setViewportSize({ width: 1924, height: 1080 });
+    await this.modPage.page.setViewportSize({ width: 1366, height: 768 });
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };

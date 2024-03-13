@@ -120,6 +120,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     isModerator: boolean,
     isPresentationUpload?: boolean,
     component: React.ReactElement,
+    avatarIcon?: string,
   } = useMemo(() => {
     switch (message.messageType) {
       case ChatMessageType.POLL:
@@ -130,6 +131,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           component: (
             <ChatPollContent metadata={message.messageMetadata} />
           ),
+          avatarIcon: 'icon-bbb-polling',
         };
       case ChatMessageType.PRESENTATION:
         return {
@@ -142,6 +144,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               metadata={message.messageMetadata}
             />
           ),
+          avatarIcon: 'icon-bbb-download',
         };
       case ChatMessageType.CHAT_CLEAR:
         return {
@@ -221,10 +224,10 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             color={messageContent.color}
             moderator={messageContent.isModerator}
           >
-            {message.messageType !== ChatMessageType.PRESENTATION ? (
+            {!messageContent.avatarIcon ? (
               !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
             ) : (
-              <i className="icon-bbb-download" />
+              <i className={messageContent.avatarIcon} />
             )}
           </ChatAvatar>
       )}
