@@ -14,6 +14,7 @@ import ChatMessage from './chat-message/component';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
+import { ChatLoading } from '../../component';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -113,7 +114,9 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       setLoadedMessageGathering(page, []);
     };
   }, []);
+
   if (!chatMessageData) return null;
+  if (chatMessageData.length > 0 && chatId !== chatMessageData[0].chatId) return <ChatLoading isRTL={document.dir === 'rtl'} />;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
   }

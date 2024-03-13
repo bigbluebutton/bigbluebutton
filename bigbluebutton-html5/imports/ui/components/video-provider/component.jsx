@@ -1261,6 +1261,7 @@ class VideoProvider extends Component {
       focusedId,
       handleVideoFocus,
       isGridEnabled,
+      users,
     } = this.props;
 
     return (
@@ -1273,6 +1274,7 @@ class VideoProvider extends Component {
           focusedId,
           handleVideoFocus,
           isGridEnabled,
+          users,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

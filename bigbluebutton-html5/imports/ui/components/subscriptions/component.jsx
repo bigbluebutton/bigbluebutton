@@ -12,11 +12,11 @@ import { isChatEnabled } from '/imports/ui/services/features';
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
-  'users',
+  // 'users',
   'meetings',
   'polls',
   'captions',
-  'voiceUsers',
+  // 'voiceUsers',
   'screenshare',
   'users-settings',
   'users-infos',

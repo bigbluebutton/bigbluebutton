@@ -43,8 +43,10 @@ const GenericComponentContent: React.FC<GenericComponentProps> = ({
     if (hasScreenShareOnLayout) screenshareHasEnded();
   }, []);
 
+  const numberOfTiles = renderFunctionComponents.length;
   return (
     <Styled.Container
+      numberOfTiles={numberOfTiles}
       style={{
         height,
         width,
