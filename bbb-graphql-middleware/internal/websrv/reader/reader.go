@@ -2,6 +2,7 @@ package reader
 
 import (
 	"context"
+	"errors"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
@@ -35,7 +36,11 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, ct
 		var v interface{}
 		err := wsjson.Read(ctx, browserWsConn, &v)
 		if err != nil {
-			log.Debugf("Browser is disconnected, skiping reading of ws message: %v", err)
+			if errors.Is(err, context.Canceled) {
+				log.Debugf("Closing Browser ws connection as Context was cancelled!")
+			} else {
+				log.Debugf("Hasura is disconnected, skiping reading of ws message: %v", err)
+			}
 			return
 		}
 

@@ -138,8 +138,8 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 	for _, browserConnection := range BrowserConnections {
 		if browserConnection.SessionToken == sessionTokenToInvalidate {
 			if browserConnection.HasuraConnection != nil {
-				//Close chan to force stop receiving new messages from the browser
-				browserConnection.HasuraConnection.MsgReceivingActiveChan.Close()
+				//Send message to force stop receiving new messages from the browser
+				browserConnection.HasuraConnection.FreezeMsgFromBrowserChan.Send(true)
 
 				// Wait until there are no active mutations
 				for iterationCount := 0; iterationCount < 20; iterationCount++ {

@@ -24,6 +24,9 @@ RangeLoop:
 		case toBrowserMessage := <-fromHasuraToBrowserChannel.ReceiveChannel():
 			{
 				if toBrowserMessage == nil {
+					if fromHasuraToBrowserChannel.Closed() {
+						break RangeLoop
+					}
 					continue
 				}
 

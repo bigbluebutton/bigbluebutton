@@ -14,7 +14,7 @@ import (
 func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup, initMessage map[string]interface{}) {
 	log := log.WithField("_routine", "HasuraConnectionWriter")
 
-	browserConnection := hc.Browserconn
+	browserConnection := hc.BrowserConn
 
 	log = log.WithField("browserConnectionId", browserConnection.Id).WithField("hasuraConnectionId", hc.Id)
 
@@ -38,9 +38,9 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
-		case <-hc.MsgReceivingActiveChan.ReceiveChannel():
+		case <-hc.FreezeMsgFromBrowserChan.ReceiveChannel():
 			if !fromBrowserToHasuraChannel.Frozen() {
-				log.Debugf("freezing channel fromBrowserToHasuraChannel")
+				log.Debug("freezing channel fromBrowserToHasuraChannel")
 				//Freeze channel once it's about to close Hasura connection
 				fromBrowserToHasuraChannel.FreezeChannel()
 			}
