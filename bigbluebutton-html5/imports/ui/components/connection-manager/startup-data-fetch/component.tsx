@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
+import { Session } from 'meteor/session';
 import { ErrorScreen } from '../../error-screen/component';
 import LoadingScreen from '../../common/loading-screen/component';
-import { Session } from 'meteor/session';
 
 const connectionTimeout = 60000;
 
