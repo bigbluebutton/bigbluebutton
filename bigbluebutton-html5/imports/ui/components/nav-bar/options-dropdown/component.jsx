@@ -359,7 +359,7 @@ class OptionsDropdown extends PureComponent {
       if (allowLogoutSetting) {
         bottomItems.push({
           key: 'list-item-logout',
-          dataTest: 'logout',
+          dataTest: 'optionsLogoutButton',
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           description: intl.formatMessage(intlMessages.leaveSessionDesc),

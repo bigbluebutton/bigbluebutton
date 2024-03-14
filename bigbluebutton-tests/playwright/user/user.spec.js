@@ -1,4 +1,5 @@
-const { test, devices } = require('@playwright/test');
+const { devices } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');

@@ -1,16 +1,14 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Options } = require('./options');
 const { initializePages } = require('../core/helpers');
 
 test.describe('Options', () => {
   const options = new Options();
-  let context;
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    const { context: innerContext } = await initializePages(options, browser);
-    context = innerContext;
+    await initializePages(options, browser);
   });
 
   test('Open about modal', async () => {
@@ -18,7 +16,7 @@ test.describe('Options', () => {
   });
 
   test('Open Help Button', async () => {
-    await options.openHelp(context);
+    await options.openHelp();
   });
 
   test('Locales test', async () => {
