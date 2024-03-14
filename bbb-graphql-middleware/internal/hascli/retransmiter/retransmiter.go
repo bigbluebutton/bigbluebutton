@@ -6,10 +6,10 @@ import (
 )
 
 func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel) {
-	log := log.WithField("_routine", "RetransmitSubscriptionStartMessages").WithField("browserConnectionId", hc.Browserconn.Id).WithField("hasuraConnectionId", hc.Id)
+	log := log.WithField("_routine", "RetransmitSubscriptionStartMessages").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
 
-	hc.Browserconn.ActiveSubscriptionsMutex.RLock()
-	for _, subscription := range hc.Browserconn.ActiveSubscriptions {
+	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
+	for _, subscription := range hc.BrowserConn.ActiveSubscriptions {
 
 		//Not retransmitting Mutations
 		if subscription.Type == common.Mutation {
@@ -27,5 +27,5 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection, fromBrowse
 			}
 		}
 	}
-	hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
+	hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
 }

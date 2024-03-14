@@ -47,11 +47,11 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, bbbOrigin)
 	}
 
-	c, err := websocket.Accept(w, r, &acceptOptions)
+	browserWsConn, err := websocket.Accept(w, r, &acceptOptions)
 	if err != nil {
 		log.Errorf("error: %v", err)
 	}
-	defer c.Close(websocket.StatusInternalError, "the sky is falling")
+	defer browserWsConn.Close(websocket.StatusInternalError, "the sky is falling")
 
 	var thisConnection = common.BrowserConnection{
 		Id:                   browserConnectionId,
@@ -116,14 +116,16 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	wgReader.Add(1)
 
 	// Reads from browser connection, writes into fromBrowserToHasuraChannel and fromBrowserToHasuraConnectionEstablishingChannel
-	go reader.BrowserConnectionReader(browserConnectionId, browserConnectionContext, c, fromBrowserToHasuraChannel, fromBrowserToHasuraConnectionEstablishingChannel, []*sync.WaitGroup{&wgAll, &wgReader})
+	go reader.BrowserConnectionReader(browserConnectionId, browserConnectionContext, browserConnectionContextCancel, browserWsConn, fromBrowserToHasuraChannel, fromBrowserToHasuraConnectionEstablishingChannel, []*sync.WaitGroup{&wgAll, &wgReader})
 	go func() {
 		wgReader.Wait()
+		log.Debug("BrowserConnectionReader finished, closing Write Channel")
+		fromHasuraToBrowserChannel.Close()
 		thisConnection.Disconnected = true
 	}()
 
 	// Reads from fromHasuraToBrowserChannel, writes to browser connection
-	go writer.BrowserConnectionWriter(browserConnectionId, browserConnectionContext, c, fromHasuraToBrowserChannel, &wgAll)
+	go writer.BrowserConnectionWriter(browserConnectionId, browserConnectionContext, browserWsConn, fromHasuraToBrowserChannel, &wgAll)
 
 	go ConnectionInitHandler(browserConnectionId, browserConnectionContext, fromBrowserToHasuraConnectionEstablishingChannel, &wgAll)
 
@@ -136,8 +138,8 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 	for _, browserConnection := range BrowserConnections {
 		if browserConnection.SessionToken == sessionTokenToInvalidate {
 			if browserConnection.HasuraConnection != nil {
-				//Close chan to force stop receiving new messages from the browser
-				browserConnection.HasuraConnection.MsgReceivingActiveChan.Close()
+				//Send message to force stop receiving new messages from the browser
+				browserConnection.HasuraConnection.FreezeMsgFromBrowserChan.Send(true)
 
 				// Wait until there are no active mutations
 				for iterationCount := 0; iterationCount < 20; iterationCount++ {
@@ -157,9 +159,10 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 					time.Sleep(100 * time.Millisecond)
 				}
 
-				log.Debugf("Processing invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
+				hasuraConnectionId := browserConnection.HasuraConnection.Id
+				log.Debugf("Processing invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, hasuraConnectionId)
 				browserConnection.HasuraConnection.ContextCancelFunc()
-				log.Debugf("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, browserConnection.HasuraConnection.Id)
+				log.Debugf("Processed invalidate request for sessionToken %v (hasura connection %v)", sessionTokenToInvalidate, hasuraConnectionId)
 
 				go SendUserGraphqlReconnectionForcedEvtMsg(browserConnection.SessionToken)
 			}

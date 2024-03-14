@@ -7,7 +7,7 @@ import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { isCaptionsEnabled } from '/imports/ui/services/features';
 
-const CAPTIONS_CONFIG = Meteor.settings.public.captions;
+const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
 const LINE_BREAK = '\n';
 
 const getAvailableLocales = () => {

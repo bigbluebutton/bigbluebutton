@@ -5,7 +5,7 @@ async function generateSettingsData(page) {
 
   try {
     const settingsData = await page.evaluate(() => {
-      return Meteor.settings.public;
+      return window.meetingClientSettings.public;
     });
 
     settings = {

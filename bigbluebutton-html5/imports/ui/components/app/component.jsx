@@ -58,11 +58,11 @@ import FloatingWindowContainer from '/imports/ui/components/floating-window/cont
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
-const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
+const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
 
 const intlMessages = defineMessages({
   userListLabel: {

@@ -1,6 +1,5 @@
 import { useSubscription, useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
-import { Meteor } from 'meteor/meteor';
 import GET_TIMER, { GetTimerResponse } from './queries';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
@@ -12,10 +11,10 @@ import { layoutSelectInput } from '../../../layout/context';
 import { Input } from '../../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../../mutations';
 
-const CDN = Meteor.settings.public.app.cdn;
-const BASENAME = Meteor.settings.public.app.basename;
+const CDN = window.meetingClientSettings.public.app.cdn;
+const BASENAME = window.meetingClientSettings.public.app.basename;
 const HOST = CDN + BASENAME;
-const trackName = Meteor.settings.public.timer.music;
+const trackName = window.meetingClientSettings.public.timer.music;
 
 interface TimerIndicatorProps {
   passedTime: number;
@@ -27,6 +26,8 @@ interface TimerIndicatorProps {
   sidebarContentIsOpen: boolean;
   startedOn: number;
 }
+
+type ObjectKey = keyof typeof trackName;
 
 const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   passedTime,
@@ -47,6 +48,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const alreadyNotified = useRef<boolean>(false);
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
+  const [songTrackState, setSongTrackState] = useState<string>(songTrack);
 
   const startTimer = () => {
     startTimerMutation();
@@ -57,9 +59,12 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   };
 
   useEffect(() => {
-    alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
+    if (songTrackState !== songTrack) {
+      if (music.current) music.current.pause();
+    }
     if (songTrack in trackName) {
-      music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack]}.mp3`);
+      music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`);
+      setSongTrackState(songTrack);
       music.current.addEventListener('timeupdate', () => {
         const buffer = 0.19;
         // Start playing the music before it ends to make the loop gapless
@@ -76,6 +81,10 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (music.current) music.current.pause();
     };
+  }, [songTrack]);
+
+  useEffect(() => {
+    alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
   }, []);
 
   useEffect(() => {
@@ -119,6 +128,17 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (alarm.current) alarm.current.pause();
     }
   }, [time]);
+
+  useEffect(() => {
+    if (running && songTrack !== 'noTrack') {
+      if (music.current) music.current.play();
+    } else if (!running || songTrack === 'noTrack') {
+      if (music.current) music.current.pause();
+    }
+    if (running && alreadyNotified.current) {
+      alreadyNotified.current = false;
+    }
+  }, [running, songTrackState]);
 
   useEffect(() => {
     if (startedOn === 0) {

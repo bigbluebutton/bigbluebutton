@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { Stress } = require('./stress.js');
 
 test.describe.parallel('Stress', () => {

@@ -25,8 +25,8 @@ import Settings from '/imports/ui/services/settings';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 
-const APP_CONFIG = Meteor.settings.public.app;
-const KURENTO_CONFIG = Meteor.settings.public.kurento;
+const APP_CONFIG = window.meetingClientSettings.public.app;
+const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
 
 const intlMessages = defineMessages({
   joinedAudio: {

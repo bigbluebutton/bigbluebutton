@@ -24,8 +24,8 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import Service from '/imports/ui/components/user-list/service';
-import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
-import { setLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -43,9 +43,11 @@ interface RowRendererProps extends ListProps {
   meeting: Meeting;
   offset: number;
   index: number;
+  openUserAction: string | null;
+  setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
 }
 const rowRenderer: React.FC<RowRendererProps> = ({
-  index, key, style, users, validCurrentUser, offset, meeting, isRTL, pageId,
+  index, key, style, users, validCurrentUser, offset, meeting, isRTL, pageId, openUserAction, setOpenUserAction,
 }) => {
   const userIndex = index - offset;
   const user = users && users[userIndex];
@@ -61,6 +63,8 @@ const rowRenderer: React.FC<RowRendererProps> = ({
           usersPolicies={meeting.usersPolicies}
           isBreakout={meeting.isBreakout}
           pageId={pageId}
+          open={user.userId === openUserAction}
+          setOpenUserAction={setOpenUserAction}
         >
           <ListItem user={user} lockSettings={meeting.lockSettings} />
         </UserActions>
@@ -88,6 +92,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const userListRef = React.useRef<HTMLDivElement | null>(null);
   const userItemsRef = React.useRef<HTMLDivElement | null>(null);
   const [selectedUser, setSelectedUser] = React.useState<HTMLElement>();
+  const [openUserAction, setOpenUserAction] = React.useState<string | null>(null);
   const { roving } = Service;
 
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -156,7 +161,15 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
             rowRenderer={
               (props: RowRendererProps) => rowRenderer(
                 {
-                  ...props, users: users || previousUsersData, validCurrentUser, offset, meeting, isRTL, pageId,
+                  ...props,
+                  users: users || previousUsersData,
+                  validCurrentUser,
+                  offset,
+                  meeting,
+                  isRTL,
+                  pageId,
+                  openUserAction,
+                  setOpenUserAction,
                 },
               )
             }
@@ -193,21 +206,14 @@ const UserListParticipantsContainer: React.FC = () => {
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
-  useEffect(() => {
-    return () => {
-      setLoadedUserList([]);
-    };
+  useEffect(() => () => {
+    setLocalUserList([]);
   }, []);
 
   const {
     data: usersData,
-  } = useSubscription(USER_LIST_SUBSCRIPTION, {
-    variables: {
-      offset,
-      limit,
-    },
-  });
-  const { user: users } = (usersData || {});
+  } = useLoadedUserList({ offset, limit }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
+  const users = usersData ?? [];
 
   const { data: currentUser } = useCurrentUser((c: Partial<User>) => ({
     isModerator: c.isModerator,
@@ -219,7 +225,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const presentationPage = presentationData?.pres_page_curr[0] || {};
   const pageId = presentationPage?.pageId;
 
-  setLoadedUserList(users);
+  setLocalUserList(users);
   return (
     <>
       <UserListParticipants

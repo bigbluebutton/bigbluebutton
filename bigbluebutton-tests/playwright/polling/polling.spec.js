@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Polling } = require('./poll');
 const { initializePages } = require('../core/helpers');
@@ -53,11 +53,11 @@ test.describe('Polling', async () => {
   });
 
   // Results
-  test('Poll results in chat message @ci @flaky', async () => {
+  test('Poll results in chat message @ci', async () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard @ci @flaky', async () => {
+  test('Poll results on whiteboard @ci', async () => {
     await polling.pollResultsOnWhiteboard();
   });
 
