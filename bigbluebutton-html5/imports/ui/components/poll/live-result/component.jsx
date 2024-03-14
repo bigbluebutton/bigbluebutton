@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { Session } from 'meteor/session';
 import Styled from './styles';
 import Service from './service';
 import Settings from '/imports/ui/services/settings';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -40,6 +40,10 @@ const intlMessages = defineMessages({
   secretPollLabel: {
     id: 'app.poll.liveResult.secretLabel',
     description: 'label shown instead of users in poll responses if poll is secret',
+  },
+  noAnswersLabel: {
+    id: 'app.poll.noAnswerWarning',
+    description: 'label shown when no answers have been received',
   },
 });
 
@@ -102,7 +106,7 @@ class LiveResult extends PureComponent {
         return ([
           ...acc,
           (
-            <tr key={_.uniqueId('stats-')}>
+            <tr key={uniqueId('stats-')}>
               <Styled.ResultLeft>{user.name}</Styled.ResultLeft>
               <Styled.ResultRight data-test="receivedAnswer">
                 {user.answer}
@@ -124,7 +128,7 @@ class LiveResult extends PureComponent {
       };
 
       return pollStats.push(
-        <Styled.Main key={_.uniqueId('stats-')}>
+        <Styled.Main key={uniqueId('stats-')}>
           <Styled.Left>
             {
               defaultPoll && pollAnswerIds[formattedMessageIndex]
@@ -167,6 +171,8 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
+      publishPoll,
+      handleChatFormsOpen,
     } = this.props;
 
     const { userAnswers, pollStats, currentPollQuestion } = this.state;
@@ -212,11 +218,12 @@ class LiveResult extends PureComponent {
           ? (
             <Styled.ButtonsActions>
               <Styled.PublishButton
-                disabled={!isMeteorConnected}
+                disabled={!isMeteorConnected || !currentPoll.numResponders}
                 onClick={() => {
                   Session.set('pollInitiated', false);
-                  Service.publishPoll();
+                  publishPoll(currentPoll?.id);
                   stopPoll();
+                  handleChatFormsOpen();
                 }}
                 label={intl.formatMessage(intlMessages.publishLabel)}
                 data-test="publishPollingLabel"
@@ -243,8 +250,9 @@ class LiveResult extends PureComponent {
               color="primary"
               data-test="restartPoll"
             />
-          )
-        }
+          )}
+        {currentPoll && !currentPoll.numResponders
+        && intl.formatMessage(intlMessages.noAnswersLabel)}
         <Styled.Separator />
         { currentPoll && !currentPoll.secretPoll
           ? (
@@ -280,6 +288,7 @@ LiveResult.propTypes = {
       users: PropTypes.arrayOf(PropTypes.string),
     }),
   ]),
+  handleChatFormsOpen: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
   handleBackClick: PropTypes.func.isRequired,
 };

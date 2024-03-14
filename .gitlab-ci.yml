@@ -1,4 +1,5 @@
 # set up stages
+#
 
 variables:
   GIT_STRATEGY: fetch
@@ -11,7 +12,7 @@ stages:
 
 # define which docker image to use for builds
 default:
-  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2022-07-12
+  image: bigbluebutton/bbb-build:v3.0.x-release--2023-09-26-152524
 
 # This stage uses git to find out since when each package has been unmodified.
 # it then checks an API endpoint on the package server to find out for which of
@@ -46,11 +47,13 @@ get_external_dependencies:
       - bbb-etherpad
       - bbb-webhooks
       - bbb-webrtc-sfu
+      - bbb-webrtc-recorder
       - freeswitch
       - bbb-pads
       - bbb-playback
+      - bbb-transcription-controller
     expire_in: 1h 30min
-    
+
 # template job for build step
 .build_job:
   stage: build
@@ -99,7 +102,17 @@ bbb-html5-build:
   script:
     - build/setup-inside-docker.sh bbb-html5
 
-bbb-learning-dashboard:
+bbb-graphql-middleware-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-graphql-middleware
+
+bbb-graphql-server-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-graphql-server
+
+bbb-learning-dashboard-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-learning-dashboard
@@ -108,11 +121,6 @@ bbb-libreoffice-docker-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-libreoffice-docker
-
-bbb-lti-build:
-  extends: .build_job
-  script:
-    - build/setup-inside-docker.sh bbb-lti
 
 bbb-mkclean-build:
   extends: .build_job
@@ -169,6 +177,21 @@ bbb-webrtc-sfu-build:
   script:
     - build/setup-inside-docker.sh bbb-webrtc-sfu
 
+bbb-webrtc-recorder-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-webrtc-recorder
+
+bbb-livekit:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-livekit
+
+bbb-transcription-controller-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-transcription-controller
+
 bigbluebutton-build:
   extends: .build_job
   script:
@@ -179,12 +202,12 @@ push_packages:
   stage: push packages
   script: build/push_packages.sh
   resource_group: push_packages
-  
-  # uncomment the lines below if you want one final 
-  # "artifacts" dir with all packages (increases runtime, fills up space on gitlab server) 
+
+  # uncomment the lines below if you want one final
+  # "artifacts" dir with all packages (increases runtime, fills up space on gitlab server)
   #artifacts:
   #    paths:
   #      - artifacts/*
   #    expire_in: 2 days
- 
- 
+
+

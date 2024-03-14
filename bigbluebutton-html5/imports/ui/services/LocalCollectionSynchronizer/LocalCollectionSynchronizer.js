@@ -2,7 +2,7 @@ import SubscriptionRegistry from '/imports/ui/services/subscription-registry/sub
 import CollectionEventsBroker from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 
 /*
-This class connects a local collection with the LiveDataEventBroker, propagating the changes of a server-side published cursor to a local collection. 
+This class connects a local collection with the LiveDataEventBroker, propagating the changes of a server-side published cursor to a local collection.
 
 It also guarantee that in case of a reconnection or a re-subscription, the data is only removed after subscription is ready, avoiding the situation of missing data during re-synchronization.
 */
@@ -15,6 +15,7 @@ class LocalCollectionSynchronizer {
     this.lastSubscriptionId = '';
     this.options = options;
     this.ignoreDeletes = false;
+    this.checkForStaleData = this.checkForStaleData.bind(this);
   }
 
   /*
@@ -31,26 +32,12 @@ class LocalCollectionSynchronizer {
     const self = this;
 
     const addedCallback = function (item) {
-      const subscription = SubscriptionRegistry
-        .getSubscription(self.serverCollection._name);
       if (item.id === 'publication-stop-marker' && item.stopped) {
         self.ignoreDeletes = true;
         return;
       }
-      // If the subscriptionId changes means the subscriptions was redone
-      // or theres more than one subscription per collection
-      if (subscription && (self.lastSubscriptionId !== subscription.subscriptionId)) {
-        const wasEmpty = self.lastSubscriptionId === '';
-        self.lastSubscriptionId = subscription.subscriptionId;
-        if (!wasEmpty) {
-          self.callWhenSubscriptionReady(() => {
-            self.ignoreDeletes = false;
-            Session.set('globalIgnoreDeletes', false);
-            self.removeOldSubscriptionData();
-          });
-        }
-      }
 
+      self.checkForStaleData();
       const selector = { referenceId: item.referenceId };
       const itemExistInCollection = self.localCollection.findOne(selector);
 
@@ -115,6 +102,24 @@ class LocalCollectionSynchronizer {
       temp(res);
     });
     return tempPromise;
+  }
+
+  checkForStaleData() {
+    const subscription = SubscriptionRegistry.getSubscription(this.serverCollection._name);
+
+    // If the subscriptionId changes means the subscriptions was redone
+    // or theres more than one subscription per collection
+    if (subscription && (this.lastSubscriptionId !== subscription.subscriptionId)) {
+      const wasEmpty = this.lastSubscriptionId === '';
+      this.lastSubscriptionId = subscription.subscriptionId;
+      if (!wasEmpty) {
+        this.callWhenSubscriptionReady(() => {
+          this.ignoreDeletes = false;
+          Session.set('globalIgnoreDeletes', false);
+          this.removeOldSubscriptionData();
+        });
+      }
+    }
   }
 
   /*

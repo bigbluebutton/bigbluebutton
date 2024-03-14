@@ -1,5 +1,4 @@
 import Captions from '/imports/api/captions';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import PadsService from '/imports/ui/components/pads/service';
 import SpeechService from '/imports/ui/components/captions/speech/service';
@@ -8,8 +7,7 @@ import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { isCaptionsEnabled } from '/imports/ui/services/features';
 
-const CAPTIONS_CONFIG = Meteor.settings.public.captions;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
 const LINE_BREAK = '\n';
 
 const getAvailableLocales = () => {
@@ -154,15 +152,6 @@ const activateCaptions = (locale, settings) => {
   setCaptionsActive(locale);
 };
 
-const amIModerator = () => {
-  const user = Users.findOne(
-    { userId: Auth.userID },
-    { fields: { role: 1 } },
-  );
-
-  return user && user.role === ROLE_MODERATOR;
-};
-
 const getName = (locale) => {
   const captions = Captions.findOne({
     meetingId: Auth.meetingID,
@@ -179,8 +168,8 @@ const createCaptions = (locale) => {
   setCaptionsLocale(locale);
 };
 
-const hasPermission = () => {
-  if (amIModerator()) {
+const hasPermission = (isModerator) => {
+  if (isModerator) {
     const { ownerId } = getCaptions();
 
     return Auth.userID === ownerId;
@@ -189,8 +178,8 @@ const hasPermission = () => {
   return false;
 };
 
-const getDictationStatus = () => {
-  if (!CAPTIONS_CONFIG.dictation || !amIModerator()) {
+const getDictationStatus = (isModerator) => {
+  if (!CAPTIONS_CONFIG.dictation || !isModerator) {
     return {
       locale: '',
       dictating: false,
@@ -248,7 +237,6 @@ export default {
   deactivateCaptions,
   activateCaptions,
   formatCaptionsText,
-  amIModerator,
   createCaptions,
   getCaptionsLocale,
   setCaptionsLocale,

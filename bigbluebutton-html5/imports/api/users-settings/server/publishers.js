@@ -3,8 +3,9 @@ import UserSettings from '/imports/api/users-settings';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function userSettings() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function userSettings() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing UserSettings was requested by unauth connection ${this.connection.id}`);

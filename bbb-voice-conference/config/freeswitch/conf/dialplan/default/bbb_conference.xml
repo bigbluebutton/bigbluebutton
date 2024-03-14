@@ -3,7 +3,7 @@
       <condition field="${bbb_authorized}" expression="true" break="on-false" />
       <condition field="${sip_via_protocol}" expression="^wss?$" />
       <condition field="destination_number" expression="^(\d{5,11})$">
-         <action application="set" data="jitterbuffer_msec=60:120" />
+         <action application="set" data="jitterbuffer_msec=100:250" />
          <action application="set" data="rtp_jitter_buffer_plc=true" />
          <action application="set" data="rtp_jitter_buffer_during_bridge=true" />
          <action application="set" data="suppress_cng=true" />
@@ -14,7 +14,7 @@
    <extension name="bbb_conferences">
       <condition field="${bbb_authorized}" expression="true" break="on-false" />
       <condition field="destination_number" expression="^(\d{5,11})$">
-         <action application="set" data="jitterbuffer_msec=60:120" />
+         <action application="set" data="jitterbuffer_msec=100:250" />
          <action application="set" data="rtp_jitter_buffer_plc=true" />
          <action application="set" data="rtp_jitter_buffer_during_bridge=true" />
          <action application="set" data="suppress_cng=true" />

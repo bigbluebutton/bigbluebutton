@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize, navbarHeight } from '/imports/ui/stylesheets/styled-components/general';
+import { borderSize, navbarHeight, smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const Poll = styled.div`
@@ -16,7 +16,7 @@ const Poll = styled.div`
   height: 100%;
   background-color: ${colorWhite};
   min-width: 20em;
-  padding: 1rem;
+  padding: ${smPaddingX};
 
   @media ${smallOnly} {
     top: 0;
@@ -27,6 +27,9 @@ const Poll = styled.div`
     height: auto;
     top: ${navbarHeight};
     overflow: auto;
+     &.no-padding {
+      padding: 0;
+    }
   }
 
   @media ${mediumUp} {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import { debounce } from '/imports/utils/debounce';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import Styled from './styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -9,12 +9,12 @@ import { ACTIONS, PANELS } from '../../layout/enums';
 import Icon from '/imports/ui/components/common/icon/component';
 
 const DEBOUNCE_TIME = 1000;
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 let globalAppplyStateToProps = () => {};
 
-const throttledFunc = _.debounce(() => {
+const throttledFunc = debounce(() => {
   globalAppplyStateToProps();
 }, DEBOUNCE_TIME, { trailing: true, leading: true });
 
@@ -44,13 +44,14 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  tabIndex: PropTypes.number.isRequired,
+  tabIndex: PropTypes.number,
   isPublicChat: PropTypes.func.isRequired,
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   shortcuts: '',
+  tabIndex: -1,
 };
 
 const ChatListItem = (props) => {
@@ -151,7 +152,12 @@ const ChatListItem = (props) => {
       onClick={handleClickToggleChat}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-      onKeyPress={() => {}}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
     >
       <Styled.ChatListItemLink>
         <Styled.ChatIcon>
@@ -170,7 +176,7 @@ const ChatListItem = (props) => {
               </UserAvatar>
             )}
         </Styled.ChatIcon>
-        <Styled.ChatName aria-live="off">
+        <Styled.ChatName>
           {!compact
             ? (
               <Styled.ChatNameMain>

@@ -1,10 +1,11 @@
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import Logger from '/imports/startup/server/logger';
 
-const clear = (meetingId, name, collection) => {
+const clear = async (meetingId, name, collection) => {
   if (meetingId) {
     try {
-      if (collection.remove({ meetingId })) {
+      const result = await collection.removeAsync({ meetingId });
+      if (result) {
         Logger.info(`Cleared ${name} (${meetingId})`);
       }
     } catch (err) {
@@ -12,7 +13,8 @@ const clear = (meetingId, name, collection) => {
     }
   } else {
     try {
-      if (collection.remove({})) {
+      const result = await collection.removeAsync({});
+      if (result) {
         Logger.info(`Cleared ${name} (all)`);
       }
     } catch (err) {
@@ -21,8 +23,8 @@ const clear = (meetingId, name, collection) => {
   }
 };
 
-export default function clearPads(meetingId) {
-  clear(meetingId, 'Pads', Pads);
-  clear(meetingId, 'PadsSessions', PadsSessions);
-  clear(meetingId, 'PadsUpdates', PadsUpdates);
+export default async function clearPads(meetingId) {
+  await clear(meetingId, 'Pads', Pads);
+  await clear(meetingId, 'PadsSessions', PadsSessions);
+  await clear(meetingId, 'PadsUpdates', PadsUpdates);
 }

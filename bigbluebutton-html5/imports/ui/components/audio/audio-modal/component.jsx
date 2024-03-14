@@ -592,14 +592,18 @@ class AudioModal extends Component {
       showPermissionsOvelay,
       closeModal,
       isIE,
+      isOpen,
+      priority,
+      setIsOpen,
     } = this.props;
 
     const { content } = this.state;
 
     return (
-      <span>
+      <>
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
         <Styled.AudioModal
+          modalName="AUDIO"
           onRequestClose={closeModal}
           data-test="audioModal"
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
@@ -612,6 +616,11 @@ class AudioModal extends Component {
               )
               : null
           }
+          {...{
+            setIsOpen,
+            isOpen,
+            priority,
+          }}
         >
           {isIE ? (
             <Styled.BrowserWarning>
@@ -629,7 +638,7 @@ class AudioModal extends Component {
             {this.renderContent()}
           </Styled.Content>
         </Styled.AudioModal>
-      </span>
+      </>
     );
   }
 }

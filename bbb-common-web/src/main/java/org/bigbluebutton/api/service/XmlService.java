@@ -14,6 +14,7 @@ public interface XmlService {
     String thumbnailToXml(Thumbnail thumbnail);
     String callbackDataToXml(CallbackData callbackData);
     String constructResponseFromRecordingsXml(String xml);
-    String constructPaginatedResponse(Page<?> page, String response);
+    String constructPaginatedResponse(Page<?> page, int offset, String response);
     Recording xmlToRecording(String recordId, String xml);
+    String noRecordings();
 }

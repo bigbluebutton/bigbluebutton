@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
 import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 export default class DropdownListTitle extends Component {
   constructor(props) {
     super(props);
-    this.labelID = _.uniqueId('labelContext-');
+    this.labelID = uniqueId('labelContext-');
   }
 
   render() {

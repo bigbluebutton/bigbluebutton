@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import AudioService from '/imports/ui/components/audio/service';
 import Styled from './styles';
 
-const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
+const SELECT_RANDOM_USER_COUNTDOWN = window.meetingClientSettings.public.selectRandomUser.countdown;
 
 const messages = defineMessages({
   noViewers: {
@@ -42,7 +42,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  mountModal: PropTypes.func.isRequired,
   numAvailableViewers: PropTypes.number.isRequired,
   randomUserReq: PropTypes.func.isRequired,
 };
@@ -103,9 +102,9 @@ class RandomUserSelect extends Component {
   }
 
   play() {
-    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename
-      + Meteor.settings.public.app.instanceId}`
+    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
+      + window.meetingClientSettings.public.app.basename
+      + window.meetingClientSettings.public.app.instanceId}`
       + '/resources/sounds/Poll.mp3');
   }
 
@@ -123,11 +122,13 @@ class RandomUserSelect extends Component {
       keepModalOpen,
       toggleKeepModalOpen,
       intl,
-      mountModal,
+      setIsOpen,
       numAvailableViewers,
       currentUser,
       clearRandomlySelectedUser,
       mappedRandomlySelectedUsers,
+      isOpen,
+      priority,
     } = this.props;
 
     const counter = SELECT_RANDOM_USER_COUNTDOWN ? this.state.count : 0;
@@ -189,17 +190,21 @@ class RandomUserSelect extends Component {
     }
     if (keepModalOpen) {
       return (
-        <Modal
+        <ModalSimple
           onRequestClose={() => {
             if (currentUser.presenter) clearRandomlySelectedUser();
             toggleKeepModalOpen();
-            mountModal(null);
+            setIsOpen(false);
           }}
           contentLabel={intl.formatMessage(messages.ariaModalTitle)}
           title={title}
+          {...{
+            isOpen,
+            priority,
+          }}
         >
           {viewElement}
-        </Modal>
+        </ModalSimple>
       );
     } else {
       return null;

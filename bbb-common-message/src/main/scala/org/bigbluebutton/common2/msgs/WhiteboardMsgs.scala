@@ -22,6 +22,7 @@ case class ExportJob(
   jobId: String,
   jobType: String,
   filename: String,
+  serverSideFilename: String,
   presId: String,
   presLocation: String,
   allPages: Boolean,

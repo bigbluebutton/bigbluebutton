@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 
 const messages = defineMessages({
   yesLabel: {
-    id: 'app.endMeeting.yesLabel',
+    id: 'app.confirmationModal.yesLabel',
     description: 'confirm button label',
   },
   noLabel: {
@@ -39,17 +38,21 @@ class ConfirmationModal extends Component {
   render() {
     const {
       intl,
-      mountModal,
+      setIsOpen,
       onConfirm,
       title,
       titleMessageId,
       titleMessageExtra,
       checkboxMessageId,
       confirmButtonColor,
+      confirmButtonLabel,
       confirmButtonDataTest,
       confirmParam,
       disableConfirmButton,
       description,
+      isOpen,
+      onRequestClose,
+      priority,
     } = this.props;
 
     const {
@@ -60,9 +63,14 @@ class ConfirmationModal extends Component {
 
     return (
       <Styled.ConfirmationModal
-        onRequestClose={() => mountModal(null)}
+        onRequestClose={() => setIsOpen(false)}
         contentLabel={title}
         title={title || intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
         <Styled.Container>
           <Styled.Description>
@@ -86,17 +94,17 @@ class ConfirmationModal extends Component {
           <Styled.Footer>
             <Styled.ConfirmationButton
               color={confirmButtonColor}
-              label={intl.formatMessage(messages.yesLabel)}
+              label={confirmButtonLabel ? confirmButtonLabel : intl.formatMessage(messages.yesLabel)}
               disabled={disableConfirmButton}
               data-test={confirmButtonDataTest}
               onClick={() => {
                 onConfirm(confirmParam, checked);
-                mountModal(null);
+                setIsOpen(false);
               }}
             />
             <Styled.CancelButton
               label={intl.formatMessage(messages.noLabel)}
-              onClick={() => mountModal(null)}
+              onClick={() => setIsOpen(false)}
             />
           </Styled.Footer>
         </Styled.Container>
@@ -108,4 +116,4 @@ class ConfirmationModal extends Component {
 ConfirmationModal.propTypes = propTypes;
 ConfirmationModal.defaultProps = defaultProps;
 
-export default withModalMounter(ConfirmationModal);
+export default ConfirmationModal;

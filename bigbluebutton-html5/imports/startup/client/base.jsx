@@ -20,10 +20,14 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
-import { makeCall } from '/imports/ui/services/api';
+import BBBStorage from '/imports/ui/services/storage';
+import { useMutation } from '@apollo/client';
+import { SET_EXIT_REASON } from '/imports/ui/core/graphql/mutations/userMutations';
+import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
+const USER_WAS_EJECTED = 'userWasEjected';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -60,6 +64,7 @@ class Base extends Component {
     };
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
+    this.setUserExitReason = this.setUserExitReason.bind(this);
   }
 
   handleFullscreenChange() {
@@ -111,6 +116,7 @@ class Base extends Component {
       sidebarContentPanel,
       usersVideo,
       User,
+      setLocalSettings,
     } = this.props;
     const {
       loading,
@@ -171,8 +177,16 @@ class Base extends Component {
       HTML.classList.add('animationsDisabled');
     }
 
-    if (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true)) {
+    if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true))) {
       if (!checkedUserSettings) {
+        const showAnimationsDefault = getFromUserSettings(
+          'bbb_show_animations_default',
+          Meteor.settings.public.app.defaultSettings.application.animations
+        );
+
+        Settings.application.animations = showAnimationsDefault;
+        Settings.save(setLocalSettings);
+
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
           if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
             layoutContextDispatch({
@@ -225,6 +239,14 @@ class Base extends Component {
     });
   }
 
+  setUserExitReason(exitReason, callback) {
+    const { setExitReason } = this.props;
+
+    setExitReason({ variables: { exitReason } }).then(() => {
+      if (callback) callback();
+    });
+  }
+
   setMeetingExisted(meetingExisted) {
     this.setState({ meetingExisted });
   }
@@ -239,13 +261,7 @@ class Base extends Component {
     });
   }
 
-  static async setExitReason(reason) {
-    return await makeCall('setExitReason', reason);
-  }
-
   renderByState() {
-    const { updateLoadingState } = this;
-    const stateControls = { updateLoadingState };
     const { loading, userRemoved } = this.state;
     const {
       codeError,
@@ -256,49 +272,50 @@ class Base extends Component {
       meetingEndedReason,
       meetingIsBreakout,
       subscriptionsReady,
+      userWasEjected,
     } = this.props;
 
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
-
-    if (ejected) {
-      return (
-        <MeetingEnded
-          code="403"
-          ejectedReason={ejectedReason}
-          callback={() => Base.setExitReason('ejected')}
-        />
-      );
-    }
-
-    if (meetingHasEnded && meetingIsBreakout) {
-      Base.setExitReason('breakoutEnded').finally(() => {
+    
+    if (( meetingHasEnded || ejected || userRemoved ) && meetingIsBreakout) {
+      this.setUserExitReason('breakoutEnded', () => {
         Meteor.disconnect();
         window.close();
       });
       return null;
     }
-
-    if (meetingHasEnded && !meetingIsBreakout) {
+    
+    if (ejected || userWasEjected) {
       return (
         <MeetingEnded
-          code={codeError}
-          endedReason={meetingEndedReason}
-          callback={() => Base.setExitReason('meetingEnded')}
+          code="403"
+          ejectedReason={ejectedReason}
+          callback={() => this.setUserExitReason('ejected')}
         />
       );
     }
 
-    if (codeError && !meetingHasEnded) {
-      // 680 is set for the codeError when the user requests a logout.
-      if (codeError !== '680') {
-        return (<ErrorScreen code={codeError} callback={() => Base.setExitReason('error')} />);
-      }
-      return (<MeetingEnded code={codeError} callback={() => Base.setExitReason('logout')} />);
+    if ((meetingHasEnded && !meetingIsBreakout) || userWasEjected) {
+      return (
+        <MeetingEnded
+          code={codeError}
+          endedReason={meetingEndedReason}
+          callback={() => this.setUserExitReason('meetingEnded')}
+        />
+      );
     }
 
-    return (<AppContainer {...this.props} baseControls={stateControls} />);
+    if ((codeError && !meetingHasEnded) || userWasEjected) {
+      // 680 is set for the codeError when the user requests a logout.
+      if (codeError !== '680') {
+        return (<ErrorScreen code={codeError} callback={this.setUserExitReason} endedReason="error" />);
+      }
+      return (<MeetingEnded code={codeError} callback={this.setUserExitReason} endedReason="logout" />);
+    }
+
+    return (<AppContainer {...this.props} />);
   }
 
   render() {
@@ -329,7 +346,20 @@ const BaseContainer = (props) => {
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
 
-  return <Base {...{ sidebarContentPanel, layoutContextDispatch, ...props }} />;
+  const [setExitReason] = useMutation(SET_EXIT_REASON);
+  const setLocalSettings = useUserChangedLocalSettings();
+
+  return (
+    <Base
+      {...{
+        sidebarContentPanel,
+        layoutContextDispatch,
+        setExitReason,
+        setLocalSettings,
+        ...props,
+      }}
+    />
+  );
 };
 
 export default withTracker(() => {
@@ -365,7 +395,7 @@ export default withTracker(() => {
     currentConnectionId: 1,
     connectionIdUpdateTime: 1,
   };
-  const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
+  const User = Users.findOne({ userId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
       meetingEnded: 1,
@@ -382,21 +412,21 @@ export default withTracker(() => {
   const ejected = User?.ejected;
   const ejectedReason = User?.ejectedReason;
   const meetingEndedReason = meeting?.meetingEndedReason;
-  const currentConnectionId = User?.currentConnectionId;
-  const { connectionID, connectionAuthTime } = Auth;
-  const connectionIdUpdateTime = User?.connectionIdUpdateTime;
 
-  if (currentConnectionId && currentConnectionId !== connectionID && connectionIdUpdateTime > connectionAuthTime) {
-    Session.set('codeError', '409');
-    Session.set('errorMessageDescription', 'joined_another_window_reason')
+  if (ejected) {
+    // use the connectionID to block users, so we can detect if the user was
+    // blocked by the current connection. This is the case when a a user is
+    // ejected from a meeting but not permanently ejected. Permanent ejects are
+    // managed by the server, not by the client.
+    BBBStorage.setItem(USER_WAS_EJECTED, User.userId);
   }
 
   let userSubscriptionHandler;
 
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
-
   return {
+    userWasEjected: (BBBStorage.getItem(USER_WAS_EJECTED)),
     approved,
     ejected,
     ejectedReason,

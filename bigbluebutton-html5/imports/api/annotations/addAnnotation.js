@@ -1,13 +1,13 @@
 import { check } from 'meteor/check';
-import _ from "lodash";
+import { defaultsDeep } from '/imports/utils/array-utils';
 
-export default function addAnnotation(meetingId, whiteboardId, userId, annotation, Annotations) {
+async function addAnnotation(meetingId, whiteboardId, userId, annotation, Annotations) {
   check(meetingId, String);
   check(whiteboardId, String);
   check(annotation, Object);
 
   const {
-    id, wbId, 
+    id, wbId,
   } = annotation;
 
   let { annotationInfo } = annotation;
@@ -17,9 +17,9 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
     id,
   };
 
-  const oldAnnotation = Annotations.findOne(selector);
+  const oldAnnotation = await Annotations.findOneAsync(selector);
   if (oldAnnotation) {
-    annotationInfo = _.merge(oldAnnotation.annotationInfo, annotationInfo)
+    annotationInfo = defaultsDeep(annotationInfo, oldAnnotation.annotationInfo);
   }
 
   const modifier = {
@@ -34,3 +34,5 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
 
   return { selector, modifier };
 }
+
+export default addAnnotation;

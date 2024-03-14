@@ -1,13 +1,11 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import MobileAppModalGraphqlContainer from './mobile-app-modal-graphql/component';
 
 import MobileAppModal from './component';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 
 const MobileAppModalContainer = (props) => <MobileAppModal {...props} />;
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
-  closeModal: () => {
-    mountModal(null);
-  },
-}))(MobileAppModalContainer));
+withTracker(() => {})(MobileAppModalContainer);
+
+export default MobileAppModalGraphqlContainer;

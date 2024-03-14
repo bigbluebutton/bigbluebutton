@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
 import Settings from '/imports/ui/services/settings';
@@ -10,12 +9,13 @@ import 'tippy.js/animations/shift-away.css';
 import './bbbtip.css';
 import BaseButton from '/imports/ui/components/common/button/base/component';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];
 const DEFAULT_ANIMATION = 'shift-away';
 const ANIMATION_NONE = 'none';
-const TIP_OFFSET = '0, 10';
+const TIP_OFFSET = [0, 10];
 
 const propTypes = {
   title: PropTypes.string,
@@ -47,7 +47,7 @@ class Tooltip extends Component {
   constructor(props) {
     super(props);
 
-    this.tippySelectorId = _.uniqueId('tippy-');
+    this.tippySelectorId = uniqueId('tippy-');
     this.onShow = this.onShow.bind(this);
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
@@ -57,9 +57,19 @@ class Tooltip extends Component {
     const {
       position,
       title,
+      delay,
+      placement,
     } = this.props;
 
     const { animations } = Settings.application;
+    
+    const overridePlacement = placement ? placement : position;
+    let overrideDelay;
+    if (animations) {
+      overrideDelay = delay ? [delay, ANIMATION_DELAY[1]] : ANIMATION_DELAY;
+    } else {
+      overrideDelay = delay ? [delay, 0] : [ANIMATION_DELAY[0], 0];
+    }
 
     const options = {
       aria: null,
@@ -67,19 +77,28 @@ class Tooltip extends Component {
       animation: animations ? DEFAULT_ANIMATION : ANIMATION_NONE,
       appendTo: document.body,
       arrow: roundArrow,
-      boundary: 'window',
+      popperOptions: {
+        modifiers: [
+          {
+            name: 'preventOverflow',
+            options: {
+              altAxis: true,
+              boundary: document.documentElement,
+            },
+          },
+        ],
+      },
       content: title,
-      delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
+      delay: overrideDelay,
       duration: animations ? ANIMATION_DURATION : 0,
       interactive: true,
       interactiveBorder: 10,
       onShow: this.onShow,
       onHide: this.onHide,
       offset: TIP_OFFSET,
-      placement: position,
-      touch: 'hold',
+      placement: overridePlacement,
+      touch: ['hold', 1000],
       theme: 'bbbtip',
-      multiple: false,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
@@ -101,12 +120,15 @@ class Tooltip extends Component {
       return true;
     }).forEach((e) => {
       const instance = e._tippy;
-      instance.setProps({
+      const newProps = {
         animation: animations
           ? DEFAULT_ANIMATION : ANIMATION_NONE,
-        delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
         duration: animations ? ANIMATION_DURATION : 0,
-      });
+      };
+      if (!e.getAttribute("delay")) {
+        newProps["delay"] = animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0];
+      }
+      instance.setProps(newProps);
     });
 
     const elem = document.getElementById(this.tippySelectorId);

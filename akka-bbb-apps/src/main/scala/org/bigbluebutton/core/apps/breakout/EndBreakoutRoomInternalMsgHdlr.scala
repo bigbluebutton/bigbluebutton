@@ -12,15 +12,15 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   val eventBus: InternalEventBus
 
   def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg): Unit = {
-
     if (liveMeeting.props.breakoutProps.captureSlides) {
-      val captureSlidesEvent = BigBlueButtonEvent(msg.breakoutId, CapturePresentationReqInternalMsg("system", msg.parentId))
+      val filename = liveMeeting.props.breakoutProps.captureSlidesFilename
+      val captureSlidesEvent = BigBlueButtonEvent(msg.breakoutId, CapturePresentationReqInternalMsg("system", msg.parentId, filename))
       eventBus.publish(captureSlidesEvent)
     }
 
     if (liveMeeting.props.breakoutProps.captureNotes) {
-      val meetingName: String = liveMeeting.props.meetingProp.name
-      val captureNotesEvent = BigBlueButtonEvent(msg.breakoutId, CaptureSharedNotesReqInternalMsg(msg.parentId, meetingName))
+      val filename = liveMeeting.props.breakoutProps.captureNotesFilename
+      val captureNotesEvent = BigBlueButtonEvent(msg.parentId, CaptureSharedNotesReqInternalMsg(msg.breakoutId, filename))
       eventBus.publish(captureNotesEvent)
     }
 

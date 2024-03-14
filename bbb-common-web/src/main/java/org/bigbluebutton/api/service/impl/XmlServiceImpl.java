@@ -72,7 +72,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String recordingToXml(Recording recording) {
-        logger.info("Converting {} to xml", recording);
+//        logger.info("Converting {} to xml", recording);
         try {
             setup();
             Document document = builder.newDocument();
@@ -125,7 +125,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String metadataToXml(Metadata metadata) {
-        logger.info("Converting {} to xml", metadata);
+//        logger.info("Converting {} to xml", metadata);
 
         try {
             setup();
@@ -148,7 +148,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String playbackFormatToXml(PlaybackFormat playbackFormat) {
-        logger.info("Converting {} to xml", playbackFormat);
+//        logger.info("Converting {} to xml", playbackFormat);
 
         try {
             setup();
@@ -187,7 +187,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String thumbnailToXml(Thumbnail thumbnail) {
-        logger.info("Converting {} to xml", thumbnail);
+//        logger.info("Converting {} to xml", thumbnail);
 
         try {
             setup();
@@ -211,7 +211,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String callbackDataToXml(CallbackData callbackData) {
-        logger.info("Converting {} to xml", callbackData);
+//        logger.info("Converting {} to xml", callbackData);
 
         try {
             setup();
@@ -264,7 +264,39 @@ public class XmlServiceImpl implements XmlService {
     }
 
     @Override
-    public String constructPaginatedResponse(Page<?> page, String response) {
+    public String noRecordings() {
+        logger.info("Constructing no recordings response");
+
+        try {
+            setup();
+            Document document = builder.newDocument();
+
+            Element rootElement = createElement(document, "response", null);
+            document.appendChild(rootElement);
+
+            Element returnCode = createElement(document, "returncode", "SUCCESS");
+            rootElement.appendChild(returnCode);
+
+            Element messageKey = createElement(document, "messageKey", "noRecordings");
+            rootElement.appendChild(messageKey);
+
+            Element message = createElement(document, "message", "No recordings found. This may occur if you attempt to retrieve all recordings.");
+            rootElement.appendChild(message);
+
+            String result = documentToString(document);
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
+            return result;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public String constructPaginatedResponse(Page<?> page, int offset, String response) {
         logger.info("Constructing paginated response");
 
         try {
@@ -283,7 +315,7 @@ public class XmlServiceImpl implements XmlService {
             Document secondDoc;
             Node node;
 
-            xml = pageableToXml(page.getPageable());
+            xml = pageableToXml(page.getPageable(), offset);
             secondDoc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
             node = document.importNode(secondDoc.getDocumentElement(), true);
             pagination.appendChild(node);
@@ -291,14 +323,14 @@ public class XmlServiceImpl implements XmlService {
             Element totalElements = createElement(document, "totalElements", String.valueOf(page.getTotalElements()));
             pagination.appendChild(totalElements);
 
-            Element last = createElement(document, "last", String.valueOf(page.isLast()));
-            pagination.appendChild(last);
+//            Element last = createElement(document, "last", String.valueOf(page.isLast()));
+//            pagination.appendChild(last);
 
-            Element totalPages = createElement(document, "totalPages", String.valueOf(page.getTotalPages()));
-            pagination.appendChild(totalPages);
+//            Element totalPages = createElement(document, "totalPages", String.valueOf(page.getTotalPages()));
+//            pagination.appendChild(totalPages);
 
-            Element first = createElement(document, "first", String.valueOf(page.isFirst()));
-            pagination.appendChild(first);
+//            Element first = createElement(document, "first", String.valueOf(page.isFirst()));
+//            pagination.appendChild(first);
 
             Element empty = createElement(document, "empty", String.valueOf(!page.hasContent()));
             pagination.appendChild(empty);
@@ -317,7 +349,7 @@ public class XmlServiceImpl implements XmlService {
         return null;
     }
 
-    private String pageableToXml(Pageable pageable) {
+    private String pageableToXml(Pageable pageable, int o) {
         logger.info("Converting {} to xml", pageable);
 
         try {
@@ -327,28 +359,28 @@ public class XmlServiceImpl implements XmlService {
             Element rootElement = createElement(document, "pageable", null);
             document.appendChild(rootElement);
 
-            Sort sort = pageable.getSort();
-            Element sortElement = createElement(document, "sort", null);
+//            Sort sort = pageable.getSort();
+//            Element sortElement = createElement(document, "sort", null);
+//
+//            Element unsorted = createElement(document, "unsorted", String.valueOf(sort.isUnsorted()));
+//            sortElement.appendChild(unsorted);
+//
+//            Element sorted = createElement(document, "sorted", String.valueOf(sort.isSorted()));
+//            sortElement.appendChild(sorted);
+//
+//            Element empty = createElement(document, "empty", String.valueOf(sort.isEmpty()));
+//            sortElement.appendChild(empty);
+//
+//            rootElement.appendChild(sortElement);
 
-            Element unsorted = createElement(document, "unsorted", String.valueOf(sort.isUnsorted()));
-            sortElement.appendChild(unsorted);
-
-            Element sorted = createElement(document, "sorted", String.valueOf(sort.isSorted()));
-            sortElement.appendChild(sorted);
-
-            Element empty = createElement(document, "empty", String.valueOf(sort.isEmpty()));
-            sortElement.appendChild(empty);
-
-            rootElement.appendChild(sortElement);
-
-            Element offset = createElement(document, "offset", String.valueOf(pageable.getOffset()));
+            Element offset = createElement(document, "offset", String.valueOf(o));
             rootElement.appendChild(offset);
 
-            Element pageSize = createElement(document, "pageSize", String.valueOf(pageable.getPageSize()));
-            rootElement.appendChild(pageSize);
+            Element limit = createElement(document, "limit", String.valueOf(pageable.getPageSize()));
+            rootElement.appendChild(limit);
 
-            Element pageNumber = createElement(document, "pageNumber", String.valueOf(pageable.getPageNumber()));
-            rootElement.appendChild(pageNumber);
+//            Element pageNumber = createElement(document, "pageNumber", String.valueOf(pageable.getPageNumber()));
+//            rootElement.appendChild(pageNumber);
 
             Element paged = createElement(document, "paged", String.valueOf(pageable.isPaged()));
             rootElement.appendChild(paged);

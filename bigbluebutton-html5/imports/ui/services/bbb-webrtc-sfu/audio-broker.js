@@ -29,6 +29,8 @@ class AudioBroker extends BaseBroker {
     // signalCandidates
     // traceLogs
     // networkPriority
+    // gatheringTimeout
+    // transparentListenOnly
     Object.assign(this, options);
   }
 
@@ -85,6 +87,7 @@ class AudioBroker extends BaseBroker {
           trace: this.traceLogs,
           networkPriorities: this.networkPriority ? { audio: this.networkPriority } : undefined,
           mediaStreamFactory: this.mediaStreamFactory,
+          gatheringTimeout: this.gatheringTimeout,
         };
 
         const peerRole = this.role === 'sendrecv' ? this.role : 'recvonly';
@@ -198,6 +201,7 @@ class AudioBroker extends BaseBroker {
       sdpOffer: offer,
       mediaServer: this.mediaServer,
       extension: this.extension,
+      transparentListenOnly: this.transparentListenOnly,
     };
 
     logger.debug({

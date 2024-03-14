@@ -1,15 +1,9 @@
 import Breakouts from '/imports/api/breakouts';
-import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
-import { makeCall } from '/imports/ui/services/api';
+import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
-import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UploadingPresentations } from '/imports/api/presentations';
-import _ from 'lodash';
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const findBreakouts = () => {
   const BreakoutRooms = Breakouts.find(
@@ -38,41 +32,39 @@ const getBreakoutRoomUrl = (breakoutId) => {
   return breakoutUrlData;
 };
 
-const setCapturedNotesUploading = () => {
-  const breakoutRooms = findBreakouts();
-  breakoutRooms.forEach((breakout) => {
-    if (breakout.captureNotes) {
-      const filename = breakout.shortName;
-      const temporaryPresentationId = `${breakout.breakoutId}-notes`;
-
-      UploadingPresentations.upsert({
-        temporaryPresentationId,
-      }, {
-        $set: {
-          id: _.uniqueId(filename),
-          temporaryPresentationId,
-          progress: 0,
-          filename,
-          lastModifiedUploader: false,
-          upload: {
-            done: false,
-            error: false,
-          },
-          uploadTimestamp: new Date(),
-        },
-      });
-    }
+const upsertCapturedContent = (filename, temporaryPresentationId) => {
+  UploadingPresentations.upsert({
+    temporaryPresentationId,
+  }, {
+    $set: {
+      id: temporaryPresentationId,
+      temporaryPresentationId,
+      progress: 0,
+      filename,
+      lastModifiedUploader: false,
+      upload: {
+        done: false,
+        error: false,
+      },
+      uploadTimestamp: new Date(),
+      renderedInToast: false,
+    },
   });
 };
 
-const endAllBreakouts = () => {
-  setCapturedNotesUploading();
-  makeCall('endAllBreakouts');
-};
+const setCapturedContentUploading = () => {
+  const breakoutRooms = findBreakouts();
+  breakoutRooms.forEach((breakout) => {
+    const filename = breakout.shortName;
+    const temporaryPresentationId = breakout.breakoutId;
 
-const requestJoinURL = (breakoutId) => {
-  makeCall('requestJoinURL', {
-    breakoutId,
+    if (breakout.captureNotes) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-notes`);
+    }
+
+    if (breakout.captureSlides) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-slides`);
+    }
   });
 };
 
@@ -97,58 +89,6 @@ const isNewTimeHigherThanMeetingRemaining = (newTimeInMinutes) => {
   return false;
 };
 
-const setBreakoutsTime = (timeInMinutes) => {
-  if (timeInMinutes <= 0) return false;
-
-  makeCall('setBreakoutsTime', {
-    timeInMinutes,
-  });
-
-  return true;
-};
-
-const sendMessageToAllBreakouts = (msg) => {
-  makeCall('sendMessageToAllBreakouts', {
-    msg,
-  });
-
-  return true;
-};
-
-const transferUserToMeeting = (fromMeetingId, toMeetingId) =>
-  makeCall('transferUser', fromMeetingId, toMeetingId);
-
-const transferToBreakout = (breakoutId) => {
-  const breakoutRooms = findBreakouts();
-  const breakoutRoom = breakoutRooms
-    .filter((breakout) => breakout.breakoutId === breakoutId)
-    .shift();
-  const breakoutMeeting = Meetings.findOne(
-    {
-      $and: [
-        { 'breakoutProps.sequence': breakoutRoom.sequence },
-        { 'breakoutProps.parentId': breakoutRoom.parentMeetingId },
-        { 'meetingProp.isBreakout': true },
-      ],
-    },
-    { fields: { meetingId: 1 } }
-  );
-  transferUserToMeeting(Auth.meetingID, breakoutMeeting.meetingId);
-};
-
-const amIModerator = () => {
-  const User = Users.findOne({ intId: Auth.userID }, { fields: { role: 1 } });
-  return User.role === ROLE_MODERATOR;
-};
-
-const checkInviteModerators = () => {
-  const BREAKOUTS_CONFIG = Meteor.settings.public.app.breakouts;
-
-  return !(
-    amIModerator() && !BREAKOUTS_CONFIG.sendInvitationToIncludedModerators
-  );
-};
-
 const getBreakoutByUserId = (userId) =>
   Breakouts.find(
     { [`url_${userId}`]: { $exists: true } },
@@ -168,11 +108,11 @@ const getLastBreakoutInserted = (breakoutURLArray) => breakoutURLArray.sort((a, 
   return a.breakoutUrlData.insertedTime - b.breakoutUrlData.insertedTime;
 }).pop();
 
-const getLastBreakoutByUserId = (userId) => fp.pipe(
-  getBreakoutByUserId,
-  getWithBreakoutUrlData(userId),
-  getLastBreakoutInserted,
-)(userId);
+const getLastBreakoutByUserId = (userId) => {
+  const breakout = getBreakoutByUserId(userId);
+  const url = getWithBreakoutUrlData(userId)(breakout);
+  return getLastBreakoutInserted(url);
+}
 
 const getBreakouts = () =>
   Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
@@ -226,16 +166,9 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 
 export default {
   findBreakouts,
-  endAllBreakouts,
-  setBreakoutsTime,
-  sendMessageToAllBreakouts,
   isNewTimeHigherThanMeetingRemaining,
-  requestJoinURL,
   getBreakoutRoomUrl,
-  transferUserToMeeting,
-  transferToBreakout,
   meetingId: () => Auth.meetingID,
-  amIModerator,
   getLastBreakoutByUserId,
   getBreakouts,
   getBreakoutsNoTime,
@@ -243,6 +176,5 @@ export default {
   getBreakoutUserWasIn,
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
-  checkInviteModerators,
-  setCapturedNotesUploading,
+  setCapturedContentUploading,
 };

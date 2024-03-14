@@ -30,6 +30,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.util.ParamsUtil;
 import org.bigbluebutton.api.Util;
 
 class PresentationController {
@@ -49,8 +50,26 @@ class PresentationController {
       def originalContentLengthString = request.getHeader("x-original-content-length")
 
       def originalContentLength = 0
-      if (originalContentLengthString.isNumber()) {
+      // x-original-content-length may be missing (for example in CORS OPTION requests)
+      if (null != originalContentLengthString && originalContentLengthString.isNumber()) {
         originalContentLength = originalContentLengthString as int
+      }
+      if (request.getHeader("x-original-method") == 'OPTIONS') {
+        if (meetingService.authzTokenIsValid(presentationToken)) {
+          log.debug "OPTIONS SUCCESS \n"
+          response.setStatus(200)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-success';
+          return;
+        } else {
+          log.debug "OPTIONS FAIL\n"
+          response.setStatus(403)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-fail';
+          return;
+        }
       }
 
       if (null != presentationToken
@@ -82,13 +101,16 @@ class PresentationController {
 
   def upload = {
     // check if the authorization token provided is valid
-    if (null == params.authzToken || !meetingService.authzTokenIsValidAndExpired(params.authzToken)) {
+    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
       log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'invalid auth token'
       return
     }
+
+    PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(params.authzToken)
+    meetingService.expirePresentationUploadToken(params.authzToken)
 
     def meetingId = params.conference
     if (Util.isMeetingIdValidFormat(meetingId)) {
@@ -105,6 +127,14 @@ class PresentationController {
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'no-meeting';
+      return
+    }
+
+    if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'presentation in disabled features'
       return
     }
 
@@ -125,7 +155,7 @@ class PresentationController {
     def presOrigFilename = ""
     def presFilename = ""
     def filenameExt = ""
-    def presId = ""
+    def presId = presUploadToken.presentationId
     def pres = null
     def temporaryPresentationId = params.temporaryPresentationId
 
@@ -135,6 +165,7 @@ class PresentationController {
       // Gets the name minus the path from a full fileName.
       // a/b/c.txt --> c.txt
       presFilename =  FilenameUtils.getName(presOrigFilename)
+      presFilename = ParamsUtil.stripTags(presFilename)
       filenameExt = FilenameUtils.getExtension(presFilename)
     } else {
       log.warn "Upload failed. File Empty."
@@ -148,7 +179,6 @@ class PresentationController {
       uploadFailed = true
     } else {
       String presentationDir = presentationService.getPresentationDir()
-      presId = Util.generatePresentationId(presFilename)
       File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
       if (uploadDir != null) {
         def newFilename = Util.createNewFilename(presId, filenameExt)
@@ -157,7 +187,7 @@ class PresentationController {
       }
     }
 
-    log.debug("processing file upload " + presFilename)
+    log.debug("processing file upload " + presFilename + " (presId: " + presId + ")")
     def presentationBaseUrl = presentationService.presentationBaseUrl
     def isPresentationMimeTypeValid = SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)
     UploadedPresentation uploadedPres = new UploadedPresentation(
@@ -312,6 +342,7 @@ class PresentationController {
     def presId = params.presId
     def presFilename = params.presFilename
     def meetingId = params.meetingId
+    def filename = params.filename
 
     log.debug "Controller: Download request for $presFilename"
 
@@ -322,7 +353,7 @@ class PresentationController {
         log.debug "Controller: Sending pdf reply for $presFilename"
 
         def bytes = pres.readBytes()
-        def responseName = pres.getName();
+        def responseName = filename;
         def mimeType = grailsMimeUtility.getMimeTypeForURI(responseName)
         def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
 

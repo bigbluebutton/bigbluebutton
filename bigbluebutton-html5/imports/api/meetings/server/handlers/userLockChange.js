@@ -1,5 +1,5 @@
 import changeUserLock from '../modifiers/changeUserLock';
 
-export default function handleLockSettingsInMeeting({ body }, meetingId) {
-  changeUserLock(meetingId, body);
+export default async function handleLockSettingsInMeeting({ body }, meetingId) {
+  await changeUserLock(meetingId, body);
 }

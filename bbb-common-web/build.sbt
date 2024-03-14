@@ -11,7 +11,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.11",
+    "-release:17",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -40,7 +40,7 @@ lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", l
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.9"
 //-----------
 // Packaging
 //
@@ -101,19 +101,17 @@ licenses := Seq("LGPL-3.0" -> url("http://opensource.org/licenses/LGPL-3.0"))
 
 homepage := Some(url("http://www.bigbluebutton.org"))
 
-libraryDependencies += "javax.validation" % "validation-api" % "2.0.1.Final"
-libraryDependencies += "org.springframework.boot" % "spring-boot-starter-validation" % "2.7.1"
-libraryDependencies += "org.glassfish" % "javax.el" % "3.0.1-b12"
-libraryDependencies += "org.apache.httpcomponents" % "httpclient" % "4.5.13"
-
 libraryDependencies ++= Seq(
   "javax.validation" % "validation-api" % "2.0.1.Final",
-  "org.springframework.boot" % "spring-boot-starter-validation" % "2.6.1",
-  "org.springframework.data" % "spring-data-commons" % "2.6.1",
-  "org.glassfish" % "javax.el" % "3.0.1-b12",
+  "org.springframework.boot" % "spring-boot-starter-validation" % "2.7.17",
+  "org.springframework.data" % "spring-data-commons" % "2.7.6",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
-  "org.postgresql" % "postgresql" % "42.2.16",
+  "org.postgresql" % "postgresql" % "42.7.2",
   "org.hibernate" % "hibernate-core" % "5.6.1.Final",
   "org.flywaydb" % "flyway-core" % "7.8.2",
-  "com.zaxxer" % "HikariCP" % "4.0.3"
+  "com.zaxxer" % "HikariCP" % "4.0.3",
+  "commons-validator" % "commons-validator" % "1.7",
+  "org.apache.tika" % "tika-core" % "2.8.0",
+  "org.apache.tika" % "tika-parsers-standard-package" % "2.8.0",
+  "org.scala-lang.modules" %% "scala-xml" % "2.2.0"
 )

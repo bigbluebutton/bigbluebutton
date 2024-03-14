@@ -38,12 +38,10 @@ class AuthenticatedHandler extends Component {
     if (Auth.loggedIn) {
       callback();
     }
-
     AuthenticatedHandler.addReconnectObservable();
 
     const setReason = (reason) => {
       const log = reason.error === 403 ? 'warn' : 'error';
-      
       logger[log]({
         logCode: 'authenticatedhandlercomponent_setreason',
         extraInfo: { reason },
@@ -70,6 +68,7 @@ class AuthenticatedHandler extends Component {
 
   componentDidMount() {
     if (Session.get('codeError')) {
+      console.log('Session.get(codeError)', Session.get('codeError'));
       this.setState({ authenticated: true });
     }
     AuthenticatedHandler.authenticatedRouteHandler((value, error) => {

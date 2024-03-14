@@ -1,0 +1,140 @@
+import {useSubscription, gql, useMutation} from '@apollo/client';
+import React from "react";
+import usePatchedSubscription from "./usePatchedSubscription";
+
+export default function ChatsInfo() {
+
+    const [updateLastTypingAt] = useMutation(gql`
+      mutation UpdateChatUser($chatId: String) {
+        update_chat_user(
+            where: { chatId: { _eq: $chatId } },
+            _set: { lastTypingAt: "now()" }
+          ) {
+            affected_rows
+          }
+      }
+    `);
+
+    const handleUpdateLastTypingAt = (chatId, lastSeenAt) => {
+        updateLastTypingAt({
+            variables: {
+                chatId
+            },
+        });
+    };
+
+    const handleCloseChat = (chatId) => {
+        updateVisible({
+            variables: {
+                chatId
+            },
+        });
+    };
+
+    const [updateVisible] = useMutation(gql`
+      mutation UpdateChatUser($chatId: String) {
+        update_chat_user(
+            where: { chatId: { _eq: $chatId } },
+            _set: { visible: false }
+          ) {
+            affected_rows
+          }
+      }
+    `);
+
+
+
+  const { loading, error, data } = usePatchedSubscription(
+    gql`subscription {
+      chat(order_by: {public: desc}) {
+        chatId
+        participant {
+            name
+            role
+            color
+            loggedOut
+        }
+        totalMessages
+        totalUnread
+        public
+        visible
+      }
+    }`
+  );
+
+    const { data: publicChatTypingSub } = usePatchedSubscription(
+      gql`subscription {
+        user_typing_public(where: {isCurrentlyTyping: {_eq: true}}) {
+            chatId
+            isCurrentlyTyping
+            lastTypingAt
+            userId
+            user {
+                name
+            }
+          }
+        }`
+    );
+
+    const { data: privateChatTypingSub } = usePatchedSubscription(
+        gql`subscription {
+        user_typing_private(where: {isCurrentlyTyping: {_eq: true}}) {
+            chatId
+            isCurrentlyTyping
+            lastTypingAt
+            userId
+            user {
+                name
+            }
+          }
+        }`
+    );
+
+  return  !loading && !error &&
+    (<table border="1">
+      <thead>
+          <tr>
+              <th colSpan="5">Chats available</th>
+          </tr>
+        <tr>
+            <th>Id</th>
+            <th>Participant</th>
+            <th>Who's typing</th>
+            <th>Total Mgs</th>
+            <th>Unread</th>
+            <th>Visible</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((curr) => {
+            console.log('chat', curr);
+          return (
+              <tr key={curr.chatId}>
+                  <td>{curr.chatId}</td>
+                  <td>{curr.participant?.name} {curr.participant?.role} {curr.participant?.color}  {curr.participant?.loggedOut === true ? ' (Offline)' : ''}</td>
+                      {
+                          curr.chatId === 'MAIN-PUBLIC-GROUP-CHAT' ?
+                          <td>
+                              {(publicChatTypingSub?.user_typing_public || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)}
+                              <br />
+                              <button onClick={() => handleUpdateLastTypingAt(curr.chatId)}>I'm typing!</button>
+                          </td>
+                           :
+                              <td>
+                                  {(privateChatTypingSub?.user_typing_private || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)}
+                                  <br />
+                                  <button onClick={() => handleUpdateLastTypingAt(curr.chatId)}>I'm typing!</button>
+                              </td>
+                      }
+                  <td>{curr.totalMessages}</td>
+                  <td>{curr.totalUnread}</td>
+                  <td>{curr.visible == true ? 'Yes' : 'No'}
+                      <button onClick={() => handleCloseChat(curr.chatId)}>Close chat!</button>
+                  </td>
+              </tr>
+          );
+        })}
+      </tbody>
+    </table>);
+}
+

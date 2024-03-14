@@ -13,7 +13,7 @@ export function getDisabledFeatures() {
 }
 
 export function isScreenSharingEnabled() {
-  return getDisabledFeatures().indexOf('screenshare') === -1 && Meteor.settings.public.kurento.enableScreensharing;
+  return getDisabledFeatures().indexOf('screenshare') === -1 && window.meetingClientSettings.public.kurento.enableScreensharing;
 }
 
 export function isLearningDashboardEnabled() {
@@ -21,23 +21,27 @@ export function isLearningDashboardEnabled() {
 }
 
 export function isPollingEnabled() {
-  return getDisabledFeatures().indexOf('polls') === -1 && Meteor.settings.public.poll.enabled;
+  return getDisabledFeatures().indexOf('polls') === -1 && window.meetingClientSettings.public.poll.enabled;
 }
 
 export function isExternalVideoEnabled() {
-  return getDisabledFeatures().indexOf('externalVideos') === -1 && Meteor.settings.public.externalVideoPlayer.enabled;
+  return getDisabledFeatures().indexOf('externalVideos') === -1 && window.meetingClientSettings.public.externalVideoPlayer.enabled;
 }
 
 export function isChatEnabled() {
-  return getDisabledFeatures().indexOf('chat') === -1 && Meteor.settings.public.chat.enabled;
+  return getDisabledFeatures().indexOf('chat') === -1 && window.meetingClientSettings.public.chat.enabled;
 }
 
 export function isSharedNotesEnabled() {
-  return getDisabledFeatures().indexOf('sharedNotes') === -1 && Meteor.settings.public.notes.enabled;
+  return getDisabledFeatures().indexOf('sharedNotes') === -1 && window.meetingClientSettings.public.notes.enabled;
 }
 
 export function isCaptionsEnabled() {
-  return getDisabledFeatures().indexOf('captions') === -1 && Meteor.settings.public.captions.enabled;
+  return getDisabledFeatures().indexOf('captions') === -1 && window.meetingClientSettings.public.captions.enabled;
+}
+
+export function isLiveTranscriptionEnabled() {
+  return getDisabledFeatures().indexOf('liveTranscription') === -1 && window.meetingClientSettings.public.app.audioCaptions.enabled;
 }
 
 export function isBreakoutRoomsEnabled() {
@@ -49,7 +53,7 @@ export function isLayoutsEnabled() {
 }
 
 export function isVirtualBackgroundsEnabled() {
-  return getDisabledFeatures().indexOf('virtualBackgrounds') === -1 && Meteor.settings.public.virtualBackgrounds.enabled;
+  return getDisabledFeatures().indexOf('virtualBackgrounds') === -1 && window.meetingClientSettings.public.virtualBackgrounds.enabled;
 }
 
 export function isCustomVirtualBackgroundsEnabled() {
@@ -57,7 +61,19 @@ export function isCustomVirtualBackgroundsEnabled() {
 }
 
 export function isDownloadPresentationWithAnnotationsEnabled() {
-  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadable;
+  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && window.meetingClientSettings.public.presentation.allowDownloadWithAnnotations;
+}
+
+export function isDownloadPresentationConvertedToPdfEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationConvertedToPdf') === -1;
+}
+
+export function isDownloadPresentationOriginalFileEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationOriginalFile') === -1 && window.meetingClientSettings.public.presentation.allowDownloadOriginal;
+}
+
+export function isSnapshotOfCurrentSlideEnabled() {
+  return getDisabledFeatures().indexOf('snapshotOfCurrentSlide') === -1 && window.meetingClientSettings.public.presentation.allowSnapshotOfCurrentSlide;
 }
 
 export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
@@ -66,4 +82,26 @@ export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
 
 export function isImportSharedNotesFromBreakoutRoomsEnabled() {
   return getDisabledFeatures().indexOf('importSharedNotesFromBreakoutRooms') === -1;
+}
+
+export function isPresentationEnabled() {
+  return getDisabledFeatures().indexOf('presentation') === -1;
+}
+
+export function isReactionsEnabled() {
+  const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
+  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
+
+  return getDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+}
+
+export function isTimerFeatureEnabled() {
+  return getDisabledFeatures().indexOf('timer') === -1 && window.meetingClientSettings.public.timer.enabled;
+}
+
+export function isCameraAsContentEnabled() {
+  return (
+    getDisabledFeatures().indexOf('cameraAsContent') === -1 &&
+    window.meetingClientSettings.public.app.enableCameraAsContent
+  );
 }

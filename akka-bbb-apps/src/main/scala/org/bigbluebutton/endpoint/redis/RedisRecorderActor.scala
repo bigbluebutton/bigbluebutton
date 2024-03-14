@@ -6,10 +6,10 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisStorageProvider }
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.record.events._
-import akka.actor.Actor
-import akka.actor.ActorLogging
-import akka.actor.ActorSystem
-import akka.actor.Props
+import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.Props
 import org.bigbluebutton.service.HealthzService
 
 import scala.concurrent.duration._
@@ -85,6 +85,9 @@ class RedisRecorderActor(
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
       case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserAwayChangedEvtMsg                 => handleUserAwayChangedEvtMsg(m)
+      case m: UserRaiseHandChangedEvtMsg            => handleUserRaiseHandChangedEvtMsg(m)
+      case m: UserReactionEmojiChangedEvtMsg        => handleUserReactionEmojiChangedEvtMsg(m)
       case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
@@ -134,6 +137,17 @@ class RedisRecorderActor(
       case m: StartExternalVideoEvtMsg              => handleStartExternalVideoEvtMsg(m)
       case m: UpdateExternalVideoEvtMsg             => handleUpdateExternalVideoEvtMsg(m)
       case m: StopExternalVideoEvtMsg               => handleStopExternalVideoEvtMsg(m)
+
+      // Timer
+      case m: ActivateTimerRespMsg                  => handleActivateTimerRespMsg(m)
+      case m: DeactivateTimerRespMsg                => handleDeactivateTimerRespMsg(m)
+      case m: StartTimerRespMsg                     => handleStartTimerRespMsg(m)
+      case m: StopTimerRespMsg                      => handleStopTimerRespMsg(m)
+      case m: SwitchTimerRespMsg                    => handleSwitchTimerRespMsg(m)
+      case m: SetTimerRespMsg                       => handleSetTimerRespMsg(m)
+      case m: ResetTimerRespMsg                     => handleResetTimerRespMsg(m)
+      case m: TimerEndedEvtMsg                      => handleTimerEndedEvtMsg(m)
+      case m: SetTrackRespMsg                       => handleSetTrackRespMsg(m)
 
       case _                                        => // message not to be recorded.
     }
@@ -283,7 +297,8 @@ class RedisRecorderActor(
   }
 
   private def handleSendWhiteboardAnnotationsEvtMsg(msg: SendWhiteboardAnnotationsEvtMsg) {
-    msg.body.annotations.foreach(annotation => {
+    // filter poll annotations that are still not tldraw ready
+    msg.body.annotations.filter(!_.annotationInfo.contains("answers")).foreach(annotation => {
       val ev = new AddTldrawShapeWhiteboardRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setPresentation(getPresentationId(annotation.wbId))
@@ -365,6 +380,18 @@ class RedisRecorderActor(
   }
   private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
+  }
+
+  private def handleUserAwayChangedEvtMsg(msg: UserAwayChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "away", if (msg.body.away) "true" else "false")
+  }
+
+  private def handleUserRaiseHandChangedEvtMsg(msg: UserRaiseHandChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "raiseHand", if (msg.body.raiseHand) "true" else "false")
+  }
+
+  private def handleUserReactionEmojiChangedEvtMsg(msg: UserReactionEmojiChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "reactionEmoji", msg.body.reactionEmoji)
   }
 
   private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {
@@ -540,6 +567,78 @@ class RedisRecorderActor(
   private def handleStopExternalVideoEvtMsg(msg: StopExternalVideoEvtMsg) {
     val ev = new StopExternalVideoRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleActivateTimerRespMsg(msg: ActivateTimerRespMsg) {
+    val ev = new ActivateTimerRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStopwatch(msg.body.stopwatch)
+    ev.setRunning(msg.body.running)
+    ev.setTime(msg.body.time)
+    ev.setAccumulated(msg.body.accumulated)
+    ev.setTrack(msg.body.track)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleDeactivateTimerRespMsg(msg: DeactivateTimerRespMsg) {
+    val ev = new DeactivateTimerRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleStartTimerRespMsg(msg: StartTimerRespMsg) {
+    val ev = new StartTimerRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleStopTimerRespMsg(msg: StopTimerRespMsg) {
+    val ev = new StopTimerRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setAccumulated(msg.body.accumulated)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleSwitchTimerRespMsg(msg: SwitchTimerRespMsg) {
+    val ev = new SwitchTimerRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStopwatch(msg.body.stopwatch)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleSetTimerRespMsg(msg: SetTimerRespMsg) {
+    val ev = new SetTimerRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setTime(msg.body.time)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleResetTimerRespMsg(msg: ResetTimerRespMsg) {
+    val ev = new ResetTimerRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleTimerEndedEvtMsg(msg: TimerEndedEvtMsg) {
+    val ev = new TimerEndedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleSetTrackRespMsg(msg: SetTrackRespMsg) {
+    val ev = new SetTimerTrackRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setTrack(msg.body.track)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }

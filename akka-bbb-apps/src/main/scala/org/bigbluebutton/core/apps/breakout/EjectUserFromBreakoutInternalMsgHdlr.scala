@@ -2,7 +2,8 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.core.api.EjectUserFromBreakoutInternalMsg
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.models.{ RegisteredUsers }
+import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, UserDAO }
+import org.bigbluebutton.core.models.RegisteredUsers
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.Sender
 
@@ -27,8 +28,15 @@ trait EjectUserFromBreakoutInternalMsgHdlr {
         msg.reasonCode,
         msg.ban
       )
+
+      //TODO inform reason
+      UserDAO.softDelete(registeredUser.id)
+
       // send a system message to force disconnection
       Sender.sendDisconnectClientSysMsg(msg.breakoutId, registeredUser.id, msg.ejectedBy, msg.reasonCode, outGW)
+
+      // Force reconnection with graphql to refresh permissions
+      Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, registeredUser.id, registeredUser.sessionToken, msg.reasonCode, outGW)
 
       //send users update to parent meeting
       BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)

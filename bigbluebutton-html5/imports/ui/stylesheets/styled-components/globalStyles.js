@@ -17,24 +17,25 @@ import {
 const GlobalStyle = createGlobalStyle`
   // BBBMenu
   @media ${smallOnly} {
-    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
+    .MuiPopover-root {
+      top: 0 !important;
+    }
+    .MuiPaper-root-mobile {
       top: 0 !important;
       left: 0 !important;
       bottom: 0 !important;
       right: 0 !important;
-      max-width: none;
+      max-width: none !important;
     }
   }
-
   .MuiList-padding {
     padding: 0 !important;
   }
-
   .MuiPaper-root {
     background-color: ${dropdownBg};
     border-radius: ${borderRadius};
     border: 0;
-    z-index: 9999;
+    z-index: 999;
     max-width: 22rem;
   }
 
@@ -134,7 +135,7 @@ const GlobalStyle = createGlobalStyle`
     right: auto;
     width: 0;
     height: 5px;
-    z-index: 9999;
+    z-index: 999;
     animation: track-progress linear 1;
     background-color: ${colorGrayLighter};
     border-radius: ${borderRadius};

@@ -5,18 +5,20 @@ async function generateSettingsData(page) {
 
   try {
     const settingsData = await page.evaluate(() => {
-      return Meteor.settings.public;
+      return window.meetingClientSettings.public;
     });
 
     settings = {
-      raiseHandButton: settingsData.app.raiseHandActionButton.enabled,
+      reactionsButton: settingsData.app.reactionsButton.enabled,
       sharedNotesEnabled: settingsData.notes.enabled,
+      directLeaveButton: settingsData.app.defaultSettings.application.directLeaveButton,
       // Audio
       autoJoinAudioModal: settingsData.app.autoJoin,
       listenOnlyMode: settingsData.app.listenOnlyMode,
       forceListenOnly: settingsData.app.forceListenOnly,
       skipEchoTest: settingsData.app.skipCheck,
       skipEchoTestOnJoin: settingsData.app.skipCheckOnJoin,
+      speechRecognitionEnabled: settingsData.app.audioCaptions.enabled,
       // Chat
       chatEnabled: settingsData.chat.enabled,
       publicChatOptionsEnabled: settingsData.chat.enableSaveAndCopyPublicChat,
@@ -27,7 +29,8 @@ async function generateSettingsData(page) {
       pollEnabled: settingsData.poll.enabled,
       pollChatMessage: settingsData.poll.chatMessage,
       // Presentation
-      presentationDownloadable: settingsData.presentation.allowDownloadable,
+      originalPresentationDownloadable: settingsData.presentation.allowDownloadOriginal,
+      presentationWithAnnotationsDownloadable: settingsData.presentation.allowDownloadWithAnnotations,
       externalVideoPlayer: settingsData.externalVideoPlayer.enabled,
       presentationHidden: settingsData.layout.hidePresentation,
       // Screensharing
@@ -39,6 +42,8 @@ async function generateSettingsData(page) {
       webcamSharingEnabled: settingsData.kurento.enableVideo,
       skipVideoPreview: settingsData.kurento.skipVideoPreview,
       skipVideoPreviewOnFirstJoin: settingsData.kurento.skipVideoPreviewOnFirstJoin,
+      // User
+      userStatusEnabled: settingsData.userStatus.enabled,
     }
 
     return settings;

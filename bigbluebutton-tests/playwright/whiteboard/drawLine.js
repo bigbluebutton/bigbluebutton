@@ -1,5 +1,4 @@
 const { expect } = require('@playwright/test');
-const Page = require('../core/page');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
@@ -11,20 +10,27 @@ class DrawLine extends MultiUsers {
 
   async test() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const wbBox = await modWbLocator.boundingBox();
+    const screenshotOptions = {
+      maxDiffPixels: 1000,
+    };
+
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbLineShape);
 
-    const wb = await this.modPage.page.$(e.whiteboard);
-    const wbBox = await wb.boundingBox();
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator1-line.png', { maxDiffPixels: 2000 });
+    await this.modPage.setHeightWidthViewPortSize();
+    await expect(modWbLocator).toHaveScreenshot('moderator-line.png', screenshotOptions);
 
-    await this.modPage2.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await expect(this.modPage2.page).toHaveScreenshot('moderator2-line.png', { maxDiffPixels: 2000 });
+    await this.userPage.setHeightWidthViewPortSize();
+    const userWbLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(userWbLocator).toHaveScreenshot('viewer-line.png', screenshotOptions);
   }
 }
 

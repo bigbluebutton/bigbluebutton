@@ -3,7 +3,9 @@ import Icon from '/imports/ui/components/common/icon/component';
 import { colorDanger, colorSuccess, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Voice = styled(Icon)`
-  height: 80%;
+  height: 1.1rem;
+  width: 1.1rem;
+  margin-left: 0.5rem;
   color: ${colorWhite};
   border-radius: 50%;
 
@@ -15,9 +17,11 @@ const Voice = styled(Icon)`
 `;
 
 const Muted = styled(Icon)`
-  height: 80%;
+  height: 1.1rem;
+  width: 1.1rem;
   color: ${colorWhite};
   border-radius: 50%;
+  margin-left: 0.5rem;
 
   &::before {
     font-size: 80%;

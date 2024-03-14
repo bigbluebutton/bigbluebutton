@@ -10,22 +10,23 @@ class Draw extends Page {
 
   async test() {
     await this.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.waitAndClick(e.wbShapesButton);
     await this.waitAndClick(e.wbRectangleShape);
 
-    const shapes1 = await this.getOuterHtmlDrawn();
+    const modWbLocator = this.getLocator(e.whiteboard);
+    const wbBox = await modWbLocator.boundingBox();
+    const screenshotOptions = {
+      maxDiffPixels: 1000,
+    };
 
-    const wb = await this.page.$(e.whiteboard);
-    const wbBox = await wb.boundingBox();
     await this.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.page.mouse.down();
     await this.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.page.mouse.up();
 
     await this.waitForSelector(e.wbDrawnRectangle);
-    const shapes2 = await this.getOuterHtmlDrawn();
-
-    await expect(shapes1).not.toEqual(shapes2);
+    
+    await this.setHeightWidthViewPortSize();
+    await expect(modWbLocator).toHaveScreenshot('moderator-rect-ci.png', screenshotOptions);
   }
 
   async getOuterHtmlDrawn() {

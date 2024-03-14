@@ -21,7 +21,7 @@ case "$1" in
       HOST=$IP
     fi
 
-    yq w -i $TARGET playback_host "$HOST"
+    yq e -i ".playback_host = \"$HOST\"" $TARGET
 
     chmod +r $TARGET
 

@@ -1,26 +1,27 @@
 const { expect } = require('@playwright/test');
-const Page = require('../core/page');
 const { openAboutModal, openSettings, getLocaleValues } = require('./util');
 const e = require('../core/elements');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { MultiUsers } = require('../user/multiusers');
 
 
-class Options extends Page {
-  constructor(browser, page) {
-    super(browser, page);
+class Options extends MultiUsers {
+  constructor(browser, context) {
+    super(browser, context);
   }
 
   async openedAboutModal() {
-    await openAboutModal(this);
-    await this.hasElement(e.closeModal);
+    await openAboutModal(this.modPage);
+    await this.modPage.hasElement(e.closeModal);
+    await this.modPage.waitAndClick(e.closeModal);
   }
 
   async openHelp(context) {
-    await this.waitAndClick(e.optionsButton);
-
-    const newPage = await this.handleNewTab(e.helpButton, context);
-
-    await expect(newPage).toHaveTitle(/BigBlueButton Tutorials/);
-    await this.hasElement(e.presentationTitle);
+    await this.modPage.waitAndClick(e.optionsButton);
+    const newPage = await this.modPage.handleNewTab(e.helpButton, context);
+    await expect(newPage).toHaveTitle(/Tutorials/);
+    await newPage.close();
+    await this.modPage.hasElement(e.whiteboard);
   }
 
   async localesTest() {
@@ -35,7 +36,7 @@ class Options extends Page {
       [e.joinVideo]: 'app.video.joinVideo',
       [e.startScreenSharing]: 'app.actionsBar.actionsDropdown.desktopShareLabel',
       [e.minimizePresentation]: 'app.actionsBar.actionsDropdown.minimizePresentationLabel',
-      [e.raiseHandBtn]: 'app.actionsBar.emojiMenu.raiseHandLabel',
+      [e.reactionsButton]: 'app.actionsBar.reactions.reactionsButtonLabel',
       [e.connectionStatusBtn]: 'app.connection-status.label',
       [e.optionsButton]: 'app.navBar.settingsDropdown.optionsLabel',
     }
@@ -44,17 +45,62 @@ class Options extends Page {
       console.log(`Testing ${locale} locale`);
       const currentValuesBySelector = await getLocaleValues(selectedKeysBySelector, locale);
 
-      await openSettings(this);
-      await this.waitForSelector(e.languageSelector);
-      const langDropdown = await this.page.$(e.languageSelector);
+      await openSettings(this.modPage);
+      await this.modPage.waitForSelector(e.languageSelector);
+      const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
-      await this.waitAndClick(e.modalConfirmButton);
-      await this.waitForSelector(e.toastContainer);
+      await this.modPage.waitAndClick(e.modalConfirmButton);
+      await this.modPage.waitForSelector(e.toastContainer);
 
       for (const selector in currentValuesBySelector) {
-        await this.hasText(selector, currentValuesBySelector[selector]);
+        await this.modPage.hasText(selector, currentValuesBySelector[selector]);
       }
     }
+  }
+
+  async darkMode() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.closePopup);
+    await openSettings(this.modPage);
+
+    await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+
+    const modPageLocator = this.modPage.getLocator('body');
+    await this.modPage.setHeightWidthViewPortSize();
+    const screenshotOptions = {
+      maxDiffPixels: 1000,
+    };
+
+    await this.modPage.closeAllToastNotifications();
+    await expect(modPageLocator).toHaveScreenshot('moderator-page-dark-mode.png', screenshotOptions);
+    
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+
+    await this.modPage.waitAndClick(e.chatOptions);
+    await this.modPage.waitAndClick(e.restoreWelcomeMessages);
+  }
+
+  async fontSizeTest() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.closePopup);
+    // Increasing font size
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClick(e.increaseFontSize);
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+
+    const modPageLocator = this.modPage.getLocator('body');
+
+    await this.modPage.setHeightWidthViewPortSize();
+    const screenshotOptions = {
+      maxDiffPixels: 1000,
+    };
+
+    await this.modPage.closeAllToastNotifications();
+
+    await expect(modPageLocator).toHaveScreenshot('moderator-page-font-size.png', screenshotOptions);
   }
 }
 

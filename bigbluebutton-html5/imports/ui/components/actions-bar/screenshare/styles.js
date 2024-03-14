@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   jumboPaddingY,
@@ -9,7 +9,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 
-const ScreenShareModal = styled(Modal)`
+const ScreenShareModal = styled(ModalSimple)`
   padding: ${jumboPaddingY};
   min-height: ${minModalHeight};
   text-align: center;

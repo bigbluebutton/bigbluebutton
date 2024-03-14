@@ -1,0 +1,24 @@
+table:
+  name: v_screenshare
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: screenshare
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - hasAudio
+        - screenshareConf
+        - screenshareId
+        - startedAt
+        - stoppedAt
+        - stream
+        - vidHeight
+        - vidWidth
+        - voiceConf
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

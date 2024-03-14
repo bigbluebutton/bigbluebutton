@@ -98,7 +98,7 @@ const FullscreenButtonComponent = ({
         label={formattedLabel(isFullscreen)}
         hideLabel
         isStyled={fullScreenStyle}
-        data-test="presentationFullscreenButton"
+        data-test="webcamFullscreenButton"
       />
     </Styled.FullscreenButtonWrapper>
   );

@@ -1,13 +1,13 @@
 import styled from 'styled-components';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
   colorOffWhite,
-  colorGray,
   colorGrayDark,
-  colorGrayLabel,
   colorGrayLightest,
   colorPrimary,
   colorWhite,
+  btnPrimaryActiveBg,
+  colorDanger,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -30,10 +30,13 @@ import {
   smallOnly,
 } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
+  ScrollboxVertical,
+} from '/imports/ui/stylesheets/styled-components/scrollable';
+import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 
-const Item = styled.div`
+const Item = styled.li`
   display: flex;
   width: 100%;
   height: 4rem;
@@ -66,6 +69,20 @@ const FullName = styled(Name)`
   width: 100%;
 `;
 
+const ClientNotRespondingText = styled.div`
+  display: flex;
+  width: 27.5%;
+  height: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  color: ${colorDanger};
+
+  @media ${hasPhoneDimentions} {
+    width: 100%;
+  }
+`;
+
+
 const Text = styled.div`
   padding-left: .5rem;
   white-space: nowrap;
@@ -79,14 +96,6 @@ const Text = styled.div`
   [dir="rtl"] & {
     padding: 0;
     padding-right: .5rem;
-  }
-`;
-
-const ToggleLabel = styled.span`
-  margin-right: ${smPaddingX};
-
-  [dir="rtl"] & {
-    margin: 0 0 0 ${smPaddingX};
   }
 `;
 
@@ -116,70 +125,23 @@ const Time = styled.div`
   justify-content: flex-end;
 `;
 
-const DataSaving = styled.div`
-  background-color: ${colorOffWhite};
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  width: 100%;
-`;
-
-const Description = styled.div`
-  text-align: center;
-  color: ${colorGray};
-  margin-bottom: ${smPaddingY};
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-flow: row;
-  flex-grow: 1;
-  justify-content: space-between;
-  margin-bottom: 0.7rem;
-`;
-
-const Col = styled.div`
-  display: flex;
-  flex-grow: 1;
-  flex-basis: 0;
-
-  &:last-child {
-    padding-right: 0;
-    padding-left: 1rem;
-
-    [dir="rtl"] & {
-      padding-right: 0.1rem;
-      padding-left: 0;
-    }
-  }
-`;
-
-const FormElement = styled.div`
-  position: relative;
-  display: flex;
-  flex-flow: column;
-  flex-grow: 1;
-`;
-
-const FormElementRight = styled(FormElement)`
-  display: flex;
-  justify-content: flex-end;
-  flex-flow: row;
-`;
-
-const Label = styled.span`
-  color: ${colorGrayLabel};
-  font-size: ${fontSizeSmall};
-  margin-bottom: ${lgPaddingY};
-`;
-
-const NetworkDataContainer = styled.div`
+const NetworkDataContainer = styled(ScrollboxVertical)`
   width: 100%;
   height: 100%;
   display: flex;
+  flex-wrap: nowrap;
+  overflow: auto;
+  scroll-snap-type: x mandatory;
   padding-bottom: 1.25rem;
-  
+
+  &:focus {
+    outline: none;
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,.5);
+    }
+  }
+
   @media ${mediumDown} {
     justify-content: space-between;
   }
@@ -206,7 +168,7 @@ const CopyContainer = styled.div`
   padding: ${jumboPaddingY} 0 0;
 `;
 
-const ConnectionStatusModal = styled(Modal)`
+const ConnectionStatusModal = styled(ModalSimple)`
   padding: 1rem;
   height: 28rem;
 
@@ -270,6 +232,19 @@ const Copy = styled.span`
   `}
 `;
 
+const HelperWrapper = styled.div`
+  min-width: 12.5rem;
+  height: 100%;
+
+  @media ${mediumDown} {
+    flex: none;
+    width: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    justify-content: center;
+  }
+`;
+
 const Helper = styled.div`
   width: 12.5rem;
   height: 100%;
@@ -280,12 +255,6 @@ const Helper = styled.div`
   justify-content: center;
   align-items: center;
   padding: .5rem;
-
-  @media ${mediumDown} {
-    ${({ page }) => (page === '1'
-    ? 'display: flex;'
-    : 'display: none;')}
-  }
 `;
 
 const NetworkDataContent = styled.div`
@@ -295,9 +264,9 @@ const NetworkDataContent = styled.div`
   flex-grow: 1;
 
   @media ${mediumDown} {
-    ${({ page }) => (page === '2'
-    ? 'display: flex;'
-    : 'display: none;')}
+    flex: none;
+    width: 100%;
+    scroll-snap-align: start;
   }
 `;
 
@@ -308,100 +277,6 @@ const DataColumn = styled.div`
 
   @media ${hasPhoneWidth} {
     flex-grow: 1;
-  }
-`;
-
-const Main = styled.div`
-  height: 19.5rem;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Body = styled.div`
-  padding: ${jumboPaddingY} 0;
-  margin: 0;
-  flex-grow: 1;
-  overflow: auto;
-  position: relative;
-`;
-
-const Prev = styled.div`
-  display: none;
-  margin: 0 .5rem 0 .25rem;
-
-  @media ${mediumDown} {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  @media ${hasPhoneWidth} {
-    margin: 0;
-  }
-`;
-
-const Next = styled(Prev)`
-  margin: 0 .25rem 0 .5rem;
-
-  @media ${hasPhoneWidth} {
-    margin: 0;
-  }
-`;
-
-const Button = styled.button`
-  flex: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  color: inherit;
-  border-radius: 50%;
-  cursor: pointer;
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: .5;
-  }
-
-  &:hover {
-    opacity: .75;
-  }
-
-  &:hover,
-  &:focus {
-    outline: 2px solid ${colorPrimary};
-  }
-
-  @media ${hasPhoneWidth} {
-    position: absolute;
-    bottom: 0;
-    padding: .25rem;
-  }
-`;
-
-const ButtonLeft = styled(Button)`
-  left: calc(50% - 2rem);
-
-  [dir="rtl"] & {
-    left: calc(50%);
-  }
-`;
-
-const ButtonRight = styled(Button)`
-  right: calc(50% - 2rem);
-
-  [dir="rtl"] & {
-    right: calc(50%);
-  }
-`;
-
-const Chevron = styled.svg`
-  display: flex;
-  width: 1rem;
-  height: 1rem;
-
-  [dir="rtl"] & {
-    transform: rotate(180deg);
   }
 `;
 
@@ -445,6 +320,10 @@ const ConnectionTabPanel = styled(TabPanel)`
   &.is-selected {
     display: flex;
     flex-flow: column;
+  }
+
+  & ul {
+    padding: 0;
   }
 
   @media ${smallOnly} {
@@ -500,7 +379,7 @@ const ConnectionTabSelector = styled(Tab)`
     color: ${colorPrimary};
 
     span {
-      border-bottom: 2px solid ${colorPrimary};
+      border-bottom: 2px solid ${btnPrimaryActiveBg};
     }
   }
 `;
@@ -510,22 +389,15 @@ export default {
   Left,
   Name,
   Text,
-  ToggleLabel,
   Avatar,
   Icon,
   Right,
   Time,
-  DataSaving,
-  Description,
-  Row,
-  Col,
-  FormElement,
-  Label,
-  FormElementRight,
   NetworkDataContainer,
   NetworkData,
   CopyContainer,
   ConnectionStatusModal,
+  ClientNotRespondingText,
   Container,
   Header,
   Title,
@@ -535,15 +407,9 @@ export default {
   Copy,
   Helper,
   NetworkDataContent,
-  Main,
-  Body,
   FullName,
   DataColumn,
-  Prev,
-  Next,
-  ButtonLeft,
-  ButtonRight,
-  Chevron,
+  HelperWrapper,
   ConnectionTabs,
   ConnectionTabList,
   ConnectionTabSelector,

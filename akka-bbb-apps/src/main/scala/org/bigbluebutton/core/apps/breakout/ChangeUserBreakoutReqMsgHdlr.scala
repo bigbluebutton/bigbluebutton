@@ -2,13 +2,14 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.EjectUserFromBreakoutInternalMsg
-import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers.{ getRedirectUrls }
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers.getRedirectUrls
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
+import org.bigbluebutton.core.db.BreakoutRoomUserDAO
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ EjectReasonCode }
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core.models.EjectReasonCode
+import org.bigbluebutton.core.running.{MeetingActor, OutMsgRouter}
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -28,7 +29,6 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
       for {
         breakoutModel <- state.breakout
       } yield {
-
         //Eject user from room From
         for {
           roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
@@ -55,6 +55,10 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
           msg.body.toBreakoutId,
           redirectToHtml5JoinURL,
         )
+
+        //Update database
+        BreakoutRoomUserDAO.updateRoomChanged(msg.body.userId, msg.body.fromBreakoutId, msg.body.toBreakoutId, redirectToHtml5JoinURL)
+
 
         //Send notification to moved User
         for {

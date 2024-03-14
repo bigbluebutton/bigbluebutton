@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 
-export default function setDictation(meetingId, locale, dictating) {
+export default async function setDictation(meetingId, locale, dictating) {
   try {
     check(meetingId, String);
     check(locale, String);
@@ -20,7 +20,7 @@ export default function setDictation(meetingId, locale, dictating) {
       },
     };
 
-    const numberAffected = Captions.upsert(selector, modifier);
+    const { numberAffected } = Captions.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Set captions=${locale} dictating=${dictating} meeting=${meetingId}`);

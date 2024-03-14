@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
-export default function userResponded({ body }) {
+export default async function userResponded({ body }) {
   const { pollId, userId, answerIds } = body;
 
   check(pollId, String);
@@ -23,7 +23,7 @@ export default function userResponded({ body }) {
   };
 
   try {
-    const numberAffected = Polls.update(selector, modifier);
+    const numberAffected = await Polls.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Updating Poll response (userId: ${userId}, response: ${JSON.stringify(answerIds)}, pollId: ${pollId})`);

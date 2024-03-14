@@ -8,7 +8,7 @@ echo '<!DOCTYPE hibernate-configuration PUBLIC
         <session-factory>
           <!-- JDBC Database connection settings -->
 	  <property name="connection.driver_class">org.postgresql.Driver</property>
-          <property name="connection.url">jdbc:postgresql://localhost:'"$HOST_PORT"'/bbb</property>
+          <property name="connection.url">jdbc:postgresql://localhost:'"$HOST_PORT"'/'"$POSTGRES_USER"'</property>
           <property name="connection.username">'"$POSTGRES_USER"'</property>
           <property name="connection.password">'"$POSTGRES_PASSWORD"'</property>
           <!-- JDBC connection pool settings -->

@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import setEffectiveConnectionType from '../modifiers/setUserEffectiveConnectionType';
 
-export default function setUserEffectiveConnectionType(effectiveConnectionType) {
+export default async function setUserEffectiveConnectionType(effectiveConnectionType) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -22,7 +22,7 @@ export default function setUserEffectiveConnectionType(effectiveConnectionType) 
       effectiveConnectionType,
     };
 
-    setEffectiveConnectionType(meetingId, requesterUserId, effectiveConnectionType);
+    await setEffectiveConnectionType(meetingId, requesterUserId, effectiveConnectionType);
 
     Logger.verbose('Updated user effective connection', { requesterUserId, effectiveConnectionType });
 

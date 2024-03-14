@@ -1,0 +1,42 @@
+table:
+  name: v_pres_page_curr
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: pres_page_curr
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - content
+        - downloadFileUri
+        - downloadable
+        - downloadFileExtension
+        - height
+        - heightRatio
+        - isCurrentPage
+        - isDefaultPresentation
+        - num
+        - totalPages
+        - pageId
+        - presentationFilenameConverted
+        - presentationId
+        - presentationName
+        - removable
+        - scaledHeight
+        - scaledViewBoxHeight
+        - scaledViewBoxWidth
+        - scaledWidth
+        - slideRevealed
+        - urlsJson
+        - viewBoxHeight
+        - viewBoxWidth
+        - width
+        - widthRatio
+        - xOffset
+        - yOffset
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

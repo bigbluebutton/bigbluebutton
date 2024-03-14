@@ -2,27 +2,28 @@ package org.bigbluebutton.core.running
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
+import org.bigbluebutton.core.api.{BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg}
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
+import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, MeetingDAO, MeetingRecordingDAO, UserBreakoutRoomDAO}
+import org.bigbluebutton.core.domain.{MeetingEndReason, MeetingState2x}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
+import org.bigbluebutton.core2.message.senders.{MsgBuilder, UserJoinedMeetingEvtMsgBuilder}
 import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
 
   def trackUserJoin(
-      outGW:       OutMsgRouter,
       liveMeeting: LiveMeeting,
-      regUser:     RegisteredUser
+      regUser:     RegisteredUser,
   ): Unit = {
     if (!regUser.joined) {
-      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser)
+      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
     }
+
   }
 
   def sendUserLeftFlagUpdatedEvtMsg(
@@ -45,7 +46,7 @@ trait HandlerHelpers extends SystemConfiguration {
     val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
-      trackUserJoin(outGW, liveMeeting, regUser)
+      trackUserJoin(liveMeeting, regUser)
 
       // Flag that an authed user had joined the meeting in case
       // we need to end meeting when all authed users have left.
@@ -62,10 +63,15 @@ trait HandlerHelpers extends SystemConfiguration {
         authed = regUser.authed,
         guestStatus = regUser.guestStatus,
         emoji = "none",
+        reactionEmoji = "none",
+        raiseHand = false,
+        away = false,
         pin = false,
+        mobile = false,
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
+        color = regUser.color,
         clientType = clientType,
         pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)
@@ -116,6 +122,7 @@ trait HandlerHelpers extends SystemConfiguration {
       liveMeeting.props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 1) {
 
       MeetingStatus2x.recordingStarted(liveMeeting.status)
+      MeetingRecordingDAO.insertRecording(liveMeeting.props.meetingProp.intId, "")
 
       val tracker = state.recordingTracker.startTimer(TimeUtil.timeNowInMs())
 
@@ -145,6 +152,7 @@ trait HandlerHelpers extends SystemConfiguration {
       liveMeeting.props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 0) {
 
       MeetingStatus2x.recordingStopped(liveMeeting.status)
+      MeetingRecordingDAO.updateStopped(liveMeeting.props.meetingProp.intId, "")
 
       val tracker = state.recordingTracker.pauseTimer(TimeUtil.timeNowInMs())
 
@@ -198,6 +206,8 @@ trait HandlerHelpers extends SystemConfiguration {
 
     val endedEvnt = buildMeetingEndedEvtMsg(liveMeeting.props.meetingProp.intId)
     outGW.send(endedEvnt)
+
+    MeetingDAO.setMeetingEnded(liveMeeting.props.meetingProp.intId, reason, userId)
   }
 
   def destroyMeeting(eventBus: InternalEventBus, meetingId: String): Unit = {
@@ -227,6 +237,7 @@ trait HandlerHelpers extends SystemConfiguration {
     } yield {
       model.rooms.values.foreach { room =>
         eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.meetingProp.intId, room.id, reason)))
+        UserBreakoutRoomDAO.updateLastBreakoutRoom(Vector(), room)
       }
     }
 

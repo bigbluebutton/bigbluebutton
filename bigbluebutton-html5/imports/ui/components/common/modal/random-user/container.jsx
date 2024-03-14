@@ -3,13 +3,15 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { makeCall } from '/imports/ui/services/api';
 import RandomUserSelect from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import logger from '/imports/startup/client/logger';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { useMutation } from '@apollo/client';
+import { PICK_RANDOM_VIEWER } from '/imports/ui/core/graphql/mutations/userMutations';
 
-const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
+const SELECT_RANDOM_USER_ENABLED = window.meetingClientSettings.public.selectRandomUser.enabled;
 
 //  A value that is used by component to remember
 //  whether it should be open or closed after a render
@@ -24,12 +26,21 @@ const RandomUserSelectContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const { randomlySelectedUser } = props;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+
+  const [pickRandomViewer] = useMutation(PICK_RANDOM_VIEWER);
+
+  const randomUserReq = () => (SELECT_RANDOM_USER_ENABLED ? pickRandomViewer() : null);
+
+  if (!users || !currentUserData) return null;
 
   let mappedRandomlySelectedUsers = [];
 
   const currentUser = {
     userId: Auth.userID,
-    presenter: users[Auth.meetingID][Auth.userID].presenter
+    presenter: currentUserData?.presenter,
   };
 
   try {
@@ -56,12 +67,14 @@ const RandomUserSelectContainer = (props) => {
   if (randomlySelectedUser) {
     mappedRandomlySelectedUsers = randomlySelectedUser.map((ui) => {
       const selectedUser = users[Auth.meetingID][ui[0]];
-      return [{
-        userId: selectedUser.userId,
-        avatar: selectedUser.avatar,
-        color: selectedUser.color,
-        name: selectedUser.name,
-      }, ui[1]];
+      if (selectedUser){
+        return [{
+          userId: selectedUser.userId,
+          avatar: selectedUser.avatar,
+          color: selectedUser.color,
+          name: selectedUser.name,
+        }, ui[1]];
+      }
     });
   }
 
@@ -71,10 +84,11 @@ const RandomUserSelectContainer = (props) => {
       mappedRandomlySelectedUsers={mappedRandomlySelectedUsers}
       currentUser={currentUser}
       keepModalOpen={keepModalOpen}
+      randomUserReq={randomUserReq}
     />
   );
 };
-export default withModalMounter(withTracker(({ mountModal }) => {
+export default withTracker(() => {
   const viewerPool = Users.find({
     meetingId: Auth.meetingID,
     presenter: { $ne: true },
@@ -91,16 +105,12 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     },
   });
 
-  const randomUserReq = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('setRandomUser') : null);
-
   const clearRandomlySelectedUser = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('clearRandomlySelectedUser') : null);
 
   return ({
-    closeModal: () => mountModal(null),
     toggleKeepModalOpen,
     numAvailableViewers: viewerPool.length,
-    randomUserReq,
     clearRandomlySelectedUser,
     randomlySelectedUser: meeting.randomlySelectedUser,
   });
-})(RandomUserSelectContainer));
+})(RandomUserSelectContainer);

@@ -6,9 +6,10 @@ import {
   colorDanger,
   colorGrayDark,
   colorBackground,
+  colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
-import { phoneLandscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { phoneLandscape, smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 
 const Navbar = styled.header`
@@ -39,6 +40,9 @@ const ArrowLeft = styled(Icon)`
   font-size: 40%;
   color: ${colorWhite};
   left: .25rem;
+  @media ${smallOnly} {
+    display: none;
+  }
 `;
 
 const ArrowRight = styled(Icon)`
@@ -46,6 +50,9 @@ const ArrowRight = styled(Icon)`
   font-size: 40%;
   color: ${colorWhite};
   right: .0125rem;
+  @media ${smallOnly} {
+    display: none;
+  }
 `;
 
 const Center = styled.div`
@@ -71,6 +78,28 @@ const PresentationTitle = styled.h1`
   > [class^="icon-bbb-"] {
     font-size: 75%;
   }
+`;
+
+const PluginInfoComponent = styled.h1`
+  font-weight: 400;
+  color: ${colorWhite};
+  font-size: ${fontSizeBase};
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 30vw;
+`;
+
+const PluginComponentWrapper = styled.div`
+  margin: 0 .5rem;
+`;
+
+const PluginSeparatorWrapper = styled.div`
+  color: ${colorGray};
+  font-size: ${fontSizeBase};
+  margin: 0 1rem;
 `;
 
 const Right = styled.div`
@@ -122,4 +151,7 @@ export default {
   Right,
   Bottom,
   NavbarToggleButton,
+  PluginInfoComponent,
+  PluginComponentWrapper,
+  PluginSeparatorWrapper,
 };

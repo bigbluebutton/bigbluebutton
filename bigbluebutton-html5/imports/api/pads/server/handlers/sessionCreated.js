@@ -1,6 +1,6 @@
 import createSession from '/imports/api/pads/server/modifiers/createSession';
 
-export default function sessionCreated({ header, body }) {
+export default async function sessionCreated({ header, body }) {
   const {
     meetingId,
     userId,
@@ -11,5 +11,5 @@ export default function sessionCreated({ header, body }) {
     sessionId,
   } = body;
 
-  createSession(meetingId, userId, externalId, sessionId);
+  await createSession(meetingId, userId, externalId, sessionId);
 }

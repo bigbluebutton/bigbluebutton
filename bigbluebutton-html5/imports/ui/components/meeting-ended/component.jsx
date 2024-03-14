@@ -100,7 +100,7 @@ const intlMessage = defineMessages({
   },
   user_inactivity_eject_reason: {
     id: 'app.meeting.logout.userInactivityEjectReason',
-    description: 'message for whom was kicked by inactivity',
+    description: 'message to whom was kicked by inactivity',
   },
   open_activity_report_btn: {
     id: 'app.learning-dashboard.clickHereToOpen',
@@ -120,7 +120,7 @@ const propTypes = {
 const defaultProps = {
   ejectedReason: null,
   endedReason: null,
-  callback: async () => {},
+  callback: () => {},
 };
 
 class MeetingEnded extends PureComponent {
@@ -142,7 +142,7 @@ class MeetingEnded extends PureComponent {
       this.localUserRole = user.role;
     }
 
-    const meeting = Meetings.findOne({ id: user.meetingID });
+    const meeting = Meetings.findOne({ id: user?.meetingID });
     if (meeting) {
       this.endWhenNoModeratorMinutes = meeting.durationProps.endWhenNoModeratorDelayInMinutes;
 
@@ -164,9 +164,8 @@ class MeetingEnded extends PureComponent {
     AudioManager.exitAudio();
     Storage.removeItem('getEchoTest');
     Storage.removeItem('isFirstJoin');
-    this.props.callback().finally(() => {
-      Meteor.disconnect();
-    });
+    const { callback, endedReason } = this.props;
+    callback(endedReason, () => Meteor.disconnect());
   }
 
   setSelectedStar(starNumber) {
@@ -177,7 +176,7 @@ class MeetingEnded extends PureComponent {
 
   shouldShowFeedback() {
     const { dispatched } = this.state;
-    return getFromUserSettings('bbb_ask_for_feedback_on_logout', Meteor.settings.public.app.askForFeedbackOnLogout) && !dispatched;
+    return getFromUserSettings('bbb_ask_for_feedback_on_logout', window.meetingClientSettings.public.app.askForFeedbackOnLogout) && !dispatched;
   }
 
   confirmRedirect() {

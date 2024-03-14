@@ -1,0 +1,5 @@
+after-install.sh
+bbb-webrtc-recorder.service
+before-remove.sh
+build.sh
+opts-jammy.sh

@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';
+import { useMutation } from '@apollo/client';
+import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 
 const intlMessages = defineMessages({
   title: {
@@ -64,9 +66,23 @@ const Select = ({
   locale,
   voices,
 }) => {
+  const useLocaleHook = SpeechService.useFixedLocale();
+  const [setSpeechLocale] = useMutation(SET_SPEECH_LOCALE);
+
+  const setUserSpeechLocale = (speechLocale, provider) => {
+    setSpeechLocale({
+      variables: {
+        locale: speechLocale,
+        provider,
+      },
+    });
+  };
+
+  if (!enabled || useLocaleHook) return null;
+
   if (voices.length === 0) {
     return (
-      <div
+      <div  data-test="speechRecognitionUnsupported"
         style={{
           fontSize: '.75rem',
           padding: '1rem 0',
@@ -77,11 +93,9 @@ const Select = ({
     );
   }
 
-  if (!enabled || SpeechService.useFixedLocale()) return null;
-
   const onChange = (e) => {
     const { value } = e.target;
-    SpeechService.setSpeechLocale(value);
+    SpeechService.setSpeechLocale(value, setUserSpeechLocale);
   };
 
   return (

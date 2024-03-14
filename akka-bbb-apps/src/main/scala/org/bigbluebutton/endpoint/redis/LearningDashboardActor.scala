@@ -1,6 +1,6 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
@@ -20,6 +20,7 @@ case class Meeting(
   intId: String,
   extId: String,
   name:  String,
+  downloadSessionDataEnabled: Boolean,
   users: Map[String, User] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
@@ -39,6 +40,7 @@ case class User(
   answers:            Map[String,Vector[String]] = Map(),
   talk:               Talk = Talk(),
   emojis:             Vector[Emoji] = Vector(),
+  reactions:          Vector[Emoji] = Vector(),
   webcams:            Vector[Webcam] = Vector(),
   totalOfMessages:    Long = 0,
 )
@@ -85,6 +87,7 @@ case class PresentationSlide(
   presentationId: String,
   pageNum: Long,
   setOn: Long = System.currentTimeMillis(),
+  presentationName: String,
 )
 
 
@@ -139,6 +142,9 @@ class LearningDashboardActor(
       case m: UserLeaveReqMsg                       => handleUserLeaveReqMsg(m)
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserAwayChangedEvtMsg                 => handleUserAwayChangedEvtMsg(m)
+      case m: UserRaiseHandChangedEvtMsg            => handleUserRaiseHandChangedEvtMsg(m)
+      case m: UserReactionEmojiChangedEvtMsg        => handleUserReactionEmojiChangedEvtMsg(m)
       case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
@@ -189,7 +195,7 @@ class LearningDashboardActor(
         for {
           page <- msg.body.presentation.pages.find(p => p.current == true)
         } yield {
-          this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num)
+          this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num, msg.body.presentation.name)
         }
       }
     }
@@ -202,7 +208,7 @@ class LearningDashboardActor(
       presentation <- presentations.get(msg.body.presentationId)
       page <- presentation.pages.find(p => p.id == msg.body.pageId)
     } yield {
-      this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num)
+      this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num, presentation.name)
     }
   }
 
@@ -211,7 +217,7 @@ class LearningDashboardActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
       if(meeting.presentationSlides.last.presentationId == msg.body.presentationId) {
-        this.setPresentationSlide(meeting.intId, "",0)
+        this.setPresentationSlide(meeting.intId, "",0, "")
       }
     }
   }
@@ -223,7 +229,7 @@ class LearningDashboardActor(
       val presPreviousSlides: Vector[PresentationSlide] = meeting.presentationSlides.filter(p => p.presentationId == msg.body.presentationId);
       if(presPreviousSlides.length > 0) {
         //Set last page showed for this presentation
-        this.setPresentationSlide(meeting.intId, msg.body.presentationId,presPreviousSlides.last.pageNum)
+        this.setPresentationSlide(meeting.intId, msg.body.presentationId,presPreviousSlides.last.pageNum, presPreviousSlides.last.presentationName)
       } else {
         //If none page was showed yet, set the current page (page 1 by default)
         for {
@@ -231,20 +237,20 @@ class LearningDashboardActor(
           presentation <- presentations.get(msg.body.presentationId)
           page <- presentation.pages.find(s => s.current == true)
         } yield  {
-          this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num)
+          this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num, presentation.name)
         }
       }
     }
   }
 
-  private def setPresentationSlide(meetingId: String, presentationId: String, pageNum: Long) {
+  private def setPresentationSlide(meetingId: String, presentationId: String, pageNum: Long, presentationName: String) {
     for {
       meeting <- meetings.values.find(m => m.intId == meetingId)
     } yield {
       if (meeting.presentationSlides.length == 0 ||
         meeting.presentationSlides.last.presentationId != presentationId ||
         meeting.presentationSlides.last.pageNum != pageNum) {
-        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
+        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum, presentationName = presentationName))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
@@ -349,11 +355,76 @@ class LearningDashboardActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
-      if (msg.body.emoji != "none") {
+      if (msg.body.emoji != "none" && msg.body.emoji != "raiseHand" && msg.body.emoji != "away") {
         val updatedUser = user.copy(emojis = user.emojis :+ Emoji(msg.body.emoji))
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
+    }
+  }
+
+  private def handleUserRaiseHandChangedEvtMsg(msg: UserRaiseHandChangedEvtMsg): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.body.userId)
+    } yield {
+      if (msg.body.raiseHand) {
+        val updatedUser = user.copy(emojis = user.emojis :+ Emoji("raiseHand"))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
+    }
+  }
+
+  private def handleUserAwayChangedEvtMsg(msg: UserAwayChangedEvtMsg): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.body.userId)
+    } yield {
+      if (msg.body.away) {
+        val updatedUser = user.copy(emojis = user.emojis :+ Emoji("away"))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
+    }
+  }
+
+  private def handleUserReactionEmojiChangedEvtMsg(msg: UserReactionEmojiChangedEvtMsg): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.body.userId)
+    } yield {
+      if (msg.body.reactionEmoji != "none") {
+        //Ignore multiple Reactions to prevent flooding
+        val hasSameReactionInLast30Seconds = user.reactions.filter(r => {
+          System.currentTimeMillis() - r.sentOn < (30 * 1000) && r.name == msg.body.reactionEmoji
+        }).length > 0
+
+        if(!hasSameReactionInLast30Seconds) {
+          val updatedUser = user.copy(reactions = user.reactions :+ Emoji(msg.body.reactionEmoji))
+          val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+          meetings += (updatedMeeting.intId -> updatedMeeting)
+
+          //Convert Reactions to legacy Emoji (while LearningDashboard doesn't support Reactions)
+          val emoji = msg.body.reactionEmoji.codePointAt(0) match {
+            case 128515 => "happy"
+            case 128528 => "neutral"
+            case 128577 => "sad"
+            case 128077 => "thumbsUp"
+            case 128078 => "thumbsDown"
+            case 128079 => "applause"
+            case _ => "none"
+          }
+
+          if (emoji != "none") {
+            val updatedUserWithEmoji = updatedUser.copy(emojis = user.emojis :+ Emoji(emoji))
+            val updatedMeetingWithEmoji = meeting.copy(users = meeting.users + (updatedUserWithEmoji.userKey -> updatedUserWithEmoji))
+            meetings += (updatedMeeting.intId -> updatedMeetingWithEmoji)
+          }
+        }
       }
     }
   }
@@ -515,6 +586,7 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
+        downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
       )
 
       meetings += (newMeeting.intId -> newMeeting)

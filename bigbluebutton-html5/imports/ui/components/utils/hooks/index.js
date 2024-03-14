@@ -12,7 +12,7 @@ export const usePreviousValue = (value) => {
     ref.current = value;
   });
   return ref.current;
-}
+};
 
 export default {
   usePreviousValue,

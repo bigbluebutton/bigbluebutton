@@ -23,6 +23,7 @@ class ScreenshareBroker extends BaseBroker {
     this.ws = null;
     this.webRtcPeer = null;
     this.hasAudio = false;
+    this.contentType = "camera";
     this.offering = true;
     this.signalCandidates = true;
     this.ending = false;
@@ -32,12 +33,14 @@ class ScreenshareBroker extends BaseBroker {
     // caleeName,
     // iceServers,
     // hasAudio,
+    // contentType,
     // bitrate,
     // offering,
     // mediaServer,
     // signalCandidates,
     // traceLogs
     // networkPriority
+    // gatheringTimeout
     Object.assign(this, options);
   }
 
@@ -160,6 +163,7 @@ class ScreenshareBroker extends BaseBroker {
       callerName: this.userId,
       sdpOffer: offer,
       hasAudio: !!this.hasAudio,
+      contentType: this.contentType,
       bitrate: this.bitrate,
       mediaServer: this.mediaServer,
     };
@@ -189,6 +193,7 @@ class ScreenshareBroker extends BaseBroker {
           configuration: this.populatePeerConfiguration(),
           trace: this.traceLogs,
           networkPriorities: this.networkPriority ? { video: this.networkPriority } : undefined,
+          gatheringTimeout: this.gatheringTimeout,
         };
         this.webRtcPeer = new WebRtcPeer('sendonly', options);
         this.webRtcPeer.iceQueue = [];
@@ -248,6 +253,7 @@ class ScreenshareBroker extends BaseBroker {
           onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
           configuration: this.populatePeerConfiguration(),
           trace: this.traceLogs,
+          gatheringTimeout: this.gatheringTimeout,
         };
 
         this.webRtcPeer = new WebRtcPeer('recvonly', options);

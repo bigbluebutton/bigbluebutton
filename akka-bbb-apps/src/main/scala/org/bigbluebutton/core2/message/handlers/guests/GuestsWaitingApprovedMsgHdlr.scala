@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.bus.InternalEventBus
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -41,9 +42,12 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
                     "none",
                     dialInUser.name,
                     dialInUser.name,
+                    dialInUser.color,
+                    MeetingStatus2x.isMeetingMuted(liveMeeting.status),
                     false,
+                    "freeswitch",
                     false,
-                    "freeswitch"
+                    "unused"
                   )
                   VoiceUsers.findWithIntId(
                     liveMeeting.voiceUsers,

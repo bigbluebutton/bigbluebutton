@@ -104,19 +104,19 @@ class RecordingController {
 
     Map<String, String> metadataFilters = ParamsProcessorUtil.processMetaParam(params)
 
-    String page
-    if(!StringUtils.isEmpty(params.page)) {
-      page = params.page
-      log.info("Requested page [${page}]")
+    String offset
+    if(!StringUtils.isEmpty(params.offset)) {
+      offset = params.offset
+      log.info("Requested offset [${offset}]")
     }
 
-    String size
-    if(!StringUtils.isEmpty(params.size)) {
-      size = params.size
-      log.info("Requested page size [${size}]")
+    String limit
+    if(!StringUtils.isEmpty(params.limit)) {
+      limit = params.limit
+      log.info("Requested item limit [${limit}]")
     }
 
-    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters, page, size)
+    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters, offset, limit)
 
     withFormat {
       xml {

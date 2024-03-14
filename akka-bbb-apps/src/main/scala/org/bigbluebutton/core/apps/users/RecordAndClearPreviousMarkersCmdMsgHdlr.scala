@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.MeetingRecordingDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -31,6 +32,7 @@ trait RecordAndClearPreviousMarkersCmdMsgHdlr {
       MeetingStatus2x.isRecording(liveMeeting.status) != msg.body.recording) {
 
       MeetingStatus2x.recordingStarted(liveMeeting.status)
+      MeetingRecordingDAO.insertRecording(liveMeeting.props.meetingProp.intId, msg.body.setBy)
 
       val tracker = state.recordingTracker.resetTimer(TimeUtil.timeNowInMs())
       val event = buildRecordingStatusChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.setBy, msg.body.recording)

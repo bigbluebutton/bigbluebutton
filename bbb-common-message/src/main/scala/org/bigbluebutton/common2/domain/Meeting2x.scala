@@ -1,7 +1,5 @@
 package org.bigbluebutton.common2.domain
 
-case class ConfigProps(defaultConfigToken: String, config: String)
-
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
                          userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int,
@@ -9,16 +7,16 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          endWhenNoModerator:                     Boolean, endWhenNoModeratorDelayInMinutes: Int)
 
 case class MeetingProp(
-    name:                       String,
-    extId:                      String,
-    intId:                      String,
-    meetingCameraCap:           Int,
-    maxPinnedCameras:           Int,
-    isBreakout:                 Boolean,
-    disabledFeatures:           Vector[String],
-    notifyRecordingIsOn:        Boolean,
-    uploadExternalDescription:  String,
-    uploadExternalUrl:          String,
+    name:                                   String,
+    extId:                                  String,
+    intId:                                  String,
+    meetingCameraCap:                       Int,
+    maxPinnedCameras:                       Int,
+    isBreakout:                             Boolean,
+    disabledFeatures:                       Vector[String],
+    notifyRecordingIsOn:                    Boolean,
+    presentationUploadExternalDescription:  String,
+    presentationUploadExternalUrl:          String,
 )
 
 case class BreakoutProps(
@@ -30,11 +28,13 @@ case class BreakoutProps(
     privateChatEnabled: Boolean,
     captureNotes:       Boolean,
     captureSlides:      Boolean,
+    captureNotesFilename: String,
+    captureSlidesFilename: String,
 )
 
 case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String)
 
-case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, keepEvents: Boolean)
+case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, recordFullDurationMedia: Boolean, keepEvents: Boolean)
 
 case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String)
 
@@ -61,14 +61,18 @@ case class LockSettingsProps(
     disablePublicChat:      Boolean,
     disableNotes:           Boolean,
     hideUserList:           Boolean,
-    lockedLayout:           Boolean,
     lockOnJoin:             Boolean,
     lockOnJoinConfigurable: Boolean,
-    hideViewersCursor:      Boolean
+    hideViewersCursor:      Boolean,
+    hideViewersAnnotation:  Boolean
 )
 
 case class SystemProps(
-    html5InstanceId: Int
+    html5InstanceId: Int,
+    logoutUrl: String,
+    customLogoURL: String,
+    bannerText: String,
+    bannerColor: String,
 )
 
 case class GroupProps(
@@ -89,7 +93,8 @@ case class DefaultProps(
     metadataProp:      MetadataProp,
     lockSettingsProps: LockSettingsProps,
     systemProps:       SystemProps,
-    groups:            Vector[GroupProps]
+    groups:            Vector[GroupProps],
+    overrideClientSettings: String
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)

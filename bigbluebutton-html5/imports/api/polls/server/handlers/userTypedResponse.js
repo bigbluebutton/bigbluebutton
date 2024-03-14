@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Polls from '/imports/api/polls';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function userTypedResponse({ header, body }) {
+export default async function userTypedResponse({ header, body }) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'RespondToPollReqMsg';
@@ -15,7 +15,7 @@ export default function userTypedResponse({ header, body }) {
   check(userId, String);
   check(answer, String);
 
-  const poll = Polls.findOne({ meetingId, id: pollId });
+  const poll = await Polls.findOneAsync({ meetingId, id: pollId });
 
   let answerId = 0;
   poll.answers.forEach((a) => {

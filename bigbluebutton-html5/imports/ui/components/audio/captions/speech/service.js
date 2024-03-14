@@ -1,17 +1,15 @@
-import _ from 'lodash';
-import { diff } from '@mconf/bbb-diff';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
+import { unique } from 'radash';
 
-const THROTTLE_TIMEOUT = 1000;
-
-const CONFIG = Meteor.settings.public.app.audioCaptions;
+const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
+const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
 const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 
@@ -24,22 +22,24 @@ const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undef
 const setSpeechVoices = () => {
   if (!hasSpeechRecognitionSupport()) return;
 
-  Session.set('speechVoices', _.uniq(window.speechSynthesis.getVoices().map((v) => v.lang)));
+  Session.set('speechVoices', unique(window.speechSynthesis.getVoices().map((v) => v.lang)));
 };
 
 // Trigger getVoices
 setSpeechVoices();
 
 const getSpeechVoices = () => {
-  const voices = Session.get('speechVoices') || [];
+  if (!isWebSpeechApi()) return LANGUAGES;
 
+  const voices = Session.get('speechVoices') || [];
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
-const setSpeechLocale = (value) => {
+const setSpeechLocale = (value, setUserSpeechLocale) => {
   const voices = getSpeechVoices();
+
   if (voices.includes(value) || value === '') {
-    makeCall('setSpeechLocale', value);
+    setUserSpeechLocale(value, CONFIG.provider);
   } else {
     logger.error({
       logCode: 'captions_speech_locale',
@@ -49,8 +49,8 @@ const setSpeechLocale = (value) => {
 
 const useFixedLocale = () => isEnabled() && CONFIG.language.forceLocale;
 
-const initSpeechRecognition = () => {
-  if (!isEnabled()) return null;
+const initSpeechRecognition = (setUserSpeechLocale) => {
+  if (!isEnabled() || !isWebSpeechApi()) return null;
   if (hasSpeechRecognitionSupport()) {
     // Effectivate getVoices
     setSpeechVoices();
@@ -59,9 +59,9 @@ const initSpeechRecognition = () => {
     speechRecognition.interimResults = true;
 
     if (useFixedLocale() || localeAsDefaultSelected()) {
-      setSpeechLocale(getLocale());
+      setSpeechLocale(getLocale(), setUserSpeechLocale);
     } else {
-      setSpeechLocale(navigator.language);
+      setSpeechLocale(navigator.language, setUserSpeechLocale);
     }
 
     return speechRecognition;
@@ -72,46 +72,6 @@ const initSpeechRecognition = () => {
   }, 'Captions speech unsupported');
 
   return null;
-};
-
-let prevId = '';
-let prevTranscript = '';
-const updateTranscript = (id, transcript, locale) => {
-  // If it's a new sentence
-  if (id !== prevId) {
-    prevId = id;
-    prevTranscript = '';
-  }
-
-  const transcriptDiff = diff(prevTranscript, transcript);
-
-  let start = 0;
-  let end = 0;
-  let text = '';
-  if (transcriptDiff) {
-    start = transcriptDiff.start;
-    end = transcriptDiff.end;
-    text = transcriptDiff.text;
-  }
-
-  // Stores current transcript as previous
-  prevTranscript = transcript;
-
-  makeCall('updateTranscript', id, start, end, text, transcript, locale);
-};
-
-const throttledTranscriptUpdate = _.throttle(updateTranscript, THROTTLE_TIMEOUT, {
-  leading: false,
-  trailing: true,
-});
-
-const updateInterimTranscript = (id, transcript, locale) => {
-  throttledTranscriptUpdate(id, transcript, locale);
-};
-
-const updateFinalTranscript = (id, transcript, locale) => {
-  throttledTranscriptUpdate.cancel();
-  updateTranscript(id, transcript, locale);
 };
 
 const getSpeechLocale = (userId = Auth.userID) => {
@@ -126,9 +86,17 @@ const hasSpeechLocale = (userId = Auth.userID) => getSpeechLocale(userId) !== ''
 
 const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
-const isEnabled = () => ENABLED;
+const isEnabled = () => isLiveTranscriptionEnabled();
 
-const isActive = () => isEnabled() && hasSpeechRecognitionSupport() && hasSpeechLocale();
+const isWebSpeechApi = () => PROVIDER === 'webspeech';
+
+const isVosk = () => PROVIDER === 'vosk';
+
+const isWhispering = () => PROVIDER === 'whisper';
+
+const isDeepSpeech = () => PROVIDER === 'deepSpeech'
+
+const isActive = () => isEnabled() && ((isWebSpeechApi() && hasSpeechLocale()) || isVosk() || isWhispering() || isDeepSpeech());
 
 const getStatus = () => {
   const active = isActive();
@@ -155,12 +123,12 @@ const getLocale = () => {
   return locale;
 };
 
+const stereoUnsupported = () => isActive() && isVosk() && !!getSpeechLocale();
+
 export default {
   LANGUAGES,
   hasSpeechRecognitionSupport,
   initSpeechRecognition,
-  updateInterimTranscript,
-  updateFinalTranscript,
   getSpeechVoices,
   getSpeechLocale,
   setSpeechLocale,
@@ -171,4 +139,5 @@ export default {
   getStatus,
   generateId,
   useFixedLocale,
+  stereoUnsupported,
 };

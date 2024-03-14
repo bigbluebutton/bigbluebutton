@@ -4,7 +4,7 @@ import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 
-export default function handleMeetingEnd({ header, body }) {
+export default async function handleMeetingEnd({ header, body }) {
   check(body, Object);
   const { meetingId, reason } = body;
   check(meetingId, String);
@@ -23,20 +23,34 @@ export default function handleMeetingEnd({ header, body }) {
     }
   };
 
-  Meetings.find({ meetingId }).forEach((doc) => {
-    Meetings.update({ meetingId },
-      {
-        $set: {
-          meetingEnded: true,
-          meetingEndedBy: userId,
-          meetingEndedReason: reason,
-          learningDashboardAccessToken: doc.password.learningDashboardAccessToken,
-        },
-      },
-      (err, num) => { cb(err, num, 'Meeting'); });
+  await Meetings.find({ meetingId }).forEachAsync(async (doc) => {
+    let num = 0;
+    let err = null;
+    try {
+      num = await Meetings.updateAsync({ meetingId },
+        {
+          $set: {
+            meetingEnded: true,
+            meetingEndedBy: userId,
+            meetingEndedReason: reason,
+            learningDashboardAccessToken: doc.password.learningDashboardAccessToken,
+          },
+        });
+    } catch (error) {
+      err = error;
+    }
+    cb(err, num, 'Meeting');
   });
 
-  Breakouts.update({ parentMeetingId: meetingId },
-    { $set: { meetingEnded: true } },
-    (err, num) => { cb(err, num, 'Breakout'); });
+  let num = 0;
+  let err = null;
+  try {
+    num = await Breakouts.update(
+      { parentMeetingId: meetingId },
+      { $set: { meetingEnded: true } },
+    );
+  } catch (error) {
+    err = error;
+  }
+  cb(err, num, 'Breakout');
 }

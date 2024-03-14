@@ -1,5 +1,5 @@
 import React, { useReducer } from 'react';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import Service from './service';
 
 export const CustomVirtualBackgroundsContext = React.createContext();
@@ -77,7 +77,7 @@ export const CustomBackgroundsProvider = ({ children }) => {
   const loadFromDB = () => {
     const onError = () => dispatch({
       type: 'load',
-      backgrounds: {},
+      backgrounds: [],
     });
 
     const onSuccess = (backgrounds) => dispatch({
@@ -95,7 +95,7 @@ export const CustomBackgroundsProvider = ({ children }) => {
         loaded: state.loaded,
         defaultSetUp: state.defaultSetUp,
         backgrounds: state.backgrounds,
-        loadFromDB: _.throttle(loadFromDB, 500, { leading: true, trailing: false }),
+        loadFromDB: throttle(loadFromDB, 500, { leading: true, trailing: false }),
       }}
     >
       {children}

@@ -18,8 +18,12 @@ public class ParamsUtil {
   public static final String INVALID_CHARS = ",";
 
   public static String stripControlChars(String text) {
-    return text.replaceAll("\\p{Cc}", "");
+    return text.replaceAll("\\p{Cc}", "").trim();
   }
+
+  public static String stripTags(String text) {
+    return text.replaceAll("<[^>]*>", "");
+}
 
   public static String escapeHTMLTags(String value) {
     return StringEscapeUtils.escapeHtml4(value);

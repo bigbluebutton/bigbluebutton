@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/common/button/component';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import Meetings from '/imports/api/meetings';
 
-const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 
 const intlMessages = defineMessages({
   title: {
@@ -97,15 +97,22 @@ class MobileAppModal extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl, isOpen, onRequestClose, priority,
+    } = this.props;
     const { url, urlMessage, meetingName } = this.state;
 
     return (
-      <Modal
+      <ModalSimple
         title={intl.formatMessage(intlMessages.title)}
         dismiss={{
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
+        }}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
         }}
       >
         <Styled.Center>
@@ -116,7 +123,7 @@ class MobileAppModal extends Component {
               color="primary"
               disabled={url === ''}
               label={intl.formatMessage(intlMessages.openApp)}
-              onClick={() => window.open(`${BBB_TABLET_APP_CONFIG.iosAppUrlScheme}://${meetingName}/${url}`, '_blank')}
+              onClick={() => window.open(`${BBB_TABLET_APP_CONFIG.iosAppUrlScheme}://${encodeURIComponent(meetingName)}/${encodeURIComponent(url)}`, '_blank')}
               role="button"
               size="lg"
             />
@@ -138,7 +145,7 @@ class MobileAppModal extends Component {
               )
           }
         </Styled.Center>
-      </Modal>
+      </ModalSimple>
     );
   }
 }

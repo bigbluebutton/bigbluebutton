@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Styled from '../base/styles';
+import Styled from '../base/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 import {
@@ -22,12 +22,12 @@ const FullscreenModal = styled(Styled.BaseModal)`
   outline-style: solid;
   display: flex;
   flex-direction: column;
+  height: 100%;
   align-self: flex-start;
   padding: calc(${lineHeightComputed} / 2) ${lineHeightComputed};
 
   @media ${smallOnly} {
     width: 100%;
-    height: 100%;
   }
 `;
 

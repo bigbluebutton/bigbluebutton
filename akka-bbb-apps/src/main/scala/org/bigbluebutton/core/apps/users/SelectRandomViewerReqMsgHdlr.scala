@@ -37,14 +37,20 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
       val usersPicked = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, reduceDuplicatedPick)
 
       val randNum = new scala.util.Random
-      val pickedUser = if (usersPicked.size == 0) "" else usersPicked(randNum.nextInt(usersPicked.size)).intId
+      var pickedUser = if (usersPicked.size == 0) "" else usersPicked(randNum.nextInt(usersPicked.size)).intId
 
       if (reduceDuplicatedPick) {
-        if (usersPicked.size == 1) {
+        if (usersPicked.size <= 1) {
           // Initialise the exemption
           val usersToUnexempt = Users2x.findAll(liveMeeting.users2x)
           usersToUnexempt foreach { u =>
             Users2x.setUserExempted(liveMeeting.users2x, u.intId, false)
+          }
+          if (usersPicked.size == 0) {
+            // Pick again
+            val usersRepicked = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, reduceDuplicatedPick)
+            pickedUser = if (usersRepicked.size == 0) "" else usersRepicked(randNum.nextInt(usersRepicked.size)).intId
+            Users2x.setUserExempted(liveMeeting.users2x, pickedUser, true)
           }
         } else if (usersPicked.size > 1) {
           Users2x.setUserExempted(liveMeeting.users2x, pickedUser, true)

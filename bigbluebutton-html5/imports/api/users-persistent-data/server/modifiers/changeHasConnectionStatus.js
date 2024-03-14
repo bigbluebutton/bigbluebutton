@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 
-export default function changeHasConnectionStatus(hasConnectionStatus, userId, meetingId) {
+export default async function changeHasConnectionStatus(hasConnectionStatus, userId, meetingId) {
   const selector = {
     meetingId,
     userId,
@@ -14,7 +14,7 @@ export default function changeHasConnectionStatus(hasConnectionStatus, userId, m
   };
 
   try {
-    const numberAffected = UsersPersistentData.update(selector, modifier);
+    const numberAffected = await UsersPersistentData.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Changed hasConnectionStatus=${hasConnectionStatus} id=${userId} meeting=${meetingId}`);

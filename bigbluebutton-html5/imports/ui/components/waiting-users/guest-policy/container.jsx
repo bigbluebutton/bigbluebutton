@@ -1,24 +1,30 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import { useMutation } from '@apollo/client';
 import GuestPolicyComponent from './component';
 import Service from '../service';
-import Auth from '/imports/ui/services/auth';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { SET_POLICY } from '../mutations';
 
 const GuestPolicyContainer = (props) => {
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const amIModerator = currentUser.role === ROLE_MODERATOR;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    isModerator: user.isModerator,
+  }));
+  const amIModerator = currentUserData?.isModerator;
 
-  return amIModerator && <GuestPolicyComponent {...props} />;
+  const [setPolicy] = useMutation(SET_POLICY);
+
+  const changeGuestPolicy = (guestPolicy) => {
+    setPolicy({
+      variables: {
+        guestPolicy,
+      },
+    });
+  };
+
+  return amIModerator && <GuestPolicyComponent changeGuestPolicy={changeGuestPolicy} {...props} />;
 };
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
-  closeModal: () => mountModal(null),
+export default withTracker(() => ({
   guestPolicy: Service.getGuestPolicy(),
-  changeGuestPolicy: Service.changeGuestPolicy,
-}))(GuestPolicyContainer));
+}))(GuestPolicyContainer);

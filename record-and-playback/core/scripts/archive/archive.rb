@@ -111,6 +111,42 @@ def delete_audio(meeting_id, audio_dir)
   end
 end
 
+def remux_and_archive(source_dir, dest_dir)
+  files = Dir.glob("#{source_dir}/*")
+
+  if files.empty?
+    BigBlueButton.logger.warn("No media files found in #{source_dir}")
+    return
+  end
+
+  BigBlueButton.logger.info("Remuxing and archiving files at #{source_dir}")
+  FileUtils.mkdir_p(dest_dir)
+
+  files .each do |file|
+    ext = File.extname(file)
+    next if ext.empty?
+    # These can potentially be webm (VP8/VP9), mp4 (H.264), or mkv (VP8/VP9/H.264)
+    output_basename = File.join(dest_dir, File.basename(file, ext))
+    format = {
+      extension: ext.delete_prefix('.'),
+      parameters: [
+        %w[-c copy],
+      ]
+    }
+    BigBlueButton::EDL.encode(
+      nil,
+      file,
+      format,
+      output_basename
+    )
+  rescue StandardError => e
+    BigBlueButton.logger.warn("Failed to remux #{file}, archiving anyways: #{e}")
+    # Archive the file anyways - later steps (eg sanity) might strip it out
+    # if invalid or fix it if necessary
+    FileUtils.cp(file, "#{output_basename}#{ext}")
+  end
+end
+
 def archive_directory(source, dest)
   BigBlueButton.logger.info("Archiving contents of #{source}")
   FileUtils.mkdir_p(dest)
@@ -180,6 +216,8 @@ kurento_video_dir = props['kurento_video_src']
 kurento_screenshare_dir = props['kurento_screenshare_src']
 mediasoup_video_dir = props['mediasoup_video_src']
 mediasoup_screenshare_dir = props['mediasoup_screenshare_src']
+webrtc_recorder_video_dir = props['webrtc_recorder_video_src']
+webrtc_recorder_screenshare_dir = props['webrtc_recorder_screenshare_src']
 log_dir = props['log_dir']
 notes_endpoint = props['notes_endpoint']
 notes_formats = props['notes_formats']
@@ -205,11 +243,14 @@ archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
 # Kurento media
-archive_directory("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
-archive_directory("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+remux_and_archive("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+remux_and_archive("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
 # mediasoup media
 archive_directory("#{mediasoup_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
 archive_directory("#{mediasoup_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+# bbb-webrtc-recorder media
+remux_and_archive("#{webrtc_recorder_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+remux_and_archive("#{webrtc_recorder_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
 
 # If this was the last (or only) segment in a recording, delete the original media files
 if break_timestamp.nil?
@@ -222,6 +263,9 @@ if break_timestamp.nil?
   # mediasoup media
   FileUtils.rm_rf("#{mediasoup_screenshare_dir}/#{meeting_id}")
   FileUtils.rm_rf("#{mediasoup_video_dir}/#{meeting_id}")
+  # bbb-webrtc-recorder media
+  FileUtils.rm_rf("#{webrtc_recorder_screenshare_dir}/#{meeting_id}")
+  FileUtils.rm_rf("#{webrtc_recorder_video_dir}/#{meeting_id}")
 end
 
 if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)

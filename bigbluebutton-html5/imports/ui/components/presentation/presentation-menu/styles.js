@@ -15,6 +15,7 @@ import {
   statusIconSize,
   borderSize,
   statusInfoHeight,
+  presentationMenuHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled.button`
@@ -32,26 +33,30 @@ const DropdownButton = styled.button`
   }
 `;
 
-const Right = styled.div`
+const Left = styled.div`
   cursor: pointer;
   position: absolute;
-  left: auto;
-  right: 0px;
+  left: 0px;
   z-index: 999;
+  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid ${colorWhite};
+  height: 44px;
 
   > div {
+    padding: 2px 4px 2px 4px;
     background-color: ${colorWhite};
     width: 50px;
-    height: 41px;
+    height: 100%;
   }
 
   button {
-    margin-top: .45rem;
+    height: 100%;
+    width: 100%;
   }
 
   [dir="rtl"] & {
-    right: auto;
-    left : ${borderSize};
+    right: 0px;
+    left: auto;
   }
 `;
 
@@ -135,7 +140,7 @@ const ButtonIcon = styled(Icon)`
 
 export default {
   DropdownButton,
-  Right,
+  Left,
   ToastText,
   StatusIcon,
   ToastIcon,

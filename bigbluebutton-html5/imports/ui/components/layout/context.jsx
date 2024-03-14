@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
+import useUpdatePresentationAreaContent from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
 
 // variable to debug in console log
 const debug = false;
@@ -189,6 +190,24 @@ const reducer = (state, action) => {
     }
 
     // NAV BAR
+
+    case ACTIONS.SET_HAS_NAVBAR: {
+      const { navBar } = state.input;
+      if (navBar.hasNavBar === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          navBar: {
+            ...navBar,
+            hasNavBar: action.value,
+          },
+        },
+      };
+    }
+
     case ACTIONS.SET_NAVBAR_OUTPUT: {
       const {
         display, width, height, top, left, tabOrder, zIndex,
@@ -222,6 +241,23 @@ const reducer = (state, action) => {
     }
 
     // ACTION BAR
+    case ACTIONS.SET_HAS_ACTIONBAR: {
+      const { actionBar } = state.input;
+      if (actionBar.hasActionBar === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          actionBar: {
+            ...actionBar,
+            hasActionBar: action.value,
+          },
+        },
+      };
+    }
+
     case ACTIONS.SET_ACTIONBAR_OUTPUT: {
       const {
         display, width, height, innerHeight, top, left, padding, tabOrder, zIndex,
@@ -1150,6 +1186,56 @@ const reducer = (state, action) => {
       };
     }
 
+    // GENERIC COMPONENT
+    case ACTIONS.SET_HAS_GENERIC_COMPONENT: {
+      const { genericComponent } = state.input;
+      if (genericComponent.hasGenericComponent === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          genericComponent: {
+            ...genericComponent,
+            hasGenericComponent: action.value,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_GENERIC_COMPONENT_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        right,
+      } = action.value;
+      const { genericComponent } = state.output;
+      if (genericComponent.width === width
+        && genericComponent.height === height
+        && genericComponent.top === top
+        && genericComponent.left === left
+        && genericComponent.right === right) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          genericComponent: {
+            ...genericComponent,
+            width,
+            height,
+            top,
+            left,
+            right,
+          },
+        },
+      };
+    }
+
     // NOTES
     case ACTIONS.SET_SHARED_NOTES_OUTPUT: {
       const {
@@ -1207,6 +1293,7 @@ const reducer = (state, action) => {
 const LayoutContextProvider = (props) => {
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
+  useUpdatePresentationAreaContent(layoutContextState);
   return (
     <LayoutContextSelector.Provider value={
       [

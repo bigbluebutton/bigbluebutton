@@ -1,0 +1,32 @@
+- name: allowed-queries
+  definition:
+    queries:
+      - name: UserCurrent
+        query: |
+          query UserCurrent {
+            user_current {
+              userId
+              name
+              guestStatus
+              guestStatusDetails {
+                guestLobbyMessage
+                positionInWaitingQueue
+              }
+              meeting {
+                name
+                logoutUrl
+              }
+            }
+          }
+      - name: clientStartupSettings
+        query: |
+          query clientStartupSettings {
+            meeting_clientSettings {
+              askForFeedbackOnLogout: clientSettingsJson(path: "$.public.app.askForFeedbackOnLogout")
+              allowDefaultLogoutUrl: clientSettingsJson(path: "$.public.app.allowDefaultLogoutUrl")
+              learningDashboardBase: clientSettingsJson(path: "$.public.app.learningDashboardBase")
+              fallbackLocale: clientSettingsJson(path: "$.public.app.defaultSettings.application.fallbackLocale")
+              fallbackOnEmptyString: clientSettingsJson(path: "$.public.app.fallbackOnEmptyLocaleString")
+              clientLog: clientSettingsJson(path: "$.public.clientLog")
+            }
+          }

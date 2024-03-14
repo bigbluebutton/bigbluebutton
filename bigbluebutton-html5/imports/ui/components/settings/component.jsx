@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import Modal from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
-import _ from 'lodash';
+import { clone } from 'radash';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
+import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -94,8 +94,8 @@ const propTypes = {
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
-  mountModal: PropTypes.func.isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
+  isReactionsEnabled: PropTypes.bool.isRequired,
 };
 
 class Settings extends Component {
@@ -112,14 +112,14 @@ class Settings extends Component {
 
     this.state = {
       current: {
-        dataSaving: _.clone(dataSaving),
-        application: _.clone(application),
+        dataSaving: clone(dataSaving),
+        application: clone(application),
       },
       saved: {
-        dataSaving: _.clone(dataSaving),
-        application: _.clone(application),
+        dataSaving: clone(dataSaving),
+        application: clone(application),
       },
-      selectedTab: _.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
+      selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
         ? selectedTab
         : 0,
     };
@@ -150,11 +150,14 @@ class Settings extends Component {
     });
   }
 
-  displaySettingsStatus(status) {
+  displaySettingsStatus(status, textOnly = false) {
     const { intl } = this.props;
-
+    if (textOnly) {
+      return status ? intl.formatMessage(intlMessages.on)
+        : intl.formatMessage(intlMessages.off);
+    }
     return (
-      <Styled.ToggleLabel>
+      <Styled.ToggleLabel aria-hidden>
         {status ? intl.formatMessage(intlMessages.on)
           : intl.formatMessage(intlMessages.off)}
       </Styled.ToggleLabel>
@@ -172,6 +175,7 @@ class Settings extends Component {
       selectedLayout,
       isScreenSharingEnabled,
       isVideoEnabled,
+      isReactionsEnabled,
     } = this.props;
 
     const {
@@ -224,6 +228,7 @@ class Settings extends Component {
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
             isPresenter={isPresenter}
+            isReactionsEnabled={isReactionsEnabled}
           />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
@@ -257,28 +262,33 @@ class Settings extends Component {
   render() {
     const {
       intl,
-      mountModal,
+      setIsOpen,
+      isOpen,
+      priority,
+      setLocalSettings,
     } = this.props;
     const {
       current,
       saved,
     } = this.state;
     return (
-      <Modal
+      <ModalFullscreen
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current, intlMessages.savedAlertLabel);
+            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
 
             if (saved.application.locale !== current.application.locale) {
               const { language } = formatLocaleCode(saved.application.locale);
+              const { language: newLanguage } = formatLocaleCode(current.application.locale);
+              setUseCurrentLocale(newLanguage);
               document.body.classList.remove(`lang-${language}`);
             }
 
-            /* We need to use mountModal(null) here to prevent submenu state updates,
+            /* We need to use setIsOpen(false) here to prevent submenu state updates,
             *  from re-opening the modal.
             */
-            mountModal(null);
+            setIsOpen(false);
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
@@ -287,17 +297,21 @@ class Settings extends Component {
           callback: () => {
             Settings.setHtmlFontSize(saved.application.fontSize);
             document.getElementsByTagName('html')[0].lang = saved.application.locale;
-            mountModal(null);
+            setIsOpen(false);
           },
           label: intl.formatMessage(intlMessages.CancelLabel),
           description: intl.formatMessage(intlMessages.CancelLabelDesc),
         }}
+        {...{
+          isOpen,
+          priority,
+        }}
       >
         {this.renderModalContent()}
-      </Modal>
+      </ModalFullscreen>
     );
   }
 }
 
 Settings.propTypes = propTypes;
-export default withModalMounter(injectIntl(Settings));
+export default injectIntl(Settings);

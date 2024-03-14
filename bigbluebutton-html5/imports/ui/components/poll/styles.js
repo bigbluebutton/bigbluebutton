@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
+  jumboPaddingY,
   smPaddingX,
   smPaddingY,
   lgPaddingX,
@@ -13,7 +14,6 @@ import {
 import {
   colorText,
   colorBlueLight,
-  colorGray,
   colorGrayLight,
   colorGrayLighter,
   colorGrayLightest,
@@ -22,8 +22,6 @@ import {
   colorHeading,
   colorPrimary,
   colorGrayDark,
-  colorWhite,
-  pollBlue,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -175,11 +173,6 @@ const PollCheckbox = styled.div`
   margin-bottom: ${pollMdMargin};
 `;
 
-const InstructionsLabel = styled.label`
-  margin-bottom: ${lgPaddingX};
-  color: ${colorText};
-`;
-
 const AddItemButton = styled(Button)`
   top: 1px;
   position: relative;
@@ -264,71 +257,7 @@ const NoSlidePanelContainer = styled.div`
   text-align: center;
 `;
 
-const PollButton = styled(Button)`
-  margin-top: ${smPaddingY};
-  margin-bottom: ${smPaddingY};
-  background-color: ${colorWhite};
-  box-shadow: 0 0 0 1px ${colorGray};
-  color: ${colorGray};
-
-  & > span {
-    color: ${colorGray};
-  }
-
-  & > span:hover {
-    color: ${pollBlue};
-    opacity: 1;
-  }
-
-  &:active {
-    background-color: ${colorWhite};
-    box-shadow: 0 0 0 1px ${pollBlue};
-
-    & > span {
-      color: ${pollBlue};
-    }
-  }
-
-  &:focus {
-    background-color: ${colorWhite};
-    box-shadow: 0 0 0 1px ${pollBlue};
-
-    & > span {
-      color: ${pollBlue};
-    }
-  }
-
-  &:nth-child(even) {
-    margin-right: inherit;
-    margin-left: ${smPaddingY};
-
-    [dir="rtl"] & {
-      margin-right: ${smPaddingY};
-      margin-left: inherit;
-    }
-  }
-
-  &:nth-child(odd) {
-    margin-right: 1rem;
-    margin-left: inherit;
-
-    [dir="rtl"] & {
-      margin-right: inherit;
-      margin-left: ${smPaddingY};
-    }
-  }
-
-  &:hover {
-    box-shadow: 0 0 0 1px ${pollBlue};
-    background-color: ${colorWhite};
-    color: ${pollBlue};
-
-    & > span {
-      color: ${pollBlue};
-      opacity: 1;
-    }
-  }
-`;
+const PollButton = styled(Button)``;
 
 const DragAndDropPollContainer = styled.div`
   width: 200px !important;
@@ -353,6 +282,7 @@ const CustomInputHeading = styled(SectionHeading)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  padding-bottom: ${jumboPaddingY};
 `;
 
 const CustomInputHeadingCol = styled(Col)`
@@ -387,7 +317,6 @@ export default {
   PollConfigButton,
   PollParagraph,
   PollCheckbox,
-  InstructionsLabel,
   AddItemButton,
   Row,
   Col,

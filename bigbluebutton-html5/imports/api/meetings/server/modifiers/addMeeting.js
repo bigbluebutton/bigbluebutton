@@ -6,37 +6,17 @@ import {
 import SanitizeHTML from 'sanitize-html';
 import Meetings, {
   RecordMeetings,
-  ExternalVideoMeetings,
   LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
+import createTimer from '/imports/api/timer/server/methods/createTimer';
 import { initCaptions } from '/imports/api/captions/server/helpers';
-import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
-import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
+import addUserReactionsObserver from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
-const addExternalVideo = (meetingId) => {
-  const selector = { meetingId };
-
-  const modifier = {
-    meetingId,
-    externalVideoUrl: null,
-  };
-
-  try {
-    const { numberAffected } = ExternalVideoMeetings.upsert(selector, modifier);
-
-    if (numberAffected) {
-      Logger.verbose(`Added external video meetingId=${meetingId}`);
-    }
-  } catch (err) {
-    Logger.error(`Adding external video: ${err}`);
-  }
-};
-
-const addLayout = (meetingId, layout) => {
+const addLayout = async (meetingId, layout) => {
   const selector = { meetingId };
 
   const modifier = {
@@ -52,7 +32,7 @@ const addLayout = (meetingId, layout) => {
   };
 
   try {
-    const { numberAffected } = LayoutMeetings.upsert(selector, modifier);
+    const { numberAffected } = await LayoutMeetings.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.verbose(`Added layout meetingId=${meetingId}`, numberAffected);
@@ -62,7 +42,7 @@ const addLayout = (meetingId, layout) => {
   }
 };
 
-export default function addMeeting(meeting) {
+export default async function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
 
   check(meetingId, String);
@@ -76,6 +56,8 @@ export default function addMeeting(meeting) {
       privateChatEnabled: Boolean,
       captureNotes: Boolean,
       captureSlides: Boolean,
+      captureNotesFilename: String,
+      captureSlidesFilename: String,
     },
     meetingProp: {
       intId: String,
@@ -86,8 +68,8 @@ export default function addMeeting(meeting) {
       name: String,
       disabledFeatures: Array,
       notifyRecordingIsOn: Boolean,
-      uploadExternalDescription: String,
-      uploadExternalUrl: String,
+      presentationUploadExternalDescription: String,
+      presentationUploadExternalUrl: String,
     },
     usersProp: {
       maxUsers: Number,
@@ -144,13 +126,18 @@ export default function addMeeting(meeting) {
       hideUserList: Boolean,
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
-      lockedLayout: Boolean,
       hideViewersCursor: Boolean,
+      hideViewersAnnotation: Boolean,
     },
     systemProps: {
       html5InstanceId: Number,
+      logoutUrl: String,
+      customLogoURL: String,
+      bannerText: String,
+      bannerColor: String,
     },
     groups: Array,
+    overrideClientSettings: String,
   });
 
   const {
@@ -170,7 +157,7 @@ export default function addMeeting(meeting) {
 
   let { welcomeMsg } = newMeeting.welcomeProp;
 
-  const sanitizeTextInChat = original => SanitizeHTML(original, {
+  const sanitizeTextInChat = (original) => SanitizeHTML(original, {
     allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
     allowedAttributes: {
       a: ['href', 'target'],
@@ -178,8 +165,8 @@ export default function addMeeting(meeting) {
     },
     allowedSchemes: ['https'],
     allowedSchemesByTag: {
-      a: ['https', 'mailto', 'tel']
-    }
+      a: ['https', 'mailto', 'tel'],
+    },
   });
 
   const sanitizedWelcomeText = sanitizeTextInChat(welcomeMsg);
@@ -199,7 +186,7 @@ export default function addMeeting(meeting) {
         welcomeMsg,
         linkWithoutTarget.lastIndex - 1,
       );
-      linkWithoutTarget.lastIndex = linkWithoutTarget.lastIndex - 1;
+      linkWithoutTarget.lastIndex -= 1;
     }
   } while (linkWithoutTarget.lastIndex > 0);
 
@@ -213,31 +200,34 @@ export default function addMeeting(meeting) {
   const { meetingLayout } = meeting.usersProp;
 
   const modifier = {
-    $set: Object.assign({
+    $set: {
       meetingId,
       meetingEnded,
       layout: LAYOUT_TYPE[meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
-    }, flat(newMeeting, {
-      safe: true,
-    })),
+      ...flat(newMeeting, {
+        safe: true,
+      }),
+    },
   };
 
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-    addAnnotationsStreamer(meetingId);
-    addCursorStreamer(meetingId);
     addExternalVideoStreamer(meetingId);
 
-    // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
+    // we don't want to fully process the create meeting message
+    // in frontend since it can lead to duplication of meetings in mongo.
     if (process.env.BBB_HTML5_ROLE === 'frontend') {
       return;
     }
   }
 
   try {
-    const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
+    const {
+      insertedId,
+      numberAffected,
+    } = await RecordMeetings.upsertAsync(selector, { meetingId, ...recordProp });
 
     if (insertedId) {
       Logger.info(`Added record prop id=${meetingId}`);
@@ -248,19 +238,23 @@ export default function addMeeting(meeting) {
     Logger.error(`Adding record prop to collection: ${err}`);
   }
 
-  addExternalVideo(meetingId);
-  addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
+  await addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
   try {
-    const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
+    const { insertedId, numberAffected } = await Meetings.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
+      // Init Timer collection
+      createTimer(meetingId);
       if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
         initPads(meetingId);
       }
       if (newMeeting.meetingProp.disabledFeatures.indexOf('captions') === -1) {
-        initCaptions(meetingId);
+        await initCaptions(meetingId);
+      }
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('reactions') === -1) {
+        await addUserReactionsObserver(meetingId);
       }
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);

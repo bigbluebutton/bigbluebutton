@@ -13,7 +13,7 @@ class ToastContainer extends React.Component {
 
     return (
       <Styled.ToastifyContainer
-        closeButton={(<Styled.CloseIcon iconName="close" animations={animations} />)}
+        closeButton={(<Styled.CloseIcon data-test="closeToastBtn" iconName="close" animations={animations} />)}
         autoClose={5000}
         toastClassName="toastClass"
         bodyClassName="toastBodyClass"

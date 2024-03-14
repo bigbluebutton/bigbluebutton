@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -9,10 +9,11 @@ import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from '/imports/ui/components/notes/notes-dropdown/container';
+import { isPresentationEnabled } from '../../services/features';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-
+const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 const intlMessages = defineMessages({
   hide: {
     id: 'app.notes.hide',
@@ -47,6 +48,8 @@ const defaultProps = {
   layoutType: null,
 };
 
+let timoutRef = null;
+const sidebarContentToIgnoreDelay = ['captions'];
 const Notes = ({
   hasPermission,
   intl,
@@ -58,23 +61,49 @@ const Notes = ({
   sidebarContent,
   sharedNotesOutput,
   amIPresenter,
+  isToSharedNotesBeShow,
+  shouldShowSharedNotesOnPresentationArea,
+  isGridEnabled,
 }) => {
-  useEffect(() => () => Service.setLastRev(), []);
+  const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
+
   const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
   const style = isOnMediaArea ? {
     position: 'absolute',
     ...sharedNotesOutput,
   } : {};
-  const isHidden = isOnMediaArea && (style.width === 0 || style.height === 0);
 
-  if (isHidden) style.padding = 0;
+  const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
+    || (!isToSharedNotesBeShow
+      && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
+    || shouldShowSharedNotesOnPresentationArea;
 
+  if (isHidden && !isOnMediaArea) {
+    style.padding = 0;
+    style.display = 'none';
+  }
+  if (isGridEnabled && !sidebarContent.isOpen) {
+    style.padding = 0;
+  }
+  useEffect(() => {
+    if (isToSharedNotesBeShow) {
+      setShouldRenderNotes(true);
+      clearTimeout(timoutRef);
+    } else {
+      timoutRef = setTimeout(() => {
+        setShouldRenderNotes(false);
+      }, (sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
+        || shouldShowSharedNotesOnPresentationArea)
+        ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
+    }
+    return () => clearTimeout(timoutRef);
+  }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
   useEffect(() => {
     if (
       isOnMediaArea
-      && sidebarContent.isOpen
-      && sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
+      && (sidebarContent.isOpen || !isPresentationEnabled())
+      && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES || !isPresentationEnabled())
     ) {
       if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
         layoutContextDispatch({
@@ -91,7 +120,6 @@ const Notes = ({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,
         });
-  
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
           value: PANELS.NONE,
@@ -102,13 +130,30 @@ const Notes = ({
         type: ACTIONS.SET_NOTES_IS_PINNED,
         value: true,
       });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
 
       return () => {
         layoutContextDispatch({
           type: ACTIONS.SET_NOTES_IS_PINNED,
           value: false,
         });
+        layoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+          value: Session.get('presentationLastState'),
+        });
       };
+    } if (shouldShowSharedNotesOnPresentationArea) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_NOTES_IS_PINNED,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
     }
   }, []);
 
@@ -128,8 +173,12 @@ const Notes = ({
     ) : null;
   };
 
-  return (
-    <Styled.Notes data-test="notes" isChrome={isChrome} style={style}>
+  return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
+    <Styled.Notes
+      data-test="notes"
+      isChrome={isChrome}
+      style={style}
+    >
       {!isOnMediaArea ? (
         <Header
           leftButtonProps={{

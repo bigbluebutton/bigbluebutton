@@ -18,7 +18,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.11",
+    "-release:17",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -48,7 +48,7 @@ lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", 
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.9"
 //-----------
 // Packaging
 //
@@ -75,5 +75,6 @@ daemonUser in Linux := user
 daemonGroup in Linux := group
 
 javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=/etc/bigbluebutton/bbb-apps-akka.conf", "-Dlogback.configurationFile=conf/logback.xml")
+javaOptions in reStart ++= Seq("-Dconfig.file=/etc/bigbluebutton/bbb-apps-akka.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
-debianPackageDependencies in Debian ++= Seq("java11-runtime-headless", "bash")
+debianPackageDependencies in Debian ++= Seq("java17-runtime-headless", "bash")

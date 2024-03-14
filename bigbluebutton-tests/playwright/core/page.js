@@ -1,12 +1,14 @@
 require('dotenv').config();
 const { expect, default: test } = require('@playwright/test');
 const { readFileSync } = require('fs');
+
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
+const { env } = require('node:process');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('./constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
-const { generateSettingsData, getSettings } = require('./settings');
+const { generateSettingsData } = require('./settings');
 
 class Page {
   constructor(browser, page) {
@@ -25,32 +27,38 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, customParameter, customMeetingId } = initOptions || {};
+    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording, shouldCheckAllInitialSteps } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
     this.username = this.initParameters.fullName;
 
-    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter, customMeetingId);
-    const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
+    if (env.CONSOLE !== undefined) await helpers.setBrowserLogs(this.page);
+
+    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId, this.page);
+    const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, joinParameter);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
-    this.settings = await generateSettingsData(this.page);
-    const { autoJoinAudioModal } = this.settings;
-    if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
+    if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
+      await this.waitForSelector('div#layout', ELEMENT_WAIT_LONGER_TIME);
+      this.settings = await generateSettingsData(this.page);
+      const { autoJoinAudioModal } = this.settings;
+      if (isRecording && !isModerator) await this.closeRecordingModal();
+      if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
+    }
   }
 
-  async handleDownload(selector, testInfo, timeout = ELEMENT_WAIT_TIME) {
+  async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
     const [download] = await Promise.all([
       this.page.waitForEvent('download', { timeout }),
-      this.waitAndClick(selector, timeout),
+      locator.click({ timeout }),
     ]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();
     const content = await readFileSync(filePath, 'utf8');
-    await testInfo.attach('downloaded', { body: download });
+    await testInfo.attach('downloaded', { path: filePath });
 
     return {
       download,
@@ -58,7 +66,7 @@ class Page {
     }
   }
 
-  async handleNewTab(selector, context){
+  async handleNewTab(selector, context) {
     const [newPage] = await Promise.all([
       context.waitForEvent('page'),
       this.waitAndClick(selector),
@@ -83,14 +91,23 @@ class Page {
   }
 
   async logoutFromMeeting() {
-    await this.waitAndClick(e.optionsButton);
-    await this.waitAndClick(e.logout);
+    const { directLeaveButton } = this.settings;
+
+    if (directLeaveButton) {
+      await this.waitAndClick(e.leaveMeetingDropdown);
+    } else {
+      await this.waitAndClick(e.optionsButton);
+    }
+    await this.waitAndClick(e.logoutBtn);
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
-    const { webcamSharingEnabled } = getSettings();
+    const { webcamSharingEnabled } = this.settings;
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
+    if(!webcamSharingEnabled) {
+      return this.wasRemoved(e.joinVideo)
+    }
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.bringToFront();
@@ -116,17 +133,31 @@ class Page {
   }
 
   async getCopiedText(context) {
-    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL});
+    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
     return this.page.evaluate(async () => navigator.clipboard.readText());
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
+  }
+
+  async closeRecordingModal() {
+    await this.waitForSelector(e.simpleModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitAndClick(e.confirmRecording);
   }
 
   async waitForSelector(selector, timeout = ELEMENT_WAIT_TIME) {
     await this.page.waitForSelector(selector, { timeout });
+  }
+
+  async waitForSelectorDetached(selector, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.waitForSelector(selector, { state: 'detached', timeout });
+  }
+
+  async getElementBoundingBox(selector) {
+    const element = await this.page.$(selector);
+    return element.boundingBox();
   }
 
   async waitUntilHaveCountSelector(selector, count, timeout = ELEMENT_WAIT_TIME) {
@@ -199,6 +230,10 @@ class Page {
     await expect(locator).toContainText(text, { timeout });
   }
 
+  async haveTitle(title) {
+    await expect(this.page).toHaveTitle(title);
+  }
+
   async press(key) {
     await this.page.keyboard.press(key);
   }
@@ -211,18 +246,70 @@ class Page {
     await this.page.keyboard.up(key);
   }
 
+  async mouseDoubleClick(x, y) {
+    await this.page.mouse.dblclick(x, y);
+  }
+
   async dragDropSelector(selector, position) {
-    await this.page.locator(selector).dragTo(this.page.locator(position));
+    await this.getLocator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async dragAndDropWebcams(position) {
+    await this.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
+    await this.page.mouse.down();
+    await this.getLocator(e.whiteboard).hover({ timeout: 5000 });   // action for dispatching isDragging event
+    await this.getLocator(position).hover({ timeout: 5000 });
+    await this.page.mouse.up();
   }
 
   async checkElementCount(selector, count) {
     const locator = await this.page.locator(selector);
-    await expect(locator).toHaveCount(count);
+    await expect(locator).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
   }
 
   async hasValue(selector, value) {
-    const locator  = await this.page.locator(selector);
+    const locator = await this.page.locator(selector);
     await expect(locator).toHaveValue(value);
+  }
+
+  async backgroundColorTest(selector, color) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).backgroundColor)).toBe(color);
+  }
+
+  async textColorTest(selector, color) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
+  }
+
+  async fontSizeCheck(selector, size) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).fontSize)).toBe(size);
+  }
+
+  async comparingSelectorsBackgroundColor(selector1, selector2) {
+    const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
+    const avatarInToastElementColor = this.page.locator(selector1);
+    const avatarInUserListColor = this.page.locator(selector2);
+    await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
+  }
+
+  async reloadPage() {
+    await this.page.reload();
+  }
+
+  async selectSlide(slideOption, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.locator(e.skipSlide).selectOption({ label: slideOption }, { timeout });
+  }
+
+  async closeAllToastNotifications() {
+    await this.page.waitForSelector(e.whiteboard);
+      const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
+      while (await closeToastBtnLocator.count() > 0) {
+        await this.page.click(e.closeToastBtn);
+        await helpers.sleep(1000);  // expected time to toast notification disappear
+      }
+  }
+
+  async setHeightWidthViewPortSize() {
+    await this.page.setViewportSize({ width: 1366, height: 768 });
   }
 }
 

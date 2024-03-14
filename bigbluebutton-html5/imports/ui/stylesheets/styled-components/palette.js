@@ -64,6 +64,7 @@ const btnWarningBg = `var(--btn-warning-bg, ${colorWarning})`;
 const btnDangerBorder = `var(--btn-danger-border, ${colorDanger})`;
 const btnDangerColor = `var(--btn-danger-color, ${colorWhite})`;
 const btnDangerBg = `var(--btn-danger-bg, ${colorDanger})`;
+const btnDangerBgHover = 'var(--btn-danger-bg-hover, #C61C1C)';
 
 const btnDarkBorder = `var(--btn-dark-border, ${colorDanger})`;
 const btnDarkColor = `var(--btn-dark-color, ${colorWhite})`;
@@ -116,6 +117,7 @@ const toastErrorColor = `var(--toast-error-color, ${colorWhite})`;
 const toastErrorBg = `var(--toast-error-bg, ${colorDanger})`;
 
 const webcamBackgroundColor = 'var(--webcam-background-color, #001428FF)';
+const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
 
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
@@ -183,6 +185,7 @@ export {
   userThumbnailBorder,
   loaderBg,
   loaderBullet,
+  btnDangerBgHover,
   systemMessageBackgroundColor,
   systemMessageBorderColor,
   systemMessageFontColor,
@@ -211,4 +214,5 @@ export {
   toastWarningColor,
   toastWarningBg,
   webcamBackgroundColor,
+  webcamPlaceholderBorder,
 };

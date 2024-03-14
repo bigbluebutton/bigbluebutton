@@ -2,7 +2,7 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const isModerator = () => {
   const user = Users.findOne(
@@ -40,7 +40,7 @@ const setLearningDashboardCookie = () => {
 };
 
 const openLearningDashboardUrl = (lang) => {
-  const APP = Meteor.settings.public.app;
+  const APP = window.meetingClientSettings.public.app;
   if (getLearningDashboardAccessToken() && setLearningDashboardCookie()) {
     window.open(`${APP.learningDashboardBase}/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
   } else {

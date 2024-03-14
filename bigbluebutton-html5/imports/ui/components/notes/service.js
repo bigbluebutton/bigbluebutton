@@ -6,8 +6,8 @@ import { Session } from 'meteor/session';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { isSharedNotesEnabled } from '/imports/ui/services/features';
 
-const NOTES_CONFIG = Meteor.settings.public.notes;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const hasPermission = () => {
   const user = Users.findOne(
@@ -34,28 +34,13 @@ const hasPermission = () => {
   return true;
 };
 
-const getLastRev = () => {
-  const lastRev = Session.get('notesLastRev');
-  if (!lastRev) return -1;
+const getLastRev = () => (Session.get('notesLastRev') || 0);
 
-  return lastRev;
-};
+const getRev = () => PadsService.getRev(NOTES_CONFIG.id);
 
-const setLastRev = () => {
-  const rev = PadsService.getRev(NOTES_CONFIG.id);
-  const lastRev = getLastRev();
+const markNotesAsRead = () => Session.set('notesLastRev', getRev());
 
-  if (rev !== 0 && rev > lastRev) {
-    Session.set('notesLastRev', rev);
-  }
-};
-
-const hasUnreadNotes = () => {
-  const rev = PadsService.getRev(NOTES_CONFIG.id);
-  const lastRev = getLastRev();
-
-  return rev !== 0 && rev > lastRev;
-};
+const hasUnreadNotes = () => (getRev() > getLastRev());
 
 const isEnabled = () => isSharedNotesEnabled();
 
@@ -73,8 +58,8 @@ const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
-const pinSharedNotes = (pinned) => {
-  PadsService.pinPad(NOTES_CONFIG.id, pinned);
+const pinSharedNotes = (pinned, stopWatching) => {
+  PadsService.pinPad(NOTES_CONFIG.id, pinned, stopWatching);
 };
 
 const isSharedNotesPinned = () => {
@@ -87,8 +72,7 @@ export default {
   toggleNotesPanel,
   hasPermission,
   isEnabled,
-  setLastRev,
-  getLastRev,
+  markNotesAsRead,
   hasUnreadNotes,
   isSharedNotesPinned,
   pinSharedNotes,

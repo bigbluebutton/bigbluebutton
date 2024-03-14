@@ -3,6 +3,7 @@
 case "$1" in
   configure|upgrade|1|2)
 
+  fc-cache -f
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-export-annotations.service
     systemctl daemon-reload

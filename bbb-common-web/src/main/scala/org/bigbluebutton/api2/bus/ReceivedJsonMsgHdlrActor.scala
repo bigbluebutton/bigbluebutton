@@ -4,9 +4,9 @@ import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.common2.bus._
 import org.bigbluebutton.common2.msgs._
 import com.fasterxml.jackson.databind.JsonNode
-import akka.actor.Actor
-import akka.actor.ActorLogging
-import akka.actor.Props
+import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.Props
 
 import scala.reflect.runtime.universe._
 
@@ -86,6 +86,10 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[UserBroadcastCamStoppedEvtMsg](envelope, jsonNode)
       case UserRoleChangedEvtMsg.NAME =>
         route[UserRoleChangedEvtMsg](envelope, jsonNode)
+      case UserLockedInMeetingEvtMsg.NAME =>
+        route[UserLockedInMeetingEvtMsg](envelope, jsonNode)
+      case UserSpeechLocaleChangedEvtMsg.NAME =>
+        route[UserSpeechLocaleChangedEvtMsg](envelope, jsonNode)
       case CreateBreakoutRoomSysCmdMsg.NAME =>
         route[CreateBreakoutRoomSysCmdMsg](envelope, jsonNode)
       case PresentationUploadTokenSysPubMsg.NAME =>
@@ -96,6 +100,10 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[PosInWaitingQueueUpdatedRespMsg](envelope, jsonNode)
       case GuestPolicyChangedEvtMsg.NAME =>
         route[GuestPolicyChangedEvtMsg](envelope, jsonNode)
+      case LockSettingsInMeetingChangedEvtMsg.NAME =>
+        route[LockSettingsInMeetingChangedEvtMsg](envelope, jsonNode)
+      case WebcamsOnlyForModeratorChangedEvtMsg.NAME =>
+        route[WebcamsOnlyForModeratorChangedEvtMsg](envelope, jsonNode)
       case GuestLobbyMessageChangedEvtMsg.NAME =>
         route[GuestLobbyMessageChangedEvtMsg](envelope, jsonNode)
       case PrivateGuestLobbyMsgChangedEvtMsg.NAME =>

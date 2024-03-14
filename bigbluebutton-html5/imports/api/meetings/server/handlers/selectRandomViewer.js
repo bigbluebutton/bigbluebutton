@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import updateRandomViewer from '../modifiers/updateRandomViewer';
 
-export default function randomlySelectedUser({ header, body }) {
+export default async function randomlySelectedUser({ header, body }) {
   const { userIds, choice, requestedBy } = body;
   const { meetingId } = header;
 
@@ -10,5 +10,5 @@ export default function randomlySelectedUser({ header, body }) {
   check(userIds, Array);
   check(choice, String);
 
-  updateRandomViewer(meetingId, userIds, choice, requestedBy);
+  await updateRandomViewer(meetingId, userIds, choice, requestedBy);
 }

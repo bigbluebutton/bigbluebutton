@@ -1,11 +1,13 @@
 #!/bin/bash
-while getopts i:r:s:m: flag
+while getopts i:r:s:m:o:l: flag
 do
    case "${flag}" in
       i) MEETING_ID=${OPTARG};;
       r) RECORD_ID=${OPTARG};;
       s) STATE=${OPTARG};;
       m) META=${OPTARG};;
+      o) OFFSET=${OPTARG};;
+      l) LIMIT=${OPTARG};;
    esac
 done
 
@@ -17,7 +19,9 @@ QUERY=""
 if ! [[ -z ${MEETING_ID+x} ]]; then QUERY+="meetingID=$MEETING_ID&"; fi
 if ! [[ -z ${RECORD_ID+x} ]]; then QUERY+="recordID=$RECORD_ID&"; fi
 if ! [[ -z ${STATE+x} ]]; then QUERY+="state=$STATE&"; fi
-if ! [[ -z ${META+x} ]]; then QUERY+="meta=$META"; fi
+if ! [[ -z ${META+x} ]]; then QUERY+="meta=$META&"; fi
+if ! [[ -z ${OFFSET+x} ]]; then QUERY+="offset=$OFFSET&"; fi
+if ! [[ -z ${LIMIT+x} ]]; then QUERY+="limit=$LIMIT"; fi
 
 echo "query: $QUERY"
 
@@ -26,7 +30,7 @@ if [ "${QUERY:$INDEX:1}" = "&" ]; then QUERY=${QUERY:0:$INDEX}; fi
 
 echo "query: $QUERY"
 
-SALT=
+SALT=""
 DATA="$ENDPOINT$QUERY$SALT"
 
 echo "data: $DATA"

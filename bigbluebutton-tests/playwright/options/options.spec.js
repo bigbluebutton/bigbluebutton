@@ -1,26 +1,35 @@
 const { test } = require('@playwright/test');
+const { fullyParallel } = require('../playwright.config');
 const { Options } = require('./options');
+const { initializePages } = require('../core/helpers');
 
-test.describe.parallel('Options', () => {
-  test('Open about modal', async ({ browser, page }) => {
-    const about = new Options(browser, page);
-    await about.init(true, true);
-    await about.openedAboutModal();
+test.describe('Options', () => {
+  const options = new Options();
+  let context;
+
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    const { context: innerContext } = await initializePages(options, browser);
+    context = innerContext;
   });
 
-  test('Open Help Button', async ({ browser, page, context }) => {
-    const helpButton = new Options(browser, page);
-    await helpButton.init(true, true);
-    await helpButton.openHelp(context);
+  test('Open about modal', async () => {
+    await options.openedAboutModal();
   });
-});
 
-test.describe.parallel('Settings', () => {
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#application-settings
-  test(`Locales`, async ({ browser, page }) => {
-    test.slow();
-    const language = new Options(browser, page);
-    await language.init(true, true);
-    await language.localesTest();
+  test('Open Help Button', async () => {
+    await options.openHelp(context);
+  });
+
+  test('Locales test', async () => {
+    await options.localesTest();
+  });
+
+  test('Dark mode @ci @flaky', async () => {
+    await options.darkMode();
+  });
+
+  test('Font size @ci @flaky', async () => {
+    await options.fontSizeTest();
   });
 });

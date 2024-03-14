@@ -1,8 +1,40 @@
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
+import RegexWebUrl from '/imports/utils/regex-weburl';
+import { BREAK_LINE } from '/imports/utils/lineEndings';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
+
+const HTML_SAFE_MAP = {
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+export const parseMessage = (message) => {
+  let parsedMessage = message || '';
+  parsedMessage = parsedMessage.trim();
+
+  // Replace <br/> with \n\r
+  parsedMessage = parsedMessage.replace(/<br\s*[\\/]?>/gi, '\n\r');
+
+  // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
+  parsedMessage = parsedMessage.replace(/[<>'"]/g, (c) => HTML_SAFE_MAP[c]);
+
+  // Replace flash links to flash valid ones
+  parsedMessage = parsedMessage.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
+
+  // Replace flash links to html valid ones
+  parsedMessage = parsedMessage.split('<a href=\'event:').join('<a target="_blank" href=\'');
+  parsedMessage = parsedMessage.split('<a href="event:').join('<a target="_blank" href="');
+
+  // Replace \r and \n to <br/>
+  parsedMessage = parsedMessage.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, `$1${BREAK_LINE}$2`);
+
+  return parsedMessage;
+};
 
 export const spokeTimeoutHandles = {};
 export const clearSpokeTimeout = (meetingId, userId) => {
@@ -22,7 +54,7 @@ export const indexOf = [].indexOf || function (item) {
   return -1;
 };
 
-export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
+export const processForHTML5ServerOnly = (fn) => async (message, ...args) => {
   const { envelope } = message;
   const { routing } = envelope;
   const { msgType, meetingId, userId } = routing;
@@ -32,7 +64,7 @@ export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
     meetingId,
   };
 
-  const user = Users.findOne(selector);
+  const user = await Users.findOneAsync(selector);
 
   const shouldSkip = user && msgType === MSG_DIRECT_TYPE && userId !== NODE_USER && user.clientType !== 'HTML5';
   if (shouldSkip) return () => { };
@@ -51,9 +83,10 @@ export const extractCredentials = (credentials) => {
 // The provided function is publication-specific and must check the "survival condition" of the publication.
 export const publicationSafeGuard = function (fn, self) {
   let stopped = false;
-  const periodicCheck = function () {
+  const periodicCheck = async function () {
     if (stopped) return;
-    if (!fn()) {
+    const result = await fn();
+    if (!result) {
       self.added(self._name, 'publication-stop-marker', { id: 'publication-stop-marker', stopped: true });
       self.stop();
     } else Meteor.setTimeout(periodicCheck, 1000);

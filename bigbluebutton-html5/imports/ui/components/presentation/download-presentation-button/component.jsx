@@ -11,7 +11,9 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   handleDownloadPresentation: PropTypes.func.isRequired,
   dark: PropTypes.bool,
 };
@@ -24,22 +26,19 @@ const DownloadPresentationButton = ({
   intl,
   handleDownloadPresentation,
   dark,
-}) => {
-
-  return (
-    <Styled.ButtonWrapper theme={dark ? 'dark' : 'light'}>
-      <Styled.DownloadButton
-        data-test="presentationDownload"
-        color="default"
-        icon="template_download"
-        size="sm"
-        onClick={handleDownloadPresentation}
-        label={intl.formatMessage(intlMessages.downloadPresentationButton)}
-        hideLabel
-      />
-    </Styled.ButtonWrapper>
-  );
-};
+}) => (
+  <Styled.ButtonWrapper theme={dark ? 'dark' : 'light'}>
+    <Styled.DownloadButton
+      data-test="presentationDownload"
+      color="default"
+      icon="template_download"
+      size="sm"
+      onClick={handleDownloadPresentation}
+      label={intl.formatMessage(intlMessages.downloadPresentationButton)}
+      hideLabel
+    />
+  </Styled.ButtonWrapper>
+);
 
 DownloadPresentationButton.propTypes = propTypes;
 DownloadPresentationButton.defaultProps = defaultProps;

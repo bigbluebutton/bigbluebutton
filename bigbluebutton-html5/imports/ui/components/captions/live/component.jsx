@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Service from '/imports/ui/components/captions/service';
 
-const CAPTIONS_CONFIG = Meteor.settings.public.captions;
+const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
 
 class LiveCaptions extends PureComponent {
   constructor(props) {
@@ -71,14 +71,10 @@ class LiveCaptions extends PureComponent {
 
     return (
       <div>
-        <div style={captionStyles}>
+        <div data-test="liveCaptions" style={captionStyles}>
           {clear ? '' : data}
         </div>
-        <div
-          style={visuallyHidden}
-          aria-atomic
-          aria-live="polite"
-        >
+        <div style={visuallyHidden}>
           {clear ? '' : data}
         </div>
       </div>

@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Service from './service';
-import BreakoutRoomContainer from './breakout-remaining-time/container';
+import MeetingRemainingTime from '../notifications-bar/meeting-remaining-time/container';
 import MessageFormContainer from './message-form/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -160,7 +159,9 @@ class BreakoutRoom extends PureComponent {
 
         Session.set('lastBreakoutIdOpened', requestedBreakoutId);
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
-        _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
+        setTimeout(() => {
+          this.setState({ generated: true, waiting: false });
+        }, 1000);
       }
     }
 
@@ -256,8 +257,8 @@ class BreakoutRoom extends PureComponent {
   }
 
   transferUserToBreakoutRoom(breakoutId) {
-    const { transferToBreakout } = this.props;
-    transferToBreakout(breakoutId);
+    const { transferUserToMeeting, meetingId } = this.props;
+    transferUserToMeeting(meetingId, breakoutId);
     this.setState({ joinedAudioOnly: true, breakoutId });
   }
 
@@ -291,6 +292,7 @@ class BreakoutRoom extends PureComponent {
       rejoinAudio,
       setBreakoutAudioTransferStatus,
       getBreakoutAudioTransferStatus,
+      sendUserUnshareWebcam,
     } = this.props;
 
     const {
@@ -361,7 +363,7 @@ class BreakoutRoom extends PureComponent {
                     extraInfo: { logType: 'user_action' },
                   }, 'joining breakout room closed audio in the main room');
                   VideoService.storeDeviceIds();
-                  VideoService.exitVideo();
+                  VideoService.exitVideo(sendUserUnshareWebcam);
                   if (amIPresenter) screenshareHasEnded();
 
                   Tracker.autorun((c) => {
@@ -430,7 +432,7 @@ class BreakoutRoom extends PureComponent {
 
     const { animations } = Settings.application;
     const roomItems = breakoutRooms.map((breakout) => (
-      <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`} >
+      <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`}>
         <Styled.Content key={`breakoutRoomList-${breakout.breakoutId}`}>
           <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
             {breakout.isDefaultName
@@ -495,7 +497,7 @@ class BreakoutRoom extends PureComponent {
         ref={(ref) => this.durationContainerRef = ref}
       >
         <Styled.Duration>
-          <BreakoutRoomContainer
+          <MeetingRemainingTime
             messageDuration={intlMessages.breakoutDuration}
             breakoutRoom={breakoutRooms[0]}
             fromBreakoutPanel
@@ -555,7 +557,7 @@ class BreakoutRoom extends PureComponent {
       isRTL,
     } = this.props;
     return (
-      <Styled.Panel ref={(n) => this.panel = n}>
+      <Styled.Panel ref={(n) => this.panel = n} onCopy={(e) => { e.stopPropagation(); }}>
         <Header
           leftButtonProps={{
             'aria-label': intl.formatMessage(intlMessages.breakoutAriaTitle),

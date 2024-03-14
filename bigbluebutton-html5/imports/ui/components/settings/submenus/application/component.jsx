@@ -6,14 +6,15 @@ import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
 import VideoService from '/imports/ui/components/video-provider/service';
+import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 
 const MIN_FONTSIZE = 0;
-const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
+const SHOW_AUDIO_FILTERS = (window.meetingClientSettings.public.app
   .showAudioFilters === undefined)
   ? true
-  : Meteor.settings.public.app.showAudioFilters;
+  : window.meetingClientSettings.public.app.showAudioFilters;
 const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
@@ -73,6 +74,14 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.paginationEnabledLabel',
     description: 'enable/disable video pagination',
   },
+  wbToolbarsAutoHideLabel: {
+    id: 'app.submenu.application.wbToolbarsAutoHideLabel',
+    description: 'enable/disable auto hiding of whitebord toolbars',
+  },
+  wakeLockEnabledLabel: {
+    id: 'app.submenu.application.wakeLockEnabledLabel',
+    description: 'enable/disable wake lock',
+  },
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
@@ -112,6 +121,12 @@ const intlMessages = defineMessages({
   customPushLayout: {
     id: 'app.layout.style.customPush',
     description: 'label for custom layout style (push to all)',
+  },
+  disableLabel: {
+    id: 'app.videoDock.webcamDisableLabelAllCams',
+  },
+  autoCloseReactionsBarLabel: {
+    id: 'app.actionsBar.reactions.autoCloseReactionsBarLabel',
   },
 });
 
@@ -283,7 +298,7 @@ class ApplicationMenu extends BaseMenu {
                 icons={false}
                 defaultChecked={this.state.audioFilterEnabled}
                 onChange={() => this.handleAudioFilterChange()}
-                ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                ariaLabel={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
                 showToggleLabel={showToggleLabel}
               />
             </Styled.FormElementRight>
@@ -319,7 +334,7 @@ class ApplicationMenu extends BaseMenu {
               icons={false}
               defaultChecked={settings.paginationEnabled}
               onChange={() => this.handleToggle('paginationEnabled')}
-              ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+              ariaLabel={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
               showToggleLabel={showToggleLabel}
             />
           </Styled.FormElementRight>
@@ -332,7 +347,7 @@ class ApplicationMenu extends BaseMenu {
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
 
-    const isDarkThemeEnabled = Meteor.settings.public.app.darkTheme.enabled;
+    const isDarkThemeEnabled = window.meetingClientSettings.public.app.darkTheme.enabled;
     if (!isDarkThemeEnabled) return null;
 
     return (
@@ -353,6 +368,40 @@ class ApplicationMenu extends BaseMenu {
               defaultChecked={settings.darkTheme}
               onChange={() => this.handleToggle('darkTheme')}
               showToggleLabel={showToggleLabel}
+              ariaLabel={`${intl.formatMessage(intlMessages.darkThemeLabel)} - ${displaySettingsStatus(settings.darkTheme, true)}`}
+              data-test="darkModeToggleBtn"
+            />
+          </Styled.FormElementRight>
+        </Styled.Col>
+      </Styled.Row>
+    );
+  }
+
+  renderWakeLockToggle() {
+    if (!WakeLockService.isSupported()) return null;
+
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { settings } = this.state;
+
+    return (
+      <Styled.Row>
+        <Styled.Col>
+          <Styled.FormElement>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <Styled.Label>
+              {intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
+            </Styled.Label>
+          </Styled.FormElement>
+        </Styled.Col>
+        <Styled.Col>
+          <Styled.FormElementRight>
+            {displaySettingsStatus(settings.wakeLock)}
+            <Toggle
+              icons={false}
+              defaultChecked={settings.wakeLock}
+              onChange={() => this.handleToggle('wakeLock')}
+              ariaLabel={intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
+              showToggleLabel={showToggleLabel}
             />
           </Styled.FormElementRight>
         </Styled.Col>
@@ -362,7 +411,11 @@ class ApplicationMenu extends BaseMenu {
 
   render() {
     const {
-      allLocales, intl, showToggleLabel, displaySettingsStatus,
+      allLocales,
+      intl,
+      showToggleLabel,
+      displaySettingsStatus,
+      isReactionsEnabled,
     } = this.props;
     const {
       isLargestFontSize, isSmallestFontSize, settings,
@@ -407,7 +460,7 @@ class ApplicationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.animations}
                   onChange={() => this.handleToggle('animations')}
-                  ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
+                  ariaLabel={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>
@@ -417,14 +470,81 @@ class ApplicationMenu extends BaseMenu {
           {this.renderAudioFilters()}
           {this.renderPaginationToggle()}
           {this.renderDarkThemeToggle()}
+          {this.renderWakeLockToggle()}
+
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.whiteboardToolbarAutoHide)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.whiteboardToolbarAutoHide}
+                  onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.disableLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.selfViewDisable)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.selfViewDisable}
+                  onChange={() => this.handleToggle('selfViewDisable')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+
+          {isReactionsEnabled && (
+            <Styled.Row>
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {displaySettingsStatus(settings.autoCloseReactionsBar)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.autoCloseReactionsBar}
+                    onChange={() => this.handleToggle('autoCloseReactionsBar')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+          )}
 
           <Styled.Row>
             <Styled.Col>
               <Styled.FormElement>
-                <Styled.Label
-                  htmlFor="langSelector"
-                  aria-label={intl.formatMessage(intlMessages.languageLabel)}
-                >
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.languageLabel)}
                 </Styled.Label>
               </Styled.FormElement>
@@ -438,6 +558,7 @@ class ApplicationMenu extends BaseMenu {
                       handleChange={(e) => this.handleSelectChange('locale', e)}
                       value={settings.locale}
                       elementId="langSelector"
+                      ariaLabel={intl.formatMessage(intlMessages.languageLabel)}
                       selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
                     />
                   </Styled.LocalesDropdownSelect>
@@ -483,6 +604,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isSmallestFontSize}
+                      data-test="decreaseFontSize"
                     />
                   </Styled.Col>
                   <Styled.Col>
@@ -495,6 +617,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isLargestFontSize}
+                      data-test="increaseFontSize"
                     />
                   </Styled.Col>
                 </Styled.PullContentRight>

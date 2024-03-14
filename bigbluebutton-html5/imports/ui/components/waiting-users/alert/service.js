@@ -1,11 +1,11 @@
 import React from 'react';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { notify } from '/imports/ui/services/notification';
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
 
-const CDN = Meteor.settings.public.app.cdn;
-const BASENAME = Meteor.settings.public.app.basename;
+const CDN = window.meetingClientSettings.public.app.cdn;
+const BASENAME = window.meetingClientSettings.public.app.basename;
 const HOST = CDN + BASENAME;
 const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
 
@@ -16,7 +16,7 @@ function ringGuestWaitingBell() {
   }
 }
 
-const ringGuestWaitingBellThrottled = _.throttle(
+const ringGuestWaitingBellThrottled = throttle(
   ringGuestWaitingBell,
   GUEST_WAITING_BELL_THROTTLE_TIME,
   { leading: true, trailing: false },

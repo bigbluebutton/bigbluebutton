@@ -1,11 +1,20 @@
 import React from 'react';
+import { useMutation } from '@apollo/client';
 import MessageForm from './component';
-import BreakoutService from '/imports/ui/components/breakout-room/service';
 import ChatService from '/imports/ui/components/chat/service';
+import { BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL } from '../mutations';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const MessageFormContainer = (props) => {
-  const handleSendMessage = (message) => BreakoutService.sendMessageToAllBreakouts(message);
+  const [sendMessageToAllBreakouts] = useMutation(BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL);
+
+  const handleSendMessage = (message) => {
+    sendMessageToAllBreakouts({
+      variables: {
+        message,
+      },
+    });
+  };
 
   return (
     <MessageForm

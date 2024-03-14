@@ -1,9 +1,9 @@
 import { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-export default function meetingHasEnded(meetingId) {
+export default async function meetingHasEnded(meetingId) {
   try {
-    const numberAffected = RecordMeetings.remove({ meetingId });
+    const numberAffected = RecordMeetings.removeAsync({ meetingId });
 
     if (numberAffected) {
       Logger.info(`Cleared record prop from meeting with id ${meetingId}`);

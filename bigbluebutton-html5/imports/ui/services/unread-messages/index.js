@@ -2,7 +2,7 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const STORAGE_KEY = CHAT_CONFIG.storage_key;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 

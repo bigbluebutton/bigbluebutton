@@ -1,24 +1,24 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { debounce, throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
+import { debounce } from '/imports/utils/debounce';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
-import { makeCall } from '/imports/ui/services/api';
 import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
-const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeter;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+const TOGGLE_MUTE_THROTTLE_TIME = window.meetingClientSettings.public.media.toggleMuteThrottleTime;
+const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
 const {
   enabled: LOCAL_ECHO_TEST_ENABLED,
   initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
-} = Meteor.settings.public.media.localEchoTest;
+} = window.meetingClientSettings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 
-const recoverMicState = () => {
+const recoverMicState = (toggleVoice) => {
   const muted = Storage.getItem(MUTED_KEY);
 
   if ((muted === undefined) || (muted === null)) {
@@ -28,24 +28,24 @@ const recoverMicState = () => {
   logger.debug({
     logCode: 'audio_recover_mic_state',
   }, `Audio recover previous mic state: muted = ${muted}`);
-  makeCall('toggleVoice', null, muted);
+  toggleVoice(null, muted);
 };
 
-const audioEventHandler = (event) => {
+const audioEventHandler = (toggleVoice) => (event) => {
   if (!event) {
     return;
   }
 
   switch (event.name) {
     case 'started':
-      if (!event.isListenOnly) recoverMicState();
+      if (!event.isListenOnly) recoverMicState(toggleVoice);
       break;
     default:
       break;
   }
 };
 
-const init = (messages, intl) => {
+const init = (messages, intl, toggleVoice) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
@@ -68,18 +68,33 @@ const init = (messages, intl) => {
     microphoneLockEnforced,
   };
 
-  return AudioManager.init(userData, audioEventHandler);
+  return AudioManager.init(userData, audioEventHandler(toggleVoice));
+};
+
+const muteMicrophone = (toggleVoice) => {
+  const user = VoiceUsers.findOne({
+    userId: Auth.userID,
+  }, { fields: { muted: 1 } });
+
+  if (!user.muted) {
+    logger.info({
+      logCode: 'audiomanager_mute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'User wants to leave conference. Microphone muted');
+    AudioManager.setSenderTrackEnabled(false);
+    toggleVoice();
+  }
 };
 
 const isVoiceUser = () => {
-  const voiceUser = VoiceUsers.findOne({ intId: Auth.userID },
+  const voiceUser = VoiceUsers.findOne({ userId: Auth.userID },
     { fields: { joined: 1 } });
   return voiceUser ? voiceUser.joined : false;
 };
 
-const toggleMuteMicrophone = throttle(() => {
+const toggleMuteMicrophone = throttle((toggleVoice) => {
   const user = VoiceUsers.findOne({
-    meetingId: Auth.meetingID, intId: Auth.userID,
+    userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
   Storage.setItem(MUTED_KEY, !user.muted);
@@ -89,13 +104,13 @@ const toggleMuteMicrophone = throttle(() => {
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
-    makeCall('toggleVoice');
+    toggleVoice();
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
-    makeCall('toggleVoice');
+    toggleVoice();
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
@@ -112,7 +127,18 @@ export default {
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
   liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
   changeOutputDevice: (outputDeviceId, isLive) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
-  isConnected: () => AudioManager.isConnected,
+  isConnectedToBreakout: () => {
+    const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
+    if (transferStatus.status
+      === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED) return true;
+    return false;
+  },
+  isConnected: () => {
+    const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
+    if (!!transferStatus.breakoutMeetingId
+      && transferStatus.breakoutMeetingId !== Auth.meetingID) return false;
+    return AudioManager.isConnected;
+  },
   isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,
   isUsingAudio: () => AudioManager.isUsingAudio(),
@@ -125,7 +151,7 @@ export default {
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1 } }).role === ROLE_MODERATOR,
+    { fields: { role: 1 } })?.role === ROLE_MODERATOR,
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
@@ -133,6 +159,7 @@ export default {
   updateAudioConstraints:
     (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
+  muteMicrophone: (toggleVoice) => muteMicrophone(toggleVoice),
   isReconnecting: () => AudioManager.isReconnecting,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),

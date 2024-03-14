@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2
 
-import akka.actor.{ Actor, ActorLogging, Props }
+import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
@@ -67,6 +67,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(toVoiceConfRedisChannel, json)
       case GetUsersStatusToVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
+      case HoldChannelInVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
 
       // Sent to SFU
       case EjectUserFromSfuSysMsg.NAME =>
@@ -74,6 +76,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case CamBroadcastStopSysMsg.NAME =>
         msgSender.send(toSfuRedisChannel, json)
       case CamStreamUnsubscribeSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case ToggleListenOnlyModeSysMsg.NAME =>
         msgSender.send(toSfuRedisChannel, json)
 
       //==================================================================
