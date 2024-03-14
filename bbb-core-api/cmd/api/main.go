@@ -1,11 +1,11 @@
 package main
 
 import (
-	bbb_core "bbb-core-api/gen/bbb-core"
 	"fmt"
 	"log"
 	"net/http"
 
+	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -16,7 +16,7 @@ const grpcPort = "9000"
 const target = grpcHost + ":" + grpcPort
 
 type Config struct {
-	BbbCore bbb_core.BbbCoreServiceClient
+	BbbCore bbbcore.BbbCoreServiceClient
 }
 
 func main() {
@@ -27,9 +27,9 @@ func main() {
 		return
 	}
 
-	log.Println("Successfully connected to akka-apps")
+	log.Println("Successfully connected to akka-apps through gRPC")
 
-	client := bbb_core.NewBbbCoreServiceClient(conn)
+	client := bbbcore.NewBbbCoreServiceClient(conn)
 
 	app := Config{
 		BbbCore: client,

@@ -1,4 +1,4 @@
-module bbb-core-api
+module github.com/bigbluebutton/bigbluebutton/bbb-core-api
 
 go 1.20
 

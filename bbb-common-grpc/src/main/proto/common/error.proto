@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package org.bigbluebutton.protos;
 
-option go_package = "bbb-core-api/gen/common";
-
 message ErrorResponse {
   string key = 1;
   string message = 2;

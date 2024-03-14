@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package org.bigbluebutton.protos;
 
-option go_package = "bbb-core-api/gen/common";
-
 message User {
     string user_id = 1;
     string full_name = 2;
