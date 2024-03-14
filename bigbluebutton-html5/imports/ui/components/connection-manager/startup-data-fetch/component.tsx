@@ -84,7 +84,7 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
         ? (
           <ErrorScreen
             endedReason={error}
-            code={404}
+            code={403}
           />
         )
         : null}
