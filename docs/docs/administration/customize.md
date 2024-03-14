@@ -1240,17 +1240,29 @@ The final welcome message shown to the user (as blue text in the Chat window) is
 
 The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
 
-#### Change the default locale
+#### Modify localization for the client (override with the latest locale)
 
-XXX - Needs updating
+A common use case is to modify a particular string from the locales or to include newer localizations from upstream.
+For example, if you would like to replace `de.json` with the version from a specific branch/tag of the repository, you could do the following:
 
-By default, the BigBlueButton client should detect the browser's locale and use that default language accordingly. The default language is English, but you can change that by editing `bigbluebutton/client/BigBlueButton.html` and change the value
-
-```javascript
-localeChain = 'en_US';
+```bash
+cd /usr/share/meteor/bundle/programs/web.browser/app/locales/
+mv de.json /tmp/de.json.old
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-release/bigbluebutton-html5/public/locales/de.json
+cd /usr/share/meteor/bundle/programs/web.browser.legacy/app/locales/
+rm de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-release/bigbluebutton-html5/public/locales/de.json
+bbb-conf --restart
 ```
 
-You can see the list of languages installed with BigBlueButton in the directory `/usr/share/meteor/bundle/programs/server/assets/app/locales`.
+Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached.
+
+Please use caution when replacing/editing locales. If you followed the steps above you should have a backup copy of `de.json` (with ".old" appended) in `/tmp` in case you need to revert.
+Note that the json files accross BigBlueButton versions are not always interchangeable. The workflow described above is only really meant for cases like
+ - I would like to tweak a translation for my own use
+ - I would like to adopt a change from upstream without having to wait for the official release in a few days
+ - This is part of my customization setup and I know what I need to test. I also know how to recover if needed
+
 
 #### Change favicon
 
