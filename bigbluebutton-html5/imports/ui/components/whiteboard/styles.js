@@ -1,10 +1,4 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
-import { toolbarButtonColor, colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  fontSizeLarger,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/common/button/component';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
@@ -44,17 +38,17 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
-  #presentationInnerWrapper > div:last-child {
+  #whiteboard-element {
     position: relative;
     height: 100%;
   }
 
-  #presentationInnerWrapper > div:last-child > * {
+  #whiteboard-element > * {
     position: relative; 
     height: 100%;
   }
 
-  #presentationInnerWrapper > div:last-child .tl-overlays {
+  #whiteboard-element .tl-overlays {
     left: 0px;
     bottom: 0px;
   }
