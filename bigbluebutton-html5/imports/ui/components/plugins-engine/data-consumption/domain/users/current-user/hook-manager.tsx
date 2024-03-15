@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
@@ -6,6 +6,7 @@ import {
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
+import { equals } from 'ramda';
 import formatCurrentUserResponseFromGraphql from './utils';
 import { User } from '/imports/ui/Types/user';
 import { GeneralHookManagerProps } from '../../../types';
@@ -17,6 +18,7 @@ const CurrentUserHookContainer: React.FunctionComponent<
   props: GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<User>>>,
 ) => {
   const [sendSignal, setSendSignal] = useState(false);
+  const previousCurrentUser = useRef<GraphqlDataHookSubscriptionResponse<Partial<User>> | null>(null);
 
   const { data: currentUser } = props;
 
@@ -38,12 +40,17 @@ const CurrentUserHookContainer: React.FunctionComponent<
     );
   };
   useEffect(() => {
+    if (!equals(previousCurrentUser.current, currentUser)) {
+      previousCurrentUser.current = currentUser;
+      updateUserForPlugin();
+    }
+  }, [currentUser]);
+  useEffect(() => {
     updateUserForPlugin();
-  }, [currentUser, sendSignal]);
-
+  }, [sendSignal]);
   useEffect(() => {
     const updateHookUseCurrentUser = () => {
-      setSendSignal(!sendSignal);
+      setSendSignal((signal) => !signal);
     };
     window.addEventListener(
       HookEvents.SUBSCRIBED, updateHookUseCurrentUser,
