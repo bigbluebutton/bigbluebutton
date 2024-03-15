@@ -1275,7 +1275,7 @@
     "app.layout.modal.layoutLabel": "Choisir votre mise en page",
     "app.layout.modal.pushLayoutLabel": "Appliquer la mise en page à tout le monde",
     "app.layout.modal.layoutToastLabel": "Le paramétrage de la mise en page a changé",
-    "app.layout.modal.layoutToastLabelAuto": "Activation de la mise à jour automatique de la mise en page, les mises à jour de la mise en page sont désormais appliquées à tout le monde",
+    "app.layout.modal.layoutToastLabelAuto": "Activation des mises à jour automatiques de la mise en page, les mises à jour de la mise en page sont désormais appliquées à tout le monde",
     "app.layout.modal.layoutToastLabelAutoOff": "Désactivation des mises à jour automatiques de la mise en page",
     "app.layout.modal.layoutSingular": "Mise en page",
     "app.layout.modal.layoutBtnDesc": "Défini la mise en page en tant qu'option sélectionnée",
