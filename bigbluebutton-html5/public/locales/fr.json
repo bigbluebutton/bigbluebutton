@@ -123,7 +123,7 @@
     "app.userlist.menu.removeConfirmation.desc": "Empêcher cet utilisateur de rejoindre la réunion à nouveau.",
     "app.userList.menu.muteUserAudio.label": "Rendre l'utilisateur silencieux",
     "app.userList.menu.unmuteUserAudio.label": "Permettre l'activation du microphone",
-    "app.userList.menu.webcamPin.label": "Épingler la caméra de ce participant",
+    "app.userList.menu.webcamPin.label": "Épingler la caméra du participant",
     "app.userList.menu.webcamUnpin.label": "Désépingler la caméra du participant",
     "app.userList.menu.giveWhiteboardAccess.label" : "Donner l'accès au tableau blanc",
     "app.userList.menu.removeWhiteboardAccess.label": "Supprimer l'accès au tableau blanc",
