@@ -8,7 +8,6 @@ import {
   CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from './queries';
-import { CURSOR_SUBSCRIPTION } from './cursors/queries';
 import {
   initDefaultPages,
   persistShape,
@@ -36,6 +35,7 @@ import {
   PRES_ANNOTATION_SUBMIT,
   PRESENTATION_SET_PAGE,
 } from '../presentation/mutations';
+import { useMergedCursorData } from './hooks.ts';
 
 const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
 
@@ -139,8 +139,7 @@ const WhiteboardContainer = (props) => {
     userId: user.userId,
   }));
 
-  const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
-  const { pres_page_cursor: cursorArray } = (cursorData || []);
+  const cursorArray = useMergedCursorData();
 
   const { data: annotationStreamData } = useSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
