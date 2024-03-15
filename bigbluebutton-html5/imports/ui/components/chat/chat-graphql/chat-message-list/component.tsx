@@ -7,6 +7,16 @@ import React, {
 } from 'react';
 import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
+import ChatPopupContainer from '/imports/ui/components/chat/chat-graphql/chat-popup/component';
+import useChat from '/imports/ui/core/hooks/useChat';
+import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
+import { Chat } from '/imports/ui/Types/chat';
+import { ChatEvents } from '/imports/ui/core/enums/chat';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { Message } from '/imports/ui/Types/message';
+import ChatListPage from './page/component';
 import LAST_SEEN_MUTATION from './queries';
 import {
   ButtonLoadMore,
@@ -15,17 +25,9 @@ import {
   UnreadButton,
   ChatMessages,
 } from './styles';
-import { layoutSelect } from '../../../layout/context';
-import ChatListPage from './page/component';
-import useChat from '/imports/ui/core/hooks/useChat';
-import { Chat } from '/imports/ui/Types/chat';
-import { Message } from '/imports/ui/Types/message';
-import ChatPopupContainer from '../chat-popup/component';
-import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { Layout } from '../../../layout/layoutTypes';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
+import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
 
-// @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -44,7 +46,6 @@ const intlMessages = defineMessages({
 });
 
 interface ChatListProps {
-
   totalUnread: number;
   totalPages: number;
   chatId: string;
@@ -59,6 +60,7 @@ interface ChatListProps {
   ) => void;
   lastSeenAt: string;
 }
+
 const isElement = (el: unknown): el is HTMLElement => {
   return el instanceof HTMLElement;
 };
@@ -117,15 +119,31 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   isRTL,
 }) => {
   const intl = useIntl();
-  const messageListRef = React.useRef<HTMLDivElement>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const messagesEndObserverRef = React.useRef<IntersectionObserver | null>(null);
+  const sentinelRef = React.useRef<HTMLDivElement | null>(null);
+  const {
+    ref: messageListRef,
+    current: currentMessageList,
+  } = useReactiveRef<HTMLDivElement>(null);
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
+  const {
+    childRefProxy: sentinelRefProxy,
+    intersecting: isSentinelVisible,
+    parentRefProxy: messageListRefProxy,
+  } = useIntersectionObserver(messageListRef, sentinelRef);
+  const {
+    startObserving,
+    stopObserving,
+  } = useStickyScroll(currentMessageList);
+
+  useEffect(() => {
+    if (isSentinelVisible) startObserving(); else stopObserving();
+    toggleFollowingTail(isSentinelVisible);
+  }, [isSentinelVisible]);
 
   useEffect(() => {
     setter({
@@ -135,6 +153,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     chatIdVar(chatId);
     setLastMessageCreatedAt('');
   }, [chatId]);
+
   useEffect(() => {
     if (lastMessageCreatedAt !== '') {
       setMessageAsSeenMutation({
@@ -160,29 +179,21 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   }, [lastMessageCreatedAt, chatId]);
 
-  const setScrollToTailEventHandler = (el: HTMLDivElement) => {
-    if (Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) === 0) {
-      if (isElement(contentRef.current)) {
-        toggleFollowingTail(true);
-      }
-    } else if (isElement(contentRef.current)) {
-      toggleFollowingTail(false);
-    }
+  const setScrollToTailEventHandler = () => {
+    toggleFollowingTail(isSentinelVisible);
   };
 
   const toggleFollowingTail = (toggle: boolean) => {
     setFollowingTail(toggle);
-    if (toggle) {
-      if (isElement(contentRef.current)) {
-        scrollObserver.observe(contentRef.current as HTMLDivElement);
-        setFollowingTail(true);
+    if (isElement(contentRef.current)) {
+      if (toggle) {
+        scrollObserver.observe(contentRef.current);
+      } else {
+        if (userLoadedBackUntilPage === null) {
+          setUserLoadedBackUntilPage(Math.max(totalPages - 2, 0));
+        }
+        scrollObserver.unobserve(contentRef.current);
       }
-    } else if (isElement(contentRef.current)) {
-      if (userLoadedBackUntilPage === null) {
-        setUserLoadedBackUntilPage(Math.max(totalPages - 2, 0));
-      }
-      scrollObserver.unobserve(contentRef.current as HTMLDivElement);
-      setFollowingTail(false);
     }
   };
 
@@ -196,7 +207,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
           onClick={() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            if (sentinelRef.current) {
+              sentinelRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
           }}
         />
       );
@@ -206,12 +219,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   useEffect(() => {
     const scrollToTailEventHandler = () => {
-      if (scrollObserver && contentRef.current) {
-        scrollObserver.observe(contentRef.current as HTMLDivElement);
-        if (isElement(messageListRef.current)) {
-          messageListRef.current.scrollTop = messageListRef.current.scrollHeight + messageListRef.current.clientHeight;
-        }
-        setFollowingTail(true);
+      if (isElement(sentinelRef.current)) {
+        sentinelRef.current.scrollIntoView();
       }
     };
 
@@ -220,7 +229,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     return () => {
       window.removeEventListener(ChatEvents.SENT_MESSAGE, scrollToTailEventHandler);
     };
-  }, [contentRef.current]);
+  }, []);
 
   useEffect(() => {
     if (followingTail) {
@@ -229,63 +238,28 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   }, [followingTail]);
 
   useEffect(() => {
-    if (isElement(contentRef.current)) {
-      toggleFollowingTail(true);
+    if (isElement(sentinelRef.current)) {
+      sentinelRef.current.scrollIntoView();
     }
-
-    if (isElement(messageListRef.current)) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-    }
-
-    return () => {
-      toggleFollowingTail(false);
-    };
-  }, [contentRef]);
-
-  useEffect(() => {
-    if (!messageListRef.current || !messagesEndRef.current) return;
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        const { isIntersecting, target } = entry;
-        if (isIntersecting && target === messagesEndRef.current) {
-          toggleFollowingTail(true);
-        }
-      });
-    }, {
-      root: messageListRef.current,
-      threshold: 1.0,
-    });
-    if (messagesEndObserverRef.current) {
-      messagesEndObserverRef.current.disconnect();
-    }
-    messagesEndObserverRef.current = observer;
-    observer.observe(messagesEndRef.current);
-  }, [messagesEndRef.current, messageListRef.current]);
+  }, []);
 
   const firstPageToLoad = userLoadedBackUntilPage !== null
-    ? userLoadedBackUntilPage : Math.max(totalPages - 2, 0);
+    ? userLoadedBackUntilPage
+    : Math.max(totalPages - 2, 0);
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
+
   return (
     <>
       {
         [
           <MessageListWrapper key="message-list-wrapper" id="chat-list">
             <MessageList
-              ref={messageListRef}
-              onWheel={(e) => {
-                if (e.deltaY < 0) {
-                  if (isElement(contentRef.current) && followingTail) {
-                    toggleFollowingTail(false);
-                  }
-                } else if (e.deltaY > 0) {
-                  setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
-                }
-              }}
+              ref={messageListRefProxy}
               onMouseUp={() => {
-                setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
+                setScrollToTailEventHandler();
               }}
               onTouchEnd={() => {
-                setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
+                setScrollToTailEventHandler();
               }}
             >
               <span>
@@ -331,7 +305,13 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                   })
                 }
               </ChatMessages>
-              <div ref={messagesEndRef} />
+              <div
+                ref={sentinelRefProxy}
+                style={{
+                  height: 1,
+                  background: 'none',
+                }}
+              />
             </MessageList>
           </MessageListWrapper>,
           renderUnreadNotification,
