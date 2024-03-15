@@ -66,7 +66,7 @@ class Chat extends MultiUsers {
     await this.modPage.hasText(e.chatUserMessageText, 'The public chat history was cleared by a moderator');
   }
 
-  async copyChat(context) {
+  async copyChat() {
     const { publicChatOptionsEnabled } = getSettings();
 
     await openPublicChat(this.modPage);
@@ -85,7 +85,7 @@ class Chat extends MultiUsers {
     await this.modPage.waitForSelector(e.chatUserMessageText);
     await this.modPage.waitAndClick(e.chatCopy);
     // enable access to browser context clipboard
-    const copiedText = await this.modPage.getCopiedText(context);
+    const copiedText = await this.modPage.getCopiedText(this.modPage.context);
     const check = copiedText.includes(`${p.fullName}: ${e.message}`);
     await expect(check).toBeTruthy();
   }

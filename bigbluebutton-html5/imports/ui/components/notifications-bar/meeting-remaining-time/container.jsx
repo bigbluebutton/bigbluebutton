@@ -48,7 +48,7 @@ let timeRemaining = 0;
 let prevTimeRemaining = 0;
 let lastAlertTime = null;
 
-const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+const METEOR_SETTINGS_APP = window.meetingClientSettings.public.app;
 const REMAINING_TIME_ALERT_THRESHOLD_ARRAY = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
 
 const timeRemainingDep = new Tracker.Dependency();

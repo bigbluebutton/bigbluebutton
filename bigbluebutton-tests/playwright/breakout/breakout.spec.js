@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { Create } = require('./create');
 const { Join } = require('./join');
 

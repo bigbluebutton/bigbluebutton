@@ -17,43 +17,49 @@
 */
 /* eslint no-unused-vars: 0 */
 
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { render } from 'react-dom';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
-import JoinHandler from '/imports/ui/components/join-handler/component';
+import JoinHandler from '../imports/ui/components/join-handler/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
 import Subscriptions from '/imports/ui/components/subscriptions/component';
 import IntlStartup from '/imports/startup/client/intl';
 import ContextProviders from '/imports/ui/components/context-providers/component';
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
-import GraphqlProvider from '/imports/ui/components/graphql-provider/component';
+import ConnectionManager from '/imports/ui/components/connection-manager/component';
 import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 // The adapter import is "unused" as far as static code is concerned, but it
 // needs to here to override global prototypes. So: don't remove it - prlanzarin 25 Apr 2022
 import adapter from 'webrtc-adapter';
 
 import collectionMirrorInitializer from './collection-mirror-initializer';
+import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import IntlAdapter from '/imports/startup/client/intlAdapter';
+import PresenceAdapter from '/imports/ui/components/authenticated-handler/presence-adapter/component';
+import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
 });
 
-const { disableWebsocketFallback } = Meteor.settings.public.app;
-
-if (disableWebsocketFallback) {
-  Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
-
-  Meteor.disconnect();
-  Meteor.reconnect();
-}
-
 collectionMirrorInitializer();
 liveDataEventBrokerInitializer();
 
-Meteor.startup(() => {
+// eslint-disable-next-line import/prefer-default-export
+const Startup = () => {
+  const loadingContextInfo = useContext(LoadingContext);
+  useEffect(() => {
+    const { disableWebsocketFallback } = window.meetingClientSettings.public.app;
+    loadingContextInfo.setLoading(false, '');
+    if (disableWebsocketFallback) {
+      Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
+
+      Meteor.disconnect();
+      Meteor.reconnect();
+    }
+  }, []);
   // Logs all uncaught exceptions to the client logger
   window.addEventListener('error', (e) => {
     let message = e.message || e.error.toString();
@@ -76,24 +82,20 @@ Meteor.startup(() => {
     }, message);
   });
 
-  // TODO make this a Promise
-  render(
+  return (
     <ContextProviders>
       <>
-        <JoinHandler>
-          <AuthenticatedHandler>
-            <GraphqlProvider>
-              <Subscriptions>
-                <IntlStartup>
-                  <Base />
-                </IntlStartup>
-              </Subscriptions>
-            </GraphqlProvider>
-          </AuthenticatedHandler>
-        </JoinHandler>
+        <PresenceAdapter>
+          <Subscriptions>
+            <IntlAdapter>
+              <Base />
+            </IntlAdapter>
+          </Subscriptions>
+        </PresenceAdapter>
         <UsersAdapter />
       </>
-    </ContextProviders>,
-    document.getElementById('app'),
+    </ContextProviders>
   );
-});
+};
+
+export default Startup;

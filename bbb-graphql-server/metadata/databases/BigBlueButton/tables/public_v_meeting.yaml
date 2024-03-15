@@ -184,6 +184,7 @@ select_permissions:
         - endedBy
         - endedByUserName
         - endedReasonCode
+        - isBreakout
         - logoutUrl
         - meetingId
         - name

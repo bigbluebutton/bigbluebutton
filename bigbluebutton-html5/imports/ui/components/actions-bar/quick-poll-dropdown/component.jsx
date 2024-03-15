@@ -7,7 +7,7 @@ import { PANELS, ACTIONS } from '../../layout/enums';
 import { uniqueId, safeMatch } from '/imports/utils/string-utils';
 import PollService from '/imports/ui/components/poll/service';
 
-const POLL_SETTINGS = Meteor.settings.public.poll;
+const POLL_SETTINGS = window.meetingClientSettings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
 const CANCELED_POLL_DELAY = 250;

@@ -22,6 +22,8 @@ class UndoDrawing extends MultiUsers {
     await this.modPage.page.mouse.up();
 
     await this.modPage.waitAndClick(e.wbUndo);
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
 
     await expect(modWbLocator).toHaveScreenshot('moderator-undo-drawing.png');
 

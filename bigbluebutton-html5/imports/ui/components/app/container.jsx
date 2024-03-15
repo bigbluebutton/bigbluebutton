@@ -37,7 +37,7 @@ import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 
-const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
+const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 
 const endMeeting = (code, ejectedReason) => {
   Session.set('codeError', code);
@@ -339,7 +339,7 @@ export default withTracker(() => {
     customStyleUrl = CUSTOM_STYLE_URL;
   }
 
-  const LAYOUT_CONFIG = Meteor.settings.public.layout;
+  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -376,7 +376,7 @@ export default withTracker(() => {
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
-      Meteor.settings.public.presentation.restoreOnUpdate,
+      window.meetingClientSettings.public.presentation.restoreOnUpdate,
     ),
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),

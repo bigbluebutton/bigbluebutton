@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Options } = require('./options');
 const { initializePages } = require('../core/helpers');
@@ -9,12 +9,10 @@ const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOA
 
 test.describe('Options', () => {
   const options = new Options();
-  let context;
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    const { context: innerContext } = await initializePages(options, browser, { createParameter: hidePresentationToast });
-    context = innerContext;
+    await initializePages(options, browser, { createParameter: hidePresentationToast });
   });
 
   test('Open about modal', async () => {
@@ -22,7 +20,7 @@ test.describe('Options', () => {
   });
 
   test('Open Help Button', async () => {
-    await options.openHelp(context);
+    await options.openHelp();
   });
 
   test('Locales test', async () => {

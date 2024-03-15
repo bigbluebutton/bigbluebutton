@@ -34,20 +34,20 @@ const {
     delay: 3000,
     reconnectOnFailure: true,
   },
-} = Meteor.settings.public.kurento.cameraWsOptions;
+} = window.meetingClientSettings.public.kurento.cameraWsOptions;
 
-const { webcam: NETWORK_PRIORITY } = Meteor.settings.public.media.networkPriorities || {};
+const { webcam: NETWORK_PRIORITY } = window.meetingClientSettings.public.media.networkPriorities || {};
 const {
   baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
   maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
-} = Meteor.settings.public.kurento.cameraTimeouts || {};
+} = window.meetingClientSettings.public.kurento.cameraTimeouts || {};
 const {
   enabled: CAMERA_QUALITY_THRESHOLDS_ENABLED = true,
   privilegedStreams: CAMERA_QUALITY_THR_PRIVILEGED = true,
-} = Meteor.settings.public.kurento.cameraQualityThresholds;
-const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
-const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
-const GATHERING_TIMEOUT = Meteor.settings.public.kurento.gatheringTimeout;
+} = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
+const SIGNAL_CANDIDATES = window.meetingClientSettings.public.kurento.signalCandidates;
+const TRACE_LOGS = window.meetingClientSettings.public.kurento.traceLogs;
+const GATHERING_TIMEOUT = window.meetingClientSettings.public.kurento.gatheringTimeout;
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -1261,6 +1261,7 @@ class VideoProvider extends Component {
       focusedId,
       handleVideoFocus,
       isGridEnabled,
+      users,
     } = this.props;
 
     return (
@@ -1273,6 +1274,7 @@ class VideoProvider extends Component {
           focusedId,
           handleVideoFocus,
           isGridEnabled,
+          users,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

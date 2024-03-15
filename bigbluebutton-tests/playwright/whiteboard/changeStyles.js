@@ -22,9 +22,10 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await this.modPage.waitAndClick(e.wbStyles);
+    
     await this.modPage.waitAndClick(e.wbColorRed);
-    await this.modPage.waitAndClick(e.wbStyles);
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
 
     await expect(modWbLocator).toHaveScreenshot('moderator-change-color.png');
 
@@ -46,9 +47,11 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await this.modPage.waitAndClick(e.wbStyles);
     await this.modPage.waitAndClick(e.wbFillDrawing);
     await this.modPage.press('Escape');
+
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
 
     await expect(modWbLocator).toHaveScreenshot('moderator-fill-drawing.png');
 
@@ -70,9 +73,10 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await this.modPage.waitAndClick(e.wbStyles);
     await this.modPage.waitAndClick(e.wbDashDotted);
-    await this.modPage.waitAndClick(e.wbStyles);
+
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
 
     await expect(this.modPage.page).toHaveScreenshot('moderator-dash-drawing.png');
 
@@ -94,10 +98,11 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await this.modPage.waitAndClick(e.wbStyles);
     await this.modPage.waitAndClick(e.wbSizeLarge);
-    await this.modPage.waitAndClick(e.wbStyles);
 
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
+    
     await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);

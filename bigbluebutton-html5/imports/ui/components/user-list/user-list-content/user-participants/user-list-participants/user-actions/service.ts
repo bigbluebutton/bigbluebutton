@@ -10,10 +10,10 @@ import logger from '/imports/startup/client/logger';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
-const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
+const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
-const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
+const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
@@ -87,7 +87,7 @@ export const generateActionsPermissions = (
     && !isDialInUser;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary, while meteor exists in the project
-  const { allowUserLookup } = Meteor.settings.public.app;
+  const { allowUserLookup } = window.meetingClientSettings.public.app;
 
   const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
 

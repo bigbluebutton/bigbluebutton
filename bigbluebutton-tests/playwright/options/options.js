@@ -16,9 +16,9 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClick(e.closeModal);
   }
 
-  async openHelp(context) {
+  async openHelp() {
     await this.modPage.waitAndClick(e.optionsButton);
-    const newPage = await this.modPage.handleNewTab(e.helpButton, context);
+    const newPage = await this.modPage.handleNewTab(e.helpButton, this.modPage.context);
     await expect(newPage).toHaveTitle(/Tutorials/);
     await newPage.close();
     await this.modPage.hasElement(e.whiteboard);
@@ -67,7 +67,7 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     const modPageLocator = this.modPage.getLocator('body');
-    await this.modPage.page.setViewportSize({ width: 1366, height: 768 });
+    await this.modPage.setHeightWidthViewPortSize();
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
@@ -93,7 +93,7 @@ class Options extends MultiUsers {
 
     const modPageLocator = this.modPage.getLocator('body');
 
-    await this.modPage.page.setViewportSize({ width: 1366, height: 768 });
+    await this.modPage.setHeightWidthViewPortSize();
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };

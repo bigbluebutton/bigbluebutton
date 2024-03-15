@@ -297,6 +297,7 @@ class VideoList extends Component {
       swapLayout,
       handleVideoFocus,
       focusedId,
+      users,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -316,6 +317,7 @@ class VideoList extends Component {
           data-test="webcamVideoItem"
         >
           <VideoListItemContainer
+            users={users}
             numOfStreams={numOfStreams}
             cameraId={stream}
             userId={userId}
@@ -327,6 +329,7 @@ class VideoList extends Component {
               this.handleCanvasResize();
               if (isStream) onVideoItemMount(stream, videoRef);
             }}
+            stream={streams.find((s) => s.userId === userId) || {}}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
             onVirtualBgDrop={(type, name, data) => { return isStream ? onVirtualBgDrop(stream, type, name, data) : null; }}
