@@ -94,7 +94,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
     const handleMouseWheel = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        if (!tlEditorRef.current || !isPresenter) {
+        if (!tlEditorRef.current || !isPresenter || !currentPresentationPage) {
             return;
         }
 
