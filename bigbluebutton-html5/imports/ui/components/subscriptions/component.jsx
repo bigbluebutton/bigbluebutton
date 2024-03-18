@@ -9,14 +9,14 @@ import SubscriptionRegistry, {
 } from '../../services/subscription-registry/subscriptionRegistry';
 import { isChatEnabled } from '/imports/ui/services/features';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
-  'users',
+  // 'users',
   'meetings',
   'polls',
   'captions',
-  'voiceUsers',
+  // 'voiceUsers',
   'screenshare',
   'users-settings',
   'users-infos',
@@ -31,7 +31,6 @@ const SUBSCRIPTIONS = [
   'pads-sessions',
   'pads-updates',
   'notifications',
-  'audio-captions',
   'layout-meetings',
   'user-reaction',
   'timer',

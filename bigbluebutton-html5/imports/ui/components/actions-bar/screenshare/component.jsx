@@ -23,10 +23,14 @@ const { isSafari, isTabletApp } = browserInfo;
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
   enabled: PropTypes.bool.isRequired,
-  amIPresenter: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool,
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
+};
+
+const defaultProps = {
+  amIPresenter: false,
 };
 
 const intlMessages = defineMessages({
@@ -214,4 +218,5 @@ const ScreenshareButton = ({
 };
 
 ScreenshareButton.propTypes = propTypes;
+ScreenshareButton.defaultProps = defaultProps;
 export default injectIntl(memo(ScreenshareButton));

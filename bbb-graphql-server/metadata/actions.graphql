@@ -276,7 +276,14 @@ type Mutation {
 type Mutation {
   presAnnotationSubmit(
     pageId: String!
-    annotations: [String]!
+    annotations: json!
+  ): Boolean
+}
+
+type Mutation {
+  presentationExport(
+    presentationId: String!
+    fileStateType: String!
   ): Boolean
 }
 
@@ -445,6 +452,16 @@ type Mutation {
 }
 
 type Mutation {
+  userSetConnectionAlive: Boolean
+}
+
+type Mutation {
+  userSetConnectionRtt(
+    networkRttInMs: Float!
+  ): Boolean
+}
+
+type Mutation {
   userSetEmojiStatus(
     emoji: String!
   ): Boolean
@@ -537,4 +554,3 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
-

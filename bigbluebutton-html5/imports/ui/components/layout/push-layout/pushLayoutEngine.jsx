@@ -9,7 +9,7 @@ import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 import { Session } from 'meteor/session';
 
-const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentationOnJoin;
+const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -44,6 +44,7 @@ const propTypes = {
   shouldShowScreenshare: PropTypes.bool,
   shouldShowExternalVideo: PropTypes.bool,
   enforceLayout: PropTypes.string,
+  setLocalSettings: PropTypes.func.isRequired,
 };
 
 class PushLayoutEngine extends React.Component {
@@ -65,6 +66,8 @@ class PushLayoutEngine extends React.Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       enforceLayout,
+      setLocalSettings,
+      pushLayoutMeeting,
     } = this.props;
 
     const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
@@ -77,11 +80,14 @@ class PushLayoutEngine extends React.Component {
     }
     Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
 
-    Settings.save();
+    Settings.save(setLocalSettings);
 
-    const initialPresentation = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
-    MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
-    Session.set('presentationLastState', initialPresentation);
+    const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
+    let presentationIsOpen = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
+    presentationIsOpen = pushLayoutMeeting ? meetingPresentationIsOpen : presentationIsOpen;
+    presentationIsOpen = shouldOpenPresentation || presentationIsOpen;
+    MediaService.setPresentationIsOpen(layoutContextDispatch, presentationIsOpen);
+    Session.set('presentationLastState', presentationIsOpen);
 
     if (selectedLayout === 'custom') {
       setTimeout(() => {
@@ -145,6 +151,7 @@ class PushLayoutEngine extends React.Component {
       setMeetingLayout,
       setPushLayout,
       enforceLayout,
+      setLocalSettings,
     } = this.props;
 
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
@@ -172,7 +179,7 @@ class PushLayoutEngine extends React.Component {
           ...Settings.application,
           selectedLayout: contextLayout,
         },
-      });
+      }, null, setLocalSettings);
     }
 
     if (!enforceLayout && pushLayoutMeetingDidChange) {
@@ -181,7 +188,7 @@ class PushLayoutEngine extends React.Component {
           ...Settings.application,
           pushLayout: pushLayoutMeeting,
         },
-      });
+      }, null, setLocalSettings);
     }
 
     if (meetingLayout === "custom" && selectedLayout === "custom" && !isPresenter) {

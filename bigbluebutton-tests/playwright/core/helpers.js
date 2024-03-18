@@ -168,10 +168,6 @@ async function initializePages(testInstance, browser, initOptions) {
   const page = await context.newPage();
   await testInstance.initModPage(page, true, { createParameter, joinParameter });
   if (isMultiUser) await testInstance.initUserPage(true, context, { createParameter, joinParameter });
-
-  return {
-    context,
-  };
 }
 
 exports.getRandomInt = getRandomInt;

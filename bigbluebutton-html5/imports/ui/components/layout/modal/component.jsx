@@ -17,11 +17,12 @@ const LayoutModalComponent = (props) => {
     updateSettings,
     onRequestClose,
     isOpen,
+    setLocalSettings,
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
 
-  const BASE_NAME = Meteor.settings.public.app.basename;
+  const BASE_NAME = window.meetingClientSettings.public.app.basename;
 
   const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
@@ -82,7 +83,7 @@ const LayoutModalComponent = (props) => {
       application:
         { ...application, selectedLayout, pushLayout: updateAll },
     };
-    updateSettings(obj, intlMessages.layoutToastLabel);
+    updateSettings(obj, intlMessages.layoutToastLabel, setLocalSettings);
     setIsOpen(false);
   };
 
@@ -171,15 +172,20 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isModerator: PropTypes.bool.isRequired,
+  isModerator: PropTypes.bool,
   isPresenter: PropTypes.bool.isRequired,
-  showToggleLabel: PropTypes.bool.isRequired,
   application: PropTypes.shape({
     selectedLayout: PropTypes.string.isRequired,
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
+  setLocalSettings: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+  isModerator: false,
 };
 
 LayoutModalComponent.propTypes = propTypes;
+LayoutModalComponent.defaultProps = defaultProps;
 
 export default injectIntl(LayoutModalComponent);

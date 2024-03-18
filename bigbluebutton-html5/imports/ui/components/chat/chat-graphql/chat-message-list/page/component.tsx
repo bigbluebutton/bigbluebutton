@@ -12,10 +12,12 @@ import {
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import useLoadedChatMessages from '/imports/ui/core/hooks/useLoadedChatMessages';
+import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
+import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
+import { ChatLoading } from '../../component';
 
 // @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
 interface ChatListPageContainerProps {
@@ -93,8 +95,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   markMessageAsSeen,
   scrollRef,
 }) => {
-  const { setChatMessagesGraphqlVariablesAndQuery } = useContext(PluginsContext);
-
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
   const chatQuery = isPublicChat
     ? CHAT_MESSAGE_PUBLIC_SUBSCRIPTION
@@ -103,32 +103,33 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
 
-  const resp = useLoadedChatMessages((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
+  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
+  const {
+    data: chatMessageData,
+  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
-  const chatMessageData = resp?.data;
   useEffect(() => {
-    setChatMessagesGraphqlVariablesAndQuery(
-      {
-        query: chatQuery,
-        variables,
-      },
-    );
-  }, [chatId, page, pageSize]);
-  if (chatMessageData) {
-    if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
-      setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
-    }
+    // component will unmount
+    return () => {
+      setLoadedMessageGathering(page, []);
+    };
+  }, []);
 
-    return (
-      <ChatListPage
-        messages={chatMessageData}
-        lastSenderPreviousPage={lastSenderPreviousPage}
-        page={page}
-        markMessageAsSeen={markMessageAsSeen}
-        scrollRef={scrollRef}
-      />
-    );
-  } return (<></>);
+  if (!chatMessageData) return null;
+  if (chatMessageData.length > 0 && chatId !== chatMessageData[0].chatId) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+  if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
+    setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
+  }
+  setLoadedMessageGathering(page, chatMessageData);
+  return (
+    <ChatListPage
+      messages={chatMessageData}
+      lastSenderPreviousPage={lastSenderPreviousPage}
+      page={page}
+      markMessageAsSeen={markMessageAsSeen}
+      scrollRef={scrollRef}
+    />
+  );
 };
 
 export default ChatListPageContainer;

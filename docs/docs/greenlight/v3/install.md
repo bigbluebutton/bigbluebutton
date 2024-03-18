@@ -48,6 +48,12 @@ You can also run it without any arguments to create the default admin account, w
 docker exec -it greenlight-v3 bundle exec rake admin:create
 ```
 
+### Upgrading an existing account to an Admin Account
+
+You can do that by running the following command:
+```bash
+docker exec -it greenlight-v3 bundle exec rake user:set_admin_role['email']
+```
 
 ## Installing on a Standalone Server
 ### Greenlight Install Script

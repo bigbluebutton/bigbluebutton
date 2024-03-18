@@ -172,6 +172,7 @@ const ButtonsActions = styled.div`
 
 const PublishButton = styled(Button)`
   width: 48%;
+  margin-bottom: ${smPaddingY};
   overflow-wrap: break-word;
   white-space: pre-wrap;
 `;

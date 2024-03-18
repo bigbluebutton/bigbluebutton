@@ -5,7 +5,6 @@ import React, {
   useState,
   useMemo,
 } from 'react';
-import { Meteor } from 'meteor/meteor';
 import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import LAST_SEEN_MUTATION from './queries';
@@ -14,6 +13,7 @@ import {
   MessageList,
   MessageListWrapper,
   UnreadButton,
+  ChatMessages,
 } from './styles';
 import { layoutSelect } from '../../../layout/context';
 import ChatListPage from './page/component';
@@ -26,7 +26,7 @@ import { Layout } from '../../../layout/layoutTypes';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 // @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
@@ -48,6 +48,7 @@ interface ChatListProps {
   totalUnread: number;
   totalPages: number;
   chatId: string;
+  isRTL: boolean;
   setMessageAsSeenMutation: (
     data: {
       variables: {
@@ -113,6 +114,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   setMessageAsSeenMutation,
   lastSeenAt,
   totalUnread,
+  isRTL,
 }) => {
   const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement>(null);
@@ -120,6 +122,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const messagesEndObserverRef = React.useRef<IntersectionObserver | null>(null);
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
@@ -239,6 +242,26 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     };
   }, [contentRef]);
 
+  useEffect(() => {
+    if (!messageListRef.current || !messagesEndRef.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const { isIntersecting, target } = entry;
+        if (isIntersecting && target === messagesEndRef.current) {
+          toggleFollowingTail(true);
+        }
+      });
+    }, {
+      root: messageListRef.current,
+      threshold: 1.0,
+    });
+    if (messagesEndObserverRef.current) {
+      messagesEndObserverRef.current.disconnect();
+    }
+    messagesEndObserverRef.current = observer;
+    observer.observe(messagesEndRef.current);
+  }, [messagesEndRef.current, messageListRef.current]);
+
   const firstPageToLoad = userLoadedBackUntilPage !== null
     ? userLoadedBackUntilPage : Math.max(totalPages - 2, 0);
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
@@ -282,7 +305,12 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     ) : null
                 }
               </span>
-              <div id="contentRef" ref={contentRef} data-test="chatMessages">
+              <ChatMessages
+                id="contentRef"
+                ref={contentRef}
+                data-test="chatMessages"
+                isRTL={isRTL}
+              >
                 <ChatPopupContainer />
                 {
                   // @ts-ignore
@@ -302,7 +330,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     );
                   })
                 }
-              </div>
+              </ChatMessages>
               <div ref={messagesEndRef} />
             </MessageList>
           </MessageListWrapper>,
@@ -315,6 +343,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
 const ChatMessageListContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
   const { data: currentChat } = useChat((chat) => {
@@ -337,6 +366,7 @@ const ChatMessageListContainer: React.FC = () => {
       chatId={chatId}
       setMessageAsSeenMutation={setMessageAsSeenMutation}
       totalUnread={currentChat?.totalUnread || 0}
+      isRTL={isRTL}
     />
   );
 };

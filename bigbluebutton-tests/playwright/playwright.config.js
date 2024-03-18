@@ -3,7 +3,6 @@ const { chromiumConfig, firefoxConfig, webkitConfig } = require('./core/browsers
 const { ELEMENT_WAIT_TIME } = require('./core/constants');
 
 const CI = process.env.CI === 'true';
-const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
 
 const config = {
   workers: CI ? 1 : 2,
@@ -16,9 +15,7 @@ const config = {
   fullyParallel: CI,
   use: {
     headless: true,
-    trace: DEBUG_MODE ? 'on'
-      : CI ? 'retain-on-failure'
-        : 'off',
+    trace: 'on',
     screenshot: 'on',
     video: 'on',
   },

@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { CustomParameters } = require('./customparameters');
 const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
@@ -424,7 +424,7 @@ test.describe.parallel('Custom Parameters', () => {
 
   test.describe.parallel('Audio', () => {
     // see https://github.com/bigbluebutton/bigbluebutton/issues/19427
-    test('Auto join @ci @flaky', async ({ browser, context, page }) => {
+    test('Auto join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.autoJoin });
       await customParam.autoJoin();
@@ -437,7 +437,7 @@ test.describe.parallel('Custom Parameters', () => {
     });
 
     // see https://github.com/bigbluebutton/bigbluebutton/issues/19428
-    test('Force Listen Only @ci @flaky', async ({ browser, context, page }) => {
+    test('Force Listen Only @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initUserPage(false, context, { useModMeetingId: false, joinParameter: c.forceListenOnly });
       await customParam.forceListenOnly(page);
@@ -458,7 +458,7 @@ test.describe.parallel('Custom Parameters', () => {
 
   test.describe.parallel('Presentation', () => {
     // see https://github.com/bigbluebutton/bigbluebutton/issues/19456
-    test('Hide Presentation on join @ci @flaky', async ({ browser, context, page }) => {
+    test('Hide Presentation on join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });

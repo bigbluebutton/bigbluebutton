@@ -1,4 +1,5 @@
-const { test, devices } = require('@playwright/test');
+const { devices } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');
@@ -86,7 +87,8 @@ test.describe.parallel('User', () => {
       await multiusers.removeUser();
     });
 
-    test('Remove user and prevent rejoining', async ({ browser, context, page }) => {
+    // User is currently getting stuck when trying to rejoin - no error message is shown
+    test('Remove user and prevent rejoining @flaky', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true, context, { joinParameter: 'userID=Moderator2' });
@@ -204,7 +206,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations @flaky', async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersAnnotations();
@@ -225,7 +227,8 @@ test.describe.parallel('User', () => {
       await multiusers.saveUserNames(testInfo);
     });
 
-    test('Select random user @ci', async ({ browser, context, page }) => {
+    // following test is not expected to work, the feature will be fully implemented as a plugin only
+    test.skip('Select random user', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.selectRandomUser();

@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { LearningDashboard } = require('./learningdashboard');
 const c = require('../parameters/constants');
@@ -9,8 +9,8 @@ test.describe('Learning Dashboard', async () => {
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    const { context } = await initializePages(learningDashboard, browser, { createParameter: c.recordMeeting });
-    await learningDashboard.getDashboardPage(context);
+    await initializePages(learningDashboard, browser, { createParameter: c.recordMeeting });
+    await learningDashboard.getDashboardPage();
   });
 
   test('Check message', async() => {
@@ -21,9 +21,8 @@ test.describe('Learning Dashboard', async () => {
     await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls @ci', async ({ browserName, context }) => {
-    test.skip(browserName === 'webkit', "Failed to load the plugin pw")
-    await learningDashboard.initUserPage(true, context, { isRecording: true });
+  test('Polls @ci', async () => {
+    await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true });
     await learningDashboard.polls();
   });
 
@@ -36,7 +35,7 @@ test.describe('Learning Dashboard', async () => {
     await learningDashboard.overview();
   });
 
-  test('Download Session Learning Dashboard @ci', async ({ context }, testInfo) => {
+  test('Download Session Learning Dashboard @ci', async ({}, testInfo) => {
     await learningDashboard.downloadSessionLearningDashboard(testInfo);
   });  
 });

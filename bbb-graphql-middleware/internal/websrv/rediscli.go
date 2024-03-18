@@ -3,6 +3,7 @@ package websrv
 import (
 	"context"
 	"encoding/json"
+	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -34,7 +35,8 @@ func StartRedisListener() {
 		}
 
 		// Skip parsing unnecessary messages
-		if !strings.Contains(msg.Payload, "ForceUserGraphqlReconnectionSysMsg") {
+		if !strings.Contains(msg.Payload, "ForceUserGraphqlReconnectionSysMsg") &&
+			!strings.Contains(msg.Payload, "CheckGraphqlMiddlewareAlivePingSysMsg") {
 			continue
 		}
 
@@ -53,10 +55,23 @@ func StartRedisListener() {
 			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
 			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
-			log.Debugf("Received invalidate request for sessionToken %v", sessionTokenToInvalidate)
+			reason := messageBodyAsMap["reason"]
+			log.Debugf("Received invalidate request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
 
 			//Not being used yet
-			InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
+			go InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
+		}
+
+		//Ping message requires a response with a Pong message
+		if messageType == "CheckGraphqlMiddlewareAlivePingSysMsg" &&
+			strings.Contains(msg.Payload, common.GetUniqueID()) {
+			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
+			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
+			middlewareUID := messageBodyAsMap["middlewareUID"]
+			if middlewareUID == common.GetUniqueID() {
+				log.Debugf("Received ping message from akka-apps")
+				go SendCheckGraphqlMiddlewareAlivePongSysMsg()
+			}
 		}
 	}
 }
@@ -103,7 +118,8 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 
 func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 	var body = map[string]interface{}{
-		"sessionToken": sessionToken,
+		"middlewareUID": common.GetUniqueID(),
+		"sessionToken":  sessionToken,
 	}
 
 	sendBbbCoreMsgToRedis("UserGraphqlReconnectionForcedEvtMsg", body)
@@ -111,6 +127,7 @@ func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 
 func SendUserGraphqlConnectionEstablishedSysMsg(sessionToken string, browserConnectionId string) {
 	var body = map[string]interface{}{
+		"middlewareUID":       common.GetUniqueID(),
 		"sessionToken":        sessionToken,
 		"browserConnectionId": browserConnectionId,
 	}
@@ -120,9 +137,18 @@ func SendUserGraphqlConnectionEstablishedSysMsg(sessionToken string, browserConn
 
 func SendUserGraphqlConnectionClosedSysMsg(sessionToken string, browserConnectionId string) {
 	var body = map[string]interface{}{
+		"middlewareUID":       common.GetUniqueID(),
 		"sessionToken":        sessionToken,
 		"browserConnectionId": browserConnectionId,
 	}
 
 	sendBbbCoreMsgToRedis("UserGraphqlConnectionClosedSysMsg", body)
+}
+
+func SendCheckGraphqlMiddlewareAlivePongSysMsg() {
+	var body = map[string]interface{}{
+		"middlewareUID": common.GetUniqueID(),
+	}
+
+	sendBbbCoreMsgToRedis("CheckGraphqlMiddlewareAlivePongSysMsg", body)
 }

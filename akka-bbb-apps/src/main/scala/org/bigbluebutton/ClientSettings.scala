@@ -38,6 +38,9 @@ object ClientSettings extends SystemConfiguration {
             Map[String, Object]()
         }
       )
+
+    //Remove `:private` once it's used only by Meteor internal configs
+    clientSettingsFromFile -= "private"
   }
 
   def getClientSettingsWithOverride(clientSettingsOverrideJson: String): Map[String, Object] = {
@@ -56,7 +59,7 @@ object ClientSettings extends SystemConfiguration {
     getConfigPropertyValueByPath(map, path) match {
       case Some(configValue: Int) => configValue
       case _ =>
-        logger.debug("Config `{}` not found.", path)
+        logger.debug(s"Config `$path` with type Integer not found in clientSettings.")
         alternativeValue
     }
   }
@@ -65,7 +68,7 @@ object ClientSettings extends SystemConfiguration {
     getConfigPropertyValueByPath(map, path) match {
       case Some(configValue: String) => configValue
       case _ =>
-        logger.debug("Config `{}` not found.", path)
+        logger.debug(s"Config `$path` with type String not found in clientSettings.")
         alternativeValue
     }
   }
@@ -74,7 +77,7 @@ object ClientSettings extends SystemConfiguration {
     getConfigPropertyValueByPath(map, path) match {
       case Some(configValue: Boolean) => configValue
       case _ =>
-        logger.debug("Config `{}` not found.", path)
+        logger.debug(s"Config `$path` with type Boolean found in clientSettings.")
         alternativeValue
     }
   }

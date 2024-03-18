@@ -13,11 +13,19 @@ import {
   updateSettings,
   getAvailableLocales,
 } from './service';
+import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 
 const SettingsContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
+  const setLocalSettings = useUserChangedLocalSettings();
 
-  return <Settings {...props} layoutContextDispatch={layoutContextDispatch} />;
+  return (
+    <Settings
+      {...props}
+      layoutContextDispatch={layoutContextDispatch}
+      setLocalSettings={setLocalSettings}
+    />
+  );
 };
 
 export default withTracker((props) => ({
@@ -32,6 +40,6 @@ export default withTracker((props) => ({
   showGuestNotification: showGuestNotification(),
   showToggleLabel: false,
   isScreenSharingEnabled: isScreenSharingEnabled(),
-  isVideoEnabled: Meteor.settings.public.kurento.enableVideo,
+  isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
   isReactionsEnabled: UserReactionService.isEnabled(),
 }))(SettingsContainer);

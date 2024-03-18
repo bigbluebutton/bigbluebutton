@@ -21,9 +21,9 @@ import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
 
 // @ts-ignore - temporary, while meteor exists in the project
-const { enableDynamicAudioDeviceSelection } = Meteor.settings.public.app;
+const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
 // @ts-ignore - temporary, while meteor exists in the project
-const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
+const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
 
 // @ts-ignore - temporary while settings are still in .js
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

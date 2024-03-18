@@ -5,10 +5,9 @@ import NotesService from '/imports/ui/components/notes/service';
 import { UploadingPresentations } from '/imports/api/presentations';
 import { uniqueId } from '/imports/utils/string-utils';
 
-const PADS_CONFIG = Meteor.settings.public.pads;
+const PADS_CONFIG = window.meetingClientSettings.public.pads;
 
-async function convertAndUpload(presentations) {
-
+async function convertAndUpload(presentations, setPresentation, removePresentation) {
   let filename = 'Shared_Notes';
   const duplicates = presentations.filter((pres) => pres.filename?.startsWith(filename) || pres.name?.startsWith(filename)).length;
 
@@ -53,7 +52,9 @@ async function convertAndUpload(presentations) {
     onUpload: () => { },
     onProgress: () => { },
     onDone: () => { },
-  });
+  },
+  setPresentation,
+  removePresentation);
 }
 
 export default {

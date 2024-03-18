@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import UserListService, { getUserNamesLink } from '/imports/ui/components/user-list/service';
-import Auth from '/imports/ui/services/auth';
-import logger from '/imports/startup/client/logger';
+import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import { defineMessages, IntlShape } from 'react-intl';
@@ -20,41 +18,6 @@ const intlMessages = defineMessages({
     description: '',
   },
 });
-
-const meetingMuteDisabledLog = () => logger.info(
-  {
-    logCode: 'useroptions_unmute_all',
-    extraInfo: { logType: 'moderator_action' },
-  },
-  'moderator disabled meeting mute',
-);
-
-export const toggleMuteAllUsers = (isMeetingMuteOnStart: boolean) => {
-  UserListService.muteAllUsers(Auth.userID);
-  if (isMeetingMuteOnStart) {
-    return meetingMuteDisabledLog();
-  }
-  return logger.info(
-    {
-      logCode: 'useroptions_mute_all',
-      extraInfo: { logType: 'moderator_action' },
-    },
-    'moderator enabled meeting mute, all users muted',
-  );
-};
-export const toggleMuteAllUsersExceptPresenter = (isMeetingMuteOnStart: boolean) => {
-  UserListService.muteAllExceptPresenter(Auth.userID);
-  if (isMeetingMuteOnStart) {
-    return meetingMuteDisabledLog();
-  }
-  return logger.info(
-    {
-      logCode: 'useroptions_mute_all_except_presenter',
-      extraInfo: { logType: 'moderator_action' },
-    },
-    'moderator enabled meeting mute, all users muted except presenter',
-  );
-};
 
 export const onSaveUserNames = (intl: IntlShape, meetingName: string) => {
   // @ts-ignore - temporary while settings are still in .js

@@ -65,7 +65,7 @@ const config = {
                     {to: '/administration/install', label: 'Administration', position: 'left'},
                     {to: '/greenlight/v3/install', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
-                    {to: '/support/getting-help', label: 'support', position: 'left'},
+                    {to: '/support/getting-help', label: 'Support', position: 'left'},
                     {
                         type: 'docsVersionDropdown',
                         position: 'right',

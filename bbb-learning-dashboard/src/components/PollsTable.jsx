@@ -47,6 +47,49 @@ const PollsTable = (props) => {
     );
   }
 
+  const pollAnswerIds = {
+    true: {
+      id: 'app.poll.answer.true',
+      description: 'label for poll answer True',
+    },
+    false: {
+      id: 'app.poll.answer.false',
+      description: 'label for poll answer False',
+    },
+    yes: {
+      id: 'app.poll.answer.yes',
+      description: 'label for poll answer Yes',
+    },
+    no: {
+      id: 'app.poll.answer.no',
+      description: 'label for poll answer No',
+    },
+    abstention: {
+      id: 'app.poll.answer.abstention',
+      description: 'label for poll answer Abstention',
+    },
+    a: {
+      id: 'app.poll.answer.a',
+      description: 'label for poll answer A',
+    },
+    b: {
+      id: 'app.poll.answer.b',
+      description: 'label for poll answer B',
+    },
+    c: {
+      id: 'app.poll.answer.c',
+      description: 'label for poll answer C',
+    },
+    d: {
+      id: 'app.poll.answer.d',
+      description: 'label for poll answer D',
+    },
+    e: {
+      id: 'app.poll.answer.e',
+      description: 'label for poll answer E',
+    },
+  };
+
   const commonUserProps = {
     field: 'User',
     headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.userLabel', defaultMessage: 'User' }),
@@ -280,7 +323,9 @@ const PollsTable = (props) => {
       sortable: true,
       valueGetter: (params) => {
         const colVal = params?.row[params?.field];
-        return colVal === '' ? '' : colVal?.join(', ');
+        const key = pollAnswerIds[colVal[0]?.toLowerCase()]
+          ? [intl.formatMessage(pollAnswerIds[colVal[0].toLowerCase()])] : colVal;
+        return key === '' ? '' : key?.join(', ');
       },
       renderCell: (params) => {
         // Here we count each poll vote in order to find out the most common answer.

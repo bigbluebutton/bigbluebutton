@@ -23,7 +23,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
 import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
@@ -33,7 +33,11 @@ const PresentationContainer = (props) => {
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
+    variables: { pageId: currentPresentationPage?.pageId },
+    skip: !currentPresentationPage?.pageId,
+  });
+
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
@@ -212,7 +216,7 @@ const PresentationContainer = (props) => {
         publishedPoll: poll?.published || false,
         restoreOnUpdate: getFromUserSettings(
           'bbb_force_restore_presentation_on_new_events',
-          Meteor.settings.public.presentation.restoreOnUpdate,
+          window.meetingClientSettings.public.presentation.restoreOnUpdate,
         ),
         addWhiteboardGlobalAccess: getUsers,
         removeWhiteboardGlobalAccess,

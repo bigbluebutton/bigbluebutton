@@ -11,7 +11,7 @@ import { useMutation } from '@apollo/client';
 
 import Styled from './styles';
 
-const REACTIONS = Meteor.settings.public.userReaction.reactions;
+const REACTIONS = window.meetingClientSettings.public.userReaction.reactions;
 
 const ReactionsButton = (props) => {
   const {
@@ -179,11 +179,16 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   userId: PropTypes.string.isRequired,
-  emoji: PropTypes.string.isRequired,
+  emoji: PropTypes.string,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
 };
 
+const defaultProps = {
+  emoji: '',
+};
+
 ReactionsButton.propTypes = propTypes;
+ReactionsButton.defaultProps = defaultProps;
 
 export default withShortcutHelper(ReactionsButton, ['raiseHand']);

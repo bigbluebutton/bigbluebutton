@@ -22,7 +22,7 @@ for dir in $DIRS; do
   mkdir -p staging$dir
 done
 
-git clone --branch v2.36.0 https://github.com/iMDT/hasura-graphql-engine.git
+git clone --branch v2.37.0 https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql

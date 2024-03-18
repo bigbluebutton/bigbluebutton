@@ -17,10 +17,15 @@ import CustomSubscriptionHookContainer from './domain/shared/custom-subscription
 import { ObjectToCustomHookContainerMap, HookWithArgumentsContainerProps, HookWithArgumentContainerToRender } from './domain/shared/custom-subscription/types';
 import CurrentPresentationHookContainer from './domain/presentations/current-presentation/hook-manager';
 import LoadedChatMessagesHookContainer from './domain/chat/loaded-chat-messages/hook-manager';
+import TalkingIndicatorHookContainer from './domain/user-voice/talking-indicator/hook-manager';
+import { GeneralHookManagerProps } from './types';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { User } from '/imports/ui/Types/user';
 
 const hooksMap:{
-  [key: string]: React.FunctionComponent
+  [key: string]: React.FunctionComponent<GeneralHookManagerProps>
 } = {
+  [DataConsumptionHooks.TALKING_INDICATOR]: TalkingIndicatorHookContainer,
   [DataConsumptionHooks.LOADED_CHAT_MESSAGES]: LoadedChatMessagesHookContainer,
   [DataConsumptionHooks.LOADED_USER_LIST]: LoadedUserListHookContainer,
   [DataConsumptionHooks.CURRENT_USER]: CurrentUserHookContainer,
@@ -115,6 +120,15 @@ const PluginDataConsumptionManager: React.FC = () => {
     }
   });
 
+  // Use the subscription hook here to avoid new unecessary subscription for graphql
+  const currentUser = useCurrentUser(
+    (currentUser: Partial<User>) => ({
+      userId: currentUser.userId,
+      name: currentUser.name,
+      role: currentUser.role,
+      presenter: currentUser.presenter,
+    }),
+  );
   return (
     <>
       {
@@ -122,8 +136,15 @@ const PluginDataConsumptionManager: React.FC = () => {
           .filter((hookName: string) => hookUtilizationCount.get(hookName)
             && hookUtilizationCount.get(hookName)! > 0)
           .map((hookName: string) => {
+            let data;
             const HookComponent = hooksMap[hookName];
-            return <HookComponent key={hookName} />;
+            if (hookName === DataConsumptionHooks.CURRENT_USER) data = currentUser;
+            return (
+              <HookComponent
+                key={hookName}
+                data={data}
+              />
+            );
           })
       }
       {

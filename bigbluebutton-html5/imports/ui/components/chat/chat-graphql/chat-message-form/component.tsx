@@ -8,7 +8,8 @@ import React, {
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
-import { ChatFormEventPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-events/chat/form/types';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/chat/form/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
@@ -37,7 +38,7 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 
 // @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -50,6 +51,7 @@ interface ChatMessageFormProps {
   // Lint disable here because this variable can be undefined
   // eslint-disable-next-line react/no-unused-prop-types
   idChatOpen: string,
+  isRTL: boolean,
   chatId: string,
   connected: boolean,
   disabled: boolean,
@@ -112,9 +114,9 @@ const messages = defineMessages({
 });
 
 // @ts-ignore - temporary, while meteor exists in the project
-const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
+const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
 // @ts-ignore - temporary, while meteor exists in the project
-const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.emojiPicker.enable;
+const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
 const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
@@ -127,6 +129,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   chatId,
   connected,
   locked,
+  isRTL,
 }) => {
   if (!isChatEnabled()) return null;
   const intl = useIntl();
@@ -134,6 +137,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -147,6 +151,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   };
 
   const [chatSetTyping] = useMutation(CHAT_SET_TYPING);
+
+  const [chatSendMessage, {
+    loading: chatSendMessageLoading, error: chatSendMessageError,
+  }] = useMutation(CHAT_SEND_MESSAGE);
 
   const handleUserTyping = throttle(
     (hasError?: boolean) => {
@@ -196,6 +204,17 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setMessageHint();
   }, [connected, locked, partnerIsLoggedOut]);
 
+  useEffect(() => {
+    const shouldRestoreFocus = textAreaRef.current
+      && !chatSendMessageLoading
+      && isTextAreaFocused
+      && document.activeElement !== textAreaRef.current.textarea;
+
+    if (shouldRestoreFocus) {
+      textAreaRef.current.textarea.focus();
+    }
+  }, [chatSendMessageLoading, textAreaRef.current]);
+
   const setMessageHint = () => {
     let chatDisabledHint = null;
 
@@ -244,23 +263,21 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       );
       newMessage = newMessage.substring(0, maxMessageLength);
     }
-
-    window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED, {
-      detail: {
-        text: newMessage,
-      } as ChatFormEventPayloads[PluginSdk.ChatFormEventsNames.CHAT_INPUT_TEXT_CHANGED],
-    }));
     setMessage(newMessage);
     setError(newError);
     handleUserTyping(newError != null);
   };
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT, {
+      detail: {
+        text: message,
+      },
+    }));
+  }, [message]);
+
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
-
-    const [chatSendMessage, {
-      loading: chatSendMessageLoading, error: chatSendMessageError,
-    }] = useMutation(CHAT_SEND_MESSAGE);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -295,10 +312,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       setShowEmojiPicker(false);
       const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
       window.dispatchEvent(sentMessageEvent);
-
-      setTimeout(() => {
-        textAreaRef.current?.textarea.focus();
-      }, 100);
     };
 
     const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -318,11 +331,47 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       event: CustomEvent<FillChatFormCommandArguments>,
     ) => setMessage(event.detail.text)) as EventListener;
     useEffect(() => {
+      // Define functions to first inform ui data hooks that subscribe to these events
+      const updateUiDataHookChatFormChangedForPlugin = () => {
+        window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+          detail: {
+            value: isTextAreaFocused,
+          } as ChatFormUiDataPayloads[PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED],
+        }));
+      };
+      const updateUiDataHookChatInputTextPlugin = () => {
+        window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT, {
+          detail: {
+            text: message,
+          } as ChatFormUiDataPayloads[PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT],
+        }));
+      };
+
+      // When component mount, add event listener to send first information
+      // about these ui data hooks to plugin
+      window.addEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED}`,
+        updateUiDataHookChatFormChangedForPlugin,
+      );
+      window.addEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT}`,
+        updateUiDataHookChatInputTextPlugin,
+      );
       window.addEventListener(ChatFormCommandsEnum.FILL, handleFillChatFormThroughPlugin);
+
+      // Before component unmount, remove event listeners for plugin ui data hooks
       return () => {
+        window.removeEventListener(
+          `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED}`,
+          updateUiDataHookChatFormChangedForPlugin,
+        );
+        window.removeEventListener(
+          `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT}`,
+          updateUiDataHookChatInputTextPlugin,
+        );
         window.removeEventListener(ChatFormCommandsEnum.FILL, handleFillChatFormThroughPlugin);
       };
-    });
+    }, []);
 
     document.addEventListener('click', (event) => {
       const chatList = document.getElementById('chat-list');
@@ -340,6 +389,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       <Styled.Form
         ref={formRef}
         onSubmit={handleSubmit}
+        isRTL={isRTL}
       >
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper>
@@ -363,10 +413,20 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             value={message}
             onFocus={() => {
-              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_FOCUSED));
+              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+                detail: {
+                  value: true,
+                },
+              }));
+              setIsTextAreaFocused(true);
             }}
             onBlur={() => {
-              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormEventsNames.CHAT_INPUT_UNFOCUSED));
+              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+                detail: {
+                  value: false,
+                },
+              }));
+              setIsTextAreaFocused(false);
             }}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}
@@ -429,6 +489,7 @@ const ChatMessageFormContainer: React.FC = ({
   const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
@@ -485,6 +546,7 @@ const ChatMessageFormContainer: React.FC = ({
         connected: true, // TODO: monitoring network status
         disabled: locked ?? false,
         title,
+        isRTL,
         // if participant is not defined, it means that the chat is public
         partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
         locked: locked ?? false,

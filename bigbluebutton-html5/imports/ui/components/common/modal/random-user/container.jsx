@@ -11,7 +11,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { useMutation } from '@apollo/client';
 import { PICK_RANDOM_VIEWER } from '/imports/ui/core/graphql/mutations/userMutations';
 
-const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
+const SELECT_RANDOM_USER_ENABLED = window.meetingClientSettings.public.selectRandomUser.enabled;
 
 //  A value that is used by component to remember
 //  whether it should be open or closed after a render
