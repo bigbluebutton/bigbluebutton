@@ -343,13 +343,13 @@ Nat filtering: Endpoint Independent Filtering
 
 If you get an error, check that `coturn` is running on the TURN server using `systemctl status coturn.service`. Check the logs by doing `tail -f /var/log/turnserver/coturn.log`. You can get verbose logs by adding `verbose` to `/etc/turnserver.conf` and restarting the TURN server `systemctl restart coturn.service`
 
-You can test your TURN server using the [trickle ICE](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/) page. This gives you a log of the relay candidates as they are returned from ICE gathering. To test using this page, you need to generate some test credentials. Run the following BASH script and substitute `<turn.example.com>` with the hostname of your TURN server and `<secret_value>` with the password for your TURN server.
+You can test your TURN server using the [trickle ICE](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/) page. This gives you a log of the relay candidates as they are returned from ICE gathering. To test using this page, you need to generate some test credentials. The following BASH script generates them by reading your `/etc/turnserver.conf`. Alternatively, set `HOST=<HOSTNAME>` and `SECRET=<SECRET>` to your TURN servers credentials.
 
 ```bash
 #!/bin/bash
 
-HOST=<turn.example.com>
-SECRET=<secret_value>
+HOST=$(cat /etc/turnserver.conf | grep realm | sed 's/realm=//')
+SECRET=$(cat /etc/turnserver.conf | grep static-auth-secret | sed 's/static-auth-secret=//')
 
 time=$(date +%s)
 expiry=8400
