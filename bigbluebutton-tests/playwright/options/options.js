@@ -16,9 +16,9 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClick(e.closeModal);
   }
 
-  async openHelp(context) {
+  async openHelp() {
     await this.modPage.waitAndClick(e.optionsButton);
-    const newPage = await this.modPage.handleNewTab(e.helpButton, context);
+    const newPage = await this.modPage.handleNewTab(e.helpButton, this.modPage.context);
     await expect(newPage).toHaveTitle(/Tutorials/);
     await newPage.close();
     await this.modPage.hasElement(e.whiteboard);

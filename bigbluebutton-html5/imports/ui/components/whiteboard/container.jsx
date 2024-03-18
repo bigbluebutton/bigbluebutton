@@ -1,12 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import { useSubscription, useMutation } from '@apollo/client';
 import {
   AssetRecordType,
 } from '@tldraw/tldraw';
+import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  CURSOR_SUBSCRIPTION,
 } from './queries';
 import {
   initDefaultPages,
@@ -16,7 +23,6 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import CursorService from './cursors/service';
 import SettingsService from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -34,6 +40,7 @@ import {
   PRES_ANNOTATION_DELETE,
   PRES_ANNOTATION_SUBMIT,
   PRESENTATION_SET_PAGE,
+  PRESENTATION_PUBLISH_CURSOR,
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
 
@@ -76,6 +83,7 @@ const WhiteboardContainer = (props) => {
   const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
   const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
   const [presentationSubmitAnnotations] = useMutation(PRES_ANNOTATION_SUBMIT);
+  const [presentationPublishCursor] = useMutation(PRESENTATION_PUBLISH_CURSOR);
 
   const setPresentationPage = (pageId) => {
     presentationSetPage({
@@ -130,6 +138,23 @@ const WhiteboardContainer = (props) => {
   const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
     persistShape(shape, whiteboardId, isModerator, submitAnnotations);
   };
+
+  const publishCursorUpdate = (payload) => {
+    const { whiteboardId, xPercent, yPercent } = payload;
+
+    presentationPublishCursor({
+      variables: {
+        whiteboardId,
+        xPercent,
+        yPercent,
+      },
+    });
+  };
+
+  const throttledPublishCursorUpdate = useMemo(() => throttle(
+    { interval: WHITEBOARD_CONFIG.cursorInterval },
+    publishCursorUpdate,
+  ), []);
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
 
@@ -281,7 +306,7 @@ const WhiteboardContainer = (props) => {
       }}
       {...props}
       meetingId={Auth.meetingID}
-      publishCursorUpdate={CursorService.publishCursorUpdate}
+      publishCursorUpdate={throttledPublishCursorUpdate}
       otherCursors={cursorArray}
       hideViewersCursor={meeting?.data?.lockSettings?.hideViewersCursor}
     />

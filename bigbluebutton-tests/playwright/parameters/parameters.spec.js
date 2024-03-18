@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { CustomParameters } = require('./customparameters');
 const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');

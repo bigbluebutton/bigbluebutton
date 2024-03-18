@@ -37,7 +37,7 @@ public class ResponseBuilder {
         try {
             cfg.setDirectoryForTemplateLoading(templatesLoc);
         } catch (IOException e) {
-            log.error("Exception occured creating ResponseBuilder", e);
+            log.error("Exception occurred creating ResponseBuilder", e);
         }
         setUpConfiguration();
     }
@@ -97,12 +97,12 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
-    public String buildErrors(ArrayList erros, String returnCode) {
+    public String buildErrors(ArrayList errors, String returnCode) {
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("returnCode", returnCode);
-        data.put("errorsList", erros);
+        data.put("errorsList", errors);
 
         processData(getTemplate("api-errors.ftlx"), data, xmlText);
 

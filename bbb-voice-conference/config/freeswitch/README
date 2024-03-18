@@ -18,7 +18,7 @@ conf.orig dir is what was installed by freeswitch by default
 
 NOTE: you must double check this config if you intend to have 
  the freeswitch server on a public facing interface. 
- It defaults to localhost for the event socket inteface.
+ It defaults to localhost for the event socket interface.
 
  I run my server in a test environment with 
   /usr/local/freeswitch/bin/freeswitch -hp -nc
