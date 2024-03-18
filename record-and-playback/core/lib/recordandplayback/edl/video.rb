@@ -565,7 +565,6 @@ module BigBlueButton
             in_time = video[:timestamp] + seek_offset
             out_time = in_time + duration
 
-            in_time = video[:timestamp] + seek_offset
             out_time = in_time + duration
 
             # Pre-filtering: scaling, padding, and extending.
