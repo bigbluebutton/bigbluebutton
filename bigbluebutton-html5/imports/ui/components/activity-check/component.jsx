@@ -81,7 +81,7 @@ class ActivityCheck extends Component {
   }
 
   playAudioAlert() {
-    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}/resources/sounds/notify.mp3`);
+    this.alert = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename + window.meetingClientSettings.public.app.instanceId}/resources/sounds/notify.mp3`);
     this.alert.addEventListener('ended', () => { this.alert.src = null; });
     this.alert.play();
   }

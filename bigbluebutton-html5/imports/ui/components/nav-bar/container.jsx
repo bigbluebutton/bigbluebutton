@@ -13,7 +13,7 @@ import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useChat from '/imports/ui/core/hooks/useChat';
 
-const PUBLIC_CONFIG = Meteor.settings.public;
+const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
 const NavBarContainer = ({ children, ...props }) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);

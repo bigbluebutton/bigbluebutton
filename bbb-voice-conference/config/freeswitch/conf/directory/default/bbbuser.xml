@@ -7,7 +7,7 @@
     <params>
       <!-- omit password for authless registration -->
       <param name="password" value="secret"/>
-      <!-- What this user is allowed to acces -->
+      <!-- What this user is allowed to access -->
       <!--<param name="http-allowed-api" value="jsapi,voicemail,status"/> -->
     </params>
     <variables>

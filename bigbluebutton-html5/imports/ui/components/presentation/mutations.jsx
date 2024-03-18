@@ -90,6 +90,16 @@ export const PRES_ANNOTATION_SUBMIT = gql`
   }
 `;
 
+export const PRESENTATION_PUBLISH_CURSOR = gql`
+  mutation PresentationPublishCursor($whiteboardId: String!, $xPercent: Float!, $yPercent: Float!) {
+    presentationPublishCursor(
+      whiteboardId: $whiteboardId,
+      xPercent: $xPercent,
+      yPercent: $yPercent,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   PRESENTATION_SET_WRITERS,
@@ -100,4 +110,5 @@ export default {
   PRESENTATION_REMOVE,
   PRES_ANNOTATION_DELETE,
   PRES_ANNOTATION_SUBMIT,
+  PRESENTATION_PUBLISH_CURSOR,
 };

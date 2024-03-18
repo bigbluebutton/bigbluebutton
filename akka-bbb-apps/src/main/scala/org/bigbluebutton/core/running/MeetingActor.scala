@@ -405,6 +405,8 @@ class MeetingActor(
       case m: SelectRandomViewerReqMsg      => usersApp.handleSelectRandomViewerReqMsg(m)
       case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
       case m: ChangeUserMobileFlagReqMsg    => usersApp.handleChangeUserMobileFlagReqMsg(m)
+      case m: UserConnectionAliveReqMsg     => usersApp.handleUserConnectionAliveReqMsg(m)
+      case m: UserConnectionUpdateRttReqMsg => usersApp.handleUserConnectionUpdateRttReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg     => usersApp.handleSetUserSpeechLocaleReqMsg(m)
 
       // Client requested to eject user

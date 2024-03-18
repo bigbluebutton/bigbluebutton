@@ -16,7 +16,7 @@ interface ChatPopupProps {
 const WELCOME_MSG_KEY = 'welcomeMsg';
 const WELCOME_MSG_FOR_MODERATORS_KEY = 'welcomeMsgForModerators';
 // @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
 const setWelcomeMsgsOnSession = (key: string, value: boolean) => {
@@ -29,7 +29,7 @@ const isBoolean = (v: unknown): boolean => {
   } if (v === 'false') {
     return false;
   }
-  // if v is not difined it shouldn't be considered on comparation, so it returns true
+  // if v is not defined it shouldn't be considered on comparison, so it returns true
   return true;
 };
 

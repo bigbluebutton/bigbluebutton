@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
+import useUpdatePresentationAreaContent from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
 
 // variable to debug in console log
 const debug = false;
@@ -93,7 +94,7 @@ const reducer = (state, action) => {
     }
 
     // LAYOUT TYPE
-    // using to load a diferent layout manager
+    // using to load a different layout manager
     case ACTIONS.SET_LAYOUT_TYPE: {
       const { layoutType } = state.input;
       if (layoutType === action.value) return state;
@@ -1292,6 +1293,7 @@ const reducer = (state, action) => {
 const LayoutContextProvider = (props) => {
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
+  useUpdatePresentationAreaContent(layoutContextState);
   return (
     <LayoutContextSelector.Provider value={
       [

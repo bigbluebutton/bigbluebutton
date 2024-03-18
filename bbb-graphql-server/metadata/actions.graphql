@@ -288,6 +288,14 @@ type Mutation {
 }
 
 type Mutation {
+  presentationPublishCursor(
+    whiteboardId: String!
+    xPercent: Float!
+    yPercent: Float!
+  ): Boolean
+}
+
+type Mutation {
   presentationRemove(
     presentationId: String!
   ): Boolean
@@ -452,6 +460,16 @@ type Mutation {
 }
 
 type Mutation {
+  userSetConnectionAlive: Boolean
+}
+
+type Mutation {
+  userSetConnectionRtt(
+    networkRttInMs: Float!
+  ): Boolean
+}
+
+type Mutation {
   userSetEmojiStatus(
     emoji: String!
   ): Boolean
@@ -544,4 +562,3 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
-

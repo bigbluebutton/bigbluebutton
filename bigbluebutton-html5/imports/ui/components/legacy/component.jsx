@@ -70,8 +70,8 @@ const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
 const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Opera', 'Microsoft Edge', 'Yandex Browser'];
-const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
-const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
+const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
+const CLIENT_VERSION = window.meetingClientSettings.public.app.html5ClientBuild;
 
 export default class Legacy extends Component {
   constructor(props) {
@@ -167,7 +167,7 @@ export default class Legacy extends Component {
             <p className="browserWarning">
               <FormattedMessage
                 id={messageId}
-                description="Warning when someone joins with a browser that isnt supported"
+                description="Warning when someone joins with a browser that isn't supported"
                 values={{
                   0: <a href="https://www.google.com/chrome/">Chrome</a>,
                   1: <a href="https://getfirefox.com">Firefox</a>,

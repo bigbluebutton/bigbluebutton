@@ -21,7 +21,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
+const ENABLE_WEBCAM_BACKGROUND_UPLOAD = window.meetingClientSettings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
 const DragAndDrop = (props) => {
   const { children, intl, readFile, onVirtualBgDrop: onAction, isStream } = props;
