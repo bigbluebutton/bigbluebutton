@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeSmaller, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const SingleTyper = styled.span`
