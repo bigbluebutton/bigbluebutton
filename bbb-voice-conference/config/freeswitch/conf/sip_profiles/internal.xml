@@ -327,7 +327,7 @@
     <!--<param name="rtcp-audio-interval-msec" value="5000"/>-->
     <!--<param name="rtcp-video-interval-msec" value="5000"/>-->
 
-    <!--force suscription expires to a lower value than requested-->
+    <!--force subscription expires to a lower value than requested-->
     <!--<param name="force-subscription-expires" value="60"/>-->
 
     <!-- add a random deviation to the expires value of the 202 Accepted -->

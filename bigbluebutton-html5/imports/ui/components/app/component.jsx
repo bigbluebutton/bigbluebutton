@@ -118,7 +118,7 @@ const intlMessages = defineMessages({
   },
   defaultViewLabel: {
     id: 'app.title.defaultViewLabel',
-    description: 'view name apended to document title',
+    description: 'view name appended to document title',
   },
   promotedLabel: {
     id: 'app.toast.promotedLabel',

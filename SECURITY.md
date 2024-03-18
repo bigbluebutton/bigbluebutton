@@ -17,7 +17,7 @@ As such, we recommend that all administrators deploy 2.7 going forward.  You'll 
 
 ## Reporting a Vulnerability
 
-If you believe you have found a security vunerability in BigBlueButton please let us know directly by 
+If you believe you have found a security vulnerability in BigBlueButton please let us know directly by
 - using GitHub's "Report a vulnerability" functionality on https://github.com/bigbluebutton/bigbluebutton/security/advisories
 - or e-mailing security@bigbluebutton.org with as much detail as possible.
 
