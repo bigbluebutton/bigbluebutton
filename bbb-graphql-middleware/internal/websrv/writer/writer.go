@@ -35,7 +35,7 @@ RangeLoop:
 				log.Tracef("sending to browser: %v", toBrowserMessage)
 				err := wsjson.Write(ctx, browserWsConn, toBrowserMessage)
 				if err != nil {
-					log.Debugf("Browser is disconnected, skiping writing of ws message: %v", err)
+					log.Debugf("Browser is disconnected, skipping writing of ws message: %v", err)
 					return
 				}
 

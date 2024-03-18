@@ -205,7 +205,7 @@ class VideoProvider extends Component {
     } = this.props;
     const { socketOpen } = this.state;
 
-    // Only debounce when page changes to avoid unecessary debouncing
+    // Only debounce when page changes to avoid unnecessary debouncing
     const shouldDebounce = VideoService.isPaginationEnabled()
       && prevProps.currentVideoPageIndex !== currentVideoPageIndex;
 
@@ -1174,7 +1174,7 @@ class VideoProvider extends Component {
 
       peer.started = true;
 
-      // Clear camera shared timeout when camera succesfully starts
+      // Clear camera shared timeout when camera successfully starts
       this.clearRestartTimers(stream);
       this.attachVideoStream(stream);
 

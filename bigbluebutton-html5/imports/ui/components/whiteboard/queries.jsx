@@ -112,4 +112,21 @@ export const CURRENT_PAGE_WRITERS_QUERY = gql`query currentPageWritersQuery {
   }
 }`;
 
+export const CURSOR_SUBSCRIPTION = gql`subscription CursorSubscription {
+  pres_page_cursor {
+    isCurrentPage
+    lastUpdatedAt
+    pageId
+    presentationId
+    userId
+    xPercent
+    yPercent
+    user {
+      name
+      presenter
+      role
+    }
+  }  
+}`;
+
 export default CURRENT_PAGE_ANNOTATIONS_QUERY;

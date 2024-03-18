@@ -56,6 +56,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const subscription = new SubscriptionClient(graphqlUrl, {
           reconnect: true,
           timeout: 30000,
+          minTimeout: 30000,
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,

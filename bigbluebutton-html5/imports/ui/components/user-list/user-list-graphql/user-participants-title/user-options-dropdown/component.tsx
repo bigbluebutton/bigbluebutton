@@ -123,7 +123,7 @@ interface RenderModalProps {
   isOpen: boolean;
   priority: string;
   /* Use 'any' if you don't have specific props;
-   As this props varies in types usage of any is most apropriate */
+   As this props varies in types usage of any is most appropriate */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Component: React.ComponentType<any>;
   otherOptions: object;

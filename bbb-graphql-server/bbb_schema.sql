@@ -250,7 +250,7 @@ CREATE TABLE "user" (
     "registeredOn" bigint,
     "excludeFromDashboard" bool,
     "enforceLayout" varchar(50),
-    --columns of user state bellow
+    --columns of user state below
     "raiseHand" bool default false,
     "raiseHandTime" timestamp with time zone,
     "away" bool default false,

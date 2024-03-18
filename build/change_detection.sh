@@ -37,5 +37,5 @@ curl \
     "${PACKAGES_UPLOAD_BASE_URL}/cgi-bin/get_compatible_packages.py" \
 	> packages_to_skip.txt
 
-echo "We will re-use the following packages:"
+echo "We will reuse the following packages:"
 cat packages_to_skip.txt

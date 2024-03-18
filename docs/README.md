@@ -41,7 +41,7 @@ Most changes are reflected live without having to restart the server.
 There is also a  script `build.sh` that goes through all branches of the repository
 and adds all release branches that have a `docusaurus.config.js`-file as versions
 to the docs.
-Note that you can not have uncommited local changes before you run `/build.sh`,
+Note that you can not have uncommitted local changes before you run `/build.sh`,
 otherwise git will refuse to change branches.
 This step is optional and if you don't run it, docusaurus will only build the
 currently checkout out version which is recommended for local development

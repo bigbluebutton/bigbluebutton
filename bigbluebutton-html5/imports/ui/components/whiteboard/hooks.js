@@ -13,9 +13,9 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
 
     useEffect(() => {
         publishCursorUpdate({
+            whiteboardId,
             xPercent: cursorPosition?.x,
             yPercent: cursorPosition?.y,
-            whiteboardId,
         });
     }, [cursorPosition, publishCursorUpdate, whiteboardId]);
 

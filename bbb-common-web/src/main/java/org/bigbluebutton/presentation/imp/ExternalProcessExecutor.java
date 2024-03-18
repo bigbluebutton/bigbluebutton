@@ -81,7 +81,7 @@ public class ExternalProcessExecutor {
 
 		try {
 			if (!proc.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
-				log.warn("TIMEDOUT excuting: {}", String.join(" ", cmd));
+				log.warn("TIMEDOUT executing: {}", String.join(" ", cmd));
 				proc.destroy();
 			}
 			return !proc.isAlive() && proc.exitValue() == 0;
