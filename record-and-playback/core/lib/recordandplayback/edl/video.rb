@@ -565,7 +565,6 @@ module BigBlueButton
             in_time = video[:timestamp] + seek_offset
             out_time = in_time + duration
 
-            out_time = in_time + duration
             # Pre-filtering: scaling, padding, and extending.
             ffmpeg_preprocess_filter = String.new
             ffmpeg_preprocess_filter << '[0:v:0]'
