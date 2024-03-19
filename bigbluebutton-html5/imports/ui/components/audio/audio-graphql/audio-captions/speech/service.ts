@@ -9,7 +9,7 @@ import { Session } from 'meteor/session';
 import { throttle } from '/imports/utils/throttle';
 import { makeCall } from '/imports/ui/services/api';
 
-const CONFIG = Meteor.settings.public.app.audioCaptions;
+const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
 const LANGUAGES = CONFIG.language.available;
 const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 const THROTTLE_TIMEOUT = 2000;

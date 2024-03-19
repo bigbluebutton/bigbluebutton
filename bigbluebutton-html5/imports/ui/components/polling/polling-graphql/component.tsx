@@ -17,7 +17,7 @@ import {
 import Service from './service';
 import Styled from './styles';
 
-const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
+const MAX_INPUT_CHARS = window.meetingClientSettings.public.poll.maxTypedAnswerLength;
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {

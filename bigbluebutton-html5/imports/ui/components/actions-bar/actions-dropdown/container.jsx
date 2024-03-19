@@ -13,7 +13,7 @@ import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
 
-const TIMER_CONFIG = Meteor.settings.public.timer;
+const TIMER_CONFIG = window.meetingClientSettings.public.timer;
 const MILLI_IN_MINUTE = 60000;
 
 const ActionsDropdownContainer = (props) => {

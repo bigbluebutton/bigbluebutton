@@ -4,7 +4,7 @@ import logger from '/imports/startup/client/logger';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 
-const CONFIG = Meteor.settings.public.app.audioCaptions;
+const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
 const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
 

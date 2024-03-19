@@ -1,4 +1,4 @@
-const MEDIA = Meteor.settings.public.media;
+const MEDIA = window.meetingClientSettings.public.media;
 const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
 const CACHE_STUN_TURN = MEDIA.cacheStunTurnServers;
 const FALLBACK_STUN_SERVER = MEDIA.fallbackStunServer;

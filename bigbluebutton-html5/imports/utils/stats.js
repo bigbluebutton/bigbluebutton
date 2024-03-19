@@ -1,6 +1,6 @@
 import logger from '/imports/startup/client/logger';
 
-const STATS = Meteor.settings.public.stats;
+const STATS = window.meetingClientSettings.public.stats;
 
 // Probes done in an interval
 const PROBES = 5;

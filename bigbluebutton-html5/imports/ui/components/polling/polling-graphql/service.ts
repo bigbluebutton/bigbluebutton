@@ -4,7 +4,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
 
 const MAX_CHAR_LENGTH = 5;
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 
 export const shouldStackOptions = (keys: Array<string>) => keys.some((k) => k.length > MAX_CHAR_LENGTH);
 

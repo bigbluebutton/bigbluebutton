@@ -2,7 +2,7 @@
 
 mkdir -p /usr/share/bigbluebutton/nginx/locales-endpoint
 cp locales-endpoint.json /usr/share/bigbluebutton/nginx/locales-endpoint/index.json
-cp footer.html /usr/share/meteor/bundle/programs/web.browser/
+cp footer /usr/share/meteor/bundle/programs/web.browser/
 
 cd /usr/share/meteor/bundle/programs/web.browser
 
