@@ -40,6 +40,8 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.videoPreview);
     await this.modPage.waitAndClick(e.startSharingWebcam);
 
+    await sleep(1000);
+
     const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-share-camera-as-content.png', {
       maxDiffPixels: 1000,
