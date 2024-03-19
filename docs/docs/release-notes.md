@@ -489,7 +489,7 @@ Here are the list of issues we fixed on this release:
 * [Issue 885](https://github.com/bigbluebutton/bigbluebutton/issues/885) Hearing voices after logging out
 * [Issue 890](https://github.com/bigbluebutton/bigbluebutton/issues/890) Participant entry sound plays when user icon is clicked
 * [Issue 891](https://github.com/bigbluebutton/bigbluebutton/issues/891) Phone Logout null pointer exception
-* [Issue 893](https://github.com/bigbluebutton/bigbluebutton/issues/893) Unmute-all icon mis-aligned
+* [Issue 893](https://github.com/bigbluebutton/bigbluebutton/issues/893) Unmute-all icon misaligned
 * [Issue 894](https://github.com/bigbluebutton/bigbluebutton/issues/894) bbb-setip not detecting rtmp port
 
 #### Known Issues

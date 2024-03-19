@@ -69,7 +69,7 @@ HTML5 by default uses the `outline` attribute to visually indicate focus. Due to
 
 ![Image showing join audio aria label over the join audio icon](/img/accessibility-focusring-hc.jpg)
 
-Aria labels are important to focus when navigating with a screen reader, these labels have been used extensivley through out the client to provide audible announcements for selected
+Aria labels are important to focus when navigating with a screen reader, these labels have been used extensively through out the client to provide audible announcements for selected
 elements.
 
 #### Keyboard Navigation
