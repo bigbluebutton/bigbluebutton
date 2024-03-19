@@ -98,6 +98,19 @@ object Users2x {
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
     val newUserState = modify(u)(_.lastActivityTime).setTo(System.currentTimeMillis())
     users.save(newUserState)
+
+    //Reset inactivity warning
+    if (u.lastInactivityInspect != 0) {
+      resetLastInactivityInspect(users, newUserState)
+    } else {
+      newUserState
+    }
+  }
+
+  def resetLastInactivityInspect(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.lastInactivityInspect).setTo(0)
+    users.save(newUserState)
+    UserStateDAO.updateInactivityWarning(u.intId, inactivityWarningDisplay = false, 0)
     newUserState
   }
 
