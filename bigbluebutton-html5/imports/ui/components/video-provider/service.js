@@ -24,19 +24,19 @@ import {
 } from '/imports/ui/components/video-provider/stream-sorting';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
-const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
-const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
+const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles;
+const MULTIPLE_CAMERAS = window.meetingClientSettings.public.app.enableMultipleCameras;
 
-const SFU_URL = Meteor.settings.public.kurento.wsUrl;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
-const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
-const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
+const SFU_URL = window.meetingClientSettings.public.kurento.wsUrl;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
+const MIRROR_WEBCAM = window.meetingClientSettings.public.app.mirrorOwnWebcam;
+const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
 const {
   thresholds: CAMERA_QUALITY_THRESHOLDS = [],
   applyConstraints: CAMERA_QUALITY_THR_CONSTRAINTS = false,
   debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
-} = Meteor.settings.public.kurento.cameraQualityThresholds;
+} = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
 const {
   paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
@@ -44,15 +44,15 @@ const {
   mobilePageSizes: MOBILE_PAGE_SIZES,
   desktopGridSizes: DESKTOP_GRID_SIZES,
   mobileGridSizes: MOBILE_GRID_SIZES,
-} = Meteor.settings.public.kurento.pagination;
-const PAGINATION_THRESHOLDS_CONF = Meteor.settings.public.kurento.paginationThresholds;
+} = window.meetingClientSettings.public.kurento.pagination;
+const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
 const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
 const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
 const {
   paginationSorting: PAGINATION_SORTING,
   defaultSorting: DEFAULT_SORTING,
-} = Meteor.settings.public.kurento.cameraSortingModes;
-const DEFAULT_VIDEO_MEDIA_SERVER = Meteor.settings.public.kurento.videoMediaServer;
+} = window.meetingClientSettings.public.kurento.cameraSortingModes;
+const DEFAULT_VIDEO_MEDIA_SERVER = window.meetingClientSettings.public.kurento.videoMediaServer;
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',
@@ -432,7 +432,7 @@ class VideoService {
   getVideoPinByUser(userId) {
     const user = Users.findOne({ userId }, { fields: { pin: 1 } });
 
-    return user.pin;
+    return user?.pin || false;
   }
 
   isGridEnabled() {
@@ -465,24 +465,22 @@ class VideoService {
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
-    const moderatorOnly = this.webcamsOnlyForModerator();
-    if (moderatorOnly) streams = this.filterModeratorOnly(streams);
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) streams.push(connectingStream);
 
-    // Pagination is either explictly disabled or pagination is set to 0 (which
+    // Pagination is either explicitly disabled or pagination is set to 0 (which
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
     if (isPaginationDisabled) {
       if (isGridEnabled) {
         const streamUsers = streams.map((stream) => stream.userId);
-  
+
         gridUsers = users.filter(
           (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId)
         ).map((user) => ({
           isGridItem: true,
           ...user,
-          }));
+        }));
       }
 
       return {
@@ -502,13 +500,72 @@ class VideoService {
       ).map((user) => ({
         isGridItem: true,
         ...user,
-        }));
+      }));
     }
 
     return { streams: paginatedStreams, gridUsers, totalNumberOfStreams: streams.length };
   }
 
-  stopConnectingStream () {
+  fetchVideoStreams() {
+    const pageSize = this.getMyPageSize();
+    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
+
+    let streams = [...VideoStreams.find(
+      { meetingId: Auth.meetingID },
+    ).fetch()];
+
+    const { viewParticipantsWebcams } = Settings.dataSaving;
+    if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
+
+    if (!isPaginationDisabled) {
+      return this.getVideoPage(streams, pageSize);
+    }
+
+    const connectingStream = this.getConnectingStream(streams);
+    if (connectingStream) {
+      streams.push(connectingStream);
+    }
+
+    return streams;
+  }
+
+  getGridUsers(users, streams) {
+    const pageSize = this.getMyPageSize();
+    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
+
+    const isGridEnabled = this.isGridEnabled();
+    let gridUsers = [];
+
+    if (isPaginationDisabled) {
+      if (isGridEnabled) {
+        const streamUsers = streams.map((stream) => stream.userId);
+
+        gridUsers = users.filter(
+          (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
+        ).map((user) => ({
+          isGridItem: true,
+          ...user,
+        }));
+      }
+
+      return gridUsers;
+    }
+    const paginatedStreams = this.getVideoPage(streams, pageSize);
+
+    if (isGridEnabled) {
+      const streamUsers = paginatedStreams.map((stream) => stream.userId);
+
+      gridUsers = users.filter(
+        (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
+      ).map((user) => ({
+        isGridItem: true,
+        ...user,
+      }));
+    }
+    return gridUsers;
+  }
+
+  stopConnectingStream() {
     this.deviceId = null;
     this.isConnecting = false;
   }
@@ -588,7 +645,6 @@ class VideoService {
     if (amIViewer) {
       const moderators = Users.find(
         {
-          meetingId: Auth.meetingID,
           role: ROLE_MODERATOR,
         },
         { fields: { userId: 1 } },
@@ -713,7 +769,6 @@ class VideoService {
 
   isUserLocked() {
     return !!Users.findOne({
-      meetingId: Auth.meetingID,
       userId: Auth.userID,
       locked: true,
       role: { $ne: ROLE_MODERATOR },
@@ -845,7 +900,7 @@ class VideoService {
             parameters.encodings = [{}];
           }
 
-          // Only reset bitrate if it changed in some way to avoid enconder fluctuations
+          // Only reset bitrate if it changed in some way to avoid encoder fluctuations
           if (parameters.encodings[0].maxBitrate !== normalizedBitrate) {
             parameters.encodings[0].maxBitrate = normalizedBitrate;
             sender.setParameters(parameters)
@@ -1077,4 +1132,7 @@ export default {
   getStats: () => videoService.getStats(),
   updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
   joinedVideo: () => videoService.joinedVideo(),
+  fetchVideoStreams: () => videoService.fetchVideoStreams(),
+  getGridUsers: (users = [], streams = []) => videoService.getGridUsers(users, streams),
+  webcamsOnlyForModerators: () => videoService.webcamsOnlyForModerator(),
 };

@@ -10,8 +10,8 @@ import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { POLL_PUBLISH_RESULT, POLL_CANCEL, POLL_CREATE } from './mutations';
 import { ACTIONS, PANELS } from '../layout/enums';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 const PollContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();

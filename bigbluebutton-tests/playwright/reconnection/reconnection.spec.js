@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { Reconnection } = require('./reconnection');
 const { checkRootPermission } = require('../core/helpers');
 

@@ -12,7 +12,7 @@ const whiteboardTest = () => {
     jest.setTimeout(MAX_WHITEBOARD_TEST_TIMEOUT);
   });
 
-  // Draw a rectange in whiteboard
+  // Draw a rectangle in whiteboard
   // and expect difference in shapes before and after drawing
   test('Draw rectangle', async () => {
     const test = new Draw();

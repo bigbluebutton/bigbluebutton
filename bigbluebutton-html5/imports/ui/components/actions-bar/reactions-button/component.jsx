@@ -11,7 +11,7 @@ import { useMutation } from '@apollo/client';
 
 import Styled from './styles';
 
-const REACTIONS = Meteor.settings.public.userReaction.reactions;
+const REACTIONS = window.meetingClientSettings.public.userReaction.reactions;
 
 const ReactionsButton = (props) => {
   const {

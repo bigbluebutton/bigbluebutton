@@ -222,7 +222,7 @@ $ systemctl unmask kurento-media-server.service
 
 ### Unable to share webcam
 
-The default installation of BigBlueButton should work in most netowrk configurations; however, if your users ae behind a restrictive network that blocks outgoing UDP connections, they may encounter 1020 errors (media unable to reach server).
+The default installation of BigBlueButton should work in most network configurations; however, if your users ae behind a restrictive network that blocks outgoing UDP connections, they may encounter 1020 errors (media unable to reach server).
 
 If you get reports of these errors, setup TURN server to help their browsers send WebRTC audio and video streams via TCP over port 443 to the TURN server. The TURN server will then relay the media to your BigBlueButton server.
 
@@ -529,7 +529,7 @@ You can add a line in `/etc/bigbluebutton/bbb-conf/apply-conf.sh` to always appl
 xmlstarlet edit --inplace --update '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]/@data' --value "external_rtp_ip=234.32.3.3" /opt/freeswitch/conf/vars.xml
 ```
 
-Note: If your server has an internal/exteral IP address, such as on AWS EC2 server, be sure to set it to the external IP address configure a dummy network interface card (see [Update FreeSWITCH](/administration/firewall-configuration#update-freeswitch)).
+Note: If your server has an internal/external IP address, such as on AWS EC2 server, be sure to set it to the external IP address configure a dummy network interface card (see [Update FreeSWITCH](/administration/firewall-configuration#update-freeswitch)).
 
 ## HTML5 Server
 
@@ -973,7 +973,7 @@ The script `bbb-install` now creates these overrides by default.
 
 It is most likely an error on GreenLight. Check the log file according to [Troubleshooting Greenlight](/greenlight/v3/install).
 
-If this error occurrs on just a small number of PCs accessing a BigBlueButton server within a LAN through a proxy server and you find the description "Error::Unsafe Host Error (x.x.x.x is not a safe host)" (where x.x.x.x is an IP address) in the log file, check if the "Don't use the proxy server for local (intranet) addresses" (in the Windows proxy setting) is ticked.
+If this error occurs on just a small number of PCs accessing a BigBlueButton server within a LAN through a proxy server and you find the description "Error::Unsafe Host Error (x.x.x.x is not a safe host)" (where x.x.x.x is an IP address) in the log file, check if the "Don't use the proxy server for local (intranet) addresses" (in the Windows proxy setting) is ticked.
 
 ## Legacy errors
 

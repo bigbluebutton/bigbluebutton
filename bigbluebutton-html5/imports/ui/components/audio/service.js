@@ -8,13 +8,13 @@ import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
-const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeter;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+const TOGGLE_MUTE_THROTTLE_TIME = window.meetingClientSettings.public.media.toggleMuteThrottleTime;
+const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
 const {
   enabled: LOCAL_ECHO_TEST_ENABLED,
   initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
-} = Meteor.settings.public.media.localEchoTest;
+} = window.meetingClientSettings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 
@@ -73,7 +73,7 @@ const init = (messages, intl, toggleVoice) => {
 
 const muteMicrophone = (toggleVoice) => {
   const user = VoiceUsers.findOne({
-    meetingId: Auth.meetingID, intId: Auth.userID,
+    userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
   if (!user.muted) {
@@ -87,14 +87,14 @@ const muteMicrophone = (toggleVoice) => {
 };
 
 const isVoiceUser = () => {
-  const voiceUser = VoiceUsers.findOne({ intId: Auth.userID },
+  const voiceUser = VoiceUsers.findOne({ userId: Auth.userID },
     { fields: { joined: 1 } });
   return voiceUser ? voiceUser.joined : false;
 };
 
 const toggleMuteMicrophone = throttle((toggleVoice) => {
   const user = VoiceUsers.findOne({
-    meetingId: Auth.meetingID, intId: Auth.userID,
+    userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
   Storage.setItem(MUTED_KEY, !user.muted);

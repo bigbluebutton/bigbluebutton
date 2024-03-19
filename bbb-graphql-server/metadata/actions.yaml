@@ -252,6 +252,12 @@ actions:
     permissions:
       - role: bbb_client
     comment: presentationExport
+  - name: presentationPublishCursor
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: presentationRemove
     definition:
       kind: synchronous
@@ -409,6 +415,18 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: userSetConnectionAlive
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: userSetConnectionRtt
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: userSetEmojiStatus
     definition:
       kind: synchronous
@@ -486,5 +504,4 @@ custom_types:
   input_objects:
     - name: BreakoutRoom
     - name: GuestUserApprovalStatus
-  objects: []
   scalars: []

@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { SharedNotes } = require('./sharednotes');
 const { initializePages } = require('../core/helpers');
 const { fullyParallel } = require('../playwright.config');

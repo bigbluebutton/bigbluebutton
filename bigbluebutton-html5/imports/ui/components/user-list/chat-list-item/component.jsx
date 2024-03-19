@@ -9,7 +9,7 @@ import { ACTIONS, PANELS } from '../../layout/enums';
 import Icon from '/imports/ui/components/common/icon/component';
 
 const DEBOUNCE_TIME = 1000;
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 let globalAppplyStateToProps = () => {};
