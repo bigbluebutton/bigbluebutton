@@ -73,7 +73,6 @@ trait HandlerHelpers extends SystemConfiguration {
         avatar = regUser.avatarURL,
         color = regUser.color,
         clientType = clientType,
-        pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)
       )
     }

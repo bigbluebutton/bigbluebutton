@@ -164,7 +164,6 @@ class UsersApp(
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr
   with GetRecordingStatusReqMsgHdlr
-  with SelectRandomViewerReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with ChangeUserMobileFlagReqMsgHdlr
