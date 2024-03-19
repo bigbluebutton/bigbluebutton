@@ -162,11 +162,11 @@ public:
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
     # If enabled, before joining microphone the client will perform a trickle
-    # ICE against Kurento and use the information about successfull
+    # ICE against Kurento and use the information about successful
     # candidate-pairs to filter out local candidates in SIP.js's SDP.
     # Try enabling this setting in scenarios where the listenonly mode works,
     # but microphone doesn't (for example, when using VPN).
-    # For compatibility check "Browser compatbility" section in:
+    # For compatibility check "Browser compatibility" section in:
     # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
     # This is an EXPERIMENTAL setting and the default value is false
     # experimentalUseKmsTrickleIceForMicrophone: false
@@ -216,7 +216,7 @@ public:
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
         #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
-        #Noise Supression, etc.
+        #Noise Suppression, etc.
         #For more deails, see:
         # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
         #Currently, google chrome sets {ideal: true} for autoGainControl,

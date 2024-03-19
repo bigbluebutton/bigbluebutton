@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * the following:
  * <pre>
     &lt;extension&gt;
-      &lt;condition field="destination_number" expresssion="444"&gt;  
+      &lt;condition field="destination_number" expression="444"&gt;
         &lt;action application="socket" data="192.168.100.88:8084 async full"/&gt;
       &lt;/condition&gt;
     &lt;/extension&gt;

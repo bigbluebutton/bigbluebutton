@@ -23,7 +23,7 @@ export {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 };
 
-// Array for select component to select diferent layout
+// Array for select component to select different layout
 const suportedLayouts = [
   {
     layoutKey: LAYOUT_TYPE.SMART_LAYOUT,

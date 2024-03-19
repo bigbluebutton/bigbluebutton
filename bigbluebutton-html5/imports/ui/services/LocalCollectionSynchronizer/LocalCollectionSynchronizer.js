@@ -108,7 +108,7 @@ class LocalCollectionSynchronizer {
     const subscription = SubscriptionRegistry.getSubscription(this.serverCollection._name);
 
     // If the subscriptionId changes means the subscriptions was redone
-    // or theres more than one subscription per collection
+    // or there's more than one subscription per collection
     if (subscription && (this.lastSubscriptionId !== subscription.subscriptionId)) {
       const wasEmpty = this.lastSubscriptionId === '';
       this.lastSubscriptionId = subscription.subscriptionId;
