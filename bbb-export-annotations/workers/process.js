@@ -18,6 +18,7 @@ import {Arrow} from '../shapes/Arrow.js';
 import {TextShape} from '../shapes/TextShape.js';
 import {StickyNote} from '../shapes/StickyNote.js';
 import {createGeoObject} from '../shapes/geoFactory.js';
+import {Frame} from '../shapes/Frame.js';
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
@@ -153,6 +154,19 @@ function overlayText(svg, annotation) {
 }
 
 /**
+ * Adds a frame shape to the canvas.
+ * @function overlayText
+ * @param {Object} svg - The SVG element where the frame will be added.
+ * @param {Object} annotation - JSON frame data.
+ * @return {void}
+ */
+function overlayFrame(svg, annotation) {
+  const frameShape = new Frame(annotation);
+  const frame = frameShape.draw();
+  svg.add(frame);
+}
+
+/**
  * Determines the annotation type and overlays the corresponding shape
  * onto the SVG element. It delegates the rendering to the specific
  * overlay function based on the annotation type.
@@ -161,7 +175,7 @@ function overlayText(svg, annotation) {
  * @param {Object} annotation - JSON annotation data.
  * @return {void}
  */
-function overlayAnnotation(svg, annotation) {
+export function overlayAnnotation(svg, annotation) {
   try {
     switch (annotation.type) {
       case 'draw':
@@ -184,6 +198,9 @@ function overlayAnnotation(svg, annotation) {
         break;
       case 'note':
         overlaySticky(svg, annotation);
+        break;
+      case 'frame':
+        overlayFrame(svg, annotation);
         break;
       default:
         logger.info(`Unknown annotation type ${annotation.type}.`);
@@ -208,6 +225,30 @@ function overlayAnnotations(svg, slideAnnotations) {
   // Sort annotations by lowest child index
   slideAnnotations = sortByKey(slideAnnotations, 'annotationInfo', 'index');
 
+  // Map to store frames and their children
+  const frameMap = new Map();
+
+  // First pass to identify frames and initialize them in the map
+  slideAnnotations.forEach((ann) => {
+    if (ann.annotationInfo.type === 'frame') {
+      frameMap.set(
+          ann.annotationInfo.id,
+          {children: []});
+    }
+  });
+
+  // Second pass to add children to the frames
+  slideAnnotations.forEach((child) => {
+    // Get the parent of this annotation
+    const parentId = child.annotationInfo.parentId;
+
+    // Check if the annotation is in a frame.
+    if (frameMap.has(parentId)) {
+      const frame = frameMap.get(parentId);
+      frame.children.push(child.annotationInfo);
+    }
+  });
+
   for (const annotation of slideAnnotations) {
     switch (annotation.annotationInfo.type) {
       case 'group':
@@ -220,9 +261,20 @@ function overlayAnnotations(svg, slideAnnotations) {
 
         break;
 
+      case 'frame':
+        const annotationId = annotation.annotationInfo.id;
+
+        // Add children to this frame
+        annotation.annotationInfo.children =
+          frameMap.get(annotationId).children;
+
+        // Intentionally fall through to default case
       default:
-        // Add individual annotations if they don't belong to a group
-        overlayAnnotation(svg, annotation.annotationInfo);
+        const parentId = annotation.annotationInfo.parentId;
+        // Don't render an annotation if it is contained in a frame.
+        if (!frameMap.has(parentId)) {
+          overlayAnnotation(svg, annotation.annotationInfo);
+        }
     }
   }
 }
