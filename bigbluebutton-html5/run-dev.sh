@@ -13,8 +13,6 @@ do
     fi
 done
 
-if [ ! -d ./node_modules ] ; then
-	meteor npm i
-fi
+meteor npm ci
 
 npm start
