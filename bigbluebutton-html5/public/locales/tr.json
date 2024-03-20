@@ -1162,7 +1162,7 @@
     "app.externalVideo.urlInput": "Görüntü adresi ekle",
     "app.externalVideo.urlError": "Bu görüntü adresi desteklenmiyor",
     "app.externalVideo.close": "Kapat",
-    "app.externalVideo.autoPlayWarning": "Ortam eşleştirmesini etkinleştirmek için görüntüyü oynatın",
+    "app.externalVideo.autoPlayWarning": "Ortam eşleştirmesini açmak için görüntüyü oynatın",
     "app.externalVideo.refreshLabel": "Görüntü oynatıcıyı yenile",
     "app.externalVideo.fullscreenLabel": "Görüntü oynatıcı",
     "app.externalVideo.noteLabel": "Not: Dışarıdan paylaşılan görüntüler kayıtta görüntülenmez. YouTube, Vimeo, Instructure Media, Twitch, Dailymotion ve ortam dosyası adresleri (https://ornek.com/xy.mp4 gibi) desteklenir.",
