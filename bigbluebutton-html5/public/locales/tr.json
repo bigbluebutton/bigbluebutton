@@ -1087,7 +1087,7 @@
     "app.video.videoLocked": "Kamera paylaşımı kilitli",
     "app.video.videoButtonDesc": "Kamerayı paylaş",
     "app.video.videoMenu": "Görüntü menüsü",
-    "app.video.videoMenuDisabled": "Görüntü menüsü kamerası ayarlardan devre dışı bırakılmış",
+    "app.video.videoMenuDisabled": "Görüntü menüsü kamerası ayarlardan kapatılmış",
     "app.video.videoMenuDesc": "Görüntü menüsü listesini aç",
     "app.video.pagination.prevPage": "Önceki görüntülere bak",
     "app.video.pagination.nextPage": "Sonraki görüntülere bak",
