@@ -1274,7 +1274,7 @@
     "app.layout.modal.updateAll": "Herkesi güncelle",
     "app.layout.modal.layoutLabel": "Ekran yerleşiminizi seçin",
     "app.layout.modal.pushLayoutLabel": "Herkese gönder",
-    "app.layout.modal.layoutToastLabel": "Ekran düzeni ayarları değişti",
+    "app.layout.modal.layoutToastLabel": "Ekran yerleşimi ayarları değişti",
     "app.layout.modal.layoutToastLabelAuto": "Otomatik düzen güncellemeleri etkinleştirildi, düzen güncellemeleri artık herkese uygulanıyor",
     "app.layout.modal.layoutToastLabelAutoOff": "Otomatik düzen güncellemeleri devre dışı bırakıldı",
     "app.layout.modal.layoutSingular": "Ekran düzeni",
