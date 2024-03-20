@@ -521,7 +521,7 @@
     "app.submenu.application.paginationEnabledLabel": "Görüntü sayfalandırma",
     "app.submenu.application.wakeLockEnabledLabel": "Uyandırma kilidi",
     "app.submenu.application.layoutOptionLabel": "Ekran yerleşimi türü",
-    "app.submenu.application.pushLayoutLabel": "Ekran düzenini gönder",
+    "app.submenu.application.pushLayoutLabel": "Gönderme yerleşimi",
     "app.submenu.application.localeDropdown.af": "Afrikaanca",
     "app.submenu.application.localeDropdown.ar": "Arapça",
     "app.submenu.application.localeDropdown.az": "Azerice",
