@@ -32,6 +32,9 @@ func (app *Config) writeXML(w http.ResponseWriter, status int, data any, headers
 }
 
 func (app *Config) grpcUserToRespUser(u *common.User) model.User {
+	customData := &model.CustomData{}
+	model.MarshMapToXML(u.CustomData, customData)
+
 	user := model.User{
 		UserId:          u.UserId,
 		FullName:        u.FullName,
@@ -41,7 +44,7 @@ func (app *Config) grpcUserToRespUser(u *common.User) model.User {
 		HasJoinedVoice:  u.HasJoinedVoice,
 		HasVideo:        u.HasVideo,
 		ClientType:      u.ClientType,
-		CustomData:      u.CustomData,
+		CustomData:      *customData,
 	}
 
 	return user

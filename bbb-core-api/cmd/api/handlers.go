@@ -40,7 +40,10 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 		Running:    &resp.IsRunning,
 	}
 
-	app.writeXML(w, http.StatusAccepted, payload)
+	err = app.writeXML(w, http.StatusAccepted, payload)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
@@ -57,15 +60,21 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(err)
+
 	}
 
-	users := make([]model.User, len(resp.MeetingInfo.Users))
+	log.Println(resp)
+
+	users := make([]model.User, 0, len(resp.MeetingInfo.Users))
 	for _, u := range resp.MeetingInfo.Users {
 		user := app.grpcUserToRespUser(u)
 		users = append(users, user)
 	}
 
-	meetingInfo := model.GetMeetingInfoResponse{
+	metadata := &model.Metadata{}
+	model.MarshMapToXML(resp.MeetingInfo.Metadata, metadata)
+
+	payload := model.GetMeetingInfoResponse{
 		ReturnCode:            model.Success,
 		MeetingName:           resp.MeetingInfo.MeetingName,
 		MeetingId:             resp.MeetingInfo.MeetingExtId,
@@ -89,13 +98,18 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 		VideoCount:            resp.MeetingInfo.ParticipantInfo.VideoCount,
 		MaxUsers:              resp.MeetingInfo.ParticipantInfo.MaxUsers,
 		ModeratorCount:        resp.MeetingInfo.ParticipantInfo.ModeratorCount,
-		Users:                 users,
-		Metadata:              resp.MeetingInfo.Metadata,
+		Users:                 model.Attendees{Users: users},
+		Metadata:              *metadata,
 		IsBreakout:            resp.MeetingInfo.BreakoutInfo.IsBreakout,
 		BreakoutRooms:         model.BreakoutRooms{Breakout: resp.MeetingInfo.BreakoutRooms},
 	}
 
-	app.writeXML(w, http.StatusAccepted, meetingInfo)
+	log.Println(payload)
+
+	err = app.writeXML(w, http.StatusAccepted, payload)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
