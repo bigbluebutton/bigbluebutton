@@ -182,4 +182,27 @@ object MeetingDAO {
       case Failure(e) => DatabaseConnection.logger.debug(s"Error updating endedAt=now() Meeting: $e")
     }
   }
+
+  def setAllMeetingsEnded(endedReasonCode: String, endedBy: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.endedAt.isEmpty)
+        .map(a => (a.endedAt, a.endedReasonCode, a.endedBy))
+        .update(
+          (
+            Some(new java.sql.Timestamp(System.currentTimeMillis())),
+            Some(endedReasonCode),
+            endedBy match {
+              case "" => None
+              case c => Some(c)
+            }
+          )
+        )
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated all-meetings endedAt=now() on Meeting table!")
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating all-meetings endedAt=now() on Meeting table: $e")
+    }
+  }
+
+
 }
