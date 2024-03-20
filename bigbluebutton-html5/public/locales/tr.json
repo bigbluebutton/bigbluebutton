@@ -1080,7 +1080,7 @@
     "app.video.mediaFlowTimeout1020": "Ortam sunucuya ulaşamadı (hata 1020)",
     "app.video.suggestWebcamLock": "İzleyicilerin kameraları zorla kilitlensin mi?",
     "app.video.suggestWebcamLockReason": "(bu seçenek toplantının kararlılığını artırır)",
-    "app.video.enable": "Etkinleştir",
+    "app.video.enable": "Aç",
     "app.video.cancel": "Vazgeç",
     "app.video.swapCam": "Değiştir",
     "app.video.swapCamDesc": "kameraların yönünü değiştir",
