@@ -1177,7 +1177,7 @@
     "app.debugWindow.form.userAgentLabel": "Kullanıcı uygulaması",
     "app.debugWindow.form.button.copy": "Kopyala",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Otomatik ekran yerleşimi düzenlemesini aç",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(kamera alanını sürükler ya da yeniden boyutlandırırsanız devre dışı bırakılır)",
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(kamera alanını sürükler ya da yeniden boyutlandırırsanız kapatılır)",
     "app.debugWindow.form.chatLoggerLabel": "Sohbet kaydedici düzeylerini sına",
     "app.debugWindow.form.button.apply": "Uygula",
     "app.layout.modal.title": "Ekran yerleşimleri",
