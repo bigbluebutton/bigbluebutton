@@ -986,7 +986,7 @@
     "app.video.sharingError": "Kamera paylaşılırken sorun çıktı",
     "app.video.abortError": "Kameranız bilinmeyen bir sorun nedeniyle kullanılamıyor",
     "app.video.overconstrainedError": "Kameranız bu kalite profilini desteklemiyor",
-    "app.video.securityError": "Tarayıcınızda kamera kullanımını devre dışı bırakılmış. Farklı bir tarayıcı deneyin",
+    "app.video.securityError": "Tarayıcınızda kamera kullanımını kapatılmış. Farklı bir tarayıcı deneyin",
     "app.video.typeError": "Kamera kalitesi profili geçersiz. Yöneticiniz ile görüşün",
     "app.video.notFoundError": "Kamera bulunamadı. Lütfen bağlı olduğunu denetleyin",
     "app.video.notAllowed": "Kamera paylaşma izni verilmemiş, lütfen tarayıcı izinlerini verdiğinizden emin olun",
