@@ -70,10 +70,15 @@ class PushLayoutEngine extends React.Component {
       pushLayoutMeeting,
     } = this.props;
 
-    const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
-    Settings.application.selectedLayout = enforceLayout || userLayout || meetingLayout;
+    const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
+    const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
 
-    let selectedLayout = Settings.application.selectedLayout;
+    Settings.application.selectedLayout = enforceLayout
+      || changeLayout
+      || defaultLayout
+      || meetingLayout;
+
+    let { selectedLayout } = Settings.application;
     if (isMobile()) {
       selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
       Settings.application.selectedLayout = selectedLayout;
