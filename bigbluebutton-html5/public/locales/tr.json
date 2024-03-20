@@ -160,7 +160,7 @@
     "app.userList.userOptions.enableMic": "İzleyicilerin mikrofonları açık",
     "app.userList.userOptions.enablePrivChat": "Özel sohbet açık",
     "app.userList.userOptions.enablePubChat": "Herkese açık sohbet açık",
-    "app.userList.userOptions.enableNotes": "Paylaşılmış notlar etkinleştirildi",
+    "app.userList.userOptions.enableNotes": "Paylaşılmış notlar açıldı",
     "app.userList.userOptions.showUserList": "Kullanıcı listesi izleyicilere gösteriliyor",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Kameranı şimdi açabilirsin, herkes seni görecek",
     "app.userList.userOptions.savedNames.title": "{1} üzerindeki {0} toplantısındaki kullanıcıların listesi",
