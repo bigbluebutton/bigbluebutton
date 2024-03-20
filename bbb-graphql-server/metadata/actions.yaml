@@ -504,4 +504,5 @@ custom_types:
   input_objects:
     - name: BreakoutRoom
     - name: GuestUserApprovalStatus
+  objects: []
   scalars: []
