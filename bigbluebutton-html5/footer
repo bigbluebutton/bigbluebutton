@@ -7,165 +7,17 @@
       "AUTOUPDATE_VERSION": "",
       "TEST_METADATA": "{}"
     },
-    "PUBLIC_SETTINGS": {
-      "app": {
-        "defaultSettings": {
-          "application": {
-            "selectedLayout": "custom",
-            "animations": true,
-            "chatAudioAlerts": false,
-            "chatPushAlerts": false,
-            "userJoinAudioAlerts": false,
-            "userJoinPushAlerts": false,
-            "userLeaveAudioAlerts": false,
-            "userLeavePushAlerts": false,
-            "raiseHandAudioAlerts": true,
-            "raiseHandPushAlerts": true,
-            "guestWaitingAudioAlerts": true,
-            "guestWaitingPushAlerts": true,
-            "wakeLock": true,
-            "paginationEnabled": true,
-            "whiteboardToolbarAutoHide": false,
-            "autoCloseReactionsBar": true,
-            "directLeaveButton": true,
-            "darkTheme": false,
-            "fallbackLocale": "en",
-            "overrideLocale": "en"
-          },
-          "audio": {
-            "inputDeviceId": "undefined",
-            "outputDeviceId": "undefined"
-          },
-          "dataSaving": {
-            "viewParticipantsWebcams": true,
-            "viewScreenshare": true
-          }
-        },
-      },
-      "userReaction": {
-        "enabled": true,
-        "expire": 30,
-        "reactions": [
-          {
-            "id": "smiley",
-            "native": "😃"
-          },
-          {
-            "id": "neutral_face",
-            "native": "😐"
-          },
-          {
-            "id": "slightly_frowning_face",
-            "native": "🙁"
-          },
-          {
-            "id": "+1",
-            "native": "👍"
-          },
-          {
-            "id": "-1",
-            "native": "👎"
-          },
-          {
-            "id": "clap",
-            "native": "👏"
-          }
-        ]
-      },
-      "kurento": {
-        "screenshare": {
-          "enableVolumeControl": true,
-          "subscriberOffering": false,
-          "bitrate": 1500,
-          "mediaTimeouts": {
-            "maxConnectionAttempts": 2,
-            "baseTimeout": 20000,
-            "baseReconnectionTimeout": 8000,
-            "maxTimeout": 25000,
-            "timeoutIncreaseFactor": 1.5
-          },
-          "constraints": {
-            "video": {
-              "frameRate": {
-                "ideal": 5,
-                "max": 10
-              },
-              "width": {
-                "max": 2560
-              },
-              "height": {
-                "max": 1600
-              }
-            },
-            "audio": true
-          }
-        }
-      },
-      "media": {
-        "audio": {
-          "defaultFullAudioBridge": "fullaudio",
-          "defaultListenOnlyBridge": "fullaudio",
-          "bridges": [
-            {
-              "name": "sipjs",
-              "path": "bridge/sip"
-            },
-            {
-              "name": "fullaudio",
-              "path": "bridge/sfu-audio-bridge"
-            }
-          ],
-          "retryThroughRelay": false
-        },
-        "stunTurnServersFetchAddress": "/bigbluebutton/api/stuns",
-        "cacheStunTurnServers": true,
-        "fallbackStunServer": "",
-        "forceRelay": false,
-        "forceRelayOnFirefox": true,
-        "mediaTag": "#remote-media",
-        "callTransferTimeout": 5000,
-        "callHangupTimeout": 2000,
-        "callHangupMaximumRetries": 10,
-        "echoTestNumber": "echo",
-        "listenOnlyCallTimeout": 15000,
-        "transparentListenOnly": false,
-        "fullAudioOffering": true,
-        "listenOnlyOffering": false,
-        "iceGatheringTimeout": 5000,
-        "audioConnectionTimeout": 5000,
-        "audioReconnectionDelay": 5000,
-        "audioReconnectionAttempts": 3,
-        "sipjsHackViaWs": true,
-        "sipjsAllowMdns": false,
-        "sip_ws_host": "",
-        "toggleMuteThrottleTime": 300,
-        "websocketKeepAliveInterval": 30,
-        "websocketKeepAliveDebounce": 10,
-        "traceSip": false,
-        "sdpSemantics": "unified-plan",
-        "localEchoTest": {
-          "enabled": true,
-          "initialHearingState": true,
-          "useRtcLoopbackInChromium": true,
-          "delay": {
-            "enabled": true,
-            "delayTime": 0.5,
-            "maxDelayTime": 2
-          }
-        },
-        "showVolumeMeter": true
-      },
-    },
+    "PUBLIC_SETTINGS": {},
     "ROOT_URL": "http://127.0.0.1/html5client",
     "ROOT_URL_PATH_PREFIX": "/html5client",
     "reactFastRefreshEnabled": true,
     "autoupdate": {
       "versions": {
         "web.browser": {
-          "version": "29e1e0e93dfd823c36328bae6f4cd73293d08dae",
-          "versionRefreshable": "ca60b72d8873b367dd36c2874baad4c7d7cdd364",
-          "versionNonRefreshable": "a2c0b155ba4282801e28e325ab6e2330f82b435e",
-          "versionReplaceable": "1952018619999f014765d73c14db1f446971e849"
+          "version": "129e1e0e93dfd823c36328bae6f4cd73293d08dae",
+          "versionRefreshable": "1ca60b72d8873b367dd36c2874baad4c7d7cdd364",
+          "versionNonRefreshable": "1a2c0b155ba4282801e28e325ab6e2330f82b435e",
+          "versionReplaceable": "11952018619999f014765d73c14db1f446971e849"
         },
         "web.browser.legacy": {
           "version": "465de24d63ed3a853861b20ddfd2336b1a69f3f6",
@@ -185,3 +37,4 @@
 __meteor_runtime_config__ = JSON.parse(decodeURIComponent(`${encodeURIComponent(JSON.stringify(settings))}`));
 </script>
   <script type="text/javascript" src="/html5client/placeholder?meteor_js_resource=true"></script>
+  <script>Object.values(Meteor.connection._subscriptions).find(subs => subs.name === "meteor_autoupdate_clientVersions").stop()</script>
