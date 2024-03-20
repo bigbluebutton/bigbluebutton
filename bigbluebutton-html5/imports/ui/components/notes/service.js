@@ -24,11 +24,11 @@ const hasPermission = () => {
 
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disableNotes': 1 } },
+    { fields: { 'lockSettings.disableNotes': 1 } },
   );
 
   if (user.locked) {
-    return !meeting.lockSettingsProps.disableNotes;
+    return !meeting.lockSettings.disableNotes;
   }
 
   return true;

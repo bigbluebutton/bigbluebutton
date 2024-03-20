@@ -13,7 +13,7 @@ function createUseSubscription<T>(
   usePatchedSubscription = false,
 ) {
   return function useGeneratedUseSubscription(
-    projectionFunction: (element: Partial<T>) => Partial<T>,
+    projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
     const client = useApolloClient();
     const [
