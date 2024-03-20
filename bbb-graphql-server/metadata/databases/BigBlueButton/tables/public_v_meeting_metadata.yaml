@@ -14,5 +14,5 @@ select_permissions:
         - value
       filter:
         meetingId:
-          _eq: X-Meeting-Id
+          _eq: X-Hasura-MeetingId
     comment: ""
