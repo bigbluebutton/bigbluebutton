@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
 import audioManager from '/imports/ui/services/audio-manager';
-import { Session } from 'meteor/session';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
