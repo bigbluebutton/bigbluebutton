@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
 const { linkIssue } = require('../core/helpers');

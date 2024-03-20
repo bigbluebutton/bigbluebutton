@@ -14,7 +14,7 @@ object Dependencies {
     // Libraries
     val pekkoVersion = "1.0.1"
     val pekkoHttpVersion = "1.0.0"
-    val logback = "1.2.10"
+    val logback = "1.2.13"
 
     // Apache Commons
     val lang = "3.12.0"

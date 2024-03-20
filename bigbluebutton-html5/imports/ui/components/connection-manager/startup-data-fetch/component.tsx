@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Session } from 'meteor/session';
 import { ErrorScreen } from '../../error-screen/component';
 import LoadingScreen from '../../common/loading-screen/component';
 
@@ -69,6 +70,10 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
         setSettingsFetched(true);
         clearTimeout(timeoutRef.current);
         setLoading(false);
+      }).catch(() => {
+        Session.set('errorMessageDescription', 'meeting_ended');
+        setError('Error fetching startup data');
+        setLoading(false);
       });
   }, []);
 
@@ -79,6 +84,7 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
         ? (
           <ErrorScreen
             endedReason={error}
+            code={403}
           />
         )
         : null}

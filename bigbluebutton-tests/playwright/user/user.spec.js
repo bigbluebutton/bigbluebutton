@@ -1,4 +1,5 @@
-const { test, devices } = require('@playwright/test');
+const { devices } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');
@@ -225,7 +226,8 @@ test.describe.parallel('User', () => {
       await multiusers.saveUserNames(testInfo);
     });
 
-    test('Select random user @ci', async ({ browser, context, page }) => {
+    // following test is not expected to work, the feature will be fully implemented as a plugin only
+    test.skip('Select random user', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.selectRandomUser();

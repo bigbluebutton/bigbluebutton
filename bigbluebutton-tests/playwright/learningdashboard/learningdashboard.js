@@ -13,16 +13,16 @@ class LearningDashboard extends MultiUsers {
     super(browser, context);
   }
 
-  async getDashboardPage(context) {
+  async getDashboardPage() {
     await this.modPage.waitAndClick(e.manageUsers);
 
     const [dashboardPage] = await Promise.all([
-      context.waitForEvent('page'),
+      this.modPage.context.waitForEvent('page'),
       this.modPage.waitAndClick(e.learningDashboard),
     ]);
 
     await expect(dashboardPage).toHaveTitle(/Dashboard/);
-    this.dashboardPage = new Page(context, dashboardPage);
+    this.dashboardPage = new Page(this.modPage.context, dashboardPage);
   }
 
   async writeOnPublicChat() {

@@ -7,7 +7,7 @@ import { isObject, isArray, isString } from 'radash';
 export default class StorageTracker {
   constructor(storage, prefix = '') {
     if (!(storage instanceof Storage)) {
-      throw `Expecting a instanceof Storage recieve a '${storage.constructor.name}' instance`;
+      throw `Expecting a instanceof Storage receive a '${storage.constructor.name}' instance`;
     }
 
     this._trackers = {};
