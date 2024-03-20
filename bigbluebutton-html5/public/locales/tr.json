@@ -1275,7 +1275,7 @@
     "app.layout.modal.layoutLabel": "Ekran yerleşiminizi seçin",
     "app.layout.modal.pushLayoutLabel": "Herkese gönder",
     "app.layout.modal.layoutToastLabel": "Ekran yerleşimi ayarları değişti",
-    "app.layout.modal.layoutToastLabelAuto": "Otomatik ekran yerleşimi güncellemeleri etkinleştirildi. Ekran yerleşim güncellemeleri artık herkese uygulanıyor",
+    "app.layout.modal.layoutToastLabelAuto": "Otomatik ekran yerleşimi güncellemeleri açıldı. Ekran yerleşim güncellemeleri artık herkese uygulanıyor",
     "app.layout.modal.layoutToastLabelAutoOff": "Otomatik ekran yerleşimi güncellemeleri devre dışı bırakıldı",
     "app.layout.modal.layoutSingular": "Ekran yerleşimi",
     "app.layout.modal.layoutBtnDesc": "Ekran yerleşimini seçilmiş seçenek olarak ayarla",
