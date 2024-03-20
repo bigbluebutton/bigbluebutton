@@ -588,7 +588,7 @@
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Kendinizi yeni sunucu olarak atayın",
     "app.actionsBar.actionsDropdown.selectRandUserLabel": "Rastgele kullanıcı seç",
     "app.actionsBar.actionsDropdown.selectRandUserDesc": "Var olan izleyicilerden rastgele bir kullanıcı seçer",
-    "app.actionsBar.actionsDropdown.propagateLayoutLabel": "Ekran düzenini yayınla",
+    "app.actionsBar.actionsDropdown.propagateLayoutLabel": "Ekran yerleşimini yayınla",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Durumu ayarla",
     "app.actionsBar.emojiMenu.awayLabel": "Uzakta",
     "app.actionsBar.emojiMenu.awayDesc": "Durumunuzu uzakta yapar",
