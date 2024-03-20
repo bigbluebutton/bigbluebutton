@@ -1188,7 +1188,7 @@
     "app.layout.modal.pushLayoutLabel": "Herkese gönder",
     "app.layout.modal.layoutToastLabel": "Ekran yerleşimi ayarları değişti",
     "app.layout.modal.layoutSingular": "Ekran yerleşimi",
-    "app.layout.modal.layoutBtnDesc": "Ekran düzenini seçilmiş seçenek olarak ayarla",
+    "app.layout.modal.layoutBtnDesc": "Ekran yerleşimini seçilmiş seçenek olarak ayarla",
     "app.layout.style.custom": "Özel",
     "app.layout.style.smart": "Akıllı ekran düzeni",
     "app.layout.style.presentationFocus": "Sunuma odaklan",
