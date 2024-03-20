@@ -65,7 +65,7 @@ export interface ExternalVideo {
 }
 
 export interface GenericComponent {
-    hasGenericComponent?: boolean;
+    genericComponentId?: string;
     browserHeight?: number;
     browserWidth?: number;
     height: number;
@@ -268,4 +268,16 @@ interface Layout {
     output: Output;
 }
 
-export { Input, Layout, Output };
+interface ActionForDispatcher {
+  type: string;
+  value: object;
+}
+
+type DispatcherFunction = (action: ActionForDispatcher) => void;
+
+export {
+  Input,
+  Layout,
+  Output,
+  DispatcherFunction,
+};

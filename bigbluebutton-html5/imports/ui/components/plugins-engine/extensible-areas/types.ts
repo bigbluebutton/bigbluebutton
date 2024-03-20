@@ -38,7 +38,7 @@ export type ExtensibleAreaMap = {
 export interface ExtensibleAreaComponentManagerProps {
   uuid: string;
   generateItemWithId<T extends PluginProvidedUiItemDescriptor>(
-      item: T, index: number): T;
+      item: T): T;
   extensibleAreaMap: ExtensibleAreaMap;
   pluginApi: PluginSdk.PluginApi;
 }

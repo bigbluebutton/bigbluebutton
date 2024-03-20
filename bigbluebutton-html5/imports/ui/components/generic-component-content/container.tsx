@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useRef } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import {
@@ -7,63 +7,76 @@ import {
   layoutSelectOutput,
 } from '../layout/context';
 import {
+  DispatcherFunction,
   GenericComponent as GenericComponentFromLayout,
   Input,
   Output,
 } from '../layout/layoutTypes';
 import { PluginsContext } from '../components-data/plugin-context/context';
-import { GenericComponentContainerProps } from './types';
-import { ACTIONS } from '../layout/enums';
 import GenericComponentContent from './component';
+import { ACTIONS, PRESENTATION_AREA } from '../layout/enums';
+import getDifferenceBetweenLists from './utils';
+import { GenericComponentContainerProps } from './types';
 
 const GenericComponentContainer: React.FC<GenericComponentContainerProps> = (props: GenericComponentContainerProps) => {
-  const {
-    shouldShowScreenshare,
-    shouldShowSharedNotes,
-    shouldShowExternalVideo,
-  } = props;
+  const { genericComponentId } = props;
 
-  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo.hasExternalVideo);
-  const hasScreenShareOnLayout: boolean = layoutSelectInput((i: Input) => i.screenShare.hasScreenShare);
-  const isSharedNotesPinned: boolean = layoutSelectInput((i: Input) => i.sharedNotes.isPinned);
-
+  const previousPluginGenericComponents = useRef<PluginSdk.GenericComponent[]>([]);
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
+  const layoutContextDispatch: DispatcherFunction = layoutDispatch();
   let genericComponentExtensibleArea = [] as PluginSdk.GenericComponent[];
+
   if (pluginsExtensibleAreasAggregatedState.genericComponents) {
     genericComponentExtensibleArea = [
       ...pluginsExtensibleAreasAggregatedState.genericComponents as PluginSdk.GenericComponent[],
     ];
-  }
-  useEffect(() => {
-    if (shouldShowScreenshare || shouldShowSharedNotes || shouldShowExternalVideo) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
-        value: false,
+    const [
+      genericComponentsAdded,
+      genericComponentsRemoved,
+    ] = getDifferenceBetweenLists(previousPluginGenericComponents.current, genericComponentExtensibleArea);
+    if (genericComponentsAdded.length > 0 || genericComponentsRemoved.length > 0) {
+      previousPluginGenericComponents.current = [...genericComponentExtensibleArea];
+      genericComponentsAdded.forEach((g) => {
+        layoutContextDispatch({
+          type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+          value: {
+            content: PRESENTATION_AREA.GENERIC_COMPONENT,
+            open: true,
+            genericComponentId: g.id,
+          },
+        });
+      });
+      genericComponentsRemoved.forEach((g) => {
+        layoutContextDispatch({
+          type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+          value: {
+            content: PRESENTATION_AREA.GENERIC_COMPONENT,
+            open: false,
+            genericComponentId: g.id,
+          },
+        });
       });
     }
-  }, [
-    shouldShowScreenshare,
-    shouldShowSharedNotes,
-    shouldShowExternalVideo,
-  ]);
+  }
 
-  const genericComponent: GenericComponentFromLayout = layoutSelectOutput((i: Output) => i.genericComponent);
-  const hasGenericComponentOnLayout: boolean = layoutSelectInput((i: Input) => i.genericComponent.hasGenericComponent);
+  const genericComponentLayoutInformation: GenericComponentFromLayout = layoutSelectOutput(
+    (i: Output) => i.genericComponent,
+  );
+
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const { isResizing } = cameraDock;
 
-  const layoutContextDispatch = layoutDispatch();
-  if (!hasGenericComponentOnLayout || !genericComponentExtensibleArea) return null;
+  if (!genericComponentExtensibleArea
+    || genericComponentExtensibleArea.length === 0
+    || !genericComponentId) return null;
   return (
     <GenericComponentContent
-      hasExternalVideoOnLayout={hasExternalVideoOnLayout}
-      isSharedNotesPinned={isSharedNotesPinned}
-      hasScreenShareOnLayout={hasScreenShareOnLayout}
+      genericComponentId={genericComponentId}
       renderFunctionComponents={genericComponentExtensibleArea}
       isResizing={isResizing}
-      genericComponent={genericComponent}
+      genericComponentLayoutInformation={genericComponentLayoutInformation}
     />
   );
 };

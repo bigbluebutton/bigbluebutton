@@ -165,7 +165,7 @@ const CustomLayout = (props) => {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
             genericComponent: {
-              hasGenericComponent: input.genericComponent.hasGenericComponent
+              genericComponentId: input.genericComponent.genericComponentId,
             },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
@@ -209,7 +209,7 @@ const CustomLayout = (props) => {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
             genericComponent: {
-              hasGenericComponent: input.genericComponent.hasGenericComponent
+              genericComponentId: input.genericComponent.genericComponentId,
             },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
@@ -231,14 +231,13 @@ const CustomLayout = (props) => {
   const calculatesSidebarContentHeight = (cameraDockHeight) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { hasGenericComponent } = genericComponentInput;
+    const { genericComponentId } = genericComponentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
-    const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo 
-      && !hasScreenShare && !isSharedNotesPinned && !hasGenericComponent;
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
+      && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
 
     let sidebarContentHeight = 0;
     if (sidebarContentInput.isOpen) {
@@ -410,7 +409,7 @@ const CustomLayout = (props) => {
   const calculatesMediaBounds = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { hasGenericComponent } = genericComponentInput;
+    const { genericComponentId } = genericComponentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
@@ -424,9 +423,8 @@ const CustomLayout = (props) => {
     const { camerasMargin } = DEFAULT_VALUES;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
-    const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && 
-      !hasScreenShare && !isSharedNotesPinned && !hasGenericComponent;
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
+      && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
 
     if (!isOpen || isGeneralMediaOff) {
       mediaBounds.width = 0;

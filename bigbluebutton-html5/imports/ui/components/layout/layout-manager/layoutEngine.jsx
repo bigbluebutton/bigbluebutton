@@ -55,7 +55,7 @@ const LayoutEngine = ({ layoutType }) => {
   const baseCameraDockBounds = (mediaAreaBounds, sidebarSize) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { hasGenericComponent } = genericComponentInput;
+    const { genericComponentId } = genericComponentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
@@ -72,7 +72,7 @@ const LayoutEngine = ({ layoutType }) => {
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation
       && !hasExternalVideo && !hasScreenShare
-      && !isSharedNotesPinned && !hasGenericComponent;
+      && !isSharedNotesPinned && !genericComponentId;
 
     if (!isOpen || isGeneralMediaOff) {
       cameraDockBounds.width = mediaAreaBounds.width;

@@ -2,16 +2,11 @@ import { GenericComponent } from 'bigbluebutton-html-plugin-sdk';
 import { GenericComponent as GenericComponentLayout } from '../layout/layoutTypes';
 
 export interface GenericComponentContainerProps {
-    shouldShowScreenshare: boolean ;
-    shouldShowSharedNotes: boolean ;
-    shouldShowExternalVideo: boolean ;
+    genericComponentId: string;
 }
-
 export interface GenericComponentProps {
     isResizing: boolean;
-    genericComponent: GenericComponentLayout;
+    genericComponentId: string;
+    genericComponentLayoutInformation: GenericComponentLayout;
     renderFunctionComponents: GenericComponent[];
-    hasExternalVideoOnLayout: boolean;
-    isSharedNotesPinned: boolean;
-    hasScreenShareOnLayout: boolean;
 }

@@ -104,7 +104,7 @@ const SmartLayout = (props) => {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
             },
             genericComponent: {
-              hasGenericComponent: genericComponentInput.hasGenericComponent,
+              genericComponentId: genericComponentInput.genericComponentId,
             },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
@@ -148,7 +148,7 @@ const SmartLayout = (props) => {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
             },
             genericComponent: {
-              hasGenericComponent: genericComponentInput.hasGenericComponent,
+              genericComponentId: genericComponentInput.genericComponentId,
             },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
@@ -288,14 +288,13 @@ const SmartLayout = (props) => {
   const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize, screenShareSize) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { hasGenericComponent } = genericComponentInput;
+    const { genericComponentId } = genericComponentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
-    const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && 
-      !hasScreenShare && !isSharedNotesPinned && !hasGenericComponent;
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
+      && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
 
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
@@ -329,7 +328,7 @@ const SmartLayout = (props) => {
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
       if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0 
-        && !hasExternalVideo && !hasGenericComponent) {
+        && !hasExternalVideo && !genericComponentId) {
         if (mediaContentSize.width < mediaAreaBounds.width && !isMobile) {
           if (mediaContentSize.width < mediaAreaBounds.width * 0.8) {
             mediaBounds.width = mediaContentSize.width;

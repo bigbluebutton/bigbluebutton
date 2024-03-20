@@ -108,7 +108,7 @@ const PresentationFocusLayout = (props) => {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
             genericComponent: {
-              hasGenericComponent: input.genericComponent.hasGenericComponent,
+              genericComponentId: input.genericComponent.genericComponentId,
             },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
@@ -149,7 +149,7 @@ const PresentationFocusLayout = (props) => {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
             genericComponent: {
-              hasGenericComponent: input.genericComponent.hasGenericComponent,
+              genericComponentId: input.genericComponent.genericComponentId,
             },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
@@ -168,14 +168,13 @@ const PresentationFocusLayout = (props) => {
   const calculatesSidebarContentHeight = () => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { hasGenericComponent } = genericComponentInput;
+    const { genericComponentId } = genericComponentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
-    const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && 
-      !hasScreenShare && !isSharedNotesPinned && !hasGenericComponent;
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
+      && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
 
     const { navBarHeight, sidebarContentMinHeight } = DEFAULT_VALUES;
     let height = 0;

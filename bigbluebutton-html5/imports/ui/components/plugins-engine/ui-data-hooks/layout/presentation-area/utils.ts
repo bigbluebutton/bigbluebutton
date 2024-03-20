@@ -3,7 +3,7 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { LayoutPresentatioAreaUiDataNames, UiLayouts } from 'bigbluebutton-html-plugin-sdk';
 import { LayoutPresentationAreaUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/layout/presentation-area/types';
 
-const useUpdatePresentationAreaContent = (layoutContextState: Layout) => {
+const useUpdatePresentationAreaContentForPlugin = (layoutContextState: Layout) => {
   const [presentationAreaContent, setPresentationAreaContent] = useState<LayoutPresentationAreaUiDataPayloads[
     LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT
   ]>();
@@ -19,7 +19,7 @@ const useUpdatePresentationAreaContent = (layoutContextState: Layout) => {
         currentElement = UiLayouts.SCREEN_SHARE;
       } else if (input.sharedNotes.isPinned) {
         currentElement = UiLayouts.PINNED_SHARED_NOTES;
-      } else if (input.genericComponent.hasGenericComponent) {
+      } else if (input.genericComponent.genericComponentId) {
         currentElement = UiLayouts.GENERIC_COMPONENT;
       }
       setPresentationAreaContent({
@@ -40,4 +40,4 @@ const useUpdatePresentationAreaContent = (layoutContextState: Layout) => {
   }, [presentationAreaContent]);
 };
 
-export default useUpdatePresentationAreaContent;
+export default useUpdatePresentationAreaContentForPlugin;
