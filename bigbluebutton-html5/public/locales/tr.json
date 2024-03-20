@@ -445,7 +445,7 @@
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Simge durumuna küçültüldükten sonra sunumu eski boyutuna döndüren düğme",
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Sunumu simge durumuna küçült",
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Sunumu simge durumuna küçülten düğme",
-    "app.actionsBar.actionsDropdown.layoutModal": "Ekran düzeni ayarları üste açılan penceresi",
+    "app.actionsBar.actionsDropdown.layoutModal": "Ekran yerleşimi ayarları üste açılan penceresi",
     "app.screenshare.screenShareLabel" : "Ekran paylaşımı",
     "app.submenu.application.applicationSectionTitle": "Uygulama",
     "app.submenu.application.animationsLabel": "Canlandırmalar",
