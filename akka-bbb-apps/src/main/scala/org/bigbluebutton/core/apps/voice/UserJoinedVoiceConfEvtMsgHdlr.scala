@@ -58,7 +58,6 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         avatar = "",
         color = userColor,
         clientType = if (isDialInUser) "dial-in-user" else "",
-        pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)
       )
       Users2x.add(liveMeeting.users2x, newUser)
