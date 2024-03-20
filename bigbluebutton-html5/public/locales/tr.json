@@ -460,7 +460,7 @@
     "app.submenu.application.languageOptionLabel": "Dil seçin",
     "app.submenu.application.noLocaleOptionLabel": "Etkin bir dil bulunamadı",
     "app.submenu.application.paginationEnabledLabel": "Görüntü sayfalandırma",
-    "app.submenu.application.layoutOptionLabel": "Ekran düzeni türü",
+    "app.submenu.application.layoutOptionLabel": "Ekran yerleşimi türü",
     "app.submenu.application.pushLayoutLabel": "Ekran düzenini gönder",
     "app.submenu.application.localeDropdown.af": "Afrikaanca",
     "app.submenu.application.localeDropdown.ar": "Arapça",
