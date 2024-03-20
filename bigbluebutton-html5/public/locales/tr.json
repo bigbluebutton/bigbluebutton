@@ -1278,7 +1278,7 @@
     "app.layout.modal.layoutToastLabelAuto": "Otomatik ekran yerleşimi güncellemeleri etkinleştirildi. Ekran yerleşim güncellemeleri artık herkese uygulanıyor",
     "app.layout.modal.layoutToastLabelAutoOff": "Otomatik ekran yerleşimi güncellemeleri devre dışı bırakıldı",
     "app.layout.modal.layoutSingular": "Ekran yerleşimi",
-    "app.layout.modal.layoutBtnDesc": "Ekran düzenini seçilmiş seçenek olarak ayarla",
+    "app.layout.modal.layoutBtnDesc": "Ekran yerleşimini seçilmiş seçenek olarak ayarla",
     "app.layout.style.custom": "Özel",
     "app.layout.style.smart": "Akıllı ekran düzeni",
     "app.layout.style.presentationFocus": "Sunuma odaklan",
