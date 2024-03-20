@@ -40,10 +40,14 @@ type Response struct {
 	MessageKey string    `xml:"messageKey,omitempty"`
 	Message    string    `xml:"message,omitempty"`
 	Running    *bool     `xml:"running,omitempty"`
-	Meetings   []Meeting `xml:"meetings,omitempty"`
+	Meetings   *Meetings `xml:"meetings,omitempty"`
 }
 
-type Attendees struct {
+type Meetings struct {
+	Meetings []Meeting `xml:"meetings"`
+}
+
+type Users struct {
 	Users []User `xml:"attendee"`
 }
 
@@ -66,61 +70,61 @@ type BreakoutRooms struct {
 }
 
 type Meeting struct {
-	XMLName               xml.Name  `xml:"meeting"`
-	MeetingName           string    `xml:"meetingName"`
-	MeetingId             string    `xml:"meetingID"`
-	InternalMeetingId     string    `xml:"internalMeetingID"`
-	CreateTime            int64     `xml:"createTime"`
-	CreateDate            string    `xml:"createDate"`
-	VoiceBridge           string    `xml:"voiceBridge"`
-	DialNumber            string    `xml:"dialNumber"`
-	AttendeePW            string    `xml:"attendeePW"`
-	ModeratorPW           string    `xml:"moderatorPW"`
-	Running               bool      `xml:"running"`
-	Duration              int32     `xml:"duration"`
-	HasUserJoined         bool      `xml:"hasUserJoined"`
-	Recording             bool      `xml:"recording"`
-	HasBeenForciblyEnded  bool      `xml:"hasBeenForciblyEnded"`
-	StartTime             int64     `xml:"startTime"`
-	EndTime               int64     `xml:"EndTime"`
-	ParticipantCount      int32     `xml:"participantCount"`
-	ListenerCount         int32     `xml:"listenerCount"`
-	VoiceParticipantCount int32     `xml:"voiceParticipantCount"`
-	VideoCount            int32     `xml:"videoCount"`
-	MaxUsers              int32     `xml:"maxUsers"`
-	ModeratorCount        int32     `xml:"moderatorCount"`
-	Users                 Attendees `xml:"attendees"`
+	XMLName               xml.Name `xml:"meeting"`
+	MeetingName           string   `xml:"meetingName"`
+	MeetingId             string   `xml:"meetingID"`
+	InternalMeetingId     string   `xml:"internalMeetingID"`
+	CreateTime            int64    `xml:"createTime"`
+	CreateDate            string   `xml:"createDate"`
+	VoiceBridge           string   `xml:"voiceBridge"`
+	DialNumber            string   `xml:"dialNumber"`
+	AttendeePW            string   `xml:"attendeePW"`
+	ModeratorPW           string   `xml:"moderatorPW"`
+	Running               bool     `xml:"running"`
+	Duration              int32    `xml:"duration"`
+	HasUserJoined         bool     `xml:"hasUserJoined"`
+	Recording             bool     `xml:"recording"`
+	HasBeenForciblyEnded  bool     `xml:"hasBeenForciblyEnded"`
+	StartTime             int64    `xml:"startTime"`
+	EndTime               int64    `xml:"EndTime"`
+	ParticipantCount      int32    `xml:"participantCount"`
+	ListenerCount         int32    `xml:"listenerCount"`
+	VoiceParticipantCount int32    `xml:"voiceParticipantCount"`
+	VideoCount            int32    `xml:"videoCount"`
+	MaxUsers              int32    `xml:"maxUsers"`
+	ModeratorCount        int32    `xml:"moderatorCount"`
+	Users                 Users    `xml:"attendees"`
 	Metadata              Metadata
 	IsBreakout            bool          `xml:"isBreakout"`
 	BreakoutRooms         BreakoutRooms `xml:"breakoutRooms"`
 }
 
 type GetMeetingInfoResponse struct {
-	XMLName               xml.Name  `xml:"response"`
-	ReturnCode            string    `xml:"returncode"`
-	MeetingName           string    `xml:"meetingName"`
-	MeetingId             string    `xml:"meetingID"`
-	InternalMeetingId     string    `xml:"internalMeetingID"`
-	CreateTime            int64     `xml:"createTime"`
-	CreateDate            string    `xml:"createDate"`
-	VoiceBridge           string    `xml:"voiceBridge"`
-	DialNumber            string    `xml:"dialNumber"`
-	AttendeePW            string    `xml:"attendeePW"`
-	ModeratorPW           string    `xml:"moderatorPW"`
-	Running               bool      `xml:"running"`
-	Duration              int32     `xml:"duration"`
-	HasUserJoined         bool      `xml:"hasUserJoined"`
-	Recording             bool      `xml:"recording"`
-	HasBeenForciblyEnded  bool      `xml:"hasBeenForciblyEnded"`
-	StartTime             int64     `xml:"startTime"`
-	EndTime               int64     `xml:"EndTime"`
-	ParticipantCount      int32     `xml:"participantCount"`
-	ListenerCount         int32     `xml:"listenerCount"`
-	VoiceParticipantCount int32     `xml:"voiceParticipantCount"`
-	VideoCount            int32     `xml:"videoCount"`
-	MaxUsers              int32     `xml:"maxUsers"`
-	ModeratorCount        int32     `xml:"moderatorCount"`
-	Users                 Attendees `xml:"attendees"`
+	XMLName               xml.Name `xml:"response"`
+	ReturnCode            string   `xml:"returncode"`
+	MeetingName           string   `xml:"meetingName"`
+	MeetingId             string   `xml:"meetingID"`
+	InternalMeetingId     string   `xml:"internalMeetingID"`
+	CreateTime            int64    `xml:"createTime"`
+	CreateDate            string   `xml:"createDate"`
+	VoiceBridge           string   `xml:"voiceBridge"`
+	DialNumber            string   `xml:"dialNumber"`
+	AttendeePW            string   `xml:"attendeePW"`
+	ModeratorPW           string   `xml:"moderatorPW"`
+	Running               bool     `xml:"running"`
+	Duration              int32    `xml:"duration"`
+	HasUserJoined         bool     `xml:"hasUserJoined"`
+	Recording             bool     `xml:"recording"`
+	HasBeenForciblyEnded  bool     `xml:"hasBeenForciblyEnded"`
+	StartTime             int64    `xml:"startTime"`
+	EndTime               int64    `xml:"EndTime"`
+	ParticipantCount      int32    `xml:"participantCount"`
+	ListenerCount         int32    `xml:"listenerCount"`
+	VoiceParticipantCount int32    `xml:"voiceParticipantCount"`
+	VideoCount            int32    `xml:"videoCount"`
+	MaxUsers              int32    `xml:"maxUsers"`
+	ModeratorCount        int32    `xml:"moderatorCount"`
+	Users                 Users    `xml:"attendees"`
 	Metadata              Metadata
 	IsBreakout            bool `xml:"isBreakout"`
 	BreakoutRooms         BreakoutRooms

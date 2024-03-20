@@ -21,12 +21,8 @@ message MeetingInfoRequest {
 }
 
 message MeetingInfoResponse {
-  // Information describing the current state of the meeting
-  MeetingInfo  meeting_info = 1;
-
-  // Indicates whether the MeetingInfo is "empty" or not.
-  // If this field is true then the returned MeetingInfo corresponds to the default state initialized by gRPC not an actual meeting.
-  bool is_empty = 2;
+  // Information describing the current state of the meeting.
+  MeetingInfo meeting_info = 1;
 }
 
 message ListMeetingsRequest {

@@ -77,13 +77,13 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
           // Map the MeetingInfo to a MeetingInfoResponse.
           (runningMeeting.actorRef ? GetMeetingInfo()).mapTo[MeetingInfo].map(meetingInfo => MeetingInfoResponse(Option(meetingInfo))).recover {
             // If an error occurs during the mapping of one of the RunningMeetings then recover the stream with an empty MeetingInfoResponse.
-            case ex: Throwable   => MeetingInfoResponse(None, isEmpty = true)
+            case ex: Throwable   => MeetingInfoResponse(None)
           }
         }
       }
     }.recoverWith {
       // If an error occurs with the stream itself then recover by emitting a single empty MeetingInfoResponse.
-      case ex: Throwable => Source.single(MeetingInfoResponse(None, isEmpty = true))
+      case ex: Throwable => Source.single(MeetingInfoResponse(None))
     }
   }
 }

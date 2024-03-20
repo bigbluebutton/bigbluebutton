@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -63,8 +64,6 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	log.Println(resp)
-
 	users := make([]model.User, 0, len(resp.MeetingInfo.Users))
 	for _, u := range resp.MeetingInfo.Users {
 		user := app.grpcUserToRespUser(u)
@@ -98,13 +97,11 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 		VideoCount:            resp.MeetingInfo.ParticipantInfo.VideoCount,
 		MaxUsers:              resp.MeetingInfo.ParticipantInfo.MaxUsers,
 		ModeratorCount:        resp.MeetingInfo.ParticipantInfo.ModeratorCount,
-		Users:                 model.Attendees{Users: users},
+		Users:                 model.Users{Users: users},
 		Metadata:              *metadata,
 		IsBreakout:            resp.MeetingInfo.BreakoutInfo.IsBreakout,
 		BreakoutRooms:         model.BreakoutRooms{Breakout: resp.MeetingInfo.BreakoutRooms},
 	}
-
-	log.Println(payload)
 
 	err = app.writeXML(w, http.StatusAccepted, payload)
 	if err != nil {
@@ -113,5 +110,44 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
-	log.Println("Hit the getMeetings enpoint!")
+	log.Println("Handling getMeetings request")
+
+	params := r.URL.Query()
+	meetingId := params.Get("meetingID")
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	stream, err := app.BbbCore.GetMeetingsStream(ctx, &bbbcore.GetMeetingsStreamRequest{
+		MeetingId: meetingId,
+	})
+	if err != nil {
+		log.Println(err)
+	}
+
+	meetings := make([]model.Meeting, 0)
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Println(err)
+		}
+		if resp.MeetingInfo != nil {
+			meetings = append(meetings, app.meetingInfoToMeeting(resp.MeetingInfo))
+		}
+	}
+
+	payload := model.Response{
+		ReturnCode: model.Success,
+		Meetings: &model.Meetings{
+			Meetings: meetings,
+		},
+	}
+
+	err = app.writeXML(w, http.StatusAccepted, payload)
+	if err != nil {
+		log.Println(err)
+	}
 }
