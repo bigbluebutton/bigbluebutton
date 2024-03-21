@@ -525,11 +525,11 @@ public class Meeting {
 		}
 	}
 
-	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
+	public String calcGuestStatus(String role, Boolean guest, Boolean authned, Boolean guestParamProvided) {
 		if (!authenticatedGuest) return getUnauthenticatedGuestStatus(guest);
 
 		// Allow moderators all the time.
-		if (ROLE_MODERATOR.equals(role)) {
+		if (ROLE_MODERATOR.equals(role) || (guestParamProvided && !guest)) {
 			return GuestPolicy.ALLOW;
 		}
 
