@@ -260,7 +260,7 @@ object VoiceApp extends SystemConfiguration {
       callingInto:  String,
       hold:         Boolean,
       uuid:         String  = "unused"
-  ): Unit = {
+  )(implicit context: akka.actor.ActorContext): Unit = {
 
     def broadcastEvent(voiceUserState: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(
@@ -323,7 +323,27 @@ object VoiceApp extends SystemConfiguration {
       hold,
       uuid
     )
+
+    val prevTransparentLOStatus = VoiceHdlrHelpers.transparentListenOnlyAllowed(
+      liveMeeting
+    )
+
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
+
+    val newTransparentLOStatus = VoiceHdlrHelpers.transparentListenOnlyAllowed(
+      liveMeeting
+    )
+
+    if (prevTransparentLOStatus != newTransparentLOStatus) {
+      // If the transparent listen only mode was activated or deactivated
+      // we need to update the listen only mode for all users in the meeting
+      // that are not muted.
+      handleTransparentLOModeChange(
+        liveMeeting,
+        outGW,
+        newTransparentLOStatus
+      )
+    }
 
     broadcastEvent(voiceUserState)
 
@@ -473,6 +493,22 @@ object VoiceApp extends SystemConfiguration {
     }
   }
 
+  def handleTransparentLOModeChange(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    allowed:     Boolean,
+  )(implicit context: akka.actor.ActorContext): Unit = {
+    VoiceUsers.findAllMutedVoiceUsers(liveMeeting.voiceUsers) foreach { vu =>
+      toggleListenOnlyMode(
+        liveMeeting,
+        outGW,
+        vu.intId,
+        vu.callerNum,
+        allowed
+      )
+    }
+  }
+
   def toggleListenOnlyMode(
     liveMeeting:    LiveMeeting,
     outGW:          OutMsgRouter,
@@ -482,6 +518,16 @@ object VoiceApp extends SystemConfiguration {
     delay:          Int = 0
   )(implicit context: ActorContext): Unit = {
     implicit def executionContext = context.system.dispatcher
+    val allowed = VoiceHdlrHelpers.transparentListenOnlyAllowed(liveMeeting)
+    // Guarantee there are no other tasks for this channel
+    removeToggleListenOnlyTask(userId)
+
+    // If the meeting has not yet hit the minium amount of duplex channels
+    // for transparent listen only to be enabled, we don't need to do anything
+    if (!allowed && enabled) {
+      return
+    }
+
     def broacastEvent(): Unit = {
       val event = MsgBuilder.buildToggleListenOnlyModeSysMsg(
         liveMeeting.props.meetingProp.intId,
@@ -492,9 +538,6 @@ object VoiceApp extends SystemConfiguration {
       )
       outGW.send(event)
     }
-
-    // Guarantee there are no other tasks for this channel
-    removeToggleListenOnlyTask(userId)
 
     if (enabled && delay > 0) {
       // If we are enabling listen only mode, we wait a bit before actually

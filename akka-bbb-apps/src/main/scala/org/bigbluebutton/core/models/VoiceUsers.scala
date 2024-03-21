@@ -33,6 +33,7 @@ object VoiceUsers {
   def findAllListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == true)
   def findAllFreeswitchCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch")
   def findAllKurentoCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "kms")
+  def findAllMutedVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.muted == true && u.listenOnly == false)
 
   def findAllBannedCallers(users: VoiceUsers): Vector[VoiceUserState] = users.bannedUsers.values.toVector
 
