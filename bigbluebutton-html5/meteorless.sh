@@ -1,7 +1,5 @@
 #!/bin/bash
 
-mkdir -p /usr/share/meteor/bundle/programs/web.browser/locales-endpoint
-cp locales-endpoint.json /usr/share/meteor/bundle/programs/web.browser/locales-endpoint/index.json
 cp footer /usr/share/meteor/bundle/programs/web.browser/footer.html
 
 cd /usr/share/meteor/bundle/programs/web.browser
