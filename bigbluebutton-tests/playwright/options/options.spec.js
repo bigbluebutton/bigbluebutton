@@ -12,7 +12,7 @@ test.describe('Options', () => {
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(options, browser, { joinParameter: hidePresentationToast });
+    await initializePages(options, browser, { createParameter: hidePresentationToast });
   });
 
   test('Open about modal', async () => {

@@ -454,7 +454,7 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Skip audio check on first join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, false, { joinParameter: `${hidePresentationToast}&${c.skipCheckOnFirstJoin}` });
+      await customParam.initModPage(page, false, { createParameter: hidePresentationToast, joinParameter: c.skipCheckOnFirstJoin });
       await customParam.skipCheckOnFirstJoin();
     });
   });
@@ -477,8 +477,8 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Force Restore Presentation On New Poll Result', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      const joinParameter = `${c.forceRestorePresentationOnNewEvents}&${hidePresentationToast}`;
-      await customParam.initModPage(page, true, joinParameter );
+      const joinParameter = c.forceRestorePresentationOnNewEvents;
+      await customParam.initModPage(page, true, { createParameter: hidePresentationToast, joinParameter });
       await customParam.forceRestorePresentationOnNewPollResult(joinParameter);
     });
   });

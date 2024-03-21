@@ -102,6 +102,7 @@ class CustomParameters extends MultiUsers {
   async skipCheckOnFirstJoin() {
     await this.modPage.waitAndClick(e.microphoneButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.establishingAudioLabel);
+    await this.modPage.hasElement(e.smallToastMsg);
     await this.modPage.hasElement(e.isTalking);
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
@@ -150,6 +151,7 @@ class CustomParameters extends MultiUsers {
     const { presentationHidden,pollEnabled } = getSettings();
     if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
     if (pollEnabled) await util.poll(this.modPage, this.userPage);
+    await this.userPage.waitForSelector(e.smallToastMsg);
     await this.userPage.checkElement(e.restorePresentation);
   }
 
