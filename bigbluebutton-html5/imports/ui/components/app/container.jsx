@@ -311,7 +311,7 @@ export default withTracker(() => {
     randomlySelectedUser,
   } = currentMeeting;
 
-  const meetingLayoutObj = (clientSettings.skipMeteorConnection ? Meetings : LayoutMeetings)
+  const meetingLayoutObj = Meetings
     .findOne({ meetingId: Auth.meetingID }) || {};
 
   const { layout } = meetingLayoutObj;
