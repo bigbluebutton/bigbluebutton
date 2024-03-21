@@ -48,33 +48,32 @@ const fetchLocaleOptions = (locale: string, init: boolean, localesList: string[]
 
   const usableLocales = localesList
     .map((file) => file.replace('.json', ''))
-    .reduce((locales, locale) => (locale.match(browserLocale[0])
+    .reduce((locales: string[], locale: string) => (locale.match(browserLocale[0])
       ? [...locales, locale]
       : locales), []);
 
-  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
+  const regionDefault = usableLocales.find((locale: string) => browserLocale[0] === locale);
 
   if (browserLocale.length > 1) {
     // browser asks for specific locale
     normalizedLocale = `${browserLocale[0]}_${browserLocale[1]?.toUpperCase()}`;
 
-    const normDefault = usableLocales.find(locale => normalizedLocale === locale);
+    const normDefault = usableLocales.find((locale) => normalizedLocale === locale);
     if (normDefault) {
       localeFile = normDefault;
+    } else if (regionDefault) {
+      localeFile = regionDefault;
     } else {
-      if (regionDefault) {
-        localeFile = regionDefault;
-      } else {
-        const specFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
-        if (specFallback) localeFile = specFallback;
-      }
+      const specFallback = usableLocales.find((locale) => browserLocale[0] === locale.split('_')[0]);
+      if (specFallback) localeFile = specFallback;
     }
   } else {
     // browser asks for region default locale
+    // eslint-disable-next-line no-lonely-if
     if (regionDefault && localeFile === fallback && regionDefault !== localeFile) {
       localeFile = regionDefault;
     } else {
-      const normFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+      const normFallback = usableLocales.find((locale) => browserLocale[0] === locale.split('_')[0]);
       if (normFallback) localeFile = normFallback;
     }
   }

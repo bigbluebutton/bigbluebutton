@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Meteor } from 'meteor/meteor';
 import { useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';

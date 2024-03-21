@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { isAudioTranscriptionEnabled } from '../service';
 import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';

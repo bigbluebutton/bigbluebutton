@@ -1,6 +1,5 @@
 import React, { useCallback, useRef } from 'react';
 import { useSubscription } from '@apollo/client';
-import { Meteor } from 'meteor/meteor';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';

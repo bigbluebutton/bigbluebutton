@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import PollService from '/imports/ui/components/poll/service';
 import AudioService from '/imports/ui/components/audio/service';
 import { isPollingEnabled } from '/imports/ui/services/features';

@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import { useMutation, useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
