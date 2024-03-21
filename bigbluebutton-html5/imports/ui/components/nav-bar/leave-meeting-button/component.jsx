@@ -85,7 +85,7 @@ class LeaveMeetingButton extends PureComponent {
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
 
-    const { allowLogout: allowLogoutSetting } = Meteor.settings.public.app;
+    const { allowLogout: allowLogoutSetting } = window.meetingClientSettings.public.app;
 
     this.menuItems = [];
 
