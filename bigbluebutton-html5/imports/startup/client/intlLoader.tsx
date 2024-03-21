@@ -99,6 +99,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   const [fallbackOnEmptyLocaleString, setFallbackOnEmptyLocaleString] = React.useState(false);
 
   const fetchLocalizedMessages = useCallback((locale: string, init: boolean) => {
+    setFetching(true);
     buildFetchLocale('index')
       .then((resp) => {
         const data = fetchLocaleOptions(locale, init, resp as string[]);
@@ -129,7 +130,6 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             const mergedLocale = foundLocales
               .reduce((acc, locale: LocaleJson) => Object.assign(acc, locale), {});
             const replacedLocale = normalizedLocale.replace('_', '-');
-            setFetching(false);
             setNormalizedLocale(replacedLocale);
             setCurrentLocale(replacedLocale);
             setMessages(mergedLocale);
