@@ -46,7 +46,8 @@ const CameraSettingsDropdownPluginStateContainer = ((
 
   pluginApi.setCameraSettingsDropdownItems = (items: PluginSdk.CameraSettingsDropdownInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.CameraSettingsDropdownInterface[];
-    return setCameraSettingsDropdownItems(itemsWithId);
+    setCameraSettingsDropdownItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

@@ -2,36 +2,42 @@ import { useEffect, useState } from 'react';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { LayoutPresentatioAreaUiDataNames, UiLayouts } from 'bigbluebutton-html-plugin-sdk';
 import { LayoutPresentationAreaUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/layout/presentation-area/types';
+import { PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 
 const useUpdatePresentationAreaContentForPlugin = (layoutContextState: Layout) => {
   const [presentationAreaContent, setPresentationAreaContent] = useState<LayoutPresentationAreaUiDataPayloads[
     LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT
   ]>();
+  const { presentationAreaContentActions: presentationAreaContentPile } = layoutContextState;
 
   useEffect(() => {
-    const { input } = layoutContextState;
-    if (input.presentation.isOpen) {
-      let currentElement = UiLayouts.ONLY_PRESENTATION;
-
-      if (input.externalVideo.hasExternalVideo) {
-        currentElement = UiLayouts.EXTERNAL_VIDEO;
-      } else if (input.screenShare.hasScreenShare) {
-        currentElement = UiLayouts.SCREEN_SHARE;
-      } else if (input.sharedNotes.isPinned) {
-        currentElement = UiLayouts.PINNED_SHARED_NOTES;
-      } else if (input.genericComponent.genericComponentId) {
-        currentElement = UiLayouts.GENERIC_COMPONENT;
+    setPresentationAreaContent(presentationAreaContentPile.map((p) => {
+      let currentElement;
+      let genericComponentId;
+      switch (p.value.content) {
+        case PRESENTATION_AREA.PINNED_NOTES:
+          currentElement = UiLayouts.PINNED_SHARED_NOTES;
+          break;
+        case PRESENTATION_AREA.EXTERNAL_VIDEO:
+          currentElement = UiLayouts.EXTERNAL_VIDEO;
+          break;
+        case PRESENTATION_AREA.GENERIC_COMPONENT:
+          currentElement = UiLayouts.GENERIC_COMPONENT;
+          genericComponentId = p.value.genericComponentId;
+          break;
+        case PRESENTATION_AREA.SCREEN_SHARE:
+          currentElement = UiLayouts.SCREEN_SHARE;
+          break;
+        default:
+          currentElement = UiLayouts.WHITEBOARD;
+          break;
       }
-      setPresentationAreaContent({
-        isOpen: true,
+      return {
+        isOpen: p.value.open,
         currentElement,
-      });
-    } else if (presentationAreaContent?.isOpen) {
-      setPresentationAreaContent({
-        isOpen: input.presentation.isOpen || false,
-        currentElement: undefined,
-      });
-    }
+        genericComponentId,
+      };
+    }));
   }, [layoutContextState]);
   useEffect(() => {
     window.dispatchEvent(new CustomEvent(LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT, {
