@@ -35,6 +35,9 @@ require "active_support"
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
+utils_dir = bbb_props['script_utils_dir']
+diff_to_events_filename = bbb_props['diff_to_events_filename']
+@diff_to_events_dir = "#{utils_dir}/#{diff_to_events_filename}"
 @presentation_props = YAML.safe_load(File.read('presentation.yml'))
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
@@ -1119,6 +1122,89 @@ def process_chat_messages(events, bbb_props)
   xml
 end
 
+def process_json_events_for_notes(notes_event_dir, fileNameToRead, fileNameToWrite)
+  system("node", @diff_to_events_dir, notes_event_dir, fileNameToRead, fileNameToWrite)
+
+  tmp_json_notes_events = "#{notes_event_dir}/#{fileNameToWrite}"
+
+  if (File.exist?(tmp_json_notes_events))
+    
+    json_content = JSON.parse(File.open(tmp_json_notes_events).read)
+    return json_content
+  end
+  return nil
+end
+
+def process_notes_events(events, bbb_props, notes_event_dir, fileNameToRead, fileNameToWrite)
+  BigBlueButton.logger.info('Processing shared notes events')
+
+  if (File.exist?("#{notes_event_dir}/#{fileNameToRead}"))
+    BigBlueButton.logger.info("Found #{notes_event_dir}/#{fileNameToRead}, processing")
+    json_content = process_json_events_for_notes(notes_event_dir, fileNameToRead, fileNameToWrite)
+    if (!json_content.nil?)
+      # This timestamp UTC is important because etherpad events of changeSet  
+      # are stored relative to UTC timestamp.
+      initial_timestamp_UTC = BigBlueButton::Events.first_event_timestamp(events, utcType = true)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      start_time = @meeting_start - initial_timestamp
+      end_time =  @meeting_end - initial_timestamp
+
+      # This Offset variable is important to normalize the timestamp relative to the 
+      # recorded session (not the entire meeting itself). 
+      offset = start_time
+      last_stop_timestamp = start_time
+      hash_notes_events = {:root => {:events => []}}
+
+      # meeting_start.to_i, @meeting_end.to_i
+      events_after_record = []
+      events.xpath('/recording/event').each do |event|
+        status_timestamp = event[:timestamp].to_i - initial_timestamp
+        case event[:eventname]
+        when "RecordStatusEvent"
+          status = event.at_xpath('./status')&.content == 'true'
+          # This is start record event, so we stash all notes events
+          # with timestamp greater than this.
+          if (status)
+            offset += status_timestamp - last_stop_timestamp
+            json_content.each_with_index do |json_event, index|
+              timestamp = json_event["timestamp"] - initial_timestamp_UTC
+              break if timestamp >= end_time
+              if (timestamp >= status_timestamp)
+                events_after_record = events_after_record.push({:index => index, :timestamp => timestamp})
+              end
+            end
+          # For this case, recording is stopped, so we need to check
+          # for note events that have timestamp lower than this one's,
+          # which will mean that it is within a recording interval.
+          else
+            last_stop_timestamp = status_timestamp
+            events_after_record.each do |event_recorded|
+              timestamp = event_recorded[:timestamp]
+              if (timestamp < status_timestamp)
+                hash_notes_events[:root][:events] << {:text => json_content[event_recorded[:index]]["text"], :timestamp => timestamp - offset}
+              end 
+              events_after_record = []
+            end
+          end
+        # Same case as stop recording, once when ended, there is no
+        # other event.
+        when "EndAndKickAllEvent"
+          events_after_record.each do |event_recorded|
+            timestamp = event_recorded[:timestamp]
+            if (timestamp < status_timestamp)
+              hash_notes_events[:root][:events] << {:text => json_content[event_recorded[:index]]["text"], :timestamp => timestamp - offset}
+            end 
+            events_after_record = []
+          end
+        end
+      end 
+      notes_html = "<body>\n#{hash_notes_events[:root][:events][-1][:text].to_s}\n</body>" 
+      return hash_notes_events.to_json, notes_html
+    end
+  end
+  return nil
+end
+
 def process_deskshare_events(events)
   BigBlueButton.logger.info('Processing deskshare events')
   deskshare_matched_events = BigBlueButton::Events.get_matched_start_and_stop_deskshare_events(events)
@@ -1344,9 +1430,6 @@ begin
         presentation_text = "#{@process_dir}/presentation_text.json"
         FileUtils.cp(presentation_text, package_dir) if File.exist?(presentation_text)
 
-        notes = "#{@process_dir}/notes/notes.html"
-        FileUtils.cp(notes, package_dir) if File.exist?(notes)
-
         processing_time = File.read("#{@process_dir}/processing_time")
 
         @doc = Nokogiri::XML(File.read("#{@process_dir}/events.xml"))
@@ -1423,6 +1506,15 @@ begin
         # Write slides.xml to file
         slides_doc = process_chat_messages(@doc, bbb_props)
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts slides_doc.target! }
+
+        # Write notes_events.xml to file
+        notes_events_doc, notes_last_event = process_notes_events(@doc, bbb_props, "#{@process_dir}/notes", "notes.etherpad", "notes_events.json")
+        if (!notes_events_doc.nil?)
+          File.open("#{package_dir}/notes_events.json", 'w') { |f| f.puts notes_events_doc }
+        end
+        if (!notes_last_event.nil?)
+          File.open("#{package_dir}/notes.html", 'w') { |f| f.puts notes_last_event }
+        end
 
         process_presentation(package_dir)
 
