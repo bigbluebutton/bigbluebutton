@@ -15,7 +15,6 @@ const MeetingGrapQlMiniMongoAdapter: React.FC = () => {
     data: meetingData,
     loading: meetingLoading,
   } = meetingSubscription();
-  console.log('meetingData', meetingData);
   // useEffect(() => {
   //   if (error) {
   //     logger.error('Error in UserGrapQlMiniMongoAdapter', error);
@@ -24,11 +23,10 @@ const MeetingGrapQlMiniMongoAdapter: React.FC = () => {
 
   useEffect(() => {
     if (meetingData) {
-      const { meetingId } = meetingData[0];
-      console.log("🚀 -> useEffect -> meetingId:", meetingId);
-      Meetings.upsert({ meetingId }, meetingData[0]);
+      const meeting = JSON.parse(JSON.stringify(meetingData[0]));
+      const { meetingId } = meeting;
+      Meetings.upsert({ meetingId }, meeting);
     }
-    console.log('meetingData', Meetings.find().fetch());
   }, [meetingData]);
   return null;
 };

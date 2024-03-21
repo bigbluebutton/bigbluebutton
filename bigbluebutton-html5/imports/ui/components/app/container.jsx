@@ -202,7 +202,6 @@ const AppContainer = (props) => {
   const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes 
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
-
   return currentUserId
     ? (
       <App
@@ -268,7 +267,8 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default withTracker(() => {
-  Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
+  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
+  Users.find({ userId: Auth.userID, }).observe({
     removed(userData) {
       // wait 3secs (before endMeeting), client will try to authenticate again
       const delayForReconnection = userData.ejected ? 0 : 3000;
@@ -311,7 +311,9 @@ export default withTracker(() => {
     randomlySelectedUser,
   } = currentMeeting;
 
-  const meetingLayoutObj = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
+  const meetingLayoutObj = (clientSettings.skipMeteorConnection ? Meetings : LayoutMeetings)
+    .findOne({ meetingId: Auth.meetingID }) || {};
+
   const {
     layout: meetingLayout,
     pushLayout: pushLayoutMeeting,

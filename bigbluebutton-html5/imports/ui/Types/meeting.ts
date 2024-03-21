@@ -93,6 +93,11 @@ export interface ComponentsFlags {
   hasTimer: boolean;
 }
 
+export interface Metadata {
+  name: string;
+  value: string;
+}
+
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
@@ -114,4 +119,5 @@ export interface Meeting {
   breakoutPolicies: BreakoutPolicies;
   externalVideo: ExternalVideo;
   componentsFlags: ComponentsFlags;
+  metadata: Array<Metadata>;
 }

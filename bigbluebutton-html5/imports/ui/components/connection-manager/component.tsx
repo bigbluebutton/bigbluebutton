@@ -83,7 +83,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         client = new ApolloClient({
           link: wsLink,
           cache: new InMemoryCache(),
-          connectToDevTools: Meteor.isDevelopment,
+          connectToDevTools: true,
         });
         setApolloClient(client);
       } catch (error) {

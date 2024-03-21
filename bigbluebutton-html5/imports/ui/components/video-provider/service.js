@@ -701,7 +701,6 @@ class VideoService {
       meeting?.usersPolicies === undefined
       || !meeting?.meetingCameraCap === undefined
     ) return true;
-    console.log('depois', meeting)
     const { meetingCameraCap } = meeting;
     const { userCameraCap } = meeting.usersPolicies;
 

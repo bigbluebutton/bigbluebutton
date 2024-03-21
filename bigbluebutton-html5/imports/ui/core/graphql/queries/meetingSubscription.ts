@@ -19,6 +19,10 @@ const MEETING_SUBSCRIPTION = gql`
           hideViewersAnnotation
           webcamsOnlyForModerator
         }
+        metadata {
+          name
+          value
+        }
         maxPinnedCameras
         meetingCameraCap
         meetingId
@@ -54,6 +58,16 @@ const MEETING_SUBSCRIPTION = gql`
           userCameraCap
           webcamsOnlyForModerator
           guestLobbyMessage
+        }
+        layout {
+          cameraDockAspectRatio
+          cameraDockIsResizing
+          cameraDockPlacement
+          cameraWithFocus
+          currentLayoutType
+          presentationMinimized
+          propagateLayout
+          updatedAt
         }
         isBreakout
         breakoutPolicies {
