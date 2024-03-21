@@ -119,7 +119,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
 
   useEffect(() => {
     if (fetching) {
-      loadingContextInfo.setLoading(true, 'Fetching locale');
+      logger.info('Fetching locale');
     }
   }, [fetching]);
 
