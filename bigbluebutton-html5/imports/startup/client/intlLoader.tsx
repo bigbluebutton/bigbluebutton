@@ -101,8 +101,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   const fetchLocalizedMessages = useCallback((locale: string, init: boolean) => {
     buildFetchLocale('index')
       .then((resp) => {
-        const locales = Object.keys(resp as LocaleJson);
-        const data = fetchLocaleOptions(locale, init, locales);
+        const data = fetchLocaleOptions(locale, init, resp as string[]);
 
         const {
           defaultLocale,
