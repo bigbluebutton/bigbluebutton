@@ -25,3 +25,8 @@ cat head.html >> index.html
 cat body.html >> index.html
 echo $footer_content >> index.html
 echo '</body>' >> index.html
+
+# generate index.json locales file if it does not exist
+if [ ! -f /usr/share/meteor/bundle/programs/web.browser/app/locales/index.json ]; then
+  find /usr/share/meteor/bundle/programs/web.browser/app/locales -maxdepth 1 -type f -name "*.json" -exec basename {} \; | awk 'BEGIN{printf "["}{printf "\"%s\", ", $0}END{print "]"}' | sed 's/, ]/]/' > /usr/share/meteor/bundle/programs/web.browser/app/locales/index.json
+fi

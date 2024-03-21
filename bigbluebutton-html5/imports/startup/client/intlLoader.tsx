@@ -4,13 +4,6 @@ import { LoadingContext } from '/imports/ui/components/common/loading-screen/loa
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import logger from './logger';
 
-interface LocaleEndpointResponse {
-  defaultLocale: string;
-  fallbackOnEmptyLocaleString: boolean;
-  normalizedLocale: string;
-  regionDefaultLocale: string;
-}
-
 interface LocaleJson {
   [key: string]: string;
 }
@@ -42,6 +35,58 @@ const buildFetchLocale = (locale: string) => {
   });
 };
 
+const fetchLocaleOptions = (locale: string, init: boolean, localesList: string[] = []) => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
+  const override = APP_CONFIG.defaultSettings.application.overrideLocale;
+  const browserLocale = override && init ? override.split(/[-_]/g) : locale.split(/[-_]/g);
+  const defaultLanguage = APP_CONFIG.defaultSettings.application.fallbackLocale;
+  const fallbackOnEmptyString = APP_CONFIG.fallbackOnEmptyLocaleString;
+
+  let localeFile = fallback;
+  let normalizedLocale: string = '';
+
+  const usableLocales = localesList
+    .map((file) => file.replace('.json', ''))
+    .reduce((locales, locale) => (locale.match(browserLocale[0])
+      ? [...locales, locale]
+      : locales), []);
+
+  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
+
+  if (browserLocale.length > 1) {
+    // browser asks for specific locale
+    normalizedLocale = `${browserLocale[0]}_${browserLocale[1]?.toUpperCase()}`;
+
+    const normDefault = usableLocales.find(locale => normalizedLocale === locale);
+    if (normDefault) {
+      localeFile = normDefault;
+    } else {
+      if (regionDefault) {
+        localeFile = regionDefault;
+      } else {
+        const specFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+        if (specFallback) localeFile = specFallback;
+      }
+    }
+  } else {
+    // browser asks for region default locale
+    if (regionDefault && localeFile === fallback && regionDefault !== localeFile) {
+      localeFile = regionDefault;
+    } else {
+      const normFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+      if (normFallback) localeFile = normFallback;
+    }
+  }
+
+  return {
+    normalizedLocale: localeFile,
+    regionDefaultLocale: (regionDefault && regionDefault !== localeFile) ? regionDefault : '',
+    defaultLocale: defaultLanguage,
+    fallbackOnEmptyLocaleString: fallbackOnEmptyString,
+  };
+};
+
 const IntlLoader: React.FC<IntlLoaderProps> = ({
   children,
   currentLocale,
@@ -55,17 +100,11 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   const [fallbackOnEmptyLocaleString, setFallbackOnEmptyLocaleString] = React.useState(false);
 
   const fetchLocalizedMessages = useCallback((locale: string, init: boolean) => {
-    const url = `./locale?locale=${locale}&init=${init}`;
-    setFetching(true);
-    // fetch localized messages
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          loadingContextInfo.setLoading(false, '');
-          throw new Error('unable to fetch localized messages');
-        }
-        return response.json();
-      }).then((data: LocaleEndpointResponse) => {
+    buildFetchLocale('index')
+      .then((resp) => {
+        const locales = Object.keys(resp as LocaleJson);
+        const data = fetchLocaleOptions(locale, init, locales);
+
         const {
           defaultLocale,
           regionDefaultLocale,
@@ -103,6 +142,10 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             loadingContextInfo.setLoading(false, '');
             throw new Error(error);
           });
+      })
+      .catch(() => {
+        loadingContextInfo.setLoading(false, '');
+        throw new Error('unable to fetch localized messages');
       });
   }, []);
 

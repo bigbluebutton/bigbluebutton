@@ -186,11 +186,9 @@ Meteor.startup(() => {
   CDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
-
 const generateLocaleOptions = () => {
   try {
     Logger.warn('Calculating aggregateLocales (heavy)');
-
 
     // remove duplicated locales (always remove more generic if same name)
     const tempAggregateLocales = AVAILABLE_LOCALES
@@ -211,6 +209,18 @@ const generateLocaleOptions = () => {
       .reverse();
 
     Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+
+    const filePath = `${applicationRoot}/index.json`;
+    const jsContent = JSON.stringify(AVAILABLE_LOCALES, null, 2);
+
+    // Write JSON data to a file
+    fs.writeFile(filePath, jsContent, (err) => {
+      if (err) {
+        Logger.error('Error writing file:', err);
+      } else {
+        Logger.info(`JSON data has been written to ${filePath}`);
+      }
+    });
 
     return tempAggregateLocales;
   } catch (e) {
