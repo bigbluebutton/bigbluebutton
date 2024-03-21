@@ -50,8 +50,7 @@ class Options extends MultiUsers {
       const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
       await this.modPage.waitAndClick(e.modalConfirmButton);
-      await this.modPage.waitForSelector(e.toastContainer);
-
+      
       for (const selector in currentValuesBySelector) {
         await this.modPage.hasText(selector, currentValuesBySelector[selector]);
       }
@@ -72,7 +71,6 @@ class Options extends MultiUsers {
       maxDiffPixels: 1000,
     };
 
-    await this.modPage.closeAllToastNotifications();
     await expect(modPageLocator).toHaveScreenshot('moderator-page-dark-mode.png', screenshotOptions);
     
     await openSettings(this.modPage);

@@ -39,7 +39,7 @@ test.describe.parallel('User', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
     test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
-      await status.init(true, true, { createParameter: hidePresentationToast });
+      await status.init(true, true, { joinParameter: hidePresentationToast });
       await status.changeUserStatus();
     });
 
@@ -212,8 +212,8 @@ test.describe.parallel('User', () => {
 
       test('Lock see other viewers annotations', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initModPage(page, true, { createParameter: hidePresentationToast });
-        await lockViewers.initUserPage(true, context, { createParameter: hidePresentationToast });
+        await lockViewers.initModPage(page, true, { joinParameter: hidePresentationToast });
+        await lockViewers.initUserPage(true, context, { joinParameter: hidePresentationToast });
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
