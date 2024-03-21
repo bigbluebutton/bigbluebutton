@@ -25,6 +25,8 @@ case class MeetingDbModel(
     bannerColor:                           Option[String],
     createdTime:                           Long,
     durationInSeconds:                     Int,
+    endWhenNoModerator:                    Boolean,
+    endWhenNoModeratorDelayInMinutes:      Int,
     endedAt:                               Option[java.sql.Timestamp],
     endedReasonCode:                       Option[String],
     endedBy:                               Option[String],
@@ -49,6 +51,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     bannerColor,
     createdTime,
     durationInSeconds,
+    endWhenNoModerator,
+    endWhenNoModeratorDelayInMinutes,
     endedAt,
     endedReasonCode,
     endedBy
@@ -70,6 +74,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val bannerColor = column[Option[String]]("bannerColor")
   val createdTime = column[Long]("createdTime")
   val durationInSeconds = column[Int]("durationInSeconds")
+  val endWhenNoModerator = column[Boolean]("endWhenNoModerator")
+  val endWhenNoModeratorDelayInMinutes = column[Int]("endWhenNoModeratorDelayInMinutes")
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
   val endedReasonCode = column[Option[String]]("endedReasonCode")
   val endedBy = column[Option[String]]("endedBy")
@@ -106,6 +112,8 @@ object MeetingDAO {
           },
           createdTime = meetingProps.durationProps.createdTime,
           durationInSeconds = meetingProps.durationProps.duration * 60,
+          endWhenNoModerator = meetingProps.durationProps.endWhenNoModerator,
+          endWhenNoModeratorDelayInMinutes = meetingProps.durationProps.endWhenNoModeratorDelayInMinutes,
           endedAt = None,
           endedReasonCode = None,
           endedBy = None

@@ -163,6 +163,8 @@ select_permissions:
         - customLogoUrl
         - disabledFeatures
         - durationInSeconds
+        - endWhenNoModerator
+        - endWhenNoModeratorDelayInMinutes
         - ended
         - endedAt
         - endedBy
