@@ -1516,6 +1516,7 @@ Useful tools for development:
 | `userdata-bbb_show_public_chat_on_login=`  | If set to `false`, the chat panel will not be visible on page load until opened. Not the same as disabling chat.        | `true`        |
 | `userdata-bbb_hide_nav_bar=`               | If set to `true`, the navigation bar (the top portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
 | `userdata-bbb_hide_actions_bar=`           | If set to `true`, the actions bar (the bottom portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
+| `userdata-bbb_default_layout=`             | The initial layout on client load. Options are: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. If none is provided, the meeting layout (preset in bbb-web) will be used. Introduced in BBB 3.0.0-alpha.5. | `none`       |
 
 #### Examples
 

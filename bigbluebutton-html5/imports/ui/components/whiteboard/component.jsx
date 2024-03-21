@@ -859,10 +859,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         });
 
         Object.values(updated).forEach(([_, record]) => {
+          const createdBy = prevShapesRef.current[record?.id]?.meta?.createdBy || currentUser?.userId;
           const updatedRecord = {
             ...record,
             meta: {
-              ...prevShapesRef.current[record?.id]?.meta,
+              createdBy,
               updatedBy: currentUser?.userId,
             },
           };
@@ -970,12 +971,14 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
       editor.store.onBeforeChange = (prev, next, source) => {
         if (next?.typeName === "instance_page_state") {
-          if (isPresenter || isModerator) return next;
+
+          if ((isPresenter || isModerator)) return next;
+
           // Filter selectedShapeIds based on shape owner
-          if (!isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
+          if (next.selectedShapeIds.length > 0 && !isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
             next.selectedShapeIds = next.selectedShapeIds.filter(shapeId => {
               const shapeOwner = prevShapesRef.current[shapeId]?.meta?.createdBy;
-              return shapeOwner === currentUser?.userId;
+              return !shapeOwner || shapeOwner === currentUser?.userId;
             });
           }
 
