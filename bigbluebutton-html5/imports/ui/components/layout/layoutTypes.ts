@@ -11,6 +11,15 @@ interface ActionBar {
     zIndex?: number
 }
 
+interface PresentationAreaContentActions {
+    type: string,
+    value: {
+        content: string,
+        open: boolean,
+        genericComponentId?: string;
+    },
+}
+
 interface ResizableEdge {
     bottom: boolean;
     left: boolean;
@@ -258,6 +267,7 @@ interface Output {
 }
 
 interface Layout {
+    presentationAreaContentActions: PresentationAreaContentActions[];
     deviceType: string;
     fontSize: number;
     fullscreen: Fullscreen;
