@@ -244,6 +244,7 @@
     "app.meeting.breakoutEndedByModerator": "Breakout was terminated by Moderator",
     "app.meeting.endedDueNoAuthed": "the meeting was ended because no authed user in the room",
     "app.meeting.endedDueNoModerators": "The meeting has ended because no moderator has been present in the meeting",
+    "app.meeting.endedDueServiceInterruption": "The meeting has terminated due to a temporary service interruption",
     "app.meeting.meetingTimeRemaining": "Meeting time remaining: {0}",
     "app.meeting.meetingTimeHasEnded": "Time ended. Meeting will close soon",
     "app.meeting.endedByUserMessage": "This session was ended by {0}",
