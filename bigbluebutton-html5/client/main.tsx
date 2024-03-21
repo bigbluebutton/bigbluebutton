@@ -29,7 +29,7 @@ const Main: React.FC = () => {
                   <SettingsLoader />
                   <UserGrapQlMiniMongoAdapter />
                   <VoiceUserGrapQlMiniMongoAdapter />
-                  {/* <MeetingGrapQlMiniMongoAdapter /> */}
+                  <MeetingGrapQlMiniMongoAdapter />
                 </PresenceManager>
               </ConnectionManager>
             </LocatedErrorBoundary>

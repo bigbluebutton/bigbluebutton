@@ -36,6 +36,10 @@ const MEETING_SUBSCRIPTION = gql`
           record
           keepEvents
         }
+        groups {
+          groupId
+          name
+        }
         screenshare {
           hasAudio
           screenshareId

@@ -13,7 +13,7 @@ const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   // 'users',
-  'meetings',
+  // 'meetings',
   'polls',
   'captions',
   // 'voiceUsers',

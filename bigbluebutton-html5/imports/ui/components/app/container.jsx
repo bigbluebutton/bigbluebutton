@@ -314,17 +314,28 @@ export default withTracker(() => {
   const meetingLayoutObj = (clientSettings.skipMeteorConnection ? Meetings : LayoutMeetings)
     .findOne({ meetingId: Auth.meetingID }) || {};
 
-  const {
-    layout: meetingLayout,
-    pushLayout: pushLayoutMeeting,
-    layoutUpdatedAt: meetingLayoutUpdatedAt,
-    presentationIsOpen: meetingPresentationIsOpen,
-    isResizing: isMeetingLayoutResizing,
-    cameraPosition: meetingLayoutCameraPosition,
-    focusedCamera: meetingLayoutFocusedCamera,
-    presentationVideoRate: meetingLayoutVideoRate,
-  } = meetingLayoutObj;
+  const { layout } = meetingLayoutObj;
+  // const {
+  //   layout: meetingLayout,
+  //   pushLayout: pushLayoutMeeting,
+  //   layoutUpdatedAt: meetingLayoutUpdatedAt,
+  //   presentationIsOpen: meetingPresentationIsOpen,
+  //   isResizing: isMeetingLayoutResizing,
+  //   cameraPosition: meetingLayoutCameraPosition,
+  //   focusedCamera: meetingLayoutFocusedCamera,
+  //   presentationVideoRate: meetingLayoutVideoRate,
+  // } = meetingLayoutObj;
 
+  const {
+    currentLayoutType: meetingLayout,
+    propagateLayout: pushLayoutMeeting,
+    updatedAt: meetingLayoutUpdatedAt,
+  } = layout;
+  const meetingPresentationIsOpen = !layout.presentationMinimized;
+  const isMeetingLayoutResizing = false;
+  const meetingLayoutCameraPosition = 'contentTop';
+  const meetingLayoutFocusedCamera = 'none';
+  const meetingLayoutVideoRate = 0
   const UserInfo = UserInfos.find({
     meetingId: Auth.meetingID,
     requesterUserId: Auth.userID,

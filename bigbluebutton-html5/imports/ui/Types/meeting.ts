@@ -11,6 +11,11 @@ export interface LockSettings {
   webcamsOnlyForModerator: boolean;
 }
 
+export interface groups {
+  groupId: string;
+  name: string;
+}
+
 export interface WelcomeSettings {
   welcomeMsg: string;
   modOnlyMessage: string;
@@ -120,4 +125,5 @@ export interface Meeting {
   externalVideo: ExternalVideo;
   componentsFlags: ComponentsFlags;
   metadata: Array<Metadata>;
+  groups: Array<groups>;
 }
