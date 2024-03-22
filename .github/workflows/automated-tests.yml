@@ -282,7 +282,7 @@ jobs:
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 25
-          max_attempts: 3
+          max_attempts: 2
           command: |
             cd ./bigbluebutton-tests/playwright
             npm run test-chromium-ci -- --shard ${{ matrix.shard }}
