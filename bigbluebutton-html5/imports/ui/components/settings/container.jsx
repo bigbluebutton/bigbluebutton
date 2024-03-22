@@ -5,6 +5,7 @@ import Settings from './component';
 import { layoutDispatch } from '../layout/context';
 import { isScreenSharingEnabled } from '/imports/ui/services/features';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
+import CaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 
 import {
   getUserRoles,
@@ -33,6 +34,7 @@ export default withTracker((props) => ({
   audio: SettingsService.audio,
   dataSaving: SettingsService.dataSaving,
   application: SettingsService.application,
+  transcription: SettingsService.transcription,
   updateSettings,
   availableLocales: getAvailableLocales(),
   isPresenter: isPresenter(),
@@ -42,4 +44,5 @@ export default withTracker((props) => ({
   isScreenSharingEnabled: isScreenSharingEnabled(),
   isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
   isReactionsEnabled: UserReactionService.isEnabled(),
+  isGladiaEnabled: CaptionsService.isGladia(),
 }))(SettingsContainer);

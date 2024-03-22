@@ -15,4 +15,13 @@ export default class BaseMenu extends React.Component {
       this.handleUpdateSettings(this.state.settingsName, this.state.settings);
     });
   }
+
+  handleInput(key, e) {
+    const obj = this.state;
+    obj.settings[key] = e.target.value;
+
+    this.setState(obj, () => {
+      this.handleUpdateSettings(this.state.settingsName, this.state.settings);
+    });
+  }
 }

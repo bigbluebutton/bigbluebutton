@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
-import {
+import CaptionsService, {
   getSpeechVoices,
   isAudioTranscriptionEnabled,
   setSpeechLocale,
@@ -19,6 +19,10 @@ const intlMessages = defineMessages({
   disabled: {
     id: 'app.audio.captions.speech.disabled',
     description: 'Audio speech recognition disabled',
+  },
+  auto: {
+    id: 'app.audio.captions.speech.auto',
+    description: 'Audio speech recognition auto',
   },
   unsupported: {
     id: 'app.audio.captions.speech.unsupported',
@@ -130,6 +134,16 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
         >
           {intl.formatMessage(intlMessages.disabled)}
         </option>
+        {CaptionsService.isGladia()
+          ? (
+            <option
+              key="auto"
+              value="auto"
+            >
+              {intl.formatMessage(intlMessages.auto)}
+            </option>
+          )
+          : null}
         {speechVoices.map((v) => (
           <option
             key={v}

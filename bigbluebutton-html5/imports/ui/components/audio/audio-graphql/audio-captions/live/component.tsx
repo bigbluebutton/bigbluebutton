@@ -2,9 +2,14 @@ import { useSubscription } from '@apollo/client';
 import React from 'react';
 import { Caption, GET_CAPTIONS, getCaptions } from './queries';
 import logger from '/imports/startup/client/logger';
-
+import OldCaptionsService from '/imports/ui/components/captions/service';
+import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
+import { splitTranscript, isAudioTranscription } from '../service';
+
+const TRANSCRIPTION_DEFAULT_PAD = window.meetingClientSettings.public.captions.defaultPad;
+const CAPTIONS_ALWAYS_VISIBLE = window.meetingClientSettings.public.app.audioCaptions.alwaysVisible;
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
@@ -59,10 +64,20 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
   } = useSubscription<getCaptions>(GET_CAPTIONS);
-
   const [audioCaptionsEnable] = useAudioCaptionEnable();
+  const activated = CAPTIONS_ALWAYS_VISIBLE
+    || (AudioCaptionsLiveData && AudioCaptionsLiveData.caption.some(isAudioTranscription));
+  const prevActivated = usePreviousValue(activated);
+  if (!prevActivated && activated) {
+    OldCaptionsService.createCaptions(TRANSCRIPTION_DEFAULT_PAD);
+  }
 
+  if (!AudioCaptionsLiveData) return null;
+  if (!AudioCaptionsLiveData.caption) return null;
+  if (!AudioCaptionsLiveData.caption[0]) return null;
   if (AudioCaptionsLiveLoading) return null;
+
+  if (!audioCaptionsEnable) return null;
 
   if (AudioCaptionsLiveError) {
     logger.error(AudioCaptionsLiveError);
@@ -73,15 +88,12 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     );
   }
 
-  if (!AudioCaptionsLiveData) return null;
-  if (!AudioCaptionsLiveData.caption) return null;
-  if (!AudioCaptionsLiveData.caption[0]) return null;
-
-  if (!audioCaptionsEnable) return null;
-
   return (
     <AudioCaptionsLive
-      captions={AudioCaptionsLiveData.caption}
+      captions={AudioCaptionsLiveData.caption.map((c) => {
+        const splits = splitTranscript(c);
+        return splits;
+      }).flat().filter((c) => c.captionText)}
     />
   );
 };

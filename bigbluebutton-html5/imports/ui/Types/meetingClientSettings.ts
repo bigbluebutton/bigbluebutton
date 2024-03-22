@@ -116,6 +116,7 @@ export interface WakeLock {
 }
 
 export interface AudioCaptions {
+  alwaysVisible: boolean
   enabled: boolean
   mobile: boolean
   provider: string
@@ -164,6 +165,7 @@ export interface DefaultSettings {
   application: Application
   audio: Audio
   dataSaving: DataSaving
+  transcription: Transcription
 }
 
 export interface Application {
@@ -196,6 +198,11 @@ export interface Audio {
 export interface DataSaving {
   viewParticipantsWebcams: boolean
   viewScreenshare: boolean
+}
+
+export interface Transcription {
+  partialUtterances: boolean
+  minUtteranceLength: number
 }
 
 export interface Shortcuts {
@@ -453,6 +460,10 @@ export interface Captions {
   font: Font
   lines: number
   time: number
+  defaultPad: string
+  showButton: boolean
+  lineLimit: number
+  captionLimit: number
 }
 
 export interface Font {

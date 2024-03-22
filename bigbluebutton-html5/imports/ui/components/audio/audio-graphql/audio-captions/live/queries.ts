@@ -6,6 +6,7 @@ export interface Caption {
   captionText: string;
   captionId: string;
   createdAt: string;
+  captionType: string;
 }
 
 export interface getCaptions {
@@ -37,6 +38,7 @@ export const GET_CAPTIONS = gql`
       captionText
       captionId
       createdAt
+      captionType
     }
   }
 `;
