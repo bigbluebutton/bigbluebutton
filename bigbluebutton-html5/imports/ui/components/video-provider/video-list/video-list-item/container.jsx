@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users/';
 import Users from '/imports/api/users/';
+import { isEmpty } from 'radash';
 import VideoListItem from './component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -23,7 +24,7 @@ const VideoListItemContainer = (props) => {
 
   const amIModerator = currentUserData?.isModerator;
 
-  if (!user) return null;
+  if (!user || isEmpty(user)) return null;
 
   return (
     <VideoListItem
