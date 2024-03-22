@@ -7,6 +7,8 @@ const MEETING_SUBSCRIPTION = gql`
         disabledFeatures
         durationInSeconds
         extId
+        endWhenNoModerator
+        endWhenNoModeratorDelayInMinutes
         lockSettings {
           disableCam
           disableMic
@@ -18,6 +20,8 @@ const MEETING_SUBSCRIPTION = gql`
           hideViewersCursor
           hideViewersAnnotation
           webcamsOnlyForModerator
+          lockOnJoin
+          lockOnJoinConfigurable
         }
         metadata {
           name

@@ -267,7 +267,6 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default withTracker(() => {
-  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
   Users.find({ userId: Auth.userID, }).observe({
     removed(userData) {
       // wait 3secs (before endMeeting), client will try to authenticate again
@@ -315,27 +314,19 @@ export default withTracker(() => {
     .findOne({ meetingId: Auth.meetingID }) || {};
 
   const { layout } = meetingLayoutObj;
-  // const {
-  //   layout: meetingLayout,
-  //   pushLayout: pushLayoutMeeting,
-  //   layoutUpdatedAt: meetingLayoutUpdatedAt,
-  //   presentationIsOpen: meetingPresentationIsOpen,
-  //   isResizing: isMeetingLayoutResizing,
-  //   cameraPosition: meetingLayoutCameraPosition,
-  //   focusedCamera: meetingLayoutFocusedCamera,
-  //   presentationVideoRate: meetingLayoutVideoRate,
-  // } = meetingLayoutObj;
 
   const {
     currentLayoutType: meetingLayout,
     propagateLayout: pushLayoutMeeting,
     updatedAt: meetingLayoutUpdatedAt,
+    cameraDockIsResizing: isMeetingLayoutResizing,
+    cameraDockPlacement: meetingLayoutCameraPosition,
+    presentationVideoRate: meetingLayoutVideoRate,
+    cameraWithFocus: meetingLayoutFocusedCamera,
   } = layout;
+
   const meetingPresentationIsOpen = !layout.presentationMinimized;
-  const isMeetingLayoutResizing = false;
-  const meetingLayoutCameraPosition = 'contentTop';
-  const meetingLayoutFocusedCamera = 'none';
-  const meetingLayoutVideoRate = 0
+
   const UserInfo = UserInfos.find({
     meetingId: Auth.meetingID,
     requesterUserId: Auth.userID,
