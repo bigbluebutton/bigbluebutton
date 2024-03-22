@@ -1,10 +1,27 @@
 package model
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	common "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
+	"google.golang.org/grpc/status"
+)
 
 const (
-	Success string = "SUCCESS"
-	Failure string = "FAILED"
+	ReturnCodeSuccess string = "SUCCESS"
+	ReturnCodeFailure string = "FAILED"
+
+	ChecksumErrorKey string = "checksumError"
+	ChecksumErrorMsg string = "Checksums do not match"
+
+	MeetingIdMissingErrorKey string = "missingParamMeetingID"
+	MeetingIdMissingErrorMsg string = "You must provide a meeting ID"
+
+	MeetingIdLengthErrorKey string = "validationError"
+	MeetingIdLengthErrorMsg string = "Meeting ID must be between 2 and 256 characters"
+
+	MeetingIdFormatErrorKey string = "validationError"
+	MeetingIdFormatErrorMsg string = "Meeting ID cannot contain ','"
 )
 
 type Entry struct {
@@ -130,7 +147,7 @@ type GetMeetingInfoResponse struct {
 	BreakoutRooms         BreakoutRooms
 }
 
-func MarshMapToXML(data map[string]string, mappable Mappable) {
+func MarshalMapToXML(data map[string]string, mappable Mappable) {
 	entries := make([]Entry, 0, len(data))
 	for key, value := range data {
 		entries = append(entries, Entry{
@@ -139,4 +156,87 @@ func MarshMapToXML(data map[string]string, mappable Mappable) {
 		})
 	}
 	mappable.Populate(entries)
+}
+
+func GrpcUserToRespUser(u *common.User) User {
+	customData := &CustomData{}
+	MarshalMapToXML(u.CustomData, customData)
+
+	user := User{
+		UserId:          u.UserId,
+		FullName:        u.FullName,
+		Role:            u.Role,
+		IsPresenter:     u.IsPresenter,
+		IsListeningOnly: u.IsListeningOnly,
+		HasJoinedVoice:  u.HasJoinedVoice,
+		HasVideo:        u.HasVideo,
+		ClientType:      u.ClientType,
+		CustomData:      *customData,
+	}
+
+	return user
+}
+
+func MeetingInfoToMeeting(m *common.MeetingInfo) Meeting {
+	metadata := &Metadata{}
+	MarshalMapToXML(m.Metadata, metadata)
+
+	users := make([]User, 0, len(m.Users))
+	for _, u := range m.Users {
+		user := GrpcUserToRespUser(u)
+		users = append(users, user)
+	}
+
+	meeting := Meeting{
+		MeetingName:           m.MeetingName,
+		MeetingId:             m.MeetingExtId,
+		InternalMeetingId:     m.MeetingIntId,
+		CreateTime:            m.DurationInfo.CreateTime,
+		CreateDate:            m.DurationInfo.CreatedOn,
+		VoiceBridge:           m.VoiceBridge,
+		DialNumber:            m.DialNumber,
+		AttendeePW:            m.AttendeePw,
+		ModeratorPW:           m.ModeratorPw,
+		Running:               m.DurationInfo.IsRunning,
+		Duration:              m.DurationInfo.Duration,
+		HasUserJoined:         m.ParticipantInfo.HasUserJoined,
+		Recording:             m.Recording,
+		HasBeenForciblyEnded:  m.DurationInfo.HasBeenForciblyEnded,
+		StartTime:             m.DurationInfo.StartTime,
+		EndTime:               m.DurationInfo.EndTime,
+		ParticipantCount:      m.ParticipantInfo.ParticipantCount,
+		ListenerCount:         m.ParticipantInfo.ListenerCount,
+		VoiceParticipantCount: m.ParticipantInfo.VoiceParticipantCount,
+		VideoCount:            m.ParticipantInfo.VideoCount,
+		MaxUsers:              m.ParticipantInfo.MaxUsers,
+		ModeratorCount:        m.ParticipantInfo.ModeratorCount,
+		Users:                 Users{Users: users},
+		Metadata:              *metadata,
+		IsBreakout:            m.BreakoutInfo.IsBreakout,
+		BreakoutRooms:         BreakoutRooms{Breakout: m.BreakoutRooms},
+	}
+
+	return meeting
+}
+
+func GrpcErrorToErrorResp(err error) Response {
+	st, ok := status.FromError(err)
+	if ok {
+		for _, detail := range st.Details() {
+			switch t := detail.(type) {
+			case *common.ErrorResponse:
+				return Response{
+					ReturnCode: ReturnCodeFailure,
+					MessageKey: t.Key,
+					Message:    t.Message,
+				}
+			}
+		}
+	}
+
+	return Response{
+		ReturnCode: ReturnCodeFailure,
+		MessageKey: "error",
+		Message:    "A unknown error occurred",
+	}
 }
