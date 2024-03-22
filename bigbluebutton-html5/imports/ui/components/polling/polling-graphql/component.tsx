@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import { useMutation, useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
@@ -17,7 +16,7 @@ import {
 import Service from './service';
 import Styled from './styles';
 
-const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
+const MAX_INPUT_CHARS = window.meetingClientSettings.public.poll.maxTypedAnswerLength;
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {

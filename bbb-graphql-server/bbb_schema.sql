@@ -284,11 +284,13 @@ CREATE TABLE "user" (
 	"ejected" bool,
 	"ejectReason" varchar(255),
 	"ejectReasonCode" varchar(50),
-	"ejectedByModerator" varchar(50) references "user"("userId") ON DELETE SET NULL,
+	"ejectedByModerator" varchar(50),
 	"presenter" bool,
 	"pinned" bool,
 	"locked" bool,
 	"speechLocale" varchar(255),
+	"inactivityWarningDisplay" bool default FALSE,
+	"inactivityWarningTimeoutSecs" numeric,
 	"hasDrawPermissionOnCurrentPage" bool default FALSE,
 	"echoTestRunningAt" timestamp with time zone
 );
@@ -445,7 +447,9 @@ AS SELECT "user"."userId",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline",
+    "user"."inactivityWarningDisplay",
+    "user"."inactivityWarningTimeoutSecs"
    FROM "user";
 
 --This view will be used by Meteor to validate if the provided authToken is valid

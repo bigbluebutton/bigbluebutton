@@ -39,6 +39,9 @@ import { LoadingContext } from '/imports/ui/components/common/loading-screen/loa
 import IntlAdapter from '/imports/startup/client/intlAdapter';
 import PresenceAdapter from '/imports/ui/components/authenticated-handler/presence-adapter/component';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
+import IntlLoaderContainer from '/imports/startup/client/intlLoader';
+import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
+import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
@@ -84,16 +87,19 @@ const Startup = () => {
 
   return (
     <ContextProviders>
-      <>
-        <PresenceAdapter>
-          <Subscriptions>
-            <IntlAdapter>
-              <Base />
-            </IntlAdapter>
-          </Subscriptions>
-        </PresenceAdapter>
-        <UsersAdapter />
-      </>
+      <IntlLoaderContainer>
+        {/* from there the error messages are located */}
+        <LocatedErrorBoundary Fallback={ErrorScreen}>
+          <PresenceAdapter>
+            <Subscriptions>
+              <IntlAdapter>
+                <Base />
+              </IntlAdapter>
+            </Subscriptions>
+          </PresenceAdapter>
+          <UsersAdapter />
+        </LocatedErrorBoundary>
+      </IntlLoaderContainer>
     </ContextProviders>
   );
 };
