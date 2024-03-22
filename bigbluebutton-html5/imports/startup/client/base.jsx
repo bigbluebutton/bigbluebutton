@@ -390,10 +390,10 @@ export default withTracker(() => {
     loggedOut: 1,
     meetingId: 1,
     userId: 1,
-    inactivityCheck: 1,
-    responseDelay: 1,
     currentConnectionId: 1,
     connectionIdUpdateTime: 1,
+    inactivityWarningDisplay: 1,
+    inactivityWarningTimeoutSecs: 1,
   };
   const User = Users.findOne({ userId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
