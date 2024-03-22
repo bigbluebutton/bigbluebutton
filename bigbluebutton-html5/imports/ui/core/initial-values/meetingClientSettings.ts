@@ -61,6 +61,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       warnAboutUnsavedContentOnMeetingEnd: false,
       audioCaptions: {
         enabled: false,
+        alwaysVisible: false,
         mobile: false,
         provider: 'webspeech',
         language: {
@@ -142,6 +143,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         dataSaving: {
           viewParticipantsWebcams: true,
           viewScreenshare: true,
+        },
+        transcription: {
+          partialUtterances: true,
+          minUtteranceLength: 1,
         },
       },
       shortcuts: {
@@ -473,6 +478,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     captions: {
       enabled: true,
+      showButton: false,
+      defaultPad: 'en',
       id: 'captions',
       dictation: false,
       background: '#000000',
@@ -483,6 +490,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       lines: 2,
       time: 5000,
+      captionLimit: 3,
+      lineLimit: 60,
     },
     timer: {
       enabled: true,

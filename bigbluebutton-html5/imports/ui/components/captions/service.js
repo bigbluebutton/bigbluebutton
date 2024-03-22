@@ -3,7 +3,6 @@ import Auth from '/imports/ui/services/auth';
 import PadsService from '/imports/ui/components/pads/service';
 import SpeechService from '/imports/ui/components/captions/speech/service';
 import { makeCall } from '/imports/ui/services/api';
-import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { isCaptionsEnabled } from '/imports/ui/services/features';
 
@@ -129,6 +128,10 @@ const setCaptionsActive = (locale) => Session.set('captionsActive', locale);
 const amICaptionsOwner = (ownerId) => ownerId === Auth.userID;
 
 const isCaptionsAvailable = () => {
+  if (!CAPTIONS_CONFIG.showButton) {
+    return false;
+  }
+
   if (isCaptionsEnabled()) {
     const ownedLocales = getOwnedLocales();
 
@@ -158,7 +161,7 @@ const getName = (locale) => {
     locale,
   });
 
-  return captions.name;
+  return captions?.name;
 };
 
 const createCaptions = (locale) => {

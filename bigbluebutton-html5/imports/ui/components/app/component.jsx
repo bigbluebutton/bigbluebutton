@@ -174,6 +174,8 @@ class App extends Component {
       isRTL,
       setMobileUser,
       toggleVoice,
+      transcriptionSettings,
+      setSpeechOptions,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -231,6 +233,21 @@ class App extends Component {
       TimerService.fetchTimeOffset();
       this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
         TimerService.OFFSET_INTERVAL);
+    }
+
+    if (transcriptionSettings) {
+      const { partialUtterances, minUtteranceLength } = transcriptionSettings;
+      if (partialUtterances !== undefined || minUtteranceLength !== undefined) {
+        logger.info({ logCode: 'app_component_set_speech_options' }, 'Setting initial speech options');
+
+        Settings.transcription.partialUtterances = !!partialUtterances;
+        Settings.transcription.minUtteranceLength = parseInt(minUtteranceLength, 10);
+
+        setSpeechOptions(
+          Settings.transcription.partialUtterances,
+          Settings.transcription.minUtteranceLength,
+        );
+      }
     }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');

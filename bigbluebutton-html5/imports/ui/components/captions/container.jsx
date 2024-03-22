@@ -4,26 +4,12 @@ import Service from '/imports/ui/components/captions/service';
 import Captions from './component';
 import Auth from '/imports/ui/services/auth';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import CaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 
 const Container = (props) => {
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
-
-  const { amIModerator } = props;
-
-  if (!amIModerator) {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: false,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.NONE,
-    });
-    return null;
-  }
 
   return <Captions {...{ layoutContextDispatch, isResizing, ...props }} />;
 };
@@ -46,5 +32,6 @@ export default withTracker(({ amIModerator }) => {
     currentUserId: Auth.userID,
     isRTL,
     hasPermission: Service.hasPermission(amIModerator),
+    autoTranscription: CaptionsService.isAudioTranscriptionEnabled(),
   };
 })(Container);

@@ -41,7 +41,7 @@ class UserContent extends PureComponent {
     return (
       <Styled.Content data-test="userListContent">
         {isChatEnabled() ? <ChatList /> : null}
-        {currentUser?.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
+        <UserCaptionsContainer />
         <UserNotesContainer />
         {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
         {currentUser?.role === ROLE_MODERATOR ? (

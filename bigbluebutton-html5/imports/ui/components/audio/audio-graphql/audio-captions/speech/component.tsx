@@ -70,8 +70,21 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     });
   };
 
+  const setDefaultLocale = () => {
+    if (useFixedLocale() || localeAsDefaultSelected()) {
+      setSpeechLocale(getLocale(), setUserSpeechLocale);
+    } else {
+      setSpeechLocale(navigator.language, setUserSpeechLocale);
+    }
+  };
+
   const initSpeechRecognition = () => {
-    if (!isAudioTranscriptionEnabled() && !isWebSpeechApi()) return null;
+    if (!isAudioTranscriptionEnabled()) return null;
+
+    if (!isWebSpeechApi()) {
+      setDefaultLocale();
+      return null;
+    }
 
     if (!hasSpeechRecognitionSupport()) return null;
 
@@ -81,11 +94,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
 
-    if (useFixedLocale() || localeAsDefaultSelected()) {
-      setSpeechLocale(getLocale(), setUserSpeechLocale);
-    } else {
-      setSpeechLocale(navigator.language, setUserSpeechLocale);
-    }
+    setDefaultLocale();
 
     return speechRecognition;
   };

@@ -4,8 +4,9 @@ import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsStringOrEl
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.CaptionDAO
-import org.bigbluebutton.core.models.{AudioCaptions, UserState, Users2x}
+import org.bigbluebutton.core.models.{AudioCaptions, Pads, UserState, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -26,12 +27,12 @@ trait UpdateTranscriptPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    def sendPadUpdatePubMsg(userId: String, defaultPad: String, text: String, transcript: Boolean): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
-      val envelope = BbbCoreEnvelope(PadUpdatePubMsg.NAME, routing)
-      val header = BbbClientMsgHeader(PadUpdatePubMsg.NAME, meetingId, userId)
-      val body = PadUpdatePubMsgBody(defaultPad, text, transcript)
-      val event = PadUpdatePubMsg(header, body)
+    def sendPadUpdateCmdMsg(groupId: String, defaultPad: String, text: String, transcript: Boolean): Unit = {
+      val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+      val envelope = BbbCoreEnvelope(PadUpdateCmdMsg.NAME, routing)
+      val header = BbbCoreHeaderWithMeetingId(PadUpdateCmdMsg.NAME, liveMeeting.props.meetingProp.intId)
+      val body = PadUpdateCmdMsgBody(groupId, defaultPad, text)
+      val event = PadUpdateCmdMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
       bus.outGW.send(msgEvent)
@@ -111,7 +112,10 @@ trait UpdateTranscriptPubMsgHdlr {
           alternativeValue = ""
         )
 
-        sendPadUpdatePubMsg(msg.header.userId, defaultPad, userSpoke, transcript = true)
+        Pads.getGroup(liveMeeting.pads, defaultPad) match {
+          case Some(group) => sendPadUpdateCmdMsg(group.groupId, defaultPad, userSpoke, transcript = true)
+          case _ =>
+        }
       }
 
     }
