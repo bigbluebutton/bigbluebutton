@@ -119,67 +119,67 @@ jobs:
         uses: ./.github/actions/merge-branches
       - run: ./build/get_external_dependencies.sh
       - name: Download artifacts_bbb-apps-akka
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-apps-akka.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-config
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-config.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-export-annotations
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-export-annotations.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-learning-dashboard
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-learning-dashboard.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-playback-record
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-playback-record.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-graphql-server
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-graphql-server.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-etherpad.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-freeswitch
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-freeswitch.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-webrtc
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-webrtc.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-web
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-web.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-fsesl-akka
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-fsesl-akka.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-html5
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-html5.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_others.tar
       - run: tar xf artifacts.tar
@@ -355,14 +355,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
       - name: Install dependencies
         working-directory: ./bigbluebutton-tests/playwright
         run: npm ci
       - name: Download all blob reports from GitHub Actions Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: all-blob-reports
           path: bigbluebutton-tests/playwright/all-blob-reports
