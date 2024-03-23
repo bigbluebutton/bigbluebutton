@@ -112,7 +112,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8, 8/8]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+        shard: ${{ matrix.shard }}/8
     steps:
       - uses: actions/checkout@v4
       - name: Merge branches
@@ -285,7 +287,7 @@ jobs:
           max_attempts: 3
           command: |
             cd ./bigbluebutton-tests/playwright
-            npm run test-chromium-ci -- --shard ${{ matrix.shard }}
+            npm run test-chromium-ci -- --shard ${{ env.shard }}
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
@@ -305,13 +307,13 @@ jobs:
         run: |
           sh -c '
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
-          npm run test-firefox-ci -- --shard ${{ matrix.shard }}
+          npm run test-firefox-ci -- --shard ${{ env.shard }}
           '
       - if: always() && github.event_name == 'pull_request'
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: all-blob-reports
+          name: all-blob-reports-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
       - if: failure()
         name: Prepare artifacts (configs and logs)
@@ -337,7 +339,7 @@ jobs:
           chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
           bbb-conf --zip
           ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
-          echo "MATRIX_SHARD=$(echo ${{ matrix.shard }} | tr '/' '_')" >> $GITHUB_ENV
+          echo "MATRIX_SHARD=${{ matrix.shard }}_8" >> $GITHUB_ENV
           EOF
       - if: failure()
         uses: actions/upload-artifact@v4
@@ -364,8 +366,9 @@ jobs:
       - name: Download all blob reports from GitHub Actions Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: all-blob-reports
+          pattern: all-blob-reports-*
           path: bigbluebutton-tests/playwright/all-blob-reports
+          merge-multiple: true
       - name: Merge into HTML Report
         working-directory: ./bigbluebutton-tests/playwright
         run: npx playwright merge-reports --reporter html ./all-blob-reports
