@@ -1,42 +1,27 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { Tldraw, track, useEditor, DefaultColorStyle, DefaultDashStyle, DefaultFillStyle, DefaultFontStyle, DefaultSizeStyle } from "@tldraw/tldraw";
+import { useRef } from "react";
+import { debounce, isEqual } from "radash";
+import {
+  Tldraw,
+  DefaultColorStyle,
+  DefaultDashStyle,
+  DefaultFillStyle,
+  DefaultFontStyle,
+  DefaultSizeStyle,
+  InstancePresenceRecordType
+} from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
-import SlideCalcUtil, {
-  HUNDRED_PERCENT,
-  MAX_PERCENT,
-} from "/imports/utils/slideCalcUtils";
+import SlideCalcUtil from "/imports/utils/slideCalcUtils";
+import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Settings from "/imports/ui/services/settings";
-import logger from "/imports/startup/client/logger";
 import KEY_CODES from "/imports/utils/keyCodes";
-import {
-  presentationMenuHeight,
-  styleMenuOffset,
-  styleMenuOffsetSmall,
-} from "/imports/ui/stylesheets/styled-components/general";
 import Styled from "./styles";
 import {
-  findRemoved,
-  filterInvalidShapes,
-  mapLanguage,
-  usePrevious,
+  mapLanguage
 } from "./utils";
-// import { throttle } from "/imports/utils/throttle";
-import { isEqual, clone } from "radash";
-import { InstancePresenceRecordType } from "@tldraw/tldraw";
-import { useRef } from "react";
-import { debounce, throttle } from "radash";
-
 import { useMouseEvents, useCursor } from "./hooks";
-
-const SMALL_HEIGHT = 435;
-const SMALLEST_DOCK_HEIGHT = 475;
-const SMALL_WIDTH = 800;
-const SMALLEST_DOCK_WIDTH = 710;
-const TOOLBAR_SMALL = 28;
-const TOOLBAR_LARGE = 32;
-const MOUNTED_RESIZE_DELAY = 1500;
 
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
@@ -67,11 +52,10 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
   );
 };
 
-export default Whiteboard = React.memo(function Whiteboard(props) {
+const Whiteboard = React.memo(function Whiteboard(props) {
   const {
     isPresenter,
     removeShapes,
-    initDefaultPages,
     persistShapeWrapper,
     shapes,
     assets,
@@ -84,10 +68,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     isRTL,
     fitToWidth,
     zoomValue,
-    intl,
-    svgUri,
-    maxStickyNoteLength,
-    fontFamily,
     colorStyle,
     dashStyle,
     fillStyle,
@@ -95,34 +75,19 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     sizeStyle,
     presentationAreaHeight,
     presentationAreaWidth,
-    maxNumberOfAnnotations,
-    notifyShapeNumberExceeded,
-    darkTheme,
     setTldrawIsMounting,
-    width,
-    height,
-    tldrawAPI,
     setTldrawAPI,
     whiteboardToolbarAutoHide,
     toggleToolsAnimations,
-    isIphone,
-    sidebarNavigationWidth,
     animations,
     isToolbarVisible,
     isModerator,
-    fullscreenRef,
-    fullscreenElementId,
-    layoutContextDispatch,
     currentPresentationPage,
-    numberOfPages,
     presentationId,
     hasWBAccess,
     bgShape,
-    whiteboardWriters,
     publishCursorUpdate,
     otherCursors,
-    isShapeOwner,
-    ShapeStylesContext,
     hideViewersCursor,
     presentationHeight,
     presentationWidth,
@@ -134,12 +99,8 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   if (!currentPresentationPage) return null;
 
   const [tlEditor, setTlEditor] = React.useState(null);
-  const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [isMounting, setIsMounting] = React.useState(true);
   const [initialViewBoxWidth, setInitialViewBoxWidth] = React.useState(null);
-
-  const prevFitToWidth = usePrevious(fitToWidth);
-  const prevPageId = usePrevious(null);
 
   const whiteboardRef = React.useRef(null);
   const zoomValueRef = React.useRef(null);
@@ -150,7 +111,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const slideNext = React.useRef(null);
   const prevZoomValueRef = React.useRef(null);
   const initialZoomRef = useRef(null);
-  const isFirstZoomActionRef = useRef(true);
   const isMouseDownRef = useRef(false);
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
@@ -165,6 +125,20 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
   const [shapesVersion, setShapesVersion] = React.useState(0);
+
+  const setIsMouseDown = (val) => {
+    isMouseDownRef.current = val;
+  };
+
+  const setIsWheelZoom = (val) => {
+    isWheelZoomRef.current = val;
+  };
+
+  const setWheelZoomTimeout = () => {
+    isWheelZoomRef.currentTimeout = setTimeout(() => {
+      setIsWheelZoom(false);
+    }, 300);
+  };
 
   React.useEffect(() => {
     curPageIdRef.current = curPageId;
@@ -343,7 +317,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     {
       isPresenter,
       hasWBAccess: hasWBAccessRef.current,
-      isMouseDownRef,
       whiteboardToolbarAutoHide,
       animations,
       publishCursorUpdate,
@@ -353,6 +326,9 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
       toggleToolsAnimations,
       currentPresentationPage,
       zoomChanger,
+      setIsMouseDown,
+      setIsWheelZoom,
+      setWheelZoomTimeout,
     }
   );
 
@@ -384,7 +360,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
         if (outOfBounds) return;
 
         skipToSlide(newSlideNum);
-        setZoom(HUNDRED_PERCENT);
         zoomChanger(HUNDRED_PERCENT);
         zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
       };
@@ -571,7 +546,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
               tlEditorRef.current?.viewportPageBounds.height,
               currentPresentationPage.scaledHeight
             );
-            setZoom(HUNDRED_PERCENT);
             zoomChanger(HUNDRED_PERCENT);
             zoomSlide(
               HUNDRED_PERCENT,
@@ -600,7 +574,6 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
   React.useEffect(() => {
     if (!fitToWidth && isPresenter) {
-      setZoom(HUNDRED_PERCENT);
       zoomChanger(HUNDRED_PERCENT);
       zoomSlide(
         HUNDRED_PERCENT,
@@ -1057,11 +1030,12 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   );
 });
 
+export default Whiteboard;
+
 Whiteboard.propTypes = {
   isPresenter: PropTypes.bool,
   isIphone: PropTypes.bool.isRequired,
   removeShapes: PropTypes.func.isRequired,
-  initDefaultPages: PropTypes.func.isRequired,
   persistShapeWrapper: PropTypes.func.isRequired,
   notifyNotAllowedChange: PropTypes.func.isRequired,
   shapes: PropTypes.objectOf(PropTypes.shape).isRequired,
