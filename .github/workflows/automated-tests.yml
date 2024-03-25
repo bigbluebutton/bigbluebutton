@@ -352,7 +352,7 @@ jobs:
           name: bbb-logs-${{ env.MATRIX_SHARD }}
           path: ./bbb-logs.tar.gz
   upload-report:
-    if: always()
+    if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs: install-and-run-tests
     runs-on: ubuntu-latest
     steps:
