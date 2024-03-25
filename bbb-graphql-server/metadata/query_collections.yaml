@@ -27,6 +27,7 @@
               allowDefaultLogoutUrl: clientSettingsJson(path: "$.public.app.allowDefaultLogoutUrl")
               learningDashboardBase: clientSettingsJson(path: "$.public.app.learningDashboardBase")
               fallbackLocale: clientSettingsJson(path: "$.public.app.defaultSettings.application.fallbackLocale")
+              overrideLocale: clientSettingsJson(path: "$.public.app.defaultSettings.application.overrideLocale")
               fallbackOnEmptyString: clientSettingsJson(path: "$.public.app.fallbackOnEmptyLocaleString")
               clientLog: clientSettingsJson(path: "$.public.clientLog")
             }

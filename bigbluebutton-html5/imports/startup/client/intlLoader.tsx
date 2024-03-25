@@ -36,12 +36,12 @@ const buildFetchLocale = (locale: string) => {
 };
 
 const fetchLocaleOptions = (locale: string, init: boolean, localesList: string[] = []) => {
-  const APP_CONFIG = window.meetingClientSettings.public.app;
-  const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
-  const override = APP_CONFIG.defaultSettings.application.overrideLocale;
+  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
+  const fallback = clientSettings.fallbackLocale;
+  const override = clientSettings.overrideLocale;
   const browserLocale = override && init ? override.split(/[-_]/g) : locale.split(/[-_]/g);
-  const defaultLanguage = APP_CONFIG.defaultSettings.application.fallbackLocale;
-  const fallbackOnEmptyString = APP_CONFIG.fallbackOnEmptyLocaleString;
+  const defaultLanguage = clientSettings.fallbackLocale;
+  const fallbackOnEmptyString = clientSettings.fallbackOnEmptyLocaleString;
 
   let localeFile = fallback;
   let normalizedLocale: string = '';
