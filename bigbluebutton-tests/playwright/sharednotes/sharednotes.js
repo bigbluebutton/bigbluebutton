@@ -23,7 +23,7 @@ class SharedNotes extends MultiUsers {
     }
     await startSharedNotes(this.modPage);
     const sharedNotesContent = await getNotesLocator(this.modPage);
-    await expect(sharedNotesContent).toBeEditable({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await expect(sharedNotesContent).toBeEditable({ timeout: 20000 });
 
     await this.modPage.waitAndClick(e.hideNotesLabel, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.hideNotesLabel);
