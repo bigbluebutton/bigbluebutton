@@ -318,12 +318,13 @@ export default withTracker(() => {
   const {
     currentLayoutType: meetingLayout,
     propagateLayout: pushLayoutMeeting,
-    updatedAt: meetingLayoutUpdatedAt,
     cameraDockIsResizing: isMeetingLayoutResizing,
     cameraDockPlacement: meetingLayoutCameraPosition,
     presentationVideoRate: meetingLayoutVideoRate,
     cameraWithFocus: meetingLayoutFocusedCamera,
   } = layout;
+
+  const meetingLayoutUpdatedAt = new Date(layout.meetingLayoutUpdatedAt).getTime();
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
 
