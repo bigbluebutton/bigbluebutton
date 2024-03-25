@@ -324,7 +324,7 @@ export default withTracker(() => {
     cameraWithFocus: meetingLayoutFocusedCamera,
   } = layout;
 
-  const meetingLayoutUpdatedAt = new Date(layout.meetingLayoutUpdatedAt).getTime();
+  const meetingLayoutUpdatedAt = new Date(layout.updatedAt).getTime();
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
 
