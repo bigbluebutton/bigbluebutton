@@ -24,6 +24,7 @@ const Main: React.FC = () => {
               <SettingsLoader />
               <UserGrapQlMiniMongoAdapter />
               <VoiceUserGrapQlMiniMongoAdapter />
+              <MeetingGrapQlMiniMongoAdapter />
             </PresenceManager>
           </ConnectionManager>
         </LoadingScreenHOC>
