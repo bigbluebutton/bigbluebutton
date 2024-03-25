@@ -31,24 +31,38 @@ type Config struct {
 	} `yaml:"security"`
 }
 
+const retryPolicy = `{
+	"methodConfig": [{
+		"name": [{"service": "org.bigbluebutton.protos.BbbCoreService"}],
+		"waitForReady": true,
+
+		"retryPolicy": {
+			"MaxAttempts": 5,
+			"InitialBackoff": ".01s",
+			"MaxBackoff": ".1s",
+			"BackoffMultiplier": 2.0,
+			"RetryableStatusCodes": [ "UNAVAILABLE" ]
+		}
+	}]
+}`
+
 func main() {
 	app := parseConfiguration()
 	target := fmt.Sprintf("%s:%s", app.Server.Grpc.Host, app.Server.Grpc.Port)
 
-	log.Println("Attempting to connect to akka-apps through gRPC at", target)
-	conn, err := grpc.Dial(target, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	log.Println("Establishing connection to akka-apps through gRPC at", target)
+	conn, err := grpc.Dial(target, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retryPolicy))
 	if err != nil {
 		log.Panicln(err)
 		return
 	}
-
-	log.Println("Successfully connected to akka-apps through gRPC")
+	defer conn.Close()
 
 	client := bbbcore.NewBbbCoreServiceClient(conn)
 	app.BbbCore = client
 
 	address := fmt.Sprintf("%s:%s", app.Server.Host, app.Server.Port)
-	log.Printf("Starting bbb-core-api on port %s\n", address)
+	log.Printf("Starting bbb-core-api at %s\n", address)
 	srv := &http.Server{
 		Addr:    address,
 		Handler: app.routes(),

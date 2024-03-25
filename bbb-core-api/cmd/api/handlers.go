@@ -40,7 +40,7 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	resp, err := app.BbbCore.IsMeetingRunning(ctx, &bbbcore.MeetingRunningRequest{
+	res, err := app.BbbCore.IsMeetingRunning(ctx, &bbbcore.MeetingRunningRequest{
 		MeetingId: meetingId,
 	})
 	if err != nil {
@@ -51,7 +51,7 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 
 	payload = model.Response{
 		ReturnCode: model.ReturnCodeSuccess,
-		Running:    &resp.IsRunning,
+		Running:    &res.IsRunning,
 	}
 
 	app.writeXML(w, http.StatusAccepted, payload)
@@ -85,7 +85,7 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	resp, err := app.BbbCore.GetMeetingInfo(ctx, &bbbcore.MeetingInfoRequest{
+	res, err := app.BbbCore.GetMeetingInfo(ctx, &bbbcore.MeetingInfoRequest{
 		MeetingId: meetingId,
 	})
 	if err != nil {
@@ -94,43 +94,43 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users := make([]model.User, 0, len(resp.MeetingInfo.Users))
-	for _, u := range resp.MeetingInfo.Users {
+	users := make([]model.User, 0, len(res.MeetingInfo.Users))
+	for _, u := range res.MeetingInfo.Users {
 		user := model.GrpcUserToRespUser(u)
 		users = append(users, user)
 	}
 
 	metadata := &model.Metadata{}
-	model.MarshalMapToXML(resp.MeetingInfo.Metadata, metadata)
+	model.MarshalMapToXML(res.MeetingInfo.Metadata, metadata)
 
 	payload := model.GetMeetingInfoResponse{
 		ReturnCode:            model.ReturnCodeSuccess,
-		MeetingName:           resp.MeetingInfo.MeetingName,
-		MeetingId:             resp.MeetingInfo.MeetingExtId,
-		InternalMeetingId:     resp.MeetingInfo.MeetingIntId,
-		CreateTime:            resp.MeetingInfo.DurationInfo.CreateTime,
-		CreateDate:            resp.MeetingInfo.DurationInfo.CreatedOn,
-		VoiceBridge:           resp.MeetingInfo.VoiceBridge,
-		DialNumber:            resp.MeetingInfo.DialNumber,
-		AttendeePW:            resp.MeetingInfo.AttendeePw,
-		ModeratorPW:           resp.MeetingInfo.ModeratorPw,
-		Running:               resp.MeetingInfo.DurationInfo.IsRunning,
-		Duration:              resp.MeetingInfo.DurationInfo.Duration,
-		HasUserJoined:         resp.MeetingInfo.ParticipantInfo.HasUserJoined,
-		Recording:             resp.MeetingInfo.Recording,
-		HasBeenForciblyEnded:  resp.MeetingInfo.DurationInfo.HasBeenForciblyEnded,
-		StartTime:             resp.MeetingInfo.DurationInfo.StartTime,
-		EndTime:               resp.MeetingInfo.DurationInfo.EndTime,
-		ParticipantCount:      resp.MeetingInfo.ParticipantInfo.ParticipantCount,
-		ListenerCount:         resp.MeetingInfo.ParticipantInfo.ListenerCount,
-		VoiceParticipantCount: resp.MeetingInfo.ParticipantInfo.VoiceParticipantCount,
-		VideoCount:            resp.MeetingInfo.ParticipantInfo.VideoCount,
-		MaxUsers:              resp.MeetingInfo.ParticipantInfo.MaxUsers,
-		ModeratorCount:        resp.MeetingInfo.ParticipantInfo.ModeratorCount,
+		MeetingName:           res.MeetingInfo.MeetingName,
+		MeetingId:             res.MeetingInfo.MeetingExtId,
+		InternalMeetingId:     res.MeetingInfo.MeetingIntId,
+		CreateTime:            res.MeetingInfo.DurationInfo.CreateTime,
+		CreateDate:            res.MeetingInfo.DurationInfo.CreatedOn,
+		VoiceBridge:           res.MeetingInfo.VoiceBridge,
+		DialNumber:            res.MeetingInfo.DialNumber,
+		AttendeePW:            res.MeetingInfo.AttendeePw,
+		ModeratorPW:           res.MeetingInfo.ModeratorPw,
+		Running:               res.MeetingInfo.DurationInfo.IsRunning,
+		Duration:              res.MeetingInfo.DurationInfo.Duration,
+		HasUserJoined:         res.MeetingInfo.ParticipantInfo.HasUserJoined,
+		Recording:             res.MeetingInfo.Recording,
+		HasBeenForciblyEnded:  res.MeetingInfo.DurationInfo.HasBeenForciblyEnded,
+		StartTime:             res.MeetingInfo.DurationInfo.StartTime,
+		EndTime:               res.MeetingInfo.DurationInfo.EndTime,
+		ParticipantCount:      res.MeetingInfo.ParticipantInfo.ParticipantCount,
+		ListenerCount:         res.MeetingInfo.ParticipantInfo.ListenerCount,
+		VoiceParticipantCount: res.MeetingInfo.ParticipantInfo.VoiceParticipantCount,
+		VideoCount:            res.MeetingInfo.ParticipantInfo.VideoCount,
+		MaxUsers:              res.MeetingInfo.ParticipantInfo.MaxUsers,
+		ModeratorCount:        res.MeetingInfo.ParticipantInfo.ModeratorCount,
 		Users:                 model.Users{Users: users},
 		Metadata:              *metadata,
-		IsBreakout:            resp.MeetingInfo.BreakoutInfo.IsBreakout,
-		BreakoutRooms:         model.BreakoutRooms{Breakout: resp.MeetingInfo.BreakoutRooms},
+		IsBreakout:            res.MeetingInfo.BreakoutInfo.IsBreakout,
+		BreakoutRooms:         model.BreakoutRooms{Breakout: res.MeetingInfo.BreakoutRooms},
 	}
 
 	app.writeXML(w, http.StatusAccepted, payload)
@@ -176,7 +176,7 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 
 	meetings := make([]model.Meeting, 0)
 	for {
-		resp, err := stream.Recv()
+		res, err := stream.Recv()
 		if err == io.EOF {
 			break
 		}
@@ -188,8 +188,8 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-		if resp.MeetingInfo != nil {
-			meetings = append(meetings, model.MeetingInfoToMeeting(resp.MeetingInfo))
+		if res.MeetingInfo != nil {
+			meetings = append(meetings, model.MeetingInfoToMeeting(res.MeetingInfo))
 		}
 	}
 
