@@ -4,7 +4,6 @@ import {
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import React, { useContext, useEffect } from 'react';
-import { Meteor } from 'meteor/meteor';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 

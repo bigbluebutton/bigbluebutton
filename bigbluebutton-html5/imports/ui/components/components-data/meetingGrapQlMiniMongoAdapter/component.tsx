@@ -1,9 +1,4 @@
-import { useSubscription } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
-import CURRENT_USER_SUBSCRIPTION from '/imports/ui/core/graphql/queries/currentUserSubscription';
-import { User } from '/imports/ui/Types/user';
-import Users from '/imports/api/users';
-import logger from '/imports/startup/client/logger';
+import React, { useEffect } from 'react';
 import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import MEETING_SUBSCRIPTION from '/imports/ui/core/graphql/queries/meetingSubscription';
 import { Meeting } from '/imports/ui/Types/meeting';
@@ -13,13 +8,7 @@ const MeetingGrapQlMiniMongoAdapter: React.FC = () => {
   const meetingSubscription = useCreateUseSubscription<Meeting>(MEETING_SUBSCRIPTION, {}, true);
   const {
     data: meetingData,
-    loading: meetingLoading,
   } = meetingSubscription();
-  // useEffect(() => {
-  //   if (error) {
-  //     logger.error('Error in UserGrapQlMiniMongoAdapter', error);
-  //   }
-  // }, [error]);
 
   useEffect(() => {
     if (meetingData) {

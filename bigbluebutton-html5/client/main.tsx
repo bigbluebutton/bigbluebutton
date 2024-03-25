@@ -11,7 +11,6 @@ import StartupDataFetch from '/imports/ui/components/connection-manager/startup-
 import UserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/userGrapQlMiniMongoAdapter/component';
 import VoiceUserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/voiceUserGraphQlMiniMongoAdapter/component';
 import MeetingGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/meetingGrapQlMiniMongoAdapter/component';
-import { Meteor } from 'meteor/meteor';
 
 const Main: React.FC = () => {
   // Meteor.disconnect();
