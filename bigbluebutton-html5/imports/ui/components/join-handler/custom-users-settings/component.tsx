@@ -36,7 +36,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
         const { parameter, value } = uc;
         return { [parameter]: value };
       });
-      const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
+      const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
       if (clientSettings.skipMeteorConnection) {
         setAllowToRender(true);
         return;
