@@ -44,14 +44,20 @@ const MEETING_SUBSCRIPTION = gql`
           groupId
           name
         }
+        learningDashboard {
+          learningDashboardAccessToken
+        }
         screenshare {
+          contentType
           hasAudio
+          screenshareConf
           screenshareId
+          startedAt
+          stoppedAt
           stream
           vidHeight
           vidWidth
           voiceConf
-          screenshareConf
         }
         usersPolicies {
           allowModsToEjectCameras
