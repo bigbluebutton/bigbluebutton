@@ -114,7 +114,7 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
-        shard: ${{ matrix.shard }}/8
+      shard: ${{ matrix.shard }}/8
     steps:
       - uses: actions/checkout@v4
       - name: Merge branches
@@ -313,7 +313,7 @@ jobs:
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: all-blob-reports-${{ matrix.shard }}
+          name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
       - if: failure()
         name: Prepare artifacts (configs and logs)
@@ -363,12 +363,15 @@ jobs:
       - name: Install dependencies
         working-directory: ./bigbluebutton-tests/playwright
         run: npm ci
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: all-blob-reports
+          pattern: blob-report-*
       - name: Download all blob reports from GitHub Actions Artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: all-blob-reports-*
-          path: bigbluebutton-tests/playwright/all-blob-reports
-          merge-multiple: true
+          name: all-blob-reports
       - name: Merge into HTML Report
         working-directory: ./bigbluebutton-tests/playwright
         run: npx playwright merge-reports --reporter html ./all-blob-reports
@@ -376,6 +379,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tests-report
+          overwrite: true
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results
