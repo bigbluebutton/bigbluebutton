@@ -355,12 +355,15 @@ jobs:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs: install-and-run-tests
     runs-on: ubuntu-latest
+    env:
+      hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 18
       - name: Install dependencies
+        if: ${{ env.hasReportData }}
         working-directory: ./bigbluebutton-tests/playwright
         run: npm ci
       - name: Merge artifacts
@@ -369,13 +372,16 @@ jobs:
           name: all-blob-reports
           pattern: blob-report-*
       - name: Download all blob reports from GitHub Actions Artifacts
+        if: ${{ env.hasReportData }}
         uses: actions/download-artifact@v4
         with:
           name: all-blob-reports
       - name: Merge into HTML Report
+        if: ${{ env.hasReportData }}
         working-directory: ./bigbluebutton-tests/playwright
         run: npx playwright merge-reports --reporter html ./all-blob-reports
       - name: Upload HTML tests report
+        if: ${{ env.hasReportData }}
         uses: actions/upload-artifact@v4
         with:
           name: tests-report
