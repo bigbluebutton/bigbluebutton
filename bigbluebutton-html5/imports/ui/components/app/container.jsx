@@ -189,7 +189,7 @@ const AppContainer = (props) => {
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
-  const shouldShowGenericComponent = genericComponent.hasGenericComponent;
+  const shouldShowGenericComponent = !!genericComponent.genericComponentId;
 
   const validateEnforceLayout = (currentUser) => {
     const layoutTypes = Object.values(LAYOUT_TYPE);
@@ -197,9 +197,9 @@ const AppContainer = (props) => {
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };
 
-  const shouldShowScreenshare = propsShouldShowScreenshare 
+  const shouldShowScreenshare = propsShouldShowScreenshare
     && (viewScreenshare || isPresenter);
-  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes 
+  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
@@ -249,6 +249,7 @@ const AppContainer = (props) => {
           setMobileUser,
           toggleVoice,
           setLocalSettings,
+          genericComponentId: genericComponent.genericComponentId,
         }}
         {...otherProps}
       />

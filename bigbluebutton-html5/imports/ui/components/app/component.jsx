@@ -592,7 +592,6 @@ class App extends Component {
       pushAlertEnabled,
       shouldShowPresentation,
       shouldShowScreenshare,
-      shouldShowExternalVideo,
       shouldShowSharedNotes,
       isPresenter,
       selectedLayout,
@@ -600,6 +599,7 @@ class App extends Component {
       darkTheme,
       intl,
       isModerator,
+      genericComponentId,
     } = this.props;
 
     const {
@@ -635,11 +635,7 @@ class App extends Component {
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <ExternalVideoPlayerContainer />
           <GenericComponentContainer
-            {...{
-              shouldShowScreenshare,
-              shouldShowSharedNotes,
-              shouldShowExternalVideo,
-            }}
+            genericComponentId={genericComponentId}
           />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
