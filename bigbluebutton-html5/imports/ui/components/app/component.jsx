@@ -584,7 +584,7 @@ class App extends Component {
     setMountRandomUserModal(false);
   }
 
-  render() {
+  render() {RandomUserSelectContainer
     const {
       customStyle,
       customStyleUrl,

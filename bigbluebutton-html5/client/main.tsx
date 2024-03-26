@@ -12,8 +12,10 @@ import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/l
 import StartupDataFetch from '/imports/ui/components/connection-manager/startup-data-fetch/component';
 import UserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/userGrapQlMiniMongoAdapter/component';
 import VoiceUserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/voiceUserGraphQlMiniMongoAdapter/component';
+import MeetingGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/meetingGrapQlMiniMongoAdapter/component';
 
 const Main: React.FC = () => {
+  // Meteor.disconnect();
   return (
     <StartupDataFetch>
       <ErrorBoundary Fallback={ErrorScreen}>
@@ -26,6 +28,7 @@ const Main: React.FC = () => {
                   <SettingsLoader />
                   <UserGrapQlMiniMongoAdapter />
                   <VoiceUserGrapQlMiniMongoAdapter />
+                  <MeetingGrapQlMiniMongoAdapter />
                 </PresenceManager>
               </ConnectionManager>
             </LocatedErrorBoundary>

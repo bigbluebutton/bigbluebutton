@@ -56,8 +56,8 @@ const Startup = () => {
     if (disableWebsocketFallback) {
       Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
 
-      Meteor.disconnect();
-      Meteor.reconnect();
+      // Meteor.disconnect();
+      // Meteor.reconnect();
     }
   }, []);
   // Logs all uncaught exceptions to the client logger

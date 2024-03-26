@@ -274,7 +274,6 @@ class Base extends Component {
       subscriptionsReady,
       userWasEjected,
     } = this.props;
-
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
@@ -314,7 +313,6 @@ class Base extends Component {
       }
       return (<MeetingEnded code={codeError} callback={this.setUserExitReason} endedReason="logout" />);
     }
-
     return (<AppContainer {...this.props} />);
   }
 
@@ -363,6 +361,7 @@ const BaseContainer = (props) => {
 };
 
 export default withTracker(() => {
+  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
   const {
     animations,
   } = Settings.application;
@@ -398,7 +397,7 @@ export default withTracker(() => {
   const User = Users.findOne({ userId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
-      meetingEnded: 1,
+      ended: 1,
       meetingEndedReason: 1,
       meetingProp: 1,
     },
@@ -437,10 +436,10 @@ export default withTracker(() => {
     User,
     isMeteorConnected: Meteor.status().connected,
     meetingExist: !!meeting,
-    meetingHasEnded: !!meeting && meeting.meetingEnded,
+    meetingHasEnded: !!meeting && meeting.ended,
     meetingEndedReason,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    subscriptionsReady: Session.get('subscriptionsReady'),
+    subscriptionsReady: Session.get('subscriptionsReady') || clientSettings.skipMeteorConnection,
     loggedIn,
     codeError,
     usersVideo,

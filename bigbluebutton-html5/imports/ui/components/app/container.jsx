@@ -202,7 +202,6 @@ const AppContainer = (props) => {
   const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
-
   return currentUserId
     ? (
       <App
@@ -269,7 +268,7 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default withTracker(() => {
-  Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
+  Users.find({ userId: Auth.userID, }).observe({
     removed(userData) {
       // wait 3secs (before endMeeting), client will try to authenticate again
       const delayForReconnection = userData.ejected ? 0 : 3000;
@@ -312,17 +311,23 @@ export default withTracker(() => {
     randomlySelectedUser,
   } = currentMeeting;
 
-  const meetingLayoutObj = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
+  const meetingLayoutObj = Meetings
+    .findOne({ meetingId: Auth.meetingID }) || {};
+
+  const { layout } = meetingLayoutObj;
+
   const {
-    layout: meetingLayout,
-    pushLayout: pushLayoutMeeting,
-    layoutUpdatedAt: meetingLayoutUpdatedAt,
-    presentationIsOpen: meetingPresentationIsOpen,
-    isResizing: isMeetingLayoutResizing,
-    cameraPosition: meetingLayoutCameraPosition,
-    focusedCamera: meetingLayoutFocusedCamera,
+    currentLayoutType: meetingLayout,
+    propagateLayout: pushLayoutMeeting,
+    cameraDockIsResizing: isMeetingLayoutResizing,
+    cameraDockPlacement: meetingLayoutCameraPosition,
     presentationVideoRate: meetingLayoutVideoRate,
-  } = meetingLayoutObj;
+    cameraWithFocus: meetingLayoutFocusedCamera,
+  } = layout;
+
+  const meetingLayoutUpdatedAt = new Date(layout.updatedAt).getTime();
+
+  const meetingPresentationIsOpen = !layout.presentationMinimized;
 
   const UserInfo = UserInfos.find({
     meetingId: Auth.meetingID,
