@@ -12,6 +12,8 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 import { ExternalVideoVolumeUiDataNames } from 'bigbluebutton-html-plugin-sdk';
 import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/external-video/volume/types';
+import MediaService from '/imports/ui/components/media/service';
+import NotesService from '/imports/ui/components/notes/service';
 
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
@@ -72,6 +74,8 @@ interface ExternalVideoPlayerProps {
   currentTime: number;
   key: string;
   setKey: (key: string) => void;
+  shouldShowSharedNotes(): boolean;
+  pinSharedNotes(pinned: boolean): void;
 }
 
 // @ts-ignore - PeerTubePlayer is not typed
@@ -93,6 +97,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   isEchoTest,
   key,
   setKey,
+  shouldShowSharedNotes,
+  pinSharedNotes,
 }) => {
   const intl = useIntl();
 
@@ -236,6 +242,16 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       playerRef.current.seekTo(currentTime, 'seconds');
     }
   }, [playerRef.current]);
+
+  useEffect(() => {
+    if (shouldShowSharedNotes()) {
+      pinSharedNotes(false);
+      return () => {
+        pinSharedNotes(true);
+      };
+    }
+    return undefined;
+  }, []);
 
   // --- Plugin related code ---;
   const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
@@ -511,6 +527,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       currentTime={isPresenter ? playerCurrentTime : currentTime}
       key={key}
       setKey={setKey}
+      shouldShowSharedNotes={MediaService.shouldShowSharedNotes}
+      pinSharedNotes={NotesService.pinSharedNotes}
     />
   );
 };
