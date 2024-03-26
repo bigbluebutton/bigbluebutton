@@ -117,6 +117,7 @@ const intlMessages = defineMessages({
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
 const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
+const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
 
 interface RenderModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -269,7 +270,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'downloadUserNamesList',
       },
       {
-        allow: true,
+        allow: USER_STATUS_ENABLED,
         key: uuids.current[5],
         label: intl.formatMessage(intlMessages.clearAllLabel),
         description: intl.formatMessage(intlMessages.clearAllDesc),
