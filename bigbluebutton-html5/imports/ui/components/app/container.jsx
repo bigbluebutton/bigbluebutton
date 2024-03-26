@@ -177,7 +177,7 @@ const AppContainer = (props) => {
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
-  const shouldShowGenericComponent = genericComponent.hasGenericComponent;
+  const shouldShowGenericComponent = !!genericComponent.genericComponentId;
 
   const validateEnforceLayout = (currentUser) => {
     const layoutTypes = Object.values(LAYOUT_TYPE);
@@ -185,12 +185,11 @@ const AppContainer = (props) => {
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };
 
-  const shouldShowScreenshare = propsShouldShowScreenshare 
+  const shouldShowScreenshare = propsShouldShowScreenshare
     && (viewScreenshare || isPresenter);
-  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes 
+  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
-
   return currentUserId
     ? (
       <App
@@ -235,6 +234,7 @@ const AppContainer = (props) => {
           setMobileUser,
           toggleVoice,
           setLocalSettings,
+          genericComponentId: genericComponent.genericComponentId,
         }}
         {...otherProps}
       />
@@ -254,7 +254,7 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default withTracker(() => {
-  Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
+  Users.find({ userId: Auth.userID, }).observe({
     removed(userData) {
       // wait 3secs (before endMeeting), client will try to authenticate again
       const delayForReconnection = userData.ejected ? 0 : 3000;
@@ -286,17 +286,35 @@ export default withTracker(() => {
     },
   );
 
-  const meetingLayoutObj = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
+
+  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    {
+      fields: {
+        randomlySelectedUser: 1,
+        layout: 1,
+      },
+    });
   const {
-    layout: meetingLayout,
-    pushLayout: pushLayoutMeeting,
-    layoutUpdatedAt: meetingLayoutUpdatedAt,
-    presentationIsOpen: meetingPresentationIsOpen,
-    isResizing: isMeetingLayoutResizing,
-    cameraPosition: meetingLayoutCameraPosition,
-    focusedCamera: meetingLayoutFocusedCamera,
+    randomlySelectedUser,
+  } = currentMeeting;
+
+  const meetingLayoutObj = Meetings
+    .findOne({ meetingId: Auth.meetingID }) || {};
+
+  const { layout } = meetingLayoutObj;
+
+  const {
+    currentLayoutType: meetingLayout,
+    propagateLayout: pushLayoutMeeting,
+    cameraDockIsResizing: isMeetingLayoutResizing,
+    cameraDockPlacement: meetingLayoutCameraPosition,
     presentationVideoRate: meetingLayoutVideoRate,
-  } = meetingLayoutObj;
+    cameraWithFocus: meetingLayoutFocusedCamera,
+  } = layout;
+
+  const meetingLayoutUpdatedAt = new Date(layout.updatedAt).getTime();
+
+  const meetingPresentationIsOpen = !layout.presentationMinimized;
 
   const UserInfo = UserInfos.find({
     meetingId: Auth.meetingID,

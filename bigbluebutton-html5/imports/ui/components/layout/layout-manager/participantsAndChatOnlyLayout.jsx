@@ -410,7 +410,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
             height: 0,
           },
           genericComponent: {
-            hasGenericComponent: false,
+            genericComponentId: undefined,
             width: 0,
             height: 0,
           },

@@ -471,12 +471,12 @@ class App extends Component {
   renderActivityCheck() {
     const { User } = this.props;
 
-    const { inactivityCheck, responseDelay } = User;
+    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = User;
 
-    return (inactivityCheck ? (
+    return (inactivityWarningDisplay ? (
       <ActivityCheckContainer
-        inactivityCheck={inactivityCheck}
-        responseDelay={responseDelay}
+        inactivityCheck={inactivityWarningDisplay}
+        responseDelay={inactivityWarningTimeoutSecs}
       />
     ) : null);
   }
@@ -573,6 +573,12 @@ class App extends Component {
     this.setState({isVideoPreviewModalOpen: value});
   }
 
+setRandomUserSelectModalIsOpen(value) {
+    const {setMountRandomUserModal} = this.props;
+    this.setState({isRandomUserSelectModalOpen: value});
+    setMountRandomUserModal(false);
+  }
+
   render() {
     const {
       customStyle,
@@ -581,7 +587,6 @@ class App extends Component {
       pushAlertEnabled,
       shouldShowPresentation,
       shouldShowScreenshare,
-      shouldShowExternalVideo,
       shouldShowSharedNotes,
       isPresenter,
       selectedLayout,
@@ -589,6 +594,7 @@ class App extends Component {
       darkTheme,
       intl,
       isModerator,
+      genericComponentId,
     } = this.props;
 
     const {
@@ -623,11 +629,7 @@ class App extends Component {
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <ExternalVideoPlayerContainer />
           <GenericComponentContainer
-            {...{
-              shouldShowScreenshare,
-              shouldShowSharedNotes,
-              shouldShowExternalVideo,
-            }}
+            genericComponentId={genericComponentId}
           />
           {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}

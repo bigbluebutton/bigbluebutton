@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
 import audioManager from '/imports/ui/services/audio-manager';
-import { Session } from 'meteor/session';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
@@ -13,6 +12,8 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 import { ExternalVideoVolumeUiDataNames } from 'bigbluebutton-html-plugin-sdk';
 import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/external-video/volume/types';
+import MediaService from '/imports/ui/components/media/service';
+import NotesService from '/imports/ui/components/notes/service';
 
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
@@ -32,7 +33,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import ExternalVideoPlayerToolbar from './toolbar/component';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { ACTIONS } from '../../layout/enums';
+import { ACTIONS, PRESENTATION_AREA } from '../../layout/enums';
 import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
 
 import PeerTube from '../custom-players/peertube';
@@ -71,9 +72,10 @@ interface ExternalVideoPlayerProps {
   playing: boolean;
   playerPlaybackRate: number;
   currentTime: number;
-  layoutContextDispatch: ReturnType<typeof layoutDispatch>;
   key: string;
   setKey: (key: string) => void;
+  shouldShowSharedNotes(): boolean;
+  pinSharedNotes(pinned: boolean): void;
 }
 
 // @ts-ignore - PeerTubePlayer is not typed
@@ -93,9 +95,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   playerPlaybackRate,
   currentTime,
   isEchoTest,
-  layoutContextDispatch,
   key,
   setKey,
+  shouldShowSharedNotes,
+  pinSharedNotes,
 }) => {
   const intl = useIntl();
 
@@ -219,16 +222,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       setAutoPlayBlocked(true);
     }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
 
-    layoutContextDispatch({
-      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
-      value: true,
-    });
-
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: true,
-    });
-
     const handleExternalVideoVolumeSet = ((
       event: CustomEvent<SetExternalVideoVolumeCommandArguments>,
     ) => setVolume(event.detail.volume)) as EventListener;
@@ -249,6 +242,16 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       playerRef.current.seekTo(currentTime, 'seconds');
     }
   }, [playerRef.current]);
+
+  useEffect(() => {
+    if (shouldShowSharedNotes()) {
+      pinSharedNotes(false);
+      return () => {
+        pinSharedNotes(true);
+      };
+    }
+    return undefined;
+  }, []);
 
   // --- Plugin related code ---;
   const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
@@ -423,21 +426,20 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   useEffect(() => {
     if (!currentMeeting?.externalVideo?.externalVideoUrl && !theresNoExternalVideo.current) {
       layoutContextDispatch({
-        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
-        value: false,
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
+          open: false,
+        },
       });
+      theresNoExternalVideo.current = true;
+    } else if (currentMeeting?.externalVideo?.externalVideoUrl && theresNoExternalVideo.current) {
       layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: Session.get('presentationLastState'),
-      });
-    } else if (currentMeeting?.externalVideo?.externalVideoUrl) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
+          open: true,
+        },
       });
       theresNoExternalVideo.current = false;
     }
@@ -505,7 +507,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const playerUpdatedAt = currentMeeting.externalVideo?.updatedAt ?? Date.now();
   const playerUpdatedAtDate = new Date(playerUpdatedAt);
   const currentDate = new Date(Date.now() + timeSync);
-  const currentTime = (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
+  const isPaused = !currentMeeting.externalVideo?.playerPlaying ?? false;
+  const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
   + playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
 
@@ -519,12 +522,13 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       playing={currentMeeting.externalVideo?.playerPlaying ?? false}
       playerPlaybackRate={currentMeeting.externalVideo?.playerPlaybackRate ?? 1}
       isResizing={isResizing}
-      layoutContextDispatch={layoutContextDispatch}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
       currentTime={isPresenter ? playerCurrentTime : currentTime}
       key={key}
       setKey={setKey}
+      shouldShowSharedNotes={MediaService.shouldShowSharedNotes}
+      pinSharedNotes={NotesService.pinSharedNotes}
     />
   );
 };

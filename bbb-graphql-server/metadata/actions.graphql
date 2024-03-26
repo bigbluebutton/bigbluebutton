@@ -443,6 +443,10 @@ type Mutation {
 }
 
 type Mutation {
+  userSendActivitySign: Boolean
+}
+
+type Mutation {
   userSetAway(
     away: Boolean!
   ): Boolean
@@ -558,3 +562,4 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
+

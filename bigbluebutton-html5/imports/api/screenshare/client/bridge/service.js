@@ -22,7 +22,7 @@ const {
 const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
   || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));
 
-const getConferenceBridge = () => Meetings.findOne().voiceProp.voiceConf;
+const getConferenceBridge = () => Meetings.findOne().voiceSettings.voiceConf;
 
 const normalizeGetDisplayMediaError = (error) => {
   return SCREENSHARING_ERRORS[error.name] || SCREENSHARING_ERRORS.GetDisplayMediaGenericError;

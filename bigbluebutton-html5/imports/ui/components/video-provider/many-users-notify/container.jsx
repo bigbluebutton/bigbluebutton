@@ -34,7 +34,7 @@ const ManyUsersContainer = (props) => {
 export default withTracker(() => {
   const meeting = Meetings.findOne({
     meetingId: Auth.meetingID,
-  }, { fields: { 'usersProp.webcamsOnlyForModerator': 1, lockSettingsProps: 1 } });
+  }, { fields: { 'usersPolicies.webcamsOnlyForModerator': 1, lockSettings: 1 } });
   const videoStreams = VideoStreams.find({ meetingId: Auth.meetingID },
     { fields: { userId: 1 } }).fetch();
   const videoUsersIds = videoStreams.map(u => u.userId);
@@ -47,8 +47,8 @@ export default withTracker(() => {
       role: ROLE_VIEWER,
       presenter: false,
     }, { fields: {} }).count(),
-    lockSettings: meeting.lockSettingsProps,
-    webcamOnlyForModerator: meeting.usersProp.webcamsOnlyForModerator,
+    lockSettings: meeting.lockSettings,
+    webcamOnlyForModerator: meeting.usersPolicies.webcamsOnlyForModerator,
     limitOfViewersInWebcam: window.meetingClientSettings.public.app.viewersInWebcam,
     limitOfViewersInWebcamIsEnable: window.meetingClientSettings
       .public.app.enableLimitOfViewersInWebcam,
