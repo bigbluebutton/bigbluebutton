@@ -476,6 +476,7 @@ type Mutation {
 type Mutation {
   userSetEmojiStatus(
     emoji: String!
+    userId: String!
   ): Boolean
 }
 

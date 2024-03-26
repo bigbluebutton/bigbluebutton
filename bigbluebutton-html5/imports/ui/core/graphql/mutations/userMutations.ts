@@ -53,9 +53,10 @@ export const SET_PRESENTER = gql`
 `;
 
 export const SET_EMOJI_STATUS = gql`
-  mutation SetEmojiStatus($emoji: String!) {
+  mutation SetEmojiStatus($emoji: String!, $userId: String!) {
     userSetEmojiStatus(
       emoji: $emoji,
+      userId: $userId,
     )
   }
 `;
