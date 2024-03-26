@@ -74,6 +74,14 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     left: 40px !important;
   }
 
+  ${({ isRTL }) => (!isRTL) && `
+    .tlui-toolbar__extras {
+      position: fixed !important;
+      top: -2px !important;
+      right: 50px !important;
+    }
+  `}
+
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
