@@ -15,6 +15,7 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
 
   def handleMuteUserCmdMsg(msg: MuteUserCmdMsg) {
     val unmuteDisabled = !liveMeeting.props.usersProp.allowModsToUnmuteUsers && msg.body.mute == false
+    var mutedByModeratorSet: Set[String] = Set()
     if (msg.body.userId != msg.header.userId && (unmuteDisabled || permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
@@ -42,12 +43,8 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
         )
       } yield {
 
-        if (requester.role != Roles.MODERATOR_ROLE
-          && permissions.disableMic
-          && requester.locked
-          && u.muted &&
-          msg.body.userId == msg.header.userId) {
-          // unmuting self while not moderator and mic disabled. Do not allow.
+        if (requester.role != Roles.MODERATOR_ROLE && permissions.disableMic && requester.locked && u.muted && msg.body.userId == msg.header.userId) {
+          // Non-moderator user trying to unmute another user of lower role while microphone is disabled. Do not allow.
         } else {
           if (u.muted != msg.body.mute) {
             log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
@@ -58,7 +55,23 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
               msg.body.mute
             )
             outGW.send(event)
+
+            // Update the mutedByModeratorSet if the moderator mutes the user
+            if (requester.role == Roles.MODERATOR_ROLE) {
+              if (msg.body.mute) {
+                mutedByModeratorSet += u.intId
+              } else {
+                mutedByModeratorSet -= u.intId
+              }
+            }
           }
+        }
+
+        // Prevent self-unmuting if the user was muted by a moderator
+        if (mutedByModeratorSet.contains(msg.body.userId) && msg.body.userId == msg.header.userId && !msg.body.mute) {
+          // Muted by moderator, and trying to unmute oneself. Do not allow.
+          log.info("you are muted by moderator")
+
         }
       }
     }
