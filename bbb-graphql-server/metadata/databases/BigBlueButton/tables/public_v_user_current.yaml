@@ -168,6 +168,8 @@ select_permissions:
         - registeredOn
         - role
         - speechLocale
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
         - userId
       filter:
         userId:

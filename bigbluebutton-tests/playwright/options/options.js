@@ -16,9 +16,9 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClick(e.closeModal);
   }
 
-  async openHelp(context) {
+  async openHelp() {
     await this.modPage.waitAndClick(e.optionsButton);
-    const newPage = await this.modPage.handleNewTab(e.helpButton, context);
+    const newPage = await this.modPage.handleNewTab(e.helpButton, this.modPage.context);
     await expect(newPage).toHaveTitle(/Tutorials/);
     await newPage.close();
     await this.modPage.hasElement(e.whiteboard);
@@ -50,7 +50,6 @@ class Options extends MultiUsers {
       const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
       await this.modPage.waitAndClick(e.modalConfirmButton);
-      await this.modPage.waitForSelector(e.toastContainer);
 
       for (const selector in currentValuesBySelector) {
         await this.modPage.hasText(selector, currentValuesBySelector[selector]);

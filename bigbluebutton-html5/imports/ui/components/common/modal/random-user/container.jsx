@@ -46,7 +46,7 @@ const RandomUserSelectContainer = (props) => {
   try {
     if (!currentUser.presenter //  this functionality does not bother presenter
       && (!keepModalOpen) //  we only ween a change if modal has been closed before
-      && (randomlySelectedUser[0][1] !== updateIndicator)// if tey are different, a user was generated
+      && (randomlySelectedUser[0][1] !== updateIndicator)// if they are different, a user was generated
     ) { keepModalOpen = true; } //  reopen modal
     if (!currentUser.presenter) { updateIndicator = randomlySelectedUser[0][1]; } // keep indicator up to date
   } catch (err) {

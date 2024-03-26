@@ -104,7 +104,7 @@ const reducer = (state, action) => {
     }
 
     // LAYOUT TYPE
-    // using to load a diferent layout manager
+    // using to load a different layout manager
     case ACTIONS.SET_LAYOUT_TYPE: {
       const { layoutType } = state.input;
       if (layoutType === action.value) return state;

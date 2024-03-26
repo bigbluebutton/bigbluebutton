@@ -491,7 +491,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const playerUpdatedAt = currentMeeting.externalVideo?.updatedAt ?? Date.now();
   const playerUpdatedAtDate = new Date(playerUpdatedAt);
   const currentDate = new Date(Date.now() + timeSync);
-  const currentTime = (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
+  const isPaused = !currentMeeting.externalVideo?.playerPlaying ?? false;
+  const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
   + playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
 

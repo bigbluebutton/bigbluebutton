@@ -118,7 +118,7 @@ const intlMessages = defineMessages({
   },
   defaultViewLabel: {
     id: 'app.title.defaultViewLabel',
-    description: 'view name apended to document title',
+    description: 'view name appended to document title',
   },
   promotedLabel: {
     id: 'app.toast.promotedLabel',
@@ -476,12 +476,12 @@ class App extends Component {
   renderActivityCheck() {
     const { User } = this.props;
 
-    const { inactivityCheck, responseDelay } = User;
+    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = User;
 
-    return (inactivityCheck ? (
+    return (inactivityWarningDisplay ? (
       <ActivityCheckContainer
-        inactivityCheck={inactivityCheck}
-        responseDelay={responseDelay}
+        inactivityCheck={inactivityWarningDisplay}
+        responseDelay={inactivityWarningTimeoutSecs}
       />
     ) : null);
   }

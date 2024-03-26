@@ -68,7 +68,7 @@ const intlMessage = defineMessages({
   },
   confirmDesc: {
     id: 'app.leaveConfirmation.confirmDesc',
-    description: 'adds context to confim option',
+    description: 'adds context to confirm option',
   },
   sendLabel: {
     id: 'app.feedback.sendFeedback',

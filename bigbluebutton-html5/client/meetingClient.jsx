@@ -84,16 +84,14 @@ const Startup = () => {
 
   return (
     <ContextProviders>
-      <>
-        <PresenceAdapter>
-          <Subscriptions>
-            <IntlAdapter>
-              <Base />
-            </IntlAdapter>
-          </Subscriptions>
-        </PresenceAdapter>
-        <UsersAdapter />
-      </>
+      <PresenceAdapter>
+        <Subscriptions>
+          <IntlAdapter>
+            <Base />
+          </IntlAdapter>
+        </Subscriptions>
+      </PresenceAdapter>
+      <UsersAdapter />
     </ContextProviders>
   );
 };

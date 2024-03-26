@@ -3,7 +3,7 @@ import { createIntl } from 'react-intl';
 const FALLBACK_ON_EMPTY_STRING = window.meetingClientSettings.public.app.fallbackOnEmptyLocaleString;
 
 /**
- * Use this if you need any translation outside of React lifecyle.
+ * Use this if you need any translation outside of React lifecycle.
  */
 class BBBIntl {
   _intl = {

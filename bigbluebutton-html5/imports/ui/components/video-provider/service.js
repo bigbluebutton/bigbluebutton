@@ -468,7 +468,7 @@ class VideoService {
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) streams.push(connectingStream);
 
-    // Pagination is either explictly disabled or pagination is set to 0 (which
+    // Pagination is either explicitly disabled or pagination is set to 0 (which
     // is equivalent to disabling it), so return the mapped streams as they are
     // which produces the original non paginated behaviour
     if (isPaginationDisabled) {
@@ -900,7 +900,7 @@ class VideoService {
             parameters.encodings = [{}];
           }
 
-          // Only reset bitrate if it changed in some way to avoid enconder fluctuations
+          // Only reset bitrate if it changed in some way to avoid encoder fluctuations
           if (parameters.encodings[0].maxBitrate !== normalizedBitrate) {
             parameters.encodings[0].maxBitrate = normalizedBitrate;
             sender.setParameters(parameters)

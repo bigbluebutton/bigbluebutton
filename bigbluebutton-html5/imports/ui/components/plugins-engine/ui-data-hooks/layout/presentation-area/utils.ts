@@ -4,7 +4,7 @@ import { LayoutPresentatioAreaUiDataNames, UiLayouts } from 'bigbluebutton-html-
 import { LayoutPresentationAreaUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/layout/presentation-area/types';
 import { PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 
-const useUpdatePresentationAreaContentForPlugin = (layoutContextState: Layout) => {
+const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: Layout) => {
   const [presentationAreaContent, setPresentationAreaContent] = useState<LayoutPresentationAreaUiDataPayloads[
     LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT
   ]>();
@@ -46,4 +46,4 @@ const useUpdatePresentationAreaContentForPlugin = (layoutContextState: Layout) =
   }, [presentationAreaContent]);
 };
 
-export default useUpdatePresentationAreaContentForPlugin;
+export default useUpdatePresentationAreaContentForPluginForPlugin;

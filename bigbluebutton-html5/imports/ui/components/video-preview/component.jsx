@@ -309,7 +309,7 @@ class VideoPreview extends Component {
                   const newDevices = await navigator.mediaDevices.enumerateDevices();
                   webcams = PreviewService.digestVideoDevices(newDevices, webcamDeviceId).webcams;
                 } catch (error) {
-                  // Not a critical error beucase it should only affect UI; log it
+                  // Not a critical error because it should only affect UI; log it
                   // and go ahead
                   logger.error({
                     logCode: 'video_preview_enumerate_relabel_failure',
@@ -1059,7 +1059,7 @@ class VideoPreview extends Component {
           <Styled.BrowserWarning>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"
-              description="Warning when someone joins with a browser that isnt supported"
+              description="Warning when someone joins with a browser that isn't supported"
               values={{
                 0: <a href="https://www.google.com/chrome/">Chrome</a>,
                 1: <a href="https://getfirefox.com">Firefox</a>,

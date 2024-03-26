@@ -8,7 +8,7 @@ const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.cou
 //  for iteration in animation.
 const intervals = [0, 200, 450, 750, 1100, 1500];
 
-//  Used to togle to the first value of intervals to
+//  Used to toggle to the first value of intervals to
 //  differenciare whether this function has been called
 let updateIndicator = true;
 
@@ -30,7 +30,7 @@ function getFiveRandom(userList, userIds) {
       IDs = userIds.slice(); // start over
       let userId = IDs.splice(0, 1);
       if (userList[userList.length] === [userId, intervals[i]]) {
-        // If we start over with the one we finnished, change it
+        // If we start over with the one we finished, change it
         IDs.push(userId);
         userId = IDs.splice(0, 1);
       }
