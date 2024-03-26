@@ -836,9 +836,6 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
-  selectRandomUser:
-    enabled: true
-    countdown: false
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
