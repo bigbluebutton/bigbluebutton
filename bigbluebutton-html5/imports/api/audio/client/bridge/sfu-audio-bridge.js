@@ -225,7 +225,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         }
       }
 
-      // Already tried reconnecting once OR the user handn't succesfully
+      // Already tried reconnecting once OR the user handn't successfully
       // connected firsthand and retrying isn't an option. Finish the session
       // and reject with the error
       logger.error({

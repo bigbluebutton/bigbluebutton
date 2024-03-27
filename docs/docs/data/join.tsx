@@ -44,12 +44,6 @@ const joinEndpointTableData = [
     "description": (<>If you want to pass in a custom voice-extension when a user joins the voice conference using voip. This is useful if you want to collect more info in you Call Detail Records about the user joining the conference. You need to modify your /etc/asterisk/bbb-extensions.conf to handle this new extensions.</>)
   },
   {
-    "name": "defaultLayout",
-    "required": false,
-    "type": "String",
-    "description": (<>The layout name to be loaded first when the application is loaded.</>)
-  },
-  {
     "name": "avatarURL",
     "required": false,
     "type": "String",

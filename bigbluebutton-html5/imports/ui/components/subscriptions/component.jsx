@@ -12,8 +12,8 @@ import { isChatEnabled } from '/imports/ui/services/features';
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
-  'users',
-  'meetings',
+  // 'users',
+  // 'meetings',
   'polls',
   'captions',
   // 'voiceUsers',
@@ -51,7 +51,9 @@ let oldRole = '';
 class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
-    if (subscriptionsReady) {
+    const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
+    console.log('clientSettings', clientSettings);
+    if (subscriptionsReady || clientSettings.skipMeteorConnection) {
       Session.set('subscriptionsReady', true);
       const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
       window.dispatchEvent(event);
@@ -68,6 +70,7 @@ class Subscriptions extends Component {
 export default withTracker(() => {
   const { credentials } = Auth;
   const { meetingId, requesterUserId } = credentials;
+  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
   const userWillAuth = Session.get('userWillAuth');
   // This if exist because when a unauth user try to subscribe to a publisher
   // it returns a empty collection to the subscription
@@ -97,6 +100,7 @@ export default withTracker(() => {
   const currentUser = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
+    if (clientSettings.skipMeteorConnection) return null;
     let subscriptionHandlers = subscriptionErrorHandler;
     if (
       (!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1) ||
@@ -143,8 +147,8 @@ export default withTracker(() => {
   }
 
   subscriptionsHandlers = subscriptionsHandlers.filter((obj) => obj);
-  const ready = subscriptionsHandlers.every((handler) => handler.ready());
-
+  const ready = subscriptionsHandlers
+    .every((handler) => handler.ready() || clientSettings.skipMeteorConnection);
   // TODO: Refactor all the late subscribers
   let usersPersistentDataHandler = {};
   if (ready) {
@@ -153,6 +157,7 @@ export default withTracker(() => {
       localCollection.checkForStaleData()
     );
   }
+  
 
   return {
     subscriptionsReady: ready,

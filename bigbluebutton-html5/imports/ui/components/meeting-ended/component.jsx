@@ -68,7 +68,7 @@ const intlMessage = defineMessages({
   },
   confirmDesc: {
     id: 'app.leaveConfirmation.confirmDesc',
-    description: 'adds context to confim option',
+    description: 'adds context to confirm option',
   },
   sendLabel: {
     id: 'app.feedback.sendFeedback',
@@ -144,7 +144,7 @@ class MeetingEnded extends PureComponent {
 
     const meeting = Meetings.findOne({ id: user?.meetingID });
     if (meeting) {
-      this.endWhenNoModeratorMinutes = meeting.durationProps.endWhenNoModeratorDelayInMinutes;
+      this.endWhenNoModeratorMinutes = meeting.endWhenNoModeratorDelayInMinutes;
 
       const endedBy = Users.findOne({
         userId: meeting.meetingEndedBy,

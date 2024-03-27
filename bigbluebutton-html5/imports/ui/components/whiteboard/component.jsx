@@ -158,6 +158,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   const whiteboardIdRef = React.useRef(whiteboardId);
   const curPageIdRef = React.useRef(curPageId);
   const hasWBAccessRef = React.useRef(hasWBAccess);
+  const isModeratorRef = React.useRef(isModerator);
 
   const THRESHOLD = 0.1;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
@@ -168,6 +169,10 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     curPageIdRef.current = curPageId;
   }, [curPageId]);
+
+  React.useEffect(() => {
+    isModeratorRef.current = isModerator;
+  }, [isModerator]);
 
   React.useEffect(() => {
     whiteboardIdRef.current = whiteboardId;
@@ -268,7 +273,11 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
           typeName: remoteShape.typeName,
         };
 
-        if (!selectedShapeIds.includes(remoteShape.id) && prevShape?.meta?.updatedBy !== currentUser?.userId) {
+        if (
+          (prevShape?.meta?.updatedBy !== currentUser?.userId && !selectedShapeIds.includes(remoteShape.id)) ||
+          (prevShape?.meta?.createdBy === currentUser?.userId) ||
+          (prevShape?.meta?.createdBy !== currentUser?.userId && selectedShapeIds.includes(remoteShape.id) && (isPresenter || isModeratorRef.current))
+        ) {
           Object.keys(remoteShape).forEach((key) => {
             if (key !== "isModerator" && !isEqual(remoteShape[key], localShape[key])) {
               diff[key] = remoteShape[key];
@@ -855,18 +864,19 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
               createdBy: currentUser?.userId,
             },
           };
-          persistShapeWrapper(updatedRecord, whiteboardIdRef.current, isModerator);
+          persistShapeWrapper(updatedRecord, whiteboardIdRef.current, isModeratorRef.current);
         });
 
         Object.values(updated).forEach(([_, record]) => {
+          const createdBy = prevShapesRef.current[record?.id]?.meta?.createdBy || currentUser?.userId;
           const updatedRecord = {
             ...record,
             meta: {
-              ...prevShapesRef.current[record?.id]?.meta,
+              createdBy,
               updatedBy: currentUser?.userId,
             },
           };
-          persistShapeWrapper(updatedRecord, whiteboardIdRef.current, isModerator);
+          persistShapeWrapper(updatedRecord, whiteboardIdRef.current, isModeratorRef.current);
         });
 
         Object.values(removed).forEach((record) => {
@@ -970,12 +980,14 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
 
       editor.store.onBeforeChange = (prev, next, source) => {
         if (next?.typeName === "instance_page_state") {
-          if (isPresenter || isModerator) return next;
+
+          if (isPresenter || isModeratorRef.current) return next;
+
           // Filter selectedShapeIds based on shape owner
-          if (!isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
+          if (next.selectedShapeIds.length > 0 && !isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
             next.selectedShapeIds = next.selectedShapeIds.filter(shapeId => {
               const shapeOwner = prevShapesRef.current[shapeId]?.meta?.createdBy;
-              return shapeOwner === currentUser?.userId;
+              return !shapeOwner || shapeOwner === currentUser?.userId;
             });
           }
 
@@ -1030,7 +1042,7 @@ export default Whiteboard = React.memo(function Whiteboard(props) {
     <div
       ref={whiteboardRef}
       id={"whiteboard-element"}
-      key={`animations=-${animations}-${isPresenter}-${isModerator}-${whiteboardToolbarAutoHide}-${language}`}
+      key={`animations=-${animations}-${whiteboardToolbarAutoHide}-${language}`}
     >
       <Tldraw
         key={`tldrawv2-${presentationId}-${animations}`}

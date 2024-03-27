@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * a {@link Runnable} which sends the specified {@link ChannelEvent} upstream.
  * Most users will not see this type at all because it is used by
- * {@link Executor} implementors only
+ * {@link Executor} implementers only
  *
  * @author The Netty Project (netty-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)

@@ -1,7 +1,6 @@
 require('dotenv').config();
 const { expect, default: test } = require('@playwright/test');
 const { readFileSync } = require('fs');
-
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
@@ -15,6 +14,9 @@ class Page {
     this.browser = browser;
     this.page = page;
     this.initParameters = Object.assign({}, parameters);
+    try {
+      this.context = page.context();
+    } catch { } // page doesn't have context - likely an iframe
   }
 
   async bringToFront() {
@@ -95,10 +97,11 @@ class Page {
 
     if (directLeaveButton) {
       await this.waitAndClick(e.leaveMeetingDropdown);
+      await this.waitAndClick(e.directLogoutButton);
     } else {
       await this.waitAndClick(e.optionsButton);
+      await this.waitAndClick(e.optionsLogoutButton);
     }
-    await this.waitAndClick(e.logoutBtn);
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
