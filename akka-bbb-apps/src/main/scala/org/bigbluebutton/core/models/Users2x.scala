@@ -78,15 +78,6 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
-  def getRandomlyPickableUsers(users: Users2x, reduceDup: Boolean): Vector[UserState] = {
-
-    if (reduceDup) {
-      users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left && !u.pickExempted)
-    } else {
-      users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left)
-    }
-  }
-
   def findViewers(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => u.role == Roles.VIEWER_ROLE)
   }
@@ -98,6 +89,19 @@ object Users2x {
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
     val newUserState = modify(u)(_.lastActivityTime).setTo(System.currentTimeMillis())
     users.save(newUserState)
+
+    //Reset inactivity warning
+    if (u.lastInactivityInspect != 0) {
+      resetLastInactivityInspect(users, newUserState)
+    } else {
+      newUserState
+    }
+  }
+
+  def resetLastInactivityInspect(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.lastInactivityInspect).setTo(0)
+    users.save(newUserState)
+    UserStateDAO.updateInactivityWarning(u.intId, inactivityWarningDisplay = false, 0)
     newUserState
   }
 
@@ -237,16 +241,6 @@ object Users2x {
       val newUser = u.modify(_.locked).setTo(locked)
       users.save(newUser)
       UserStateDAO.update(newUser)
-      newUser
-    }
-  }
-
-  def setUserExempted(users: Users2x, intId: String, exempted: Boolean): Option[UserState] = {
-    for {
-      u <- findWithIntId(users, intId)
-    } yield {
-      val newUser = u.modify(_.pickExempted).setTo(exempted)
-      users.save(newUser)
       newUser
     }
   }
@@ -435,7 +429,6 @@ case class UserState(
     lastActivityTime:      Long         = System.currentTimeMillis(),
     lastInactivityInspect: Long         = 0,
     clientType:            String,
-    pickExempted:          Boolean,
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String       = ""
 )

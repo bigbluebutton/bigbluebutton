@@ -59,7 +59,7 @@ const createEndpointTableData = [
     "name": "record",
     "required": false,
     "type": "Boolean",
-    "description": (<>Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false.<br /><br /> In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the sesssion; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the <code className="language-plaintext highlighter-rouge">autoStartRecording</code> and <code className="language-plaintext highlighter-rouge">allowStartStopRecording</code> parameters in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+    "description": (<>Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false.<br /><br /> In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the session; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the <code className="language-plaintext highlighter-rouge">autoStartRecording</code> and <code className="language-plaintext highlighter-rouge">allowStartStopRecording</code> parameters in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
   },
   {
     "name": "duration",

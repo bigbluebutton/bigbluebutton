@@ -20,7 +20,6 @@ export interface Public {
   media: Media
   stats: Stats
   presentation: Presentation
-  selectRandomUser: SelectRandomUser
   user: User
   whiteboard: Whiteboard
   clientLog: ClientLog
@@ -662,11 +661,6 @@ export interface MirroredFromBbbcore {
 export interface UploadValidMimeType {
   extension: string
   mime: string
-}
-
-export interface SelectRandomUser {
-  enabled: boolean
-  countdown: boolean
 }
 
 export interface User {

@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { MultiUsers } = require('../user/multiusers');
 const { Webcam } = require('./webcam');
 

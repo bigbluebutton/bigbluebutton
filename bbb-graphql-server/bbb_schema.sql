@@ -26,6 +26,8 @@ create table "meeting" (
 	"bannerColor" varchar(50),
 	"createdTime" bigint,
 	"durationInSeconds" integer,
+	"endWhenNoModerator"        boolean,
+    "endWhenNoModeratorDelayInMinutes" integer,
 	"endedAt" timestamp with time zone,
 	"endedReasonCode" varchar(200),
 	"endedBy" varchar(50)
@@ -126,16 +128,16 @@ create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    "maxUsers"                 integer,
+    "maxUsers"                  integer,
     "maxUserConcurrentAccesses" integer,
-    "webcamsOnlyForModerator"  boolean,
-    "userCameraCap"            integer,
-    "guestPolicy"              varchar(100),
-    "guestLobbyMessage"        text,
-    "meetingLayout"            varchar(100),
-    "allowModsToUnmuteUsers"   boolean,
-    "allowModsToEjectCameras"  boolean,
-    "authenticatedGuest"       boolean
+    "webcamsOnlyForModerator"   boolean,
+    "userCameraCap"             integer,
+    "guestPolicy"               varchar(100),
+    "guestLobbyMessage"         text,
+    "meetingLayout"             varchar(100),
+    "allowModsToUnmuteUsers"    boolean,
+    "allowModsToEjectCameras"   boolean,
+    "authenticatedGuest"        boolean
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
@@ -155,6 +157,20 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
    FROM "meeting_usersPolicies"
    JOIN "meeting" using("meetingId");
+
+create table "meeting_metadata" (
+	"meetingId" 		varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "name"              varchar(100),
+    "value"             varchar(100),
+    CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
+);
+create index "idx_meeting_metadata_meetingId" on "meeting_metadata"("meetingId");
+
+CREATE OR REPLACE VIEW "v_meeting_metadata" AS
+SELECT "meeting_metadata"."meetingId",
+    "meeting_metadata"."name",
+    "meeting_metadata"."value"
+   FROM "meeting_metadata";
 
 create table "meeting_lockSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -182,6 +198,8 @@ SELECT
 	mls."hideUserList",
 	mls."hideViewersCursor",
 	mls."hideViewersAnnotation",
+	mls."lockOnJoin",
+    mls."lockOnJoinConfigurable",
 	mup."webcamsOnlyForModerator",
 	CASE WHEN
 	mls."disableCam" IS TRUE THEN TRUE
@@ -250,7 +268,7 @@ CREATE TABLE "user" (
     "registeredOn" bigint,
     "excludeFromDashboard" bool,
     "enforceLayout" varchar(50),
-    --columns of user state bellow
+    --columns of user state below
     "raiseHand" bool default false,
     "raiseHandTime" timestamp with time zone,
     "away" bool default false,
@@ -266,11 +284,13 @@ CREATE TABLE "user" (
 	"ejected" bool,
 	"ejectReason" varchar(255),
 	"ejectReasonCode" varchar(50),
-	"ejectedByModerator" varchar(50) references "user"("userId") ON DELETE SET NULL,
+	"ejectedByModerator" varchar(50),
 	"presenter" bool,
 	"pinned" bool,
 	"locked" bool,
 	"speechLocale" varchar(255),
+	"inactivityWarningDisplay" bool default FALSE,
+	"inactivityWarningTimeoutSecs" numeric,
 	"hasDrawPermissionOnCurrentPage" bool default FALSE,
 	"echoTestRunningAt" timestamp with time zone
 );
@@ -427,7 +447,9 @@ AS SELECT "user"."userId",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline",
+    "user"."inactivityWarningDisplay",
+    "user"."inactivityWarningTimeoutSecs"
    FROM "user";
 
 --This view will be used by Meteor to validate if the provided authToken is valid

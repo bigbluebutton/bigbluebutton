@@ -177,28 +177,34 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const getIconUser = () => {
     const emojiSize = convertRemToPixels(1.3);
 
+    if (user.isDialIn) {
+      return <Icon iconName="volume_level_2" />;
+    }
     if (user.raiseHand === true) {
       return reactionsEnabled
         ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
-    } if (user.away === true) {
+    }
+    if (user.away === true) {
       return reactionsEnabled
         ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('away')} />;
-    } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
+    }
+    if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
-    } if (user.reaction && user.reaction.reactionEmoji !== 'none') {
+    }
+    if (user.reaction && user.reaction.reactionEmoji !== 'none') {
       return user.reaction.reactionEmoji;
-    } if (user.name && userAvatarFiltered.length === 0) {
+    }
+    if (user.name && userAvatarFiltered.length === 0) {
       return user.name.toLowerCase().slice(0, 2);
-    } return '';
+    }
+    return '';
   };
-
-  const iconUser = getIconUser();
 
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
-    : iconUser;
+    : getIconUser();
 
   const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
 

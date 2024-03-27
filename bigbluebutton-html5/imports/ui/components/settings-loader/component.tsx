@@ -1,12 +1,12 @@
 import React, { useContext, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { defineMessages, useIntl } from 'react-intl';
 import { getBigBlueButtonSettings, getBigBlueButtonSettingsResponse } from './queries';
 import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
 import MeetingClientSettings from '../../Types/meetingClientSettings';
 import ClientStartup from '/client/clientStartup';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import CustomUsersSettings from '../join-handler/custom-users-settings/component';
+import logger from '/imports/startup/client/logger';
 
 declare global {
   interface Window {
@@ -14,20 +14,13 @@ declare global {
   }
 }
 
-const intlMessages = defineMessages({
-  fetchingSettings: {
-    id: 'app.meeting.fetchingSettings',
-    description: 'fetching settings label',
-  },
-});
-
 const SettingsLoader: React.FC = () => {
   const { loading, error, data } = useQuery<getBigBlueButtonSettingsResponse>(getBigBlueButtonSettings);
   const [allowToRender, setAllowToRender] = React.useState(false);
   const loadingContextInfo = useContext(LoadingContext);
-  const intl = useIntl();
   useEffect(() => {
-    loadingContextInfo.setLoading(true, intl.formatMessage(intlMessages.fetchingSettings));
+    logger.info('Fetching settings');
+    loadingContextInfo.setLoading(true, '3/4');
   }, []);
 
   useEffect(() => {
@@ -35,6 +28,8 @@ const SettingsLoader: React.FC = () => {
       const settings = data?.meeting[0].clientSettings.clientSettingsJson;
       if (settings && Object.keys(settings).length > 0) {
         window.meetingClientSettings = JSON.parse(JSON.stringify(settings as unknown as MeetingClientSettings));
+        const Meteor = { settings: {} };
+        Meteor.settings = window.meetingClientSettings;
         setMeetingSettings(settings as unknown as MeetingClientSettings);
         setAllowToRender(true);
       }

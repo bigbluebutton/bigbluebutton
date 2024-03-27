@@ -12,7 +12,8 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                   {hasDrawPermissionOnCurrentPage: desc},
                   {nameSortable: asc},
                   {userId: asc}
-                ]) {
+                ]) {     
+    isDialIn
     userId
     extId
     name

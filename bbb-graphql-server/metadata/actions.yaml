@@ -252,6 +252,12 @@ actions:
     permissions:
       - role: bbb_client
     comment: presentationExport
+  - name: presentationPublishCursor
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: presentationRemove
     definition:
       kind: synchronous
@@ -295,12 +301,6 @@ actions:
     permissions:
       - role: bbb_client
   - name: presentationSetZoom
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
-  - name: randomViewerPick
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
@@ -392,6 +392,12 @@ actions:
       - role: not_joined_bbb_client
       - role: bbb_client
   - name: userLeaveMeeting
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: userSendActivitySign
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
@@ -498,4 +504,5 @@ custom_types:
   input_objects:
     - name: BreakoutRoom
     - name: GuestUserApprovalStatus
+  objects: []
   scalars: []

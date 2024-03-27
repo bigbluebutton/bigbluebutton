@@ -288,6 +288,14 @@ type Mutation {
 }
 
 type Mutation {
+  presentationPublishCursor(
+    whiteboardId: String!
+    xPercent: Float!
+    yPercent: Float!
+  ): Boolean
+}
+
+type Mutation {
   presentationRemove(
     presentationId: String!
   ): Boolean
@@ -345,10 +353,6 @@ type Mutation {
     widthRatio: Float!
     heightRatio: Float!
   ): Boolean
-}
-
-type Mutation {
-  randomViewerPick: Boolean
 }
 
 type Mutation {
@@ -436,6 +440,10 @@ type Mutation {
 
 type Mutation {
   userLeaveMeeting: Boolean
+}
+
+type Mutation {
+  userSendActivitySign: Boolean
 }
 
 type Mutation {
@@ -554,3 +562,4 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
+

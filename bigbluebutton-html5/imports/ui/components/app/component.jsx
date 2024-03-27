@@ -21,7 +21,6 @@ import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-user
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/speech/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
-import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
@@ -117,7 +116,7 @@ const intlMessages = defineMessages({
   },
   defaultViewLabel: {
     id: 'app.title.defaultViewLabel',
-    description: 'view name apended to document title',
+    description: 'view name appended to document title',
   },
   promotedLabel: {
     id: 'app.toast.promotedLabel',
@@ -147,7 +146,6 @@ class App extends Component {
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
       isAudioModalOpen: false,
-      isRandomUserSelectModalOpen: false,
       isVideoPreviewModalOpen: false,
       presentationFitToWidth: false,
     };
@@ -159,7 +157,7 @@ class App extends Component {
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
-    this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
+
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
@@ -243,7 +241,6 @@ class App extends Component {
       currentUserRaiseHand,
       intl,
       deviceType,
-      mountRandomUserModal,
       selectedLayout,
       sidebarContentIsOpen,
       layoutContextDispatch,
@@ -254,8 +251,6 @@ class App extends Component {
     } = this.props;
 
     this.renderDarkMode();
-
-    if (mountRandomUserModal) this.setRandomUserSelectModalIsOpen(true);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status
         && currentUserEmoji.status !== 'raiseHand'
@@ -473,12 +468,12 @@ class App extends Component {
   renderActivityCheck() {
     const { User } = this.props;
 
-    const { inactivityCheck, responseDelay } = User;
+    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = User;
 
-    return (inactivityCheck ? (
+    return (inactivityWarningDisplay ? (
       <ActivityCheckContainer
-        inactivityCheck={inactivityCheck}
-        responseDelay={responseDelay}
+        inactivityCheck={inactivityWarningDisplay}
+        responseDelay={inactivityWarningTimeoutSecs}
       />
     ) : null);
   }
@@ -575,7 +570,7 @@ class App extends Component {
     this.setState({isVideoPreviewModalOpen: value});
   }
 
-  setRandomUserSelectModalIsOpen(value) {
+setRandomUserSelectModalIsOpen(value) {
     const {setMountRandomUserModal} = this.props;
     this.setState({isRandomUserSelectModalOpen: value});
     setMountRandomUserModal(false);
@@ -589,7 +584,6 @@ class App extends Component {
       pushAlertEnabled,
       shouldShowPresentation,
       shouldShowScreenshare,
-      shouldShowExternalVideo,
       shouldShowSharedNotes,
       isPresenter,
       selectedLayout,
@@ -597,11 +591,11 @@ class App extends Component {
       darkTheme,
       intl,
       isModerator,
+      genericComponentId,
     } = this.props;
 
     const {
       isAudioModalOpen,
-      isRandomUserSelectModalOpen,
       isVideoPreviewModalOpen,
       presentationFitToWidth,
     } = this.state;
@@ -632,11 +626,7 @@ class App extends Component {
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <ExternalVideoPlayerContainer />
           <GenericComponentContainer
-            {...{
-              shouldShowScreenshare,
-              shouldShowSharedNotes,
-              shouldShowExternalVideo,
-            }}
+            genericComponentId={genericComponentId}
           />
           {
           shouldShowPresentation
@@ -698,14 +688,6 @@ class App extends Component {
           <EmojiRainContainer />
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer
-            {...{
-              onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
-              priority: "low",
-              setIsOpen: this.setRandomUserSelectModalIsOpen,
-              isOpen: isRandomUserSelectModalOpen,
-            }}
-          /> : null}
         </Styled.Layout>
       </>
     );

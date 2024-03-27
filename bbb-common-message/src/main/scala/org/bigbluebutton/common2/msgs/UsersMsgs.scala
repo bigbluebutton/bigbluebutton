@@ -143,7 +143,7 @@ case class SetRecordingStatusCmdMsg(header: BbbClientMsgHeader, body: SetRecordi
 case class SetRecordingStatusCmdMsgBody(recording: Boolean, setBy: String)
 
 /**
- * Sent by user to start recording mark and ignore previsous marks
+ * Sent by user to start recording mark and ignore previous marks
  */
 object RecordAndClearPreviousMarkersCmdMsg { val NAME = "RecordAndClearPreviousMarkersCmdMsg" }
 case class RecordAndClearPreviousMarkersCmdMsg(header: BbbClientMsgHeader, body: RecordAndClearPreviousMarkersCmdMsgBody) extends StandardMsg
@@ -524,20 +524,6 @@ case class UserInactivityInspectMsgBody(meetingId: String, responseDelay: Long)
 object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
 case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
 case class UserActivitySignCmdMsgBody(userId: String)
-
-/**
- * Sent from client to randomly select a viewer
- */
-object SelectRandomViewerReqMsg { val NAME = "SelectRandomViewerReqMsg" }
-case class SelectRandomViewerReqMsg(header: BbbClientMsgHeader, body: SelectRandomViewerReqMsgBody) extends StandardMsg
-case class SelectRandomViewerReqMsgBody(requestedBy: String)
-
-/**
- * Response to request for a random viewer
- */
-object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
-case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
-case class SelectRandomViewerRespMsgBody(requestedBy: String, userIds: Vector[String], choice: String)
 
 object SetUserSpeechLocaleReqMsg { val NAME = "SetUserSpeechLocaleReqMsg" }
 case class SetUserSpeechLocaleReqMsg(header: BbbClientMsgHeader, body: SetUserSpeechLocaleReqMsgBody) extends StandardMsg
