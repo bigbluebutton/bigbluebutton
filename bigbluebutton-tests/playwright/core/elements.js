@@ -16,6 +16,7 @@ exports.raiseHandBtn = 'div[data-test="raiseHandBtn"]';
 exports.lowerHandBtn = 'div[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
+exports.meetingEndedModalTitle = 'div[data-test="meetingEndedModal"] h1';
 exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
 exports.directLogoutButton = 'li[data-test="directLogoutButton"]';
 exports.optionsLogoutButton = 'li[data-test="optionsLogoutButton"]';
@@ -394,6 +395,8 @@ exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'div[data-test="meetingEndedModal"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
+exports.activityCheckTitle = 'h1[data-test="activityCheckTitle"]';
+exports.activityCheckBtn = 'button[data-test="activityCheckButton"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';

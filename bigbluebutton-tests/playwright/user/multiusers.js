@@ -391,6 +391,20 @@ class MultiUsers {
     await this.modPage.hasText(e.liveCaptions, e.message);
     await this.modPage2.hasText(e.liveCaptions, e.message);
   }
+
+  async activityCheck() {
+    await sleep(80000);
+    await this.modPage.hasText(e.activityCheckTitle, 'User activity check');
+    await this.modPage.waitAndClick(e.activityCheckBtn);
+    await this.modPage.hasElement(e.whiteboard);
+  }
+
+  async inactivityCheck() {
+    await sleep(80000);
+    await this.modPage.hasText(e.activityCheckTitle, 'User activity check');
+    await this.modPage.hasText(e.meetingEndedModalTitle, 'The meeting was ended when the last user left', 15000);
+    await this.modPage.waitAndClick(`${e.meetingEndedModal} button`);
+  }
 }
 
 exports.MultiUsers = MultiUsers;

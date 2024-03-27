@@ -307,6 +307,18 @@ test.describe.parallel('User', () => {
       await mobileDevices.chatPanelNotAppearOnMobile();
     });
   });
+
+  test.only('Activity Check @ci', async ({ browser, context, page }) => {
+    const multiusers = new MultiUsers(browser, context);
+    await multiusers.initModPage(page, true);
+    await multiusers.inactivityCheck();
+  });
+
+  test.only('Inactivity Check @ci', async ({ browser, context, page }) => {
+    const multiusers = new MultiUsers(browser, context);
+    await multiusers.initModPage(page, true);
+    await multiusers.inactivityCheck();
+  });
 });
 
 test('Timer', async ({ browser, context, page })=> {
