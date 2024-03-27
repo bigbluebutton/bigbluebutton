@@ -46,7 +46,8 @@ const GenericComponentPluginStateContainer = ((
 
   pluginApi.setGenericComponents = (items: PluginSdk.GenericComponentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericComponentInterface[];
-    return setGenericComponents(itemsWithId);
+    setGenericComponents(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;
