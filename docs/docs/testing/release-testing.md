@@ -14,7 +14,7 @@ This document is meant to be a combination of manual and (labeled so) automated 
 The <b>automated tests</b> are only a portion of the testing done before a release. Ideally they should be triggered often, for example when testing pull requests, or once a day automatically.
 
 The <b>manual tests</b> really help to ensure release quality. They should
-be performed by humans using different browsers. It is usefull to have multiple
+be performed by humans using different browsers. It is useful to have multiple
 humans performing these tests together. You should plan at least an hour to perform
 all of these tests.
 
@@ -304,7 +304,7 @@ The webcam will be resized as per the size we want.
 
 B. Case of more than one webcam.
 
-- Share atleast 2 webcams
+- Share at least 2 webcams
 - Drag the bottom of the webcams container
 - Increase or Decrease the size of the webcams.
 
@@ -387,7 +387,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 ## Breakout rooms
 
-### Moderators creating breakout rooms and assiging users [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
+### Moderators creating breakout rooms and assigning users [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
 
 1. Click "Manage users" (cog wheel icon in the user list).
 
@@ -471,7 +471,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 2. Inside the breakout rooms control panel ("Breakout Rooms" button in the left-hand panel), select the "Breakout options" dropdown and choose "Destroy breakouts".
 
-3. All of the breaout rooms should end and all users should get back to the main room. If users already got the audio on, they shouldn't get propmted for the audio modal.
+3. All of the breaout rooms should end and all users should get back to the main room. If users already got the audio on, they shouldn't get prompted for the audio modal.
 
 ### Edit the duration of a breakout room
 
@@ -698,7 +698,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 6. Presenter: Draw on the whiteboard area.
 
-7. All clients should see the drawing and the drawing should appear according to the chosed thickness.
+7. All clients should see the drawing and the drawing should appear according to the chosen thickness.
 
 ### Changing pencil tool colour
 
@@ -820,7 +820,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 7. The result of those actions should be visible for all clients.
 
-### Stoping Youtube Video Sharing
+### Stopping Youtube Video Sharing
 
 1. Join a meeting.
 
@@ -1679,7 +1679,7 @@ Note :
 
 - Click "Accept" for the specific user in the waiting users panel. That viewer should be accepted into the meeting.
 
-- Click "Deny" for the specific user in teh waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
+- Click "Deny" for the specific user in the waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
 
 ## Recording
 

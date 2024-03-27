@@ -4,7 +4,7 @@ import { injectIntl } from 'react-intl';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
-const DISABLE_EMOJIS = Meteor.settings.public.chat.disableEmojis;
+const DISABLE_EMOJIS = window.meetingClientSettings.public.chat.disableEmojis;
 
 const propTypes = {
   intl: PropTypes.shape({

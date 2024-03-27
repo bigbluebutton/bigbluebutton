@@ -11,7 +11,7 @@ object Dependencies {
 
     // Libraries
     val netty = "3.2.10.Final"
-    val logback = "1.2.10"
+    val logback = "1.2.13"
 
     // Test
     val junit = "4.12"

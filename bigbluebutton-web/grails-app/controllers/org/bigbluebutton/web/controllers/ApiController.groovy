@@ -1112,7 +1112,7 @@ class ApiController {
 
     if(validationResponse == null) {
       String sessionToken = sanitizeSessionToken(params.sessionToken)
-      UserSession us = meetingService.removeUserSessionWithAuthToken(sessionToken)
+      UserSession us = meetingService.removeUserSessionWithSessionToken(sessionToken)
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingid", us.meetingID);
       logData.put("extMeetingid", us.externMeetingID);
@@ -1803,7 +1803,7 @@ class ApiController {
       return null
     }
 
-    UserSession us = meetingService.getUserSessionWithAuthToken(token)
+    UserSession us = meetingService.getUserSessionWithSessionToken(token)
     if (us == null) {
       log.info("Cannot find UserSession for token ${token}")
     }

@@ -29,9 +29,9 @@ interface ChatListItemProps {
   chat: Chat,
 }
 // @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 // @ts-ignore - temporary, while meteor exists in the project
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 

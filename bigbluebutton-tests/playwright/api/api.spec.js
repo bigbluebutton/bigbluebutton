@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { API } = require('./api.js');
 const { APIBreakout } = require('./breakout.js');
 

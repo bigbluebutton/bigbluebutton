@@ -89,6 +89,10 @@ export default function Auth() {
         }
         meeting {
             name
+            ended
+            learningDashboard {
+              learningDashboardAccessToken
+            }
         }
       }
     }`
@@ -107,7 +111,12 @@ export default function Auth() {
         {data.user_current.map((curr) => {
             console.log('user_current', curr);
 
-            if(curr.loggedOut) {
+            if(curr.meeting.ended) {
+                return <div>
+                    {curr.meeting.name}
+                    <br/><br/>
+                    Meeting has ended.</div>
+            } else if(curr.ejected) {
                 return <div>
                     {curr.meeting.name}
                     <br/><br/>
@@ -125,6 +134,12 @@ export default function Auth() {
                     <span>{curr.guestStatusDetails.guestLobbyMessage}</span>
                     <span>Your position is: {curr.guestStatusDetails.positionInWaitingQueue}</span>
                 </div>
+            } else if(curr.loggedOut) {
+                return <div>
+                    {curr.meeting.name}
+                    <br/><br/>
+                    <span>You left the meeting.</span>
+                </div>
             } else if(!curr.joined) {
                 return <div>
                     {curr.meeting.name}
@@ -139,11 +154,11 @@ export default function Auth() {
                     <span>You are online, welcome {curr.name} ({curr.userId})</span>
                     <button onClick={() => handleDispatchUserLeave()}>Leave Now!</button>
 
-                    {/*<MyInfo userAuthToken={curr.authToken} />*/}
-                    {/*<br />*/}
+                    <MyInfo userAuthToken={curr.authToken} />
+                    <br />
 
-                    {/*<MeetingInfo />*/}
-                    {/*<br />*/}
+                    <MeetingInfo />
+                    <br />
 
                     <TotalOfUsers />
                     <TotalOfModerators />

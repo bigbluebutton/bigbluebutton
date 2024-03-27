@@ -50,9 +50,7 @@ const messages = defineMessages({
 });
 
 // @ts-ignore - temporary, while meteor exists in the project
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-// @ts-ignore - temporary, while meteor exists in the project
-const LABEL = Meteor.settings.public.user.label;
+const LABEL = window.meetingClientSettings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
@@ -106,52 +104,64 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const intl = useIntl();
   const voiceUser = user.voice;
-  const subs = [
-    (user.role === ROLE_MODERATOR && LABEL.moderator) && intl.formatMessage(messages.moderator),
-    (user.guest && LABEL.guest) && intl.formatMessage(messages.guest),
-    (user.mobile && LABEL.mobile) && intl.formatMessage(messages.mobile),
-    (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) && (
+  const subs = [];
+
+  if (user.isModerator && LABEL.moderator) {
+    subs.push(intl.formatMessage(messages.moderator));
+  }
+  if (user.guest && LABEL.guest) {
+    subs.push(intl.formatMessage(messages.guest));
+  }
+  if (user.mobile && LABEL.mobile) {
+    subs.push(intl.formatMessage(messages.mobile));
+  }
+  if (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) {
+    subs.push(
       <span key={uniqueId('lock-')}>
         <Icon iconName="lock" />
         &nbsp;
         {intl.formatMessage(messages.locked)}
-      </span>
-    ),
-    user.lastBreakoutRoom?.currentlyInRoom && (
+      </span>,
+    );
+  }
+  if (user.lastBreakoutRoom?.currentlyInRoom) {
+    subs.push(
       <span key={uniqueId('breakout-')}>
         <Icon iconName="rooms" />
         &nbsp;
         {user.lastBreakoutRoom?.shortName
           ? intl.formatMessage(messages.breakoutRoom, { 0: user.lastBreakoutRoom?.sequence })
           : user.lastBreakoutRoom?.shortName}
-      </span>
-    ),
-    (user.cameras.length > 0 && LABEL.sharingWebcam) && (
+      </span>,
+    );
+  }
+  if (user.cameras.length > 0 && LABEL.sharingWebcam) {
+    subs.push(
       <span key={uniqueId('breakout-')}>
         {user.pinned === true
           ? <Icon iconName="pin-video_on" />
           : <Icon iconName="video" />}
         &nbsp;
         {intl.formatMessage(messages.sharingWebcam)}
-      </span>
-    ),
-    ...userItemsFromPlugin.filter(
-      (item) => item.type === UserListItemAdditionalInformationType.LABEL,
-    ).map((item) => {
-      const itemToRender = item as PluginSdk.UserListItemLabel;
-      return (
-        <span key={itemToRender.id}>
-          { itemToRender.icon
-            && <Icon iconName={itemToRender.icon} /> }
-          {itemToRender.label}
-        </span>
-      );
-    }),
-  ].filter(Boolean);
+      </span>,
+    );
+  }
+  userItemsFromPlugin.filter(
+    (item) => item.type === UserListItemAdditionalInformationType.LABEL,
+  ).forEach((item) => {
+    const itemToRender = item as PluginSdk.UserListItemLabel;
+    subs.push(
+      <span key={itemToRender.id}>
+        { itemToRender.icon
+          && <Icon iconName={itemToRender.icon} /> }
+        {itemToRender.label}
+      </span>,
+    );
+  });
 
   const reactionsEnabled = isReactionsEnabled();
 
-  const userAvatarFiltered = user.avatar;
+  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reaction && user.reaction.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const emojiIcons = [
     {
@@ -167,38 +177,56 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const getIconUser = () => {
     const emojiSize = convertRemToPixels(1.3);
 
+    if (user.isDialIn) {
+      return <Icon iconName="volume_level_2" />;
+    }
     if (user.raiseHand === true) {
       return reactionsEnabled
         ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('raiseHand')} />;
-    } if (user.away === true) {
+    }
+    if (user.away === true) {
       return reactionsEnabled
         ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
         : <Icon iconName={normalizeEmojiName('away')} />;
-    } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
+    }
+    if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
-    } if (user.reaction && user.reaction.reactionEmoji !== 'none') {
+    }
+    if (user.reaction && user.reaction.reactionEmoji !== 'none') {
       return user.reaction.reactionEmoji;
-    } if (user.name && userAvatarFiltered.length === 0) {
+    }
+    if (user.name && userAvatarFiltered.length === 0) {
       return user.name.toLowerCase().slice(0, 2);
-    } return '';
+    }
+    return '';
   };
-
-  const iconUser = getIconUser();
 
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
-    : iconUser;
+    : getIconUser();
 
   const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
+
+  function addSeparator(elements: (string | JSX.Element)[]) {
+    const modifiedElements: (string | JSX.Element)[] = [];
+
+    elements.forEach((element, index) => {
+      modifiedElements.push(element);
+      if (index !== elements.length - 1) {
+        modifiedElements.push(<span key={uniqueId('separator-')}> | </span>);
+      }
+    });
+    return modifiedElements;
+  }
 
   return (
     <Styled.UserItemContents tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
-        data-test={user.role === ROLE_MODERATOR ? 'moderatorAvatar' : 'viewerAvatar'}
+        data-test={user.isModerator ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
         data-test-avatar="userAvatar"
-        moderator={user.role === ROLE_MODERATOR}
+        moderator={user.isModerator}
         presenter={user.presenter}
         talking={voiceUser?.talking}
         muted={voiceUser?.muted}
@@ -225,7 +253,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
           {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
         </Styled.UserName>
         <Styled.UserNameSub data-test={user.mobile ? 'mobileUser' : undefined}>
-          {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
+          {subs.length ? addSeparator(subs) : null}
         </Styled.UserNameSub>
       </Styled.UserNameContainer>
       {renderUserListItemIconsFromPlugin(userItemsFromPlugin)}

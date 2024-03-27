@@ -33,6 +33,17 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  ${({ isToolbarVisible }) => (!isToolbarVisible) && `
+    .tlui-toolbar,
+    .tlui-style-panel__wrapper,
+    .tlui-menu-zone {
+      visibility: hidden;
+    }
+    #WhiteboardOptionButton {
+      opacity: 0.2;
+    }
+  `}
+
   #presentationInnerWrapper > div:last-child {
     position: relative;
     height: 100%;
@@ -51,7 +62,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   .tlui-navigation-zone,
   .tlui-help-menu,
   .tlui-debug-panel {
-    display: none;
+    display: none !important;
   }
 
   .tlui-style-panel__wrapper {
@@ -82,15 +93,14 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   [data-testid="main.menu"],
   [data-testid="tools.laser"],
   [data-testid="tools.asset"],
-  .tlui-menu-zone__controls > :nth-child(1),
-  .tlui-menu-zone__controls > :nth-child(2) {
+  .tlui-buttons__horizontal > :nth-child(1),
+  .tlui-buttons__horizontal > :nth-child(2) {
     display: none;
   }
 
   .tl-collaborator__cursor {
     height: auto !important;
     width: auto !important;
-    transition: transform 0.25s ease-out !important;
   }
 `;
 

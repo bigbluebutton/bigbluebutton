@@ -13,8 +13,8 @@ import VideoPreviewContainer from '/imports/ui/components/video-preview/containe
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
 import Settings from '/imports/ui/services/settings';
 
-const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
-const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
+const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
+const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
 
 const intlMessages = defineMessages({
   videoSettings: {
@@ -65,6 +65,8 @@ const propTypes = {
     id: PropTypes.string,
     type: PropTypes.string,
   })).isRequired,
+  sendUserUnshareWebcam: PropTypes.func.isRequired,
+  setLocalSettings: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -74,6 +76,8 @@ const JoinVideoButton = ({
   disableReason,
   updateSettings,
   cameraSettingsDropdownItems,
+  sendUserUnshareWebcam,
+  setLocalSettings,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -101,19 +105,19 @@ const JoinVideoButton = ({
         application:
           { ...Settings.application, selfViewDisable: false },
       };
-      updateSettings(obj);
+      updateSettings(obj, null, setLocalSettings);
     }
   }, [isVideoPreviewModalOpen]);
 
   const handleOnClick = debounce(() => {
     switch (status) {
       case 'videoConnecting':
-        VideoService.stopVideo();
+        VideoService.stopVideo(undefined, sendUserUnshareWebcam);
         break;
       case 'connected':
       default:
         if (exitVideo()) {
-          VideoService.exitVideo();
+          VideoService.exitVideo(sendUserUnshareWebcam);
         } else {
           setForceOpen(isMobileSharingCamera);
           setVideoPreviewModalIsOpen(true);
@@ -244,7 +248,7 @@ const JoinVideoButton = ({
                     application:
                       { ...Settings.application, selfViewDisable: true },
                   };
-                  updateSettings(obj);
+                  updateSettings(obj, null, setLocalSettings);
                   setWasSelfViewDisabled(false);
                 }, 100);
               }

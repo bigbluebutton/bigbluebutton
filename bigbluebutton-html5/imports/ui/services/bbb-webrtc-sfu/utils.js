@@ -2,8 +2,8 @@ import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { hasTurnServer } from '/imports/utils/fetchStunTurnServers';
 
-const FORCE_RELAY_ON_FF = Meteor.settings.public.media.forceRelayOnFirefox;
-const FORCE_RELAY = Meteor.settings.public.media.forceRelay;
+const FORCE_RELAY_ON_FF = window.meetingClientSettings.public.media.forceRelayOnFirefox;
+const FORCE_RELAY = window.meetingClientSettings.public.media.forceRelay;
 
 /*
  * Whether TURN/relay usage should be forced to work around Firefox's lack of

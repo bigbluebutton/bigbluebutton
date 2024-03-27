@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Service from './service';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -81,7 +82,6 @@ const propTypes = {
   }).isRequired,
   layoutContextDispatch: PropTypes.shape().isRequired,
   timeOffset: PropTypes.number.isRequired,
-  isRTL: PropTypes.bool.isRequired,
   isActive: PropTypes.bool.isRequired,
   isModerator: PropTypes.bool.isRequired,
   currentTrack: PropTypes.string.isRequired,
@@ -434,7 +434,6 @@ class Timer extends Component {
   render() {
     const {
       intl,
-      isRTL,
       isActive,
       isModerator,
       layoutContextDispatch,
@@ -453,16 +452,13 @@ class Timer extends Component {
       <Styled.TimerSidebarContent
         data-test="timer"
       >
-        <Styled.TimerHeader>
-          <Styled.TimerTitle>
-            <Styled.TimerMinimizeButton
-              onClick={() => Service.closePanel(layoutContextDispatch)}
-              aria-label={intl.formatMessage(intlMessages.hideTimerLabel)}
-              label={intl.formatMessage(message)}
-              icon={isRTL ? 'right_arrow' : 'left_arrow'}
-            />
-          </Styled.TimerTitle>
-        </Styled.TimerHeader>
+        <Header
+          leftButtonProps={{
+            onClick: () => { Service.closePanel(layoutContextDispatch); },
+            'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
+            label: intl.formatMessage(message),
+          }}
+        />
         {this.renderContent()}
       </Styled.TimerSidebarContent>
     );

@@ -6,7 +6,6 @@ export const ChatDowloadContainer = styled.div`
   flex-flow: column;
   color: ${colorText};
   word-break: break-word;
-  margin-left: 2.75rem;
 `;
 
 export const ChatLink = styled.a`

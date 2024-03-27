@@ -9,7 +9,7 @@ import ManyUsersComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_WEBCAM_ONLY_FOR_MODERATOR } from '/imports/ui/components/lock-viewers/mutations';
 
-const USER_CONFIG = Meteor.settings.public.user;
+const USER_CONFIG = window.meetingClientSettings.public.user;
 const ROLE_VIEWER = USER_CONFIG.role_viewer;
 
 const ManyUsersContainer = (props) => {
@@ -34,7 +34,7 @@ const ManyUsersContainer = (props) => {
 export default withTracker(() => {
   const meeting = Meetings.findOne({
     meetingId: Auth.meetingID,
-  }, { fields: { 'usersProp.webcamsOnlyForModerator': 1, lockSettingsProps: 1 } });
+  }, { fields: { 'usersPolicies.webcamsOnlyForModerator': 1, lockSettings: 1 } });
   const videoStreams = VideoStreams.find({ meetingId: Auth.meetingID },
     { fields: { userId: 1 } }).fetch();
   const videoUsersIds = videoStreams.map(u => u.userId);
@@ -47,9 +47,10 @@ export default withTracker(() => {
       role: ROLE_VIEWER,
       presenter: false,
     }, { fields: {} }).count(),
-    lockSettings: meeting.lockSettingsProps,
-    webcamOnlyForModerator: meeting.usersProp.webcamsOnlyForModerator,
-    limitOfViewersInWebcam: Meteor.settings.public.app.viewersInWebcam,
-    limitOfViewersInWebcamIsEnable: Meteor.settings.public.app.enableLimitOfViewersInWebcam,
+    lockSettings: meeting.lockSettings,
+    webcamOnlyForModerator: meeting.usersPolicies.webcamsOnlyForModerator,
+    limitOfViewersInWebcam: window.meetingClientSettings.public.app.viewersInWebcam,
+    limitOfViewersInWebcamIsEnable: window.meetingClientSettings
+      .public.app.enableLimitOfViewersInWebcam,
   };
 })(ManyUsersContainer);

@@ -23,3 +23,5 @@ cache/*
 artifacts/*
 bbb-presentation-video.zip
 bbb-presentation-video
+bbb-graphql-actions-adapter-server/
+bigbluebutton-html5/public/locales/index.json

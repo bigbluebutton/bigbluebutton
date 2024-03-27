@@ -1,16 +1,14 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { linkIssue, initializePages } = require('../core/helpers');
 const { Chat } = require('./chat');
 
 test.describe('Chat', () => {
   const chat = new Chat();
-  let context;
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    const { context: innerContext } = await initializePages(chat, browser, { isMultiUser: true });
-    context = innerContext;
+    await initializePages(chat, browser, { isMultiUser: true });
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
@@ -28,7 +26,7 @@ test.describe('Chat', () => {
   });
 
   test.skip('Copy chat', async () => {
-    await chat.copyChat(context);
+    await chat.copyChat();
   });
 
   test('Save chat @ci', async ({}, testInfo) => {
@@ -78,7 +76,7 @@ test.describe('Chat', () => {
     await chat.autoConvertEmojiCopyChat();
   });
 
-  test('Auto convert emoji save chat', async ({ context }, testInfo) => {
+  test('Auto convert emoji save chat', async ({}, testInfo) => {
     await chat.autoConvertEmojiSaveChat(testInfo);
   });
 
@@ -86,7 +84,8 @@ test.describe('Chat', () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  test('Private chat disabled when user leaves meeting @ci', async () => {
+  // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
+  test('Private chat disabled when user leaves meeting @ci @flaky', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

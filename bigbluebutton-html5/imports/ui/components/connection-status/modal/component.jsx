@@ -30,7 +30,7 @@ const intlMessages = defineMessages({
   },
   more: {
     id: 'app.connection-status.more',
-    description: 'More about conectivity issues',
+    description: 'More about connectivity issues',
   },
   audioLabel: {
     id: 'app.settings.audioTab.label',
@@ -386,12 +386,12 @@ class ConnectionStatusComponent extends PureComponent {
   }
 
   /**
-   * Render network data , containing information abount current upload and
+   * Render network data , containing information about current upload and
    * download rates
    * @return {Object} The component to be renderized.
    */
   renderNetworkData() {
-    const { enableNetworkStats } = Meteor.settings.public.app;
+    const { enableNetworkStats } = window.meetingClientSettings.public.app;
 
     if (!enableNetworkStats) {
       return null;
@@ -497,7 +497,7 @@ class ConnectionStatusComponent extends PureComponent {
    * @return {Object} - The component to be renderized
    */
   renderCopyDataButton() {
-    const { enableCopyNetworkStatsButton } = Meteor.settings.public.app;
+    const { enableCopyNetworkStatsButton } = window.meetingClientSettings.public.app;
 
     if (!enableCopyNetworkStatsButton) {
       return null;

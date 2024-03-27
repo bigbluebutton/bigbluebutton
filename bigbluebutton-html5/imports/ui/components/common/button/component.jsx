@@ -244,6 +244,8 @@ export default class Button extends BaseButton {
   renderLabel() {
     const { label, hideLabel } = this.props;
 
+    if (!label) return null;
+
     return (
       <Styled.ButtonLabel hideLabel={hideLabel}>
         {label}

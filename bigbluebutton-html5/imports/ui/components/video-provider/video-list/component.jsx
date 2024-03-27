@@ -200,7 +200,7 @@ class VideoList extends Component {
           canvasWidth, canvasHeight, gridGutter,
           ASPECT_RATIO, numItems, col,
         );
-        // We need a minimun of 2 rows and columns for the focused
+        // We need a minimum of 2 rows and columns for the focused
         const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
@@ -297,6 +297,7 @@ class VideoList extends Component {
       swapLayout,
       handleVideoFocus,
       focusedId,
+      users,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -316,6 +317,7 @@ class VideoList extends Component {
           data-test="webcamVideoItem"
         >
           <VideoListItemContainer
+            users={users}
             numOfStreams={numOfStreams}
             cameraId={stream}
             userId={userId}
@@ -327,6 +329,7 @@ class VideoList extends Component {
               this.handleCanvasResize();
               if (isStream) onVideoItemMount(stream, videoRef);
             }}
+            stream={streams.find((s) => s.userId === userId) || {}}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
             onVirtualBgDrop={(type, name, data) => { return isStream ? onVirtualBgDrop(stream, type, name, data) : null; }}

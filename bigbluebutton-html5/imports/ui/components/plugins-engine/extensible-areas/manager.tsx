@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { PluginProvidedUiItemDescriptor } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/base';
+import * as uuidLib from 'uuid';
 
 import PresentationToolbarPluginStateContainer from './components/presentation-toolbar/manager';
 import UserListDropdownPluginStateContainer from './components/user-list-dropdown/manager';
@@ -17,6 +18,7 @@ import {
   ExtensibleAreaComponentManager, ExtensibleAreaMap,
 } from './types';
 import FloatingWindowPluginStateContainer from './components/floating-window/manager';
+import GenericComponentPluginStateContainer from './components/generic-component/manager';
 
 const extensibleAreaMap: ExtensibleAreaMap = {};
 
@@ -33,12 +35,13 @@ const extensibleAreaComponentManagers: ExtensibleAreaComponentManager[] = [
   UserCameraDropdownPluginStateContainer,
   UserListItemAdditionalInformationPluginStateContainer,
   FloatingWindowPluginStateContainer,
+  GenericComponentPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginProvidedUiItemDescriptor>(
-  item: T, index: number,
+  item: T,
 ): T {
-  item.setItemId(`${index}`);
+  item.setItemId(uuidLib.v4());
   return item;
 }
 

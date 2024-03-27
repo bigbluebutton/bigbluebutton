@@ -62,7 +62,7 @@ const intlMessages = defineMessages({
   },
   customInputToggleLabel: {
     id: 'app.poll.customInput.label',
-    description: 'poll custom input toogle button label',
+    description: 'poll custom input toggle button label',
   },
   customInputInstructionsLabel: {
     id: 'app.poll.customInputInstructions.label',
@@ -214,7 +214,7 @@ const intlMessages = defineMessages({
   }
 });
 
-const POLL_SETTINGS = Meteor.settings.public.poll;
+const POLL_SETTINGS = window.meetingClientSettings.public.poll;
 
 const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
@@ -577,6 +577,7 @@ class Poll extends Component {
       usernames,
       isDefaultPoll,
       publishPoll,
+      handleChatFormsOpen,
     } = this.props;
 
     return (
@@ -593,6 +594,7 @@ class Poll extends Component {
             usernames,
             isDefaultPoll,
             publishPoll,
+            handleChatFormsOpen,
           }}
           handleBackClick={this.handleBackClick}
         />

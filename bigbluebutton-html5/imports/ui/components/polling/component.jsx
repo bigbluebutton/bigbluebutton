@@ -7,7 +7,7 @@ import Styled from './styles';
 import AudioService from '/imports/ui/components/audio/service';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 
-const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
+const MAX_INPUT_CHARS = window.meetingClientSettings.public.poll.maxTypedAnswerLength;
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -70,9 +70,9 @@ class Polling extends Component {
   }
 
   play() {
-    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename
-      + Meteor.settings.public.app.instanceId}`
+    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
+      + window.meetingClientSettings.public.app.basename
+      + window.meetingClientSettings.public.app.instanceId}`
       + '/resources/sounds/Poll.mp3');
   }
 

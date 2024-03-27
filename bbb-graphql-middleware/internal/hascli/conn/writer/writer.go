@@ -1,13 +1,12 @@
 package writer
 
 import (
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	"strings"
-	"sync"
-
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket/wsjson"
+	"strings"
+	"sync"
 )
 
 // HasuraConnectionWriter
@@ -15,7 +14,7 @@ import (
 func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup, initMessage map[string]interface{}) {
 	log := log.WithField("_routine", "HasuraConnectionWriter")
 
-	browserConnection := hc.Browserconn
+	browserConnection := hc.BrowserConn
 
 	log = log.WithField("browserConnectionId", browserConnection.Id).WithField("hasuraConnectionId", hc.Id)
 
@@ -39,6 +38,12 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
+		case <-hc.FreezeMsgFromBrowserChan.ReceiveChannel():
+			if !fromBrowserToHasuraChannel.Frozen() {
+				log.Debug("freezing channel fromBrowserToHasuraChannel")
+				//Freeze channel once it's about to close Hasura connection
+				fromBrowserToHasuraChannel.FreezeChannel()
+			}
 		case fromBrowserMessage := <-fromBrowserToHasuraChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
@@ -52,6 +57,7 @@ RangeLoop:
 
 					//Identify type based on query string
 					messageType := common.Query
+					var lastReceivedDataChecksum uint32
 					streamCursorField := ""
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
@@ -62,12 +68,16 @@ RangeLoop:
 						if strings.HasPrefix(query, "subscription") {
 							messageType = common.Subscription
 
+							browserConnection.ActiveSubscriptionsMutex.RLock()
+							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							browserConnection.ActiveSubscriptionsMutex.RUnlock()
+							if queryIdExists {
+								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
+							}
+
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
 								messageType = common.Streaming
 
-								browserConnection.ActiveSubscriptionsMutex.RLock()
-								_, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
-								browserConnection.ActiveSubscriptionsMutex.RUnlock()
 								if !queryIdExists {
 									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromQuery(payload, query)
 
@@ -98,15 +108,16 @@ RangeLoop:
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
-						Id:                        queryId,
-						Message:                   fromBrowserMessageAsMap,
-						OperationName:             operationName,
-						StreamCursorField:         streamCursorField,
-						StreamCursorVariableName:  streamCursorVariableName,
-						StreamCursorCurrValue:     streamCursorInitialValue,
-						LastSeenOnHasuraConnetion: hc.Id,
-						JsonPatchSupported:        jsonPatchSupported,
-						Type:                      messageType,
+						Id:                         queryId,
+						Message:                    fromBrowserMessageAsMap,
+						OperationName:              operationName,
+						StreamCursorField:          streamCursorField,
+						StreamCursorVariableName:   streamCursorVariableName,
+						StreamCursorCurrValue:      streamCursorInitialValue,
+						LastSeenOnHasuraConnection: hc.Id,
+						JsonPatchSupported:         jsonPatchSupported,
+						Type:                       messageType,
+						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 					}
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()

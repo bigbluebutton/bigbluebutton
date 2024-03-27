@@ -76,6 +76,7 @@ class MeetingActor(
 
   with UserJoinMeetingReqMsgHdlr
   with UserJoinMeetingAfterReconnectReqMsgHdlr
+  with UserEstablishedGraphqlConnectionInternalMsgHdlr
   with UserConnectedToGlobalAudioMsgHdlr
   with UserDisconnectedFromGlobalAudioMsgHdlr
   with MuteAllExceptPresentersCmdMsgHdlr
@@ -266,8 +267,14 @@ class MeetingActor(
     // internal messages
     case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
+    case msg: UserClosedAllGraphqlConnectionsInternalMsg =>
+      state = handleUserClosedAllGraphqlConnectionsInternalMsg(msg, state)
+      updateModeratorsPresence()
+    case msg: UserEstablishedGraphqlConnectionInternalMsg =>
+      state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
+      updateModeratorsPresence()
 
-    case msg: ExtendMeetingDuration               => handleExtendMeetingDuration(msg)
+    case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
       if (!liveMeeting.props.meetingProp.isBreakout) {
         // Update users of meeting remaining time.
@@ -395,9 +402,10 @@ class MeetingActor(
       case m: UserReactionTimeExpiredCmdMsg => handleUserReactionTimeExpiredCmdMsg(m)
       case m: ClearAllUsersEmojiCmdMsg      => handleClearAllUsersEmojiCmdMsg(m)
       case m: ClearAllUsersReactionCmdMsg   => handleClearAllUsersReactionCmdMsg(m)
-      case m: SelectRandomViewerReqMsg      => usersApp.handleSelectRandomViewerReqMsg(m)
       case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
       case m: ChangeUserMobileFlagReqMsg    => usersApp.handleChangeUserMobileFlagReqMsg(m)
+      case m: UserConnectionAliveReqMsg     => usersApp.handleUserConnectionAliveReqMsg(m)
+      case m: UserConnectionUpdateRttReqMsg => usersApp.handleUserConnectionUpdateRttReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg     => usersApp.handleSetUserSpeechLocaleReqMsg(m)
 
       // Client requested to eject user
@@ -975,6 +983,7 @@ class MeetingActor(
 
         val secsToDisconnect = TimeUnit.MILLISECONDS.toSeconds(expiryTracker.userActivitySignResponseDelayInMs);
         Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, secsToDisconnect, outGW)
+        UserStateDAO.updateInactivityWarning(u.intId, inactivityWarningDisplay = true, secsToDisconnect)
         updateUserLastInactivityInspect(u.intId)
       }
     }

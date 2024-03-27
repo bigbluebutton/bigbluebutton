@@ -111,10 +111,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserPinStateReqMsg](envelope, jsonNode)
       case ChangeUserMobileFlagReqMsg.NAME =>
         routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
+      case UserConnectionAliveReqMsg.NAME =>
+        routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
+      case UserConnectionUpdateRttReqMsg.NAME =>
+        routeGenericMsg[UserConnectionUpdateRttReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
-      case SelectRandomViewerReqMsg.NAME =>
-        routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -461,6 +463,9 @@ class ReceivedJsonMsgHandlerActor(
 
       case UserGraphqlConnectionClosedSysMsg.NAME =>
         route[UserGraphqlConnectionClosedSysMsg](meetingManagerChannel, envelope, jsonNode)
+
+      case CheckGraphqlMiddlewareAlivePongSysMsg.NAME =>
+        route[CheckGraphqlMiddlewareAlivePongSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

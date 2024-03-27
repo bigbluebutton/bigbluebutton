@@ -281,6 +281,21 @@ type Mutation {
 }
 
 type Mutation {
+  presentationExport(
+    presentationId: String!
+    fileStateType: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationPublishCursor(
+    whiteboardId: String!
+    xPercent: Float!
+    yPercent: Float!
+  ): Boolean
+}
+
+type Mutation {
   presentationRemove(
     presentationId: String!
   ): Boolean
@@ -338,10 +353,6 @@ type Mutation {
     widthRatio: Float!
     heightRatio: Float!
   ): Boolean
-}
-
-type Mutation {
-  randomViewerPick: Boolean
 }
 
 type Mutation {
@@ -432,6 +443,10 @@ type Mutation {
 }
 
 type Mutation {
+  userSendActivitySign: Boolean
+}
+
+type Mutation {
   userSetAway(
     away: Boolean!
   ): Boolean
@@ -441,6 +456,16 @@ type Mutation {
   userSetCameraPinned(
     userId: String!
     pinned: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetConnectionAlive: Boolean
+}
+
+type Mutation {
+  userSetConnectionRtt(
+    networkRttInMs: Float!
   ): Boolean
 }
 

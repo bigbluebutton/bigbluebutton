@@ -4,7 +4,7 @@ import MessageForm from './component';
 import ChatService from '/imports/ui/components/chat/service';
 import { BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL } from '../mutations';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const MessageFormContainer = (props) => {
   const [sendMessageToAllBreakouts] = useMutation(BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL);
 

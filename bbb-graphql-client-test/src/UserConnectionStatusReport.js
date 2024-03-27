@@ -33,7 +33,7 @@ export default function UserConnectionStatusReport() {
       </thead>
       <tbody>
         {data.user_connectionStatusReport.map((curr) => {
-            console.log('user_connectionStatusReport', curr);
+            //console.log('user_connectionStatusReport', curr);
           return (
               <tr key={curr.user.userId}>
                   <td>{curr.user.name}</td>

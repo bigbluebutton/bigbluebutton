@@ -26,11 +26,15 @@ case class UserStateDbModel(
     pinned: Boolean = false,
     locked: Boolean = false,
     speechLocale: String,
+    inactivityWarningDisplay: Boolean = false,
+    inactivityWarningTimeoutSecs: Option[Long],
 )
 
 class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "user") {
   override def * = (
-    userId,emoji,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,expired,ejected,ejectReason,ejectReasonCode,ejectedByModerator,presenter,pinned,locked,speechLocale) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
+    userId,emoji,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,
+    expired,ejected,ejectReason,ejectReasonCode,ejectedByModerator,presenter,pinned,locked,speechLocale,
+    inactivityWarningDisplay, inactivityWarningTimeoutSecs) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val emoji = column[String]("emoji")
   val away = column[Boolean]("away")
@@ -50,6 +54,8 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val pinned = column[Boolean]("pinned")
   val locked = column[Boolean]("locked")
   val speechLocale = column[String]("speechLocale")
+  val inactivityWarningDisplay = column[Boolean]("inactivityWarningDisplay")
+  val inactivityWarningTimeoutSecs = column[Option[Long]]("inactivityWarningTimeoutSecs")
 }
 
 object UserStateDAO {
@@ -116,6 +122,23 @@ object UserStateDAO {
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated guestLobbyMessage on user table!")
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating guestLobbyMessage user: $e")
+    }
+  }
+
+  def updateInactivityWarning(intId: String, inactivityWarningDisplay: Boolean, inactivityWarningTimeoutSecs: Long) = {
+    DatabaseConnection.db.run(
+      TableQuery[UserStateDbTableDef]
+        .filter(_.userId === intId)
+        .map(u => (u.inactivityWarningDisplay, u.inactivityWarningTimeoutSecs))
+        .update((inactivityWarningDisplay,
+          inactivityWarningTimeoutSecs match {
+            case 0 => None
+            case timeout: Long => Some(timeout)
+            case _ => None
+        }))
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated inactivityWarningDisplay on user table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating inactivityWarningDisplay user: $e")
     }
   }
 

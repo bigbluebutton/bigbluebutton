@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import UserContainer from './user/container';
 
-const CAPTIONS_CONFIG = Meteor.settings.public.captions;
+const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
 
 class LiveCaptions extends PureComponent {
   constructor(props) {

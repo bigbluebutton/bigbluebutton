@@ -30,7 +30,7 @@ trait EjectUserFromBreakoutInternalMsgHdlr {
       )
 
       //TODO inform reason
-      UserDAO.delete(registeredUser.id)
+      UserDAO.softDelete(registeredUser.id)
 
       // send a system message to force disconnection
       Sender.sendDisconnectClientSysMsg(msg.breakoutId, registeredUser.id, msg.ejectedBy, msg.reasonCode, outGW)

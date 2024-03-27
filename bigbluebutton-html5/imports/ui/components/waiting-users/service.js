@@ -4,18 +4,18 @@ import Auth from '/imports/ui/services/auth';
 const getGuestPolicy = () => {
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
-    { fields: { 'usersProp.guestPolicy': 1 } },
+    { fields: { 'usersPolicies.guestPolicy': 1 } },
   );
 
-  return meeting.usersProp.guestPolicy;
+  return meeting.usersPolicies.guestPolicy;
 };
 
 const isWaitingRoomEnabled = () => getGuestPolicy() === 'ASK_MODERATOR';
 
-const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
+const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
 
 // We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
-const allowRememberChoice = Meteor.settings.public.app.dynamicGuestPolicy;
+const allowRememberChoice = window.meetingClientSettings.public.app.dynamicGuestPolicy;
 
 const getGuestLobbyMessage = () => {
   const meeting = Meetings.findOne(

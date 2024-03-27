@@ -37,6 +37,13 @@ func (s *SafeChannel) ReceiveChannel() <-chan interface{} {
 	return s.ch
 }
 
+func (s *SafeChannel) Closed() bool {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	return s.closed
+}
+
 func (s *SafeChannel) Close() {
 	s.mux.Lock()
 	defer s.mux.Unlock()
@@ -45,6 +52,10 @@ func (s *SafeChannel) Close() {
 		close(s.ch)
 		s.closed = true
 	}
+}
+
+func (s *SafeChannel) Frozen() bool {
+	return s.freezeFlag
 }
 
 func (s *SafeChannel) FreezeChannel() {
