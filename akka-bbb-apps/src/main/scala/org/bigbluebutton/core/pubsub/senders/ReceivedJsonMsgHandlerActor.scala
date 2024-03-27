@@ -117,6 +117,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserConnectionUpdateRttReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
+      case SetUserSpeechOptionsReqMsg.NAME =>
+        routeGenericMsg[SetUserSpeechOptionsReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -406,6 +408,8 @@ class ReceivedJsonMsgHandlerActor(
       // AudioCaptions
       case UpdateTranscriptPubMsg.NAME =>
         routeGenericMsg[UpdateTranscriptPubMsg](envelope, jsonNode)
+      case TranscriptionProviderErrorMsg.NAME =>
+        routeGenericMsg[TranscriptionProviderErrorMsg](envelope, jsonNode)
 
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>
