@@ -1,6 +1,8 @@
 package writer
 
 import (
+	"context"
+	"errors"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
@@ -144,7 +146,9 @@ RangeLoop:
 				log.Tracef("sending to hasura: %v", fromBrowserMessageAsMap)
 				err := wsjson.Write(hc.Context, hc.Websocket, fromBrowserMessageAsMap)
 				if err != nil {
-					log.Errorf("error on write (we're disconnected from hasura): %v", err)
+					if !errors.Is(err, context.Canceled) {
+						log.Errorf("error on write (we're disconnected from hasura): %v", err)
+					}
 					return
 				}
 			}
