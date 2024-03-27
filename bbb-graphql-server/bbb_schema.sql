@@ -848,6 +848,20 @@ FROM "user" u
 JOIN "user_reaction" ur ON u."userId" = ur."userId" AND "expiresAt" > current_timestamp
 GROUP BY u."meetingId", ur."userId";
 
+CREATE TABLE "user_transcriptionError"(
+	"userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"errorCode" varchar(255),
+	"errorMessage" text,
+	"lastUpdatedAt" timestamp with time zone DEFAULT now()
+);
+
+CREATE INDEX "idx_user_transcriptionError_meetingId" ON "user_transcriptionError"("meetingId");
+CREATE INDEX "idx_user_transcriptionError_userId" ON "user_transcriptionError"("userId");
+
+create view "v_user_transcriptionError" as select * from "user_transcriptionError";
+
+
 
 
 create view "v_meeting" as

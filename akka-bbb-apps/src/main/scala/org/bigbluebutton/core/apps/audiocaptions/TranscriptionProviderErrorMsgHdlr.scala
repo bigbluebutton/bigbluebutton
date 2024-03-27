@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.audiocaptions
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.UserTranscriptionErrorDAO
 import org.bigbluebutton.core.models.AudioCaptions
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -23,5 +24,8 @@ trait TranscriptionProviderErrorMsgHdlr {
     }
 
     broadcastEvent(msg.header.userId, msg.body.errorCode, msg.body.errorMessage)
+
+    UserTranscriptionErrorDAO.insert(msg.header.userId, msg.header.meetingId, msg.body.errorCode, msg.body.errorMessage)
+
   }
 }
