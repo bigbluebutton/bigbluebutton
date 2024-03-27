@@ -24,32 +24,6 @@ const (
 	MeetingIdFormatErrorMsg string = "Meeting ID cannot contain ','"
 )
 
-// type Entry struct {
-// 	XmlName xml.Name
-// 	Value   string `xml:",chardata"`
-// }
-
-// type Mappable interface {
-// 	Populate(entries []Entry)
-// }
-
-// type Metadata struct {
-// 	Entries map[string]string
-// }
-
-// func (m *Metadata) Populate(entries []Entry) {
-// 	m.Entries = entries
-// }
-
-// type CustomData struct {
-// 	XMLName xml.Name `xml:"customdata"`
-// 	Entries []Entry  `xml:",any"`
-// }
-
-// func (c *CustomData) Populate(entries []Entry) {
-// 	c.Entries = entries
-// }
-
 type Response struct {
 	XMLName    xml.Name  `xml:"response"`
 	ReturnCode string    `xml:"returncode"`
@@ -150,17 +124,6 @@ type GetMeetingInfoResponse struct {
 	IsBreakout            bool `xml:"isBreakout"`
 	BreakoutRooms         BreakoutRooms
 }
-
-// func MarshalMapToXML(data map[string]string, mappable Mappable) {
-// 	entries := make([]Entry, 0, len(data))
-// 	for key, value := range data {
-// 		entries = append(entries, Entry{
-// 			XmlName: xml.Name{Local: key},
-// 			Value:   value,
-// 		})
-// 	}
-// 	mappable.Populate(entries)
-// }
 
 func (m MapData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	tagName := "metadata"
