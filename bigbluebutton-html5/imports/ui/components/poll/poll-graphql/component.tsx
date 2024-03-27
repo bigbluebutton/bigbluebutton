@@ -406,7 +406,10 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
                   // @ts-ignore - JS component wrapped by intl
                     icons={false}
                     defaultChecked={customInput}
-                    onChange={() => setCustomInput(!customInput)}
+                    onChange={() => {
+                      setCustomInput(!customInput);
+                      setType(pollTypes.Custom);
+                    }}
                     ariaLabel={intl.formatMessage(intlMessages.customInputToggleLabel)}
                     showToggleLabel={false}
                     data-test="autoOptioningPollBtn"
