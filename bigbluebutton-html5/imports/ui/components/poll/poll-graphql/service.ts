@@ -40,8 +40,7 @@ export const removeEmptyLineSpaces = (input: string) => {
   return filteredInput;
 };
 
-export const isDefaultPoll = (pollType: string) => pollType !== pollTypes.Custom
-  && pollType !== pollTypes.Response;
+export const isDefaultPoll = (pollType: string) => pollType !== pollTypes.Response;
 
 const matchYesNoPoll = (yesValue: string, noValue: string, contentString: string) => {
   const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
