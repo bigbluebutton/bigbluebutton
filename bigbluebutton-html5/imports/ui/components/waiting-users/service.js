@@ -4,10 +4,10 @@ import Auth from '/imports/ui/services/auth';
 const getGuestPolicy = () => {
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
-    { fields: { 'usersProp.guestPolicy': 1 } },
+    { fields: { 'usersPolicies.guestPolicy': 1 } },
   );
 
-  return meeting.usersProp.guestPolicy;
+  return meeting.usersPolicies.guestPolicy;
 };
 
 const isWaitingRoomEnabled = () => getGuestPolicy() === 'ASK_MODERATOR';

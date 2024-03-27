@@ -40,6 +40,11 @@ if [ ! -f /.dockerenv ]; then
   systemctl daemon-reload
 fi
 
+# generate index.json locales file if it does not exist
+if [ ! -f /usr/share/meteor/bundle/programs/web.browser/app/locales/index.json ]; then
+  find /usr/share/meteor/bundle/programs/web.browser/app/locales -maxdepth 1 -type f -name "*.json" -exec basename {} \; | awk 'BEGIN{printf "["}{printf "\"%s\", ", $0}END{print "]"}' | sed 's/, ]/]/' > /usr/share/meteor/bundle/programs/web.browser/app/locales/index.json
+fi
+
 # set full BBB version in settings.yml so it can be displayed in the client
 BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
 BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml

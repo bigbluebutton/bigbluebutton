@@ -4,8 +4,8 @@ import {
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import React, { useContext, useEffect } from 'react';
-import { Meteor } from 'meteor/meteor';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import logger from '/imports/startup/client/logger';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -37,11 +37,13 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       loadingContextInfo.setLoading(false, '');
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
-    loadingContextInfo.setLoading(true, 'Fetching GraphQL URL');
+    logger.info('Fetching GraphQL URL');
+    loadingContextInfo.setLoading(true, '1/4');
   }, []);
 
   useEffect(() => {
-    loadingContextInfo.setLoading(true, 'Connecting to GraphQL server');
+    logger.info('Connecting to GraphQL server');
+    loadingContextInfo.setLoading(true, '2/4');
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
@@ -56,6 +58,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const subscription = new SubscriptionClient(graphqlUrl, {
           reconnect: true,
           timeout: 30000,
+          minTimeout: 30000,
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,
@@ -82,7 +85,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         client = new ApolloClient({
           link: wsLink,
           cache: new InMemoryCache(),
-          connectToDevTools: Meteor.isDevelopment,
+          connectToDevTools: true,
         });
         setApolloClient(client);
       } catch (error) {

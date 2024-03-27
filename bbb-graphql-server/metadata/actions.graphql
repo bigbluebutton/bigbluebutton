@@ -356,10 +356,6 @@ type Mutation {
 }
 
 type Mutation {
-  randomViewerPick: Boolean
-}
-
-type Mutation {
   sharedNotesCreateSession(
     sharedNotesExtId: String!
   ): Boolean
@@ -444,6 +440,10 @@ type Mutation {
 
 type Mutation {
   userLeaveMeeting: Boolean
+}
+
+type Mutation {
+  userSendActivitySign: Boolean
 }
 
 type Mutation {
