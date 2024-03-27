@@ -54,5 +54,7 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     if (liveMeeting.props.meetingProp.isBreakout) {
       BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
     }
+
+    if (Users2x.numUsers(liveMeeting.users2x) == 0) meetingEndTime = System.currentTimeMillis()
   }
 }

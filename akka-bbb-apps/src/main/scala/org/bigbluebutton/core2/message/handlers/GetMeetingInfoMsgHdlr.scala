@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2.message.handlers
 
-import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x, VoiceUsers }
 import org.bigbluebutton.core.models.VoiceUsers.findAllListenOnlyVoiceUsers
 import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core.running.MeetingActor
@@ -24,7 +24,7 @@ trait GetMeetingInfoMsgHdlr {
         hasJoinedVoice = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).exists(v => v.intId == u.intId),
         hasVideo = findAll(liveMeeting.webcams).exists(w => w.userId == u.intId),
         clientType = u.clientType,
-        customData = Map()
+        customData = RegisteredUsers.findWithUserId(u.intId, liveMeeting.registeredUsers).get.customParameters
       )
     }
 
@@ -32,8 +32,8 @@ trait GetMeetingInfoMsgHdlr {
       createTime = liveMeeting.props.durationProps.createdTime,
       createdOn = liveMeeting.props.durationProps.createdDate,
       duration = liveMeeting.props.durationProps.duration,
-      startTime = 0L,
-      endTime = 0L,
+      startTime = meetingStartTme,
+      endTime = meetingEndTime,
       isRunning = MeetingStatus2x.hasMeetingEnded(liveMeeting.status),
       hasBeenForciblyEnded = false
     )
@@ -66,7 +66,7 @@ trait GetMeetingInfoMsgHdlr {
       moderatorPw = liveMeeting.props.password.moderatorPass,
       recording = liveMeeting.props.recordProp.record,
       users = users,
-      metadata = Map(),
+      metadata = liveMeeting.props.metadataProp.metadata,
       breakoutRooms = if (state.breakout.isDefined) state.breakout.get.getRooms().map(_.name).toList else List(),
       durationInfo = Some(durationInfo),
       participantInfo = Some(participantInfo),

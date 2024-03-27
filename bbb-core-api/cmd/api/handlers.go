@@ -100,8 +100,7 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 		users = append(users, user)
 	}
 
-	metadata := &model.Metadata{}
-	model.MarshalMapToXML(res.MeetingInfo.Metadata, metadata)
+	metadata := model.MapToMapData(res.MeetingInfo.Metadata, "metadata")
 
 	payload := model.GetMeetingInfoResponse{
 		ReturnCode:            model.ReturnCodeSuccess,
@@ -128,7 +127,7 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 		MaxUsers:              res.MeetingInfo.ParticipantInfo.MaxUsers,
 		ModeratorCount:        res.MeetingInfo.ParticipantInfo.ModeratorCount,
 		Users:                 model.Users{Users: users},
-		Metadata:              *metadata,
+		Metadata:              metadata,
 		IsBreakout:            res.MeetingInfo.BreakoutInfo.IsBreakout,
 		BreakoutRooms:         model.BreakoutRooms{Breakout: res.MeetingInfo.BreakoutRooms},
 	}

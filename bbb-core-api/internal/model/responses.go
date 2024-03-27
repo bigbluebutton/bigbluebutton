@@ -24,32 +24,31 @@ const (
 	MeetingIdFormatErrorMsg string = "Meeting ID cannot contain ','"
 )
 
-type Entry struct {
-	XmlName xml.Name
-	Value   string `xml:",chardata"`
-}
+// type Entry struct {
+// 	XmlName xml.Name
+// 	Value   string `xml:",chardata"`
+// }
 
-type Mappable interface {
-	Populate(entries []Entry)
-}
+// type Mappable interface {
+// 	Populate(entries []Entry)
+// }
 
-type Metadata struct {
-	XMLName xml.Name `xml:"metadata"`
-	Entries []Entry  `xml:",any"`
-}
+// type Metadata struct {
+// 	Entries map[string]string
+// }
 
-func (m *Metadata) Populate(entries []Entry) {
-	m.Entries = entries
-}
+// func (m *Metadata) Populate(entries []Entry) {
+// 	m.Entries = entries
+// }
 
-type CustomData struct {
-	XMLName xml.Name `xml:"customdata"`
-	Entries []Entry  `xml:",any"`
-}
+// type CustomData struct {
+// 	XMLName xml.Name `xml:"customdata"`
+// 	Entries []Entry  `xml:",any"`
+// }
 
-func (c *CustomData) Populate(entries []Entry) {
-	c.Entries = entries
-}
+// func (c *CustomData) Populate(entries []Entry) {
+// 	c.Entries = entries
+// }
 
 type Response struct {
 	XMLName    xml.Name  `xml:"response"`
@@ -58,6 +57,11 @@ type Response struct {
 	Message    string    `xml:"message,omitempty"`
 	Running    *bool     `xml:"running,omitempty"`
 	Meetings   *Meetings `xml:"meetings,omitempty"`
+}
+
+type MapData struct {
+	Data    map[string]string
+	TagName string
 }
 
 type Meetings struct {
@@ -78,7 +82,7 @@ type User struct {
 	HasJoinedVoice  bool     `xml:"hasJoinedVoice"`
 	HasVideo        bool     `xml:"hasVideo"`
 	ClientType      string   `xml:"clientType"`
-	CustomData      CustomData
+	CustomData      MapData
 }
 
 type BreakoutRooms struct {
@@ -111,7 +115,7 @@ type Meeting struct {
 	MaxUsers              int32    `xml:"maxUsers"`
 	ModeratorCount        int32    `xml:"moderatorCount"`
 	Users                 Users    `xml:"attendees"`
-	Metadata              Metadata
+	Metadata              MapData
 	IsBreakout            bool          `xml:"isBreakout"`
 	BreakoutRooms         BreakoutRooms `xml:"breakoutRooms"`
 }
@@ -142,25 +146,53 @@ type GetMeetingInfoResponse struct {
 	MaxUsers              int32    `xml:"maxUsers"`
 	ModeratorCount        int32    `xml:"moderatorCount"`
 	Users                 Users    `xml:"attendees"`
-	Metadata              Metadata
+	Metadata              MapData
 	IsBreakout            bool `xml:"isBreakout"`
 	BreakoutRooms         BreakoutRooms
 }
 
-func MarshalMapToXML(data map[string]string, mappable Mappable) {
-	entries := make([]Entry, 0, len(data))
-	for key, value := range data {
-		entries = append(entries, Entry{
-			XmlName: xml.Name{Local: key},
-			Value:   value,
-		})
+// func MarshalMapToXML(data map[string]string, mappable Mappable) {
+// 	entries := make([]Entry, 0, len(data))
+// 	for key, value := range data {
+// 		entries = append(entries, Entry{
+// 			XmlName: xml.Name{Local: key},
+// 			Value:   value,
+// 		})
+// 	}
+// 	mappable.Populate(entries)
+// }
+
+func (m MapData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	tagName := "metadata"
+	if m.TagName != "" {
+		tagName = m.TagName
 	}
-	mappable.Populate(entries)
+
+	start.Name = xml.Name{Local: tagName}
+	tokens := []xml.Token{start}
+
+	for k, v := range m.Data {
+		t := xml.StartElement{Name: xml.Name{Local: k}}
+		tokens = append(tokens, t, xml.CharData(v), xml.EndElement{Name: t.Name})
+	}
+
+	tokens = append(tokens, xml.EndElement{Name: start.Name})
+
+	for _, t := range tokens {
+		if err := e.EncodeToken(t); err != nil {
+			return err
+		}
+	}
+
+	return e.Flush()
+}
+
+func MapToMapData(data map[string]string, tagName string) MapData {
+	return MapData{Data: data, TagName: tagName}
 }
 
 func GrpcUserToRespUser(u *common.User) User {
-	customData := &CustomData{}
-	MarshalMapToXML(u.CustomData, customData)
+	customData := MapToMapData(u.CustomData, "customdata")
 
 	user := User{
 		UserId:          u.UserId,
@@ -171,15 +203,14 @@ func GrpcUserToRespUser(u *common.User) User {
 		HasJoinedVoice:  u.HasJoinedVoice,
 		HasVideo:        u.HasVideo,
 		ClientType:      u.ClientType,
-		CustomData:      *customData,
+		CustomData:      customData,
 	}
 
 	return user
 }
 
 func MeetingInfoToMeeting(m *common.MeetingInfo) Meeting {
-	metadata := &Metadata{}
-	MarshalMapToXML(m.Metadata, metadata)
+	metadata := MapToMapData(m.Metadata, "metadata")
 
 	users := make([]User, 0, len(m.Users))
 	for _, u := range m.Users {
@@ -211,7 +242,7 @@ func MeetingInfoToMeeting(m *common.MeetingInfo) Meeting {
 		MaxUsers:              m.ParticipantInfo.MaxUsers,
 		ModeratorCount:        m.ParticipantInfo.ModeratorCount,
 		Users:                 Users{Users: users},
-		Metadata:              *metadata,
+		Metadata:              metadata,
 		IsBreakout:            m.BreakoutInfo.IsBreakout,
 		BreakoutRooms:         BreakoutRooms{Breakout: m.BreakoutRooms},
 	}
