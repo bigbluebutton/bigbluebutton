@@ -101,7 +101,7 @@ class ActivityCheck extends Component {
         isOpen
       >
         <Styled.ActivityModalContent>
-          <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
+          <h1 data-test="activityCheckTitle">{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
           <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
           <Button
             color="primary"
@@ -110,6 +110,7 @@ class ActivityCheck extends Component {
             onClick={handleInactivityDismiss}
             role="button"
             size="lg"
+            data-test="activityCheckButton"
           />
         </Styled.ActivityModalContent>
       </ModalSimple>
