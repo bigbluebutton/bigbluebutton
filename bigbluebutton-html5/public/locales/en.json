@@ -44,6 +44,7 @@
     "app.timer.toolTipTimerRunningMod": "Press to pause timer.",
     "app.timer.toolTipStopwatchStoppedMod": "Press to resume stopwatch.",
     "app.timer.toolTipStopwatchRunningMod": "Press to pause stopwatch.",
+    "app.timer.warning.positiveTime": "The timer needs a positive value to start.",
     "app.emojiPicker.search": "Search",
     "app.emojiPicker.notFound": "No Emoji Found",
     "app.emojiPicker.skintext": "Choose your default skin tone",

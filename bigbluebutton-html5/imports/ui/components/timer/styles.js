@@ -202,6 +202,11 @@ const TimerControls = styled.div`
   margin-top: 4rem;
 `;
 
+const WarningPositiveTime = styled.div`
+  margin-top: 2rem;
+  text-align: center;
+  `;
+
 const TimerControlButton = styled(Button)`
   width: 6rem;
   margin: 0 1rem;
@@ -255,4 +260,5 @@ export default {
   TimerControls,
   TimerControlButton,
   TimerInput,
+  WarningPositiveTime,
 };

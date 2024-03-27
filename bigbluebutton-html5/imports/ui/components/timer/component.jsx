@@ -67,6 +67,10 @@ const intlMessages = defineMessages({
     id: 'app.timer.track3',
     description: 'Track 3 radio label',
   },
+  warningPositiveTime: {
+    id: 'app.timer.warning.positiveTime',
+    description: 'Warning for no time',
+  },
 });
 
 const propTypes = {
@@ -225,6 +229,11 @@ class Timer extends Component {
     const { current } = this.timeRef;
     if (current) {
       current.textContent = this.getTimeString();
+      const { timer, stopTimer } = this.props;
+      const { running } = timer;
+      if (running && this.getTime() <= 0) {
+        stopTimer();
+      }
     }
   }
 
@@ -252,22 +261,31 @@ class Timer extends Component {
 
     const label = running ? intlMessages.stop : intlMessages.start;
     const color = running ? 'danger' : 'primary';
+    const isTimeZeroOrLess = this.getTime() <= 0;
 
     return (
-      <Styled.TimerControls>
-        <Styled.TimerControlButton
-          color={color}
-          label={intl.formatMessage(label)}
-          onClick={() => this.handleControlClick()}
-          data-test="startStopTimer"
-        />
-        <Styled.TimerControlButton
-          color="secondary"
-          label={intl.formatMessage(intlMessages.reset)}
-          onClick={() => timerReset()}
-          data-test="resetTimerStopWatch"
-        />
-      </Styled.TimerControls>
+      <div>
+        <Styled.TimerControls>
+          <Styled.TimerControlButton
+            color={color}
+            label={intl.formatMessage(label)}
+            onClick={() => this.handleControlClick()}
+            disabled={isTimeZeroOrLess}
+            data-test="startStopTimer"
+          />
+          <Styled.TimerControlButton
+            color="secondary"
+            label={intl.formatMessage(intlMessages.reset)}
+            onClick={() => timerReset()}
+            data-test="resetTimerStopWatch"
+          />
+        </Styled.TimerControls>
+        {isTimeZeroOrLess && (
+          <Styled.WarningPositiveTime>
+            {intl.formatMessage(intlMessages.warningPositiveTime)}
+          </Styled.WarningPositiveTime>
+        )}
+      </div>
     );
   }
 
