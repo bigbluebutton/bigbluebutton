@@ -1,0 +1,40 @@
+<script type="text/javascript">
+  const settings = {
+    "meteorRelease": "METEOR@2.13",
+    "gitCommitHash": "0318597bfe093e809bbdf4ade59fb5f19ae15e04",
+    "meteorEnv": {
+      "NODE_ENV": "production",
+      "AUTOUPDATE_VERSION": "",
+      "TEST_METADATA": "{}"
+    },
+    "PUBLIC_SETTINGS": {},
+    "ROOT_URL": "http://127.0.0.1/html5client",
+    "ROOT_URL_PATH_PREFIX": "/html5client",
+    "reactFastRefreshEnabled": true,
+    "autoupdate": {
+      "versions": {
+        "web.browser": {
+          "version": "129e1e0e93dfd823c36328bae6f4cd73293d08dae",
+          "versionRefreshable": "1ca60b72d8873b367dd36c2874baad4c7d7cdd364",
+          "versionNonRefreshable": "1a2c0b155ba4282801e28e325ab6e2330f82b435e",
+          "versionReplaceable": "11952018619999f014765d73c14db1f446971e849"
+        },
+        "web.browser.legacy": {
+          "version": "465de24d63ed3a853861b20ddfd2336b1a69f3f6",
+          "versionRefreshable": "ca60b72d8873b367dd36c2874baad4c7d7cdd364",
+          "versionNonRefreshable": "c089304b8954fb096aecb20aed4b0dfa2c29561c",
+          "versionReplaceable": "1952018619999f014765d73c14db1f446971e849"
+        }
+      },
+      "autoupdateVersion": null,
+      "autoupdateVersionRefreshable": null,
+      "autoupdateVersionCordova": null,
+      "appId": "jrnkwdjvicqgy6gtl8"
+    },
+    "appId": "jrnkwdjvicqgy6gtl8",
+    "isModern": true,
+  };
+__meteor_runtime_config__ = JSON.parse(decodeURIComponent(`${encodeURIComponent(JSON.stringify(settings))}`));
+</script>
+  <script type="text/javascript" src="/html5client/placeholder?meteor_js_resource=true"></script>
+  <script>Object.values(Meteor.connection._subscriptions).find(subs => subs.name === "meteor_autoupdate_clientVersions").stop()</script>

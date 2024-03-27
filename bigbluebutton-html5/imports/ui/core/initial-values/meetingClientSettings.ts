@@ -782,10 +782,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       ],
     },
-    selectRandomUser: {
-      enabled: true,
-      countdown: false,
-    },
     user: {
       role_moderator: 'MODERATOR',
       role_viewer: 'VIEWER',

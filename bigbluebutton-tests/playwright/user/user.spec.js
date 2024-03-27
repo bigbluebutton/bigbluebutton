@@ -6,8 +6,12 @@ const { GuestPolicy } = require('./guestPolicy');
 const { LockViewers } = require('./lockViewers');
 const { MobileDevices } = require('./mobileDevices');
 const { Timer } = require('./timer');
+const { encodeCustomParams } = require('../parameters/util');
+const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
+
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
@@ -35,7 +39,7 @@ test.describe.parallel('User', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
     test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
-      await status.init(true, true);
+      await status.init(true, true, { joinParameter: hidePresentationToast });
       await status.changeUserStatus();
     });
 
@@ -208,7 +212,8 @@ test.describe.parallel('User', () => {
 
       test('Lock see other viewers annotations', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initPages(page);
+        await lockViewers.initModPage(page, true, { joinParameter: hidePresentationToast });
+        await lockViewers.initUserPage(true, context, { joinParameter: hidePresentationToast });
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 

@@ -68,9 +68,9 @@ class MobileAppModal extends Component {
     const meetingId = Auth.meetingID;
     const meetingObject = Meetings.findOne({
       meetingId,
-    }, { fields: { 'meetingProp.name': 1 } });
+    }, { fields: { name: 1 } });
     if (meetingObject != null) {
-      this.setState({ meetingName: meetingObject.meetingProp.name });
+      this.setState({ meetingName: meetingObject.name });
     }
 
     const url = `/bigbluebutton/api/getJoinUrl?sessionToken=${sessionToken}`;

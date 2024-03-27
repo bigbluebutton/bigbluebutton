@@ -134,7 +134,7 @@ class Settings extends Component {
     const { availableLocales } = this.props;
 
     availableLocales.then((locales) => {
-      this.setState({ allLocales: locales });
+      this.setState({ allLocales: locales.filter((locale) => locale?.name !== 'index') });
     });
   }
 

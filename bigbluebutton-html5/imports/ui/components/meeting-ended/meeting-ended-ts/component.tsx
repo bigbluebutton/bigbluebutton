@@ -159,6 +159,10 @@ const intlMessage = defineMessages({
     id: 'app.meeting.endedDueNoModerators',
     description: '',
   },
+  [MeetingEndedTable.ENDED_DUE_TO_SERVICE_INTERRUPTION]: {
+    id: 'app.meeting.endedDueServiceInterruption',
+    description: '',
+  },
 });
 
 interface MeetingEndedContainerProps {
