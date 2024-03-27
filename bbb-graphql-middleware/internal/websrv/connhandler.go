@@ -48,7 +48,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	browserWsConn, err := websocket.Accept(w, r, &acceptOptions)
-	browserWsConn.SetReadLimit(999999)
+	browserWsConn.SetReadLimit(9999999) //10MB
 	if err != nil {
 		log.Errorf("error: %v", err)
 	}
