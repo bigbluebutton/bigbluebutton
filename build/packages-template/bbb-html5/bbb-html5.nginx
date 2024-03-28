@@ -1,46 +1,71 @@
+gzip on;
+gzip_static on;
+gzip_types 
+  application/javascript
+  application/wasm
+  application/x-javascript
+  image/svg+xml
+  text/css
+  text/javascript
+  text/json
+  text/plain;
+
+# set $proxy_dest http://127.0.0.1:4100; # use for development
+set $proxy_dest http://poolhtml5servers; # use for production
+set $html5client_path /usr/share/meteor/bundle/programs/web.browser/app;
+
 location @html5client {
-  # proxy_pass http://127.0.0.1:4100; # use for development
-  proxy_pass http://poolhtml5servers; # use for production
+  proxy_pass $proxy_dest;
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
 }
 
 location /html5client/locales {
-  alias /usr/share/meteor/bundle/programs/web.browser/app/locales;
+  alias $html5client_path/locales;
 }
 
 location /html5client/compatibility {
-  gzip_static on;
-  alias /usr/share/meteor/bundle/programs/web.browser/app/compatibility;
+  alias $html5client_path/compatibility;
 }
 
 location /html5client/resources {
-  alias /usr/share/meteor/bundle/programs/web.browser/app/resources;
+  alias $html5client_path/resources;
 }
 
 location /html5client/svgs {
-  alias /usr/share/meteor/bundle/programs/web.browser/app/svgs;
+  alias $html5client_path/svgs;
 }
 
 location /html5client/fonts {
-  alias /usr/share/meteor/bundle/programs/web.browser/app/fonts;
+  alias $html5client_path/fonts;
 }
 
 location /html5client/files {
-  alias /usr/share/meteor/bundle/programs/web.browser/app/files;
+  alias $html5client_path/files;
 }
 
 location /html5client/wasm {
-  types {
-    application/wasm wasm;
-  }
-  gzip_static on;
-  alias /usr/share/meteor/bundle/programs/web.browser/app/wasm;
+  types { application/wasm wasm; }
+  alias $html5client_path/wasm;
+}
+
+location ~* ^/html5client/.*\.(css|html|jpg|js|json|mp3|png|svg|wasm|woff|woff2)$ {
+  proxy_pass $proxy_dest;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+  add_header Cache-Control "public";
+  # add_header X-Cache-Status $upstream_cache_status; # use for development
+  proxy_cache_valid any 48h;
+  proxy_cache bbb_cache;
+  proxy_cache_lock on;
+  proxy_cache_use_stale updating;
+  proxy_ignore_headers Cache-Control;
+  expires 8h;
 }
 
 location /html5client {
-  gzip_static on;
   alias /usr/share/meteor/bundle/programs/web.browser;
   try_files $uri @html5client;
 }

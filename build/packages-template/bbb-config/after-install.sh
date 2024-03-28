@@ -140,6 +140,20 @@ else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
 fi
 
+# Add proxy_cache_path to nginx.conf if it doesn't exist
+if ! grep -q "proxy_cache_path /var/lib/nginx/cache keys_zone=bbb_cache:10m inactive=5d use_temp_path=off max_size=64m;" /etc/nginx/nginx.conf; then
+  sed -i "/gzip on;/a \\\n        proxy_cache_path /var/lib/nginx/cache keys_zone=bbb_cache:10m inactive=5d use_temp_path=off max_size=64m;\n        proxy_cache_key "\$scheme\$host\$request_uri";" /etc/nginx/nginx.conf
+fi
+
+if ! mountpoint -q /var/lib/nginx/cache; then
+  mkdir -p /var/lib/nginx/cache
+  mount -t tmpfs -o size=64M none /var/lib/nginx/cache
+
+  if ! grep -q "none /var/lib/nginx/cache tmpfs size=64M,mode=0755 0 0" /etc/fstab; then
+    echo "none /var/lib/nginx/cache tmpfs size=64M,mode=0755 0 0" | $SUDO tee -a /etc/fstab
+  fi
+fi
+
 mkdir -p /etc/bigbluebutton/nginx
 
 # symlink default bbb nginx config from package if it does not exist
