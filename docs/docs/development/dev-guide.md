@@ -59,9 +59,9 @@ To develop BigBlueButton from within Windows, you have two options:
 - use Windows Subsystem for Linux
 - use VMWare Player or VirtualBox to create a virtual machine (VM).
 
-Choose the OS to be Ubuntu 20.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 20.04 64-bit VM.
+Choose the OS to be Ubuntu 22.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 22.04 64-bit VM.
 
-**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 20.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
+**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 22.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
 
 #### Developing on Linux host via container
 
@@ -177,20 +177,20 @@ After cloning, you'll have the following directory (make sure the `bigbluebutton
 /home/bigbluebutton/dev/bigbluebutton
 ```
 
-Confirm that you are working on the `v2.7.x-release` branch.
+Confirm that you are working on the `v3.0.x-release` branch.
 
 ```bash
 cd /home/bigbluebutton/dev/bigbluebutton
 git status
 ```
 
-BigBlueButton 2.7 source code lives on branch `v2.7.x-release`. This is where any patches to 2.7 will be merged. If you are looking to customize your BigBlueButton 2.7 clone to fit your needs, this is the branch to use.
+BigBlueButton 2.7 source code lives on branch `v3.0.x-release`. This is where any patches to 3.0 will be merged. If you are looking to customize your BigBlueButton 3.0 clone to fit your needs, this is the branch to use.
 
-For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v2.7.x-release`.
+For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v3.0.x-release`.
 
 ```
-On branch v2.7.x-release
-Your branch is up-to-date with 'origin/v2.7.x-release'.
+On branch v3.0.x-release
+Your branch is up-to-date with 'origin/v3.0.x-release'.
 nothing to commit, working directory clean
 ```
 
@@ -212,10 +212,10 @@ After, we need to fetch the most up to date version of the remote repository.
 git fetch upstream
 ```
 
-You are now ready to create a new branch to start your work and base the `v2.7.x-release` release branch
+You are now ready to create a new branch to start your work and base the `v3.0.x-release` release branch
 
 ```bash
-git checkout -b my-changes-branch upstream/v2.7.x-release
+git checkout -b my-changes-branch upstream/v3.0.x-release
 ```
 
 "checkout" switches branches
@@ -224,7 +224,7 @@ git checkout -b my-changes-branch upstream/v2.7.x-release
 
 "my-changes-branch" will be the name of the new branch
 
-"upstream/v2.7.x-release" is where you want to start your new branch
+"upstream/v3.0.x-release" is where you want to start your new branch
 
 You should now confirm that you are in the correct branch.
 
