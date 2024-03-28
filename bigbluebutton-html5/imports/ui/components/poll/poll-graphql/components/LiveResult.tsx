@@ -146,7 +146,6 @@ const LiveResult: React.FC<LiveResultProps> = ({
                   type: ACTIONS.SET_ID_CHAT_OPEN,
                   value: PUBLIC_CHAT_KEY,
                 });
-
               }}
               disabled={numberOfAnswerCount <= 0}
               label={intl.formatMessage(intlMessages.publishLabel)}
