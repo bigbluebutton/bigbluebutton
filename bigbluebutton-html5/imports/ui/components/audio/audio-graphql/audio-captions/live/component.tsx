@@ -1,5 +1,5 @@
 import { useSubscription } from '@apollo/client';
-import React from 'react';
+import React, { useRef } from 'react';
 import { Caption, GET_CAPTIONS, getCaptions } from './queries';
 import logger from '/imports/startup/client/logger';
 import OldCaptionsService from '/imports/ui/components/captions/service';
@@ -64,12 +64,16 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
   } = useSubscription<getCaptions>(GET_CAPTIONS);
+  const padCreated = useRef(false);
   const [audioCaptionsEnable] = useAudioCaptionEnable();
   const activated = CAPTIONS_ALWAYS_VISIBLE
     || (AudioCaptionsLiveData && AudioCaptionsLiveData.caption.some(isAudioTranscription));
   const prevActivated = usePreviousValue(activated);
   if (!prevActivated && activated) {
-    OldCaptionsService.createCaptions(TRANSCRIPTION_DEFAULT_PAD);
+    if (!padCreated.current) {
+      padCreated.current = true;
+      OldCaptionsService.createCaptions(TRANSCRIPTION_DEFAULT_PAD);
+    }
   }
 
   if (!AudioCaptionsLiveData) return null;
