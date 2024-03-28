@@ -535,6 +535,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetSpeechOptions(
+    partialUtterances: Boolean!
+    minUtteranceLength: Float!
+  ): Boolean
+}
+
+type Mutation {
   userThirdPartyInfoResquest(
     externalUserId: String!
   ): Boolean

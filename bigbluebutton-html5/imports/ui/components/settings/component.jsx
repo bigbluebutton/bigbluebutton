@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
+import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -55,6 +56,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
   },
+  transcriptionLabel: {
+    id: 'app.settings.transcriptionTab.label',
+    description: 'label for transcriptions tab',
+  },
   savedAlertLabel: {
     id: 'app.settings.save-notification.label',
     description: 'label shown in toast when settings are saved',
@@ -77,6 +82,10 @@ const propTypes = {
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
   }).isRequired,
+  transcription: PropTypes.shape({
+    partialUtterances: PropTypes.bool,
+    minUtteraceLength: PropTypes.number,
+  }).isRequired,
   application: PropTypes.shape({
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
@@ -96,6 +105,7 @@ const propTypes = {
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
   isReactionsEnabled: PropTypes.bool.isRequired,
+  isGladiaEnabled: PropTypes.bool.isRequired,
 };
 
 class Settings extends Component {
@@ -107,17 +117,19 @@ class Settings extends Component {
     super(props);
 
     const {
-      dataSaving, application, selectedTab,
+      dataSaving, application, selectedTab, transcription,
     } = props;
 
     this.state = {
       current: {
         dataSaving: clone(dataSaving),
         application: clone(application),
+        transcription: clone(transcription),
       },
       saved: {
         dataSaving: clone(dataSaving),
         application: clone(application),
+        transcription: clone(transcription),
       },
       selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
         ? selectedTab
@@ -176,6 +188,7 @@ class Settings extends Component {
       isScreenSharingEnabled,
       isVideoEnabled,
       isReactionsEnabled,
+      isGladiaEnabled,
     } = this.props;
 
     const {
@@ -217,6 +230,17 @@ class Settings extends Component {
               </Styled.SettingsTabSelector>
             )
             : null}
+          {isGladiaEnabled
+            ? (
+              <Styled.SettingsTabSelector
+                aria-labelledby="transcriptionTab"
+                selectedClassName="is-selected"
+              >
+                <Styled.SettingsIcon iconName="closed_caption" />
+                <span id="transcriptionTab">{intl.formatMessage(intlMessages.transcriptionLabel)}</span>
+              </Styled.SettingsTabSelector>
+            )
+            : null}
         </Styled.SettingsTabList>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
@@ -251,6 +275,17 @@ class Settings extends Component {
                 displaySettingsStatus={this.displaySettingsStatus}
                 isScreenSharingEnabled={isScreenSharingEnabled}
                 isVideoEnabled={isVideoEnabled}
+              />
+            </Styled.SettingsTabPanel>
+          )
+          : null}
+        {isGladiaEnabled
+          ? (
+            <Styled.SettingsTabPanel selectedClassName="is-selected">
+              <Transcription
+                handleUpdateSettings={this.handleUpdateSettings}
+                settings={current.transcription}
+                displaySettingsStatus={this.displaySettingsStatus}
               />
             </Styled.SettingsTabPanel>
           )

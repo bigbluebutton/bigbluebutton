@@ -14,6 +14,7 @@ import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaption
 import { User } from '/imports/ui/Types/user';
 import { useMutation } from '@apollo/client';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
+import CaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 
 const intlMessages = defineMessages({
   start: {
@@ -41,6 +42,10 @@ const intlMessages = defineMessages({
   language: {
     id: 'app.audio.captions.button.language',
     description: 'Audio speech recognition language label',
+  },
+  autoDetect: {
+    id: 'app.audio.captions.button.autoDetect',
+    description: 'Audio speech recognition language auto detect',
   },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
@@ -129,6 +134,20 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
 
   const shouldRenderChevron = isSupported && isVoiceUser;
 
+  const autoLanguage = CaptionsService.isGladia() ? {
+    icon: '',
+    label: intl.formatMessage(intlMessages.autoDetect),
+    key: 'auto',
+    iconRight: selectedLocale.current === 'auto' ? 'check' : null,
+    customStyles: (selectedLocale.current === 'auto') && Styled.SelectedLabel,
+    disabled: isTranscriptionDisabled(),
+    dividerTop: true,
+    onClick: () => {
+      selectedLocale.current = 'auto';
+      CaptionsService.setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
+    },
+  } : undefined;
+
   const toggleTranscription = () => {
     setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale);
   };
@@ -148,6 +167,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
             iconRight: selectedLocale.current === availableVoice ? 'check' : null,
             customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
             disabled: isTranscriptionDisabled(),
+            dividerTop: !CaptionsService.isGladia() && availableVoice === availableVoices[0],
             onClick: () => {
               selectedLocale.current = availableVoice;
               setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
@@ -173,6 +193,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
       customStyles: Styled.TitleLabel,
       disabled: true,
     },
+    autoLanguage,
     ...getAvailableLocales(),
     {
       key: 'divider',
@@ -195,7 +216,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
         ? Styled.EnableTrascription : Styled.DisableTrascription,
       disabled: false,
       onClick: toggleTranscription,
-    }]
+    }].filter((e) => e)
   );
   const onToggleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
