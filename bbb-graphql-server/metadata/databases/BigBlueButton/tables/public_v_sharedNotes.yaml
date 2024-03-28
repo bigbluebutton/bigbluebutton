@@ -11,6 +11,7 @@ select_permissions:
     permission:
       columns:
         - lastRev
+        - fullContentHtml
         - model
         - name
         - padId
