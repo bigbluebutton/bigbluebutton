@@ -4,8 +4,9 @@ import logger from '/imports/startup/client/logger';
 import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
 import { HookWithArgumentsContainerProps } from './types';
 
@@ -36,7 +37,7 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
         {
           detail: {
             data: customSubscriptionData,
-            hook: Hooks.CUSTOM_SUBSCRIPTION,
+            hook: DataConsumptionHooks.CUSTOM_SUBSCRIPTION,
             hookArguments: {
               query: queryFromPlugin,
               variables,

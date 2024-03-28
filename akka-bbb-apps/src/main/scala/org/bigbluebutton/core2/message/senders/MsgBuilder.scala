@@ -256,6 +256,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildCheckGraphqlMiddlewareAlivePingSysMsg(middlewareUid: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, "", "")
+    val envelope = BbbCoreEnvelope(CheckGraphqlMiddlewareAlivePingSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(CheckGraphqlMiddlewareAlivePingSysMsg.NAME, "")
+    val body = CheckGraphqlMiddlewareAlivePingSysMsgBody(middlewareUid)
+    val event = CheckGraphqlMiddlewareAlivePingSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildEjectAllFromVoiceConfMsg(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(EjectAllFromVoiceConfMsg.NAME, routing)

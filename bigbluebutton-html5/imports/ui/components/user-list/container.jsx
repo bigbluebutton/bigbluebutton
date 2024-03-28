@@ -9,6 +9,6 @@ const UserListContainer = (props) => <UserList {...props} />;
 export default withTracker(({ compact }) => (
   {
     CustomLogoUrl: Service.getCustomLogoUrl(),
-    showBranding: getFromUserSettings('bbb_display_branding_area', Meteor.settings.public.app.branding.displayBrandingArea),
+    showBranding: getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea),
   }
 ))(UserListContainer);

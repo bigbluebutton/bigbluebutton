@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import { useSubscription } from '@apollo/client';
 import { GET_GUESTS_COUNT, GuestUsersCountResponse } from './queries';
@@ -11,7 +10,7 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 
-const ALWAYS_SHOW_WAITING_ROOM = Meteor.settings.public.app.alwaysShowWaitingRoomUI;
+const ALWAYS_SHOW_WAITING_ROOM = window.meetingClientSettings.public.app.alwaysShowWaitingRoomUI;
 
 interface GuestPanelOpenerProps {
   count: number;

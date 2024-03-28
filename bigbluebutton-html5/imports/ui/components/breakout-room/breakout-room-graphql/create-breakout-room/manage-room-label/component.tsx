@@ -56,7 +56,7 @@ const ManageRoomLabel: React.FC<ManageRoomLabelProps> = ({
         />
       ) : (
         <Styled.AssignBtns
-          random
+          $random
           data-test="randomlyAssign"
           label={intl.formatMessage(intlMessages.randomlyAssign)}
           aria-describedby="randomlyAssignDesc"

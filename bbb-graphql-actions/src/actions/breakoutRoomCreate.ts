@@ -26,14 +26,5 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     rooms: input.rooms,
   };
 
-  // TODO check if akka-apps apply this validation
-  // const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
-  // const MIN_BREAKOUT_ROOMS = 2;
-  // const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
-  // if (rooms.length > MAX_BREAKOUT_ROOMS) {
-  //   Logger.info(`Attempt to create breakout rooms with invalid number of rooms in meeting id=${meetingId}`);
-  //   return;
-  // }
-
   return { eventName, routing, header, body };
 }

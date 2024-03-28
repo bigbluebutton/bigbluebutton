@@ -11,7 +11,7 @@ keywords:
 ## Nextcloud
 
 This following Nextcloud documentation includes some tweaks we need to make
-in order to propperly install Nextcloud with the BBB plugin integration.
+in order to properly install Nextcloud with the BBB plugin integration.
 
 ## Install
 
@@ -23,7 +23,7 @@ for more information.
 
 With Nextcloud up and running, let's install and configure the BigBlueButton plugin:
 
- - Folow through with [Klaus' repository guidance](https://github.com/sualko/cloud_bbb#rocket-install-it);
+ - Follow through with [Klaus' repository guidance](https://github.com/sualko/cloud_bbb#rocket-install-it);
  - Proceed with "To install it change into your Nextcloud's apps directory";
  - If some errors appear, upgrade node's version to `14.21.2`, and run `make build` again;
  - Then go to your profile in the Nexcloud server > `Apps` > `BigBlueButton Integration` >
@@ -74,10 +74,10 @@ on how to install and configure the Nextcloud server.
 
 ### Step-by-step to install Nextcloud
 
- - Folow the steps on [the official documentation](https://docs.nextcloud.com/server/latest/admin_manual/installation/example_ubuntu.html)
+ - Follow the steps on [the official documentation](https://docs.nextcloud.com/server/latest/admin_manual/installation/example_ubuntu.html)
  - When you get to the part `"Now download the archive of the latest Nextcloud version"`, it changed a little:
     - Scroll down the [page](https://nextcloud.com/install/);
-    - In the section "DOWNLOAD SERVER" click on "COMUNITY PROJECTS"
+    - In the section "DOWNLOAD SERVER" click on "COMMUNITY PROJECTS"
     - Scroll down a little more;
     - Now, in the section "archive", under the `"Get ZIP file"` button you'll find the `.tar.bz2`
     files to upload it to your server;
@@ -97,7 +97,7 @@ the following.
 This might be a tricky part, and you can surely use another SSL certificate, but here I am going
 to cover `let's encrypt`, as [suggested by them](https://docs.nextcloud.com/server/latest/admin_manual/installation/source_installation.html#enabling-ssl).
 
- - Folow [these commands](https://docs.nextcloud.com/server/latest/admin_manual/installation/source_installation.html#enabling-ssl)
+ - Follow [these commands](https://docs.nextcloud.com/server/latest/admin_manual/installation/source_installation.html#enabling-ssl)
  - Now go to [digital ocean tutorial](https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-22-04)
  on how to configure the let's encrypt certificate in an `apache server` and follow through
  (there is no need to create `/etc/apache2/sites-available/your_domain.conf` because
@@ -129,4 +129,4 @@ It may look something like this (`/etc/apache2/sites-available/000-default.conf`
  - If even with all these solutions your let's encrypt is not working, follow on with one of
  [these alternatives](https://help.nextcloud.com/t/domain-not-working-after-letsencrypt/83862), particularly this one:
 
-`"The default vhost is used whenever a client is accesing your server by direct IP-addres(...)"`
+`"The default vhost is used whenever a client is accessing your server by direct IP-address(...)"`

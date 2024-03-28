@@ -8,6 +8,7 @@ import PollingComponent from './component';
 import { isPollingEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { POLL_SUBMIT_TYPED_VOTE, POLL_SUBMIT_VOTE } from '/imports/ui/components/poll/mutations';
+import PollingGraphqlContainer from './polling-graphql/component';
 
 const propTypes = {
   pollExists: PropTypes.bool.isRequired,
@@ -50,7 +51,7 @@ const PollingContainer = ({ pollExists, ...props }) => {
 
 PollingContainer.propTypes = propTypes;
 
-export default withTracker(() => {
+withTracker(() => {
   const {
     pollExists, poll,
   } = PollingService.mapPolls();
@@ -70,3 +71,5 @@ export default withTracker(() => {
     isMeteorConnected: Meteor.status().connected,
   });
 })(PollingContainer);
+
+export default PollingGraphqlContainer;

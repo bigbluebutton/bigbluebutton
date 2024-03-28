@@ -38,7 +38,7 @@ const PinArea = (props) => {
           setCameraPinned({
             variables: {
               userId,
-              pinned: true,
+              pinned: false,
             },
           });
         }}

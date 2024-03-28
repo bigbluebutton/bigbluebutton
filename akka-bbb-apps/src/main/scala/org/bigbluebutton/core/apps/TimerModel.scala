@@ -45,6 +45,14 @@ object TimerModel {
   }
 
   def setRunning(model: TimerModel, running: Boolean): Unit = {
+
+    //If it is running and will stop, calculate new Accumulated
+    if(getRunning(model) && !running) {
+      val now = System.currentTimeMillis()
+      val accumulated = getAccumulated(model) + Math.abs(now - getStartedAt(model)).toInt
+      this.setAccumulated(model, accumulated)
+    }
+
     model.running = running
   }
 

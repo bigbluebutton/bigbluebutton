@@ -132,6 +132,9 @@ export default async function addMeeting(meeting) {
     systemProps: {
       html5InstanceId: Number,
       logoutUrl: String,
+      customLogoURL: String,
+      bannerText: String,
+      bannerColor: String,
     },
     groups: Array,
     overrideClientSettings: String,
@@ -203,7 +206,6 @@ export default async function addMeeting(meeting) {
       layout: LAYOUT_TYPE[meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
-      randomlySelectedUser: [],
       ...flat(newMeeting, {
         safe: true,
       }),

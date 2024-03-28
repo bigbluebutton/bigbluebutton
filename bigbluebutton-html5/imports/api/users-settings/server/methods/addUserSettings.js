@@ -36,6 +36,7 @@ const currentParameters = [
   'bbb_skip_check_audio_on_first_join',
   'bbb_fullaudio_bridge',
   'bbb_transparent_listen_only',
+  'bbb_show_animations_default',
   // BRANDING
   'bbb_display_branding_area',
   // SHORTCUTS
@@ -64,6 +65,8 @@ const currentParameters = [
   'bbb_hide_actions_bar',
   'bbb_hide_nav_bar',
   'bbb_change_layout',
+  'bbb_direct_leave_button',
+  'bbb_default_layout',
 ];
 
 function valueParser(val) {

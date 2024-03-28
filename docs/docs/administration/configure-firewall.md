@@ -51,7 +51,7 @@ If you are using EC2, you should also assign your server an [Elastic IP address]
 
 ### Azure
 
-On Microsot Azure, when you create an instance you need to add the following inbound port rules to enable incomming connections on ports 80, 443, and UDP port range 16384-32768:
+On Microsot Azure, when you create an instance you need to add the following inbound port rules to enable incoming connections on ports 80, 443, and UDP port range 16384-32768:
 
 ![Azure Cloud ](/img/azure-firewall.png?raw=true 'Azure 80, 443, and UDP 16384-32768')
 
@@ -219,7 +219,7 @@ externalIPv4=192.0.2.0
 
 ### Update FreeSWITCH
 
-Let's revist the typical setup for BigBlueButton behind a firewall (yours would have different IP address of course).
+Let's revisit the typical setup for BigBlueButton behind a firewall (yours would have different IP address of course).
 
 ![Install](/img/11-install-net2.png)
 
@@ -299,7 +299,7 @@ freeswitch:
   port: 5066
 ```
 
-If your runnig 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs`
+If your running 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs`
 set to true or false in `/etc/bigbluebutton/bbb-html5.yml`.
 
 You also need to [setup Kurento to use a STUN server](#extra-steps-when-server-is-behind-nat).
@@ -400,7 +400,7 @@ If you don't see this, follow the steps below on your BigBlueButton server to se
 
 ![Install](/img/11-install-net3.png)
 
-In this diagram, we've setup a dummy NIC for 203.0.113.1, which will allow FreeSWITCH to connect back to itself. This way, when FreeSWICH receives an internal connection from other parts of BigBlueButton, it will think that it's on the external interface. This will cause it to use the correct IP address on the response.
+In this diagram, we've setup a dummy NIC for 203.0.113.1, which will allow FreeSWITCH to connect back to itself. This way, when FreeSWITCH receives an internal connection from other parts of BigBlueButton, it will think that it's on the external interface. This will cause it to use the correct IP address on the response.
 
 To setup a dummy NIC, on your BigBlueButton enter the following command and substitute `EXTERNAL_IP_ADDRESS` with the external IP address of your firewall.
 

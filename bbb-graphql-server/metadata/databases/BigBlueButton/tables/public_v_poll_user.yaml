@@ -33,3 +33,4 @@ select_permissions:
               _eq: X-Hasura-UserId
           - userId:
               _eq: X-Hasura-UserId
+      allow_aggregations: true

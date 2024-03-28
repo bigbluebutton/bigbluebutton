@@ -18,7 +18,7 @@ Released: November 6, 2019 ([Installation Instructions](/administration/install)
 
 We made it!
 
-After months of testing with the community, millions of sessions hosted by commercial companies using BigBlueButton, and interacting with hundreds of people on our mailing lists that help us find and fix any issues, we are announcing the releae of BigBlueButton 2.2.
+After months of testing with the community, millions of sessions hosted by commercial companies using BigBlueButton, and interacting with hundreds of people on our mailing lists that help us find and fix any issues, we are announcing the release of BigBlueButton 2.2.
 
 Enjoy!
 
@@ -141,7 +141,7 @@ This is our eleventh release of BigBlueButton.  For a quick summary of what's ne
 
 * **New APIs** - The BigBlueButton API now includes the ability to dynamically configure each client on a per-user bases, thus enabling developers to configure the skin, layout, modules, etc. for each user.  There is also a JavaScript interface to control the client.
 
-* **Accessiblity for screen readers** - BigBlueButton adds accessibility by supporting screen readers such as JAWS (version 11+) and NVDA. A list of keyboard shortcuts have been added to make it easier to navigate through the interface using the keyboard.
+* **Accessibility for screen readers** - BigBlueButton adds accessibility by supporting screen readers such as JAWS (version 11+) and NVDA. A list of keyboard shortcuts have been added to make it easier to navigate through the interface using the keyboard.
 
 * **LTI Support** - BigBlueButton is IMS Learning Tools Interoperability (LTI) 1.0 compliant. This means any LTI consumer can integrate with BigBlueButton without requiring custom plug-ins (see [BigBlueButton LTI certification](http://www.imsglobal.org/cc/detail.cfm?ID=172) and [video](http://www.youtube.com/watch?v=OSTGfvICYX4)).
 
@@ -427,7 +427,7 @@ If you are running a BigBlueButton VM or had installed BigBlueButton using packa
   sudo apt-get upgrade
 ```
 
-**Note:** If you get an error during upgrade, just run `sudo apt-get upgrade` again.  We refactored the install scripts and a previous install script and new install scrip both reference the same configuration file.  Running the upgrade command a second time will solve the problem as the first time upgrades all the install script.
+**Note:** If you get an error during upgrade, just run `sudo apt-get upgrade` again.  We refactored the install scripts and a previous install script and new install script both reference the same configuration file.  Running the upgrade command a second time will solve the problem as the first time upgrades all the install script.
 
 ### Fixed Issues
 
@@ -489,7 +489,7 @@ Here are the list of issues we fixed on this release:
 * [Issue 885](https://github.com/bigbluebutton/bigbluebutton/issues/885) Hearing voices after logging out
 * [Issue 890](https://github.com/bigbluebutton/bigbluebutton/issues/890) Participant entry sound plays when user icon is clicked
 * [Issue 891](https://github.com/bigbluebutton/bigbluebutton/issues/891) Phone Logout null pointer exception
-* [Issue 893](https://github.com/bigbluebutton/bigbluebutton/issues/893) Unmute-all icon mis-aligned
+* [Issue 893](https://github.com/bigbluebutton/bigbluebutton/issues/893) Unmute-all icon misaligned
 * [Issue 894](https://github.com/bigbluebutton/bigbluebutton/issues/894) bbb-setip not detecting rtmp port
 
 #### Known Issues

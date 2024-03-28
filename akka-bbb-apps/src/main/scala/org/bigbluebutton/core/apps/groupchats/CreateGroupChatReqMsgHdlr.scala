@@ -59,7 +59,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
           val newState = for {
             createdBy <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
           } yield {
-            val msgs = msg.body.msg.map(m => GroupChatApp.toGroupChatMessage(createdBy, m))
+            val msgs = msg.body.msg.map(m => GroupChatApp.toGroupChatMessage(createdBy, m, emphasizedText = false))
             val users = {
               if (msg.body.access == GroupChatAccess.PRIVATE) {
                 val cu = msg.body.users.toSet + msg.header.userId

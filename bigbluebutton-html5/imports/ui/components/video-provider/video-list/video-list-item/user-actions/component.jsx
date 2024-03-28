@@ -89,7 +89,7 @@ const UserActions = (props) => {
   }
 
   const intl = useIntl();
-  const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
+  const enableVideoMenu = window.meetingClientSettings.public.kurento.enableVideoMenu || false;
   const { isFirefox } = browserInfo;
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);

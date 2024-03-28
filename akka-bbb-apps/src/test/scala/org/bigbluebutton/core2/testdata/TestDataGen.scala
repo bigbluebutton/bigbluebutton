@@ -51,7 +51,7 @@ object TestDataGen {
       guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       emoji = "none", reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
       locked = false, presenter = false, avatar = regUser.avatarURL, color = "#ff6242",
-      clientType = "unknown", pickExempted = false, userLeftFlag = UserLeftFlag(false, 0))
+      clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))
     Users2x.add(liveMeeting.users2x, u)
     u
   }

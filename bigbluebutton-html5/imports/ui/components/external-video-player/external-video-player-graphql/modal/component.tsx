@@ -1,8 +1,10 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import SettingsSingleton from '/imports/ui/services/settings';
-import { startWatching, isUrlValid } from './service';
+import { isUrlValid } from './service';
+import { EXTERNAL_VIDEO_START } from '../../mutations';
 
 const intlMessages = defineMessages({
   start: {
@@ -35,6 +37,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
+const PANOPTO_MATCH_URL = /https?:\/\/([^/]+\/Panopto)(\/Pages\/Viewer\.aspx\?id=)([-a-zA-Z0-9]+)/;
+
 interface ExternalVideoPlayerModalProps {
   onRequestClose: () => void,
   priority: string,
@@ -52,6 +57,23 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
   // @ts-ignore - settings is a js singleton
   const { animations } = SettingsSingleton.application;
   const [videoUrl, setVideoUrl] = React.useState('');
+  const [startExternalVideo] = useMutation(EXTERNAL_VIDEO_START);
+
+  const startWatching = (url: string) => {
+    let externalVideoUrl = url;
+
+    if (YOUTUBE_SHORTS_REGEX.test(url)) {
+      const shortsUrl = url.replace('shorts/', 'watch?v=');
+      externalVideoUrl = shortsUrl;
+    } else if (PANOPTO_MATCH_URL.test(url)) {
+      const m = url.match(PANOPTO_MATCH_URL);
+      if (m && m.length >= 4) {
+        externalVideoUrl = `https://${m[1]}/Podcast/Social/${m[3]}.mp4`;
+      }
+    }
+
+    startExternalVideo({ variables: { externalVideoUrl } });
+  };
 
   const valid = isUrlValid(videoUrl);
 

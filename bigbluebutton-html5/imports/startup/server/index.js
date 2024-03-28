@@ -13,6 +13,10 @@ import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
 let guestWaitHtml = '';
 
+const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
+const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
+const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
+
 const env = Meteor.isDevelopment ? 'development' : 'production';
 
 const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
@@ -182,11 +186,9 @@ Meteor.startup(() => {
   CDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
-
 const generateLocaleOptions = () => {
   try {
     Logger.warn('Calculating aggregateLocales (heavy)');
-
 
     // remove duplicated locales (always remove more generic if same name)
     const tempAggregateLocales = AVAILABLE_LOCALES
@@ -207,6 +209,18 @@ const generateLocaleOptions = () => {
       .reverse();
 
     Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+
+    const filePath = `${applicationRoot}/index.json`;
+    const jsContent = JSON.stringify(AVAILABLE_LOCALES, null, 2);
+
+    // Write JSON data to a file
+    fs.writeFile(filePath, jsContent, (err) => {
+      if (err) {
+        Logger.error('Error writing file:', err);
+      } else {
+        Logger.info(`JSON data has been written to ${filePath}`);
+      }
+    });
 
     return tempAggregateLocales;
   } catch (e) {
@@ -273,6 +287,8 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   res.end(JSON.stringify({
     normalizedLocale: localeFile,
     regionDefaultLocale: (regionDefault && regionDefault !== localeFile) ? regionDefault : '',
+    defaultLocale: DEFAULT_LANGUAGE,
+    fallbackOnEmptyLocaleString: FALLBACK_ON_EMPTY_STRING,
   }));
 });
 

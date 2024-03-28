@@ -19,7 +19,7 @@ const ActionButtonDropdownPluginStateContainer = ((
   const [
     actionButtonDropdownItems,
     setActionButtonDropdownItems,
-  ] = useState<PluginSdk.ActionButtonDropdownItem[]>([]);
+  ] = useState<PluginSdk.ActionButtonDropdownInterface[]>([]);
 
   const {
     pluginsExtensibleAreasAggregatedState,
@@ -32,7 +32,7 @@ const ActionButtonDropdownPluginStateContainer = ((
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedActionButtonDropdownItems = (
-      [] as PluginSdk.ActionButtonDropdownItem[]).concat(
+      [] as PluginSdk.ActionButtonDropdownInterface[]).concat(
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.actionButtonDropdownItems),
     );
@@ -44,9 +44,10 @@ const ActionButtonDropdownPluginStateContainer = ((
     );
   }, [actionButtonDropdownItems]);
 
-  pluginApi.setActionButtonDropdownItems = (items: PluginSdk.ActionButtonDropdownItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionButtonDropdownItem[];
-    return setActionButtonDropdownItems(itemsWithId);
+  pluginApi.setActionButtonDropdownItems = (items: PluginSdk.ActionButtonDropdownInterface[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionButtonDropdownInterface[];
+    setActionButtonDropdownItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

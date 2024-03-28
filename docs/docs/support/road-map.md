@@ -73,7 +73,7 @@ When uploading slides with clickable links, they could be clicked in the Flash c
 
 ### Layout Dropdown
 
-The Flash client had a layout menu that let moderators push down layout changes in windows to all viewers.  The HMTL5 client does not use windows (it uses panels that show/hide).  We are going to add capabilities for the moderator to show/hide the presentation area in a future update.
+The Flash client had a layout menu that let moderators push down layout changes in windows to all viewers.  The HTML5 client does not use windows (it uses panels that show/hide).  We are going to add capabilities for the moderator to show/hide the presentation area in a future update.
 
 ### Show Slide Thumbnails
 

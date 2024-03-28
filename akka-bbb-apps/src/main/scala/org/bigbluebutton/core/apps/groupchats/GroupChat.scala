@@ -20,10 +20,10 @@ object GroupChatApp {
     GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
-  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser): GroupChatMessage = {
+  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.chatEmphasizedText, msg.message)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
@@ -80,8 +80,8 @@ object GroupChatApp {
         sender <- GroupChatApp.findGroupChatUser(userId, liveMeeting.users2x)
         chat <- state.groupChats.find(chatId)
       } yield {
-
-        val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg)
+        val emphasizedText = sender.role == Roles.MODERATOR_ROLE
+        val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg, emphasizedText)
         val gcs1 = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm1)
         state.update(gcs1)
       }

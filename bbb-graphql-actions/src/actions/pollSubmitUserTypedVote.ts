@@ -21,8 +21,5 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     answer: input.answer
   };
 
-  //TODO Validate answer length in the Backend (Meteor.settings.public.poll.maxTypedAnswerLength)
-  //TODO Check if answer exists and use the same ID (backend)
-
   return { eventName, routing, header, body };
 }

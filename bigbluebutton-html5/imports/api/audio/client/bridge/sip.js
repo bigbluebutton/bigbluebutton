@@ -272,7 +272,7 @@ class SIPSession {
     *
     * sessionSupportRTPPayloadDtmf
     * tells if browser support RFC4733 DTMF.
-    * Safari 13 doens't support it yet
+    * Safari 13 doesn't support it yet
     */
   sessionSupportRTPPayloadDtmf(session) {
     try {
@@ -383,7 +383,7 @@ class SIPSession {
     if (this.preloadedInputStream && this.preloadedInputStream.active) {
       return Promise.resolve(this.preloadedInputStream);
     }
-    // The rest of this mimicks the default factory behavior.
+    // The rest of this mimics the default factory behavior.
     if (!constraints.audio && !constraints.video) {
       return Promise.resolve(new MediaStream());
     }
@@ -498,7 +498,7 @@ class SIPSession {
                 extraInfo: {
                   callerIdName: this.user.callerIdName,
                 },
-              }, 'User agent succesfully reconnected');
+              }, 'User agent successfully reconnected');
             }).catch(() => {
               if (userAgentConnected) {
                 error = 1001;
@@ -531,7 +531,7 @@ class SIPSession {
           extraInfo: {
             callerIdName: this.user.callerIdName,
           },
-        }, 'User agent succesfully connected');
+        }, 'User agent successfully connected');
 
         window.addEventListener('beforeunload', this.onBeforeUnload.bind(this));
 
@@ -567,7 +567,7 @@ class SIPSession {
             extraInfo: {
               callerIdName: this.user.callerIdName,
             },
-          }, 'User agent succesfully reconnected');
+          }, 'User agent successfully reconnected');
 
           resolve();
         }).catch(() => {
@@ -579,7 +579,7 @@ class SIPSession {
               callerIdName: this.user.callerIdName,
             },
           }, 'User agent failed to reconnect after'
-          + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
+          + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attempts`);
 
           this.callback({
             status: this.baseCallStates.failed,
@@ -1013,7 +1013,7 @@ class SIPSession {
         }
 
         // if session hasn't even started, we let audio-modal to handle
-        // any possile errors
+        // any possible errors
         if (!this._currentSessionState) return false;
 
 

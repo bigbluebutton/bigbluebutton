@@ -70,6 +70,9 @@ case class LockSettingsProps(
 case class SystemProps(
     html5InstanceId: Int,
     logoutUrl: String,
+    customLogoURL: String,
+    bannerText: String,
+    bannerColor: String,
 )
 
 case class GroupProps(

@@ -14,7 +14,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
-  mdPaddingX,
+  smPaddingX,
   mdPaddingY,
   userIndicatorsOffset,
   indicatorPadding,
@@ -198,8 +198,7 @@ const CustomButton = styled(Button)`
 
 const Panel = styled.div<PanelProps>`
   background-color: ${colorWhite};
-  padding: ${mdPaddingX} ${mdPaddingY} ${mdPaddingX} ${mdPaddingX};
-
+  padding: ${smPaddingX};
   display: flex;
   flex-grow: 1;
   flex-direction: column;

@@ -11,7 +11,7 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
 import org.bigbluebutton.core2.AnalyticsActor
 import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
-import org.bigbluebutton.endpoint.redis.{AppsRedisSubscriberActor, ExportAnnotationsActor, GraphqlActionsActor, LearningDashboardActor, RedisRecorderActor}
+import org.bigbluebutton.endpoint.redis.{AppsRedisSubscriberActor, ExportAnnotationsActor, GraphqlConnectionsActor, LearningDashboardActor, RedisRecorderActor}
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
 import org.bigbluebutton.service.{BbbCoreServiceImpl, HealthzService, MeetingInfoActor, MeetingInfoService}
 import org.bigbluebutton.protos._
@@ -71,9 +71,9 @@ object Boot extends App with SystemConfiguration {
     "LearningDashboardActor"
   )
 
-  val graphqlActionsActor = system.actorOf(
-    GraphqlActionsActor.props(system),
-    "GraphqlActionsActor"
+  val graphqlConnectionsActor = system.actorOf(
+    GraphqlConnectionsActor.props(system, eventBus, outGW),
+    "GraphqlConnectionsActor"
   )
 
   ClientSettings.loadClientSettingsFromFile()
@@ -93,8 +93,8 @@ object Boot extends App with SystemConfiguration {
   outBus2.subscribe(learningDashboardActor, outBbbMsgMsgChannel)
   bbbMsgBus.subscribe(learningDashboardActor, analyticsChannel)
 
-  eventBus.subscribe(graphqlActionsActor, meetingManagerChannel)
-  bbbMsgBus.subscribe(graphqlActionsActor, analyticsChannel)
+  eventBus.subscribe(graphqlConnectionsActor, meetingManagerChannel)
+  bbbMsgBus.subscribe(graphqlConnectionsActor, analyticsChannel)
 
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW, healthzService), "bigbluebutton-actor")
   eventBus.subscribe(bbbActor, meetingManagerChannel)

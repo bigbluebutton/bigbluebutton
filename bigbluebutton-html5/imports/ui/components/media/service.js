@@ -10,9 +10,9 @@ import NotesService from '/imports/ui/components/notes/service';
 import VideoStreams from '/imports/api/video-streams';
 import Auth from '/imports/ui/services/auth/index';
 
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
-const KURENTO_CONFIG = Meteor.settings.public.kurento;
-const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
+const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
 function shouldShowWhiteboard() {
   return true;
