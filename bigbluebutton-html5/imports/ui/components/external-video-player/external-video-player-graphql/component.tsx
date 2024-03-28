@@ -176,6 +176,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const playerParentRef = useRef<HTMLDivElement| null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const presenterRef = useRef(isPresenter);
+  const [duration, setDuration] = React.useState(0);
 
   const [updateExternalVideo] = useMutation(EXTERNAL_VIDEO_UPDATE);
 
@@ -185,6 +186,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     time: number;
     state?: string;
   } = { event: '', rate: 0, time: 0 };
+
+  const handleDuration = (duration: number) => {
+    setDuration(duration);
+  };
 
   const sendMessage = (event: string, data: { rate: number; time: number; state?: string}) => {
     // don't re-send repeated update messages
@@ -292,7 +297,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         clearTimeout(timeoutRef.current);
       }
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
-      const currentTime = playerRef.current?.getCurrentTime() ?? 0;
+      const currentTime = played * duration;
       sendMessage('play', {
         rate,
         time: currentTime,
@@ -373,6 +378,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           ref={playerRef}
           volume={volume}
           onPlay={handleOnPlay}
+          onDuration={handleDuration}
           onProgress={(state: OnProgressProps) => {
             setPlayed(state.played);
             setLoaded(state.loaded);
