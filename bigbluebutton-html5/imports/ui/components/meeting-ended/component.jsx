@@ -144,7 +144,7 @@ class MeetingEnded extends PureComponent {
 
     const meeting = Meetings.findOne({ id: user?.meetingID });
     if (meeting) {
-      this.endWhenNoModeratorMinutes = meeting.durationProps.endWhenNoModeratorDelayInMinutes;
+      this.endWhenNoModeratorMinutes = meeting.endWhenNoModeratorDelayInMinutes;
 
       const endedBy = Users.findOne({
         userId: meeting.meetingEndedBy,
@@ -176,7 +176,7 @@ class MeetingEnded extends PureComponent {
 
   shouldShowFeedback() {
     const { dispatched } = this.state;
-    return getFromUserSettings('bbb_ask_for_feedback_on_logout', Meteor.settings.public.app.askForFeedbackOnLogout) && !dispatched;
+    return getFromUserSettings('bbb_ask_for_feedback_on_logout', window.meetingClientSettings.public.app.askForFeedbackOnLogout) && !dispatched;
   }
 
   confirmRedirect() {

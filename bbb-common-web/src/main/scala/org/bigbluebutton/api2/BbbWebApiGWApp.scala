@@ -150,6 +150,9 @@ class BbbWebApiGWApp(
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
                     logoutUrl:                              String,
+                    customLogoURL:                          String,
+                    bannerText:                             String,
+                    bannerColor:                            String,
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
@@ -232,7 +235,16 @@ class BbbWebApiGWApp(
 
     val systemProps = SystemProps(
       html5InstanceId,
-      logoutUrl
+      logoutUrl,
+      customLogoURL,
+      bannerText match {
+        case t: String => t
+        case _ => ""
+      },
+      bannerColor match {
+        case c: String => c
+        case _ => ""
+      },
     )
 
     val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))

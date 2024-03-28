@@ -1,17 +1,14 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Audio } = require('./audio');
-
-if (!fullyParallel) test.describe.configure({ mode: 'serial' });
+const { initializePages } = require('../core/helpers');
 
 test.describe('Audio', () => {
   const audio = new Audio();
 
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await audio.initModPage(page, true);
-    await audio.initUserPage(true, context);
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    await initializePages(audio, browser, { isMultiUser: true });
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#listen-only-mode-automated

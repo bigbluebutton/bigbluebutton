@@ -2,6 +2,7 @@ package reader
 
 import (
 	"context"
+	"errors"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
@@ -10,14 +11,14 @@ import (
 	"time"
 )
 
-func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromBrowserToHasuraChannel1 *common.SafeChannel, fromBrowserToHasuraChannel2 *common.SafeChannel, waitGroups []*sync.WaitGroup) {
+func BrowserConnectionReader(browserConnectionId string, ctx context.Context, ctxCancel context.CancelFunc, browserWsConn *websocket.Conn, fromBrowserToHasuraChannel *common.SafeChannel, fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannel, waitGroups []*sync.WaitGroup) {
 	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnectionId)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
 
 	defer func() {
-		fromBrowserToHasuraChannel1.Close()
-		fromBrowserToHasuraChannel2.Close()
+		fromBrowserToHasuraChannel.Close()
+		fromBrowserToHasuraConnectionEstablishingChannel.Close()
 	}()
 
 	defer func() {
@@ -29,20 +30,23 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c 
 		time.Sleep(100 * time.Millisecond)
 	}()
 
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	defer ctxCancel()
 
 	for {
 		var v interface{}
-		err := wsjson.Read(ctx, c, &v)
+		err := wsjson.Read(ctx, browserWsConn, &v)
 		if err != nil {
-			log.Debugf("Browser is disconnected, skipping reading of ws message: %v", err)
+			if errors.Is(err, context.Canceled) {
+				log.Debugf("Closing Browser ws connection as Context was cancelled!")
+			} else {
+				log.Debugf("Browser is disconnected, skipping reading of ws message: %v", err)
+			}
 			return
 		}
 
 		log.Tracef("received from browser: %v", v)
 
-		fromBrowserToHasuraChannel1.Send(v)
-		fromBrowserToHasuraChannel2.Send(v)
+		fromBrowserToHasuraChannel.Send(v)
+		fromBrowserToHasuraConnectionEstablishingChannel.Send(v)
 	}
 }

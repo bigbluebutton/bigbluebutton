@@ -8,12 +8,28 @@ import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { POLL_PUBLISH_RESULT, POLL_CANCEL, POLL_CREATE } from './mutations';
+import { ACTIONS, PANELS } from '../layout/enums';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
 const PollContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
+  const handleChatFormsOpen = () => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: true,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.CHAT,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_ID_CHAT_OPEN,
+      value: PUBLIC_CHAT_KEY,
+    });
+  };
+
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
 
@@ -63,6 +79,7 @@ const PollContainer = (props) => {
         publishPoll,
         stopPoll,
         startPoll,
+        handleChatFormsOpen,
         ...props,
       }}
       usernames={usernames}

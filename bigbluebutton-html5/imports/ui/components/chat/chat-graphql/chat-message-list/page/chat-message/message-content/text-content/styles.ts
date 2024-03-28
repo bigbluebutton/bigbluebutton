@@ -1,8 +1,14 @@
 import styled from 'styled-components';
-import { colorText } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  systemMessageBackgroundColor,
+  systemMessageBorderColor,
+  colorText,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import { fontSizeBase, btnFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 
 interface ChatMessageProps {
   emphasizedMessage: boolean;
+  systemMsg?: boolean;
 }
 
 export const ChatMessage = styled.div<ChatMessageProps>`
@@ -12,6 +18,17 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   flex-direction: column;
   color: ${colorText};
   word-break: break-word;
+  ${({ systemMsg }) => systemMsg && `
+  background: ${systemMessageBackgroundColor};
+  border: 1px solid ${systemMessageBorderColor};
+  border-radius: 1rem;
+  font-weight: ${btnFontWeight};
+  padding: ${fontSizeBase};
+  text-color: #1f252b;
+  margin-top: 0;
+  margin-bottom: 0;
+  overflow-wrap: break-word;
+  `}
   ${({ emphasizedMessage }) => emphasizedMessage && `
     font-weight: bold;
   `}

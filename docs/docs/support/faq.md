@@ -300,7 +300,7 @@ Yes. The steps are covered in the [install](/administration/install) documentati
 
 #### Ubuntu
 
-Older versions of BigBlueButton, up to and including version 2.4, required **Ubuntu 18.04 64-bit**.  The current version of BigBlueButto n2.5 requires **Ubuntu 20.04 64-bit**.  See [Install BigBlueButton](/administration/install).
+Older versions of BigBlueButton, up to and including version 2.7, required **Ubuntu 20.04 64-bit**.  BigBlueButton 3.0 requires **Ubuntu 22.04 64-bit**.  See [Install BigBlueButton](/administration/install).
 
 We (the core developers) have not installed BigBlueButton on any other version of Ubuntu. It probably won't work.
 

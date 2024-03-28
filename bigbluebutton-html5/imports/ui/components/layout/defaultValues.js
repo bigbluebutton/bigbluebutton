@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { LAYOUT_TYPE, CAMERADOCK_POSITION, PANELS } from './enums';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const DEFAULT_VALUES = {

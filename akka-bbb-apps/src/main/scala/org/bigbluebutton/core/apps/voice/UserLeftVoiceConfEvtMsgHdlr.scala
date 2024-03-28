@@ -40,7 +40,7 @@ trait UserLeftVoiceConfEvtMsgHdlr {
         UsersApp.guestWaitingLeft(liveMeeting, user.intId, outGW)
       }
       Users2x.remove(liveMeeting.users2x, user.intId)
-      UserDAO.delete(user.intId)
+      UserDAO.softDelete(user.intId)
       VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
     }
 

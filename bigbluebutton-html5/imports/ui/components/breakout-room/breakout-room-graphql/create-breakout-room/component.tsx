@@ -2,11 +2,10 @@ import React, { useMemo } from 'react';
 import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from 'ramda';
-import { Meteor } from 'meteor/meteor';
 import { uniqueId } from '/imports/utils/string-utils';
 import { isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, isImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { useLazyQuery, useQuery } from '@apollo/client';
+import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
 import Styled from './styles';
 import {
   getBreakouts,
@@ -25,9 +24,9 @@ import {
   BreakoutUser,
   moveUserRegistery,
 } from './room-managment-state/types';
-import { createBreakoutRoom, moveUser } from './service';
+import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../../mutations';
 
-const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
+const BREAKOUT_LIM = window.meetingClientSettings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 const MIN_BREAKOUT_TIME = 5;
@@ -236,6 +235,9 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const [numberOfRooms, setNumberOfRooms] = React.useState(MIN_BREAKOUT_ROOMS);
   const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
 
+  const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
+  const [moveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
+
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
 
@@ -289,7 +291,18 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         });
       }
     }
-    createBreakoutRoom(roomsArray, durationTime, record, captureSlides, captureNotes, inviteMods);
+    createBreakoutRoom(
+      {
+        variables: {
+          record,
+          captureNotes,
+          captureSlides,
+          durationInMinutes: durationTime,
+          sendInviteToModerators: inviteMods,
+          rooms: roomsArray,
+        },
+      },
+    );
     setIsOpen(false);
   };
 
@@ -298,7 +311,13 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     userIds.forEach((userId) => {
       const { fromRoomId, toRoomId } = moveRegisterRef.current[userId];
       if (fromRoomId !== toRoomId) {
-        moveUser(userId, fromRoomId, toRoomId);
+        moveUser({
+          variables: {
+            userId,
+            fromBreakoutRoomId: fromRoomId || '',
+            toBreakoutRoomId: toRoomId,
+          },
+        });
       }
     });
     setIsOpen(false);

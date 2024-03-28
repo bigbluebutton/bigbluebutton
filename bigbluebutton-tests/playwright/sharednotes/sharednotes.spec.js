@@ -1,15 +1,16 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { SharedNotes } = require('./sharednotes');
+const { initializePages } = require('../core/helpers');
+const { fullyParallel } = require('../playwright.config');
 
-test.describe.parallel('Shared Notes', () => {
+test.describe('Shared Notes', () => {
   const sharedNotes = new SharedNotes();
 
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await sharedNotes.initModPage(page, true);
-    await sharedNotes.initUserPage(true, context);
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    await initializePages(sharedNotes, browser, { isMultiUser: true });
   });
+
   test('Open shared notes @ci', async () => {
     await sharedNotes.openSharedNotes();
   });

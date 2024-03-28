@@ -117,7 +117,7 @@ class Create extends MultiUsers {
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/);
+    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, ELEMENT_WAIT_LONGER_TIME);
   }
 }
 

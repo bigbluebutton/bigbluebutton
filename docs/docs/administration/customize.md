@@ -71,6 +71,7 @@ And adjust it to the desired number of days. If you would instead like to comple
 
 ```bash
 remove_raw_of_published_recordings
+```
 
 #### Delete recordings older than N days
 
@@ -1239,17 +1240,29 @@ The final welcome message shown to the user (as blue text in the Chat window) is
 
 The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
 
-#### Change the default locale
+#### Modify localization for the client (override with the latest locale)
 
-XXX - Needs updating
+A common use case is to modify a particular string from the locales or to include newer localizations from upstream.
+For example, if you would like to replace `de.json` with the version from a specific branch/tag of the repository, you could do the following:
 
-By default, the BigBlueButton client should detect the browser's locale and use that default language accordingly. The default language is English, but you can change that by editing `bigbluebutton/client/BigBlueButton.html` and change the value
-
-```javascript
-localeChain = 'en_US';
+```bash
+cd /usr/share/meteor/bundle/programs/web.browser/app/locales/
+mv de.json /tmp/de.json.old
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-release/bigbluebutton-html5/public/locales/de.json
+cd /usr/share/meteor/bundle/programs/web.browser.legacy/app/locales/
+rm de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-release/bigbluebutton-html5/public/locales/de.json
+bbb-conf --restart
 ```
 
-You can see the list of languages installed with BigBlueButton in the directory `/usr/share/meteor/bundle/programs/server/assets/app/locales`.
+Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached.
+
+Please use caution when replacing/editing locales. If you followed the steps above you should have a backup copy of `de.json` (with ".old" appended) in `/tmp` in case you need to revert.
+Note that the json files accross BigBlueButton versions are not always interchangeable. The workflow described above is only really meant for cases like
+ - I would like to tweak a translation for my own use
+ - I would like to adopt a change from upstream without having to wait for the official release in a few days
+ - This is part of my customization setup and I know what I need to test. I also know how to recover if needed
+
 
 #### Change favicon
 
@@ -1440,7 +1453,9 @@ Useful tools for development:
 | `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
-| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent.                                                                                                                   | `false`        |
+| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent. 
+
+| `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false` |                                                                                                                  | `false`        |
 
 #### Branding parameters
 
@@ -1501,6 +1516,7 @@ Useful tools for development:
 | `userdata-bbb_show_public_chat_on_login=`  | If set to `false`, the chat panel will not be visible on page load until opened. Not the same as disabling chat.        | `true`        |
 | `userdata-bbb_hide_nav_bar=`               | If set to `true`, the navigation bar (the top portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
 | `userdata-bbb_hide_actions_bar=`           | If set to `true`, the actions bar (the bottom portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
+| `userdata-bbb_default_layout=`             | The initial layout on client load. Options are: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. If none is provided, the meeting layout (preset in bbb-web) will be used. Introduced in BBB 3.0.0-alpha.5. | `none`       |
 
 #### Examples
 

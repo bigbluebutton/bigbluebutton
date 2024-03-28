@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users';
 import User from './component';
 
-const MODERATOR = Meteor.settings.public.user.role_moderator;
+const MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const Container = (props) => <User {...props} />;
 

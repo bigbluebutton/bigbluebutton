@@ -1,10 +1,9 @@
 import {default as LocalStorage} from '/imports/ui/services/storage/local';
 import {default as SessionStorage} from '/imports/ui/services/storage/session';
 
-import { makeCall } from '/imports/ui/services/api';
 import { isEmpty } from 'radash';
 
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 
 const SETTINGS = [
   'application',
@@ -21,6 +20,7 @@ const DEFAULT_SETTINGS = 'default_settings';
 
 class Settings {
   constructor(defaultValues = {}) {
+    const writableDefaultValues = JSON.parse(JSON.stringify(defaultValues));
     SETTINGS.forEach((p) => {
       const privateProp = `_${p}`;
       this[privateProp] = {
@@ -42,11 +42,11 @@ class Settings {
     });
     this.defaultSettings = {};
     // Sets default locale to browser locale
-    defaultValues.application.locale = navigator.languages ? navigator.languages[0] : false
+    writableDefaultValues.application.locale = navigator.languages ? navigator.languages[0] : false
       || navigator.language
-      || defaultValues.application.locale;
+      || writableDefaultValues.application.locale;
 
-    this.setDefault(defaultValues);
+    this.setDefault(writableDefaultValues);
     this.loadChanged();
   }
 
@@ -77,7 +77,7 @@ class Settings {
     });
   }
 
-  save(settings = CHANGED_SETTINGS) {
+  save(mutation, settings = CHANGED_SETTINGS) {
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
@@ -112,11 +112,13 @@ class Settings {
       const { status } = Meteor.status();
       if (status === 'connected') {
         c.stop();
-        makeCall('userChangedLocalSettings', userSettings);
+        if (typeof mutation === 'function') {
+          mutation(userSettings);
+        }
       }
     });
   }
 }
 
-const SettingsSingleton = new Settings(Meteor.settings.public.app.defaultSettings);
+const SettingsSingleton = new Settings(window.meetingClientSettings.public.app.defaultSettings);
 export default SettingsSingleton;

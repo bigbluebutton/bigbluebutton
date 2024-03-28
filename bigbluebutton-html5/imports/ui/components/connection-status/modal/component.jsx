@@ -391,7 +391,7 @@ class ConnectionStatusComponent extends PureComponent {
    * @return {Object} The component to be renderized.
    */
   renderNetworkData() {
-    const { enableNetworkStats } = Meteor.settings.public.app;
+    const { enableNetworkStats } = window.meetingClientSettings.public.app;
 
     if (!enableNetworkStats) {
       return null;
@@ -497,7 +497,7 @@ class ConnectionStatusComponent extends PureComponent {
    * @return {Object} - The component to be renderized
    */
   renderCopyDataButton() {
-    const { enableCopyNetworkStatsButton } = Meteor.settings.public.app;
+    const { enableCopyNetworkStatsButton } = window.meetingClientSettings.public.app;
 
     if (!enableCopyNetworkStatsButton) {
       return null;

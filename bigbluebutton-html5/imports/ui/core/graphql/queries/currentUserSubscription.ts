@@ -1,59 +1,80 @@
 import { gql } from '@apollo/client';
 
-const CURRENT_USER_SUBSCRIPTION = gql`
+export const CURRENT_USER_SUBSCRIPTION = gql`
 subscription userCurrentSubscription {
   user_current {
+    authToken
     authed
     avatar
+    away
     banned
+    clientType
+    color
+    disconnected
+    echoTestRunningAt
+    ejectReason
+    ejectReasonCode
+    ejected
+    emoji
     enforceLayout
-    cameras {
-    streamId
-  }
-  clientType
-  color
-  customParameters {
-    parameter
-    value
-  }
-  disconnected
-  away
-  raiseHand
-  emoji
-  extId
-  guest
-  guestStatus
-  hasDrawPermissionOnCurrentPage
-  isDialIn
-  isModerator
-  joined
-  lastBreakoutRoom {
+    expired
+    extId
+    guest
+    guestStatus
+    hasDrawPermissionOnCurrentPage
+    inactivityWarningDisplay
+    inactivityWarningTimeoutSecs
+    isDialIn
+    isModerator
+    isOnline
+    isRunningEchoTest
+    joinErrorCode
+    joinErrorMessage
+    joined
+    locked
+    loggedOut
+    mobile
+    name
+    nameSortable
+    pinned
+    presenter
+    raiseHand
+    registeredAt
+    registeredOn
+    role
+    speechLocale
+    userId
+    customParameters {
+      parameter
+      value
+    }
+    lastBreakoutRoom {
       breakoutRoomId
       currentlyInRoom
       isDefaultName
       sequence
       shortName
     }
+    cameras {
+      streamId
+    }
     userClientSettings {
       userClientSettingsJson
     }
-    locked
-    loggedOut
-    mobile
-    name
-    pinned
-    presenter
-    registeredOn
-    role
-    userId
     voice {
       joined
       muted
       spoke
-      talking
       listenOnly
+    }
+    presPagesWritable {
+      isCurrentPage
+      changedModeOn
+      pageId
+      presentationId
     }
   }
 }
 `;
+
 export default CURRENT_USER_SUBSCRIPTION;

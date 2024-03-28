@@ -1,23 +1,18 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { encodeCustomParams } = require('../parameters/util');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const { Layouts } = require('./layouts');
+const { initializePages } = require('../core/helpers');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
-
-const CUSTOM_MEETING_ID = 'layout_management_meeting';
-
-if (!fullyParallel) test.describe.configure({ mode: 'serial' });
 
 test.describe("Layout management", () => {
   const layouts = new Layouts();
 
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await layouts.initModPage(page, true, { createParameter: hidePresentationToast, customMeetingId: CUSTOM_MEETING_ID });
-    await layouts.initUserPage(true, context, { createParameter: hidePresentationToast });
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    await initializePages(layouts, browser, { isMultiUser: true, createParameter: hidePresentationToast });
     await layouts.modPage.shareWebcam();
     await layouts.userPage.shareWebcam();
   });

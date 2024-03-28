@@ -5,15 +5,19 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Service from '/imports/ui/components/notes/service';
 import PadContainer from '/imports/ui/components/pads/container';
 import Styled from './styles';
-import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import {
+  PANELS, ACTIONS,
+  LAYOUT_TYPE,
+  PRESENTATION_AREA,
+} from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from '/imports/ui/components/notes/notes-dropdown/container';
 import { isPresentationEnabled } from '../../services/features';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-const DELAY_UNMOUNT_SHARED_NOTES = Meteor.settings.public.app.delayForUnmountOfSharedNote;
+const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 const intlMessages = defineMessages({
   hide: {
     id: 'app.notes.hide',
@@ -63,6 +67,7 @@ const Notes = ({
   amIPresenter,
   isToSharedNotesBeShow,
   shouldShowSharedNotesOnPresentationArea,
+  isGridEnabled,
 }) => {
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
 
@@ -81,6 +86,9 @@ const Notes = ({
   if (isHidden && !isOnMediaArea) {
     style.padding = 0;
     style.display = 'none';
+  }
+  if (isGridEnabled && !sidebarContent.isOpen) {
+    style.padding = 0;
   }
   useEffect(() => {
     if (isToSharedNotesBeShow) {
@@ -123,32 +131,29 @@ const Notes = ({
       }
 
       layoutContextDispatch({
-        type: ACTIONS.SET_NOTES_IS_PINNED,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.PINNED_NOTES,
+          open: true,
+        },
       });
 
       return () => {
         layoutContextDispatch({
-          type: ACTIONS.SET_NOTES_IS_PINNED,
-          value: false,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-          value: Session.get('presentationLastState'),
+          type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+          value: {
+            content: PRESENTATION_AREA.PINNED_NOTES,
+            open: false,
+          },
         });
       };
     } if (shouldShowSharedNotesOnPresentationArea) {
       layoutContextDispatch({
-        type: ACTIONS.SET_NOTES_IS_PINNED,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.PINNED_NOTES,
+          open: true,
+        },
       });
     }
   }, []);

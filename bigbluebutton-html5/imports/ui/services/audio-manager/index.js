@@ -25,14 +25,14 @@ import {
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 
-const STATS = Meteor.settings.public.stats;
-const MEDIA = Meteor.settings.public.media;
+const STATS = window.meetingClientSettings.public.stats;
+const MEDIA = window.meetingClientSettings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
-  Meteor.settings.public.app.experimentalUseKmsTrickleIceForMicrophone;
+  window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
@@ -79,7 +79,7 @@ class AudioManager {
       isHangingUp: makeVar(false),
       isListenOnly: makeVar(false),
       isEchoTest: makeVar(false),
-      isTalking: false,
+      isTalking: makeVar(false),
       isWaitingPermissions: false,
       error: null,
       muteHandle: null,
@@ -539,7 +539,7 @@ class AudioManager {
 
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
-      const query = VoiceUsers.find({ intId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
+      const query = VoiceUsers.find({ userId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
       this.muteHandle = query.observeChanges({
         added: (id, fields) => this.onVoiceUserChanges(fields),
         changed: (id, fields) => this.onVoiceUserChanges(fields),
@@ -879,9 +879,9 @@ class AudioManager {
   playHangUpSound() {
     this.playAlertSound(
       `${
-        Meteor.settings.public.app.cdn +
-        Meteor.settings.public.app.basename +
-        Meteor.settings.public.app.instanceId
+        window.meetingClientSettings.public.app.cdn +
+        window.meetingClientSettings.public.app.basename +
+        window.meetingClientSettings.public.app.instanceId
       }` + '/resources/sounds/LeftCall.mp3'
     );
   }

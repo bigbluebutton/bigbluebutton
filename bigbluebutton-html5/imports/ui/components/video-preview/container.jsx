@@ -1,4 +1,5 @@
 import React from 'react';
+import { useMutation } from '@apollo/client';
 import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import VideoPreview from './component';
@@ -6,8 +7,31 @@ import VideoService from '../video-provider/service';
 import ScreenShareService from '/imports/ui/components/screenshare/service';
 import logger from '/imports/startup/client/logger';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
+import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
 
-const VideoPreviewContainer = (props) => <VideoPreview {...props} />;
+const VideoPreviewContainer = (props) => {
+  const { buildStartSharingCameraAsContent, buildStopSharing, ...rest } = props;
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+
+  const sendUserUnshareWebcam = (cameraId) => {
+    cameraBroadcastStop({ variables: { cameraId } });
+  };
+
+  const startSharingCameraAsContent = buildStartSharingCameraAsContent(stopExternalVideoShare);
+  const stopSharing = buildStopSharing(sendUserUnshareWebcam);
+
+  return (
+    <VideoPreview
+      {...{
+        startSharingCameraAsContent,
+        stopSharing,
+        ...rest,
+      }}
+    />
+  );
+};
 
 export default withTracker(({ setIsOpen, callbackToClose }) => ({
   startSharing: (deviceId) => {
@@ -15,7 +39,7 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
     setIsOpen(false);
     VideoService.joinVideo(deviceId);
   },
-  startSharingCameraAsContent: (deviceId) => {
+  buildStartSharingCameraAsContent: (stopExternalVideoShare) => (deviceId) => {
     callbackToClose();
     setIsOpen(false);
     const handleFailure = (error) => {
@@ -32,18 +56,19 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
       ScreenShareService.screenshareHasEnded();
     };
     ScreenShareService.shareScreen(
+      stopExternalVideoShare,
       true, handleFailure, { stream: Service.getStream(deviceId)._mediaStream }
     );
     ScreenShareService.setCameraAsContentDeviceId(deviceId);
   },
-  stopSharing: (deviceId) => {
+  buildStopSharing: (sendUserUnshareWebcam) => (deviceId) => {
     callbackToClose();
     setIsOpen(false);
     if (deviceId) {
       const streamId = VideoService.getMyStreamId(deviceId);
-      if (streamId) VideoService.stopVideo(streamId);
+      if (streamId) VideoService.stopVideo(streamId, sendUserUnshareWebcam);
     } else {
-      VideoService.exitVideo();
+      VideoService.exitVideo(sendUserUnshareWebcam);
     }
   },
   stopSharingCameraAsContent: () => {

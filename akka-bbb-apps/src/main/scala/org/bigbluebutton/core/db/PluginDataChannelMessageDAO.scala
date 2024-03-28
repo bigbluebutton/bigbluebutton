@@ -1,9 +1,13 @@
 package org.bigbluebutton.core.db
 
 import PostgresProfile.api._
+import org.bigbluebutton.core.db.DatabaseConnection.{db, logger}
 import spray.json.JsValue
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
+import scala.concurrent.duration.Duration
 
 object Permission {
   val allowedRoles = List("MODERATOR","VIEWER","PRESENTER")
@@ -19,6 +23,7 @@ case class PluginDataChannelMessageDbModel(
     toRoles:            Option[List[String]],
     toUserIds:          Option[List[String]],
     createdAt:          java.sql.Timestamp,
+    deletedAt:          Option[java.sql.Timestamp],
 )
 
 class PluginDataChannelMessageDbTableDef(tag: Tag) extends Table[PluginDataChannelMessageDbModel](tag, None, "pluginDataChannelMessage") {
@@ -31,7 +36,8 @@ class PluginDataChannelMessageDbTableDef(tag: Tag) extends Table[PluginDataChann
   val toRoles = column[Option[List[String]]]("toRoles")
   val toUserIds = column[Option[List[String]]]("toUserIds")
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  override def * = (meetingId, pluginName, dataChannel, payloadJson, fromUserId, toRoles, toUserIds, createdAt) <> (PluginDataChannelMessageDbModel.tupled, PluginDataChannelMessageDbModel.unapply)
+  val deletedAt = column[Option[java.sql.Timestamp]]("deletedAt")
+  override def * = (meetingId, pluginName, dataChannel, payloadJson, fromUserId, toRoles, toUserIds, createdAt, deletedAt) <> (PluginDataChannelMessageDbModel.tupled, PluginDataChannelMessageDbModel.unapply)
 }
 
 object PluginDataChannelMessageDAO {
@@ -49,7 +55,8 @@ object PluginDataChannelMessageDAO {
             case filtered => Some(filtered)
           },
           toUserIds = if(toUserIds.isEmpty) None else Some(toUserIds),
-          createdAt = new java.sql.Timestamp(System.currentTimeMillis())
+          createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
+          deletedAt = None
         )
       )
     ).onComplete {
@@ -57,4 +64,51 @@ object PluginDataChannelMessageDAO {
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PluginDataChannelMessage: $e")
       }
   }
+
+  def reset(meetingId: String, pluginName: String, dataChannel: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[PluginDataChannelMessageDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.pluginName === pluginName)
+        .filter(_.dataChannel === dataChannel)
+        .map(u => (u.deletedAt))
+        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated deleted=now() on pluginDataChannelMessage table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating deleted=now() pluginDataChannelMessage: $e")
+    }
+  }
+
+  def getMessageSender(meetingId: String, pluginName: String, dataChannel: String, messageId: String): String = {
+      val query = sql"""SELECT "fromUserId"
+             FROM "pluginDataChannelMessage"
+                WHERE "deletedAt" is null
+                AND "meetingId" = ${meetingId}
+                AND "pluginName" = ${pluginName}
+                AND "dataChannel" = ${dataChannel}
+                AND "messageId" = ${messageId}""".as[String].headOption
+
+      Await.result(DatabaseConnection.db.run(query), Duration.Inf) match {
+        case Some(userId) => userId
+        case None => {
+          logger.debug("Message {} not found in database (maybe it was deleted).", messageId)
+          ""
+        }
+      }
+  }
+
+  def delete(meetingId: String, pluginName: String, dataChannel: String, messageId: String) = {
+    DatabaseConnection.db.run(
+      sqlu"""UPDATE "pluginDataChannelMessage" SET
+                "deletedAt" = current_timestamp
+                WHERE "meetingId" = ${meetingId}
+                AND "pluginName" = ${pluginName}
+                AND "dataChannel" = ${dataChannel}
+                AND "messageId" = ${messageId}"""
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated deleted=now() on pluginDataChannelMessage table!")
+      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating deleted=now() pluginDataChannelMessage: $e")
+    }
+  }
+
 }

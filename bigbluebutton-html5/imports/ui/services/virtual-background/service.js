@@ -10,9 +10,9 @@ const EFFECT_TYPES = {
 }
 
 // TODO I'm sure this is centralized somewhere; fetch it from "there" if possible
-const BASE_PATH = Meteor.settings.public.app.cdn
-  + Meteor.settings.public.app.basename
-  + Meteor.settings.public.app.instanceId;
+const BASE_PATH = window.meetingClientSettings.public.app.cdn
+  + window.meetingClientSettings.public.app.basename
+  + window.meetingClientSettings.public.app.instanceId;
 
 const MODELS = {
   model96: {
@@ -37,7 +37,7 @@ const {
   storedOnBBB: IS_STORED_ON_BBB = true,
   imagesPath: IMAGES_PATH = '/resources/images/virtual-backgrounds/',
   showThumbnails: SHOW_THUMBNAILS = true,
-} = Meteor.settings.public.virtualBackgrounds;
+} = window.meetingClientSettings.public.virtualBackgrounds;
 
 const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream, customParams) => {
   const buildParams = {

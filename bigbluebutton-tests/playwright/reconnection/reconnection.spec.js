@@ -1,11 +1,8 @@
-const { test } = require('@playwright/test');
-const { fullyParallel } = require('../playwright.config');
+const { test } = require('../fixtures');
 const { Reconnection } = require('./reconnection');
 const { checkRootPermission } = require('../core/helpers');
 
-if (!fullyParallel) test.describe.configure({ mode: 'serial' });
-
-test.describe('Reconnection', () => {
+test.describe.parallel('Reconnection', () => {
   test('Chat', async ({ browser, context, page }) => {
     await checkRootPermission(); // check sudo permission before starting test
     const reconnection = new Reconnection(browser, context);
