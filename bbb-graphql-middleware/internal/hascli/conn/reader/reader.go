@@ -61,8 +61,8 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, fromHasuraToBr
 			//When Hasura send msg type "complete", this query is finished
 			if messageType == "complete" {
 				handleCompleteMessage(hc, queryId)
-				common.ActivitiesOverviewIncIndex("Hasura-" + subscription.OperationName + "-Completed")
-				common.ActivitiesOverviewIncIndex("_Hasura-" + string(subscription.Type) + "-Completed")
+				common.ActivitiesOverviewCompleted(string(subscription.Type) + "-" + subscription.OperationName)
+				common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
 			}
 
 			if messageType == "data" &&

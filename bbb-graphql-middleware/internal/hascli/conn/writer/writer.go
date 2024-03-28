@@ -7,6 +7,7 @@ import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket/wsjson"
+	"os"
 	"strings"
 	"sync"
 )
@@ -107,6 +108,9 @@ RangeLoop:
 					if ok && strings.HasPrefix(operationName, "Patched_") {
 						jsonPatchSupported = true
 					}
+					if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
+						jsonPatchSupported = false
+					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
@@ -124,8 +128,9 @@ RangeLoop:
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
-					common.ActivitiesOverviewIncIndex("Hasura-" + operationName + "-Added")
-					common.ActivitiesOverviewIncIndex("_Hasura-" + string(messageType) + "-Added")
+					common.ActivitiesOverviewStarted(string(messageType) + "-" + operationName)
+					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
+
 				}
 
 				if fromBrowserMessageAsMap["type"] == "stop" {
@@ -134,8 +139,8 @@ RangeLoop:
 					jsonPatchSupported := browserConnection.ActiveSubscriptions[queryId].JsonPatchSupported
 
 					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
-					common.ActivitiesOverviewIncIndex("Hasura-" + browserConnection.ActiveSubscriptions[queryId].OperationName + "-Completed")
-					common.ActivitiesOverviewIncIndex("_Hasura-" + string(browserConnection.ActiveSubscriptions[queryId].Type) + "-Completed")
+					common.ActivitiesOverviewCompleted(string(browserConnection.ActiveSubscriptions[queryId].Type) + "-" + browserConnection.ActiveSubscriptions[queryId].OperationName)
+					common.ActivitiesOverviewCompleted("_Sum-" + string(browserConnection.ActiveSubscriptions[queryId].Type))
 
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
 					if jsonPatchSupported {

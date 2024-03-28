@@ -13,6 +13,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -30,18 +31,27 @@ func main() {
 	go func() {
 		for {
 			time.Sleep(5 * time.Second)
-			jsonOverviewBytes, err := json.Marshal(common.GetActivitiesOverview())
+
+			hasuraConnections := common.GetActivitiesOverview()["__HasuraConnection"].Started
+			topMessages := make(map[string]common.ActivitiesOverviewObj)
+			for index, item := range common.GetActivitiesOverview() {
+				if strings.HasPrefix(index, "_") || item.Started > hasuraConnections*3 {
+					topMessages[index] = item
+				}
+			}
+
+			jsonOverviewBytes, err := json.Marshal(topMessages)
 			if err != nil {
 				log.Errorf("Error occurred during marshaling. Error: %s", err.Error())
 			}
 
-			log.WithField("data", string(jsonOverviewBytes)).Info("Activities Overview")
+			log.WithField("data", string(jsonOverviewBytes)).Info("Top Activities Overview")
 
 			activitiesOverviewSummary := make(map[string]int64)
-			activitiesOverviewSummary["activeWsConnections"] = common.GetActivitiesOverview()["__WebsocketConnection-Added"] - common.GetActivitiesOverview()["__WebsocketConnection-Removed"]
-			activitiesOverviewSummary["activeBrowserHandlers"] = common.GetActivitiesOverview()["__BrowserConnection-Added"] - common.GetActivitiesOverview()["__BrowserConnection-Removed"]
-			activitiesOverviewSummary["activeSubscriptions"] = common.GetActivitiesOverview()["_Hasura-subscription-Added"] - common.GetActivitiesOverview()["_Hasura-subscription-Completed"]
-			activitiesOverviewSummary["pendingMutations"] = common.GetActivitiesOverview()["_Hasura-mutation-Added"] - common.GetActivitiesOverview()["_Hasura-mutation-Completed"]
+			activitiesOverviewSummary["activeWsConnections"] = common.GetActivitiesOverview()["__WebsocketConnection"].Started - common.GetActivitiesOverview()["__WebsocketConnection"].Completed
+			activitiesOverviewSummary["activeBrowserHandlers"] = common.GetActivitiesOverview()["__BrowserConnection"].Started - common.GetActivitiesOverview()["__BrowserConnection"].Completed
+			activitiesOverviewSummary["activeSubscriptions"] = common.GetActivitiesOverview()["_Sum-subscription"].Started - common.GetActivitiesOverview()["_Sum-subscription"].Completed
+			activitiesOverviewSummary["pendingMutations"] = common.GetActivitiesOverview()["_Sum-mutation"].Started - common.GetActivitiesOverview()["_Sum-mutation"].Completed
 			activitiesOverviewSummary["numGoroutine"] = int64(runtime.NumGoroutine())
 			jsonOverviewSummaryBytes, _ := json.Marshal(activitiesOverviewSummary)
 			log.WithField("data", string(jsonOverviewSummaryBytes)).Info("Activities Overview Summary")
@@ -58,6 +68,10 @@ func main() {
 
 	// Listen msgs from akka (for example to invalidate connection)
 	go websrv.StartRedisListener()
+
+	if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
+		log.Infof("Json Patch Disabled!")
+	}
 
 	// Websocket listener
 
@@ -88,8 +102,8 @@ func main() {
 		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
 		defer cancel()
 
-		common.ActivitiesOverviewIncIndex("__WebsocketConnection-Added")
-		defer common.ActivitiesOverviewIncIndex("__WebsocketConnection-Removed")
+		common.ActivitiesOverviewStarted("__WebsocketConnection")
+		defer common.ActivitiesOverviewCompleted("__WebsocketConnection")
 
 		if err := rateLimiter.Wait(ctx); err != nil {
 			if !errors.Is(err, context.Canceled) {

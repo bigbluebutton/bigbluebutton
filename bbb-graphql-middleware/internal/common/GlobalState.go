@@ -15,21 +15,44 @@ func GetUniqueID() string {
 	return uniqueID
 }
 
-var activitiesOverview = make(map[string]int64)
+type ActivitiesOverviewObj struct {
+	Started   int64
+	Completed int64
+}
+
+var activitiesOverview = make(map[string]ActivitiesOverviewObj)
 var activitiesOverviewMux = sync.Mutex{}
 
-func ActivitiesOverviewIncIndex(index string) {
+func ActivitiesOverviewStarted(index string) {
 	activitiesOverviewMux.Lock()
 	defer activitiesOverviewMux.Unlock()
 
 	if _, exists := activitiesOverview[index]; !exists {
-		activitiesOverview[index] = 0
+		activitiesOverview[index] = ActivitiesOverviewObj{
+			Started:   0,
+			Completed: 0,
+		}
 	}
 
-	activitiesOverview[index]++
+	updatedValues := activitiesOverview[index]
+	updatedValues.Started++
+
+	activitiesOverview[index] = updatedValues
 }
 
-func GetActivitiesOverview() map[string]int64 {
+func ActivitiesOverviewCompleted(index string) {
+	activitiesOverviewMux.Lock()
+	defer activitiesOverviewMux.Unlock()
+
+	if updatedValues, exists := activitiesOverview[index]; exists {
+		updatedValues.Completed++
+
+		activitiesOverview[index] = updatedValues
+	}
+
+}
+
+func GetActivitiesOverview() map[string]ActivitiesOverviewObj {
 	activitiesOverviewMux.Lock()
 	defer activitiesOverviewMux.Unlock()
 
