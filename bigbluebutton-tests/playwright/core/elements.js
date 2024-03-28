@@ -392,7 +392,6 @@ exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]'
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
 exports.userBannedMessage1 = 'div[id="app"] >> div >> div:nth-child(1)';
 exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
-exports.meetingEndedModalTitle = 'div[data-test="meetingEndedModal"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
 exports.activityCheckTitle = 'h1[data-test="activityCheckTitle"]';
