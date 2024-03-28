@@ -158,13 +158,13 @@ class UsersApp(
   with RegisterUserReqMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
+  with SetUserSpeechOptionsMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr
   with GetRecordingStatusReqMsgHdlr
-  with SelectRandomViewerReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with ChangeUserMobileFlagReqMsgHdlr

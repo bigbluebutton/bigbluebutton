@@ -181,14 +181,14 @@ class Base extends Component {
       if (!checkedUserSettings) {
         const showAnimationsDefault = getFromUserSettings(
           'bbb_show_animations_default',
-          Meteor.settings.public.app.defaultSettings.application.animations
+          window.meetingClientSettings.public.app.defaultSettings.application.animations
         );
 
         Settings.application.animations = showAnimationsDefault;
         Settings.save(setLocalSettings);
 
-        if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+        if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,
@@ -274,7 +274,6 @@ class Base extends Component {
       subscriptionsReady,
       userWasEjected,
     } = this.props;
-
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
@@ -314,7 +313,6 @@ class Base extends Component {
       }
       return (<MeetingEnded code={codeError} callback={this.setUserExitReason} endedReason="logout" />);
     }
-
     return (<AppContainer {...this.props} />);
   }
 
@@ -363,6 +361,7 @@ const BaseContainer = (props) => {
 };
 
 export default withTracker(() => {
+  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
   const {
     animations,
   } = Settings.application;
@@ -390,15 +389,15 @@ export default withTracker(() => {
     loggedOut: 1,
     meetingId: 1,
     userId: 1,
-    inactivityCheck: 1,
-    responseDelay: 1,
     currentConnectionId: 1,
     connectionIdUpdateTime: 1,
+    inactivityWarningDisplay: 1,
+    inactivityWarningTimeoutSecs: 1,
   };
   const User = Users.findOne({ userId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
-      meetingEnded: 1,
+      ended: 1,
       meetingEndedReason: 1,
       meetingProp: 1,
     },
@@ -437,10 +436,10 @@ export default withTracker(() => {
     User,
     isMeteorConnected: Meteor.status().connected,
     meetingExist: !!meeting,
-    meetingHasEnded: !!meeting && meeting.meetingEnded,
+    meetingHasEnded: !!meeting && meeting.ended,
     meetingEndedReason,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    subscriptionsReady: Session.get('subscriptionsReady'),
+    subscriptionsReady: Session.get('subscriptionsReady') || clientSettings.skipMeteorConnection,
     loggedIn,
     codeError,
     usersVideo,

@@ -185,7 +185,7 @@ export default class WebRtcPeer extends EventEmitter2 {
     return this.peerConnection.setLocalDescription(rtcSessionDescription);
   }
 
-  // Public method can be overriden via options
+  // Public method can be overridden via options
   mediaStreamFactory() {
     if (this.videoStream || this.audioStream) {
       return Promise.resolve();

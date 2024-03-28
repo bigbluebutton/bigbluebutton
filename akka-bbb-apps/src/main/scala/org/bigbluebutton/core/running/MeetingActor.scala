@@ -402,12 +402,12 @@ class MeetingActor(
       case m: UserReactionTimeExpiredCmdMsg => handleUserReactionTimeExpiredCmdMsg(m)
       case m: ClearAllUsersEmojiCmdMsg      => handleClearAllUsersEmojiCmdMsg(m)
       case m: ClearAllUsersReactionCmdMsg   => handleClearAllUsersReactionCmdMsg(m)
-      case m: SelectRandomViewerReqMsg      => usersApp.handleSelectRandomViewerReqMsg(m)
       case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
       case m: ChangeUserMobileFlagReqMsg    => usersApp.handleChangeUserMobileFlagReqMsg(m)
       case m: UserConnectionAliveReqMsg     => usersApp.handleUserConnectionAliveReqMsg(m)
       case m: UserConnectionUpdateRttReqMsg => usersApp.handleUserConnectionUpdateRttReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg     => usersApp.handleSetUserSpeechLocaleReqMsg(m)
+      case m: SetUserSpeechOptionsReqMsg    => usersApp.handleSetUserSpeechOptionsReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -591,6 +591,7 @@ class MeetingActor(
 
       // AudioCaptions
       case m: UpdateTranscriptPubMsg                         => audioCaptionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: TranscriptionProviderErrorMsg                  => audioCaptionsApp2x.handleTranscriptionProviderErrorMsg(m, liveMeeting, msgBus)
 
       // GroupChat
       case m: CreateGroupChatReqMsg =>
@@ -984,6 +985,7 @@ class MeetingActor(
 
         val secsToDisconnect = TimeUnit.MILLISECONDS.toSeconds(expiryTracker.userActivitySignResponseDelayInMs);
         Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, secsToDisconnect, outGW)
+        UserStateDAO.updateInactivityWarning(u.intId, inactivityWarningDisplay = true, secsToDisconnect)
         updateUserLastInactivityInspect(u.intId)
       }
     }

@@ -46,7 +46,8 @@ const UserCameraDropdownPluginStateContainer = ((
 
   pluginApi.setUserCameraDropdownItems = (items: PluginSdk.UserCameraDropdownInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.UserCameraDropdownInterface[];
-    return setUserCameraDropdownItems(itemsWithId);
+    setUserCameraDropdownItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

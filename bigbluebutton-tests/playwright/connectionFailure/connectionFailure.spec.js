@@ -1,9 +1,8 @@
-const { test, devices } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { ScreenShare, MultiUserScreenShare } = require('../screenshare/screenshare');
-const { sleep, checkRootPermission } = require('../core/helpers');
+const { checkRootPermission } = require('../core/helpers');
 const e = require('../core/elements');
 const { getCurrentTCPSessions, killTCPSessions } = require('./util');
-const notificationsUtil = require('../notifications/util');
 const deepEqual = require('deep-equal');
 
 test.describe.parallel('Connection failure', () => {

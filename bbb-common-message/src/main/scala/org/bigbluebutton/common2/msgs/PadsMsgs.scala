@@ -107,7 +107,7 @@ case class PadTailEvtMsgBody(externalId: String, tail: String)
 // client -> apps
 object PadUpdatePubMsg { val NAME = "PadUpdatePubMsg" }
 case class PadUpdatePubMsg(header: BbbClientMsgHeader, body: PadUpdatePubMsgBody) extends StandardMsg
-case class PadUpdatePubMsgBody(externalId: String, text: String)
+case class PadUpdatePubMsgBody(externalId: String, text: String, transcript: Boolean)
 
 // apps -> pads
 object PadUpdateCmdMsg { val NAME = "PadUpdateCmdMsg" }

@@ -96,7 +96,7 @@ export const INITIAL_INPUT_STATE = {
     browserHeight: 0,
   },
   genericComponent: {
-    hasGenericComponent: false,
+    genericComponentId: undefined,
     width: 0,
     height: 0,
     browserWidth: 0,

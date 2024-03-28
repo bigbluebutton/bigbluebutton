@@ -66,6 +66,7 @@ const currentParameters = [
   'bbb_hide_nav_bar',
   'bbb_change_layout',
   'bbb_direct_leave_button',
+  'bbb_default_layout',
 ];
 
 function valueParser(val) {

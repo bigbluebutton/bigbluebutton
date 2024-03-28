@@ -308,7 +308,7 @@ check_and_backup () {
     fi
 }
 
-# 3 paramenter: the file, the variable name, the new value
+# 3 parameter: the file, the variable name, the new value
 change_var_value () {
     check_and_backup $1
     sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=${3}<" $1
@@ -1489,7 +1489,7 @@ if [ -n "$HOST" ]; then
         echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" >> "$BBB_WEB_ETC_CONFIG"
     fi
 
-    # Populate /etc/bigbluebutton/bbb-web.properites with the shared secret
+    # Populate /etc/bigbluebutton/bbb-web.properties with the shared secret
     if ! grep -q "^securitySalt" "$BBB_WEB_ETC_CONFIG"; then
         echo "securitySalt=$(get_bbb_web_config_value securitySalt)" >> "$BBB_WEB_ETC_CONFIG"
     fi
@@ -1559,7 +1559,7 @@ if [ -n "$HOST" ]; then
     sudo yq e -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" $WEBRTC_SFU_ETC_CONFIG
     sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
     if [ -f /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml ]; then
-        sudo yq w -i /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml freeswitch.esl_password "$ESL_PASSWORD"
+        sudo yq w -i /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml freeswitch.password "$ESL_PASSWORD"
     fi
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."

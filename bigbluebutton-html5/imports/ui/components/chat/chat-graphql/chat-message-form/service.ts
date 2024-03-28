@@ -1,15 +1,32 @@
 export const textToMarkdown = (message: string) => {
-  let parsedMessage = message || '';
-  parsedMessage = parsedMessage.trim();
+  const parsedMessage = message || '';
 
-  // replace url with markdown links
-  const urlRegex = /(?<!\]\()https?:\/\/([\w-]+\.)+\w{1,6}([/?=&#.]?[\w-]+)*/gm;
-  parsedMessage = parsedMessage.replace(urlRegex, '[$&]($&)');
+  // regular expression to match urls
+  const urlRegex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g;
 
-  // replace new lines with markdown new lines
-  parsedMessage = parsedMessage.replace(/\n\r?/g, '  \n');
+  // regular expression to match URLs with IP addresses
+  const ipUrlRegex = /\b(?:https?:\/\/)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d{1,5})?(?:\/\S*)?\b/g;
 
-  return parsedMessage;
+  // regular expression to match Markdown links
+  const mdRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+
+  // regular expression to match new lines
+  const newLineRegex = /\n\r?/g;
+
+  // append https:// to URLs that don't have it
+  const appendHttps = (match: string, text: string, url: string) => {
+    if (!/^https?:\/\//.test(url)) {
+      return `[${text}](https://${url})`;
+    }
+    return match;
+  };
+
+  return parsedMessage
+    .trim()
+    .replace(urlRegex, '[$&]($&)')
+    .replace(ipUrlRegex, '[$&]($&)')
+    .replace(mdRegex, appendHttps)
+    .replace(newLineRegex, '  \n');
 };
 
 export default {
