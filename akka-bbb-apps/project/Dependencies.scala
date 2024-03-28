@@ -68,7 +68,6 @@ object Dependencies {
 
     val postgresql = "org.postgresql" % "postgresql" % Versions.postgresql
     val jacksonDataFormat = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jacksonDataFormat
-    val snakeYaml = "org.yaml" % "snakeyaml"
   }
 
   object Test {
