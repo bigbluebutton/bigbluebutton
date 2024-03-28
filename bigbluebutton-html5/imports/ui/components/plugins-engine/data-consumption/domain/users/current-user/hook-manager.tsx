@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -49,9 +49,9 @@ const CurrentUserHookContainer: React.FunctionComponent<
     updateUserForPlugin();
   }, [sendSignal]);
   useEffect(() => {
-    const updateHookUseCurrentUser = () => {
-      setSendSignal((signal) => !signal);
-    };
+    const updateHookUseCurrentUser = ((event: CustomEvent<SubscribedEventDetails>) => {
+      if (event.detail.hook === DataConsumptionHooks.CURRENT_USER) setSendSignal((signal) => !signal);
+    }) as EventListener;
     window.addEventListener(
       HookEvents.SUBSCRIBED, updateHookUseCurrentUser,
     );
