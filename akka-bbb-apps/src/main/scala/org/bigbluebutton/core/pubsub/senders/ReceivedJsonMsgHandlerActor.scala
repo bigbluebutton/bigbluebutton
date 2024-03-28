@@ -420,6 +420,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
+      case SendMessageToChatFromApiSysPubMsg.NAME =>
+        routeGenericMsg[SendMessageToChatFromApiSysPubMsg](envelope, jsonNode)
 
       //Plugin
       case PluginDataChannelDispatchMessageMsg.NAME =>

@@ -602,6 +602,8 @@ class MeetingActor(
       case m: SendGroupChatMessageMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.body.msg.sender.id)
+      case m: SendMessageToChatFromApiSysPubMsg =>
+        groupChatApp.handle(m, state, liveMeeting, msgBus)
 
       // Plugin
       case m: PluginDataChannelDispatchMessageMsg => pluginHdlrs.handle(m, state, liveMeeting)

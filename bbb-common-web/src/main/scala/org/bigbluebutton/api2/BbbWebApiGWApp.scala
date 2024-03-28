@@ -9,6 +9,7 @@ import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
+import org.bigbluebutton.chat.messages.{ISendToChatMsg, SendMessageToChatFromAPI}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.presentation.messages._
@@ -372,6 +373,13 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocInvalidMimeType]) {
       val event = MsgBuilder.buildPresentationHasInvalidMimeType(msg.asInstanceOf[DocInvalidMimeType])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    }
+  }
+
+  def sendMessageInChatFromApiMsg(msg: ISendToChatMsg): Unit ={
+    if (msg.isInstanceOf[SendMessageToChatFromAPI]){
+      val event = MsgBuilder.buildSendMessageToChatFromApi(msg.asInstanceOf[SendMessageToChatFromAPI])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
