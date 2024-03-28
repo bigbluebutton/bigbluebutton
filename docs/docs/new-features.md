@@ -50,6 +50,11 @@ Administrators will appreciate that we now allow passing of custom client settin
 For years we have discussed internally the topic of replacing MeteorJS with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components which are to replace Meteor. The work is underway, it will span into BigBlueButton 3.0, 3.1, possibly 3.2 too.
 These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura. During the transition period, `bbb-html5-backend` and `bbb-html5-frontend` are still present, however, lots of what they used to do is now being carried out by the new components.
 
+#### Support for Collabora Online as Document Converter
+
+Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
+For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
+
 ### Experimental
 
 <!-- #### LiveKit support -->
