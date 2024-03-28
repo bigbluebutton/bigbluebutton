@@ -1,0 +1,15 @@
+server:
+  host: localhost
+  port: 9100
+  grpc:
+    host: localhost
+    port: 9000
+
+security:
+  salt: 330a8b08c3b4c61533e1d0c5ce1ac88f
+  checksum:
+    algorithms:
+      - sha-1
+      - sha-256
+      - sha-384
+      - sha-512

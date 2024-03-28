@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message User {
+    string user_id = 1;
+    string full_name = 2;
+    string role = 3;
+    bool is_presenter = 4;
+    bool is_listening_only = 5;
+    bool has_joined_voice = 6;
+    bool has_video = 7;
+    string clientType = 8;
+    map<string, string> custom_data = 9;
+}
+
+message DurationInfo {
+    int64 create_time = 1;
+    string created_on = 2;
+    int32 duration = 3;
+    int64 start_time = 4;
+    int64 end_time = 5;
+    bool is_running = 6;
+    bool has_been_forcibly_ended = 7;
+}
+
+message ParticipantInfo {
+    bool has_user_joined = 1;
+    int32 participant_count = 2;
+    int32 listener_count = 3;
+    int32 voice_participant_count = 4;
+    int32 video_count = 5;
+    int32 max_users = 6;
+    int32 moderator_count = 7;
+}
+
+message BreakoutInfo {
+    bool is_breakout = 1;
+    string parent_meeting_id = 2;
+    int32 sequence = 3;
+    bool free_join = 4;
+}
+
+message MeetingInfo {
+    string meeting_name = 1;
+    string meeting_ext_id = 2;
+    string meeting_int_id = 3;
+    string voice_bridge = 6;
+    string dial_number = 7;
+    string attendee_pw = 8;
+    string moderator_pw = 9;
+    bool recording = 10;
+    repeated User users = 11;
+    map<string, string> metadata = 12;
+    repeated string breakout_rooms = 13;
+    DurationInfo duration_info = 14;
+    ParticipantInfo participant_info = 15;
+    BreakoutInfo breakout_info = 16;
+}
