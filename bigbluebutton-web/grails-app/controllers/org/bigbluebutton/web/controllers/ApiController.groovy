@@ -1363,12 +1363,45 @@ class ApiController {
       }
     }
   }
+  
+  /***********************************
+   * ENDPROMPT (API)
+   ***********************************/
+  def endPrompt = {
+    String API_CALL = 'endPrompt'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    log.debug request.getParameterMap().toMapString()
+    log.debug request.getQueryString()
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.END_PROMPT,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
+
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    } else if(ParamsUtil.sanitizeString(params.meetingID) != params.meetingID) {
+      invalid("validationError", "Invalid meeting ID")
+      return
+    }
+
+    meetingService.endMeetingPrompt(params.meetingID)
+
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildEndPromptResponse("Sent end meeting prompt", RESP_CODE_SUCCESS), contentType: "text/xml")
+      }
+    }
+  }
 
   def uploadDocuments(conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains("presentation")) {
       log.warn("Presentation feature is disabled.")
       return false
     }
+
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
     //sanitizeInput

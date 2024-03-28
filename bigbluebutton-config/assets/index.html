@@ -28,12 +28,12 @@
     </div>
 </body>
 <script>
-    const ERRORS_QUERY_LABLE = "errors"
+    const ERRORS_QUERY_LABEL = "errors"
     const queryString = decodeURI(window.location.search).slice(1);
-    const positionError = queryString.indexOf(ERRORS_QUERY_LABLE);
+    const positionError = queryString.indexOf(ERRORS_QUERY_LABEL);
     let jsonString;
     if (positionError !== -1) {
-        jsonString = JSON.parse(queryString.slice(positionError + ERRORS_QUERY_LABLE.length + 1));
+        jsonString = JSON.parse(queryString.slice(positionError + ERRORS_QUERY_LABEL.length + 1));
         const welcomeMessage = document.querySelector('#welcome-message');
         const errorContainer = document.createElement('div');
         errorContainer.classList.add("error-div");

@@ -88,6 +88,7 @@ class MeetingActor(
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
+  with EndMeetingPromptReqMsgHdlr
   with DestroyMeetingSysCmdMsgHdlr
   with SendTimeRemainingUpdateHdlr
   with SendBreakoutTimeRemainingMsgHdlr
@@ -366,6 +367,8 @@ class MeetingActor(
 
     msg.core match {
       case m: EndMeetingSysCmdMsg     => handleEndMeeting(m, state)
+
+      case m: EndMeetingPromptReqMsg  => handleEndMeetingPromptReqMsg(m, state)
 
       // Users
       case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)

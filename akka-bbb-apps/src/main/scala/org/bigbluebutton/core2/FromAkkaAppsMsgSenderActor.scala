@@ -169,6 +169,9 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case NotifyRoleInMeetingEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
+      case EndMeetingPromptEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
       case _ =>
         msgSender.send(fromAkkaAppsRedisChannel, json)
     }

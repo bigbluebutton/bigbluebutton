@@ -44,7 +44,8 @@ public class ValidationService {
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
         GET_JOIN_URL("getJoinUrl", RequestType.GET),
-        INSERT_DOCUMENT("insertDocument", RequestType.GET);
+        INSERT_DOCUMENT("insertDocument", RequestType.GET),
+        END_PROMPT("endPrompt", RequestType.GET);
 
         private final String name;
         private final RequestType requestType;
@@ -139,6 +140,9 @@ public class ValidationService {
                         break;
                     case INSERT_DOCUMENT:
                         request = new InsertDocument(checksum);
+                        break;
+                    case END_PROMPT:
+                        request = new EndPrompt(checksum);
                         break;
                     case GUEST_WAIT:
                         request = new GuestWait();

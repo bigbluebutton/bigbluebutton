@@ -1,7 +1,7 @@
 package org.bigbluebutton.api2
 
 import org.bigbluebutton.api.messaging.converters.messages._
-import org.bigbluebutton.api2.meeting.RegisterUser
+import org.bigbluebutton.api2.meeting.{ EndMeetingPrompt, RegisterUser }
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
@@ -22,6 +22,15 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(EndMeetingSysCmdMsg.NAME, msg.meetingId, "not-used")
     val body = EndMeetingSysCmdMsgBody(msg.meetingId)
     val req = EndMeetingSysCmdMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildEndMeetingPromptRequestToAkkaApps(msg: EndMeetingPrompt): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(EndMeetingPromptReqMsg.NAME, routing)
+    val header = BbbClientMsgHeader(EndMeetingPromptReqMsg.NAME, msg.meetingId, "not-used")
+    val body = EndMeetingPromptReqMsgBody(msg.meetingId)
+    val req = EndMeetingPromptReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

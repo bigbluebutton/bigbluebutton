@@ -3,12 +3,12 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging
-import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, Group, LockSettingsParams }
+import org.bigbluebutton.api.domain.{BreakoutRoomsParams, Group, LockSettingsParams}
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
-import org.bigbluebutton.api2.meeting.{ OldMeetingMsgHdlrActor, RegisterUser }
+import org.bigbluebutton.api2.meeting.{EndMeetingPrompt, OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.presentation.messages._
@@ -271,6 +271,12 @@ class BbbWebApiGWApp(
       excludeFromDashboard = excludeFromDashboard)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
+  def endMeetingPrompt(meetingId: String): Unit = {
+    val endMeetingPrompt = EndMeetingPrompt(meetingId = meetingId)
+    val event = MsgBuilder.buildEndMeetingPromptRequestToAkkaApps(endMeetingPrompt)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 

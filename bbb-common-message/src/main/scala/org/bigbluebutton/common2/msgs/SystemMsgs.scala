@@ -30,6 +30,20 @@ case class EndMeetingSysCmdMsg(
 ) extends StandardMsg
 case class EndMeetingSysCmdMsgBody(meetingId: String)
 
+object EndMeetingPromptReqMsg { val NAME = "EndMeetingPromptReqMsg" }
+case class EndMeetingPromptReqMsg(
+    header: BbbClientMsgHeader,
+    body:   EndMeetingPromptReqMsgBody
+) extends StandardMsg
+case class EndMeetingPromptReqMsgBody(meetingId: String)
+
+object EndMeetingPromptEvtMsg { val NAME = "EndMeetingPromptEvtMsg" }
+case class EndMeetingPromptEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   EndMeetingPromptEvtMsgBody
+) extends BbbCoreMsg
+case class EndMeetingPromptEvtMsgBody(meetingId: String)
+
 object GetAllMeetingsReqMsg { val NAME = "GetAllMeetingsReqMsg" }
 case class GetAllMeetingsReqMsg(
     header: BbbCoreBaseHeader,
