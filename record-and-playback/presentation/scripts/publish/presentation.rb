@@ -1414,6 +1414,8 @@ begin
         ## Write the new metadata.xml
         File.open("#{package_dir}/metadata.xml", 'w') { |file| file.write(Nokogiri::XML(metadata.to_xml, &:noblanks).root) }
         BigBlueButton.logger.info('Added playback to metadata.xml')
+		
+		system("sh /usr/local/bin/recording-imex.sh -i true -r -s #{@meeting_id} #{package_dir}/metadata.xml")
 
         # Create slides.xml
         BigBlueButton.logger.info('Generating xml for slides and chat')
