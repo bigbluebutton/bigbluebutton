@@ -42,3 +42,4 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-PresenterInMeeting
+      allow_aggregations: true
