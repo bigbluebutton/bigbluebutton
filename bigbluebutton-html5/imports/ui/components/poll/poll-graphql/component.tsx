@@ -452,7 +452,12 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           secretPoll={secretPoll}
           question={question}
           setError={setError}
-          setIsPolling={() => {}}
+          setIsPolling={() => {
+            setType(null);
+            setOptList([]);
+            setQuestion('');
+            setQuestionAndOptions('');
+          }}
           hasCurrentPresentation={hasCurrentPresentation}
           handleToggle={handleToggle}
           error={error}
