@@ -308,13 +308,13 @@ test.describe.parallel('User', () => {
     });
   });
 
-  test('Activity Check @ci', async ({ browser, context, page }) => {
+  test('Activity Check', async ({ browser, context, page }) => {
     const multiusers = new MultiUsers(browser, context);
     await multiusers.initModPage(page, true);
     await multiusers.activityCheck();
   });
 
-  test('Inactivity Check @ci', async ({ browser, context, page }) => {
+  test('Inactivity Check', async ({ browser, context, page }) => {
     const multiusers = new MultiUsers(browser, context);
     await multiusers.initModPage(page, true);
     await multiusers.inactivityCheck();
