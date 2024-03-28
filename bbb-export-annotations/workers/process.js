@@ -794,9 +794,11 @@ function overlay_annotations(svg, currentSlideAnnotations) {
 // Process the presentation pages and annotations into a PDF file
 async function process_presentation_annotations() {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   await client.connect();
@@ -868,11 +870,18 @@ async function process_presentation_annotations() {
       }
     });
 
-    // Scale slide back to its original size
+/**
+ * Constructs the command arguments for converting an annotated slide from SVG to PDF format.
+ * `cairoSVGUnsafeFlag` should be enabled (true) for CairoSVG versions >= 2.7.0
+ * to allow external resources, such as presentation slides, to be loaded.
+ *
+ * @const {string[]} convertAnnotatedSlide - The command arguments for the conversion process.
+ */
     const convertAnnotatedSlide = [
       SVGfile,
       '--output-width', to_px(slideWidth),
       '--output-height', to_px(slideHeight),
+      ...(config.process.cairoSVGUnsafeFlag ? ['-u'] : []),
       '-o', PDFfile,
     ];
 

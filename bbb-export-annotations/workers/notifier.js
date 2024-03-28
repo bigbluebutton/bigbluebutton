@@ -20,9 +20,11 @@ const exportJob = JSON.parse(job);
  * sending a message through Redis PubSub */
 async function notifyMeetingActor() {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   await client.connect();
