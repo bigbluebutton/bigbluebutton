@@ -15,6 +15,8 @@ import {
 import logger from '/imports/startup/client/logger';
 import Settings from '/imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutation';
+import { layoutDispatch } from '../../../layout/context';
+import { ACTIONS, PANELS } from '../../../layout/enums';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -66,6 +68,9 @@ interface LiveResultProps {
   isSecret: boolean;
 }
 
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
+
 const LiveResult: React.FC<LiveResultProps> = ({
   questionText,
   responses,
@@ -80,6 +85,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
   const [stopPoll] = useMutation(POLL_CANCEL);
 
+  const layoutContextDispatch = layoutDispatch();
   const publishPoll = useCallback((pId: string) => {
     pollPublishResult({
       variables: {
@@ -128,6 +134,19 @@ const LiveResult: React.FC<LiveResultProps> = ({
                 Session.set('pollInitiated', false);
                 publishPoll(pollId);
                 stopPoll();
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: true,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.CHAT,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_ID_CHAT_OPEN,
+                  value: PUBLIC_CHAT_KEY,
+                });
+
               }}
               disabled={numberOfAnswerCount <= 0}
               label={intl.formatMessage(intlMessages.publishLabel)}
