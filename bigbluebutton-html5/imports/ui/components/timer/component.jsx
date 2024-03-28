@@ -257,11 +257,19 @@ class Timer extends Component {
       timerReset,
     } = this.props;
 
-    const { running } = timer;
+    const { running, stopwatch, time } = timer;
+
+    const timeArray = Service.getTimeAsString(time).split(':');
+    const hasHours = timeArray.length === 3;
+    const hours = hasHours ? timeArray[0] : '00';
+    const minutes = hasHours ? timeArray[1] : timeArray[0];
+    const seconds = hasHours ? timeArray[2] : timeArray[1];
+
+    const isTimeZeroOrLess = parseInt(hours, 10) <= 0 && parseInt(minutes, 10) <= 0
+    && parseInt(seconds, 10) <= 0 && stopwatch === false;
 
     const label = running ? intlMessages.stop : intlMessages.start;
     const color = running ? 'danger' : 'primary';
-    const isTimeZeroOrLess = this.getTime() <= 0;
 
     return (
       <div>
