@@ -62,7 +62,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
 }`;
 
 export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
-  subscription {
+  subscription UsersCount {
     user_aggregate {
       aggregate {
         count
@@ -72,7 +72,7 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
 `;
 
 export const USERS_OVERVIEW = gql`
-subscription Users {
+subscription UsersOverview {
   user {
     userId
     name
