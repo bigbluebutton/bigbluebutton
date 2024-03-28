@@ -106,7 +106,7 @@ test.describe.parallel('Breakout', () => {
       await join.endAllBreakoutRooms();
     });
 
-    test('Invite user after creating rooms @ci @flaky', async ({ browser, context, page }) => {
+    test('Invite user after creating rooms @ci', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
