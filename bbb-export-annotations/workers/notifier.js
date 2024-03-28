@@ -1,16 +1,17 @@
-const Logger = require('../lib/utils/logger');
-const config = require('../config');
-const fs = require('fs');
-const FormData = require('form-data');
-const redis = require('redis');
-const axios = require('axios').default;
-const path = require('path');
-const {NewPresFileAvailableMsg} = require('../lib/utils/message-builder');
-
-const {workerData} = require('worker_threads');
-const [jobType, jobId, serverSideFilename] = [workerData.jobType, workerData.jobId, workerData.serverSideFilename];
+import Logger from '../lib/utils/logger.js';
+import fs from 'fs';
+import FormData from 'form-data';
+import redis from 'redis';
+import axios from 'axios';
+import path from 'path';
+import {NewPresFileAvailableMsg} from '../lib/utils/message-builder.js';
+import {workerData} from 'worker_threads';
+const [jobType, jobId, serverSideFilename] = [workerData.jobType,
+  workerData.jobId,
+  workerData.serverSideFilename];
 
 const logger = new Logger('presAnn Notifier Worker');
+const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 
 const dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`;
 const job = fs.readFileSync(path.join(dropbox, 'job'));
@@ -28,7 +29,8 @@ async function notifyMeetingActor() {
   await client.connect();
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  const link = path.join('presentation',
+  const link = path.join(
+      'presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
       exportJob.presId, 'pdf', jobId, serverSideFilename);
 
@@ -37,14 +39,17 @@ async function notifyMeetingActor() {
   logger.info(`Annotated PDF available at ${link}`);
   await client.publish(config.redis.channels.publish, notification.build());
   client.disconnect();
-
 }
 
 /** Upload PDF to a BBB room
  * @param {String} filePath - Absolute path to the file, including the extension
 */
 async function upload(filePath) {
-  const callbackUrl = `${config.bbbWebAPI}/bigbluebutton/presentation/${exportJob.presentationUploadToken}/upload`;
+  const apiPath = '/bigbluebutton/presentation/';
+  const uploadToken = exportJob.presentationUploadToken;
+  const uploadAction = '/upload';
+  const callbackUrl = config.bbbWebAPI + apiPath + uploadToken + uploadAction;
+
   const formData = new FormData();
   formData.append('conference', exportJob.parentMeetingId);
   formData.append('pod_id', config.notifier.pod_id);
@@ -64,7 +69,10 @@ async function upload(filePath) {
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
   notifyMeetingActor();
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
-  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${serverSideFilename}`;
+  const baseDirectory = exportJob.presLocation;
+  const subDirectory = 'pdfs';
+  const filePath = path.join(baseDirectory, subDirectory,
+      jobId, serverSideFilename);
   upload(filePath);
 } else if (jobType == 'PadCaptureJob') {
   const filePath = `${dropbox}/${serverSideFilename}`;
