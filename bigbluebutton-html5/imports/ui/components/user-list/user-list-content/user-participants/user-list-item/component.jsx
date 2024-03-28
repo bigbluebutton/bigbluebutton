@@ -17,6 +17,10 @@ import { isChatEnabled } from '/imports/ui/services/features';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { uniqueId } from '/imports/utils/string-utils';
+import AudioService from '/imports/ui/components/audio/service';
+import VoiceUsers from '/imports/api/voice-users';
+import Auth from '/imports/ui/services/auth';
+import ModalNotify from './notify/container';
 
 const messages = defineMessages({
   presenter: {
@@ -212,6 +216,8 @@ class UserListItem extends PureComponent {
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
     this.setConfirmationModalIsOpen = this.setConfirmationModalIsOpen.bind(this);
+    this.prevMutedRef = React.createRef(false);
+    this.muteAway = this.muteAway.bind(this);
 
     this.title = uniqueId('dropdown-title-');
     this.seperator = uniqueId('action-separator-');
@@ -290,7 +296,6 @@ class UserListItem extends PureComponent {
       setEmojiStatus,
       setUserAway,
       assignPresenter,
-      removeUser,
       toggleVoice,
       changeRole,
       ejectUserCameras,
@@ -556,6 +561,7 @@ class UserListItem extends PureComponent {
         key: 'setAway',
         label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
         onClick: () => {
+          this.muteAway();
           this.onActionsHide(setUserAway(user.userId, !user.away));
           this.handleClose();
         },
@@ -581,6 +587,25 @@ class UserListItem extends PureComponent {
     });
 
     return availableActions.filter((action) => action.allowed);
+  }
+
+  muteAway() {
+    const { user } = this.props;
+    const voiceUserAway = VoiceUsers.findOne({
+      meetingId: Auth.meetingID, intId: Auth.userID,
+    }, { fields: { muted: 1 } });
+    const prevAwayMuted = this.prevMutedRef.current;
+    if (!voiceUserAway.muted && !user.away && !prevAwayMuted) {
+      AudioService.toggleMuteMicrophone();
+      this.prevMutedRef.current = true;
+    } else if (voiceUserAway.muted && user.away && prevAwayMuted) {
+      AudioService.toggleMuteMicrophone();
+    }
+    if (!user.away) {
+      VideoService.setTrackEnabled(false);
+    } else {
+      VideoService.setTrackEnabled(true);
+    }
   }
 
   getDropdownMenuParent() {
@@ -718,12 +743,13 @@ class UserListItem extends PureComponent {
       isRTL,
       selectedUserId,
       removeUser,
+      setUserAway,
     } = this.props;
 
     const {
       isActionsOpen,
       selected,
-      isConfirmationModalOpen
+      isConfirmationModalOpen,
     } = this.state;
 
     if (!user) return (
@@ -917,9 +943,20 @@ class UserListItem extends PureComponent {
             onRequestClose: () => this.setConfirmationModalIsOpen(false),
             priority: "low",
             setIsOpen: this.setConfirmationModalIsOpen,
-            isOpen: isConfirmationModalOpen
+            isOpen: isConfirmationModalOpen,
           }}
         /> : null}
+        {user.away ? <ModalNotify
+        {...{
+          priority: "high",
+          setIsOpen: () => {},
+          isOpen: user.away,
+          muteAway: this.muteAway,
+          closeModal: () => {
+            this.muteAway();
+            this.onActionsHide(setUserAway(user.userId, !user.away));
+          },
+        }}/> : null}
       </>
     );
   }

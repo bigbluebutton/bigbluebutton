@@ -42,7 +42,8 @@ const UserListItemContainer = (props) => {
 };
 const isMe = (intId) => intId === Auth.userID;
 
-export default withTracker(({ user }) => {
+export default withTracker(({ user, props }) => {
+  const setIsOpen = props;
   const findUserInBreakout = user ? BreakoutService.getBreakoutUserIsIn(user.userId) : false;
   const findUserLastBreakout = user ? BreakoutService.getBreakoutUserWasIn(user.userId, null) : null;
   const breakoutSequence = (findUserInBreakout || {}).sequence;
@@ -58,6 +59,10 @@ export default withTracker(({ user }) => {
     getEmoji: UserListService.getEmoji(),
     usersProp: UserListService.getUsersProp(),
     selectedUserId: Session.get('dropdownOpenUserId'),
+    closeModal: () => {
+      setIsOpen(false);
+    },
+    ...props,
     isReactionsEnabled: UserReactionService.isEnabled(),
   };
 })(UserListItemContainer);
