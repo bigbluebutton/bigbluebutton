@@ -334,6 +334,7 @@ const PollingGraphqlContainer: React.FC = () => {
     hasPendingPoll,
     {
       variables: { userId: currentUserData?.userId },
+      skip: !currentUserData,
     },
   );
   const [pollSubmitUserTypedVote] = useMutation(POLL_SUBMIT_TYPED_VOTE);

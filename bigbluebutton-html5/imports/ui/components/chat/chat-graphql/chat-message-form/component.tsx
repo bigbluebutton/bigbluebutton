@@ -18,7 +18,7 @@ import ClickOutside from '/imports/ui/components/click-outside/component';
 import { checkText } from 'smile2emoji';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
