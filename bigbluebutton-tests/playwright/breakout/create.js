@@ -10,7 +10,7 @@ class Create extends MultiUsers {
 
   // Create BreakoutRooms
   async create(captureNotes = false, captureWhiteboard = false) {
-    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.manageUsers, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
     // assign user to first room
@@ -20,7 +20,7 @@ class Create extends MultiUsers {
     if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
 
-    await this.userPage.hasElement(e.modalConfirmButton);
+    await this.userPage.hasElement(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem);
   }

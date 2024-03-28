@@ -72,7 +72,6 @@ test.describe.parallel('Presentation', () => {
   });
 
   test.describe.parallel('Manage', () => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
     test('Upload single presentation @ci @flaky', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
@@ -81,6 +80,7 @@ test.describe.parallel('Presentation', () => {
 
     test('Upload Other Presentations Format @ci @flaky', async ({ browser, context, page }) => {
       linkIssue(18971);
+      test.skip(browserName === 'firefox', 'Inconsistent screenshot PPTX');
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadOtherPresentationsFormat();
@@ -100,10 +100,10 @@ test.describe.parallel('Presentation', () => {
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
     
-    test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page }, testInfo) => {
+    test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page, browserName }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
-      await presentation.sendPresentationToDownload(testInfo);
+      await presentation.sendPresentationToDownload(testInfo, browserName);
     });
 
     test('Remove all presentation @ci', async ({ browser, context, page }) => {

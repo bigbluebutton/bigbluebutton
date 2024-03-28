@@ -219,6 +219,7 @@ test.describe.parallel('User', () => {
 
       test('Lock see other viewers cursor @flaky', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
+        test.skip(browserName === 'firefox', 'Firefox does not show the cursor on automated test.');
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersCursor();
       });

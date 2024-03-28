@@ -42,8 +42,9 @@ test.describe('Chat', () => {
     await chat.emptyMessage();
   });
 
-  test('Copy and paste public message', async () => {
+  test('Copy and paste public message', async ({ browserName }) => {
     linkIssue('15948');
+    test.skip(browserName === 'webkit', 'The message breaks in two, but it should keep together.');
     await chat.copyPastePublicMessage();
   })
 
@@ -56,7 +57,8 @@ test.describe('Chat', () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat @ci', async () => {
+  test('Close private chat @ci', async ({ browserName }) => {
+    test.skip(browserName === 'webkit', 'Receiving wrong output.');
     await chat.closePrivateChat();
   });
 

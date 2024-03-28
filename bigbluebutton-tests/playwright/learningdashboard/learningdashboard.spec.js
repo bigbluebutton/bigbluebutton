@@ -30,7 +30,8 @@ test.describe('Learning Dashboard', async () => {
     await learningDashboard.basicInfos();
   });
 
-  test('Overview', async () => {
+  test('Overview', async ({ browserName }) => {
+    test.skip(browserName === 'webkit', "Webcam not supported on Webkit")
     await learningDashboard.overview();
   });
 

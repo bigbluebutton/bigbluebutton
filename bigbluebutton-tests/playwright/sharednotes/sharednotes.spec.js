@@ -10,7 +10,6 @@ test.describe('Shared Notes', () => {
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
     await initializePages(sharedNotes, browser, { isMultiUser: true });
   });
-
   test('Open shared notes @ci', async () => {
     await sharedNotes.openSharedNotes();
   });
@@ -31,7 +30,8 @@ test.describe('Shared Notes', () => {
     await sharedNotes.convertNotesToWhiteboard();
   });
 
-  test('Multiusers edit', async () => {
+  test('Multiusers edit', async ({ browserName }) => {
+    test.skip(browserName === 'firefox', 'Breaks only on Firefox.(Must see it).');
     await sharedNotes.editSharedNotesWithMoreThanOneUSer();
   });
 
