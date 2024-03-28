@@ -8,7 +8,7 @@ const { checkTextContent, checkElementLengthEqualTo } = require('../core/util');
 const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
 const { getNotesLocator } = require('../sharednotes/util');
 const { getSettings } = require('../core/settings');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -390,6 +390,22 @@ class MultiUsers {
 
     await this.modPage.hasText(e.liveCaptions, e.message);
     await this.modPage2.hasText(e.liveCaptions, e.message);
+  }
+
+  async activityCheck() {
+    await sleep(80000);
+    await this.modPage.hasText(e.activityCheckTitle, 'User activity check');
+    await this.modPage.waitAndClick(e.activityCheckBtn);
+    await this.modPage.hasElement(e.whiteboard);
+  }
+
+  async inactivityCheck() {
+    await sleep(95000);
+    await this.modPage.hasText(e.activityCheckTitle, 'User activity check');
+    await sleep(15000);
+    await this.modPage.hasText(e.meetingEndedModalTitle, 'User inactive for too long', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.waitAndClick(`${e.meetingEndedModal} button>>nth=1`);
+    await this.modPage.hasText(e.welcomeMessage, 'Welcome to BigBlueButton!');
   }
 }
 
