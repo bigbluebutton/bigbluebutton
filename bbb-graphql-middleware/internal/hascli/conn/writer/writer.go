@@ -123,12 +123,20 @@ RangeLoop:
 					}
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
+
+					common.ActivitiesOverviewIncIndex("Hasura-" + operationName + "-Added")
+					common.ActivitiesOverviewIncIndex("_Hasura-" + string(messageType) + "-Added")
 				}
 
 				if fromBrowserMessageAsMap["type"] == "stop" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
 					browserConnection.ActiveSubscriptionsMutex.RLock()
 					jsonPatchSupported := browserConnection.ActiveSubscriptions[queryId].JsonPatchSupported
+
+					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
+					common.ActivitiesOverviewIncIndex("Hasura-" + browserConnection.ActiveSubscriptions[queryId].OperationName + "-Completed")
+					common.ActivitiesOverviewIncIndex("_Hasura-" + string(browserConnection.ActiveSubscriptions[queryId].Type) + "-Completed")
+
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
 					if jsonPatchSupported {
 						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection, queryId)
