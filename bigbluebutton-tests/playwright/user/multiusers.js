@@ -404,7 +404,8 @@ class MultiUsers {
     await this.modPage.hasText(e.activityCheckTitle, 'User activity check');
     await sleep(15000);
     await this.modPage.hasText(e.meetingEndedModalTitle, 'User inactive for too long', ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await this.modPage.waitAndClick(`${e.meetingEndedModal} button`);
+    await this.modPage.waitAndClick(`${e.meetingEndedModal} button>>nth=1`);
+    await this.modPage.hasText(e.welcomeMessage, 'Welcome to BigBlueButton!');
   }
 }
 
