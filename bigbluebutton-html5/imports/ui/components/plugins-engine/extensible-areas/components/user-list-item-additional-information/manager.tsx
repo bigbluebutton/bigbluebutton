@@ -19,7 +19,7 @@ const UserListItemAdditionalInformationPluginStateContainer = ((
   const [
     userListItemAdditionalInformation,
     setUserListItemAdditionalInformation,
-  ] = useState<PluginSdk.UserListItemAdditionalInformation[]>([]);
+  ] = useState<PluginSdk.UserListItemAdditionalInformationInterface[]>([]);
 
   const {
     pluginsExtensibleAreasAggregatedState,
@@ -32,7 +32,7 @@ const UserListItemAdditionalInformationPluginStateContainer = ((
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedUserListItemAdditionalInformation = (
-      [] as PluginSdk.UserListItemAdditionalInformation[]).concat(
+      [] as PluginSdk.UserListItemAdditionalInformationInterface[]).concat(
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.userListItemAdditionalInformation),
     );
@@ -44,9 +44,10 @@ const UserListItemAdditionalInformationPluginStateContainer = ((
     );
   }, [userListItemAdditionalInformation]);
 
-  pluginApi.setUserListItemAdditionalInformation = (items: PluginSdk.UserListItemAdditionalInformation[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.UserListItemAdditionalInformation[];
-    return setUserListItemAdditionalInformation(itemsWithId);
+  pluginApi.setUserListItemAdditionalInformation = (items: PluginSdk.UserListItemAdditionalInformationInterface[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.UserListItemAdditionalInformationInterface[];
+    setUserListItemAdditionalInformation(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

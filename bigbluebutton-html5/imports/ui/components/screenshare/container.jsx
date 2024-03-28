@@ -1,5 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { useMutation } from '@apollo/client';
 import {
   getSharingContentType,
   getBroadcastContentType,
@@ -16,6 +17,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import MediaService from '/imports/ui/components/media/service';
 import { defineMessages } from 'react-intl';
 import NotesService from '/imports/ui/components/notes/service';
+import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -95,6 +97,7 @@ const ScreenshareContainer = (props) => {
   const { element } = fullscreen;
   const fullscreenElementId = 'Screenshare';
   const fullscreenContext = (element === fullscreenElementId);
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   const { isPresenter } = props;
 
@@ -130,6 +133,7 @@ const ScreenshareContainer = (props) => {
           ...screenShare,
           fullscreenContext,
           fullscreenElementId,
+          stopExternalVideoShare,
           ...selectedInfo,
         }
         }
@@ -139,7 +143,7 @@ const ScreenshareContainer = (props) => {
   return null;
 };
 
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
+const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
 export default withTracker(() => {
   return {

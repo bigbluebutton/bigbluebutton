@@ -14,7 +14,7 @@ import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-s
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
-const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
+const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const WebcamContainer = ({

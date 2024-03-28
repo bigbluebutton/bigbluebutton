@@ -1,4 +1,5 @@
-const config = require('../../config');
+import fs from 'fs';
+const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 
 const EXPORT_STATUSES = Object.freeze({
   COLLECTING: 'COLLECTING',
@@ -73,6 +74,7 @@ class NewPresFileAvailableMsg {
           annotatedFileURI: link,
           originalFileURI: '',
           convertedFileURI: '',
+          fileName: exportJob.filename,
           presId: exportJob.presId,
           fileStateType: 'Annotated',
         },
@@ -85,7 +87,4 @@ class NewPresFileAvailableMsg {
   };
 };
 
-module.exports = {
-  PresAnnStatusMsg,
-  NewPresFileAvailableMsg,
-};
+export {PresAnnStatusMsg, NewPresFileAvailableMsg};

@@ -63,7 +63,7 @@ interface MuteToggleProps {
   muted: boolean;
   disabled: boolean;
   isAudioLocked: boolean;
-  toggleMuteMicrophone: (muted: boolean) => void;
+  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId?: string | null, muted?: boolean | null) => void) => void;
 }
 
 interface LiveSelectionProps extends MuteToggleProps {
@@ -95,7 +95,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
-  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownItem[];
+  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownInterface[];
   if (pluginsExtensibleAreasAggregatedState.audioSettingsDropdownItems) {
     audioSettingsDropdownItems = [
       ...pluginsExtensibleAreasAggregatedState.audioSettingsDropdownItems,
@@ -209,7 +209,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     .concat(leaveAudioOption);
 
   audioSettingsDropdownItems.forEach((audioSettingsDropdownItem:
-    PluginSdk.AudioSettingsDropdownItem) => {
+    PluginSdk.AudioSettingsDropdownInterface) => {
     switch (audioSettingsDropdownItem.type) {
       case AudioSettingsDropdownItemType.OPTION: {
         const audioSettingsDropdownOption = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;

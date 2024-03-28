@@ -14,7 +14,7 @@ const AboutContainer = (props) => {
 
 const getClientBuildInfo = () => (
   {
-    settings: Meteor.settings.public.app,
+    settings: window.meetingClientSettings.public.app,
 
   }
 );

@@ -125,7 +125,6 @@ const PresentationContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1;
 `;
 
 const Presentation = styled.div`
@@ -161,6 +160,7 @@ const PresentationToolbar = styled.div`
   order: 2;
   position: absolute;
   bottom: 0;
+  z-index: 2;
 `;
 
 const ToastSeparator = styled(ToastStyled.Separator)``;

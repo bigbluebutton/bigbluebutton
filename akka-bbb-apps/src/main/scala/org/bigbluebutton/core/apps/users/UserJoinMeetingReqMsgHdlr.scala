@@ -71,7 +71,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
   private def resetUserLeftFlag(msg: UserJoinMeetingReqMsg) = {
     log.info("Resetting flag that user left meeting. user {}", msg.body.userId)
-    sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, false)
+    sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, leftFlag = false)
     Users2x.resetUserLeftFlag(liveMeeting.users2x, msg.body.userId)
   }
 

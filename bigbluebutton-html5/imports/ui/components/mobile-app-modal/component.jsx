@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import Styled from './styles';
 import Meetings from '/imports/api/meetings';
 
-const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 
 const intlMessages = defineMessages({
   title: {
@@ -68,9 +68,9 @@ class MobileAppModal extends Component {
     const meetingId = Auth.meetingID;
     const meetingObject = Meetings.findOne({
       meetingId,
-    }, { fields: { 'meetingProp.name': 1 } });
+    }, { fields: { name: 1 } });
     if (meetingObject != null) {
-      this.setState({ meetingName: meetingObject.meetingProp.name });
+      this.setState({ meetingName: meetingObject.name });
     }
 
     const url = `/bigbluebutton/api/getJoinUrl?sessionToken=${sessionToken}`;

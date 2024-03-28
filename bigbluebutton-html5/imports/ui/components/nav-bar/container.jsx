@@ -5,39 +5,18 @@ import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import userListService from '/imports/ui/components/user-list/service';
-import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
-import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useChat from '/imports/ui/core/hooks/useChat';
 
-const PUBLIC_CONFIG = Meteor.settings.public;
-
-const checkUnreadMessages = ({
-  groupChatsMessages, groupChats, users, idChatOpen,
-}) => {
-  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users });
-  const hasUnreadMessages = activeChats
-    .filter((chat) => chat.userId !== idChatOpen)
-    .some((chat) => chat.unreadCounter > 0);
-
-  return hasUnreadMessages;
-};
+const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
 const NavBarContainer = ({ children, ...props }) => {
-  const usingChatContext = useContext(ChatContext);
-  const usingUsersContext = useContext(UsersContext);
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  const usingGroupChatContext = useContext(GroupChatContext);
-  const { chats: groupChatsMessages } = usingChatContext;
-  const { users } = usingUsersContext;
-  const { groupChat: groupChats } = usingGroupChatContext;
-  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { unread, ...rest } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -51,9 +30,12 @@ const NavBarContainer = ({ children, ...props }) => {
   const { sidebarNavPanel } = sidebarNavigation;
 
   const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
-  const hasUnreadMessages = checkUnreadMessages(
-    { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
-  );
+
+  const { data: chats } = useChat((chat) => ({
+    totalUnread: chat.totalUnread,
+  }));
+
+  const hasUnreadMessages = chats && chats.reduce((acc, chat) => acc + chat?.totalUnread, 0) > 0;
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
@@ -85,7 +67,6 @@ const NavBarContainer = ({ children, ...props }) => {
         sidebarContent,
         layoutContextDispatch,
         isExpanded,
-        activeChats,
         currentUserId: Auth.userID,
         pluginNavBarItems,
         ...rest,
@@ -105,15 +86,15 @@ export default withTracker(() => {
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
-  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1, meetingId: 1 } });
+  }, { fields: { name: 1, 'breakoutPolicies.sequence': 1, meetingId: 1 } });
 
   if (meetingObject != null) {
-    meetingTitle = meetingObject.meetingProp.name;
+    meetingTitle = meetingObject.name;
     let titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
     document.title = titleString;
 
-    if (meetingObject.breakoutProps) {
-      breakoutNum = meetingObject.breakoutProps.sequence;
+    if (meetingObject.breakoutPolicies) {
+      breakoutNum = meetingObject.breakoutPolicies.sequence;
       if (breakoutNum > 0) {
         const breakoutObject = Breakouts.findOne({
           breakoutId: meetingObject.meetingId,
@@ -126,6 +107,11 @@ export default withTracker(() => {
     }
   }
 
+  const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
+    'bbb_direct_leave_button',
+    PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
+  );
+
   return {
     isPinned: NotesService.isSharedNotesPinned(),
     currentUserId: Auth.userID,
@@ -135,5 +121,7 @@ export default withTracker(() => {
     breakoutName,
     meetingName,
     unread,
+    isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(NavBarContainer);

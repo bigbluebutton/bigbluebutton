@@ -7,7 +7,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
-const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
+const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
 
 const propTypes = {
   inputStream: PropTypes.objectOf(PropTypes.any).isRequired,

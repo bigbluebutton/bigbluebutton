@@ -1,9 +1,11 @@
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { equals } from 'ramda';
+import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
+import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
 
 // variable to debug in console log
 const debug = false;
@@ -27,7 +29,16 @@ const providerPropTypes = {
 
 const LayoutContextSelector = createContext();
 
+const initPresentationAreaContentActions = [{
+  type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+  value: {
+    content: PRESENTATION_AREA.WHITEBOARD_OPEN,
+    open: true,
+  },
+}];
+
 const initState = {
+  presentationAreaContentActions: initPresentationAreaContentActions,
   deviceType: null,
   isRTL: false,
   layoutType: DEFAULT_VALUES.layoutType,
@@ -1185,6 +1196,56 @@ const reducer = (state, action) => {
       };
     }
 
+    // GENERIC COMPONENT
+    case ACTIONS.SET_HAS_GENERIC_COMPONENT: {
+      const { genericComponent } = state.input;
+      if (genericComponent.genericComponentId === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          genericComponent: {
+            ...genericComponent,
+            genericComponentId: action.value,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_GENERIC_COMPONENT_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        right,
+      } = action.value;
+      const { genericComponent } = state.output;
+      if (genericComponent.width === width
+        && genericComponent.height === height
+        && genericComponent.top === top
+        && genericComponent.left === left
+        && genericComponent.right === right) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          genericComponent: {
+            ...genericComponent,
+            width,
+            height,
+            top,
+            left,
+            right,
+          },
+        },
+      };
+    }
+
     // NOTES
     case ACTIONS.SET_SHARED_NOTES_OUTPUT: {
       const {
@@ -1233,15 +1294,144 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA: {
+      const { presentationAreaContentActions } = state;
+      if (action.value.open) {
+        presentationAreaContentActions.push(action);
+      } else {
+        const indexOfOpenedContent = presentationAreaContentActions.findIndex((p) => {
+          if (action.value.content === PRESENTATION_AREA.GENERIC_COMPONENT) {
+            return (
+              p.value.content === action.value.content
+                && p.value.open
+                && p.value.genericComponentId === action.value.genericComponentId
+            );
+          }
+          return (
+            p.value.content === action.value.content && p.value.open
+          );
+        });
+        if (
+          indexOfOpenedContent !== -1
+        ) presentationAreaContentActions.splice(indexOfOpenedContent, 1);
+      }
+      return {
+        ...state,
+        presentationAreaContentActions,
+      };
+    }
     default: {
       throw new Error('Unexpected action');
     }
   }
 };
 
+const updatePresentationAreaContent = (
+  layoutContextState,
+  previousPresentationAreaContentActions,
+  layoutContextDispatch,
+) => {
+  const {
+    presentationAreaContentActions: currentPresentationAreaContentActions,
+  } = layoutContextState;
+  if (!equals(
+    currentPresentationAreaContentActions,
+    previousPresentationAreaContentActions.current,
+  )) {
+    // eslint-disable-next-line no-param-reassign
+    previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
+    const lastIndex = currentPresentationAreaContentActions.length - 1;
+    const lastPresentationContentInPile = currentPresentationAreaContentActions[lastIndex];
+    switch (lastPresentationContentInPile.value.content) {
+      case PRESENTATION_AREA.GENERIC_COMPONENT: {
+        layoutContextDispatch({
+          type: ACTIONS.SET_NOTES_IS_PINNED,
+          value: !lastPresentationContentInPile.value.open,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          value: lastPresentationContentInPile.value.genericComponentId,
+        });
+        break;
+      }
+      case PRESENTATION_AREA.PINNED_NOTES: {
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          value: undefined,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_NOTES_IS_PINNED,
+          value: lastPresentationContentInPile.value.open,
+        });
+        break;
+      }
+      case PRESENTATION_AREA.EXTERNAL_VIDEO: {
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          value: undefined,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+          value: lastPresentationContentInPile.value.open,
+        });
+        break;
+      }
+      case PRESENTATION_AREA.SCREEN_SHARE: {
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          value: undefined,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_SCREEN_SHARE,
+          value: lastPresentationContentInPile.value.open,
+        });
+        break;
+      }
+      case PRESENTATION_AREA.WHITEBOARD_OPEN: {
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_SCREEN_SHARE,
+          value: !lastPresentationContentInPile.value.open,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+          value: !lastPresentationContentInPile.value.open,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          value: undefined,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: true,
+    });
+  }
+};
+
 const LayoutContextProvider = (props) => {
+  const previousPresentationAreaContentActions = useRef(
+    [{
+      type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+      value: {
+        content: PRESENTATION_AREA.WHITEBOARD_OPEN,
+        open: true,
+      },
+    }],
+  );
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
+  useEffect(() => {
+    updatePresentationAreaContent(
+      layoutContextState,
+      previousPresentationAreaContentActions,
+      layoutContextDispatch,
+    );
+  }, [layoutContextState]);
+  useUpdatePresentationAreaContentForPlugin(layoutContextState);
   return (
     <LayoutContextSelector.Provider value={
       [

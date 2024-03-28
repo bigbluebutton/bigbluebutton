@@ -20,12 +20,12 @@ import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
 import { isEmpty } from 'radash';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
-const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
+const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -194,8 +194,8 @@ const getUsers = () => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      { fields: { 'lockSettings.hideUserList': 1 } });
+    if (meeting && meeting.lockSettings && meeting.lockSettings.hideUserList) {
       const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
     }
@@ -210,8 +210,8 @@ const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) =
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      { fields: { 'lockSettings.hideUserList': 1 } });
+    if (meeting && meeting.lockSettings && meeting.lockSettings.hideUserList) {
       const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
     }
@@ -343,11 +343,11 @@ const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id },
-    { fields: { lockSettingsProps: 1, usersProp: 1 } });
+    { fields: { lockSettings: 1, usersPolicies: 1 } });
   let isLocked = false;
 
-  if (meeting.lockSettingsProps !== undefined) {
-    const { lockSettingsProps: lockSettings, usersProp } = meeting;
+  if (meeting.lockSettings !== undefined) {
+    const { lockSettings, usersPolicies } = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
@@ -357,7 +357,7 @@ const isMeetingLocked = (id) => {
       || lockSettings.hideUserList
       || lockSettings.hideViewersCursor
       || lockSettings.hideViewersAnnotation
-      || usersProp.webcamsOnlyForModerator) {
+      || usersPolicies.webcamsOnlyForModerator) {
       isLocked = true;
     }
   }
@@ -370,14 +370,14 @@ const getUsersProp = () => {
     { meetingId: Auth.meetingID },
     {
       fields: {
-        'usersProp.allowModsToUnmuteUsers': 1,
-        'usersProp.allowModsToEjectCameras': 1,
-        'usersProp.authenticatedGuest': 1,
+        'usersPolicies.allowModsToUnmuteUsers': 1,
+        'usersPolicies.allowModsToEjectCameras': 1,
+        'usersPolicies.authenticatedGuest': 1,
       },
     },
   );
 
-  if (meeting.usersProp) return meeting.usersProp;
+  if (meeting.usersPolicies) return meeting.usersPolicies;
 
   return {
     allowModsToUnmuteUsers: false,
@@ -386,8 +386,8 @@ const getUsersProp = () => {
   };
 };
 
-const curatedVoiceUser = (intId) => {
-  const voiceUser = VoiceUsers.findOne({ intId });
+const curatedVoiceUser = (userId) => {
+  const voiceUser = VoiceUsers.findOne({ userId });
   return {
     isVoiceUser: voiceUser ? voiceUser.joined : false,
     isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
@@ -480,20 +480,16 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const toggleVoice = (userId) => {
+const toggleVoice = (userId, voiceToggle) => {
   if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone();
+    AudioService.toggleMuteMicrophone(voiceToggle);
   } else {
-    makeCall('toggleVoice', userId);
+    voiceToggle(userId);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
-};
-
-const ejectUserCameras = (userId) => {
-  makeCall('ejectUserCameras', userId);
 };
 
 const getEmoji = () => {
@@ -506,10 +502,6 @@ const getEmoji = () => {
 
   return currentUser.emoji;
 };
-
-const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
-
-const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
 
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
@@ -634,8 +626,8 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
 
   const link = document.createElement('a');
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'meetingProp.name': 1 } });
-  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${getDateString()}.txt`);
+    { fields: { name: 1 } });
+  link.setAttribute('download', `bbb-${meeting.name}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
     `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,
@@ -652,9 +644,9 @@ const UserJoinedMeetingAlert = (obj) => {
   if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
 
   if (userJoinAudioAlerts) {
-    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename
-      + Meteor.settings.public.app.instanceId}`
+    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
+      + window.meetingClientSettings.public.app.basename
+      + window.meetingClientSettings.public.app.instanceId}`
       + '/resources/sounds/userJoin.mp3');
   }
 
@@ -680,9 +672,9 @@ const UserLeftMeetingAlert = (obj) => {
   if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
 
   if (userLeaveAudioAlerts) {
-    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename
-      + Meteor.settings.public.app.instanceId}`
+    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
+      + window.meetingClientSettings.public.app.basename
+      + window.meetingClientSettings.public.app.instanceId}`
       + '/resources/sounds/notify.mp3');
   }
 
@@ -703,8 +695,6 @@ export default {
   sortUsersByName,
   sortUsers,
   toggleVoice,
-  muteAllUsers,
-  muteAllExceptPresenter,
   getUsers,
   formatUsers,
   getActiveChats,
@@ -724,7 +714,6 @@ export default {
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
-  ejectUserCameras,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
 };

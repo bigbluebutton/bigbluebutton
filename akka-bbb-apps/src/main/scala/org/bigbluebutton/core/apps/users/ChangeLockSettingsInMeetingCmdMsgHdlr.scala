@@ -9,7 +9,7 @@ import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.Permissions
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -237,6 +237,16 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         )
 
         outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
+
+        //Refresh graphql session for all locked viewers
+        for {
+          user <- Users2x.findAll(liveMeeting.users2x)
+          if user.locked
+          if user.role == Roles.VIEWER_ROLE
+          regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
+        } yield {
+          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "lockSettings_changed", outGW)
+        }
       }
     }
   }

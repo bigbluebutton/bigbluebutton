@@ -4,7 +4,7 @@ import {
 } from 'react';
 import { gql, useApolloClient } from '@apollo/client';
 import R from 'ramda';
-import { applyPatch } from 'fast-json-patch';
+import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 
 function createUseSubscription<T>(
@@ -13,7 +13,7 @@ function createUseSubscription<T>(
   usePatchedSubscription = false,
 ) {
   return function useGeneratedUseSubscription(
-    projectionFunction: (element: Partial<T>) => Partial<T>,
+    projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
     const client = useApolloClient();
     const [
@@ -55,7 +55,7 @@ function createUseSubscription<T>(
             const { data } = response;
             let currentData: T[] = [];
             if (usePatchedSubscription && data.patch) {
-              const patchedData = applyPatch(dataRef.current, data.patch).newDocument;
+              const patchedData = applyPatch(deepClone(dataRef.current), data.patch).newDocument;
               currentData = [...patchedData];
             } else {
               const resultSetKey = Object.keys(data)[0];

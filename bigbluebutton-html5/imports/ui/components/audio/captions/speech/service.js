@@ -1,17 +1,13 @@
-import { diff } from '@mconf/bbb-diff';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
-import { unique, throttle } from 'radash';
+import { unique } from 'radash';
 
-const THROTTLE_TIMEOUT = 200;
-
-const CONFIG = Meteor.settings.public.app.audioCaptions;
+const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
 const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
@@ -78,42 +74,6 @@ const initSpeechRecognition = (setUserSpeechLocale) => {
   return null;
 };
 
-let prevId = '';
-let prevTranscript = '';
-const updateTranscript = (id, transcript, locale, isFinal) => {
-  // If it's a new sentence
-  if (id !== prevId) {
-    prevId = id;
-    prevTranscript = '';
-  }
-
-  const transcriptDiff = diff(prevTranscript, transcript);
-
-  let start = 0;
-  let end = 0;
-  let text = '';
-  if (transcriptDiff) {
-    start = transcriptDiff.start;
-    end = transcriptDiff.end;
-    text = transcriptDiff.text;
-  }
-
-  // Stores current transcript as previous
-  prevTranscript = transcript;
-
-  makeCall('updateTranscript', id, start, end, text, transcript, locale, isFinal);
-};
-
-const throttledTranscriptUpdate = throttle({ interval: THROTTLE_TIMEOUT }, updateTranscript);
-
-const updateInterimTranscript = (id, transcript, locale) => {
-  throttledTranscriptUpdate(id, transcript, locale, false);
-};
-
-const updateFinalTranscript = (id, transcript, locale) => {
-  updateTranscript(id, transcript, locale, true);
-};
-
 const getSpeechLocale = (userId = Auth.userID) => {
   const user = Users.findOne({ userId }, { fields: { speechLocale: 1 } });
 
@@ -169,8 +129,6 @@ export default {
   LANGUAGES,
   hasSpeechRecognitionSupport,
   initSpeechRecognition,
-  updateInterimTranscript,
-  updateFinalTranscript,
   getSpeechVoices,
   getSpeechLocale,
   setSpeechLocale,

@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.breakout
 
+import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse}
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.db.BreakoutRoomDAO
@@ -16,6 +17,10 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
+
+    val minOfRooms = 2
+    val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
+
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Breakout rooms is disabled for this meeting."
@@ -26,6 +31,15 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to create breakout room for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId,
         reason, outGW, liveMeeting)
+      state
+    } else if(msg.body.rooms.length > maxOfRooms || msg.body.rooms.length < minOfRooms) {
+      log.warning(
+        "Attempt to create breakout rooms with invalid number of rooms (rooms: {}, max: {}, min: {}) in meeting {}",
+        msg.body.rooms.size,
+        maxOfRooms,
+        minOfRooms,
+        liveMeeting.props.meetingProp.intId
+      )
       state
     } else {
       state.breakout match {
@@ -54,8 +68,8 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
 
       val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName,
-                                          room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.captureNotes,
-                                          msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename)
+        room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.captureNotes,
+        msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename)
 
       rooms = rooms + (breakout.id -> breakout)
     }

@@ -9,6 +9,13 @@ export interface LockSettings {
   hideViewersCursor: boolean;
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
+  lockOnJoin: boolean;
+  lockOnJoinConfigurable: boolean;
+}
+
+export interface groups {
+  groupId: string;
+  name: string;
 }
 
 export interface WelcomeSettings {
@@ -84,6 +91,20 @@ export interface ExternalVideo {
   updatedAt: Date;
 }
 
+export interface ComponentsFlags {
+  hasCaption: boolean;
+  hasBreakoutRoom: boolean;
+  hasExternalVideo: boolean;
+  hasPoll: boolean;
+  hasScreenshare: boolean;
+  hasTimer: boolean;
+}
+
+export interface Metadata {
+  name: string;
+  value: string;
+}
+
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
@@ -104,4 +125,9 @@ export interface Meeting {
   voiceSettings: VoiceSettings;
   breakoutPolicies: BreakoutPolicies;
   externalVideo: ExternalVideo;
+  componentsFlags: ComponentsFlags;
+  endWhenNoModerator: boolean;
+  endWhenNoModeratorDelayInMinutes: number;
+  metadata: Array<Metadata>;
+  groups: Array<groups>;
 }

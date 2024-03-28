@@ -9,7 +9,7 @@ const ViewActions = (props) => {
     name, cameraId, videoContainer, isFullscreenContext, layoutContextDispatch, isStream,
   } = props;
 
-  const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+  const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
   useEffect(() => () => {
     // exit fullscreen when component is unmounted

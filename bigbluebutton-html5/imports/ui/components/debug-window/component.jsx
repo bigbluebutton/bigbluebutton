@@ -43,8 +43,8 @@ const intlMessages = defineMessages({
   },
 });
 
-const DEBUG_WINDOW_ENABLED = Meteor.settings.public.app.enableDebugWindow;
-const SHOW_DEBUG_WINDOW_ACCESSKEY = Meteor.settings.public.app.shortcuts.openDebugWindow.accesskey;
+const DEBUG_WINDOW_ENABLED = window.meetingClientSettings.public.app.enableDebugWindow;
+const SHOW_DEBUG_WINDOW_ACCESSKEY = window.meetingClientSettings.public.app.shortcuts.openDebugWindow.accesskey;
 
 class DebugWindow extends Component {
   constructor(props) {

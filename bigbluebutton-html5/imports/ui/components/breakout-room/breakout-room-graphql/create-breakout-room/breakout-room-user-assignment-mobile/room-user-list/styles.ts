@@ -1,10 +1,14 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { TextElipsis, TitleElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
-import Styled from '/imports/ui/components/actions-bar/create-breakout-room/styles';
-import { colorWhite, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorWhite,
+  colorGrayLighter,
+  colorGrayLight,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const SelectUserContainer = styled.div`
   margin: 1.5rem 1rem;
@@ -86,8 +90,22 @@ const TextName = styled(TextElipsis)`
   margin-left: 1.5rem;
 `;
 
-const LockIcon = styled(Styled.LockIcon)`
-background:red;
+const LockIcon = styled.span`
+  float: right;
+  margin-right: 1rem;
+  background:red;
+
+  @media ${smallOnly} {
+    margin-left: .5rem;
+    margin-right: auto;
+    float: left;
+  }
+
+  &:after {
+    font-family: 'bbb-icons' !important;
+    content: '\\e926';
+    color: ${colorGrayLight};
+  }
 `;
 
 const SelectUserScreen = styled.div`

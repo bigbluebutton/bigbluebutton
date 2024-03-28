@@ -21,6 +21,10 @@ public class ParamsUtil {
     return text.replaceAll("\\p{Cc}", "").trim();
   }
 
+  public static String stripTags(String text) {
+    return text.replaceAll("<[^>]*>", "");
+}
+
   public static String escapeHTMLTags(String value) {
     return StringEscapeUtils.escapeHtml4(value);
   }
