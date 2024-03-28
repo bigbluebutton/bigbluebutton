@@ -9,7 +9,7 @@ const RaiseHandDropdownContainer = (props) => {
   const [setUserEmojiStatus] = useMutation(SET_EMOJI_STATUS);
 
   const setEmojiStatus = (emoji) => {
-    setUserEmojiStatus({ variables: { emoji } });
+    setUserEmojiStatus({ variables: { emoji, userId: '' } });
   };
 
   return <RaiseHandDropdown setEmojiStatus={setEmojiStatus} {...props} />;

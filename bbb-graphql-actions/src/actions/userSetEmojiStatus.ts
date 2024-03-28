@@ -1,6 +1,8 @@
 import { RedisMessage } from '../types';
+import {throwErrorIfDifferentUserNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfDifferentUserNotModerator(sessionVariables, input);
   const eventName = `ChangeUserEmojiCmdMsg`;
 
   const routing = {
@@ -15,7 +17,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    userId: routing.userId,
+    userId: input.userId || routing.userId,
     emoji: input.emoji
   };
 

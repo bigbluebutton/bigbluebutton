@@ -415,6 +415,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setEmojiStatus({
           variables: {
             emoji: 'none',
+            userId: user.userId,
           },
         });
         setOpenUserAction(null);
@@ -608,6 +609,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         setEmojiStatus({
           variables: {
             emoji: key,
+            userId: user.userId,
           },
         });
         setOpenUserAction(null);
