@@ -38,7 +38,6 @@ func main() {
 			log.WithField("data", string(jsonOverviewBytes)).Info("Activities Overview")
 
 			activitiesOverviewSummary := make(map[string]int64)
-			activitiesOverviewSummary["activeBla"] = common.GetActivitiesOverview()["bla-Added"] - common.GetActivitiesOverview()["bla-Removed"]
 			activitiesOverviewSummary["activeWsConnections"] = common.GetActivitiesOverview()["__WebsocketConnection-Added"] - common.GetActivitiesOverview()["__WebsocketConnection-Removed"]
 			activitiesOverviewSummary["activeBrowserHandlers"] = common.GetActivitiesOverview()["__BrowserConnection-Added"] - common.GetActivitiesOverview()["__BrowserConnection-Removed"]
 			activitiesOverviewSummary["activeSubscriptions"] = common.GetActivitiesOverview()["_Hasura-subscription-Added"] - common.GetActivitiesOverview()["_Hasura-subscription-Completed"]
