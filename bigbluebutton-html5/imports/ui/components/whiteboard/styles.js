@@ -38,17 +38,17 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
-  #presentationInnerWrapper > div:last-child {
+  #whiteboard-element {
     position: relative;
     height: 100%;
   }
 
-  #presentationInnerWrapper > div:last-child > * {
+  #whiteboard-element > * {
     position: relative; 
     height: 100%;
   }
 
-  #presentationInnerWrapper > div:last-child .tl-overlays {
+  #whiteboard-element .tl-overlays {
     left: 0px;
     bottom: 0px;
   }
