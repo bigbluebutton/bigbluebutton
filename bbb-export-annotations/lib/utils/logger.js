@@ -1,4 +1,5 @@
-const config = require('../../config');
+import fs from 'fs';
+const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 
 const {level} = config.log;
 const trace = level.toLowerCase() === 'trace';
@@ -14,7 +15,7 @@ const parse = (messages) => {
   });
 };
 
-module.exports = class Logger {
+export default class Logger {
   constructor(context) {
     this.context = context;
   }

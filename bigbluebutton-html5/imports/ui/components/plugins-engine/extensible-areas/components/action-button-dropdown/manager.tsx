@@ -46,7 +46,8 @@ const ActionButtonDropdownPluginStateContainer = ((
 
   pluginApi.setActionButtonDropdownItems = (items: PluginSdk.ActionButtonDropdownInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionButtonDropdownInterface[];
-    return setActionButtonDropdownItems(itemsWithId);
+    setActionButtonDropdownItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

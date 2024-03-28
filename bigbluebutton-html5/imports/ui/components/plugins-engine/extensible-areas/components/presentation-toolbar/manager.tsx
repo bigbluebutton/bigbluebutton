@@ -46,7 +46,8 @@ const PresentationToolbarPluginStateContainer = ((
 
   pluginApi.setPresentationToolbarItems = (items: PluginSdk.PresentationToolbarInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.PresentationToolbarInterface[];
-    return setPresentationToolbarItems(itemsWithId);
+    setPresentationToolbarItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

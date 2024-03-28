@@ -206,7 +206,6 @@ export default async function addMeeting(meeting) {
       layout: LAYOUT_TYPE[meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
-      randomlySelectedUser: [],
       ...flat(newMeeting, {
         safe: true,
       }),

@@ -113,7 +113,7 @@ const getPinnedPad = () => {
 const pinPad = (externalId, pinned, stopWatching) => {
   if (pinned) {
     // Stop external video sharing if it's running.
-    stopWatching();
+    if (typeof stopWatching === 'function') stopWatching();
 
     // Stop screen sharing if it's running.
     if (isScreenBroadcasting()) screenshareHasEnded();

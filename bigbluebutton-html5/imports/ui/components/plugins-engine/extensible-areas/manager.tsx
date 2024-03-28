@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { PluginProvidedUiItemDescriptor } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/base';
+import * as uuidLib from 'uuid';
 
 import PresentationToolbarPluginStateContainer from './components/presentation-toolbar/manager';
 import UserListDropdownPluginStateContainer from './components/user-list-dropdown/manager';
@@ -38,9 +39,9 @@ const extensibleAreaComponentManagers: ExtensibleAreaComponentManager[] = [
 ];
 
 function generateItemWithId<T extends PluginProvidedUiItemDescriptor>(
-  item: T, index: number,
+  item: T,
 ): T {
-  item.setItemId(`${index}`);
+  item.setItemId(uuidLib.v4());
   return item;
 }
 

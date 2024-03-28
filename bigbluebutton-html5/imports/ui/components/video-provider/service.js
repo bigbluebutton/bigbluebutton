@@ -670,17 +670,17 @@ class VideoService {
 
   disableCam() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.disableCam': 1 } });
-    return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
+      { fields: { 'lockSettings.disableCam': 1 } });
+    return m.lockSettings ? m.lockSettings.disableCam : false;
   }
 
   webcamsOnlyForModerator() {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
+      { fields: { 'usersPolicies.webcamsOnlyForModerator': 1 } });
     const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
 
-    if (meeting?.usersProp && user?.role !== ROLE_MODERATOR && user?.locked) {
-      return meeting.usersProp.webcamsOnlyForModerator;
+    if (meeting?.usersPolicies && user?.role !== ROLE_MODERATOR && user?.locked) {
+      return meeting.usersPolicies.webcamsOnlyForModerator;
     }
     return false;
   }
@@ -690,17 +690,19 @@ class VideoService {
       { meetingId: Auth.meetingID },
       {
         fields: {
-          'meetingProp.meetingCameraCap': 1,
-          'usersProp.userCameraCap': 1,
+          meetingCameraCap: 1,
+          'usersPolicies.userCameraCap': 1,
         },
       },
     );
 
     // If the meeting prop data is unreachable, force a safe return
-    if (!meeting?.usersProp || !meeting?.meetingProp) return true;
-
-    const { meetingCameraCap } = meeting.meetingProp;
-    const { userCameraCap } = meeting.usersProp;
+    if (
+      meeting?.usersPolicies === undefined
+      || !meeting?.meetingCameraCap === undefined
+    ) return true;
+    const { meetingCameraCap } = meeting;
+    const { userCameraCap } = meeting.usersPolicies;
 
     const meetingCap = meetingCameraCap !== 0 && this.getVideoStreamsCount() >= meetingCameraCap;
     const userCap = userCameraCap !== 0 && this.getLocalVideoStreamsCount() >= userCameraCap;
@@ -724,8 +726,8 @@ class VideoService {
 
   getInfo() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'voiceProp.voiceConf': 1 } });
-    const voiceBridge = m.voiceProp ? m.voiceProp.voiceConf : null;
+      { fields: { 'voiceSettings.voiceConf': 1 } });
+    const voiceBridge = m.voiceSettings ? m.voiceSettings.voiceConf : null;
     return {
       userId: Auth.userID,
       userName: Auth.fullname,

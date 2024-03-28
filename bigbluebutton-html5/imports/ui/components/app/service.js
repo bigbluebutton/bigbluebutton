@@ -17,9 +17,9 @@ export const getBreakoutRooms = () => Breakouts.find().fetch();
 export function meetingIsBreakout() {
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
-    { fields: { 'meetingProp.isBreakout': 1 } }
+    { fields: { isBreakout: 1 } },
   );
-  return meeting && meeting.meetingProp.isBreakout;
+  return meeting && meeting.isBreakout;
 }
 
 export const setDarkTheme = (value) => {

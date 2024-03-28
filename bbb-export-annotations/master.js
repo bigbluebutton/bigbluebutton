@@ -1,19 +1,21 @@
-const Logger = require('./lib/utils/logger');
-const WorkerStarter = require('./lib/utils/worker-starter');
-const config = require('./config');
-const fs = require('fs');
-const redis = require('redis');
-const {commandOptions} = require('redis');
-const path = require('path');
+import Logger from './lib/utils/logger.js';
+import WorkerStarter from './lib/utils/worker-starter.js';
+import fs from 'fs';
+import redis, {commandOptions} from 'redis';
+import path from 'path';
 
 const logger = new Logger('presAnn Master');
+const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
+
 logger.info('Running bbb-export-annotations');
 
 (async () => {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   await client.connect();

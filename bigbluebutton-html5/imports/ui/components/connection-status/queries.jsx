@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const CONNECTION_STATUS_REPORT_SUBSCRIPTION = gql`subscription {
+export const CONNECTION_STATUS_REPORT_SUBSCRIPTION = gql`subscription ConnStatusReport {
   user_connectionStatusReport {
     user {
       userId
@@ -17,7 +17,7 @@ export const CONNECTION_STATUS_REPORT_SUBSCRIPTION = gql`subscription {
   }
 }`;
 
-export const CONNECTION_STATUS_SUBSCRIPTION = gql`subscription {
+export const CONNECTION_STATUS_SUBSCRIPTION = gql`subscription ConnStatus {
   user_connectionStatus {
     connectionAliveAt
     userClientResponseAt

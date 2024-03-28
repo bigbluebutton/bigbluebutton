@@ -263,17 +263,18 @@ const handleSavePresentation = (
 };
 
 const getExternalUploadData = () => {
-  const { meetingProp } = Meetings.findOne(
+  const {
+    presentationUploadExternalDescription,
+    presentationUploadExternalUrl,
+  } = Meetings.findOne(
     { meetingId: Auth.meetingID },
     {
       fields: {
-        'meetingProp.presentationUploadExternalDescription': 1,
-        'meetingProp.presentationUploadExternalUrl': 1,
+        presentationUploadExternalDescription: 1,
+        presentationUploadExternalUrl: 1,
       },
     },
   );
-
-  const { presentationUploadExternalDescription, presentationUploadExternalUrl } = meetingProp;
 
   return {
     presentationUploadExternalDescription,

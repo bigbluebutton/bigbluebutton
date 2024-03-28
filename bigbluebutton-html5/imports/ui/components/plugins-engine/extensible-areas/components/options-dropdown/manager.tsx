@@ -46,7 +46,8 @@ const OptionsDropdownPluginStateContainer = ((
 
   pluginApi.setOptionsDropdownItems = (items: PluginSdk.OptionsDropdownInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.OptionsDropdownInterface[];
-    return setOptionsDropdownItems(itemsWithId);
+    setOptionsDropdownItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

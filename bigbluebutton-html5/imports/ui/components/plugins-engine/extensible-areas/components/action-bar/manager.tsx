@@ -43,7 +43,8 @@ const ActionBarPluginStateContainer = ((
 
   pluginApi.setActionsBarItems = (items: PluginSdk.ActionsBarInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionsBarInterface[];
-    return setActionBarItems(itemsWithId);
+    setActionBarItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

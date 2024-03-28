@@ -6,8 +6,8 @@ export function getDisabledFeatures() {
     meetingId: Auth.meetingID,
   };
 
-  const meetingData = Meetings.findOne(selector, { fields: { 'meetingProp.disabledFeatures': 1 } });
-  const disabledFeatures = ((meetingData || {}).meetingProp || {}).disabledFeatures || [];
+  const meetingData = Meetings.findOne(selector, { fields: { disabledFeatures: 1 } });
+  const disabledFeatures = (meetingData || {}).disabledFeatures || [];
 
   return disabledFeatures;
 }
@@ -101,7 +101,7 @@ export function isTimerFeatureEnabled() {
 
 export function isCameraAsContentEnabled() {
   return (
-    getDisabledFeatures().indexOf('cameraAsContent') === -1 &&
-    window.meetingClientSettings.public.app.enableCameraAsContent
+    getDisabledFeatures().indexOf('cameraAsContent') === -1
+    && window.meetingClientSettings.public.app.enableCameraAsContent
   );
 }

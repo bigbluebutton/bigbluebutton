@@ -1,6 +1,8 @@
 package writer
 
 import (
+	"context"
+	"errors"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
@@ -121,12 +123,20 @@ RangeLoop:
 					}
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
+
+					common.ActivitiesOverviewIncIndex("Hasura-" + operationName + "-Added")
+					common.ActivitiesOverviewIncIndex("_Hasura-" + string(messageType) + "-Added")
 				}
 
 				if fromBrowserMessageAsMap["type"] == "stop" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
 					browserConnection.ActiveSubscriptionsMutex.RLock()
 					jsonPatchSupported := browserConnection.ActiveSubscriptions[queryId].JsonPatchSupported
+
+					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
+					common.ActivitiesOverviewIncIndex("Hasura-" + browserConnection.ActiveSubscriptions[queryId].OperationName + "-Completed")
+					common.ActivitiesOverviewIncIndex("_Hasura-" + string(browserConnection.ActiveSubscriptions[queryId].Type) + "-Completed")
+
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
 					if jsonPatchSupported {
 						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection, queryId)
@@ -144,7 +154,9 @@ RangeLoop:
 				log.Tracef("sending to hasura: %v", fromBrowserMessageAsMap)
 				err := wsjson.Write(hc.Context, hc.Websocket, fromBrowserMessageAsMap)
 				if err != nil {
-					log.Errorf("error on write (we're disconnected from hasura): %v", err)
+					if !errors.Is(err, context.Canceled) {
+						log.Errorf("error on write (we're disconnected from hasura): %v", err)
+					}
 					return
 				}
 			}

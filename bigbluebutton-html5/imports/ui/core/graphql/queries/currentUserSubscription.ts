@@ -22,6 +22,8 @@ subscription userCurrentSubscription {
     guest
     guestStatus
     hasDrawPermissionOnCurrentPage
+    inactivityWarningDisplay
+    inactivityWarningTimeoutSecs
     isDialIn
     isModerator
     isOnline

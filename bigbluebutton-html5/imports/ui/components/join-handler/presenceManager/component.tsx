@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { Meteor } from 'meteor/meteor';
 // @ts-ignore - type avaible only to server package
 import { DDP } from 'meteor/ddp-client';
@@ -64,6 +64,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   const loadingContextInfo = useContext(LoadingContext);
+  const clientSettingsRef = useRef(JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}'));
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
@@ -71,9 +72,11 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       throw new Error('Authentication timeout');
     }, connectionTimeout);
 
-    DDP.onReconnect(() => {
-      Meteor.callAsync('validateConnection', authToken, meetingId, userId);
-    });
+    if (!clientSettingsRef.current.skipMeteorConnection) {
+      DDP.onReconnect(() => {
+        Meteor.callAsync('validateConnection', authToken, meetingId, userId);
+      });
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken') as string;
@@ -120,9 +123,13 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   useEffect(() => {
     if (joined) {
       clearTimeout(timeoutRef.current);
-      Meteor.callAsync('validateConnection', authToken, meetingId, userId).then(() => {
+      if (clientSettingsRef.current.skipMeteorConnection) {
         setAllowToRender(true);
-      });
+      } else {
+        Meteor.callAsync('validateConnection', authToken, meetingId, userId).then(() => {
+          setAllowToRender(true);
+        });
+      }
     }
   }, [joined]);
 

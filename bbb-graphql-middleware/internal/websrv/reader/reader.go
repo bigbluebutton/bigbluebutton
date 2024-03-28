@@ -39,7 +39,7 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, ct
 			if errors.Is(err, context.Canceled) {
 				log.Debugf("Closing Browser ws connection as Context was cancelled!")
 			} else {
-				log.Debugf("Hasura is disconnected, skipping reading of ws message: %v", err)
+				log.Debugf("Browser is disconnected, skipping reading of ws message: %v", err)
 			}
 			return
 		}

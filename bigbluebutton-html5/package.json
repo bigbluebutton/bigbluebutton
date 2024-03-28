@@ -29,7 +29,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.8.8",
+    "@apollo/client": "^3.9.8",
     "@babel/runtime": "^7.17.9",
     "@browser-bunyan/server-stream": "^1.8.0",
     "@emoji-mart/data": "^1.1.2",
@@ -47,7 +47,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.6.4",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.39",
+    "bigbluebutton-html-plugin-sdk": "0.0.40",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",

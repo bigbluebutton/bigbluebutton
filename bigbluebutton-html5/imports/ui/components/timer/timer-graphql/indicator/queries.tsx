@@ -14,7 +14,7 @@ export interface GetTimerResponse {
 }
 
 export const GET_TIMER = gql`
-  subscription MySubscription {
+  subscription Timer {
     timer {
       accumulated
       active

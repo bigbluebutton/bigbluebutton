@@ -34,8 +34,8 @@ const isMe = (intId) => intId === Auth.userID;
 
 export default {
   isMe,
-  meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
+  meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID},
+    { fields: { name: 1 } }).name,
   users: () => Users.find({
     meetingId: Auth.meetingID,
     clientType: { $ne: DIAL_IN_USER },

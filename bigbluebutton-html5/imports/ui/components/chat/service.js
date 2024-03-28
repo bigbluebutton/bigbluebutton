@@ -124,7 +124,7 @@ const reduceAndDontMapGroupMessages = (messages) => (messages
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disablePublicChat': 1, 'lockSettingsProps.disablePrivateChat': 1 } });
+    { fields: { 'lockSettings.disablePublicChat': 1, 'lockSettings.disablePrivateChat': 1 } });
   const user = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
     { fields: { locked: 1, role: 1 } });
   const receiver = Users.findOne({ meetingId: Auth.meetingID, userId: receiverID },
@@ -136,13 +136,13 @@ const isChatLocked = (receiverID) => {
     return !isPublic;
   }
 
-  if (meeting.lockSettingsProps !== undefined) {
+  if (meeting.lockSettings !== undefined) {
     if (user.locked && user.role !== ROLE_MODERATOR) {
       if (isPublic) {
-        return meeting.lockSettingsProps.disablePublicChat;
+        return meeting.lockSettings.disablePublicChat;
       }
       return !isReceiverModerator
-        && meeting.lockSettingsProps.disablePrivateChat;
+        && meeting.lockSettings.disablePrivateChat;
     }
   }
 

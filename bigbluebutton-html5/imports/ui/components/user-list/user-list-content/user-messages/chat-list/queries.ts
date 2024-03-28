@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const CHATS_SUBSCRIPTION = gql`subscription {
+export const CHATS_SUBSCRIPTION = gql`subscription Chats {
     chat (order_by: [
         {public: desc}, 
         {totalUnread: desc}, 

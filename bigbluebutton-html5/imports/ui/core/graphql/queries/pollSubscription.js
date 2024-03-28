@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const POLL_SUBSCRIPTION = gql`
-  subscription {
+  subscription PollPublished {
     poll {
       published
     }

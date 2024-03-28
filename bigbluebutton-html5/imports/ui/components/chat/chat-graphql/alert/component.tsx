@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useSubscription } from '@apollo/client';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
@@ -87,12 +87,29 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
   const prevPrivateUnreadMessages = usePreviousValue(privateUnreadMessages);
   const publicMessagesDidChange = !isEqual(prevPublicUnreadMessages, publicUnreadMessages);
   const privateMessagesDidChange = !isEqual(prevPrivateUnreadMessages, privateUnreadMessages);
-  const shouldRenderPublicChatAlerts = publicMessagesDidChange && publicUnreadMessages;
-  const shouldRenderPrivateChatAlerts = privateMessagesDidChange && privateUnreadMessages;
+  const shouldRenderPublicChatAlerts = publicMessagesDidChange
+    && !!publicUnreadMessages
+    && publicUnreadMessages.length > 0;
+  const shouldRenderPrivateChatAlerts = privateMessagesDidChange
+    && !!privateUnreadMessages
+    && privateUnreadMessages.length > 0;
   const shouldPlayAudioAlert = useCallback(
-    (m: Message) => m.chatId !== idChatOpen && !history.current.has(m.messageId),
+    (m: Message) => (m.chatId !== idChatOpen || document.hidden) && !history.current.has(m.messageId),
     [idChatOpen, history.current],
   );
+
+  useEffect(() => {
+    if (shouldRenderPublicChatAlerts) {
+      publicUnreadMessages.forEach((m) => {
+        history.current.add(m.messageId);
+      });
+    }
+    if (shouldRenderPrivateChatAlerts) {
+      privateUnreadMessages.forEach((m) => {
+        history.current.add(m.messageId);
+      });
+    }
+  });
 
   let playAudioAlert = false;
 
@@ -102,7 +119,6 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
   if (shouldRenderPrivateChatAlerts && !playAudioAlert) {
     playAudioAlert = privateUnreadMessages.some(shouldPlayAudioAlert);
   }
-  playAudioAlert ||= document.hidden;
 
   if (audioAlertEnabled && playAudioAlert) {
     Service.playAlertSound();
@@ -138,7 +154,6 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
   const renderToast = (message: Message) => {
     if (history.current.has(message.messageId)) return null;
-    history.current.add(message.messageId);
     if (message.chatId === idChatOpen) return null;
 
     const messageChatId = message.chatId === PUBLIC_GROUP_CHAT_ID ? PUBLIC_CHAT_ID : message.chatId;
