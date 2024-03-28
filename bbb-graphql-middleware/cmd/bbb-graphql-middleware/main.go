@@ -32,7 +32,7 @@ func main() {
 			time.Sleep(5 * time.Second)
 			jsonOverviewBytes, err := json.Marshal(common.GetActivitiesOverview())
 			if err != nil {
-				log.Fatalf("Error occurred during marshaling. Error: %s", err.Error())
+				log.Errorf("Error occurred during marshaling. Error: %s", err.Error())
 			}
 
 			log.WithField("data", string(jsonOverviewBytes)).Info("Activities Overview")
