@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
@@ -10,6 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -24,6 +26,28 @@ func main() {
 
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
+
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			jsonOverviewBytes, err := json.Marshal(common.GetActivitiesOverview())
+			if err != nil {
+				log.Fatalf("Error occurred during marshaling. Error: %s", err.Error())
+			}
+
+			log.WithField("data", string(jsonOverviewBytes)).Info("Activities Overview")
+
+			activitiesOverviewSummary := make(map[string]int64)
+			activitiesOverviewSummary["activeBla"] = common.GetActivitiesOverview()["bla-Added"] - common.GetActivitiesOverview()["bla-Removed"]
+			activitiesOverviewSummary["activeWsConnections"] = common.GetActivitiesOverview()["__WebsocketConnection-Added"] - common.GetActivitiesOverview()["__WebsocketConnection-Removed"]
+			activitiesOverviewSummary["activeBrowserHandlers"] = common.GetActivitiesOverview()["__BrowserConnection-Added"] - common.GetActivitiesOverview()["__BrowserConnection-Removed"]
+			activitiesOverviewSummary["activeSubscriptions"] = common.GetActivitiesOverview()["_Hasura-subscription-Added"] - common.GetActivitiesOverview()["_Hasura-subscription-Completed"]
+			activitiesOverviewSummary["pendingMutations"] = common.GetActivitiesOverview()["_Hasura-mutation-Added"] - common.GetActivitiesOverview()["_Hasura-mutation-Completed"]
+			activitiesOverviewSummary["numGoroutine"] = int64(runtime.NumGoroutine())
+			jsonOverviewSummaryBytes, _ := json.Marshal(activitiesOverviewSummary)
+			log.WithField("data", string(jsonOverviewSummaryBytes)).Info("Activities Overview Summary")
+		}
+	}()
 
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
@@ -64,6 +88,9 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
 		defer cancel()
+
+		common.ActivitiesOverviewIncIndex("__WebsocketConnection-Added")
+		defer common.ActivitiesOverviewIncIndex("__WebsocketConnection-Removed")
 
 		if err := rateLimiter.Wait(ctx); err != nil {
 			if !errors.Is(err, context.Canceled) {
