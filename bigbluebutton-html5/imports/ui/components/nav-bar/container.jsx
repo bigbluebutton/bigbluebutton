@@ -12,12 +12,13 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useChat from '/imports/ui/core/hooks/useChat';
+import useHasUnreadNotes from '../notes/notes-graphql/hooks/useHasUnreadNotes';
 
 const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
 const NavBarContainer = ({ children, ...props }) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  const { unread, ...rest } = props;
+  const unread = useHasUnreadNotes();
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
@@ -69,7 +70,7 @@ const NavBarContainer = ({ children, ...props }) => {
         isExpanded,
         currentUserId: Auth.userID,
         pluginNavBarItems,
-        ...rest,
+        ...props,
       }}
       style={{ ...navBar }}
     >

@@ -5,6 +5,7 @@ import Service from './service';
 import MediaService from '/imports/ui/components/media/service';
 import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '../layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import NotesContainerGraphql from './notes-graphql/component';
 
 const Container = ({ ...props }) => {
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
@@ -27,7 +28,7 @@ const Container = ({ ...props }) => {
   }} />;
 };
 
-export default withTracker(() => {
+withTracker(() => {
   const hasPermission = Service.hasPermission();
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const shouldShowSharedNotesOnPresentationArea = MediaService.shouldShowSharedNotes();
@@ -38,3 +39,5 @@ export default withTracker(() => {
     isGridEnabled: Session.get('isGridEnabled') || false,
   };
 })(Container);
+
+export default NotesContainerGraphql;
