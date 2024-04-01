@@ -6,9 +6,9 @@ location @html5client {
   proxy_set_header Connection "Upgrade";
 }
 
-#location /html5client/join {
-#  alias /usr/share/meteor/bundle/programs/web.browser;
-#}
+location /html5client/join {
+  alias /usr/share/meteor/bundle/programs/web.browser;
+}
 
 location /html5client/locales {
   alias /usr/share/meteor/bundle/programs/web.browser/app/locales;

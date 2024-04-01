@@ -73,6 +73,29 @@ npm i
 cd -
 cp -r /tmp/html5-build/bundle staging/usr/share/meteor
 
+# generate index.html file so HTML5 client can run when meteor service is inactive
+cp footer staging/usr/share/meteor/bundle/programs/web.browser/footer.html
+
+css_file=$(find staging/usr/share/meteor/bundle/programs/web.browser -maxdepth 1 -type f -name "*.css" | head -n 1 | sed 's|^staging/usr/share/meteor/bundle/programs/web.browser/||')
+js_file=$(find staging/usr/share/meteor/bundle/programs/web.browser -maxdepth 1 -type f -name "*.js" | head -n 1 | sed 's|^staging/usr/share/meteor/bundle/programs/web.browser/||')
+
+css_content='<link rel="stylesheet" type="text/css" class="__meteor-css__" href="/html5client/placeholder?meteor_css_resource=true">'
+css_content="${css_content/placeholder/$css_file}"
+
+footer_content=$(<staging/usr/share/meteor/bundle/programs/web.browser/footer.html)
+footer_content="${footer_content/placeholder/$js_file}"
+
+echo '<!DOCTYPE html>' > staging/usr/share/meteor/bundle/programs/web.browser/index.html
+echo '<html>' >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+echo '<head>' >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+echo '  <base href="/html5client/" />' >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+echo $css_content >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+
+cat head.html >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+cat body.html >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+echo $footer_content >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+echo '</body>' >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+
 # generate index.json locales file if it does not exist
 if [ ! -f staging/usr/share/meteor/bundle/programs/web.browser/app/locales/index.json ]; then
   find staging/usr/share/meteor/bundle/programs/web.browser/app/locales -maxdepth 1 -type f -name "*.json" -exec basename {} \; | awk 'BEGIN{printf "["}{printf "\"%s\", ", $0}END{print "]"}' | sed 's/, ]/]/' > staging/usr/share/meteor/bundle/programs/web.browser/app/locales/index.json
