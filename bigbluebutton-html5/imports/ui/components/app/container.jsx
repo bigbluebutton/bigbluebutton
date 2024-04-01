@@ -286,32 +286,19 @@ export default withTracker(() => {
     },
   );
 
-
-  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    {
-      fields: {
-        randomlySelectedUser: 1,
-        layout: 1,
-      },
-    });
-  const {
-    randomlySelectedUser,
-  } = currentMeeting;
-
   const meetingLayoutObj = Meetings
     .findOne({ meetingId: Auth.meetingID }) || {};
 
   const { layout } = meetingLayoutObj;
 
   const {
-    currentLayoutType: meetingLayout,
     propagateLayout: pushLayoutMeeting,
     cameraDockIsResizing: isMeetingLayoutResizing,
     cameraDockPlacement: meetingLayoutCameraPosition,
-    presentationVideoRate: meetingLayoutVideoRate,
+    cameraDockAspectRatio: meetingLayoutVideoRate,
     cameraWithFocus: meetingLayoutFocusedCamera,
   } = layout;
-
+  const meetingLayout = LAYOUT_TYPE[layout.currentLayoutType];
   const meetingLayoutUpdatedAt = new Date(layout.updatedAt).getTime();
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
