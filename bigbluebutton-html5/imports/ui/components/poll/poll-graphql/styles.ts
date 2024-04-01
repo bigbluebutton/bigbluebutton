@@ -276,16 +276,17 @@ const NoSlidePanelContainer = styled.div`
 const PollButton = styled(Button)`
   margin-top: ${smPaddingY};
   margin-bottom: ${smPaddingY};
-  background-color: ${colorWhite};
-  box-shadow: 0 0 0 1px ${colorGray};
-  color: ${colorGray};
+  // background-color: ${colorWhite};
+  box-shadow: 0 0 0 1px ${colorPrimary};
+  color: ${colorWhite};
+  background-color: ${colorPrimary}
 
   & > span {
     color: ${colorGray};
   }
 
   & > span:hover {
-    color: ${pollBlue};
+    color: ${colorWhite};
     opacity: 1;
   }
 
@@ -328,7 +329,7 @@ const PollButton = styled(Button)`
   }
 
   &:hover {
-    box-shadow: 0 0 0 1px ${pollBlue};
+    box-shadow: 0 0 0 1px ${colorWhite};
     background-color: ${colorWhite};
     color: ${pollBlue};
 
