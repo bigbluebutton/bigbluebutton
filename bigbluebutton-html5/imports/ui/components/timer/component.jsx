@@ -125,15 +125,12 @@ class Timer extends Component {
 
   handleControlClick() {
     const {
-      timer, startTimer, stopTimer, timerReset,
+      timer, startTimer, stopTimer,
     } = this.props;
 
     if (timer.running) {
       stopTimer();
     } else {
-      if (!timer.stopwatch) {
-        timerReset();
-      }
       startTimer();
     }
   }
