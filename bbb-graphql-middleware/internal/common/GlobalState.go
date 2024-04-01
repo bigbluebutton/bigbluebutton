@@ -16,8 +16,9 @@ func GetUniqueID() string {
 }
 
 type ActivitiesOverviewObj struct {
-	Started   int64
-	Completed int64
+	Started      int64
+	Completed    int64
+	DataReceived int64
 }
 
 var activitiesOverview = make(map[string]ActivitiesOverviewObj)
@@ -29,8 +30,9 @@ func ActivitiesOverviewStarted(index string) {
 
 	if _, exists := activitiesOverview[index]; !exists {
 		activitiesOverview[index] = ActivitiesOverviewObj{
-			Started:   0,
-			Completed: 0,
+			Started:      0,
+			Completed:    0,
+			DataReceived: 0,
 		}
 	}
 
@@ -38,6 +40,18 @@ func ActivitiesOverviewStarted(index string) {
 	updatedValues.Started++
 
 	activitiesOverview[index] = updatedValues
+}
+
+func ActivitiesOverviewDataReceived(index string) {
+	activitiesOverviewMux.Lock()
+	defer activitiesOverviewMux.Unlock()
+
+	if updatedValues, exists := activitiesOverview[index]; exists {
+		updatedValues.DataReceived++
+
+		activitiesOverview[index] = updatedValues
+	}
+
 }
 
 func ActivitiesOverviewCompleted(index string) {

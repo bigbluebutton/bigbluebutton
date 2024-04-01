@@ -65,6 +65,10 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, fromHasuraToBr
 				common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
 			}
 
+			if messageType == "data" {
+				common.ActivitiesOverviewDataReceived(string(subscription.Type) + "-" + subscription.OperationName)
+			}
+
 			if messageType == "data" &&
 				subscription.Type == common.Subscription {
 				hasNoPreviousOccurrence := handleSubscriptionMessage(hc, messageMap, subscription, queryId)

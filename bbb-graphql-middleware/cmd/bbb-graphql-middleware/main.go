@@ -35,7 +35,7 @@ func main() {
 			hasuraConnections := common.GetActivitiesOverview()["__HasuraConnection"].Started
 			topMessages := make(map[string]common.ActivitiesOverviewObj)
 			for index, item := range common.GetActivitiesOverview() {
-				if strings.HasPrefix(index, "_") || item.Started > hasuraConnections*3 {
+				if strings.HasPrefix(index, "_") || item.Started > hasuraConnections*3 || item.DataReceived > hasuraConnections*5 {
 					topMessages[index] = item
 				}
 			}
