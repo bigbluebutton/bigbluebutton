@@ -91,8 +91,8 @@ echo '<head>' >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
 echo '  <base href="/html5client/" />' >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
 echo $css_content >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
 
-cat head.html >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
-cat body.html >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+cat staging/usr/share/meteor/bundle/programs/web.browser/head.html >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
+cat staging/usr/share/meteor/bundle/programs/web.browser/body.html >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
 echo $footer_content >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
 echo '</body>' >> staging/usr/share/meteor/bundle/programs/web.browser/index.html
 
