@@ -103,7 +103,7 @@ class PushLayoutEngine extends React.Component {
 
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition,
+          value: meetingLayoutCameraPosition || 'contentTop',
         });
 
         if (!equalDouble(meetingLayoutVideoRate, 0)) {
