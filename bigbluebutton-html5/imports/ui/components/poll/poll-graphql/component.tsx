@@ -383,7 +383,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   }, [textareaRef]);
 
   const pollOptions = () => {
-    console.log("🚀 -> pollOptions -> hasCurrentPresentation:", hasCurrentPresentation)
     if (!hasCurrentPresentation) return <EmptySlideArea />;
     if (hasPoll) return <LiveResultContainer />;
     return (
@@ -468,7 +467,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           questionAndOptions={questionAndOptions}
         />
       </>
-    ) : null;
+    );
   };
 
   return (
