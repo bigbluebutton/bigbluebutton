@@ -11,6 +11,7 @@ import logger from '/imports/startup/client/logger';
 declare global {
   interface Window {
     meetingClientSettings: MeetingClientSettings;
+    Meteor: { settings: MeetingClientSettings };
   }
 }
 
@@ -28,8 +29,7 @@ const SettingsLoader: React.FC = () => {
       const settings = data?.meeting[0].clientSettings.clientSettingsJson;
       if (settings && Object.keys(settings).length > 0) {
         window.meetingClientSettings = JSON.parse(JSON.stringify(settings as unknown as MeetingClientSettings));
-        const Meteor = { settings: {} };
-        Meteor.settings = window.meetingClientSettings;
+        window.Meteor = { ...window.Meteor, settings: window.meetingClientSettings };
         setMeetingSettings(settings as unknown as MeetingClientSettings);
         setAllowToRender(true);
       }
