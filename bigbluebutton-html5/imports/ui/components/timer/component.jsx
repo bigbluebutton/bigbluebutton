@@ -125,12 +125,15 @@ class Timer extends Component {
 
   handleControlClick() {
     const {
-      timer, startTimer, stopTimer,
+      timer, startTimer, stopTimer, timerReset,
     } = this.props;
 
     if (timer.running) {
       stopTimer();
     } else {
+      if (!timer.stopwatch) {
+        timerReset();
+      }
       startTimer();
     }
   }
@@ -231,7 +234,8 @@ class Timer extends Component {
       current.textContent = this.getTimeString();
       const { timer, stopTimer } = this.props;
       const { running } = timer;
-      if (running && this.getTime() <= 0) {
+      const time = this.getTime();
+      if (running && time <= 0) {
         stopTimer();
       }
     }
