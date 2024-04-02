@@ -37,10 +37,6 @@ retrieveManaged := true
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
-//libraryDependencies ++= Seq(
-//  "io.grpc" % "grpc-netty" % scalapb.compiler.Version.grpcJavaVersion,
-//  "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
-//)
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
 

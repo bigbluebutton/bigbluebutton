@@ -281,9 +281,9 @@ class MeetingActor(
       updateModeratorsPresence()
 
     // Internal gRPC messages
-    case msg: GetMeetingInfo                      => sender() ! handleGetMeetingInfo()
+    case msg: GetMeetingInfo        => sender() ! handleGetMeetingInfo()
 
-    case msg: ExtendMeetingDuration               => handleExtendMeetingDuration(msg)
+    case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
       if (!liveMeeting.props.meetingProp.isBreakout) {
         // Update users of meeting remaining time.
