@@ -70,16 +70,8 @@ func ActivitiesOverviewDataSize(index string, dataSize int64, dataCount int64) {
 	defer activitiesOverviewMux.Unlock()
 
 	if updatedValues, exists := activitiesOverview[index]; exists {
-
-		//fmt.Println("---------------" + index)
-		//fmt.Printf("Received dataCount: %d\n", dataCount)
-		//fmt.Printf("It was dataCount: %d\n", updatedValues.DataCountAvg)
-
 		updatedValues.DataSizeAvg = ((updatedValues.DataSizeAvg*updatedValues.DataReceived - 1) + dataSize) / updatedValues.DataReceived
 		updatedValues.DataCountAvg = ((updatedValues.DataCountAvg * (updatedValues.DataReceived - 1)) + dataCount) / updatedValues.DataReceived
-
-		//fmt.Printf("New value dataCount: %d\n", updatedValues.DataCountAvg)
-
 		activitiesOverview[index] = updatedValues
 	}
 }
