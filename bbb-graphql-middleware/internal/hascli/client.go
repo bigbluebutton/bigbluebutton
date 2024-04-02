@@ -24,6 +24,18 @@ var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 // Hasura client connection
 func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserToHasuraChannel *common.SafeChannel, fromHasuraToBrowserChannel *common.SafeChannel) error {
 	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
+	common.ActivitiesOverviewStarted("__HasuraConnection")
+	defer common.ActivitiesOverviewCompleted("__HasuraConnection")
+
+	defer func() {
+		//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
+		browserConnection.ActiveSubscriptionsMutex.RLock()
+		for _, subscription := range browserConnection.ActiveSubscriptions {
+			common.ActivitiesOverviewStarted(string(subscription.Type) + "-" + subscription.OperationName)
+			common.ActivitiesOverviewStarted("_Sum-" + string(subscription.Type))
+		}
+		browserConnection.ActiveSubscriptionsMutex.RUnlock()
+	}()
 
 	// Obtain id for this connection
 	lastHasuraConnectionId++
@@ -60,11 +72,11 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	defer hasuraConnectionContextCancel()
 
 	var thisConnection = common.HasuraConnection{
-		Id:                     hasuraConnectionId,
-		Browserconn:            browserConnection,
-		Context:                hasuraConnectionContext,
-		ContextCancelFunc:      hasuraConnectionContextCancel,
-		MsgReceivingActiveChan: common.NewSafeChannel(1),
+		Id:                       hasuraConnectionId,
+		BrowserConn:              browserConnection,
+		Context:                  hasuraConnectionContext,
+		ContextCancelFunc:        hasuraConnectionContextCancel,
+		FreezeMsgFromBrowserChan: common.NewSafeChannel(1),
 	}
 
 	browserConnection.HasuraConnection = &thisConnection

@@ -1,12 +1,11 @@
 require('dotenv').config();
 const { expect, default: test } = require('@playwright/test');
 const { readFileSync } = require('fs');
-
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
 const { env } = require('node:process');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('./constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData } = require('./settings');
 
@@ -15,6 +14,9 @@ class Page {
     this.browser = browser;
     this.page = page;
     this.initParameters = Object.assign({}, parameters);
+    try {
+      this.context = page.context();
+    } catch { } // page doesn't have context - likely an iframe
   }
 
   async bringToFront() {
@@ -95,10 +97,11 @@ class Page {
 
     if (directLeaveButton) {
       await this.waitAndClick(e.leaveMeetingDropdown);
+      await this.waitAndClick(e.directLogoutButton);
     } else {
       await this.waitAndClick(e.optionsButton);
+      await this.waitAndClick(e.optionsLogoutButton);
     }
-    await this.waitAndClick(e.logoutBtn);
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
@@ -138,7 +141,7 @@ class Page {
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
   }
 
@@ -264,7 +267,7 @@ class Page {
 
   async checkElementCount(selector, count) {
     const locator = await this.page.locator(selector);
-    await expect(locator).toHaveCount(count);
+    await expect(locator).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
   }
 
   async hasValue(selector, value) {
@@ -306,6 +309,10 @@ class Page {
         await this.page.click(e.closeToastBtn);
         await helpers.sleep(1000);  // expected time to toast notification disappear
       }
+  }
+
+  async setHeightWidthViewPortSize() {
+    await this.page.setViewportSize({ width: 1366, height: 768 });
   }
 }
 

@@ -70,6 +70,15 @@ object_relationships:
         remote_table:
           name: v_sharedNotes_session
           schema: public
+  - name: transcriptionError
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_transcriptionError
+          schema: public
   - name: userClientSettings
     using:
       manual_configuration:
@@ -168,6 +177,8 @@ select_permissions:
         - registeredOn
         - role
         - speechLocale
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
         - userId
       filter:
         userId:

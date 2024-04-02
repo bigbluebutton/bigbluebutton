@@ -21,8 +21,9 @@ const LayoutModalComponent = (props) => {
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
+  const [updateAllUsed, setUpdateAllUsed] = useState(false);
 
-  const BASE_NAME = window.meetingClientSettings.public.app.basename;
+  const BASE_NAME = window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename;
 
   const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
@@ -43,6 +44,14 @@ const LayoutModalComponent = (props) => {
     layoutLabel: {
       id: 'app.layout.modal.layoutLabel',
       description: 'Layout label',
+    },
+    layoutToastLabelAuto: {
+      id: 'app.layout.modal.layoutToastLabelAuto',
+      description: 'Layout toast label',
+    },
+    layoutToastLabelAutoOff: {
+      id: 'app.layout.modal.layoutToastLabelAutoOff',
+      description: 'Layout toast label',
     },
     layoutToastLabel: {
       id: 'app.layout.modal.layoutToastLabel',
@@ -83,6 +92,15 @@ const LayoutModalComponent = (props) => {
       application:
         { ...application, selectedLayout, pushLayout: updateAll },
     };
+    if ((isModerator || isPresenter) && updateAll) {
+      updateSettings(obj, intlMessages.layoutToastLabelAuto);
+      setUpdateAllUsed(true);
+    } else if ((isModerator || isPresenter) && !updateAll && !updateAllUsed) {
+      updateSettings(obj, intlMessages.layoutToastLabelAutoOff);
+      setUpdateAllUsed(false);
+    } else {
+      updateSettings(obj, intlMessages.layoutToastLabel);
+    }
     updateSettings(obj, intlMessages.layoutToastLabel, setLocalSettings);
     setIsOpen(false);
   };

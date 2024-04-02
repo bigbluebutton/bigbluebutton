@@ -1,10 +1,4 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
-import { toolbarButtonColor, colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  fontSizeLarger,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/common/button/component';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
@@ -62,7 +56,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   .tlui-navigation-zone,
   .tlui-help-menu,
   .tlui-debug-panel {
-    display: none;
+    display: none !important;
   }
 
   .tlui-style-panel__wrapper {
@@ -91,11 +85,11 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
-  [data-testid="tools.laser"],
+  [data-testid="tools.more.laser"],
   [data-testid="tools.asset"],
-  .tlui-menu-zone__controls > :nth-child(1),
-  .tlui-menu-zone__controls > :nth-child(2) {
-    display: none;
+  .tlui-buttons__horizontal > :nth-child(1),
+  .tlui-buttons__horizontal > :nth-child(2) {
+    display: none !important;
   }
 
   .tl-collaborator__cursor {

@@ -31,7 +31,7 @@ const Chat: React.FC<ChatProps> = ({ isRTL }) => {
   );
 };
 
-const ChatLoading: React.FC<ChatProps> = ({ isRTL }) => {
+export const ChatLoading: React.FC<ChatProps> = ({ isRTL }) => {
   const { isChrome } = browserInfo;
   return (
     <Styled.Chat isRTL={isRTL} isChrome={isChrome}>

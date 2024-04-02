@@ -18,7 +18,7 @@ export function makeCall(name, ...args) {
   return new Promise(async (resolve, reject) => {
     if (Meteor.status().connected) {
       const result = await Meteor.callAsync(name, ...args);
-      // all tested cases it returnd 0, empty array or undefined
+      // all tested cases it returned 0, empty array or undefined
       resolve(result);
     } else {
       const failureString = `Call to ${name} failed because Meteor is not connected`;

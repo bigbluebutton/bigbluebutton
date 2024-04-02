@@ -11,7 +11,6 @@ export const Container = styled.div<ContainerProps>`
   background: var(--color-black);
   z-index: 5;
   display: grid;
-  grid-template-columns: 1fr 1fr;
   ${({ isResizing }) => isResizing && `
     pointer-events: none;
   `}

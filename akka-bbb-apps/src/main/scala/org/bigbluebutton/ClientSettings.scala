@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 
 import java.io.{ ByteArrayInputStream, File }
 import scala.io.BufferedSource
-import scala.util.{ Failure, Success, Try }
+import scala.util.{ Failure, Success }
 
 object ClientSettings extends SystemConfiguration {
   var clientSettingsFromFile: Map[String, Object] = Map("" -> "")
@@ -78,6 +78,24 @@ object ClientSettings extends SystemConfiguration {
       case Some(configValue: Boolean) => configValue
       case _ =>
         logger.debug(s"Config `$path` with type Boolean found in clientSettings.")
+        alternativeValue
+    }
+  }
+
+  def getConfigPropertyValueByPathAsListOfStringOrElse(map: Map[String, Any], path: String, alternativeValue: List[String]): List[String] = {
+    getConfigPropertyValueByPath(map, path) match {
+      case Some(configValue: List[String]) => configValue
+      case _ =>
+        logger.debug(s"Config `$path` with type List[String] not found in clientSettings.")
+        alternativeValue
+    }
+  }
+
+  def getConfigPropertyValueByPathAsListOfIntOrElse(map: Map[String, Any], path: String, alternativeValue: List[Int]): List[Int] = {
+    getConfigPropertyValueByPath(map, path) match {
+      case Some(configValue: List[Int]) => configValue
+      case _ =>
+        logger.debug(s"Config `$path` with type List[Int] not found in clientSettings.")
         alternativeValue
     }
   }

@@ -15,7 +15,7 @@ import (
 
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
 func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChannel *common.SafeChannel, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup) {
-	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.Browserconn.Id).WithField("hasuraConnectionId", hc.Id)
+	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
 
@@ -28,9 +28,9 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 		err := wsjson.Read(hc.Context, hc.Websocket, &message)
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
-				log.Debugf("Closing ws connection as Context was cancelled!")
+				log.Debugf("Closing Hasura ws connection as Context was cancelled!")
 			} else {
-				log.Errorf("Error reading message from Hasura: %v", err)
+				log.Debugf("Error reading message from Hasura: %v", err)
 			}
 			return
 		}
@@ -50,17 +50,23 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, fromHasuraToBr
 
 		//Check if subscription is still active!
 		if queryId != "" {
-			hc.Browserconn.ActiveSubscriptionsMutex.RLock()
-			subscription, ok := hc.Browserconn.ActiveSubscriptions[queryId]
-			hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
+			hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
+			subscription, ok := hc.BrowserConn.ActiveSubscriptions[queryId]
+			hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
 			if !ok {
-				log.Debugf("Subscription with Id %s doesn't exist anymore, skiping response.", queryId)
+				log.Debugf("Subscription with Id %s doesn't exist anymore, skipping response.", queryId)
 				return
 			}
 
 			//When Hasura send msg type "complete", this query is finished
 			if messageType == "complete" {
 				handleCompleteMessage(hc, queryId)
+				common.ActivitiesOverviewCompleted(string(subscription.Type) + "-" + subscription.OperationName)
+				common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
+			}
+
+			if messageType == "data" {
+				common.ActivitiesOverviewDataReceived(string(subscription.Type) + "-" + subscription.OperationName)
 			}
 
 			if messageType == "data" &&
@@ -95,6 +101,12 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 			for dataKey, dataItem := range data {
 				if currentDataProp, okCurrentDataProp := dataItem.([]interface{}); okCurrentDataProp {
 					if dataAsJson, err := json.Marshal(currentDataProp); err == nil {
+						if common.ActivitiesOverviewEnabled {
+							dataSize := len(string(dataAsJson))
+							dataCount := len(currentDataProp)
+							common.ActivitiesOverviewDataSize(string(subscription.Type)+"-"+subscription.OperationName, int64(dataSize), int64(dataCount))
+						}
+
 						//Check whether ReceivedData is different from the LastReceivedData
 						//Otherwise stop forwarding this message
 						dataChecksum := crc32.ChecksumIEEE(dataAsJson)
@@ -104,13 +116,13 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 
 						//Store LastReceivedData Checksum
 						subscription.LastReceivedDataChecksum = dataChecksum
-						hc.Browserconn.ActiveSubscriptionsMutex.Lock()
-						hc.Browserconn.ActiveSubscriptions[queryId] = subscription
-						hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
+						hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
+						hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
+						hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
 
 						//Apply msg patch when it supports it
 						if subscription.JsonPatchSupported {
-							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.Browserconn)
+							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn)
 						}
 					}
 				}
@@ -126,17 +138,19 @@ func handleStreamingMessage(hc *common.HasuraConnection, messageMap map[string]i
 	if lastCursor != nil && subscription.StreamCursorCurrValue != lastCursor {
 		subscription.StreamCursorCurrValue = lastCursor
 
-		hc.Browserconn.ActiveSubscriptionsMutex.Lock()
-		hc.Browserconn.ActiveSubscriptions[queryId] = subscription
-		hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
+		hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
+		hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
+		hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
 	}
 }
 
 func handleCompleteMessage(hc *common.HasuraConnection, queryId string) {
-	hc.Browserconn.ActiveSubscriptionsMutex.Lock()
-	delete(hc.Browserconn.ActiveSubscriptions, queryId)
-	hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
-	log.Debugf("Subscription with Id %s finished by Hasura.", queryId)
+	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
+	queryType := hc.BrowserConn.ActiveSubscriptions[queryId].Type
+	operationName := hc.BrowserConn.ActiveSubscriptions[queryId].OperationName
+	delete(hc.BrowserConn.ActiveSubscriptions, queryId)
+	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
+	log.Debugf("%s (%s) with Id %s finished by Hasura.", queryType, operationName, queryId)
 }
 
 func handleConnectionAckMessage(hc *common.HasuraConnection, messageMap map[string]interface{}, fromHasuraToBrowserChannel *common.SafeChannel, fromBrowserToHasuraChannel *common.SafeChannel) {
@@ -145,9 +159,9 @@ func handleConnectionAckMessage(hc *common.HasuraConnection, messageMap map[stri
 	fromBrowserToHasuraChannel.UnfreezeChannel()
 
 	//Avoid to send `connection_ack` to the browser when it's a reconnection
-	if hc.Browserconn.ConnAckSentToBrowser == false {
+	if hc.BrowserConn.ConnAckSentToBrowser == false {
 		fromHasuraToBrowserChannel.Send(messageMap)
-		hc.Browserconn.ConnAckSentToBrowser = true
+		hc.BrowserConn.ConnAckSentToBrowser = true
 	}
 
 	go retransmiter.RetransmitSubscriptionStartMessages(hc, fromBrowserToHasuraChannel)

@@ -1,4 +1,5 @@
-const { test, devices } = require('@playwright/test');
+const { test } = require('../fixtures');
+const { devices } = require('@playwright/test');
 const { ScreenShare } = require('./screenshare');
 
 test.describe.parallel('Screenshare', () => {

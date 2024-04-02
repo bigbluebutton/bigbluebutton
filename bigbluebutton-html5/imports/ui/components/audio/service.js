@@ -53,8 +53,8 @@ const init = (messages, intl, toggleVoice) => {
   const { sessionToken } = Auth;
   const User = Users.findOne({ userId }, { fields: { name: 1 } });
   const username = User.name;
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceProp.voiceConf': 1 } });
-  const voiceBridge = Meeting.voiceProp.voiceConf;
+  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceSettings.voiceConf': 1 } });
+  const voiceBridge = Meeting.voiceSettings.voiceConf;
 
   // FIX ME
   const microphoneLockEnforced = false;
@@ -73,7 +73,7 @@ const init = (messages, intl, toggleVoice) => {
 
 const muteMicrophone = (toggleVoice) => {
   const user = VoiceUsers.findOne({
-    meetingId: Auth.meetingID, intId: Auth.userID,
+    userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
   if (!user.muted) {
@@ -87,14 +87,14 @@ const muteMicrophone = (toggleVoice) => {
 };
 
 const isVoiceUser = () => {
-  const voiceUser = VoiceUsers.findOne({ intId: Auth.userID },
+  const voiceUser = VoiceUsers.findOne({ userId: Auth.userID },
     { fields: { joined: 1 } });
   return voiceUser ? voiceUser.joined : false;
 };
 
 const toggleMuteMicrophone = throttle((toggleVoice) => {
   const user = VoiceUsers.findOne({
-    meetingId: Auth.meetingID, intId: Auth.userID,
+    userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
   Storage.setItem(MUTED_KEY, !user.muted);

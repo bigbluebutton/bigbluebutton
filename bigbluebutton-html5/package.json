@@ -29,7 +29,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.8.8",
+    "@apollo/client": "^3.9.8",
     "@babel/runtime": "^7.17.9",
     "@browser-bunyan/server-stream": "^1.8.0",
     "@emoji-mart/data": "^1.1.2",
@@ -47,7 +47,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.6.4",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.38",
+    "bigbluebutton-html-plugin-sdk": "0.0.40",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
@@ -96,7 +96,7 @@
     "recharts": "^2.7.2",
     "reconnecting-websocket": "~v4.4.0",
     "redis": "^3.1.2",
-    "sanitize-html": "2.7.1",
+    "sanitize-html": "2.12.1",
     "scheduler": "^0.20.2",
     "sdp-transform": "2.7.0",
     "smile2emoji": "^3.8.3",

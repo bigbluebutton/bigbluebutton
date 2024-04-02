@@ -3,6 +3,7 @@ import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
   public: {
     app: {
+      instanceId: '',
       mobileFontSize: '16px',
       desktopFontSize: '14px',
       audioChatNotification: false,
@@ -780,10 +781,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           mime: 'image/webp',
         },
       ],
-    },
-    selectRandomUser: {
-      enabled: true,
-      countdown: false,
     },
     user: {
       role_moderator: 'MODERATOR',

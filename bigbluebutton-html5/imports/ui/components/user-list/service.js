@@ -194,8 +194,8 @@ const getUsers = () => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      { fields: { 'lockSettings.hideUserList': 1 } });
+    if (meeting && meeting.lockSettings && meeting.lockSettings.hideUserList) {
       const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
     }
@@ -210,8 +210,8 @@ const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) =
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      { fields: { 'lockSettings.hideUserList': 1 } });
+    if (meeting && meeting.lockSettings && meeting.lockSettings.hideUserList) {
       const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
     }
@@ -343,11 +343,11 @@ const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id },
-    { fields: { lockSettingsProps: 1, usersProp: 1 } });
+    { fields: { lockSettings: 1, usersPolicies: 1 } });
   let isLocked = false;
 
-  if (meeting.lockSettingsProps !== undefined) {
-    const { lockSettingsProps: lockSettings, usersProp } = meeting;
+  if (meeting.lockSettings !== undefined) {
+    const { lockSettings, usersPolicies } = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
@@ -357,7 +357,7 @@ const isMeetingLocked = (id) => {
       || lockSettings.hideUserList
       || lockSettings.hideViewersCursor
       || lockSettings.hideViewersAnnotation
-      || usersProp.webcamsOnlyForModerator) {
+      || usersPolicies.webcamsOnlyForModerator) {
       isLocked = true;
     }
   }
@@ -370,14 +370,14 @@ const getUsersProp = () => {
     { meetingId: Auth.meetingID },
     {
       fields: {
-        'usersProp.allowModsToUnmuteUsers': 1,
-        'usersProp.allowModsToEjectCameras': 1,
-        'usersProp.authenticatedGuest': 1,
+        'usersPolicies.allowModsToUnmuteUsers': 1,
+        'usersPolicies.allowModsToEjectCameras': 1,
+        'usersPolicies.authenticatedGuest': 1,
       },
     },
   );
 
-  if (meeting.usersProp) return meeting.usersProp;
+  if (meeting.usersPolicies) return meeting.usersPolicies;
 
   return {
     allowModsToUnmuteUsers: false,
@@ -386,8 +386,8 @@ const getUsersProp = () => {
   };
 };
 
-const curatedVoiceUser = (intId) => {
-  const voiceUser = VoiceUsers.findOne({ intId });
+const curatedVoiceUser = (userId) => {
+  const voiceUser = VoiceUsers.findOne({ userId });
   return {
     isVoiceUser: voiceUser ? voiceUser.joined : false,
     isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
@@ -626,8 +626,8 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
 
   const link = document.createElement('a');
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'meetingProp.name': 1 } });
-  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${getDateString()}.txt`);
+    { fields: { name: 1 } });
+  link.setAttribute('download', `bbb-${meeting.name}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
     `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,

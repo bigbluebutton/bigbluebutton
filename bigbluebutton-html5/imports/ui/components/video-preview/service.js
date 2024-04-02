@@ -200,7 +200,7 @@ const doGUM = (deviceId, profile) => {
     // Chrome/Edge sometimes bork gUM calls when switching camera
     // profiles. This looks like a browser bug. Track release not
     // being done synchronously -> quick subsequent gUM calls for the same
-    // device (profile switching) -> device becoming unavaible while previous
+    // device (profile switching) -> device becoming unavailable while previous
     // tracks aren't finished - prlanzarin
     if (browserInfo.isChrome || browserInfo.isEdge) {
       const opts = {

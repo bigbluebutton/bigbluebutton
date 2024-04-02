@@ -14,6 +14,7 @@ import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.db.{ DatabaseConnection, MeetingDAO }
+import org.bigbluebutton.core.domain.MeetingEndReason
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
@@ -57,6 +58,9 @@ class BigBlueButtonActor(
   override def preStart() {
     bbbMsgBus.subscribe(self, meetingManagerChannel)
     DatabaseConnection.initialize()
+
+    //Terminate all previous meetings, as they will not function following the akka-apps restart
+    MeetingDAO.setAllMeetingsEnded(MeetingEndReason.ENDED_DUE_TO_SERVICE_INTERRUPTION, "system")
   }
 
   override def postStop() {

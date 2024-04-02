@@ -143,7 +143,7 @@ case class SetRecordingStatusCmdMsg(header: BbbClientMsgHeader, body: SetRecordi
 case class SetRecordingStatusCmdMsgBody(recording: Boolean, setBy: String)
 
 /**
- * Sent by user to start recording mark and ignore previsous marks
+ * Sent by user to start recording mark and ignore previous marks
  */
 object RecordAndClearPreviousMarkersCmdMsg { val NAME = "RecordAndClearPreviousMarkersCmdMsg" }
 case class RecordAndClearPreviousMarkersCmdMsg(header: BbbClientMsgHeader, body: RecordAndClearPreviousMarkersCmdMsgBody) extends StandardMsg
@@ -298,14 +298,7 @@ case class ChangeUserMobileFlagReqMsgBody(userId: String, mobile: Boolean)
  */
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
 case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
-case class UserConnectionAliveReqMsgBody(userId: String)
-
-/**
- * Sent from client to inform the RTT (time it took to send the Alive and receive confirmation).
- */
-object UserConnectionUpdateRttReqMsg { val NAME = "UserConnectionUpdateRttReqMsg" }
-case class UserConnectionUpdateRttReqMsg(header: BbbClientMsgHeader, body: UserConnectionUpdateRttReqMsgBody) extends StandardMsg
-case class UserConnectionUpdateRttReqMsgBody(userId: String, networkRttInMs: Double)
+case class UserConnectionAliveReqMsgBody(userId: String, networkRttInMs: Double)
 
 /**
  * Sent to all clients about a user mobile flag.
@@ -525,20 +518,6 @@ object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
 case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
 case class UserActivitySignCmdMsgBody(userId: String)
 
-/**
- * Sent from client to randomly select a viewer
- */
-object SelectRandomViewerReqMsg { val NAME = "SelectRandomViewerReqMsg" }
-case class SelectRandomViewerReqMsg(header: BbbClientMsgHeader, body: SelectRandomViewerReqMsgBody) extends StandardMsg
-case class SelectRandomViewerReqMsgBody(requestedBy: String)
-
-/**
- * Response to request for a random viewer
- */
-object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
-case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
-case class SelectRandomViewerRespMsgBody(requestedBy: String, userIds: Vector[String], choice: String)
-
 object SetUserSpeechLocaleReqMsg { val NAME = "SetUserSpeechLocaleReqMsg" }
 case class SetUserSpeechLocaleReqMsg(header: BbbClientMsgHeader, body: SetUserSpeechLocaleReqMsgBody) extends StandardMsg
 case class SetUserSpeechLocaleReqMsgBody(locale: String, provider: String)
@@ -546,3 +525,11 @@ case class SetUserSpeechLocaleReqMsgBody(locale: String, provider: String)
 object UserSpeechLocaleChangedEvtMsg { val NAME = "UserSpeechLocaleChangedEvtMsg" }
 case class UserSpeechLocaleChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechLocaleChangedEvtMsgBody) extends BbbCoreMsg
 case class UserSpeechLocaleChangedEvtMsgBody(locale: String, provider: String)
+
+object SetUserSpeechOptionsReqMsg { val NAME = "SetUserSpeechOptionsReqMsg" }
+case class SetUserSpeechOptionsReqMsg(header: BbbClientMsgHeader, body: SetUserSpeechOptionsReqMsgBody) extends StandardMsg
+case class SetUserSpeechOptionsReqMsgBody(partialUtterances: Boolean, minUtteranceLength: Int)
+
+object UserSpeechOptionsChangedEvtMsg { val NAME = "UserSpeechOptionsChangedEvtMsg" }
+case class UserSpeechOptionsChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechOptionsChangedEvtMsgBody) extends BbbCoreMsg
+case class UserSpeechOptionsChangedEvtMsgBody(partialUtterances: Boolean, minUtteranceLength: Int)

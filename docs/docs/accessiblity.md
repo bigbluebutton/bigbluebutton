@@ -69,12 +69,12 @@ HTML5 by default uses the `outline` attribute to visually indicate focus. Due to
 
 ![Image showing join audio aria label over the join audio icon](/img/accessibility-focusring-hc.jpg)
 
-Aria labels are important to focus when navigating with a screen reader, these labels have been used extensivley through out the client to provide audible announcments for selected
+Aria labels are important to focus when navigating with a screen reader, these labels have been used extensivley through out the client to provide audible announcements for selected
 elements.
 
 #### Keyboard Navigation
 
-The HTML5 Client has made several improvements to the default keyboard navigation. The most notable addition being breakout room managment, assigning users to various rooms is now possible.
+The HTML5 Client has made several improvements to the default keyboard navigation. The most notable addition being breakout room management, assigning users to various rooms is now possible.
 
 ![Animated image showing assignment of users to different rooms](/img/accessibility-br-manage.gif)
 
