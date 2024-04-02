@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
-const COOKIE_CONFIG = Meteor.settings.public.pads.cookie;
+const COOKIE_CONFIG = window.meetingClientSettings.public.pads.cookie;
 const PATH = COOKIE_CONFIG.path;
 const SAME_SITE = COOKIE_CONFIG.sameSite;
 const SECURE = COOKIE_CONFIG.secure;
