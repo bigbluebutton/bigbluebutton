@@ -738,74 +738,81 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   ]);
 
   React.useEffect(() => {
-    // Calculate the absolute difference
-    const heightDifference = Math.abs(presentationAreaHeight - lastKnownHeight.current);
-    const widthDifference = Math.abs(presentationAreaWidth - lastKnownWidth.current);
+    const handleResize = () => {
+      // Calculate the absolute difference
+      const heightDifference = Math.abs(presentationAreaHeight - lastKnownHeight.current);
+      const widthDifference = Math.abs(presentationAreaWidth - lastKnownWidth.current);
 
-    // Check if the difference is greater than the threshold
-    if (heightDifference > THRESHOLD || widthDifference > THRESHOLD) {
-      // Update the last known dimensions
-      lastKnownHeight.current = presentationAreaHeight;
-      lastKnownWidth.current = presentationAreaWidth;
+      // Check if the difference is greater than the threshold
+      if (heightDifference > THRESHOLD || widthDifference > THRESHOLD) {
+        // Update the last known dimensions
+        lastKnownHeight.current = presentationAreaHeight;
+        lastKnownWidth.current = presentationAreaWidth;
 
-      if (
-        presentationAreaHeight > 0 &&
-        presentationAreaWidth > 0 &&
-        tlEditor &&
-        currentPresentationPage &&
-        currentPresentationPage.scaledWidth > 0 &&
-        currentPresentationPage.scaledHeight > 0
-      ) {
-        const currentZoom = zoomValueRef.current || HUNDRED_PERCENT;
-        const baseZoom = calculateZoomValue(
-          currentPresentationPage.scaledWidth,
-          currentPresentationPage.scaledHeight
-        );
-        let adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
+        if (
+          presentationAreaHeight > 0 &&
+          presentationAreaWidth > 0 &&
+          tlEditor &&
+          currentPresentationPage &&
+          currentPresentationPage.scaledWidth > 0 &&
+          currentPresentationPage.scaledHeight > 0
+        ) {
+          const currentZoom = zoomValueRef.current || HUNDRED_PERCENT;
+          const baseZoom = calculateZoomValue(
+            currentPresentationPage.scaledWidth,
+            currentPresentationPage.scaledHeight
+          );
+          let adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
 
-        if (isPresenter) {
-          const camera = tlEditorRef.current.getCamera();
+          if (isPresenter) {
+            const camera = tlEditorRef.current.getCamera();
 
-          if (fitToWidth && currentPresentationPage) {
-            const currentAspectRatio =
-              Math.round((presentationAreaWidth / presentationAreaHeight) * 100) / 100;
-            const previousAspectRatio =
-              Math.round(
-                (currentPresentationPage.scaledViewBoxWidth /
-                  currentPresentationPage.scaledViewBoxHeight) *
-                  100
-              ) / 100;
+            if (fitToWidth && currentPresentationPage) {
+              const currentAspectRatio =
+                Math.round((presentationAreaWidth / presentationAreaHeight) * 100) / 100;
+              const previousAspectRatio =
+                Math.round(
+                  (currentPresentationPage.scaledViewBoxWidth /
+                    currentPresentationPage.scaledViewBoxHeight) *
+                    100
+                ) / 100;
 
-            setCamera(adjustedZoom, camera.x, camera.y);
+              setCamera(adjustedZoom, camera.x, camera.y);
 
-            const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
-              tlEditorRef.current?.viewportPageBounds.height,
-              currentPresentationPage.scaledHeight
-            );
-            zoomChanger(HUNDRED_PERCENT);
-            zoomSlide(
-              HUNDRED_PERCENT,
-              viewedRegionH,
-              camera.x,
-              camera.y,
-              presentationId
-            );
+              const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
+                tlEditorRef.current?.viewportPageBounds.height,
+                currentPresentationPage.scaledHeight
+              );
+              setZoom(HUNDRED_PERCENT);
+              zoomChanger(HUNDRED_PERCENT);
+              zoomSlide(
+                HUNDRED_PERCENT,
+                viewedRegionH,
+                camera.x,
+                camera.y,
+                presentationId
+              );
+            } else {
+              setCamera(adjustedZoom, camera.x, camera.y);
+            }
           } else {
+            // Viewer logic
+            const effectiveZoom = calculateEffectiveZoom(
+              initialViewBoxWidth,
+              currentPresentationPage.scaledViewBoxWidth
+            );
+            adjustedZoom = baseZoom * (effectiveZoom / HUNDRED_PERCENT);
+
+            const camera = tlEditorRef.current.getCamera();
             setCamera(adjustedZoom, camera.x, camera.y);
           }
-        } else {
-          // Viewer logic
-          const effectiveZoom = calculateEffectiveZoom(
-            initialViewBoxWidth,
-            currentPresentationPage.scaledViewBoxWidth
-          );
-          adjustedZoom = baseZoom * (effectiveZoom / HUNDRED_PERCENT);
-
-          const camera = tlEditorRef.current.getCamera();
-          setCamera(adjustedZoom, camera.x, camera.y);
         }
       }
     }
+
+    const timeoutId = setTimeout(handleResize, 300);
+
+    return () => clearTimeout(timeoutId);
   }, [presentationAreaHeight, presentationAreaWidth, curPageIdRef.current]);
 
   React.useEffect(() => {
