@@ -23,10 +23,10 @@ import {
   isScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const NOTES_CONFIG = Meteor.settings.public.notes;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-const DELAY_UNMOUNT_SHARED_NOTES = Meteor.settings.public.app.delayForUnmountOfSharedNote;
+const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 
 const intlMessages = defineMessages({
   hide: {
