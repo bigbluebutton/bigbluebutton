@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { makeCall } from '/imports/ui/services/api';
 import { PadsUpdates } from '/imports/api/pads';
 import Auth from '/imports/ui/services/auth';

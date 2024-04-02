@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Meteor } from 'meteor/meteor';
 import { useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { isSharedNotesEnabled } from '/imports/ui/services/features';
 

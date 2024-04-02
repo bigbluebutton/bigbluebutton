@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation, useSubscription } from '@apollo/client';
-import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import NotesService from '/imports/ui/components/notes/notes-graphql/service';

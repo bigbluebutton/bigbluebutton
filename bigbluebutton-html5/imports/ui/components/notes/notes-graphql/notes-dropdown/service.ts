@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import PadsService from '/imports/ui/components/pads/pads-graphql/service';
