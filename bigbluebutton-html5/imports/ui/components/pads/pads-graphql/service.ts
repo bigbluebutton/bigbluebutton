@@ -4,7 +4,7 @@ import { PadsUpdates } from '/imports/api/pads';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 
-const PADS_CONFIG = Meteor.settings.public.pads;
+const PADS_CONFIG = window.meetingClientSettings.public.pads;
 
 const getLang = (): string => {
   // @ts-ignore While Meteor in the project
