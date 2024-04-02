@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const useHasPermission = () => {
   const { data: currentUserData } = useCurrentUser((u) => ({
