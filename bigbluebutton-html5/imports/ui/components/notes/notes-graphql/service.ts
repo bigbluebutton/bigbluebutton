@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { isSharedNotesEnabled } from '/imports/ui/services/features';
 
-const NOTES_CONFIG = Meteor.settings.public.notes;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
 const isEnabled = () => isSharedNotesEnabled();
 
