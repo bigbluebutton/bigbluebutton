@@ -18,7 +18,7 @@ import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
 import useNotesLastRev from '/imports/ui/components/notes/notes-graphql/hooks/useNotesLastRev';
 import useHasUnreadNotes from '/imports/ui/components/notes/notes-graphql/hooks/useHasUnreadNotes';
 
-const NOTES_CONFIG = Meteor.settings.public.notes;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
 const intlMessages = defineMessages({
   title: {
