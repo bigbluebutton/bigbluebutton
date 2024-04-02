@@ -207,6 +207,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       ],
       fallbackOnEmptyLocaleString: true,
       disableWebsocketFallback: true,
+      maxMutationPayloadSize: 10485760, // 10MB
     },
     externalVideoPlayer: {
       enabled: true,

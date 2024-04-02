@@ -98,6 +98,7 @@ export interface App {
   effectiveConnection: string[]
   fallbackOnEmptyLocaleString: boolean
   disableWebsocketFallback: boolean
+  maxMutationPayloadSize: number
 }
 
 export interface BbbTabletApp {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSubscription, gql } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
-import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -53,8 +53,8 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
   }, [customSubscriptionData, sendSignal]);
 
   useEffect(() => {
-    const updateHookUseCustomSubscription = (() => {
-      setSendSignal((previous) => !previous);
+    const updateHookUseCustomSubscription = ((event: CustomEvent<SubscribedEventDetails>) => {
+      if (event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
       HookEvents.SUBSCRIBED, updateHookUseCustomSubscription,

@@ -113,8 +113,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
       case UserConnectionAliveReqMsg.NAME =>
         routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
-      case UserConnectionUpdateRttReqMsg.NAME =>
-        routeGenericMsg[UserConnectionUpdateRttReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
       case SetUserSpeechOptionsReqMsg.NAME =>

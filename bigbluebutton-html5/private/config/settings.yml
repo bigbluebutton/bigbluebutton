@@ -294,6 +294,9 @@ public:
     # string will be returned.
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
+    # Maximum number of bytes allowed in each mutation message payload.
+    # Defaults to 10485760 (10MB)
+    maxMutationPayloadSize: 10485760
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
