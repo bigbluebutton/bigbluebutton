@@ -18,12 +18,12 @@ type ActivitiesOverviewObj struct {
 	DataCountAvg int64
 }
 
-var activitiesOverviewEnabled = false
+var ActivitiesOverviewEnabled = false
 var activitiesOverview = make(map[string]ActivitiesOverviewObj)
 var activitiesOverviewMux = sync.Mutex{}
 
 func ActivitiesOverviewStarted(index string) {
-	if !activitiesOverviewEnabled {
+	if !ActivitiesOverviewEnabled {
 		return
 	}
 
@@ -47,7 +47,7 @@ func ActivitiesOverviewStarted(index string) {
 }
 
 func ActivitiesOverviewDataReceived(index string) {
-	if !activitiesOverviewEnabled {
+	if !ActivitiesOverviewEnabled {
 		return
 	}
 
@@ -62,7 +62,7 @@ func ActivitiesOverviewDataReceived(index string) {
 }
 
 func ActivitiesOverviewDataSize(index string, dataSize int64, dataCount int64) {
-	if !activitiesOverviewEnabled {
+	if !ActivitiesOverviewEnabled {
 		return
 	}
 
@@ -77,7 +77,7 @@ func ActivitiesOverviewDataSize(index string, dataSize int64, dataCount int64) {
 }
 
 func ActivitiesOverviewCompleted(index string) {
-	if !activitiesOverviewEnabled {
+	if !ActivitiesOverviewEnabled {
 		return
 	}
 
@@ -100,7 +100,7 @@ func GetActivitiesOverview() map[string]ActivitiesOverviewObj {
 }
 
 func ActivitiesOverviewLogRoutine() {
-	activitiesOverviewEnabled = true
+	ActivitiesOverviewEnabled = true
 	log.Info("Activities Overview routine started!")
 
 	for {
