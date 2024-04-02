@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
 import useNotesLastRev from './useNotesLastRev';
 
-const NOTES_CONFIG = Meteor.settings.public.notes;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
 const useHasUnreadNotes = () => {
   const { lastRev } = useNotesLastRev();
