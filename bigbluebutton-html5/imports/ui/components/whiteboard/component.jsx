@@ -639,62 +639,54 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     let timeoutId = null;
 
     if (tlEditor && curPageIdRef.current && currentPresentationPage && isPresenter && isWheelZoomRef.current === false) {
-      const zoomFitSlide = calculateZoomValue(
+      // Use initialZoom for resetting to 100% to ensure it fits perfectly as it did on initial mount
+      const zoomLevelForReset = initialZoomRef.current || calculateZoomValue(
         currentPresentationPage.scaledWidth,
         currentPresentationPage.scaledHeight
       );
-      const zoomCamera = (zoomFitSlide * zoomValue) / HUNDRED_PERCENT;
-      const tlcamra = tlEditorRef.current.getCamera()
-      const tlViewportPageBounds = tlEditorRef.current.getViewportPageBounds();
 
-      // Assuming centerX and centerY represent the center of the current view
-      const centerX = tlcamra.x + (tlViewportPageBounds.w / 2) / tlcamra.z;
-      const centerY = tlcamra.y + (tlViewportPageBounds.h / 2) / tlcamra.z;
+      // Calculate zoom based on whether the presenter is viewing at 100% or a different zoom level
+      const zoomCamera = zoomValue === HUNDRED_PERCENT ? zoomLevelForReset : (zoomLevelForReset * zoomValue) / HUNDRED_PERCENT;
+      const camera = tlEditorRef.current.getCamera();
 
-      // Calculate the new camera position to keep the center in focus after zoom
+      // Calculate the new camera position to maintain the center after zoom
+      // If zooming to 100%, use the initial zoom reference to reset the camera
       const nextCamera = {
-        x: centerX + (centerX / zoomCamera - centerX) - (centerX / tlcamra.z - centerX),
-        y: centerY + (centerY / zoomCamera - centerY) - (centerY / tlcamra.z - centerY),
+        x: zoomValue === HUNDRED_PERCENT ? 0 : camera.x + ((camera.x + tlEditorRef.current.getViewportPageBounds().w / 2) / zoomCamera - camera.x),
+        y: zoomValue === HUNDRED_PERCENT ? 0 : camera.y + ((camera.y + tlEditorRef.current.getViewportPageBounds().h / 2) / zoomCamera - camera.y),
         z: zoomCamera,
       };
 
-      // Apply bounds restriction logic
-      const { maxX, maxY, minX, minY } = tlViewportPageBounds;
-      const { scaledWidth, scaledHeight } = currentPresentationPage;
-
-      if (maxX > scaledWidth) {
-        nextCamera.x += maxX - scaledWidth;
-      }
-      if (maxY > scaledHeight) {
-        nextCamera.y += maxY - scaledHeight;
-      }
-      if (nextCamera.x > 0 || minX < 0 || zoomValueRef.current === HUNDRED_PERCENT) {
-        nextCamera.x = 0;
-      }
-      if (nextCamera.y > 0 || minY < 0 || zoomValueRef.current === HUNDRED_PERCENT) {
-        nextCamera.y = 0;
-      }
-
-      if (zoomValue !== prevZoomValueRef.current) {
+      if (zoomValue !== prevZoomValueRef.current || zoomValue === HUNDRED_PERCENT) {
         tlEditor.setCamera(nextCamera, false);
 
         timeoutId = setTimeout(() => {
-          // Recalculate viewed region width and height if necessary for zoomSlide call
-          let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
-            tlEditorRef.current.getViewportPageBounds()?.width,
-            currentPresentationPage.scaledWidth
-          );
-          let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
-            tlEditorRef.current.getViewportPageBounds()?.height,
-            currentPresentationPage.scaledHeight
-          );
+          if (zoomValue === HUNDRED_PERCENT) {
+            zoomChanger(HUNDRED_PERCENT);
+            zoomSlide(
+              HUNDRED_PERCENT,
+              HUNDRED_PERCENT,
+              0,
+              0,
+            );
+          } else {
+            // Recalculate viewed region width and height for zoomSlide call
+            let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
+              tlEditorRef.current.getViewportPageBounds().w,
+              currentPresentationPage.scaledWidth
+            );
+            let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
+              tlEditorRef.current.getViewportPageBounds().h,
+              currentPresentationPage.scaledHeight
+            );
 
-          zoomSlide(
-            viewedRegionW,
-            viewedRegionH,
-            nextCamera.x,
-            nextCamera.y,
-          );
+            zoomSlide(
+              viewedRegionW,
+              viewedRegionH,
+              nextCamera.x,
+              nextCamera.y,
+            );
+          }
         }, 300);
       }
     }
@@ -984,33 +976,38 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           presentationAreaHeight > 0 &&
           presentationAreaWidth > 0 &&
           currentPresentationPage &&
-          currentPresentationPage?.scaledWidth > 0 &&
-          currentPresentationPage?.scaledHeight > 0
+          currentPresentationPage.scaledWidth > 0 &&
+          currentPresentationPage.scaledHeight > 0
         ) {
-          let adjustedZoom = HUNDRED_PERCENT;
+          const adjustedPresentationAreaHeight = isPresenter ? presentationAreaHeight - 40 : presentationAreaHeight;
 
+          let baseZoom;
           if (isPresenter) {
-            // Presenter logic
-            const currentZoom = zoomValueRef.current || HUNDRED_PERCENT;
-            const baseZoom = calculateZoomValue(
-              currentPresentationPage?.scaledWidth,
-              currentPresentationPage?.scaledHeight
-            );
-
-            adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
+            // Adjust the calculation for the presenter to consider the toolbar's space
+            baseZoom = fitToWidth
+              ? presentationAreaWidth / currentPresentationPage.scaledWidth
+              : Math.min(
+                  presentationAreaWidth / currentPresentationPage.scaledWidth,
+                  adjustedPresentationAreaHeight / currentPresentationPage.scaledHeight
+                );
           } else {
-            // Viewer logic
+            // Use effectiveZoom for viewer logic to ensure proper zoom based on viewBox adjustments
             const effectiveZoom = calculateEffectiveZoom(
               initialViewBoxWidth,
-              currentPresentationPage?.scaledViewBoxWidth
+              currentPresentationPage.scaledViewBoxWidth
             );
-            const baseZoom = calculateZoomValue(
-              currentPresentationPage?.scaledWidth,
-              currentPresentationPage?.scaledHeight,
-              true
+            baseZoom = calculateZoomValue(
+              currentPresentationPage.scaledWidth,
+              currentPresentationPage.scaledHeight
             );
-            adjustedZoom = baseZoom * (effectiveZoom / HUNDRED_PERCENT);
+            // Apply effectiveZoom scaling for viewers
+            baseZoom *= effectiveZoom / HUNDRED_PERCENT;
           }
+
+          // Final zoom adjustment to handle edge cases
+          let adjustedZoom = baseZoom === 0 || baseZoom === Infinity ? HUNDRED_PERCENT : baseZoom;
+
+          // Apply the calculated zoom
           setCamera(adjustedZoom);
         }
       }, 250);
