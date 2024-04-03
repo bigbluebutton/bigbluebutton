@@ -82,7 +82,7 @@ func ClearAllCaches() {
 	}
 }
 
-func PatchMessage(receivedMessage *map[string]interface{}, queryId string, dataKey string, dataAsJson []byte, bConn *common.BrowserConnection) {
+func PatchMessage(receivedMessage *map[string]interface{}, queryId string, dataKey string, dataAsJson []byte, bConn *common.BrowserConnection, cacheKey string) {
 	var receivedMessageMap = *receivedMessage
 
 	fileCacheDirPath, err := getSubscriptionCacheDirPath(bConn, queryId, true)
@@ -105,24 +105,28 @@ func PatchMessage(receivedMessage *map[string]interface{}, queryId string, dataK
 		//Content was changed, creating json patch
 		//If data is small (< minLengthToPatch) it's not worth creating the patch
 		if lastDataAsJsonString != "" && len(string(dataAsJson)) > minLengthToPatch {
-			diffPatch, e := jsonpatch.CreatePatch([]byte(lastDataAsJsonString), []byte(dataAsJson))
-			if e != nil {
-				log.Errorf("Error creating JSON patch:%v", e)
-				return
-			}
-			jsonDiffPatch, err := json.Marshal(diffPatch)
-			if err != nil {
-				log.Errorf("Error marshaling patch array:", err)
-				return
+			if _, exists := common.JsonPatchCache[cacheKey]; !exists {
+				diffPatch, e := jsonpatch.CreatePatch([]byte(lastDataAsJsonString), dataAsJson)
+				if e != nil {
+					log.Errorf("Error creating JSON patch:%v", e)
+					return
+				}
+				jsonDiffPatch, err := json.Marshal(diffPatch)
+				if err != nil {
+					log.Errorf("Error marshaling patch array:", err)
+					return
+				}
+
+				common.JsonPatchCache[cacheKey] = jsonDiffPatch
 			}
 
 			//Use patch if the length is {minShrinkToUsePatch}% smaller than the original msg
-			if float64(len(string(jsonDiffPatch)))/float64(len(string(dataAsJson))) < minShrinkToUsePatch {
+			if float64(len(string(common.JsonPatchCache[cacheKey])))/float64(len(string(dataAsJson))) < minShrinkToUsePatch {
 				//Modify receivedMessage to include the Patch and remove the previous data
 				//The key of the original message is kept to avoid errors (Apollo-client expects to receive this prop)
 				receivedMessageMap["payload"] = map[string]interface{}{
 					"data": map[string]interface{}{
-						"patch": json.RawMessage(jsonDiffPatch),
+						"patch": json.RawMessage(common.JsonPatchCache[cacheKey]),
 						dataKey: json.RawMessage("[]"),
 					},
 				}
@@ -132,10 +136,12 @@ func PatchMessage(receivedMessage *map[string]interface{}, queryId string, dataK
 
 		//Store current result to be used to create json patch in the future
 		if lastDataAsJsonString != "" || len(string(dataAsJson)) > minLengthToPatch {
-			errWritingOutput := ioutil.WriteFile(filePath, []byte(dataAsJson), 0644)
-			if errWritingOutput != nil {
-				log.Errorf("Error on trying to write cache of json diff:", errWritingOutput)
-			}
+			go func(filePath string, dataAsJson []byte) {
+				errWritingOutput := ioutil.WriteFile(filePath, dataAsJson, 0644)
+				if errWritingOutput != nil {
+					log.Errorf("Error on trying to write cache of json diff:", errWritingOutput)
+				}
+			}(filePath, dataAsJson)
 		}
 	}
 }

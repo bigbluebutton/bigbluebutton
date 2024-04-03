@@ -13,3 +13,5 @@ func InitUniqueID() {
 func GetUniqueID() string {
 	return uniqueID
 }
+
+var JsonPatchCache = make(map[string][]byte)

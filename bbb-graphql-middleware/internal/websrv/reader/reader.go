@@ -2,11 +2,14 @@ package reader
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
+	"os"
 	"sync"
 	"time"
 )
@@ -46,7 +49,42 @@ func BrowserConnectionReader(browserConnectionId string, ctx context.Context, ct
 
 		log.Tracef("received from browser: %v", v)
 
+		//saveItToFile(v)
+
 		fromBrowserToHasuraChannel.Send(v)
 		fromBrowserToHasuraConnectionEstablishingChannel.Send(v)
+	}
+}
+
+var FilesCounterMutex sync.Mutex
+var FilesCounter = 0
+
+func GetFilesCounter() int {
+	FilesCounterMutex.Lock()
+	defer FilesCounterMutex.Unlock()
+
+	FilesCounter++
+	return FilesCounter - 1
+}
+
+func saveItToFile(contentInBytes interface{}) {
+
+	filename := fmt.Sprintf("/tmp/subscription_%d.txt", GetFilesCounter())
+	//content := fmt.Sprintf("%v", contentInBytes)
+	message, err := json.Marshal(contentInBytes)
+
+	fmt.Printf("Saving %s\n", filename)
+
+	// Create the file
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// Write the content to the file
+	_, err = file.Write(message)
+	if err != nil {
+		panic(err)
 	}
 }
