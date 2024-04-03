@@ -5422,7 +5422,7 @@ class SessionDialog extends _dialog__WEBPACK_IMPORTED_MODULE_18__["Dialog"] {
                 msg += " but the following tip is provided for avoiding race conditions of";
                 msg += " this type.  The caller can delay sending re-INVITE F6 for some period";
                 msg += " of time (2 seconds, perhaps), after which the caller can reasonably";
-                msg += " assume that its ACK has been received.  Implementors can decouple the";
+                msg += " assume that its ACK has been received.  Implementers can decouple the";
                 msg += " actions of the user (e.g., pressing the hold button) from the actions";
                 msg += " of the protocol (the sending of re-INVITE F6), so that the UA can";
                 msg += " behave like this.  In this case, it is the implementor's choice as to";
@@ -5430,7 +5430,7 @@ class SessionDialog extends _dialog__WEBPACK_IMPORTED_MODULE_18__["Dialog"] {
                 msg += " useful to prevent the type of race condition shown in this section.";
                 msg += " This document expresses no preference about whether or not they";
                 msg += " should wait for an ACK to be delivered.  After considering the impact";
-                msg += " on user experience, implementors should decide whether or not to wait";
+                msg += " on user experience, implementers should decide whether or not to wait";
                 msg += " for a while, because the user experience depends on the";
                 msg += " implementation and has no direct bearing on protocol behavior.";
                 this.logger.warn(msg);
@@ -11684,7 +11684,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 
 /**
- * An exception indicating a session description handler error occured.
+ * An exception indicating a session description handler error occurred.
  * @public
  */
 class SessionDescriptionHandlerError extends _core__WEBPACK_IMPORTED_MODULE_0__["Exception"] {
@@ -11724,7 +11724,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 
 /**
- * An exception indicating an invalid state transition error occured.
+ * An exception indicating an invalid state transition error occurred.
  * @public
  */
 class StateTransitionError extends _core__WEBPACK_IMPORTED_MODULE_0__["Exception"] {
@@ -12297,7 +12297,7 @@ class Invitation extends _session__WEBPACK_IMPORTED_MODULE_3__["Session"] {
                 // State should never be reached as first reliable provisional response must have answer/offer.
                 throw new Error(`Invalid signaling state ${this.dialog.signalingState}.`);
             case _core__WEBPACK_IMPORTED_MODULE_0__["SignalingState"].Stable:
-                // Receved answer.
+                // Received answer.
                 return this.setAnswer(body, options).then(() => undefined);
             case _core__WEBPACK_IMPORTED_MODULE_0__["SignalingState"].HaveLocalOffer:
                 // State should never be reached as local offer would be answered by this PRACK
@@ -14937,7 +14937,7 @@ class Inviter extends _session__WEBPACK_IMPORTED_MODULE_2__["Session"] {
                     if (this.earlyMediaDialog !== session) {
                         if (this.earlyMedia) {
                             const message = "You have set the 'earlyMedia' option to 'true' which requires that your INVITE requests " +
-                                "do not fork and yet this INVITE request did in fact fork. Consequentially and not surprisingly " +
+                                "do not fork and yet this INVITE request did in fact fork. Consequently and not surprisingly " +
                                 "the end point which accepted the INVITE (confirmed dialog) does not match the end point with " +
                                 "which early media has been setup (early dialog) and thus this session is unable to proceed. " +
                                 "In accordance with the SIP specifications, the SIP servers your end point is connected to " +
@@ -17817,7 +17817,7 @@ class UserAgent {
             },
             onRefer: (incomingReferRequest) => {
                 this.logger.warn("Received an out of dialog REFER request");
-                // TOOD: this.delegate.onRefer(...)
+                // TODO: this.delegate.onRefer(...)
                 if (this.delegate && this.delegate.onReferRequest) {
                     this.delegate.onReferRequest(incomingReferRequest);
                 }
@@ -17827,7 +17827,7 @@ class UserAgent {
             },
             onRegister: (incomingRegisterRequest) => {
                 this.logger.warn("Received an out of dialog REGISTER request");
-                // TOOD: this.delegate.onRegister(...)
+                // TODO: this.delegate.onRegister(...)
                 if (this.delegate && this.delegate.onRegisterRequest) {
                     this.delegate.onRegisterRequest(incomingRegisterRequest);
                 }
@@ -17837,7 +17837,7 @@ class UserAgent {
             },
             onSubscribe: (incomingSubscribeRequest) => {
                 this.logger.warn("Received an out of dialog SUBSCRIBE request");
-                // TOOD: this.delegate.onSubscribe(...)
+                // TODO: this.delegate.onSubscribe(...)
                 if (this.delegate && this.delegate.onSubscribeRequest) {
                     this.delegate.onSubscribeRequest(incomingSubscribeRequest);
                 }
@@ -19501,7 +19501,7 @@ class Transport {
         return this.send("\r\n\r\n");
     }
     /**
-     * Start sending keep-alives.
+     * Start sending keep-alive.
      */
     startSendingKeepAlives() {
         // Compute an amount of time in seconds to wait before sending another keep-alive.
@@ -19517,7 +19517,7 @@ class Transport {
         }
     }
     /**
-     * Stop sending keep-alives.
+     * Stop sending keep-alive.
      */
     stopSendingKeepAlives() {
         if (this.keepAliveInterval) {
@@ -20637,7 +20637,7 @@ class SimpleUser {
         if (mediaElement) {
             const localStream = this.localMediaStream;
             if (!localStream) {
-                throw new Error("Local media stream undefiend.");
+                throw new Error("Local media stream undefined.");
             }
             mediaElement.srcObject = localStream;
             mediaElement.volume = 0;
@@ -20657,7 +20657,7 @@ class SimpleUser {
         if (mediaElement) {
             const remoteStream = this.remoteMediaStream;
             if (!remoteStream) {
-                throw new Error("Remote media stream undefiend.");
+                throw new Error("Remote media stream undefined.");
             }
             mediaElement.autoplay = true; // Safari hack, because you cannot call .play() from a non user action
             mediaElement.srcObject = remoteStream;
@@ -20667,7 +20667,7 @@ class SimpleUser {
             });
             remoteStream.onaddtrack = () => {
                 this.logger.log(`[${this.id}] Remote media onaddtrack`);
-                mediaElement.load(); // Safari hack, as it doesn't work otheriwse
+                mediaElement.load(); // Safari hack, as it doesn't work otherwise
                 mediaElement.play().catch((error) => {
                     this.logger.error(`[${this.id}] Failed to play remote media`);
                     this.logger.error(error.message);

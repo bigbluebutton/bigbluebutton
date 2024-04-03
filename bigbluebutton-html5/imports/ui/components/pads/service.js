@@ -8,7 +8,7 @@ import {
   isScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 
-const PADS_CONFIG = Meteor.settings.public.pads;
+const PADS_CONFIG = window.meetingClientSettings.public.pads;
 const THROTTLE_TIMEOUT = 2000;
 
 const getLang = () => {
@@ -113,7 +113,7 @@ const getPinnedPad = () => {
 const pinPad = (externalId, pinned, stopWatching) => {
   if (pinned) {
     // Stop external video sharing if it's running.
-    stopWatching();
+    if (typeof stopWatching === 'function') stopWatching();
 
     // Stop screen sharing if it's running.
     if (isScreenBroadcasting()) screenshareHasEnded();

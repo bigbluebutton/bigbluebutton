@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/hooks';
+import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/utils';
 import { DataChannelArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import {
   HookEventWrapper, UnsubscribedEventDetails, SubscribedEventDetails,
@@ -42,7 +42,7 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
   useEffect(() => {
     const subscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
-        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL) {
+        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_BUILDER) {
           const eventDetails = event.detail as SubscribedEventDetails;
           const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
           if (hookArguments?.channelName && hookArguments?.pluginName) {
@@ -52,7 +52,7 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
-        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL) {
+        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_BUILDER) {
           const eventDetails = event.detail as UnsubscribedEventDetails;
           const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
           if (hookArguments?.channelName && hookArguments?.pluginName) {

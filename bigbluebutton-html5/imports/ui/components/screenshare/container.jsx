@@ -143,7 +143,7 @@ const ScreenshareContainer = (props) => {
   return null;
 };
 
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
+const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
 export default withTracker(() => {
   return {

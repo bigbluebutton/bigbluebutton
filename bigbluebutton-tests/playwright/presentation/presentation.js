@@ -91,11 +91,17 @@ class Presentation extends MultiUsers {
     await this.userPage.wasRemoved(e.presentationStatusInfo);
     await this.userPage.wasRemoved(e.smallToastMsg);
     
+    await this.modPage.reloadPage();
+    await this.modPage.closeAudioModal();
+    await this.modPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
     
+    await this.userPage.reloadPage();
+    await this.userPage.closeAudioModal();
+    await this.userPage.closeAllToastNotifications();
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,

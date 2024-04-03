@@ -5,12 +5,13 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
-import { getSpeechVoices, setAudioCaptions, setSpeechLocale } from '../service';
+import {
+  getSpeechVoices, isAudioTranscriptionEnabled, setAudioCaptions, setSpeechLocale,
+} from '../service';
 import { defineMessages, useIntl } from 'react-intl';
 import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { User } from '/imports/ui/Types/user';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useMutation } from '@apollo/client';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 
@@ -260,27 +261,15 @@ const AudioCaptionsButtonContainer: React.FC = () => {
     }),
   );
 
-  const {
-    data: currentMeeting,
-    loading: componentsFlagsLoading,
-  } = useMeeting((m) => {
-    return {
-      componentsFlags: m.componentsFlags,
-    };
-  });
-  if (currentUserLoading || componentsFlagsLoading) return null;
-  if (!currentUser || !currentMeeting) return null;
+  if (currentUserLoading) return null;
+  if (!currentUser) return null;
 
   const availableVoices = getSpeechVoices();
   const currentSpeechLocale = currentUser.speechLocale || '';
   const isSupported = availableVoices.length > 0;
   const isVoiceUser = !!currentUser.voice;
 
-  const { componentsFlags } = currentMeeting;
-
-  const hasCaptions = componentsFlags?.hasCaption;
-
-  if (!hasCaptions) return null;
+  if (!isAudioTranscriptionEnabled()) return null;
 
   return (
     <AudioCaptionsButton

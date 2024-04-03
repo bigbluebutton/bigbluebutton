@@ -1,20 +1,22 @@
 require('dotenv').config();
 const { expect, default: test } = require('@playwright/test');
 const { readFileSync } = require('fs');
-
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
 const { env } = require('node:process');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('./constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
-const { generateSettingsData, getSettings } = require('./settings');
+const { generateSettingsData } = require('./settings');
 
 class Page {
   constructor(browser, page) {
     this.browser = browser;
     this.page = page;
     this.initParameters = Object.assign({}, parameters);
+    try {
+      this.context = page.context();
+    } catch { } // page doesn't have context - likely an iframe
   }
 
   async bringToFront() {
@@ -27,12 +29,12 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording } = initOptions || {};
+    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording, shouldCheckAllInitialSteps } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
     this.username = this.initParameters.fullName;
-    
+
     if (env.CONSOLE !== undefined) await helpers.setBrowserLogs(this.page);
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId, this.page);
@@ -41,10 +43,13 @@ class Page {
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
-    this.settings = await generateSettingsData(this.page);
-    const { autoJoinAudioModal } = this.settings;
-    if (isRecording && !isModerator) await this.closeRecordingModal();
-    if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
+    if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
+      await this.waitForSelector('div#layout', ELEMENT_WAIT_LONGER_TIME);
+      this.settings = await generateSettingsData(this.page);
+      const { autoJoinAudioModal } = this.settings;
+      if (isRecording && !isModerator) await this.closeRecordingModal();
+      if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
+    }
   }
 
   async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
@@ -88,12 +93,19 @@ class Page {
   }
 
   async logoutFromMeeting() {
-    await this.waitAndClick(e.optionsButton);
-    await this.waitAndClick(e.logout);
+    const { directLeaveButton } = this.settings;
+
+    if (directLeaveButton) {
+      await this.waitAndClick(e.leaveMeetingDropdown);
+      await this.waitAndClick(e.directLogoutButton);
+    } else {
+      await this.waitAndClick(e.optionsButton);
+      await this.waitAndClick(e.optionsLogoutButton);
+    }
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
-    const { webcamSharingEnabled } = getSettings();
+    const { webcamSharingEnabled } = this.settings;
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
     if(!webcamSharingEnabled) {
@@ -129,7 +141,7 @@ class Page {
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
   }
 
@@ -255,7 +267,7 @@ class Page {
 
   async checkElementCount(selector, count) {
     const locator = await this.page.locator(selector);
-    await expect(locator).toHaveCount(count);
+    await expect(locator).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
   }
 
   async hasValue(selector, value) {
@@ -297,6 +309,10 @@ class Page {
         await this.page.click(e.closeToastBtn);
         await helpers.sleep(1000);  // expected time to toast notification disappear
       }
+  }
+
+  async setHeightWidthViewPortSize() {
+    await this.page.setViewportSize({ width: 1366, height: 768 });
   }
 }
 

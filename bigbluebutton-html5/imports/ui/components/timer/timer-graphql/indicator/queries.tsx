@@ -8,13 +8,13 @@ export interface GetTimerResponse {
     time: number;
     stopwatch: boolean;
     running: boolean;
-    startedAt: number;
-    endedAt: number;
+    startedOn: number;
+    endedOn: number;
   }>;
 }
 
 export const GET_TIMER = gql`
-  subscription MySubscription {
+  subscription Timer {
     timer {
       accumulated
       active
@@ -22,8 +22,8 @@ export const GET_TIMER = gql`
       time
       stopwatch
       running
-      startedAt
-      endedAt
+      startedOn
+      endedOn
     }
   }
 `;

@@ -361,7 +361,7 @@ class MultiUsers {
       await this.modPage2.hasElement(e.meetingEndedModalTitle);
     }
 
-    await this.initModPage2(false, context, { meetingId: this.modPage.meetingId, joinParameter: 'userID=Moderator2' });
+    await this.initModPage2(false, context, { meetingId: this.modPage.meetingId, joinParameter: 'userID=Moderator2', shouldCheckAllInitialSteps: false });
 
     // Due to same reason above, sometimes it displays different messages
     try {

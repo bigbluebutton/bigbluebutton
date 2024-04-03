@@ -7,7 +7,7 @@ import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
-import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, MeetingRecordingDAO, UserBreakoutRoomDAO}
+import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, MeetingDAO, MeetingRecordingDAO, UserBreakoutRoomDAO}
 import org.bigbluebutton.core.domain.{MeetingEndReason, MeetingState2x}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -73,7 +73,6 @@ trait HandlerHelpers extends SystemConfiguration {
         avatar = regUser.avatarURL,
         color = regUser.color,
         clientType = clientType,
-        pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)
       )
     }
@@ -206,6 +205,8 @@ trait HandlerHelpers extends SystemConfiguration {
 
     val endedEvnt = buildMeetingEndedEvtMsg(liveMeeting.props.meetingProp.intId)
     outGW.send(endedEvnt)
+
+    MeetingDAO.setMeetingEnded(liveMeeting.props.meetingProp.intId, reason, userId)
   }
 
   def destroyMeeting(eventBus: InternalEventBus, meetingId: String): Unit = {

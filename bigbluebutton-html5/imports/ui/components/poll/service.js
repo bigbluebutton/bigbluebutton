@@ -4,7 +4,9 @@ import { escapeHtml } from '/imports/utils/string-utils';
 import { defineMessages } from 'react-intl';
 
 const POLL_AVATAR_COLOR = '#3B48A9';
-const MAX_POLL_RESULT_BARS = 20;
+const MAX_POLL_RESULT_BARS = 10;
+const MAX_POLL_RESULT_KEY_LENGTH = 30;
+const POLL_BAR_CHAR = '\u220E';
 
 // 'YN' = Yes,No
 // 'YNA' = Yes,No,Abstention
@@ -116,6 +118,18 @@ const generatePossibleLabels = (alphabetCharacters) => {
   return possibleLabels;
 };
 
+const truncate = (text, length) => {
+  let resultText = text;
+  if (resultText.length < length) {
+    const diff = length - resultText.length;
+    const padding = ' '.repeat(diff);
+    resultText += padding;
+  } else if (resultText.length > length) {
+    resultText = `${resultText.substring(0, MAX_POLL_RESULT_KEY_LENGTH - 3)}...`;
+  }
+  return resultText;
+};
+
 const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   let responded = 0;
   let resultString = '';
@@ -132,29 +146,36 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
     )
     : false;
 
+  let longestKeyLength = answers.reduce(
+    (acc, item) => (item.key.length > acc ? item.key.length : acc), 0,
+  );
+  longestKeyLength = Math.min(longestKeyLength, MAX_POLL_RESULT_KEY_LENGTH);
+
   answers.map((item) => {
     responded += item.numVotes;
     return item;
   }).forEach((item, index) => {
     const numResponded = responded === numRespondents ? numRespondents : responded;
-    const pct = Math.round((item.numVotes / numResponded) * 100);
-    const pctBars = '|'.repeat((pct * MAX_POLL_RESULT_BARS) / 100);
+    const pct = Math.round((item.numVotes / (numResponded || 1)) * 100);
+    const pctBars = POLL_BAR_CHAR.repeat((pct * MAX_POLL_RESULT_BARS) / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
     if (isDefaultPoll) {
-      const translatedKey = pollAnswerIds[item.key.toLowerCase()]
+      let translatedKey = pollAnswerIds[item.key.toLowerCase()]
         ? intl.formatMessage(pollAnswerIds[item.key.toLowerCase()])
         : item.key;
-      resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
+      translatedKey = truncate(translatedKey, longestKeyLength);
+      resultString += `${translatedKey}: ${item.numVotes || 0} ${pctBars}${POLL_BAR_CHAR} ${pctFotmatted}\n`;
     } else {
       if (isPollAnswerMatchFormat) {
         resultString += `${pollAnswerMatchLabeledFormat[index][0]}`;
         const formattedAnswerValue = getFormattedAnswerValue(item.key);
         optionsString += `${pollAnswerMatchLabeledFormat[index][0]}: ${formattedAnswerValue}\n`;
       } else {
-        resultString += `${item.id + 1}`;
-        optionsString += `${item.id + 1}: ${item.key}\n`;
+        let { key } = item;
+        key = truncate(key, longestKeyLength);
+        resultString += key;
       }
-      resultString += `: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
+      resultString += `: ${item.numVotes || 0} ${pctBars}${POLL_BAR_CHAR} ${pctFotmatted}\n`;
     }
   });
 
@@ -170,16 +191,16 @@ const getPollResultString = (pollResultData, intl) => {
   const sanitize = (value) => escapeHtml(value);
 
   const { answers, numRespondents, questionType } = pollResultData;
-  const ísDefault = isDefaultPoll(questionType);
+  const isDefault = isDefaultPoll(questionType);
   let {
     resultString,
     optionsString,
-  } = getPollResultsText(ísDefault, answers, numRespondents, intl);
+  } = getPollResultsText(isDefault, answers, numRespondents, intl);
   resultString = sanitize(resultString);
   optionsString = sanitize(optionsString);
 
   let pollText = formatBoldBlack(resultString);
-  if (!ísDefault) {
+  if (optionsString !== '') {
     pollText += formatBoldBlack(`<br/><br/>${intl.formatMessage(intlMessages.legendTitle)}<br/>`);
     pollText += optionsString;
   }
@@ -311,4 +332,5 @@ export default {
   validateInput,
   removeEmptyLineSpaces,
   getSplittedQuestionAndOptions,
+  POLL_BAR_CHAR,
 };

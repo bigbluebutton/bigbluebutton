@@ -54,8 +54,11 @@ class App extends React.Component {
     const { intl } = this.props;
     const { activitiesJson } = this.state;
     const {
-      name: meetingName, createdOn, users, polls,
+      name: meetingName, createdOn, users, polls, downloadSessionDataEnabled,
     } = activitiesJson;
+
+    if (downloadSessionDataEnabled === false) return;
+
     const link = document.createElement('a');
     const data = makeUserCSVData(users, polls, intl);
     const filename = `LearningDashboard_${meetingName}_${new Date(createdOn).toISOString().substr(0, 10)}.csv`.replace(/ /g, '-');
@@ -581,17 +584,23 @@ class App extends React.Component {
               }
             </p>
           </div>
-          <button
-            data-test="downloadSessionDataDashboard"
-            type="button"
-            className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
-            onClick={this.handleSaveSessionData.bind(this)}
-          >
-            <FormattedMessage
-              id="app.learningDashboard.downloadSessionDataLabel"
-              defaultMessage="Download Session Data"
-            />
-          </button>
+          {
+            (activitiesJson.downloadSessionDataEnabled || false)
+              ? (
+                <button
+                  data-test="downloadSessionDataDashboard"
+                  type="button"
+                  className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
+                  onClick={this.handleSaveSessionData.bind(this)}
+                >
+                  <FormattedMessage
+                    id="app.learningDashboard.downloadSessionDataLabel"
+                    defaultMessage="Download Session Data"
+                  />
+                </button>
+              )
+              : null
+          }
         </div>
       </div>
     );

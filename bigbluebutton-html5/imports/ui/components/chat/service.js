@@ -8,8 +8,8 @@ import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
 
-const APP = Meteor.settings.public.app;
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const APP = window.meetingClientSettings.public.app;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
 
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -20,7 +20,7 @@ const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const ScrollCollection = new Mongo.Collection(null);
 
@@ -39,22 +39,6 @@ const intlMessages = defineMessages({
   pollResult: {
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
-  },
-  download: {
-    id: 'app.presentation.downloadLabel',
-    description: 'used as label for presentation download link',
-  },
-  notAccessibleWarning: {
-    id: 'app.presentationUploader.export.notAccessibleWarning',
-    description: 'used for indicating that a link may be not accessible',
-  },
-  original: {
-    id: 'app.presentationUploader.export.originalLabel',
-    description: 'Label to identify original presentation exported',
-  },
-  withWhiteboardAnnotations: {
-    id: 'app.presentationUploader.export.withWhiteboardAnnotations',
-    description: 'Label to identify in current state presentation exported',
   },
 });
 
@@ -140,7 +124,7 @@ const reduceAndDontMapGroupMessages = (messages) => (messages
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disablePublicChat': 1, 'lockSettingsProps.disablePrivateChat': 1 } });
+    { fields: { 'lockSettings.disablePublicChat': 1, 'lockSettings.disablePrivateChat': 1 } });
   const user = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
     { fields: { locked: 1, role: 1 } });
   const receiver = Users.findOne({ meetingId: Auth.meetingID, userId: receiverID },
@@ -152,13 +136,13 @@ const isChatLocked = (receiverID) => {
     return !isPublic;
   }
 
-  if (meeting.lockSettingsProps !== undefined) {
+  if (meeting.lockSettings !== undefined) {
     if (user.locked && user.role !== ROLE_MODERATOR) {
       if (isPublic) {
-        return meeting.lockSettingsProps.disablePublicChat;
+        return meeting.lockSettings.disablePublicChat;
       }
       return !isReceiverModerator
-        && meeting.lockSettingsProps.disablePrivateChat;
+        && meeting.lockSettings.disablePrivateChat;
     }
   }
 
@@ -290,17 +274,6 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   });
 };
 
-const getExportedPresentationString = (fileURI, filename, intl, fileStateType) => {
-  const intlFileStateType = fileStateType === 'Original' ? intlMessages.original : intlMessages.withWhiteboardAnnotations;
-  const href = `${APP.bbbWebBase}/${fileURI}`;
-  const warningIcon = '<i class="icon-bbb-warning"></i>';
-  const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
-  const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
-  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${href} type="application/pdf" target="_blank" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
-  const name = `<span>${filename} (${intl.formatMessage(intlFileStateType)})</span>`;
-  return `${name}</br>${link}`;
-};
-
 export default {
   setUserSentMessage,
   mapGroupMessage,
@@ -321,5 +294,4 @@ export default {
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
   removePackagedClassAttribute,
-  getExportedPresentationString,
 };

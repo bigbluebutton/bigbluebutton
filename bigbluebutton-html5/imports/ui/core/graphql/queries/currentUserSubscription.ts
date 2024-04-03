@@ -3,9 +3,19 @@ import { gql } from '@apollo/client';
 export const CURRENT_USER_SUBSCRIPTION = gql`
 subscription userCurrentSubscription {
   user_current {
+    authToken
     authed
     avatar
+    away
     banned
+    clientType
+    color
+    disconnected
+    echoTestRunningAt
+    ejectReason
+    ejectReasonCode
+    ejected
+    emoji
     enforceLayout
     cameras {
     streamId
@@ -51,33 +61,57 @@ subscription userCurrentSubscription {
     startedAt
   }
   lastBreakoutRoom {
-      breakoutRoomId
-      currentlyInRoom
-      isDefaultName
-      sequence
-      shortName
-    }
-    userClientSettings {
-      userClientSettingsJson
-    }
+    expired
+    extId
+    guest
+    guestStatus
+    hasDrawPermissionOnCurrentPage
+    inactivityWarningDisplay
+    inactivityWarningTimeoutSecs
+    isDialIn
+    isModerator
+    isOnline
+    isRunningEchoTest
+    joinErrorCode
+    joinErrorMessage
+    joined
     locked
     loggedOut
     mobile
     name
+    nameSortable
     pinned
     presenter
+    raiseHand
+    registeredAt
     registeredOn
     role
-    userId
     speechLocale
+    userId
+    customParameters {
+      parameter
+      value
+    }
+    cameras {
+      streamId
+    }
+    userClientSettings {
+      userClientSettingsJson
+    }
     voice {
       joined
       muted
       spoke
-      talking
       listenOnly
+    }
+    presPagesWritable {
+      isCurrentPage
+      changedModeOn
+      pageId
+      presentationId
     }
   }
 }
 `;
+
 export default CURRENT_USER_SUBSCRIPTION;

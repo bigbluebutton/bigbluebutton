@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="waitingGuestCleanupTimerTask" ref="waitingGuestCleanupTimerTask"/>
         <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
+        <property name="sessionsCleanupDelayInMinutes" value="${sessionsCleanupDelayInMinutes}"/>
         <property name="enteredUserCleanupTimerTask" ref="enteredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>

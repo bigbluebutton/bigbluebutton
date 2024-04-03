@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Polling } = require('./poll');
 const { initializePages } = require('../core/helpers');
@@ -20,7 +20,7 @@ test.describe('Polling', async () => {
     await polling.pollAnonymous();
   });
 
-  test('Create quick poll - from the slide @ci @flaky', async () => {
+  test('Create quick poll - from the slide @ci', async () => {
     await polling.quickPoll();
   });
 
@@ -40,7 +40,7 @@ test.describe('Polling', async () => {
     await polling.notAbleStartNewPollWithoutPresentation();
   });
 
-  test('Custom input @ci @flaky', async () => {
+  test('Custom input @ci', async () => {
     await polling.customInput();
   });
 
@@ -57,7 +57,7 @@ test.describe('Polling', async () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard @ci @flaky', async () => {
+  test('Poll results on whiteboard @ci', async () => {
     await polling.pollResultsOnWhiteboard();
   });
 

@@ -60,7 +60,7 @@ In Greenlight v2 **.env** file, add the following variables:
 
 ![env_migration_endpoints.png](/img/greenlight/v3/migration/env_migration_endpoints.png)
 
-## Migration Steps
+### Understanding the Migrations
 
 **The migrations must be run in the following order: roles, users, rooms, settings.**
 
@@ -80,7 +80,7 @@ However, a failed migration resource should not hinder the whole migration proce
 
 **If re-running the migration does not solve the issue, the error message should give you a clue of what went wrong.**
 
-### Roles Migration
+## Roles Migration
 
 The custom Roles and the corresponding Role Permissions will be migrated.
 
@@ -96,13 +96,15 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:roles
 **If you have an error, try re-running the migration task to resolve any failed resources migration.**
 **Also, make sure that the Greenlight v3 server is running and accessible through your network.**
 
-### Users Migration
+## Users Migration
 The Users will be migrated with their corresponding role.
 
 Important notes:
 - Both local and external users will be migrated.
 
-#### Local Accounts 
+### Local Accounts
+** If you only have external users (google, office365, LDAP, SAML, etc..), please skip to the next section.** 
+
 When migrating local accounts from GLv2 to GLv3, the password_digest field will be securely transferred from v2 to v3. This ensures that local customers can seamlessly sign in using the exact same password as in v2.
 
 To enable this, it's crucial that both GLv2 and GLv3 share the same value for the SECRET_KEY_BASE environment variable, which is set in the .env file.
@@ -128,19 +130,17 @@ On your GLv3 machine, replace the `SECRET_KEY_BASE` in your .env file with the s
 
 Ensure that the `SECRET_KEY_BASE` values for GLv2, GLv3, and the `V3_SECRET_KEY_BASE` variable in GLv2's `.env` file are now synchronized.
 
-#### Migrating Users
+### Migrating Users
 
 **To migrate all of your v2 users to v3, run the following command:**
 ```bash
 sudo docker exec -it greenlight-v2 bundle exec rake migrations:users
 ```
 
-**To migrate only a portion of the users starting from *FIRST_USER_ID* to *LAST_USER_ID*, run this command instead:**
-
 **If you have an error, try re-running the migration task to resolve any failed resources migration.**
 **Also, make sure that the Roles migration has been successful.**
 
-### Rooms Migration
+## Rooms Migration
 The Rooms will be migrated with their corresponding Room Settings. Also, the Shared Accesses will be migrated.
 
 Important notes:
@@ -158,7 +158,7 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:rooms
 **If you have an error, try re-running the migration task to resolve any failed resources migration.**
 **Also, make sure that the Users migration has been successful.**
 
-### Settings Migration
+## Settings Migration
 The Site Settings and the Rooms Configuration will be migrated.
 
 - The *Site Settings* are customisable settings related to the Greenlight application, such as the Brand colors, the Brand image, the Registration method, the Terms & Conditions.

@@ -1,9 +1,7 @@
 import { RedisMessage } from '../types';
 import { ValidationError } from '../types/ValidationError';
-import {throwErrorIfNotPresenter} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotPresenter(sessionVariables);
   const eventName = `SendWhiteboardAnnotationsPubMsg`;
 
   const routing = {
@@ -16,6 +14,10 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     meetingId: routing.meetingId,
     userId: routing.userId
   };
+
+  if(typeof input.annotations !== 'object' || !Array.isArray(input.annotations)) {
+    throw new ValidationError('Field `annotations` contains an invalid Json Array.', 400);
+  }
 
   const body = {
     whiteboardId: input.pageId,

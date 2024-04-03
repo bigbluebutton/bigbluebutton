@@ -7,8 +7,6 @@ import {
   toastIconSide,
   toastMargin,
   toastMarginMobile,
-  avatarWrapperOffset,
-  jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
@@ -61,8 +59,11 @@ const AvatarsExtra = styled.div`
   padding: 5px 0;
 `;
 
-const ToastIcon = styled.div`
+const ToastContent = styled.div`
   margin-right: ${smPaddingX};
+  display: flex;
+  justify-content: space-between;
+  // justify-content: flex-end;
   [dir="rtl"] & {
     margin-right: 0;
     margin-left: ${smPaddingX};
@@ -100,20 +101,6 @@ const IconWrapper = styled.div`
   }
 `;
 
-const AvatarsWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  position: absolute;
-  top: ${avatarWrapperOffset};
-  right: 1rem;
-  left: auto;
-  
-  [dir="rtl"] & {
-    left: ${jumboPaddingY};
-    right: auto;
-  }
-`;
-
 const ToastMessage = styled.div`
   font-size: ${fontSizeSmall};
   margin-top: ${toastMargin};
@@ -137,15 +124,19 @@ const ClearButton = styled(Button)`
   }
 `;
 
+const AvatarWrapper = styled.div`
+  display: flex;
+`;
+
 const ToastSeparator = styled(ToastStyled.Separator)``;
 
 export default {
   Avatar,
   AvatarsExtra,
-  ToastIcon,
+  ToastContent,
   IconWrapper,
-  AvatarsWrapper,
   ToastMessage,
   ClearButton,
   ToastSeparator,
+  AvatarWrapper,
 };

@@ -1,43 +1,42 @@
-import { useEffect } from 'react';
-import { useMutation, useSubscription } from '@apollo/client';
-import { CONNECTION_STATUS_SUBSCRIPTION } from './queries';
-import { UPDATE_CONNECTION_ALIVE_AT, UPDATE_USER_CLIENT_RESPONSE_AT } from './mutations';
+import { useEffect, useRef } from 'react';
+import { useMutation } from '@apollo/client';
+import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 
-const STATS_INTERVAL = Meteor.settings.public.stats.interval;
+const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
 
 const ConnectionStatus = () => {
-  const [updateUserClientResponseAtToMeAsNow] = useMutation(UPDATE_USER_CLIENT_RESPONSE_AT);
+  const networkRttInMs = useRef(0); // Ref to store the last rtt
+  const timeoutRef = useRef(null);
 
-  const handleUpdateUserClientResponseAt = () => {
-    updateUserClientResponseAtToMeAsNow();
-  };
-
-  const [updateConnectionAliveAtToMeAsNow] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
+  const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
 
   const handleUpdateConnectionAliveAt = () => {
-    updateConnectionAliveAtToMeAsNow();
+    const startTime = performance.now();
+    updateConnectionAliveAtM({
+      variables: {
+        networkRttInMs: networkRttInMs.current,
+      },
+    }).then(() => {
+      const endTime = performance.now();
+      networkRttInMs.current = endTime - startTime;
+    }).finally(() => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
 
-    setTimeout(() => {
-      handleUpdateConnectionAliveAt();
-    }, STATS_INTERVAL);
+      timeoutRef.current = setTimeout(() => {
+        handleUpdateConnectionAliveAt();
+      }, STATS_INTERVAL);
+    });
   };
 
   useEffect(() => {
-    handleUpdateConnectionAliveAt();
+    // Delay first connectionAlive to avoid high RTT misestimation
+    // due to initial subscription and mutation traffic at client render
+    timeoutRef.current = setTimeout(() => {
+      handleUpdateConnectionAliveAt();
+    }, STATS_INTERVAL / 2);
   }, []);
-
-  const { loading, error, data } = useSubscription(CONNECTION_STATUS_SUBSCRIPTION);
-
-  if (!loading && !error && data) {
-    data.user_connectionStatus.forEach((curr) => {
-      if (curr.userClientResponseAt == null) {
-        const delay = 500;
-        setTimeout(() => {
-          handleUpdateUserClientResponseAt();
-        }, delay);
-      }
-    });
-  }
 
   return null;
 };

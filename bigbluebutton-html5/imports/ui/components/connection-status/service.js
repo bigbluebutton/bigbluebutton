@@ -7,9 +7,9 @@ import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
 
-const STATS = Meteor.settings.public.stats;
+const STATS = window.meetingClientSettings.public.stats;
 const NOTIFICATION = STATS.notification;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   saved: {
@@ -263,7 +263,7 @@ const getNetworkData = async () => {
 };
 
 /**
- * Calculates both upload and download rates using data retreived from getStats
+ * Calculates both upload and download rates using data retrieved from getStats
  * API. For upload (outbound-rtp) we use both bytesSent and timestamp fields.
  * byteSent field contains the number of octets sent at the given timestamp,
  * more information can be found in:

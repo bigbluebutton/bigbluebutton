@@ -9,14 +9,14 @@ import SubscriptionRegistry, {
 } from '../../services/subscription-registry/subscriptionRegistry';
 import { isChatEnabled } from '/imports/ui/services/features';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
-  'users',
-  'meetings',
+  // 'users',
+  // 'meetings',
   'polls',
   'captions',
-  'voiceUsers',
+  // 'voiceUsers',
   'screenshare',
   'users-settings',
   'users-infos',
@@ -31,7 +31,6 @@ const SUBSCRIPTIONS = [
   'pads-sessions',
   'pads-updates',
   'notifications',
-  'audio-captions',
   'layout-meetings',
   'user-reaction',
   'timer',
@@ -50,9 +49,15 @@ const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-rea
 let oldRole = '';
 
 class Subscriptions extends Component {
+  componentDidMount() {
+    Session.set('subscriptionsReady', false);
+  }
+
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
-    if (subscriptionsReady) {
+    const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
+    console.log('clientSettings', clientSettings);
+    if (subscriptionsReady || clientSettings.skipMeteorConnection) {
       Session.set('subscriptionsReady', true);
       const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
       window.dispatchEvent(event);
@@ -68,7 +73,8 @@ class Subscriptions extends Component {
 
 export default withTracker(() => {
   const { credentials } = Auth;
-  const { meetingId, requesterUserId } = credentials;
+  const { requesterUserId } = credentials;
+  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
   const userWillAuth = Session.get('userWillAuth');
   // This if exist because when a unauth user try to subscribe to a publisher
   // it returns a empty collection to the subscription
@@ -95,9 +101,10 @@ export default withTracker(() => {
     },
   };
 
-  const currentUser = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
+  const currentUser = Users.findOne({ userId: requesterUserId }, { fields: { role: 1 } });
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
+    if (clientSettings.skipMeteorConnection) return null;
     let subscriptionHandlers = subscriptionErrorHandler;
     if (
       (!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1) ||
@@ -144,8 +151,8 @@ export default withTracker(() => {
   }
 
   subscriptionsHandlers = subscriptionsHandlers.filter((obj) => obj);
-  const ready = subscriptionsHandlers.every((handler) => handler.ready());
-
+  const ready = subscriptionsHandlers
+    .every((handler) => handler.ready() || clientSettings.skipMeteorConnection);
   // TODO: Refactor all the late subscribers
   let usersPersistentDataHandler = {};
   if (ready) {
@@ -154,6 +161,7 @@ export default withTracker(() => {
       localCollection.checkForStaleData()
     );
   }
+  
 
   return {
     subscriptionsReady: ready,

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const POLL_RESULTS_SUBSCRIPTION = gql`
-  subscription {
+  subscription PollResults {
     poll (where: {published: {_eq: true}}, order_by: [{ publishedAt: desc }], limit: 1) {
       ended
       published

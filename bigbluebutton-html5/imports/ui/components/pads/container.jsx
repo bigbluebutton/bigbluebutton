@@ -3,10 +3,11 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Pad from './component';
 import Service from './service';
 import SessionsService from './sessions/service';
+import PadContainerGraphql from './pads-graphql/component';
 
 const Container = ({ ...props }) => <Pad {...props} />;
 
-export default withTracker((props) => {
+withTracker((props) => {
   const {
     externalId,
     hasPermission,
@@ -23,3 +24,5 @@ export default withTracker((props) => {
     hasSession,
   };
 })(Container);
+
+export default PadContainerGraphql;

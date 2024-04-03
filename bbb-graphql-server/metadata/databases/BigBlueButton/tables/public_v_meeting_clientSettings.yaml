@@ -15,3 +15,11 @@ select_permissions:
         meetingId:
           _eq: X-Hasura-MeetingId
     comment: ""
+  - role: not_joined_bbb_client
+    permission:
+      columns:
+        - clientSettingsJson
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""
