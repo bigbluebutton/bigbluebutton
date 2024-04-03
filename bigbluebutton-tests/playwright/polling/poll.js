@@ -17,7 +17,9 @@ class Polling extends MultiUsers {
   async createPoll() {
     await util.startPoll(this.modPage);
     await this.modPage.hasElement(e.pollMenuButton);
-
+    await this.modPage.hasElement(e.publishPollingLabel);
+    await this.modPage.hasElement(e.cancelPollBtn);
+    await this.userPage.hasElement(e.pollingContainer);
     await this.modPage.waitAndClick(e.closePollingBtn);
     await this.modPage.wasRemoved(e.closePollingBtn);
   }
@@ -58,16 +60,13 @@ class Polling extends MultiUsers {
     await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
 
-    await this.modPage.hasText(e.receivedAnswer, e.answerMessage);
+    await this.modPage.hasText(e.userVoteLiveResult, e.answerMessage);
 
     await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.waitForSelector(e.restartPoll);
+    await this.modPage.wasRemoved(e.pollingContainer);
 
     await this.modPage.hasElement(e.wbDrawnRectangle, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.wbDrawnRectangle);
-
-    await this.modPage.waitAndClick(e.closePollingBtn);
-    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async stopPoll() {
@@ -110,20 +109,20 @@ class Polling extends MultiUsers {
     await this.checkLastOptionText();
 
     await this.modPage.waitAndClick(e.closePollingBtn);
-
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.waitAndClick(e.confirmManagePresentation);
   }
 
   async notAbleStartNewPollWithoutPresentation() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.waitAndClick(e.confirmManagePresentation);
 
+    const allRemovePresentationBtn = await this.modPage.getLocator(e.removePresentation).all();
+    // reversing the order of clicking is needed to avoid failure as the tooltip shows in front of the below button
+    const reversedRemovePresentationButtons = allRemovePresentationBtn.reverse();
+    for (const removeBtn of reversedRemovePresentationButtons) {
+      await removeBtn.click({ timeout: ELEMENT_WAIT_TIME });
+    }
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.polling);
     await this.modPage.hasElement(e.noPresentation);
@@ -147,7 +146,7 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
 
     await this.modPage.hasText(e.currentPollQuestion, /Test/);
-    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, '1');
 
     await this.modPage.waitAndClick(e.closePollingBtn);
     await this.modPage.wasRemoved(e.closePollingBtn);
@@ -175,8 +174,8 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
     await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
 
-    await this.modPage.hasText(e.answer1, '1');
-    await this.modPage.hasText(e.answer2, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, '2');
 
     await this.modPage.waitAndClick(e.closePollingBtn);
     await this.modPage.wasRemoved(e.closePollingBtn);
@@ -193,11 +192,10 @@ class Polling extends MultiUsers {
     await this.userPage.type(e.pollAnswerOptionInput, 'test');
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
     await this.userPage.wasRemoved(e.pollingContainer, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasText(e.receivedAnswer, 'test');
+    await this.modPage.hasText(e.userVoteLiveResult, 'test');
 
     await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.waitAndClick(e.closePollingBtn);
-    await this.modPage.wasRemoved(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.pollingContainer);
 
     // Multiple Choices
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
@@ -206,23 +204,21 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
     await this.userPage.waitAndClick(e.secondPollAnswerDescOption);
     await this.userPage.waitAndClick(e.submitAnswersMultiple);
-    await this.modPage.hasText(e.answer1, '1');
-    await this.modPage.hasText(e.answer2, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'A) 2222');
+    await this.modPage.hasText(e.userVoteLiveResult, 'B) 3333');
 
     await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.waitAndClick(e.closePollingBtn);
-    await this.modPage.wasRemoved(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.pollingContainer);
 
     // One option answer
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionE);
-    await this.modPage.hasText(e.answerE, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'E) 22222');
 
     await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.waitAndClick(e.closePollingBtn);
-    await this.modPage.wasRemoved(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.pollingContainer);
 
     // Yes/No/Abstention
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
@@ -230,24 +226,21 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.yesNoOption);
     await this.modPage.waitAndClick(e.yesNoAbstentionOption)
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'Yes');
 
     await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.waitAndClick(e.closePollingBtn);
-    await this.modPage.wasRemoved(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.pollingContainer);
 
     // True/False
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'True');
     await this.modPage.waitAndClick(e.publishPollingLabel);
 
     await this.modPage.hasElementDisabled(e.nextSlide);
-
-    await this.modPage.waitAndClick(e.closePollingBtn);
-    await this.modPage.wasRemoved(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.pollingContainer);
   }
 
   async pollResultsOnChat() {
@@ -273,24 +266,29 @@ class Polling extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage);
 
+    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle);
+    const initialWbDrawnRectangleCount = await wbDrawnRectangleLocator.count();
+
     await this.modPage.hasElementDisabled(e.publishPollingLabel);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasElement(e.publishPollingLabel);
     await this.modPage.waitAndClick(e.publishPollingLabel);
+    await expect(wbDrawnRectangleLocator).toHaveCount(initialWbDrawnRectangleCount + 1);
 
-    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle).last();
-    await expect(wbDrawnRectangleLocator).toBeVisible({ timeout: ELEMENT_WAIT_TIME});
+    const lastWbDrawnRectangleLocator = await wbDrawnRectangleLocator.last();
+    await expect(lastWbDrawnRectangleLocator).toBeVisible({ timeout: ELEMENT_WAIT_TIME});
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
 
-    await wbDrawnRectangleLocator.dblclick();
+    // poll results should be editable by the presenter
+    await lastWbDrawnRectangleLocator.dblclick({ timeout: ELEMENT_WAIT_TIME });
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
-    await wbDrawnRectangleLocator.dblclick();
+    await lastWbDrawnRectangleLocator.dblclick({ timeout: ELEMENT_WAIT_TIME });
     await this.modPage.page.keyboard.type('test');
-    await expect(wbDrawnRectangleLocator).toContainText('test');
+    await expect(lastWbDrawnRectangleLocator).toContainText('test');
 
     // user turns to presenter to edit the poll results
     await this.modPage.waitAndClick(e.userListItem);
@@ -300,10 +298,10 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.resetZoomButton);
 
     const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbDrawnRectangle).last();
-    await wbDrawnRectangleUserLocator.dblclick();
+    await wbDrawnRectangleUserLocator.dblclick({ timeout: ELEMENT_WAIT_TIME });
     await this.userPage.page.keyboard.type('testUser');
     await expect(wbDrawnRectangleUserLocator).toContainText('testUser');
-    
+
     await this.modPage.waitAndClick(e.currentUser);
     await this.modPage.waitAndClick(e.takePresenter);
     await this.userPage.waitAndClick(e.hidePublicChat);
@@ -311,17 +309,12 @@ class Polling extends MultiUsers {
 
   async pollResultsInDifferentPresentation() {
     await waitAndClearDefaultPresentationNotification(this.modPage);
-    
-
-    await uploadSinglePresentation(this.modPage, e.questionSlideFileName);
     await util.startPoll(this.modPage);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await uploadSinglePresentation(this.modPage, e.questionSlideFileName);
     await this.modPage.waitAndClick(e.publishPollingLabel);
-
     // Check poll results
     await this.modPage.hasElement(e.wbDrawnRectangle);
-
-    await this.modPage.waitAndClick(e.closePollingBtn);
-    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async startNewPoll() {
