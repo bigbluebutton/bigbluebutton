@@ -605,6 +605,7 @@ setRandomUserSelectModalIsOpen(value) {
     } = this.state;
     return (
       <>
+        <ScreenReaderAlertAdapter />
         <PluginsEngineManager />
         <FloatingWindowContainer />
         <TimeSync />
@@ -622,7 +623,6 @@ setRandomUserSelectModalIsOpen(value) {
           {this.renderActivityCheck()}
           {this.renderUserInformation()}
           <ScreenReaderAlertContainer />
-          <ScreenReaderAlertAdapter />
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
