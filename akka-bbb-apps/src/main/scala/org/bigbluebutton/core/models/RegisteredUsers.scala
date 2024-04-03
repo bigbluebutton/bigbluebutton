@@ -1,18 +1,21 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
+import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
-             token: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
-             guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean): RegisteredUser = {
+             authToken: String, sessionToken: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
+             guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
+             customParameters: Map[String, String], loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
       name,
       roles,
-      token,
+      authToken,
+      sessionToken,
       avatar,
       color,
       guest,
@@ -23,6 +26,8 @@ object RegisteredUsers {
       0,
       false,
       false,
+      enforceLayout,
+      customParameters,
       loggedOut,
     )
   }
@@ -77,7 +82,7 @@ object RegisteredUsers {
     regUsers.toVector.size
   }
 
-  def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
+  def add(users: RegisteredUsers, user: RegisteredUser, meetingId: String): Vector[RegisteredUser] = {
 
     findWithExternUserId(user.externId, users) match {
       case Some(u) =>
@@ -86,18 +91,20 @@ object RegisteredUsers {
           // will fail and can't join.
           // ralam april 21, 2020
           val bannedUser = user.copy(banned = true)
+          UserDAO.insert(meetingId, bannedUser)
           users.save(bannedUser)
         } else {
           // If user hasn't been ejected, we allow user to join
           // as the user might be joining using 2 browsers for
           // better management of meeting.
           // ralam april 21, 2020
+          UserDAO.insert(meetingId, user)
           users.save(user)
         }
       case None =>
+        UserDAO.insert(meetingId, user)
         users.save(user)
     }
-
   }
 
   private def banOrEjectUser(ejectedUser: RegisteredUser, users: RegisteredUsers, ban: Boolean): RegisteredUser = {
@@ -111,9 +118,11 @@ object RegisteredUsers {
       // ralam april 21, 2020
       val u = ejectedUser.modify(_.banned).setTo(true)
       users.save(u)
+      UserDAO.update(u)
       u
     } else {
       users.delete(ejectedUser.id)
+//      UserDAO.softDelete(ejectedUser) it's being removed in User2x already
       ejectedUser
     }
   }
@@ -129,6 +138,7 @@ object RegisteredUsers {
                             guestStatus: String): RegisteredUser = {
     val u = user.modify(_.guestStatus).setTo(guestStatus)
     users.save(u)
+    UserDAO.update(u)
     u
   }
 
@@ -136,6 +146,7 @@ object RegisteredUsers {
                      role: String): RegisteredUser = {
     val u = user.modify(_.role).setTo(role)
     users.save(u)
+    UserDAO.update(u)
     u
   }
 
@@ -143,12 +154,14 @@ object RegisteredUsers {
                                  lastBreakoutRoom: BreakoutRoom2x): RegisteredUser = {
     val u = user.modify(_.lastBreakoutRoom).setTo(lastBreakoutRoom)
     users.save(u)
+//    UserBreakoutRoomDAO.updateLastBreakoutRoom(u.id, lastBreakoutRoom)
     u
   }
 
   def updateUserJoin(users: RegisteredUsers, user: RegisteredUser, joined: Boolean): RegisteredUser = {
     val u = user.copy(joined = joined)
     users.save(u)
+    UserDAO.update(u)
     u
   }
 
@@ -161,6 +174,7 @@ object RegisteredUsers {
   def setUserLoggedOutFlag(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
     val u = user.copy(loggedOut = true)
     users.save(u)
+    UserDAO.update(u)
     u
   }
 
@@ -191,6 +205,7 @@ case class RegisteredUser(
     name:                     String,
     role:                     String,
     authToken:                String,
+    sessionToken:             String,
     avatarURL:                String,
     color:                    String,
     guest:                    Boolean,
@@ -201,7 +216,9 @@ case class RegisteredUser(
     lastAuthTokenValidatedOn: Long,
     joined:                   Boolean,
     banned:                   Boolean,
+    enforceLayout:            String,
+    customParameters:         Map[String,String],
     loggedOut:                Boolean,
-    lastBreakoutRoom:         BreakoutRoom2x = null
+    lastBreakoutRoom:         BreakoutRoom2x = null,
 )
 

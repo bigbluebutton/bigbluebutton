@@ -98,6 +98,7 @@ defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/join
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
 defaultGuestWaitURL=https://bbb-01.example.com/bbb-01/html5client/guestWait
+graphqlWebsocketUrl=wss://bbb-01.example.com/v1/graphql
 ```
 
 Add the following options to `/etc/bigbluebutton/bbb-html5.yml`:
@@ -184,6 +185,17 @@ Adjust the CORS settings in `/etc/default/bbb-web`:
 ```shell
 JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.org,https://https://bbb-01.example.com"
 ```
+
+Adjust the CORS setting in `/etc/default/bbb-graphql-middleware`:
+
+```shell
+BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT=8378
+# If you are running a cluster proxy setup, you need to configure the Origin of
+# the frontend. See https://docs.bigbluebutton.org/administration/cluster-proxy
+BBB_GRAPHQL_MIDDLEWARE_ORIGIN=bbb-proxy.example.org
+```
+
+Pay attention that this one is without protocol, just the hostname.
 
 
 Restart BigBlueButton:

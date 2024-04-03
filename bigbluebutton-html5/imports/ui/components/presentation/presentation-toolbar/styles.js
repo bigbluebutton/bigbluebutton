@@ -199,7 +199,7 @@ const FitToWidthButton = styled(Button)`
   box-shadow: none !important;
   border: 0;
 
-  ${({ fitToWidth }) => fitToWidth && `
+  ${({ $fitToWidth }) => $fitToWidth && `
     & > span {
       border: solid ${borderSizeLarge} ${colorGrayDark};
     }
@@ -225,6 +225,8 @@ const MultiUserTool = styled.span`
   align-items: center;
   box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDark};
   font-size: ${smPaddingX};
+  user-select: none;
+  cursor: pointer;
 
   [dir="ltr"] & {
     right: 1rem;

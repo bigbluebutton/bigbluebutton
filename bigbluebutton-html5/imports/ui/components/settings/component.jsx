@@ -8,6 +8,7 @@ import { clone } from 'radash';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
+import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -94,6 +95,7 @@ const propTypes = {
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
+  isReactionsEnabled: PropTypes.bool.isRequired,
 };
 
 class Settings extends Component {
@@ -132,7 +134,7 @@ class Settings extends Component {
     const { availableLocales } = this.props;
 
     availableLocales.then((locales) => {
-      this.setState({ allLocales: locales });
+      this.setState({ allLocales: locales.filter((locale) => locale?.name !== 'index') });
     });
   }
 
@@ -173,6 +175,7 @@ class Settings extends Component {
       selectedLayout,
       isScreenSharingEnabled,
       isVideoEnabled,
+      isReactionsEnabled,
     } = this.props;
 
     const {
@@ -225,6 +228,7 @@ class Settings extends Component {
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
             isPresenter={isPresenter}
+            isReactionsEnabled={isReactionsEnabled}
           />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
@@ -261,6 +265,7 @@ class Settings extends Component {
       setIsOpen,
       isOpen,
       priority,
+      setLocalSettings,
     } = this.props;
     const {
       current,
@@ -271,10 +276,12 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current, intlMessages.savedAlertLabel);
+            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
 
             if (saved.application.locale !== current.application.locale) {
               const { language } = formatLocaleCode(saved.application.locale);
+              const { language: newLanguage } = formatLocaleCode(current.application.locale);
+              setUseCurrentLocale(newLanguage);
               document.body.classList.remove(`lang-${language}`);
             }
 

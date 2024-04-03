@@ -1,14 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { withTracker } from 'meteor/react-meteor-data';
 import { notify } from '/imports/ui/services/notification';
-import PresentationService from './service';
-import { Slides } from '/imports/api/slides';
 import Presentation from '/imports/ui/components/presentation/component';
-import PresentationToolbarService from './presentation-toolbar/service';
-import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   layoutSelect,
@@ -16,14 +10,161 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 import MediaService from '../media/service';
+import { useSubscription, useMutation, useLazyQuery } from '@apollo/client';
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
+import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
+import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 
-const PresentationContainer = ({
-  presentationIsOpen, presentationPodIds, mountPresentation, layoutType, ...props
-}) => {
+const APP_CONFIG = window.meetingClientSettings.public.app;
+const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
+const fetchedpresentation = {};
+
+const PresentationContainer = (props) => {
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
+  const currentPresentationPage = presentationPageArray && presentationPageArray[0];
+  const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
+
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
+    variables: { pageId: currentPresentationPage?.pageId },
+    skip: !currentPresentationPage?.pageId,
+  });
+
+  const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
+
+  const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
+  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
+
+  const [getUsers, { data: usersData }] = useLazyQuery(GET_USER_IDS, { fetchPolicy: 'no-cache' });
+  const users = usersData?.user || [];
+
+  const addWhiteboardGlobalAccess = () => {
+    const usersIds = users.map((user) => user.userId);
+    const { pageId } = currentPresentationPage;
+
+    presentationSetWriters({
+      variables: {
+        pageId,
+        usersIds,
+      },
+    });
+  };
+
+  // users will only be fetched when getUsers is called
+  useEffect(() => {
+    if (users.length > 0) {
+      addWhiteboardGlobalAccess();
+    }
+  }, [users]);
+
+  const removeWhiteboardGlobalAccess = () => {
+    const { pageId } = currentPresentationPage;
+
+    presentationSetWriters({
+      variables: {
+        pageId,
+        usersIds: [],
+      },
+    });
+  };
+
+  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
+    const { presentationId, pageId, num } = currentPresentationPage;
+
+    presentationSetZoom({
+      variables: {
+        presentationId,
+        pageId,
+        pageNum: num,
+        xOffset,
+        yOffset,
+        widthRatio,
+        heightRatio,
+      },
+    });
+  };
+
+  const meeting = useMeeting((m) => ({
+    lockSettings: m?.lockSettings,
+  }));
+
+  const isViewersAnnotationsLocked = meeting ? meeting.lockSettings?.hideViewersAnnotation : true;
+
+  const multiUserData = {
+    active: whiteboardWriters?.length > 0,
+    size: whiteboardWriters?.length || 0,
+    hasAccess: whiteboardWriters?.some((writer) => writer.userId === Auth.userID),
+  };
+
+  const { data: pollData } = useSubscription(POLL_SUBSCRIPTION);
+  const poll = pollData?.poll[0] || {};
+
+  const currentSlide = currentPresentationPage ? {
+    content: currentPresentationPage.content,
+    current: currentPresentationPage.isCurrentPage,
+    height: currentPresentationPage.height,
+    width: currentPresentationPage.width,
+    id: currentPresentationPage.pageId,
+    imageUri: slideSvgUrl,
+    num: currentPresentationPage?.num,
+    presentationId: currentPresentationPage?.presentationId,
+    svgUri: slideSvgUrl,
+  } : null;
+
+  let slidePosition;
+  if (currentSlide) {
+    const { presentationId } = currentSlide;
+
+    slidePosition = {
+      height: currentPresentationPage.scaledHeight,
+      id: currentPresentationPage.pageId,
+      presentationId: currentPresentationPage.presentationId,
+      viewBoxHeight: currentPresentationPage.scaledViewBoxHeight,
+      viewBoxWidth: currentPresentationPage.scaledViewBoxWidth,
+      width: currentPresentationPage.scaledWidth,
+      x: currentPresentationPage.xOffset,
+      y: currentPresentationPage.yOffset,
+    };
+
+    if (PRELOAD_NEXT_SLIDE && !fetchedpresentation[presentationId]) {
+      fetchedpresentation[presentationId] = {
+        canFetch: true,
+        fetchedSlide: {},
+      };
+    }
+    const presentation = fetchedpresentation[presentationId];
+
+    if (PRELOAD_NEXT_SLIDE
+      && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
+      && presentation.canFetch) {
+      // TODO: preload next slides should be reimplemented in graphql
+      const slidesToFetch = [currentPresentationPage];
+
+      const promiseImageGet = slidesToFetch
+        .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
+        .map(async (slide) => {
+          if (presentation.canFetch) presentation.canFetch = false;
+          const image = await fetch(slide.svgUrl);
+          if (image.ok) {
+            presentation.fetchedSlide[slide.num] = true;
+          }
+        });
+      Promise.all(promiseImageGet).then(() => {
+        presentation.canFetch = true;
+      });
+    }
+  }
+
+  const { presentationIsOpen } = props;
+
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -37,10 +178,17 @@ const PresentationContainer = ({
 
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const userIsPresenter = currentUser.presenter;
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    userId: user.userId,
+    isModerator: user.isModerator,
+  }));
+  const userIsPresenter = currentUser?.presenter;
+
+  const presentationAreaSize = {
+    presentationAreaWidth: presentation?.width,
+    presentationAreaHeight: presentation?.height,
+  };
 
   return (
     <Presentation
@@ -51,111 +199,42 @@ const PresentationContainer = ({
         ...props,
         userIsPresenter,
         presentationBounds: presentation,
-        layoutType,
         fullscreenContext,
         fullscreenElementId,
         isMobile: deviceType === DEVICE_TYPE.MOBILE,
         isIphone,
-        presentationIsOpen,
+        currentSlide,
+        slidePosition,
+        downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
+        multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
+        presentationIsDownloadable: currentPresentationPage?.downloadable,
+        mountPresentation: !!currentSlide,
+        currentPresentationId: currentPresentationPage?.presentationId,
+        totalPages: currentPresentationPage?.totalPages || 0,
+        notify,
+        zoomSlide,
+        publishedPoll: poll?.published || false,
+        restoreOnUpdate: getFromUserSettings(
+          'bbb_force_restore_presentation_on_new_events',
+          window.meetingClientSettings.public.presentation.restoreOnUpdate,
+        ),
+        addWhiteboardGlobalAccess: getUsers,
+        removeWhiteboardGlobalAccess,
+        multiUserSize: multiUserData.size,
+        isViewersAnnotationsLocked,
+        setPresentationIsOpen: MediaService.setPresentationIsOpen,
+        isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
+        presentationName: currentPresentationPage?.presentationName,
+        presentationAreaSize,
+        currentUser,
       }
       }
     />
   );
 };
 
-const APP_CONFIG = Meteor.settings.public.app;
-const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
-const fetchedpresentation = {};
-
-export default lockContextContainer(
-  withTracker(({ podId, presentationIsOpen, userLocks }) => {
-    const currentSlide = PresentationService.getCurrentSlide(podId);
-    const numPages = PresentationService.getSlidesLength(podId);
-    const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
-    const isViewersCursorLocked = userLocks?.hideViewersCursor;
-    const isViewersAnnotationsLocked = userLocks?.hideViewersAnnotation;
-
-    let slidePosition;
-    if (currentSlide) {
-      const {
-        presentationId,
-        id: slideId,
-      } = currentSlide;
-      slidePosition = PresentationService.getSlidePosition(podId, presentationId, slideId);
-      if (PRELOAD_NEXT_SLIDE && !fetchedpresentation[presentationId]) {
-        fetchedpresentation[presentationId] = {
-          canFetch: true,
-          fetchedSlide: {},
-        };
-      }
-      const currentSlideNum = currentSlide.num;
-      const presentation = fetchedpresentation[presentationId];
-
-      if (PRELOAD_NEXT_SLIDE
-        && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
-        && presentation.canFetch) {
-        const slidesToFetch = Slides.find({
-          podId,
-          presentationId,
-          num: {
-            $in: Array(PRELOAD_NEXT_SLIDE).fill(1).map((v, idx) => currentSlideNum + (idx + 1)),
-          },
-        }).fetch();
-
-        const promiseImageGet = slidesToFetch
-          .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
-          .map(async (slide) => {
-            if (presentation.canFetch) presentation.canFetch = false;
-            const image = await fetch(slide.imageUri);
-            if (image.ok) {
-              presentation.fetchedSlide[slide.num] = true;
-            }
-          });
-        Promise.all(promiseImageGet).then(() => {
-          presentation.canFetch = true;
-        });
-      }
-    }
-    const currentPresentation = PresentationService.getCurrentPresentation(podId);
-    return {
-      currentSlide,
-      slidePosition,
-      downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
-      multiUser:
-        (WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
-          || WhiteboardService.isMultiUserActive(currentSlide?.id)
-        ) && presentationIsOpen,
-      presentationIsDownloadable,
-      mountPresentation: !!currentSlide,
-      currentPresentation,
-      currentPresentationId: currentPresentation?.id,
-      numPages,
-      notify,
-      zoomSlide: PresentationToolbarService.zoomSlide,
-      podId,
-      publishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }, {
-        fields: {
-          publishedPoll: 1,
-        },
-      }).publishedPoll,
-      restoreOnUpdate: getFromUserSettings(
-        'bbb_force_restore_presentation_on_new_events',
-        Meteor.settings.public.presentation.restoreOnUpdate,
-      ),
-      addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
-      removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
-      multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
-      isViewersCursorLocked,
-      setPresentationIsOpen: MediaService.setPresentationIsOpen,
-      isViewersAnnotationsLocked,
-    };
-  })(PresentationContainer),
-);
+export default PresentationContainer;
 
 PresentationContainer.propTypes = {
-  presentationPodIds: PropTypes.arrayOf(PropTypes.shape({
-    podId: PropTypes.string.isRequired,
-  })).isRequired,
   presentationIsOpen: PropTypes.bool.isRequired,
-  mountPresentation: PropTypes.bool.isRequired,
 };

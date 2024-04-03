@@ -9,13 +9,13 @@ keywords:
 - developer
 ---
 
-Welcome to the BigBlueButton Developer's Guide for BigBlueButton 2.7.
+Welcome to the BigBlueButton Developer's Guide for BigBlueButton 3.0.
 
-This document gives you an overview of how to set up a development environment for BigBlueButton 2.7.
+This document gives you an overview of how to set up a development environment for BigBlueButton 3.0.
 
 ## Before you begin
 
-You first need to set up a BigBlueButton 2.7 server. See the instructions at [Install BigBlueButton 2.7](/administration/install).
+You first need to set up a BigBlueButton 3.0 server. See the instructions at [Install BigBlueButton 3.0](/administration/install).
 
 ## Overview
 
@@ -556,7 +556,7 @@ sudo service bbb-web start
 If you need to revert back your original production `bbb-web` just run the following command. (Don't forget to stop bbb-web service before doing it)
 
 ```bash
-sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && mv /usr/share/bbb-web-old /usr/share/bbb-web
+sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && sudo mv /usr/share/bbb-web-old /usr/share/bbb-web
 ```
 
 Your compiled code will be under the `/usr/share/bbb-web-dev` directory and you can safely run the original production ``bbb-web`.

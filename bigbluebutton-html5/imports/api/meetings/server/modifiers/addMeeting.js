@@ -6,37 +6,15 @@ import {
 import SanitizeHTML from 'sanitize-html';
 import Meetings, {
   RecordMeetings,
-  ExternalVideoMeetings,
   LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
 import createTimer from '/imports/api/timer/server/methods/createTimer';
 import { initCaptions } from '/imports/api/captions/server/helpers';
-import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
-import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import addUserReactionsObserver from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-
-const addExternalVideo = async (meetingId) => {
-  const selector = { meetingId };
-
-  const modifier = {
-    meetingId,
-    externalVideoUrl: null,
-  };
-
-  try {
-    const { numberAffected } = await ExternalVideoMeetings.upsertAsync(selector, modifier);
-
-    if (numberAffected) {
-      Logger.verbose(`Added external video meetingId=${meetingId}`);
-    }
-  } catch (err) {
-    Logger.error(`Adding external video: ${err}`);
-  }
-};
 
 const addLayout = async (meetingId, layout) => {
   const selector = { meetingId };
@@ -153,8 +131,13 @@ export default async function addMeeting(meeting) {
     },
     systemProps: {
       html5InstanceId: Number,
+      logoutUrl: String,
+      customLogoURL: String,
+      bannerText: String,
+      bannerColor: String,
     },
     groups: Array,
+    overrideClientSettings: String,
   });
 
   const {
@@ -223,7 +206,6 @@ export default async function addMeeting(meeting) {
       layout: LAYOUT_TYPE[meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
-      randomlySelectedUser: [],
       ...flat(newMeeting, {
         safe: true,
       }),
@@ -231,8 +213,6 @@ export default async function addMeeting(meeting) {
   };
 
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-    addAnnotationsStreamer(meetingId);
-    addCursorStreamer(meetingId);
     addExternalVideoStreamer(meetingId);
 
     // we don't want to fully process the create meeting message
@@ -257,7 +237,6 @@ export default async function addMeeting(meeting) {
     Logger.error(`Adding record prop to collection: ${err}`);
   }
 
-  await addExternalVideo(meetingId);
   await addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
   try {

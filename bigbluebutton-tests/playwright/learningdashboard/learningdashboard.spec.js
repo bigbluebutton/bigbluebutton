@@ -1,14 +1,16 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
+const { fullyParallel } = require('../playwright.config');
 const { LearningDashboard } = require('./learningdashboard');
 const c = require('../parameters/constants');
+const { initializePages } = require('../core/helpers');
 
-test.describe.serial('Learning Dashboard', async () => {
+test.describe('Learning Dashboard', async () => {
   const learningDashboard = new LearningDashboard();
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await learningDashboard.initModPage(page, true,  { customParameter: c.recordMeeting });
-    await learningDashboard.getDashboardPage(context);
+
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    await initializePages(learningDashboard, browser, { createParameter: c.recordMeeting });
+    await learningDashboard.getDashboardPage();
   });
 
   test('Check message', async() => {
@@ -19,8 +21,8 @@ test.describe.serial('Learning Dashboard', async () => {
     await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls @ci', async ({ context }) => {
-    await learningDashboard.initUserPage(true, context);
+  test('Polls @ci', async () => {
+    await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true });
     await learningDashboard.polls();
   });
 
@@ -32,7 +34,7 @@ test.describe.serial('Learning Dashboard', async () => {
     await learningDashboard.overview();
   });
 
-  test('Download Session Learning Dashboard @ci', async ({ context }, testInfo) => {
+  test('Download Session Learning Dashboard @ci', async ({}, testInfo) => {
     await learningDashboard.downloadSessionLearningDashboard(testInfo);
   });  
 });

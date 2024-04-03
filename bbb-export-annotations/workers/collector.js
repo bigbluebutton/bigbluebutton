@@ -1,21 +1,20 @@
-const Logger = require('../lib/utils/logger');
-const axios = require('axios').default;
-const config = require('../config');
-const cp = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const redis = require('redis');
-const sanitize = require('sanitize-filename');
-const stream = require('stream');
-const WorkerStarter = require('../lib/utils/worker-starter');
-const {PresAnnStatusMsg} = require('../lib/utils/message-builder');
-const {workerData} = require('worker_threads');
-const {promisify} = require('util');
+import Logger from '../lib/utils/logger.js';
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import redis from 'redis';
+import sanitize from 'sanitize-filename';
+import stream from 'stream';
+import WorkerStarter from '../lib/utils/worker-starter.js';
+import {PresAnnStatusMsg} from '../lib/utils/message-builder.js';
+import {workerData} from 'worker_threads';
+import {promisify} from 'util';
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Collector');
 logger.info(`Collecting job ${jobId}`);
 
+const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
 // Takes the Job from the dropbox
@@ -23,11 +22,26 @@ const job = fs.readFileSync(path.join(dropbox, 'job'));
 const exportJob = JSON.parse(job);
 const jobType = exportJob.jobType;
 
+/**
+ * Asynchronously collects annotations from Redis, processes them,
+ * and handles the collection of presentation page files. It removes
+ * the annotations from Redis after collection, writes them to a file,
+ * and manages the retrieval of SVGs, PNGs, or JPEGs. Errors during the
+ * process are logged, and the status of the operation is published to
+ * a Redis channel.
+ *
+ * @async
+ * @function collectAnnotationsFromRedis
+ * @throws Will log an error if an error occurs in connecting to Redis.
+ * @return {Promise<void>} Resolves when the function has completed its task.
+ */
 async function collectAnnotationsFromRedis() {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   client.on('error', (err) => logger.info('Redis Client Error', err));
@@ -59,49 +73,46 @@ async function collectAnnotationsFromRedis() {
   const statusUpdate = new PresAnnStatusMsg(exportJob);
 
   if (fs.existsSync(pdfFile)) {
+    // If there's a PDF file, we leverage the existing converted SVG slides
     for (const p of pages) {
       const pageNumber = p.page;
-      const outputFile = path.join(dropbox, `slide${pageNumber}`);
+      const imageName = `slide${pageNumber}`;
+      const convertedSVG = path.join(
+          exportJob.presLocation,
+          'svgs',
+          `${imageName}.svg`);
 
-      // CairoSVG doesn't handle transparent SVG and PNG embeds properly,
-      // e.g., in rasterized text. So textboxes may get a black background
-      // when downloading/exporting repeatedly. To avoid that, we take slides
-      // from the uploaded file, but later probe the dimensions from the SVG
-      // so it matches what was shown in the browser.
-
-      const extract_png_from_pdf = [
-        '-png',
-        '-f', pageNumber,
-        '-l', pageNumber,
-        '-scale-to', config.collector.pngWidthRasterizedSlides,
-        '-singlefile',
-        '-cropbox',
-        pdfFile, outputFile,
-      ];
+      const outputFile = path.join(dropbox, `slide${pageNumber}.svg`);
 
       try {
-        cp.spawnSync(config.shared.pdftocairo, extract_png_from_pdf, {shell: false});
+        fs.copyFileSync(convertedSVG, outputFile);
       } catch (error) {
-        logger.error(`PDFtoCairo failed extracting slide ${pageNumber} in job ${jobId}: ${error.message}`);
+        logger.error('Failed collecting slide ' + pageNumber +
+          ' in job ' + jobId + ': ' + error.message);
         statusUpdate.setError();
       }
 
-      await client.publish(config.redis.channels.publish, statusUpdate.build(pageNumber));
+      await client.publish(
+          config.redis.channels.publish,
+          statusUpdate.build(pageNumber));
     }
   } else {
     const imageName = 'slide1';
 
     if (fs.existsSync(`${presFile}.png`)) {
-      fs.copyFileSync(`${presFile}.png`, path.join(dropbox, `${imageName}.png`));
+      fs.copyFileSync(`${presFile}.png`,
+          path.join(dropbox, `${imageName}.png`));
     } else if (fs.existsSync(`${presFile}.jpeg`)) {
-      fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, `${imageName}.jpeg`));
+      fs.copyFileSync(`${presFile}.jpeg`,
+          path.join(dropbox, `${imageName}.jpeg`));
     } else if (fs.existsSync(`${presFile}.jpg`)) {
       // JPG file available: copy changing extension to JPEG
-      fs.copyFileSync(`${presFile}.jpg`, path.join(dropbox, `${imageName}.jpeg`));
+      fs.copyFileSync(`${presFile}.jpg`,
+          path.join(dropbox, `${imageName}.jpeg`));
     } else {
       await client.publish(config.redis.channels.publish, statusUpdate.build());
       client.disconnect();
-      return logger.error(`No PDF, PNG, JPG or JPEG file available for job ${jobId}`);
+      return logger.error(`PDF/PNG/JPG/JPEG file not found for job ${jobId}`);
     }
 
     await client.publish(config.redis.channels.publish, statusUpdate.build());
@@ -113,6 +124,15 @@ async function collectAnnotationsFromRedis() {
   process.process();
 }
 
+/**
+ * Creates a promise that resolves after a specified number of milliseconds,
+ * effectively pausing execution for that duration. Used to delay operations
+ * in an asynchronous function.
+ * @async
+ * @function sleep
+ * @param {number} ms - The amount of time in milliseconds to sleep.
+ * @return {Promise<void>} Resolves after the specified number of milliseconds.
+ */
 async function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -129,9 +149,11 @@ async function collectSharedNotes(retries = 3) {
   const padId = exportJob.presId;
   const notesFormat = 'pdf';
 
-  const filename = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.${notesFormat}`;
-  const notes_endpoint = `${config.bbbPadsAPI}/p/${padId}/export/${notesFormat}`;
-  const filePath = path.join(dropbox, filename);
+  const underscoredFilename = exportJob.serverSideFilename.replace(/\s/g, '_');
+  const sanitizedFilename = sanitize(underscoredFilename);
+  const serverSideFilename = `${sanitizedFilename}.${notesFormat}`;
+  const notesEndpoint = `${config.bbbPadsAPI}/p/${padId}/export/${notesFormat}`;
+  const filePath = path.join(dropbox, serverSideFilename);
 
   const finishedDownload = promisify(stream.finished);
   const writer = fs.createWriteStream(filePath);
@@ -139,7 +161,7 @@ async function collectSharedNotes(retries = 3) {
   try {
     const response = await axios({
       method: 'GET',
-      url: notes_endpoint,
+      url: notesEndpoint,
       responseType: 'stream',
     });
     response.data.pipe(writer);
@@ -157,13 +179,21 @@ async function collectSharedNotes(retries = 3) {
     }
   }
 
-  const notifier = new WorkerStarter({jobType, jobId, filename});
+  const notifier = new WorkerStarter({jobType, jobId,
+    serverSideFilename, filename: exportJob.filename});
   notifier.notify();
 }
 
 switch (jobType) {
-  case 'PresentationWithAnnotationExportJob': return collectAnnotationsFromRedis();
-  case 'PresentationWithAnnotationDownloadJob': return collectAnnotationsFromRedis();
-  case 'PadCaptureJob': return collectSharedNotes();
-  default: return logger.error(`Unknown job type ${jobType}`);
+  case 'PresentationWithAnnotationExportJob':
+    collectAnnotationsFromRedis();
+    break;
+  case 'PresentationWithAnnotationDownloadJob':
+    collectAnnotationsFromRedis();
+    break;
+  case 'PadCaptureJob':
+    collectSharedNotes();
+    break;
+  default:
+    logger.error(`Unknown job type ${jobType}`);
 }

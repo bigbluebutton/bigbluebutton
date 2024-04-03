@@ -1,20 +1,35 @@
 import React, { useContext } from 'react';
-import { makeCall } from '/imports/ui/services/api';
 import { withTracker } from 'meteor/react-meteor-data';
-import Presentations from '/imports/api/presentations';
-import PresentationService from '/imports/ui/components/presentation/service';
 import Poll from '/imports/ui/components/poll/component';
 import { Session } from 'meteor/session';
+import { useMutation } from '@apollo/client';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
+import { POLL_PUBLISH_RESULT, POLL_CANCEL, POLL_CREATE } from './mutations';
+import { ACTIONS, PANELS } from '../layout/enums';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
-const PollContainer = ({ ...props }) => {
+const PollContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
+  const handleChatFormsOpen = () => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: true,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.CHAT,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_ID_CHAT_OPEN,
+      value: PUBLIC_CHAT_KEY,
+    });
+  };
+
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
 
@@ -27,42 +42,62 @@ const PollContainer = ({ ...props }) => {
     usernames[user.userId] = { userId: user.userId, name: user.name };
   });
 
+  const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
+  const [stopPoll] = useMutation(POLL_CANCEL);
+  const [createPoll] = useMutation(POLL_CREATE);
+
+  const { currentSlideId } = props;
+
+  const startPoll = (pollType, secretPoll, question, isMultipleResponse, answers = []) => {
+    const pollId = currentSlideId || PUBLIC_CHAT_KEY;
+
+    createPoll({
+      variables: {
+        pollType,
+        pollId: `${pollId}/${new Date().getTime()}`,
+        secretPoll,
+        question,
+        isMultipleResponse,
+        answers,
+      },
+    });
+  };
+
+  const publishPoll = (pollId) => {
+    pollPublishResult({
+      variables: {
+        pollId,
+      },
+    });
+  };
+
   return (
     <Poll
-      {...{ layoutContextDispatch, sidebarContentPanel, ...props }}
+      {...{
+        layoutContextDispatch,
+        sidebarContentPanel,
+        publishPoll,
+        stopPoll,
+        startPoll,
+        handleChatFormsOpen,
+        ...props,
+      }}
       usernames={usernames}
     />
   );
 };
 
-export default withTracker(({ amIPresenter }) => {
+export default withTracker(({ amIPresenter, currentSlideId }) => {
   const isPollSecret = Session.get('secretPoll') || false;
-  const currentPresentation = Presentations.findOne({
-    current: true,
-  }, { fields: { podId: 1 } }) || {};
 
   Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
 
-  const currentSlide = PresentationService.getCurrentSlide(currentPresentation.podId);
-
-  const pollId = currentSlide ? currentSlide.id : PUBLIC_CHAT_KEY;
-
   const { pollTypes } = Service;
-
-  const startPoll = (type, secretPoll, question = '', isMultipleResponse) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse);
-
-  const startCustomPoll = (type, secretPoll, question = '', isMultipleResponse, answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse, answers);
-
-  const stopPoll = () => makeCall('stopPoll');
 
   return {
     isPollSecret,
-    currentSlide,
+    currentSlideId,
     pollTypes,
-    startPoll,
-    startCustomPoll,
-    stopPoll,
-    publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
     isDefaultPoll: Service.isDefaultPoll,
     checkPollType: Service.checkPollType,

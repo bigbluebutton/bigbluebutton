@@ -58,6 +58,7 @@ class Notifications extends MultiUsers {
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
+    await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.lowerHandBtn);
     await this.modPage.wasRemoved(e.raiseHandRejection);
     await util.checkNotificationText(this.modPage, e.raisingHandToast);

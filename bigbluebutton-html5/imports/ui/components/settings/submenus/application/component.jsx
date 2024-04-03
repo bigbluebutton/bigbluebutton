@@ -11,10 +11,10 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 
 const MIN_FONTSIZE = 0;
-const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
+const SHOW_AUDIO_FILTERS = (window.meetingClientSettings.public.app
   .showAudioFilters === undefined)
   ? true
-  : Meteor.settings.public.app.showAudioFilters;
+  : window.meetingClientSettings.public.app.showAudioFilters;
 const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
@@ -124,6 +124,9 @@ const intlMessages = defineMessages({
   },
   disableLabel: {
     id: 'app.videoDock.webcamDisableLabelAllCams',
+  },
+  autoCloseReactionsBarLabel: {
+    id: 'app.actionsBar.reactions.autoCloseReactionsBarLabel',
   },
 });
 
@@ -344,7 +347,7 @@ class ApplicationMenu extends BaseMenu {
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
 
-    const isDarkThemeEnabled = Meteor.settings.public.app.darkTheme.enabled;
+    const isDarkThemeEnabled = window.meetingClientSettings.public.app.darkTheme.enabled;
     if (!isDarkThemeEnabled) return null;
 
     return (
@@ -408,7 +411,11 @@ class ApplicationMenu extends BaseMenu {
 
   render() {
     const {
-      allLocales, intl, showToggleLabel, displaySettingsStatus,
+      allLocales,
+      intl,
+      showToggleLabel,
+      displaySettingsStatus,
+      isReactionsEnabled,
     } = this.props;
     const {
       isLargestFontSize, isSmallestFontSize, settings,
@@ -509,6 +516,30 @@ class ApplicationMenu extends BaseMenu {
               </Styled.FormElementRight>
             </Styled.Col>
           </Styled.Row>
+
+          {isReactionsEnabled && (
+            <Styled.Row>
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {displaySettingsStatus(settings.autoCloseReactionsBar)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.autoCloseReactionsBar}
+                    onChange={() => this.handleToggle('autoCloseReactionsBar')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+          )}
 
           <Styled.Row>
             <Styled.Col>

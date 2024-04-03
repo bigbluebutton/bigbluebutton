@@ -1,10 +1,12 @@
 package org.bigbluebutton.core.apps.breakout
 
+import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse}
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
+import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.db.BreakoutRoomDAO
+import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
 import org.bigbluebutton.core.models.PresentationInPod
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core.running.MeetingActor
 
 trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
@@ -14,6 +16,10 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
+
+
+    val minOfRooms = 2
+    val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
       val meetingId = liveMeeting.props.meetingProp.intId
@@ -25,6 +31,15 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to create breakout room for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId,
         reason, outGW, liveMeeting)
+      state
+    } else if(msg.body.rooms.length > maxOfRooms || msg.body.rooms.length < minOfRooms) {
+      log.warning(
+        "Attempt to create breakout rooms with invalid number of rooms (rooms: {}, max: {}, min: {}) in meeting {}",
+        msg.body.rooms.size,
+        maxOfRooms,
+        minOfRooms,
+        liveMeeting.props.meetingProp.intId
+      )
       state
     } else {
       state.breakout match {
@@ -53,8 +68,8 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
 
       val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName,
-                                          room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.captureNotes,
-                                          msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename)
+        room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.captureNotes,
+        msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename)
 
       rooms = rooms + (breakout.id -> breakout)
     }
@@ -69,7 +84,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.freeJoin,
         liveMeeting.props.voiceProp.dialNumber,
         breakout.voiceConf,
-        msg.body.durationInMinutes * 60,
+        msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
         presId, presSlide, msg.body.record,
@@ -85,6 +100,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     }
 
     val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes * 60, rooms, msg.body.sendInviteToModerators)
+    BreakoutRoomDAO.insert(breakoutModel, liveMeeting)
     state.update(Some(breakoutModel))
   }
 

@@ -14,7 +14,7 @@ const MenuWrapper = styled(Menu)`
     padding: .5rem 0;
   `}
 
-  ${({ isHorizontal, isMobile }) => (isHorizontal || isMobile) && `
+  ${({ $isHorizontal, isMobile }) => ($isHorizontal || isMobile) && `
     ul {
       display: flex;
     }
@@ -45,6 +45,10 @@ const Option = styled.div`
     margin-right: .5rem;
     margin-left: 1.65rem;
   }
+
+  ${({ textColor }) => textColor && `
+    color: ${textColor};
+  `}
 
   ${({ isHorizontal, isMobile }) => (isHorizontal || isMobile) && `
     margin-right: 0;
@@ -80,6 +84,11 @@ const IconRight = styled(Icon)`
   flex: 1;
 `;
 
+const BBBMenuInformation = styled.div`
+  padding: 12px 16px;
+  margin: 0;
+`;
+
 const BBBMenuItem = styled(MenuItem)`
   transition: none !important;
   font-size: 90% !important;
@@ -107,7 +116,7 @@ const BBBMenuItem = styled(MenuItem)`
       }
     }
   `}
-  ${({ roundButtons }) => roundButtons && `
+  ${({ $roundButtons }) => $roundButtons && `
     &:focus,
     &:hover {
       background-color: ${colorWhite} !important;
@@ -126,4 +135,5 @@ export default {
   CloseButton,
   IconRight,
   BBBMenuItem,
+  BBBMenuInformation,
 };

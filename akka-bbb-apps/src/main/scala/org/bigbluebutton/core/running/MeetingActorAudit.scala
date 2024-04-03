@@ -2,11 +2,11 @@ package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
 
-import akka.actor.Actor
-import akka.actor.ActorLogging
-import akka.actor.Props
-import akka.actor.OneForOneStrategy
-import akka.actor.SupervisorStrategy.Resume
+import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.Props
+import org.apache.pekko.actor.OneForOneStrategy
+import org.apache.pekko.actor.SupervisorStrategy.Resume
 
 import scala.concurrent.duration._
 import org.bigbluebutton.SystemConfiguration

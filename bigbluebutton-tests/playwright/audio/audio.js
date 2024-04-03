@@ -39,6 +39,7 @@ class Audio extends MultiUsers {
     await this.modPage.waitAndClick(e.joinAudio);
     await connectMicrophone(this.modPage);
     
+    await this.modPage.hasElement(e.isTalking);
     await this.modPage.waitAndClick(e.muteMicButton);
     await this.modPage.wasRemoved(e.isTalking);
     await this.modPage.hasElement(e.wasTalking);
@@ -73,6 +74,7 @@ class Audio extends MultiUsers {
       await this.modPage.waitAndClick(e.unmuteMicButton);
       await this.modPage.hasElement(e.isTalking);
     }
+    await this.modPage.hasElement(e.isTalking);
     await this.modPage.waitAndClick(e.muteMicButton);
     await this.modPage.hasElement(e.wasTalking);
     await this.modPage.wasRemoved(e.muteMicButton);
@@ -100,6 +102,7 @@ class Audio extends MultiUsers {
       await this.modPage.hasElement(e.isTalking);
     }
     await this.modPage.waitAndClick(e.talkingIndicator);
+    await this.modPage.hasElement(e.wasTalking);
     await this.modPage.hasElement(e.wasTalking);
     await this.modPage.wasRemoved(e.muteMicButton);
     await this.modPage.hasElement(e.unmuteMicButton);

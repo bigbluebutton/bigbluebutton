@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   label: {
@@ -51,11 +52,17 @@ class ConnectionStatusIcon extends PureComponent {
   render() {
     const {
       intl,
-      stats,
+      connectionData,
     } = this.props;
-  
+
+    const ownConnectionData = connectionData.filter((curr) => curr.user.userId === Auth.userID);
+
+    const currentStatus = ownConnectionData && ownConnectionData.length > 0
+      ? ownConnectionData[0].currentStatus
+      : 'normal';
+
     let color;
-    switch (stats) {
+    switch (currentStatus) {
       case 'warning':
         color = 'success';
         break;
@@ -69,19 +76,17 @@ class ConnectionStatusIcon extends PureComponent {
         color = 'success';
     }
 
-    const level = stats ? stats : 'normal';
-
     const { isSettingsMenuModalOpen } = this.state;
 
     return (
       <Fragment>
         <Styled.StatusIconWrapper color={color}>
-          {this.renderIcon(level)}
+          {this.renderIcon(currentStatus)}
         </Styled.StatusIconWrapper>
         <Styled.Label>
           {intl.formatMessage(intlMessages.label)}
         </Styled.Label>
-        {(level === 'critical' || level === 'danger') || isSettingsMenuModalOpen
+        {(currentStatus === 'critical' || currentStatus === 'danger') || isSettingsMenuModalOpen
           ? (
             <div>
               <Styled.Settings

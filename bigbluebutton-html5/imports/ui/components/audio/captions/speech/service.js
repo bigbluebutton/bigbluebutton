@@ -1,8 +1,5 @@
-import { throttle } from '/imports/utils/throttle';
-import { diff } from '@mconf/bbb-diff';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
@@ -10,9 +7,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import { unique } from 'radash';
 
-const THROTTLE_TIMEOUT = 1000;
-
-const CONFIG = Meteor.settings.public.app.audioCaptions;
+const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
 const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
@@ -40,11 +35,11 @@ const getSpeechVoices = () => {
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
-const setSpeechLocale = (value) => {
+const setSpeechLocale = (value, setUserSpeechLocale) => {
   const voices = getSpeechVoices();
 
   if (voices.includes(value) || value === '') {
-    makeCall('setSpeechLocale', value, CONFIG.provider);
+    setUserSpeechLocale(value, CONFIG.provider);
   } else {
     logger.error({
       logCode: 'captions_speech_locale',
@@ -54,7 +49,7 @@ const setSpeechLocale = (value) => {
 
 const useFixedLocale = () => isEnabled() && CONFIG.language.forceLocale;
 
-const initSpeechRecognition = () => {
+const initSpeechRecognition = (setUserSpeechLocale) => {
   if (!isEnabled() || !isWebSpeechApi()) return null;
   if (hasSpeechRecognitionSupport()) {
     // Effectivate getVoices
@@ -64,9 +59,9 @@ const initSpeechRecognition = () => {
     speechRecognition.interimResults = true;
 
     if (useFixedLocale() || localeAsDefaultSelected()) {
-      setSpeechLocale(getLocale());
+      setSpeechLocale(getLocale(), setUserSpeechLocale);
     } else {
-      setSpeechLocale(navigator.language);
+      setSpeechLocale(navigator.language, setUserSpeechLocale);
     }
 
     return speechRecognition;
@@ -77,46 +72,6 @@ const initSpeechRecognition = () => {
   }, 'Captions speech unsupported');
 
   return null;
-};
-
-let prevId = '';
-let prevTranscript = '';
-const updateTranscript = (id, transcript, locale, isFinal) => {
-  // If it's a new sentence
-  if (id !== prevId) {
-    prevId = id;
-    prevTranscript = '';
-  }
-
-  const transcriptDiff = diff(prevTranscript, transcript);
-
-  let start = 0;
-  let end = 0;
-  let text = '';
-  if (transcriptDiff) {
-    start = transcriptDiff.start;
-    end = transcriptDiff.end;
-    text = transcriptDiff.text;
-  }
-
-  // Stores current transcript as previous
-  prevTranscript = transcript;
-
-  makeCall('updateTranscript', id, start, end, text, transcript, locale, isFinal);
-};
-
-const throttledTranscriptUpdate = throttle(updateTranscript, THROTTLE_TIMEOUT, {
-  leading: false,
-  trailing: true,
-});
-
-const updateInterimTranscript = (id, transcript, locale) => {
-  throttledTranscriptUpdate(id, transcript, locale, false);
-};
-
-const updateFinalTranscript = (id, transcript, locale) => {
-  throttledTranscriptUpdate.cancel();
-  updateTranscript(id, transcript, locale, true);
 };
 
 const getSpeechLocale = (userId = Auth.userID) => {
@@ -174,8 +129,6 @@ export default {
   LANGUAGES,
   hasSpeechRecognitionSupport,
   initSpeechRecognition,
-  updateInterimTranscript,
-  updateFinalTranscript,
   getSpeechVoices,
   getSpeechLocale,
   setSpeechLocale,

@@ -1,7 +1,18 @@
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 
-const WAKELOCK_ENABLED = Meteor.settings.public.app.wakeLock.enabled;
+const WAKELOCK_ENABLED = window.meetingClientSettings.public.app.wakeLock.enabled;
+
+const WAKELOCK_ERRORS = {
+  NOT_SUPPORTED: {
+    locale: 'wakeLockNotSupported',
+    error: 'wake_lock_not_supported',
+  },
+  REQUEST_FAILED: {
+    locale: 'wakeLockAcquireFailed',
+    error: 'wake_lock_request_error',
+  }
+}
 
 class WakeLock {
   constructor() {
@@ -16,6 +27,11 @@ class WakeLock {
   isSupported() {
     const { isMobile } = deviceInfo;
     return WakeLock.isEnabled() && this.apiSupport && isMobile;
+  }
+
+  isMobile() {
+    const { isMobile } = deviceInfo;
+    return isMobile;
   }
 
   isActive() {
@@ -36,9 +52,12 @@ class WakeLock {
   async request() {
     if (!this.isSupported()) {
       logger.warn({
-        logCode: 'wake_lock_request_error',
+        logCode: WAKELOCK_ERRORS.NOT_SUPPORTED,
       }, 'Wake lock API not supported');
-      return true;
+      return {
+        ...WAKELOCK_ERRORS.NOT_SUPPORTED,
+        msg: 'Wake lock API not supported',
+      };
     }
 
     try {
@@ -48,15 +67,20 @@ class WakeLock {
       document.addEventListener('fullscreenchange', this.handleVisibilityChanged.bind(this));
     } catch (err) {
       logger.warn({
-        logCode: 'wake_lock_request_error',
+        logCode: WAKELOCK_ERRORS.REQUEST_FAILED,
         extraInfo: {
           errorName: err.name,
           errorMessage: err.message,
         },
       }, 'Error requesting wake lock.');
-      return true;
+      return {
+        ...WAKELOCK_ERRORS.REQUEST_FAILED,
+        msg: `${err.name} - ${err.message}`,
+      };
     }
-    return false;
+    return {
+      error: false,
+    };
   }
 
   release() {
@@ -69,6 +93,7 @@ const wakeLock = new WakeLock();
 export default {
   isEnabled: () => wakeLock.isEnabled(),
   isSupported: () => wakeLock.isSupported(),
+  isMobile: () => wakeLock.isMobile(),
   isActive: () => wakeLock.isActive(),
   request: () => wakeLock.request(),
   release: () => wakeLock.release(),

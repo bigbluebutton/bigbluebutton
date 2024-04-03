@@ -1,9 +1,13 @@
 package org.bigbluebutton.core.apps.audiocaptions
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsStringOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.models.AudioCaptions
+import org.bigbluebutton.core.db.CaptionDAO
+import org.bigbluebutton.core.models.{AudioCaptions, UserState, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 trait UpdateTranscriptPubMsgHdlr {
   this: AudioCaptionsApp2x =>
@@ -17,6 +21,17 @@ trait UpdateTranscriptPubMsgHdlr {
       val header = BbbClientMsgHeader(TranscriptUpdatedEvtMsg.NAME, meetingId, userId)
       val body = TranscriptUpdatedEvtMsgBody(transcriptId, transcript, locale, result)
       val event = TranscriptUpdatedEvtMsg(header, body)
+      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+
+      bus.outGW.send(msgEvent)
+    }
+
+    def sendPadUpdatePubMsg(userId: String, defaultPad: String, text: String, transcript: Boolean): Unit = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
+      val envelope = BbbCoreEnvelope(PadUpdatePubMsg.NAME, routing)
+      val header = BbbClientMsgHeader(PadUpdatePubMsg.NAME, meetingId, userId)
+      val body = PadUpdatePubMsgBody(defaultPad, text, transcript)
+      val event = PadUpdatePubMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
       bus.outGW.send(msgEvent)
@@ -63,6 +78,13 @@ trait UpdateTranscriptPubMsgHdlr {
 
       val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
 
+
+      for {
+        u <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
+      } yield {
+        CaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, u.speechLocale)
+      }
+
       broadcastEvent(
         msg.header.userId,
         msg.body.transcriptId,
@@ -70,6 +92,28 @@ trait UpdateTranscriptPubMsgHdlr {
         msg.body.locale,
         msg.body.result,
       )
+
+      if(msg.body.result) {
+        val userName = Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId).get match {
+          case u: UserState => u.name
+          case _ => "???"
+        }
+
+        val now = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+        val formattedTime = now.format(formatter)
+
+        val userSpoke = s"\n $userName ($formattedTime): $transcript"
+
+        val defaultPad = getConfigPropertyValueByPathAsStringOrElse(
+          liveMeeting.clientSettings,
+          "public.captions.defaultPad",
+          alternativeValue = ""
+        )
+
+        sendPadUpdatePubMsg(msg.header.userId, defaultPad, userSpoke, transcript = true)
+      }
+
     }
   }
 }

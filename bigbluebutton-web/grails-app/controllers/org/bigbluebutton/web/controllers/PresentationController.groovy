@@ -30,6 +30,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.util.ParamsUtil;
 import org.bigbluebutton.api.Util;
 
 class PresentationController {
@@ -100,13 +101,16 @@ class PresentationController {
 
   def upload = {
     // check if the authorization token provided is valid
-    if (null == params.authzToken || !meetingService.authzTokenIsValidAndExpired(params.authzToken)) {
+    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
       log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'invalid auth token'
       return
     }
+
+    PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(params.authzToken)
+    meetingService.expirePresentationUploadToken(params.authzToken)
 
     def meetingId = params.conference
     if (Util.isMeetingIdValidFormat(meetingId)) {
@@ -151,7 +155,7 @@ class PresentationController {
     def presOrigFilename = ""
     def presFilename = ""
     def filenameExt = ""
-    def presId = ""
+    def presId = presUploadToken.presentationId
     def pres = null
     def temporaryPresentationId = params.temporaryPresentationId
 
@@ -161,6 +165,7 @@ class PresentationController {
       // Gets the name minus the path from a full fileName.
       // a/b/c.txt --> c.txt
       presFilename =  FilenameUtils.getName(presOrigFilename)
+      presFilename = ParamsUtil.stripTags(presFilename)
       filenameExt = FilenameUtils.getExtension(presFilename)
     } else {
       log.warn "Upload failed. File Empty."
@@ -174,7 +179,6 @@ class PresentationController {
       uploadFailed = true
     } else {
       String presentationDir = presentationService.getPresentationDir()
-      presId = Util.generatePresentationId(presFilename)
       File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
       if (uploadDir != null) {
         def newFilename = Util.createNewFilename(presId, filenameExt)
@@ -183,7 +187,7 @@ class PresentationController {
       }
     }
 
-    log.debug("processing file upload " + presFilename)
+    log.debug("processing file upload " + presFilename + " (presId: " + presId + ")")
     def presentationBaseUrl = presentationService.presentationBaseUrl
     def isPresentationMimeTypeValid = SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)
     UploadedPresentation uploadedPres = new UploadedPresentation(

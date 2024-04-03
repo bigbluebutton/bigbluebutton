@@ -1,6 +1,6 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
@@ -20,6 +20,7 @@ case class Meeting(
   intId: String,
   extId: String,
   name:  String,
+  downloadSessionDataEnabled: Boolean,
   users: Map[String, User] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
@@ -397,10 +398,33 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
       if (msg.body.reactionEmoji != "none") {
-        val updatedUser = user.copy(reactions = user.reactions :+ Emoji(msg.body.reactionEmoji))
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+        //Ignore multiple Reactions to prevent flooding
+        val hasSameReactionInLast30Seconds = user.reactions.filter(r => {
+          System.currentTimeMillis() - r.sentOn < (30 * 1000) && r.name == msg.body.reactionEmoji
+        }).length > 0
 
-        meetings += (updatedMeeting.intId -> updatedMeeting)
+        if(!hasSameReactionInLast30Seconds) {
+          val updatedUser = user.copy(reactions = user.reactions :+ Emoji(msg.body.reactionEmoji))
+          val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+          meetings += (updatedMeeting.intId -> updatedMeeting)
+
+          //Convert Reactions to legacy Emoji (while LearningDashboard doesn't support Reactions)
+          val emoji = msg.body.reactionEmoji.codePointAt(0) match {
+            case 128515 => "happy"
+            case 128528 => "neutral"
+            case 128577 => "sad"
+            case 128077 => "thumbsUp"
+            case 128078 => "thumbsDown"
+            case 128079 => "applause"
+            case _ => "none"
+          }
+
+          if (emoji != "none") {
+            val updatedUserWithEmoji = updatedUser.copy(emojis = user.emojis :+ Emoji(emoji))
+            val updatedMeetingWithEmoji = meeting.copy(users = meeting.users + (updatedUserWithEmoji.userKey -> updatedUserWithEmoji))
+            meetings += (updatedMeeting.intId -> updatedMeetingWithEmoji)
+          }
+        }
       }
     }
   }
@@ -562,6 +586,7 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
+        downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
       )
 
       meetings += (newMeeting.intId -> newMeeting)

@@ -19,13 +19,10 @@
 
 package org.bigbluebutton.api;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,12 +34,6 @@ import com.google.gson.JsonObject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
 import org.bigbluebutton.api.domain.Meeting;
@@ -79,6 +70,8 @@ public class ParamsProcessorUtil {
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
     private String defaultHTML5ClientUrl;
+
+    private String graphqlWebsocketUrl;
     private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
     private Integer defaultHttpSessionTimeout = 14400;
@@ -145,6 +138,7 @@ public class ParamsProcessorUtil {
 
     private String bbbVersion = "";
     private Boolean allowRevealOfBBBVersion = false;
+    private Boolean allowOverrideClientSettingsOnCreateCall = false;
 
   	private String formatConfNum(String s) {
   		if (s.length() > 5) {
@@ -872,6 +866,10 @@ public class ParamsProcessorUtil {
 		return defaultHTML5ClientUrl;
 	}
 
+    public String getGraphqlWebsocketUrl() {
+        return graphqlWebsocketUrl;
+    }
+
 	public String getDefaultGuestWaitURL() {
 		return defaultGuestWaitURL;
         }
@@ -910,6 +908,10 @@ public class ParamsProcessorUtil {
 
   public Boolean getAllowRevealOfBBBVersion() {
     return allowRevealOfBBBVersion;
+  }
+
+  public Boolean getAllowOverrideClientSettingsOnCreateCall() {
+    return allowOverrideClientSettingsOnCreateCall;
   }
 
     public String processWelcomeMessage(String message, Boolean isBreakout) {
@@ -1156,6 +1158,11 @@ public class ParamsProcessorUtil {
 		return true;
 	}
 
+    public boolean parentMeetingExists(String parentMeetingId) {
+        Meeting meeting = ServiceUtils.findMeetingFromMeetingID(parentMeetingId);
+        return meeting != null;
+    }
+
 	/*************************************************
 	 * Setters
 	 ************************************************/
@@ -1215,6 +1222,10 @@ public class ParamsProcessorUtil {
 	public void setDefaultHTML5ClientUrl(String defaultHTML5ClientUrl) {
 		this.defaultHTML5ClientUrl = defaultHTML5ClientUrl;
 	}
+
+    public void setGraphqlWebsocketUrl(String graphqlWebsocketUrl) {
+        this.graphqlWebsocketUrl = graphqlWebsocketUrl.replace("https://","wss://");
+    }
 
 	public void setDefaultGuestWaitURL(String url) {
 		this.defaultGuestWaitURL = url;
@@ -1513,6 +1524,10 @@ public class ParamsProcessorUtil {
 
   public void setAllowRevealOfBBBVersion(Boolean allowVersion) {
     this.allowRevealOfBBBVersion = allowVersion;
+  }
+
+  public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
+    this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
   }
 
 }

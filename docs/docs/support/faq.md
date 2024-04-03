@@ -300,7 +300,7 @@ Yes. The steps are covered in the [install](/administration/install) documentati
 
 #### Ubuntu
 
-Older versions of BigBlueButton, up to and including version 2.4, required **Ubuntu 18.04 64-bit**.  The current version of BigBlueButto n2.5 requires **Ubuntu 20.04 64-bit**.  See [Install BigBlueButton](/administration/install).
+Older versions of BigBlueButton, up to and including version 2.7, required **Ubuntu 20.04 64-bit**.  BigBlueButton 3.0 requires **Ubuntu 22.04 64-bit**.  See [Install BigBlueButton](/administration/install).
 
 We (the core developers) have not installed BigBlueButton on any other version of Ubuntu. It probably won't work.
 
@@ -511,7 +511,7 @@ When a front-end makes an API request to BigBlueButton, the BigBlueButton server
 
 When the BigBlueButton client loads, it makes data connections back to the BigBlueButton server using a web socket connection encrypted HTTPS. When the BigBlueButton shares the user's audio, video, or screen, the browser uses the built-in web real-time communication (WebRTC) libraries that transmit real-time protocol packets (RTP) over user datagram protocol (UDP) via Datagram Transport Layer Security (see [DTLS](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security)). Furthermore, to provide communications privacy for datagram protocols the media packets are encrypted using the Secure Real-Time Protocol (see [SRTP](https://en.wikipedia.org/wiki/Secure_Real-time_Transport_Protocol)).
 
-As described above, by saying there are _multiple_ security mechanisms BigBlueButton, does this mean BigBlueButton offers secure collaboration? No. No system is really secure, there are only levels of security. We care about security in the BigBlueButton project, and if you detect any security vunerabilities in the project, you can make a responsible disclosure by emailing us at security@bigbluebutton.org.
+As described above, by saying there are _multiple_ security mechanisms BigBlueButton, does this mean BigBlueButton offers secure collaboration? No. No system is really secure, there are only levels of security. We care about security in the BigBlueButton project, and if you detect any security vulnerabilities in the project, you can make a responsible disclosure by emailing us at security@bigbluebutton.org.
 
 
 ### Front Ends
@@ -584,7 +584,7 @@ You'll always get the best results with PDF.
 
 When you upload a PowerPoint document, BigBlueButton will convert it to PDF (using LibreOffice) and then finally to scalable vector graphics (SVG) for display within the client.
 
-The conversion to PDF will remove any animations (visual or audio), links, and embedded content. At the end of the conversion, you'll see the final slide within BigBlueButton.
+The conversion to PDF will remove any animations (visual or audio), links, and embedded content. At the end of the conversion, you'll see the final slide within BigBlueButton. Splitting the animated slide into multiple slides with intermediate animation steps using plugins such as [PPspliT](https://github.com/maxonthegit/PPspliT) would be a good option. Alternatively, you can share the screen showing a PowerPoint presentation; BBB can share not only the animation and video, but also the audio for most of the compatible browsers.
 
 As the presenter, if you want to share a YouTube or Vimeo video, use the built-in `Share an external video` feature (Select the '+' button to see this option).
 

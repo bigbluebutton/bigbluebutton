@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.pads
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.SharedNotesDAO
 import org.bigbluebutton.core.models.Pads
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -22,8 +23,11 @@ trait PadCreatedEvtMsgHdlr {
     }
 
     Pads.getGroupById(liveMeeting.pads, msg.body.groupId) match {
-      case Some(group) => broadcastEvent(group.externalId, group.userId, msg.body.padId, msg.body.name)
-      case _           =>
+      case Some(group) => {
+        SharedNotesDAO.insert(liveMeeting.props.meetingProp.intId, group, msg.body.padId, msg.body.name)
+        broadcastEvent(group.externalId, group.userId, msg.body.padId, msg.body.name)
+      }
+      case _ =>
     }
   }
 }

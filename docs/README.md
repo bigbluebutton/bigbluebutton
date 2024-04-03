@@ -5,11 +5,34 @@ and GitHub Actions (see [deploy-docs.yml](../.github/workflows/deploy-docs.yml))
 
 ## Local Development
 
-To test build the docs locally you can either use `yarn` or `npm`.
+To test build the docs locally use:
+
+```bash
+$ npm ci  # install docusaurus and dependencies (based on the package-lock.json file)
+$ npx docusaurus start  # start local dev server
+```
+
+By default `docusaurus.config.js` contains instructions for the building of a few extra branches. You may want to drop all but the current branch. For example:
 
 ```
-$ yarn install  # install docusaurus and dependencies
-$ yarn start  # start local dev server
+diff --git a/docs/docusaurus.config.js b/docs/docusaurus.config.js
+index 50b72b12ec..04f360a955 100644
+--- a/docs/docusaurus.config.js
++++ b/docs/docusaurus.config.js
+@@ -38,12 +38,6 @@ const config = {
+                     lastVersion: '2.7',
+                     includeCurrentVersion: false,
+                     versions: {
+-                        '2.5-legacy': {
+-                            banner: 'none'
+-                        },
+-                        '2.6': {
+-                            banner: 'none'
+-                        },
+                         '2.7': {
+                             banner: 'none'
+                         },
+
 ```
 
 The last command starts a local development server and opens up a browser window.
@@ -18,20 +41,20 @@ Most changes are reflected live without having to restart the server.
 There is also a  script `build.sh` that goes through all branches of the repository
 and adds all release branches that have a `docusaurus.config.js`-file as versions
 to the docs.
-Note that you can not have uncommited local changes before you run `/build.sh`,
+Note that you can not have uncommitted local changes before you run `/build.sh`,
 otherwise git will refuse to change branches.
 This step is optional and if you don't run it, docusaurus will only build the
 currently checkout out version which is recommended for local development
 (building all the versions locally can lead to problems with the live
-updates when using `yarn start`).
+updates when using `npx docusaurus start`).
 
 ### Build
 
 If you only want to build the docs you can run:
 
 ```
-$ yarn clear # ensure cached content is not interfering with your changes
-$ yarn build
+$ npm clear # ensure cached content is not interfering with your changes
+$ npx docusaurus build
 ```
 
 This command generates static content into the `build` directory
@@ -44,7 +67,7 @@ in development or when building the docs.
 To avoid this you can run:
 
 ```
-$ yarn clear  # ensure cached content is not interfering with your changes
+$ npx docusaurus clear  # ensure cached content is not interfering with your changes
 $ rm -r versioned_docs versioned_sidebars versions.json  # if you build multiple versions
 ```
 

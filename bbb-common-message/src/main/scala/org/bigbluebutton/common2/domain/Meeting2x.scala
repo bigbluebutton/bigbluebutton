@@ -68,7 +68,11 @@ case class LockSettingsProps(
 )
 
 case class SystemProps(
-    html5InstanceId: Int
+    html5InstanceId: Int,
+    logoutUrl: String,
+    customLogoURL: String,
+    bannerText: String,
+    bannerColor: String,
 )
 
 case class GroupProps(
@@ -89,7 +93,8 @@ case class DefaultProps(
     metadataProp:      MetadataProp,
     lockSettingsProps: LockSettingsProps,
     systemProps:       SystemProps,
-    groups:            Vector[GroupProps]
+    groups:            Vector[GroupProps],
+    overrideClientSettings: String
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)

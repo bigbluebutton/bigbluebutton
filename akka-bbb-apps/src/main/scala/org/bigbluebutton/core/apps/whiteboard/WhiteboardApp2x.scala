@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import akka.actor.ActorContext
-import akka.event.Logging
+import org.apache.pekko.actor.ActorContext
+import org.apache.pekko.event.Logging
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import scala.collection.immutable.{ Map }

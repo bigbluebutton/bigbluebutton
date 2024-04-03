@@ -2,10 +2,10 @@ package org.bigbluebutton.service
 
 import java.text.SimpleDateFormat
 
-import akka.actor.{ Actor, ActorLogging, Props }
-import akka.actor.ActorSystem
-import akka.pattern.{ AskTimeoutException, ask }
-import akka.util.Timeout
+import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.pattern.{ AskTimeoutException, ask }
+import org.apache.pekko.util.Timeout
 
 import scala.concurrent.duration._
 import scala.concurrent.Future

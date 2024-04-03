@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
@@ -27,7 +28,9 @@ trait PresentationPageConversionStartedSysMsgHdlr {
         podId = msg.body.podId,
         presentationId = msg.body.presentationId,
         current = msg.body.current,
+        default = msg.body.default,
         presName = msg.body.presName,
+        presFilenameConverted = msg.body.presFilenameConverted,
         downloadable = msg.body.downloadable,
         removable = msg.body.removable,
         authzToken = msg.body.authzToken,
@@ -43,7 +46,8 @@ trait PresentationPageConversionStartedSysMsgHdlr {
     val presentationId = msg.body.presentationId
     val podId = msg.body.podId
 
-    val pres = new PresentationInPod(presentationId, msg.body.presName, msg.body.current, Map.empty, downloadable, removable)
+    val pres = new PresentationInPod(presentationId, msg.body.presName, msg.body.default, msg.body.current, Map.empty, downloadable,
+      "", removable, filenameConverted = msg.body.presFilenameConverted, uploadCompleted = false, numPages = msg.body.numPages, errorDetails = Map.empty)
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)
@@ -57,6 +61,7 @@ trait PresentationPageConversionStartedSysMsgHdlr {
       state.update(pods)
     }
 
+    PresPresentationDAO.updateConversionStarted(liveMeeting.props.meetingProp.intId, pres)
     broadcastEvent(msg)
 
     newState match {

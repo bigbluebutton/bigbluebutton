@@ -1,175 +1,107 @@
 
-![BigBlueButton 2.7 runs on Ubuntu 20.04](/img/27_BBB_header.png)
+![BigBlueButton 3.0 runs on Ubuntu 22.04](/img/30_BBB_header.png)
 
 ## Overview
 
-#### Note: this document is a draft. BigBlueButton 2.7 is still under development.
+### This document is still a draft, BigBlueButton 3.0 is under development
 
-BigBlueButton 2.7 offers users improved usability, increased engagement, and more performance.
+BigBlueButton 3.0 offers users improved usability, increased engagement, and more performance.
 
 - **Usability** - making common functions (such as raise hand) easier
 - **Engagement** - giving the instructor more ways to engage students
 - **Performance** - increasing overall performance and scalability
 
-Here's a breakdown of what's new in 2.7.
+Here's a breakdown of what's new in 3.0.
 
 ### Usability
 
-#### Grid layout
+#### Upgraded whiteboard
 
-We have enhanced the layout which is focused on webcams by providing a visual representation of each participant. This way whether a webcam was shared or not, you can more easily be aware of who is speaking, who is present etc.
+We have done significant work to adopt the newly released version 2 of tl;draw. It comes with even more tools and capabilities and has allowed us to embark on more ambitious whiteboard projects, for example a prototype of an Infinite Canvas.
 
-![Grid Layout](/img/27-grid-layout.png)
+#### New layouts for specific integration scenarios
 
-#### Camera as content
-
-In hybrid learning (and not only) there is a frequently a need for displaying a physical whiteboard or draw the attention of students to a specific physical area. We now support using a webcam as the main content to occupy the presentation area.
-
-![Share camera as content](/img/2.7-share-camera-as-content.png)
-
-#### Disable viewing your own video stream
-
-You can now disable the self viewing of your webcam to reduce fatigue of seeing your own webcam stream. This has been a common request in the recent months. When you disable the view you will see an image of yourself with an overlay reminding you that your webcam is still active and others see you.
-
-![Disable self-view](/img/2.7-disable-self-view.png)
-
-You can re-enable viewing your own webcam at any point.
-
-![Re-enable self-view](/img/2.7-enable-self-view.png)
-
-#### Restore downloading of original presentation
-
-In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you are be able to do both!
-
-![You can enable original presentation downloading from the upload dialog](/img/27-enable-download-orig-presentation.png)
-
-The download button is overlayed on top of the presentation.
-
-![Once downloading is enabled, everyone in the room can use it](/img/27-download-orig-presentation.png)
-
-#### Timer and stopwatch
-
-We have added the long requested option to display a count down (timer) or a count up (stopwatch) in the session. They are displayed to all participants and there is an audio notification when the timer elapses.
-
-![The timer can be activated from the plus button menu](/img/27-activate-timer.png)
-
-Setting up a timer for four minutes.
-
-![Setting up a 4 minutes timer](/img/27-timer-4mins-start.png)
-
-Everyone sees the timer as it counts down.
-
-![Everyone seeing 4 minutes timer](/img/27-timer-4mins.png)
-
+Several new layouts have been added ("Cameras Only", "Presentation Only", and "Participants and Chat Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
 
 ### Engagement
 
-#### Reactions Bar
+<!-- ####  -->
 
-The Reactions Bar aims to make it much easier for students to respond with emojis to the teacher. The emoji is displayed in the user avatar area for 1 minute (configurable). The bar remains visible once activated, and the emoji selected remains visible until it times out or is unselected. Modifying the configuration options (settings.yml) an additional set of emojis can be displayed, or the Reactions Bar can be substituted with the Status selecter we used in BigBlueButton 2.6 and prior.
-
-![Reactions Bar remains visible once activated](/img/27-reactions-bar.png)
-
-Others see your reactions in the participants list.
-
-![Others see your reactions in the participants list](/img/27-reactions-thumbs-up.png)
 
 <!-- ### Analytics -->
 
 
-<!-- ### Performance -->
+### Behind the scene
 
+#### Introduction of plugins
 
+We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
+
+#### Replaced Akka framework with Pekko
+
+Following the license change of Akka back in September 2022 we considered several options and decided to replace our use of Akka with [Apache Pekko](https://github.com/apache/incubator-pekko) More on the transition: https://github.com/bigbluebutton/bigbluebutton/pull/18694
+
+#### Override client settings through API /create call
+
+Administrators will appreciate that we now allow passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate for sessions requiring vastly different settings.yml configuration
+
+#### Major strides in replacing Meteor
+
+For years we have discussed internally the topic of replacing MeteorJS with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components which are to replace Meteor. The work is underway, it will span into BigBlueButton 3.0, 3.1, possibly 3.2 too.
+These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura. During the transition period, `bbb-html5-backend` and `bbb-html5-frontend` are still present, however, lots of what they used to do is now being carried out by the new components.
 
 ### Experimental
 
-#### New camera and screen share recorder
+<!-- #### LiveKit support -->
 
-Kurento Media Server is still used in BigBlueButton as a recorder for mediasoup streams.
-In 2.7, however, there's a new experimental recorder based on the Pion project: `bbb-webrtc-recorder`. This application is written in Go as a standalone service that can be used to record video and screen share streams.
-The main goal is for `bbb-webrtc-recorder` to replace Kurento Media Server in BigBlueButton once production grade. Progress can be tracked in:
-  - [Issue 13999](https://github.com/bigbluebutton/bigbluebutton/issues/13999)
-  - [The bbb-webrtc-recorder repository](https://github.com/bigbluebutton/bbb-webrtc-recorder)
-
-If you want to try the new recorder, you need to instruct `bbb-webrtc-sfu` to use it:
-```bash
-  $ mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
-  $ if ! grep -q "recordingAdapter: bbb-webrtc-recorder" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml; then echo "recordingAdapter: bbb-webrtc-recorder" >> /etc/bigbluebutton/bbb-webrtc-sfu/production.yml; fi
-  $ systemctl restart bbb-webrtc-sfu
-```
-
-Issues found during testing should be reported on [BigBlueButton's issue tracker](https://github.com/bigbluebutton/bigbluebutton/issues) or [issue 13999](https://github.com/bigbluebutton/bigbluebutton/issues/13999).
-
-Reverting to the default recorder (Kurento) can be achieved by removing the `recordingAdapter` line from `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` and restarting `bbb-webrtc-sfu`.
-
-#### Transparent listen only mode
-
-We've added a new experimental audio mode called "transparent listen only".
-The goal is to pave the way for a better audio experience in BigBlueButton by
-removing the need for end users to pick between listen only and microphone modes while still
-providing a scalable audio solution.
-
-The motivation for this mode can be found in [issue 14021](https://github.com/bigbluebutton/bigbluebutton/issues/14021),
-while the implementation details are available in [pull request 18461](https://github.com/bigbluebutton/bigbluebutton/pull/18461).
-
-In version 2.7, we present the initial iteration of this audio mode, primarily focusing on the server side. 
-The primary objective is to assess the viability of the proposed approach and gather community feedback.
-
-The new mode is *turned off by default* and is considered *experimental*. To enable it:
-  - To enable on clients:
-    * Server wide: configure `public.media.transparentListenOnly: true` in `/etc/bigbluebutton/bbb-html5.yml`, then restart `bbb-html5` (`systemctl restart bbb-html5`)
-    * Per user: utilize `userdata-bbb_transparent_listen_only=true`
 
 ### Upgraded components
 
-Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
-- Spring 2.7.12
-- React 18
-- NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
-- Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
-- Grails 5.3.2
-- GORM 7.3.1
-- Groovy 3.0.11
+Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the following key components have been upgraded
+...
 
-For full details on what is new in BigBlueButton 2.7, see the release notes.
+For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
 
-- [2.7.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-rc.1)
-- [2.7.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.3)
-- [2.7.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.2)
-- [2.7.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-beta.1)
-- [2.7.0-alpha.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-alpha.3)
-- [2.7.0-alpha.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-alpha.2)
-- [2.7.0-alpha.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-alpha.1)
+- [3.0.0-alpha.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.5)
+- [3.0.0-alpha.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.4)
+- [3.0.0-alpha.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.3)
+- [3.0.0-alpha.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.2)
+- [3.0.0-alpha.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.1)
 
 ### Other notable changes
 
-#### Renaming (bigbluebutton/bbb-install)bbb-install-2.7.sh from master branch to bbb-install.sh on branch v2.7.x-release
+#### Removal of Kurento
 
-If you are using bbb-install to configure your servers, be aware that starting with BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
+We have removed all use of Kurento Media Server. For the live media transmission we still rely on mediasoup. For the recording portion we make use of our own component `bbb-webrtc-recorder`. BigBlueButton 3.0 is the first release where we do not even install Kurento.
 
-#### Changing the default setting `guestPolicyExtraAllowOptions`
+#### Improved support for various SHA algorithms for checksum calculation
 
-Starting with BigBlueButton 2.7.0-beta.3 we are hiding by default a couple extra options in the guest approve panel. 'Allow all authenticated users' and 'Allow all guests' options will be hidden unless you override the option `app.public.guestPolicyExtraAllowOptions` in `bbb-html5` config file `settings.yml`. These extra options were not relevant to the vast majority of the use cases and when hidden, the interface becomes much simpler.
+In BigBlueButton 2.6.17/2.7.5/3.0.0-alpha.5 we added a new configuration property for bbb-apps-akka package under `services` called `checkSumAlgorithmForBreakouts`. By default the value is `"sha256"`. It controls the algorithm for checksum calculation for the breakout rooms join link. In case you overwrite bbb-web's `supportedChecksumAlgorithms` property removing sha256 you will need to set a supported algorithm here too. For example if you want to only use `sha512`, set `supportedChecksumAlgorithms=sha512` in `/etc/bigbluebutton/bbb-web.properties` and also set `checkSumAlgorithmForBreakouts="sha512"` in `/etc/bigbluebutton/bbb-apps-akka.conf` and then restart BigBlueButton.
 
-#### Changing the default setting `wakeLock`
+#### Deprecating join parameter `defaultLayout`, replacing with `userdata-bbb_default_layout`.
 
-Starting with BigBlueButton 2.7.0-beta.3 we are enabling wake lock feature by default. It can be disabled by overriding the option `public.app.wakeLock.enabled` in `bbb-html5` config file `settings.yml`.
+In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` with the JOIN parameter `userdata-bbb_default_layout`. If none provided the `meetingLayout` (passed on CREATE) will be used. If none passed, and if none passed there, the `defaultMeetingLayout` from bbb-web will be used.
+
+#### Recording event TranscriptUpdatedRecordEvent blocked
+
+In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event TranscriptUpdatedRecordEvent due to some issues with providing too much and too repetitive data.
+
 
 ### Development
 
-For information on developing in BigBlueButton, see [setting up a development environment for 2.7](/development/guide).
+For information on developing in BigBlueButton, see [setting up a development environment for 3.0](/development/guide).
 
-The build scripts for packaging 2.7 (using fpm) are located in the GitHub repository [here](https://github.com/bigbluebutton/bigbluebutton/tree/v2.7.x-release/build).
+The build scripts for packaging 3.0 (using fpm) are located in the GitHub repository [here](https://github.com/bigbluebutton/bigbluebutton/tree/v3.0.x-release/build).
 
 ### Contribution
 
-We welcome contributors to BigBlueButton 2.7!  The best ways to contribute at the current time are:
+We welcome contributors to BigBlueButton 3.0!  The best ways to contribute at the current time are:
 
-<!-- - Help localize BigBlueButton 2.7 on [Transifex project for BBB 2.7](https://www.transifex.com/bigbluebutton/bigbluebutton-v27-html5-client/dashboard/) -->
+<!-- - Help localize BigBlueButton 3.0 on [Transifex project for BBB 3.0](https://www.transifex.com/bigbluebutton/bigbluebutton-v30-html5-client/dashboard/) -->
 
-- Try out [installing BigBlueButton 2.7](/administration/install) and see if you spot any issues.
-- Help test a [2.7 pull request](https://github.com/bigbluebutton/bigbluebutton/pulls?q=is%3Aopen+is%3Apr+milestone%3A%22Release+2.7%22) in your development environment.
+- Try out [installing BigBlueButton 3.0](/administration/install) and see if you spot any issues.
+- Help test a [3.0 pull request](https://github.com/bigbluebutton/bigbluebutton/pulls?q=is%3Aopen+is%3Apr+milestone%3A%22Release+3.0%22) in your development environment.
   <!-- TODO create a GitHub label for contributions-welcome and link here -->

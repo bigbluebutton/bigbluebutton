@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import Styled from './styles';
 import Meetings from '/imports/api/meetings';
 
-const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 
 const intlMessages = defineMessages({
   title: {
@@ -68,9 +68,9 @@ class MobileAppModal extends Component {
     const meetingId = Auth.meetingID;
     const meetingObject = Meetings.findOne({
       meetingId,
-    }, { fields: { 'meetingProp.name': 1 } });
+    }, { fields: { name: 1 } });
     if (meetingObject != null) {
-      this.setState({ meetingName: meetingObject.meetingProp.name });
+      this.setState({ meetingName: meetingObject.name });
     }
 
     const url = `/bigbluebutton/api/getJoinUrl?sessionToken=${sessionToken}`;
@@ -97,7 +97,9 @@ class MobileAppModal extends Component {
   }
 
   render() {
-    const { intl, isOpen, onRequestClose, priority, } = this.props;
+    const {
+      intl, isOpen, onRequestClose, priority,
+    } = this.props;
     const { url, urlMessage, meetingName } = this.state;
 
     return (
@@ -121,7 +123,7 @@ class MobileAppModal extends Component {
               color="primary"
               disabled={url === ''}
               label={intl.formatMessage(intlMessages.openApp)}
-              onClick={() => window.open(`${BBB_TABLET_APP_CONFIG.iosAppUrlScheme}://${meetingName}/${encodeURIComponent(url)}`, '_blank')}
+              onClick={() => window.open(`${BBB_TABLET_APP_CONFIG.iosAppUrlScheme}://${encodeURIComponent(meetingName)}/${encodeURIComponent(url)}`, '_blank')}
               role="button"
               size="lg"
             />

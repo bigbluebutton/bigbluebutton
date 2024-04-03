@@ -1,6 +1,7 @@
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 import RegexWebUrl from '/imports/utils/regex-weburl';
+import { BREAK_LINE } from '/imports/utils/lineEndings';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
@@ -25,9 +26,15 @@ export const parseMessage = (message) => {
   // Replace flash links to flash valid ones
   parsedMessage = parsedMessage.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
 
+  // Replace flash links to html valid ones
+  parsedMessage = parsedMessage.split('<a href=\'event:').join('<a target="_blank" href=\'');
+  parsedMessage = parsedMessage.split('<a href="event:').join('<a target="_blank" href="');
+
+  // Replace \r and \n to <br/>
+  parsedMessage = parsedMessage.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, `$1${BREAK_LINE}$2`);
+
   return parsedMessage;
 };
-
 
 export const spokeTimeoutHandles = {};
 export const clearSpokeTimeout = (meetingId, userId) => {

@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.chat
 
-import akka.actor.ActorContext
+import org.apache.pekko.actor.ActorContext
 
 class ChatApp2x(implicit val context: ActorContext)
   extends GetChatHistoryReqMsgHdlr

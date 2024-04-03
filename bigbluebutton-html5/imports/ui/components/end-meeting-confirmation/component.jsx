@@ -26,7 +26,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const { warnAboutUnsavedContentOnMeetingEnd } = Meteor.settings.public.app;
+const { warnAboutUnsavedContentOnMeetingEnd } = window.meetingClientSettings.public.app;
 
 const propTypes = {
   intl: PropTypes.shape({

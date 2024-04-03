@@ -5,8 +5,9 @@ import WakeLock from './component';
 import Service from './service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 
 const propTypes = {
   areAudioModalsOpen: PropTypes.bool,
@@ -26,11 +27,12 @@ function usePrevious(value) {
 }
 
 const WakeLockContainer = (props) => {
-  if (!Service.isSupported()) return null;
+  if (!Service.isMobile()) return null;
 
   const { areAudioModalsOpen, autoJoin } = props;
   const wereAudioModalsOpen = usePrevious(areAudioModalsOpen);
   const [endedAudioSetup, setEndedAudioSetup] = useState(false || !autoJoin);
+  const setLocalSettings = useUserChangedLocalSettings();
 
   useEffect(() => {
     if (wereAudioModalsOpen && !areAudioModalsOpen && !endedAudioSetup) {
@@ -38,18 +40,17 @@ const WakeLockContainer = (props) => {
     }
   }, [areAudioModalsOpen]);
 
-  return endedAudioSetup ? <WakeLock {...props} /> : null;
+  return endedAudioSetup ? <WakeLock setLocalSettings={setLocalSettings} {...props} /> : null;
 };
 
 WakeLockContainer.propTypes = propTypes;
 WakeLockContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
-  const wakeLockSettings = Settings.application.wakeLock;
   return {
     request: Service.request,
     release: Service.release,
-    wakeLockSettings,
+    wakeLockSettings: Settings.application.wakeLock,
     areAudioModalsOpen: Session.get('audioModalIsOpen') || Session.get('inEchoTest'),
     autoJoin: getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin),
   };

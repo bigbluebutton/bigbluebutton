@@ -3,8 +3,10 @@ package org.bigbluebutton.core.apps.webcam
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.MeetingUsersPoliciesDAO
+import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
   this: WebcamApp2x =>
@@ -50,6 +52,8 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
           case Some(value) => {
             log.info(s"Change webcams only for moderator status. meetingId=${meetingId} value=${value}")
 
+            MeetingUsersPoliciesDAO.updateWebcamsOnlyForModerator(meetingId, msg.body.webcamsOnlyForModerator)
+
             if (value) {
               val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
                 meetingId,
@@ -73,6 +77,16 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
             }
 
             broadcastEvent(meetingId, msg.body.setBy, value)
+
+            //Refresh graphql session for all locked viewers
+            for {
+              user <- Users2x.findAll(liveMeeting.users2x)
+              if user.locked
+              if user.role == Roles.VIEWER_ROLE
+              regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
+            } yield {
+              Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "webcamOnlyForMod_changed", bus.outGW)
+            }
           }
           case _ =>
         }

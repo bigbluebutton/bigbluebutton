@@ -489,7 +489,7 @@ const PresentationItem = styled.tr`
     background-color: rgba(0, 128, 129, 0.25);
   `}
 
-  ${({ converting }) => converting && `
+  ${({ uploadInProgress }) => uploadInProgress && `
     background-color: rgba(0, 128, 129, 0.25);
   `}
 

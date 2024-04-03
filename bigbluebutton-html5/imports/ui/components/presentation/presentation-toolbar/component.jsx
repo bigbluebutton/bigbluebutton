@@ -3,16 +3,22 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Button from '/imports/ui/components/common/button/component';
 import {
   HUNDRED_PERCENT,
   MAX_PERCENT,
   STEP,
 } from '/imports/utils/slideCalcUtils';
+import {
+  PresentationToolbarItemType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-toolbar-item/enums';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
+import Spinner from '/imports/ui/components/common/spinner/component';
+import Separator from '/imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -93,6 +99,12 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.state = {
+      wasFTWActive: false,
+    };
+
+    this.setWasActive = this.setWasActive.bind(this);
+    this.handleFTWSlideChange = this.handleFTWSlideChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
@@ -108,20 +120,42 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { zoom, setIsPanning, fitToWidth } = this.props;
+    const { zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum } = this.props;
+    const { wasFTWActive } = this.state;
+
     if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom && !fitToWidth) setIsPanning();
+
+    if ((prevProps?.currentSlideNum !== currentSlideNum) && (!fitToWidth && wasFTWActive)) {
+      setTimeout(() => {
+        fitToWidthHandler();
+        this.setWasActive(false);
+      }, 150)
+    }
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
   }
 
+  setWasActive(wasFTWActive) {
+    this.setState({ wasFTWActive });
+  }
+
+  handleFTWSlideChange() {
+    const { fitToWidth, fitToWidthHandler } = this.props;
+    if (fitToWidth) {
+      fitToWidthHandler();
+      this.setWasActive(fitToWidth);
+    }
+  }
+
   handleSkipToSlideChange(event) {
-    const { skipToSlide, podId } = this.props;
+    const { skipToSlide } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
+    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    skipToSlide(requestedSlideNum, podId);
+    skipToSlide(requestedSlideNum);
   }
 
   handleSwitchWhiteboardMode() {
@@ -160,23 +194,21 @@ class PresentationToolbar extends PureComponent {
   }
 
   nextSlideHandler(event) {
-    const {
-      nextSlide, currentSlideNum, numberOfSlides, podId, endCurrentPoll,
-    } = this.props;
+    const { nextSlide, endCurrentPoll } = this.props;
 
+    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
-    nextSlide(currentSlideNum, numberOfSlides, podId);
+    nextSlide();
   }
 
   previousSlideHandler(event) {
-    const {
-      previousSlide, currentSlideNum, podId, endCurrentPoll,
-    } = this.props;
+    const { previousSlide, endCurrentPoll } = this.props;
 
+    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     endCurrentPoll();
-    previousSlide(currentSlideNum, podId);
+    previousSlide();
   }
 
   switchSlide(event) {
@@ -204,6 +236,50 @@ class PresentationToolbar extends PureComponent {
   change(value) {
     const { zoomChanger } = this.props;
     zoomChanger(value);
+  }
+
+  renderToolbarPluginItems() {
+    let pluginProvidedItems = [];
+    if (this.props) {
+      const {
+        pluginProvidedPresentationToolbarItems,
+      } = this.props;
+      pluginProvidedItems = pluginProvidedPresentationToolbarItems;
+    }
+
+    return pluginProvidedItems?.map((ppb) => {
+      let componentToReturn;
+      const ppbId = ppb.id;
+
+      switch (ppb.type) {
+        case PresentationToolbarItemType.BUTTON:
+          componentToReturn = (
+            <Button
+              key={ppbId}
+              style={{ marginLeft: '2px' }}
+              label={ppb.label}
+              onClick={ppb.onClick}
+              tooltipLabel={ppb.tooltip}
+            />
+          );
+          break;
+        case PresentationToolbarItemType.SPINNER:
+          componentToReturn = (
+            <Spinner
+              key={ppbId}
+            />
+          );
+          break;
+        case PresentationToolbarItemType.SEPARATOR:
+          componentToReturn = (
+            <Separator />
+          );
+          break;
+        default:
+          componentToReturn = null;
+      }
+      return componentToReturn;
+    });
   }
 
   renderAriaDescs() {
@@ -262,8 +338,6 @@ class PresentationToolbar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       amIPresenter,
-      currentSlidHasContent,
-      parseCurrentSlideContent,
       startPoll,
       currentSlide,
       slidePosition,
@@ -292,13 +366,12 @@ class PresentationToolbar extends PureComponent {
       >
         {this.renderAriaDescs()}
         <Styled.QuickPollButtonWrapper>
+          {this.renderToolbarPluginItems()}
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{
-                currentSlidHasContent,
                 intl,
                 amIPresenter,
-                parseCurrentSlideContent,
                 startPoll,
                 currentSlide,
               }}
@@ -382,7 +455,11 @@ class PresentationToolbar extends PureComponent {
             hideLabel
           />
           {multiUser ? (
-            <Styled.MultiUserTool>{multiUserSize}</Styled.MultiUserTool>
+            <Styled.MultiUserTool
+              onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
+            >
+              {multiUserSize}
+            </Styled.MultiUserTool>
           ) : (
             <Styled.MUTPlaceholder />
           )}
@@ -423,9 +500,7 @@ class PresentationToolbar extends PureComponent {
               ? intl.formatMessage(intlMessages.fitToPage)
               : intl.formatMessage(intlMessages.fitToWidth)}
             hideLabel
-            {...{
-              fitToWidth,
-            }}
+            $fitToWidth={fitToWidth}
           />
         </Styled.PresentationZoomControls>
       </Styled.PresentationToolbarWrapper>
@@ -434,8 +509,6 @@ class PresentationToolbar extends PureComponent {
 }
 
 PresentationToolbar.propTypes = {
-  // The Id for the current pod. Should always be default pod
-  podId: PropTypes.string.isRequired,
   // Number of current slide being displayed
   currentSlideNum: PropTypes.number.isRequired,
   // Total number of slides in this presentation
@@ -465,8 +538,6 @@ PresentationToolbar.propTypes = {
   handleToggleFullScreen: PropTypes.func.isRequired,
   isPollingEnabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  currentSlidHasContent: PropTypes.bool.isRequired,
-  parseCurrentSlideContent: PropTypes.func.isRequired,
   startPoll: PropTypes.func.isRequired,
   currentSlide: PropTypes.shape().isRequired,
   slidePosition: PropTypes.shape().isRequired,

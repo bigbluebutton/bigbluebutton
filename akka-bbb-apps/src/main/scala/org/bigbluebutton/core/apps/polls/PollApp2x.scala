@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.polls
 
-import akka.actor.ActorContext
-import akka.event.Logging
+import org.apache.pekko.actor.ActorContext
+import org.apache.pekko.event.Logging
 
 class PollApp2x(implicit val context: ActorContext)
   extends GetCurrentPollReqMsgHdlr

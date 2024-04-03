@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.presentationpod
 
+import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.models._
@@ -74,7 +75,7 @@ object PresentationPodsApp {
   }
 
   def translatePresentationToPresentationVO(pres: PresentationInPod, temporaryPresentationId: String,
-                                            isInitialPresentation: Boolean, filenameConverted: String): PresentationVO = {
+                                            defaultPresentation: Boolean, filenameConverted: String): PresentationVO = {
     val pages = pres.pages.values.map { page =>
       PageVO(
         id = page.id,
@@ -86,11 +87,13 @@ object PresentationPodsApp {
         xOffset = page.xOffset,
         yOffset = page.yOffset,
         widthRatio = page.widthRatio,
-        heightRatio = page.heightRatio
+        heightRatio = page.heightRatio,
+        width = page.width,
+        height = page.height
       )
     }
     PresentationVO(pres.id, temporaryPresentationId, pres.name, pres.current, pages.toVector, pres.downloadable,
-      pres.removable, isInitialPresentation, filenameConverted)
+      pres.removable, defaultPresentation, filenameConverted)
   }
 
   def setCurrentPresentationInPod(state: MeetingState2x, podId: String, nextCurrentPresId: String): Option[PresentationPod] = {
@@ -105,5 +108,11 @@ object PresentationPodsApp {
   def generateToken(podId: String, userId: String): String = {
     "PresUploadToken-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
   }
+
+  def generatePresentationId(presFilename: String) = {
+    val timestamp = System.currentTimeMillis
+    DigestUtils.sha1Hex(presFilename + RandomStringGenerator.randomAlphanumericString(8)) + "-" + timestamp
+  }
+
 }
 

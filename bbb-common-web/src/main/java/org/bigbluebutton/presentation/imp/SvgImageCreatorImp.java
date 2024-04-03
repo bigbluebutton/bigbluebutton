@@ -252,8 +252,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 if(svgHandler.isCommandTimeout()) {
                     log.error("Command execution (convertPngToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
                 }
-
                 done = svgHandler.isCommandSuccessful();
+
+                if(!svgHandler.isCommandSuccessful()) {
+                    String errorOutput = svgHandler.getStderrString();
+                    if (!errorOutput.isEmpty()) {
+                        log.error("Error during conversion from PNG to SVG: " + errorOutput);
+                    }
+                }
 
                 if(destsvg.length() > 0) {
                     // Step 3: Add SVG namespace to the destionation file
@@ -272,7 +278,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     } catch (InterruptedException e) {
                         log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
                     }
-
                     if (namespaceHandler.isCommandTimeout()) {
                         log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
                     }

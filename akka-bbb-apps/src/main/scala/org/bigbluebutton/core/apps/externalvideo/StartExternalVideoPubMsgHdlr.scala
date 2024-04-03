@@ -4,7 +4,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ ExternalVideoModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.{ requestBroadcastStop }
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
+import org.bigbluebutton.core.db.ExternalVideoDAO
 
 trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
   this: ExternalVideoApp2x =>
@@ -39,6 +40,7 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
       requestBroadcastStop(bus.outGW, liveMeeting)
 
       ExternalVideoModel.setURL(liveMeeting.externalVideoModel, msg.body.externalVideoUrl)
+      ExternalVideoDAO.insert(liveMeeting.props.meetingProp.intId, msg.body.externalVideoUrl)
       broadcastEvent(msg)
     }
   }

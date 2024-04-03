@@ -2,7 +2,9 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { useMutation } from '@apollo/client';
 import Styled from './styles';
+import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
 
 const intlMessages = defineMessages({
   unpinLabel: {
@@ -16,11 +18,13 @@ const intlMessages = defineMessages({
 const PinArea = (props) => {
   const intl = useIntl();
 
-  const { user } = props;
+  const { user, amIModerator } = props;
   const pinned = user?.pin;
   const userId = user?.userId;
   const shouldRenderPinButton = pinned && userId;
-  const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser();
+  const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser(amIModerator);
+
+  const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
   if (!shouldRenderPinButton) return <Styled.PinButtonWrapper />;
 
@@ -30,7 +34,14 @@ const PinArea = (props) => {
         color="default"
         icon={!pinned ? 'pin-video_on' : 'pin-video_off'}
         size="sm"
-        onClick={() => VideoService.toggleVideoPin(userId, true)}
+        onClick={() => {
+          setCameraPinned({
+            variables: {
+              userId,
+              pinned: false,
+            },
+          });
+        }}
         label={videoPinActionAvailable
           ? intl.formatMessage(intlMessages.unpinLabel)
           : intl.formatMessage(intlMessages.unpinLabelDisabled)}

@@ -1,10 +1,11 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.SetPrivateGuestLobbyMessageCmdMsg
-import org.bigbluebutton.core.models.{ GuestsWaiting }
+import org.bigbluebutton.core.models.GuestsWaiting
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.UserStateDAO
 import org.bigbluebutton.core.running.MeetingActor
 
 trait SetPrivateGuestLobbyMessageCmdMsgHdlr extends RightsManagementTrait {
@@ -20,6 +21,7 @@ trait SetPrivateGuestLobbyMessageCmdMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       GuestsWaiting.setPrivateGuestLobbyMessage(liveMeeting.guestsWaiting, msg.body.guestId, msg.body.message)
+      UserStateDAO.updateGuestLobbyMessage(msg.body.guestId, msg.body.message)
       val event = MsgBuilder.buildPrivateGuestLobbyMsgChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
         msg.header.userId,

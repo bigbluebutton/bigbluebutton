@@ -5,7 +5,8 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Service from '../service';
 import Styled from './styles';
-import ConnectionStatusHelper from '../status-helper/container';
+import ConnectionStatusHelper from '../status-helper/component';
+import Auth from '/imports/ui/services/auth';
 
 const NETWORK_MONITORING_INTERVAL_MS = 2000;
 const MIN_TIMEOUT = 3000;
@@ -29,7 +30,7 @@ const intlMessages = defineMessages({
   },
   more: {
     id: 'app.connection-status.more',
-    description: 'More about conectivity issues',
+    description: 'More about connectivity issues',
   },
   audioLabel: {
     id: 'app.settings.audioTab.label',
@@ -313,83 +314,84 @@ class ConnectionStatusComponent extends PureComponent {
 
   renderConnections() {
     const {
-      connectionStatus,
+      connectionData,
       intl,
     } = this.props;
 
     const { selectedTab } = this.state;
 
-    if (isConnectionStatusEmpty(connectionStatus)) return this.renderEmpty();
+    if (isConnectionStatusEmpty(connectionData)) return this.renderEmpty();
 
-    let connections = connectionStatus;
+    let connections = connectionData;
     if (selectedTab === 1) {
-      connections = connections.filter(conn => conn.you);
+      connections = connections.filter((curr) => curr.user.userId === Auth.userID);
       if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
     }
 
     return connections.map((conn, index) => {
-      const dateTime = new Date(conn.timestamp);
+      const dateTime = new Date(conn.lastUnstableStatusAt);
       return (
         <Styled.Item
-          key={`${conn?.name}-${conn.userId}`}
+          key={`${conn.user.name}-${conn.user.userId}`}
           last={(index + 1) === connections.length}
           data-test="connectionStatusItemUser"
         >
           <Styled.Left>
             <Styled.Avatar>
               <UserAvatar
-                you={conn.you}
-                avatar={conn.avatar}
-                moderator={conn.moderator}
-                color={conn.color}
+                you={conn.user.userId === Auth.userID}
+                avatar={conn.user.avatar}
+                moderator={conn.user.isModerator}
+                color={conn.user.color}
               >
-                {conn.name.toLowerCase().slice(0, 2)}
+                {conn.user.name.toLowerCase().slice(0, 2)}
               </UserAvatar>
             </Styled.Avatar>
 
             <Styled.Name>
               <Styled.Text
-                offline={conn.offline}
-                data-test={conn.offline ? "offlineUser" : null}
+                offline={!conn.user.isOnline}
+                data-test={!conn.user.isOnline ? "offlineUser" : null}
               >
-                {conn.name}
-                {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
+                {conn.user.name}
+                {!conn.user.isOnline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </Styled.Text>
             </Styled.Name>
-            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.status}`}>
+            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.lastUnstableStatus}`}>
               <Styled.Icon>
-                <Icon level={conn.status} />
+                <Icon level={conn.lastUnstableStatus} />
               </Styled.Icon>
             </Styled.Status>
-            { conn.notResponding && !conn.offline
+            {conn.clientNotResponding && conn.user.isOnline
               ? (
                 <Styled.ClientNotRespondingText>
                   {intl.formatMessage(intlMessages.clientNotResponding)}
                 </Styled.ClientNotRespondingText>
-              ) : null }
+              ) : null}
           </Styled.Left>
-            <Styled.Right>
-              <Styled.Time>
-                { conn.timestamp ?
+          <Styled.Right>
+            <Styled.Time>
+              {conn.lastUnstableStatusAt
+                ? (
                   <time dateTime={dateTime}>
                     <FormattedTime value={dateTime} />
                   </time>
-                  : null
-                }
-              </Styled.Time>
-            </Styled.Right>
+                )
+                : null}
+            </Styled.Time>
+          </Styled.Right>
         </Styled.Item>
       );
     });
   }
 
   /**
-   * Render network data , containing information abount current upload and
+   * Render network data , containing information about current upload and
    * download rates
    * @return {Object} The component to be renderized.
    */
   renderNetworkData() {
-    const { enableNetworkStats } = Meteor.settings.public.app;
+    const { enableNetworkStats } = window.meetingClientSettings.public.app;
 
     if (!enableNetworkStats) {
       return null;
@@ -402,7 +404,7 @@ class ConnectionStatusComponent extends PureComponent {
       videoDownloadLabel,
     } = this;
 
-    const { intl, setModalIsOpen } = this.props;
+    const { intl, setModalIsOpen, connectionData } = this.props;
 
     const { networkData } = this.state;
 
@@ -441,7 +443,10 @@ class ConnectionStatusComponent extends PureComponent {
       >
         <Styled.HelperWrapper>
           <Styled.Helper>
-            <ConnectionStatusHelper closeModal={() => setModalIsOpen(false)} />
+            <ConnectionStatusHelper
+              connectionData={connectionData}
+              closeModal={() => setModalIsOpen(false)}
+            />
           </Styled.Helper>
         </Styled.HelperWrapper>
         <Styled.NetworkDataContent>
@@ -492,7 +497,7 @@ class ConnectionStatusComponent extends PureComponent {
    * @return {Object} - The component to be renderized
    */
   renderCopyDataButton() {
-    const { enableCopyNetworkStatsButton } = Meteor.settings.public.app;
+    const { enableCopyNetworkStatsButton } = window.meetingClientSettings.public.app;
 
     if (!enableCopyNetworkStatsButton) {
       return null;
@@ -504,7 +509,7 @@ class ConnectionStatusComponent extends PureComponent {
         <Styled.Copy
           disabled={!hasNetworkData}
           role="button"
-	        data-test="copyStats"
+          data-test="copyStats"
           onClick={this.copyNetworkData.bind(this)}
           onKeyPress={this.copyNetworkData.bind(this)}
           tabIndex={0}

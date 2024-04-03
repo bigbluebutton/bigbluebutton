@@ -1,8 +1,7 @@
 package org.bigbluebutton.api2.meeting
 
 import java.util
-
-import akka.actor.{ Actor, ActorLogging, Props }
+import org.apache.pekko.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
 import org.bigbluebutton.common2.msgs._
@@ -33,6 +32,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserJoinedVoiceConfToClientEvtMsg => handleUserJoinedVoiceConfToClientEvtMsg(m)
       case m: UserLeftVoiceConfToClientEvtMsg   => handleUserLeftVoiceConfToClientEvtMsg(m)
       case m: UserRoleChangedEvtMsg             => handleUserRoleChangedEvtMsg(m)
+      case m: UserLockedInMeetingEvtMsg         => handleUserLockedInMeetingEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg     => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg     => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg       => handleCreateBreakoutRoomSysCmdMsg(m)
@@ -40,6 +40,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: GuestsWaitingApprovedEvtMsg       => handleGuestsWaitingApprovedEvtMsg(m)
       case m: PosInWaitingQueueUpdatedRespMsg   => handlePosInWaitingQueueUpdatedRespMsg(m)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
+      case m: LockSettingsInMeetingChangedEvtMsg => handleLockSettingsInMeetingChangedEvtMsg(m)
+      case m: WebcamsOnlyForModeratorChangedEvtMsg => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: GuestLobbyMessageChangedEvtMsg    => handleGuestLobbyMessageChangedEvtMsg(m)
       case m: PrivateGuestLobbyMsgChangedEvtMsg => handlePrivateGuestLobbyMsgChangedEvtMsg(m)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
@@ -52,6 +54,25 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleGuestPolicyChangedEvtMsg(msg: GuestPolicyChangedEvtMsg): Unit = {
     olgMsgGW.handle(new GuestPolicyChanged(msg.header.meetingId, msg.body.policy))
+  }
+
+  def handleLockSettingsInMeetingChangedEvtMsg(msg: LockSettingsInMeetingChangedEvtMsg): Unit = {
+    olgMsgGW.handle(new LockSettingsChanged(msg.header.meetingId,
+                                            msg.body.disableCam,
+                                            msg.body.disableMic,
+                                            msg.body.disablePrivChat,
+                                            msg.body.disablePubChat,
+                                            msg.body.disableNotes,
+                                            msg.body.hideUserList,
+                                            msg.body.lockOnJoin,
+                                            msg.body.lockOnJoinConfigurable,
+                                            msg.body.hideViewersCursor,
+                                            msg.body.hideViewersAnnotation,
+    ))
+  }
+
+  def handleWebcamsOnlyForModeratorChangedEvtMsg(msg: WebcamsOnlyForModeratorChangedEvtMsg): Unit = {
+    olgMsgGW.handle(new WebcamsOnlyForModeratorChanged(msg.header.meetingId, msg.body.webcamsOnlyForModerator))
   }
 
   def handleGuestLobbyMessageChangedEvtMsg(msg: GuestLobbyMessageChangedEvtMsg): Unit = {
@@ -122,10 +143,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     olgMsgGW.handle(new UserJoined(msg.header.meetingId, msg.body.intId,
-      msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.guest,
-      msg.body.guestStatus,
-      msg.body.clientType))
-
+      msg.body.extId, msg.body.name, msg.body.role, msg.body.locked, msg.body.avatar,
+      msg.body.guest, msg.body.guestStatus, msg.body.clientType))
   }
 
   def handlePresenterUnassignedEvtMsg(msg: PresenterUnassignedEvtMsg): Unit = {
@@ -168,8 +187,12 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     olgMsgGW.handle(new UserRoleChanged(msg.header.meetingId, msg.body.userId, msg.body.role))
   }
 
+  def handleUserLockedInMeetingEvtMsg(msg: UserLockedInMeetingEvtMsg): Unit = {
+    olgMsgGW.handle(new UserLockedInMeeting(msg.header.meetingId, msg.body.userId, msg.body.locked))
+  }
+
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename, msg.body.meetingId))
+    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename, msg.body.meetingId, msg.body.presentationId))
   }
 
   def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {
@@ -184,7 +207,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     val presId = msg.body.presentationId
     val downloadable = msg.body.downloadable
     val presFilename = msg.body.presFilename
-    val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable)
+    val downloadableExtension = msg.body.downloadableExtension;
+    val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable, downloadableExtension)
     olgMsgGW.handle(m)
   }
 

@@ -4,8 +4,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriberProvider }
-import akka.actor.ActorSystem
-import akka.actor.Props
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.Props
 
 object FSESLRedisSubscriberActor {
 
@@ -25,7 +25,7 @@ object FSESLRedisSubscriberActor {
       channelsToSubscribe,
       patternsToSubscribe,
       forwardMsgToChannel
-    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+    ).withDispatcher("pekko.redis-subscriber-worker-dispatcher")
 }
 
 class FSESLRedisSubscriberActor(

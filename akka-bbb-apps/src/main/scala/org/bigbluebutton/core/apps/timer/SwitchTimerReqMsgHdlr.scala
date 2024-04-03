@@ -3,7 +3,8 @@ package org.bigbluebutton.core.apps.timer
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.{ TimerModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait, TimerModel }
+import org.bigbluebutton.core.db.TimerDAO
 
 trait SwitchTimerReqMsgHdlr extends RightsManagementTrait {
   this: TimerApp2x =>
@@ -33,9 +34,15 @@ trait SwitchTimerReqMsgHdlr extends RightsManagementTrait {
     } else {
       if (TimerModel.getStopwatch(liveMeeting.timerModel) != msg.body.stopwatch) {
         TimerModel.setStopwatch(liveMeeting.timerModel, msg.body.stopwatch)
+        TimerModel.setRunning(liveMeeting.timerModel, running = false)
+        TimerModel.reset(liveMeeting.timerModel) //Reset on switch Stopwatch/Timer
+        if (msg.body.stopwatch) {
+          TimerModel.setTrack(liveMeeting.timerModel, "noTrack")
+        }
+        TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
         broadcastEvent(msg.body.stopwatch)
       } else {
-        log.debug("Timer is already in this stopwatch mode");
+        log.debug("Timer is already in this stopwatch mode")
       }
     }
   }

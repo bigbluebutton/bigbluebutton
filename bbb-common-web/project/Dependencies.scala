@@ -13,7 +13,7 @@ object Dependencies {
     val scalactic = "3.0.8"
 
     // Libraries
-    val akkaVersion = "2.6.17"
+    val pekkoVersion = "1.0.1"
     val gson = "2.8.9"
     val jackson = "2.13.5"
     val freemarker = "2.3.31"
@@ -45,8 +45,8 @@ object Dependencies {
     val scalaLibrary = "org.scala-lang" % "scala-library" % Versions.scala
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor_2.13" % Versions.akkaVersion
-    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.13" % Versions.akkaVersion
+    val pekkoActor = "org.apache.pekko" %% "pekko-actor" % Versions.pekkoVersion
+    val pekkoSlf4j = "org.apache.pekko" %% "pekko-slf4j" % Versions.pekkoVersion
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
@@ -85,8 +85,8 @@ object Dependencies {
   val runtime = Seq(
     Compile.scalaLibrary,
     Compile.scalaCompiler,
-    Compile.akkaActor,
-    Compile.akkaSl4fj,
+    Compile.pekkoActor,
+    Compile.pekkoSlf4j,
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.jacksonXml,

@@ -1,0 +1,12 @@
+port: 7880
+log_level: debug
+# when enabled, LiveKit will expose prometheus metrics on :6789/metrics
+#prometheus_port: 6789
+rtc:
+  port_range_start: 16384
+  port_range_end: 32768
+  use_external_ip: false
+redis:
+#  # redis is recommended for production deploys
+#  address: servername:6379
+

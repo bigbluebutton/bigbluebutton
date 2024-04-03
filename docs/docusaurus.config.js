@@ -1,8 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const lightCodeTheme = require('prism-react-renderer').themes.github;
+const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -65,6 +65,7 @@ const config = {
                     {to: '/administration/install', label: 'Administration', position: 'left'},
                     {to: '/greenlight/v3/install', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
+                    {to: '/support/getting-help', label: 'Support', position: 'left'},
                     {
                         type: 'docsVersionDropdown',
                         position: 'right',

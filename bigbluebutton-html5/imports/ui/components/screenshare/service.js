@@ -3,8 +3,6 @@ import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import { stopWatching } from '/imports/ui/components/external-video-player/service';
-import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import AudioService from '/imports/ui/components/audio/service';
 import { Meteor } from "meteor/meteor";
@@ -13,7 +11,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import browserInfo from '/imports/utils/browserInfo';
 import NotesService from '/imports/ui/components/notes/service';
 
-const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
+const VOLUME_CONTROL_ENABLED = window.meetingClientSettings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
 const DEFAULT_SCREENSHARE_STATS_TYPES = [
@@ -80,14 +78,35 @@ const _trackStreamTermination = (stream, handler) => {
   if (typeof stream !== 'object' || typeof handler !== 'function') {
     throw new TypeError('Invalid trackStreamTermination arguments');
   }
+  let _handler = handler;
 
-  if (stream.oninactive === null) {
+  // Dirty, but effective way of checking whether the browser supports the 'inactive'
+  // event. If the oninactive interface is null, it can be overridden === supported.
+  // If undefined, it's not; so we fallback to the track 'ended' event.
+  // The track ended listener should probably be reviewed once we create
+  // thin wrapper classes for MediaStreamTracks as well, because we'll want a single
+  // media stream holding multiple tracks in the future
+  if (stream.oninactive !== undefined) {
+    if (typeof stream.oninactive === 'function') {
+      const oldHandler = stream.oninactive;
+      _handler = () => {
+        oldHandler();
+        handler();
+      };
+    }
     stream.addEventListener('inactive', handler, { once: true });
   } else {
     const track = MediaStreamUtils.getVideoTracks(stream)[0];
     if (track) {
       track.addEventListener('ended', handler, { once: true });
-      track.onended = handler;
+      if (typeof track.onended === 'function') {
+        const oldHandler = track.onended;
+        _handler = () => {
+          oldHandler();
+          handler();
+        };
+      }
+      track.onended = _handler;
     }
   }
 };
@@ -260,15 +279,9 @@ const screenshareHasStarted = (isPresenter, options = {}) => {
   }
 };
 
-const shareScreen = async (isPresenter, onFail, options = {}) => {
+const shareScreen = async (stopWatching, isPresenter, onFail, options = {}) => {
   if (isCameraAsContentBroadcasting()) {
     screenshareHasEnded();
-  }
-  // stop external video share if running
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-
-  if (meeting && meeting.externalVideoUrl) {
-    stopWatching();
   }
 
   try {
@@ -298,6 +311,8 @@ const shareScreen = async (isPresenter, onFail, options = {}) => {
 
     // Close Shared Notes if open.
     NotesService.pinSharedNotes(false);
+    // stop external video share if running
+    stopWatching();
 
     setSharingContentType(contentType);
     setIsSharing(true);
@@ -321,9 +336,9 @@ const viewScreenshare = (options = {}) => {
 };
 
 const screenShareEndAlert = () => AudioService
-  .playAlertSound(`${Meteor.settings.public.app.cdn
-    + Meteor.settings.public.app.basename
-    + Meteor.settings.public.app.instanceId}`
+  .playAlertSound(`${window.meetingClientSettings.public.app.cdn
+    + window.meetingClientSettings.public.app.basename
+    + window.meetingClientSettings.public.app.instanceId}`
     + '/resources/sounds/ScreenshareOff.mp3');
 
 const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;

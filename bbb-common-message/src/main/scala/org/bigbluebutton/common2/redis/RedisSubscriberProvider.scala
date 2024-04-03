@@ -1,16 +1,15 @@
 package org.bigbluebutton.common2.redis
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import org.bigbluebutton.common2.bus.ReceivedJsonMessage
 import org.bigbluebutton.common2.bus.IncomingJsonMessage
 import io.lettuce.core.pubsub.RedisPubSubListener
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
-import akka.actor.ActorLogging
-import akka.actor.Actor
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.Actor
 
-import akka.actor.ActorSystem
-import akka.actor.OneForOneStrategy
-import akka.actor.SupervisorStrategy.Resume
+import org.apache.pekko.actor.OneForOneStrategy
+import org.apache.pekko.actor.SupervisorStrategy.Resume
 import java.io.StringWriter
 import scala.concurrent.duration._
 import java.io.PrintWriter

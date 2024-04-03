@@ -15,7 +15,7 @@ public class DocPageCompletedProgress implements IDocConversionMsg {
   public final Integer numPages;
   public final String presBaseUrl;
   public final Boolean current;
-  public final Boolean isInitialPresentation;
+  public final Boolean defaultPresentation;
   public final String filenameConverted;
 
 
@@ -23,7 +23,7 @@ public class DocPageCompletedProgress implements IDocConversionMsg {
                                   String filename, String uploaderId, String authzToken,
                                   Boolean downloadable, Boolean removable, String key,
                                   Integer numPages, String presBaseUrl, Boolean current, 
-                                  Boolean isInitialPresentation, String filenameConverted) {
+                                  Boolean defaultPresentation, String filenameConverted) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
@@ -38,7 +38,7 @@ public class DocPageCompletedProgress implements IDocConversionMsg {
     this.numPages = numPages;
     this.presBaseUrl = presBaseUrl;
     this.current = current;
-    this.isInitialPresentation = isInitialPresentation;
+    this.defaultPresentation = defaultPresentation;
     this.filenameConverted = filenameConverted;
   }
 }

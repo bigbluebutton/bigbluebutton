@@ -40,7 +40,7 @@ else
   npm install --unsafe-perm --production
 fi
 
-# clean out stuff that is not required in the final package. Most of this are object files from dependant libraries
+# clean out stuff that is not required in the final package. Most of this are object files from dependent libraries
 rm -rf node_modules/mediasoup/worker/out/Release/subprojects
 rm -rf node_modules/mediasoup/worker/out/Release/mediasoup-worker.p
 rm -rf node_modules/mediasoup/worker/out/Release/deps
@@ -50,8 +50,6 @@ cp webrtc-sfu.nginx staging/usr/share/bigbluebutton/nginx
 
 cp bbb-webrtc-sfu.service staging/usr/lib/systemd/system
 cp bbb-webrtc-sfu.logrotate staging/etc/logrotate.d
-cp bbb-restart-kms staging/etc/cron.hourly
-cp kurento-media-server.service staging/usr/lib/systemd/system
 rm -rf staging/usr/local/bigbluebutton/bbb-webrtc-sfu/.git
 
 . ./opts-$DISTRO.sh
@@ -64,4 +62,4 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     --description "BigBlueButton WebRTC SFU"        \
     $DIRECTORIES                                    \
     $OPTS                                           \
-    -d 'yq (>= 3)' -d 'yq (<< 4)'
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'

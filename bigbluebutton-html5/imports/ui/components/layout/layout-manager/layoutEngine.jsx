@@ -8,6 +8,9 @@ import CustomLayout from '/imports/ui/components/layout/layout-manager/customLay
 import SmartLayout from '/imports/ui/components/layout/layout-manager/smartLayout';
 import PresentationFocusLayout from '/imports/ui/components/layout/layout-manager/presentationFocusLayout';
 import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/videoFocusLayout';
+import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
+import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
+import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
@@ -20,9 +23,11 @@ const LayoutEngine = ({ layoutType }) => {
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
+  const navBarInput = layoutSelectInput((i) => i.navBar);
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const genericComponentInput = layoutSelectInput((i) => i.genericComponent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
 
@@ -50,6 +55,7 @@ const LayoutEngine = ({ layoutType }) => {
   const baseCameraDockBounds = (mediaAreaBounds, sidebarSize) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
+    const { genericComponentId } = genericComponentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
@@ -62,15 +68,18 @@ const LayoutEngine = ({ layoutType }) => {
       return cameraDockBounds;
     }
 
-    const hasPresentation = isPresentationEnabled() && slidesLength !== 0
-    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+    const navBarHeight = calculatesNavbarHeight();
+    const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
+    const isGeneralMediaOff = !hasPresentation
+      && !hasExternalVideo && !hasScreenShare
+      && !isSharedNotesPinned && !genericComponentId;
 
     if (!isOpen || isGeneralMediaOff) {
       cameraDockBounds.width = mediaAreaBounds.width;
       cameraDockBounds.maxWidth = mediaAreaBounds.width;
       cameraDockBounds.height = mediaAreaBounds.height - bannerAreaHeight();
       cameraDockBounds.maxHeight = mediaAreaBounds.height;
-      cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
+      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
       cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
       cameraDockBounds.right = isRTL ? sidebarSize : null;
     }
@@ -93,8 +102,26 @@ const LayoutEngine = ({ layoutType }) => {
     return cameraDockBounds;
   };
 
+  const calculatesNavbarHeight = () => {
+    const { navBarHeight } = DEFAULT_VALUES;
+
+    return navBarInput.hasNavBar ? navBarHeight : 0;
+  };
+
   const calculatesNavbarBounds = (mediaAreaBounds) => {
-    const { navBarHeight, navBarTop } = DEFAULT_VALUES;
+    const { navBarTop } = DEFAULT_VALUES;
+
+    const navBarHeight = calculatesNavbarHeight();
+
+    if (!navBarInput.hasNavBar) {
+      return {
+        width: 0,
+        height: 0,
+        top: 0,
+        left: 0,
+        zIndex: 0,
+      };
+    }
 
     return {
       width: mediaAreaBounds.width,
@@ -106,6 +133,14 @@ const LayoutEngine = ({ layoutType }) => {
   };
 
   const calculatesActionbarHeight = () => {
+    if (!actionbarInput.hasActionBar) {
+      return {
+        height: 0,
+        innerHeight: 0,
+        padding: 0,
+      };
+    }
+
     const { actionBarHeight, actionBarPadding } = DEFAULT_VALUES;
 
     const BASE_FONT_SIZE = 14; // 90% font size
@@ -258,8 +293,9 @@ const LayoutEngine = ({ layoutType }) => {
   };
 
   const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth) => {
-    const { navBarHeight } = DEFAULT_VALUES;
     const { height: actionBarHeight } = calculatesActionbarHeight();
+    const navBarHeight = calculatesNavbarHeight();
+
     let left = 0;
     let width = 0;
     if (isMobile) {
@@ -280,6 +316,7 @@ const LayoutEngine = ({ layoutType }) => {
   const common = {
     bannerAreaHeight,
     baseCameraDockBounds,
+    calculatesNavbarHeight,
     calculatesNavbarBounds,
     calculatesActionbarHeight,
     calculatesActionbarBounds,
@@ -292,24 +329,33 @@ const LayoutEngine = ({ layoutType }) => {
     isMobile,
     isTablet,
   };
-  
+
   const layout = document.getElementById('layout');
 
   switch (layoutType) {
     case LAYOUT_TYPE.CUSTOM_LAYOUT:
-      layout?.setAttribute("data-layout", LAYOUT_TYPE.CUSTOM_LAYOUT);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} />;
     case LAYOUT_TYPE.SMART_LAYOUT:
-      layout?.setAttribute("data-layout", LAYOUT_TYPE.SMART_LAYOUT);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.SMART_LAYOUT);
       return <SmartLayout {...common} />;
     case LAYOUT_TYPE.PRESENTATION_FOCUS:
-      layout?.setAttribute("data-layout", LAYOUT_TYPE.PRESENTATION_FOCUS);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_FOCUS);
       return <PresentationFocusLayout {...common} />;
     case LAYOUT_TYPE.VIDEO_FOCUS:
-      layout?.setAttribute("data-layout",LAYOUT_TYPE.VIDEO_FOCUS);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.VIDEO_FOCUS);
       return <VideoFocusLayout {...common} />;
+    case LAYOUT_TYPE.CAMERAS_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.CAMERAS_ONLY);
+      return <CamerasOnlyLayout {...common} />;
+    case LAYOUT_TYPE.PRESENTATION_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_ONLY);
+      return <PresentationOnlyLayout {...common} />;
+    case LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY);
+      return <ParticipantsAndChatOnlyLayout {...common} />;
     default:
-      layout?.setAttribute("data-layout", LAYOUT_TYPE.CUSTOM_LAYOUT);
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} />;
   }
 };

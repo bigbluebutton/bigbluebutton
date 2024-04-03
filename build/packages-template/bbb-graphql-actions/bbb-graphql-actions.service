@@ -1,0 +1,19 @@
+[Unit]
+Description=BigBlueButton GraphQL Actions Adapter Server
+Wants=redis-server.service bbb-graphql-server.service
+After=syslog.target network.target redis-server.service bbb-graphql-server.service
+PartOf=bigbluebutton.target
+StartLimitIntervalSec=0
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/bbb-graphql-actions
+ExecStart=/usr/bin/node bbb-graphql-actions.js
+Restart=always
+SyslogIdentifier=bbb-graphql-actions
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target

@@ -12,9 +12,9 @@ object Dependencies {
     val scalactic = "3.0.8"
 
     // Libraries
-    val akkaVersion = "2.6.17"
-    val akkaHttpVersion = "10.2.7"
-    val logback = "1.2.10"
+    val pekkoVersion = "1.0.1"
+    val pekkoHttpVersion = "1.0.0"
+    val logback = "1.2.13"
 
     // Apache Commons
     val lang = "3.12.0"
@@ -26,7 +26,7 @@ object Dependencies {
 
     // Test
     val scalaTest = "3.2.11"
-    val akkaTestKit = "2.6.0"
+    val pekkoTestKit = "1.0.1"
     val junit = "4.12"
   }
 
@@ -34,12 +34,12 @@ object Dependencies {
     val scalaLibrary = "org.scala-lang" % "scala-library" % Versions.scala
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor_2.13" % Versions.akkaVersion
-    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.13" % Versions.akkaVersion
-    val akkaStream = "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion
+    val pekkoActor = "org.apache.pekko" %% "pekko-actor" % Versions.pekkoVersion
+    val pekkoSlf4j = "org.apache.pekko" %% "pekko-slf4j" % Versions.pekkoVersion
+    val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekkoVersion
 
-    val akkaHttp = "com.typesafe.akka" %% "akka-http" % Versions.akkaHttpVersion
-    val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
+    val pekkoHttp = "org.apache.pekko" %% "pekko-http" % Versions.pekkoHttpVersion
+    val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % Versions.pekkoHttpVersion
 
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
@@ -53,13 +53,11 @@ object Dependencies {
 
   object Test {
     val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % "test"
-//    val junit = "junit" % "junit" % Versions.junit % "test"
     val scalactic = "org.scalactic" % "scalactic_2.13" % Versions.scalactic % "test"
-    val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % Versions.akkaTestKit % "test"
+    val pekkoTestKit = "org.apache.pekko" %% "pekko-testkit" % Versions.pekkoTestKit % "test"
 
     // https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-testkit
-    val akkaHttpTestkit =  "com.typesafe.akka" %% "akka-http-testkit" % "10.2.0" % "test"
-
+    val pekkoHttpTestKit = "org.apache.pekko" %% "pekko-http-testkit" % "1.0.0" % "test"
   }
 
 
@@ -67,22 +65,22 @@ object Dependencies {
     Test.scalaTest,
   //   Test.junit,
     Test.scalactic,
-    Test.akkaTestKit,
-    Test.akkaHttpTestkit
+    Test.pekkoTestKit,
+    Test.pekkoHttpTestKit
     )
 
 
   val runtime = Seq(
     Compile.scalaLibrary,
     Compile.scalaCompiler,
-    Compile.akkaActor,
-    Compile.akkaSl4fj,
-    Compile.akkaStream,
+    Compile.pekkoActor,
+    Compile.pekkoSlf4j,
+    Compile.pekkoStream,
     Compile.logback,
     Compile.commonsCodec,
     Compile.apacheLang,
     Compile.bbbCommons,
     Compile.bbbFseslClient,
-    Compile.akkaHttp,
-    Compile.akkaHttpSprayJson) ++ testing
+    Compile.pekkoHttp,
+    Compile.pekkoHttpSprayJson) ++ testing
 }

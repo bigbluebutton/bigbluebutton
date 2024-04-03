@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.api
 
+import org.bigbluebutton.core.apps.users.UserEstablishedGraphqlConnectionInternalMsgHdlr
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
 case class InMessageHeader(name: String)
@@ -114,8 +115,26 @@ case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String
 case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: String, filename: String, allPages: Boolean = true) extends InMessage
 
 /**
+ * Sent to the same meeting to force a new presenter to the Pod
+ * @param presenterId
+ */
+case class SetPresenterInDefaultPodInternalMsg(presenterId: String) extends InMessage
+
+/**
  * Sent by breakout room to parent meeting to obtain padId
  * @param breakoutId
  * @param filename
  */
 case class CaptureSharedNotesReqInternalMsg(breakoutId: String, filename: String) extends InMessage
+
+/**
+ * Sent by GraphqlActionsActor to inform MeetingActor that user disconnected
+ * @param userId
+ */
+case class UserClosedAllGraphqlConnectionsInternalMsg(userId: String) extends InMessage
+
+/**
+ * Sent by GraphqlActionsActor to inform MeetingActor that user came back from disconnection
+ * @param userId
+ */
+case class UserEstablishedGraphqlConnectionInternalMsg(userId: String) extends InMessage

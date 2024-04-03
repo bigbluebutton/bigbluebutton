@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentationpod
 
-import akka.actor.ActorContext
-import akka.event.Logging
+import org.apache.pekko.actor.ActorContext
+import org.apache.pekko.event.Logging
 
 class PresentationPodHdlrs(implicit val context: ActorContext)
   extends CreateNewPresentationPodPubMsgHdlr
@@ -11,7 +11,7 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with PresentationConversionCompletedSysPubMsgHdlr
   with PdfConversionInvalidErrorSysPubMsgHdlr
   with SetCurrentPagePubMsgHdlr
-  with SetPresenterInPodReqMsgHdlr
+  with SetPresenterInDefaultPodInternalMsgHdlr
   with RemovePresentationPubMsgHdlr
   with SetPresentationDownloadablePubMsgHdlr
   with PresentationConversionUpdatePubMsgHdlr
@@ -21,6 +21,7 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with PresentationUploadTokenReqMsgHdlr
   with MakePresentationDownloadReqMsgHdlr
   with ResizeAndMovePagePubMsgHdlr
+  with SlideResizedPubMsgHdlr
   with SyncGetPresentationPodsMsgHdlr
   with RemovePresentationPodPubMsgHdlr
   with PresentationPageConvertedSysMsgHdlr

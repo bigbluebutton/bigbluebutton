@@ -51,6 +51,7 @@ class BreakoutRoomInvitation extends Component {
       breakouts,
       lastBreakoutReceived,
       breakoutRoomsUserIsIn,
+      isModerator,
     } = this.props;
 
     const {
@@ -58,7 +59,6 @@ class BreakoutRoomInvitation extends Component {
     } = this.state;
 
     const hasBreakoutsAvailable = breakouts.length > 0;
-    const isModerator = BreakoutService.amIModerator();
 
     if (hasBreakoutsAvailable
       && !breakoutRoomsUserIsIn) {

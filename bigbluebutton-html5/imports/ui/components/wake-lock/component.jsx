@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { toast } from 'react-toastify';
 import { notify } from '/imports/ui/services/notification';
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
@@ -10,18 +9,18 @@ const intlMessages = defineMessages({
   wakeLockOfferTitle: {
     id: 'app.toast.wakeLock.offerTitle',
   },
-  wakeLockOfferAcceptButton: {
-    id: 'app.toast.wakeLock.offerAccept',
-  },
-  wakeLockOfferDeclineButton: {
-    id: 'app.toast.wakeLock.offerDecline',
-  },
   wakeLockAcquireSuccess: {
     id: 'app.toast.wakeLock.acquireSuccess',
   },
   wakeLockAcquireFailed: {
     id: 'app.toast.wakeLock.acquireFailed',
   },
+  wakeLockNotSupported: {
+    id: 'app.toast.wakeLock.notSupported',
+  },
+  wakeLockDisclaimer: {
+    id: 'app.toast.wakeLock.disclaimer',
+  }
 });
 
 const propTypes = {
@@ -29,101 +28,74 @@ const propTypes = {
   request: PropTypes.func.isRequired,
   release: PropTypes.func.isRequired,
   wakeLockSettings: PropTypes.bool.isRequired,
+  setLocalSettings: PropTypes.func.isRequired,
 };
 
 class WakeLock extends Component {
   constructor() {
     super();
-    this.notification = null;
   }
 
   componentDidMount() {
-    const { intl, request } = this.props;
+    const { wakeLockSettings } = this.props;
 
-    const toastProps = {
-      closeOnClick: false,
-      autoClose: false,
-      closeButton: false,
-    };
-
-    const closeNotification = () => {
-      toast.dismiss(this.notification);
-      this.notification = null;
-    };
-
-    const declineButton = () => (
-      <Styled.CloseButton
-        type="button"
-        onClick={closeNotification}
-      >
-        { intl.formatMessage(intlMessages.wakeLockOfferDeclineButton) }
-      </Styled.CloseButton>
-    );
-
-    const acceptButton = () => (
-      <Styled.AcceptButton
-        type="button"
-        onClick={async () => {
-          closeNotification();
-          const error = await request();
-          if (!error) {
-            Settings.application.wakeLock = true;
-            Settings.save();
-          }
-          this.feedbackToast(error);
-        }}
-      >
-        { intl.formatMessage(intlMessages.wakeLockOfferAcceptButton) }
-      </Styled.AcceptButton>
-    );
-
-    const toastContent = this.getToast('wakeLockOffer', 'wakeLockOfferTitle', acceptButton(), declineButton());
-    this.notification = notify(toastContent, 'default', 'lock', toastProps, null, true);
+    if (wakeLockSettings) {
+      this.requestWakeLock();
+    }
   }
 
-  getToast(id, title, acceptButton, declineButton) {
-    const { intl } = this.props;
+  componentDidUpdate(prevProps) {
+    const { wakeLockSettings, release } = this.props;
+    if (wakeLockSettings !== prevProps.wakeLockSettings) {
+      if (wakeLockSettings) {
+        this.requestWakeLock();
+      } else {
+        release();
+      }
+    }
+  }
 
+  getToast(id, message) {
     return (
       <div id={id}>
         <Styled.Title>
-          { intl.formatMessage(intlMessages[title]) }
+          { message }
         </Styled.Title>
-        <Styled.ToastButtons>
-          { acceptButton }
-          { declineButton }
-        </Styled.ToastButtons>
       </div>
     );
   }
 
-  feedbackToast(error) {
+  feedbackToast(result) {
+    const { intl } = this.props;
+    
     const feedbackToastProps = {
       closeOnClick: true,
       autoClose: true,
       closeButton: false,
     };
 
-    const feedbackToast = this.getToast(error ? 'wakeLockFailed' : 'wakeLockSuccess',
-      error ? 'wakeLockAcquireFailed' : 'wakeLockAcquireSuccess', null, null);
-    setTimeout(() => {
-      notify(feedbackToast, error ? 'error' : 'success', 'lock', feedbackToastProps, null, true);
-    }, 800);
+    const toastType = result.error ? 'error' : 'success';
+    const message = result.error 
+    ? intl.formatMessage(intlMessages.wakeLockDisclaimer,{
+      0: intl.formatMessage(intlMessages[result.locale])
+    } )
+    : intl.formatMessage(intlMessages.wakeLockAcquireSuccess);
+    const feedbackToast = this.getToast('wakeLockToast', message);
+    notify(feedbackToast, toastType, 'lock', feedbackToastProps, null, true);
+  }
+
+  requestWakeLock () {
+    const { request, setLocalSettings } = this.props;
+    request().then((result) => {
+      if (result && result.error) {
+        Settings.application.wakeLock = false;
+        Settings.save(setLocalSettings);
+        this.feedbackToast(result);
+      }
+    });
   }
 
   render() {
-    const { wakeLockSettings, request, release } = this.props;
-    if (wakeLockSettings) {
-      request().then((error) => {
-        if (error) {
-          this.feedbackToast(error);
-          Settings.application.wakeLock = false;
-          Settings.save();
-        }
-      });
-    } else {
-      release();
-    }
     return null;
   }
 }

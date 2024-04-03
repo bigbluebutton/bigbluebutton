@@ -22,16 +22,16 @@ There are 2 ways to install Greenlight v3:
 
 ## Installing alongside a BigBlueButton Server
 ### bbb-install Script
-If your server already contains a BigBlueButton server that you like to upgrade to v2.6, or you would like to install a new BigBlueButton server on a clean environment along with Greenlight, then please refer to [bbb-install script](https://github.com/bigbluebutton/bbb-install) for guides on the `bbb-install` command and its options.
+If your server already contains a BigBlueButton server that you like to upgrade, or you would like to install a new BigBlueButton server on a clean environment along with Greenlight, then please refer to [bbb-install script](https://github.com/bigbluebutton/bbb-install) for guides on the `bbb-install` command and its options.
 
-To install Greenlight, simply run the `bbb-install-2.6` script with your chosen configurations, **while ensuring to include the `-g` option** to install/upgrade Greenlight alongside of your BigBlueButton server.
+To install Greenlight, simply run the `bbb-install` script with your chosen configurations, **while ensuring to include the `-g` option** to install/upgrade Greenlight alongside of your BigBlueButton server.
 
 ### Running the Script
 
 To run the script, simply run the command below, replacing `[OPTIONS]`, with the your chosen configurations.
 
 ```bash
-wget -qO- https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh | bash -s -- [OPTIONS] -g
+wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh | bash -s -- [OPTIONS] -g
 ```
 
 After the script completes, a success message will appear in the console with the URL to access Greenlight confirming that BigBlueButton was installed/upgraded alongside with Greenlight.
@@ -48,6 +48,12 @@ You can also run it without any arguments to create the default admin account, w
 docker exec -it greenlight-v3 bundle exec rake admin:create
 ```
 
+### Upgrading an existing account to an Admin Account
+
+You can do that by running the following command:
+```bash
+docker exec -it greenlight-v3 bundle exec rake user:set_admin_role['email']
+```
 
 ## Installing on a Standalone Server
 ### Greenlight Install Script
@@ -138,12 +144,13 @@ SMTP configuration requires following the guidelines provided by your SMTP serve
 
 ### OpenID Connect Setup
 
-| Variable Name | Description                                                                                                                           | Default Value |
-|---------------|---------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| OPENID_CONNECT_CLIENT_ID | The client ID of the OpenID issuer  | - |
-| OPENID_CONNECT_CLIENT_SECRET | The secret to use to authenticate to the OpenID issuer  | - |
-| OPENID_CONNECT_ISSUER | The URL for the OpenID issuer. It is required to be HTTPS URL using the default HTTPS port (TCP 443)  | - |
-| OPENID_CONNECT_REDIRECT | The Redirect URI after successful authentication. It should be the URL to Greenlight  | - |
+| Variable Name | Description                                                                                         | Default Value |
+|---------------|-----------------------------------------------------------------------------------------------------|--------------|
+| OPENID_CONNECT_CLIENT_ID | The client ID of the OpenID issuer                                                                  | -            |
+| OPENID_CONNECT_CLIENT_SECRET | The secret to use to authenticate to the OpenID issuer                                              | -            |
+| OPENID_CONNECT_ISSUER | The URL for the OpenID issuer. It is required to be HTTPS URL using the default HTTPS port (TCP 443) | -            |
+| OPENID_CONNECT_REDIRECT | The Redirect URI after successful authentication. It should be the URL to Greenlight                | -            |
+| OPENID_CONNECT_UID_FIELD | The field of the user info response to be used as the unique identifier in Greenlight               | 'sub'        |
 
 ### HCaptcha Setup
 
@@ -164,7 +171,7 @@ So, to deploy Greenlight on a relative URL root path of **/gl**:
 For systems using [BigBlueButton Install Script](#bbb-install-script) one would simply run **while ensuring to include the -g option**:
 
 ```bash
-wget -qO- https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh | GL_PATH=/gl bash -s -- [options] -g
+wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh | GL_PATH=/gl bash -s -- [options] -g
 ```
 
 For systems using [Greenlight Install Script](#greenlight-install-script) one would simply run:

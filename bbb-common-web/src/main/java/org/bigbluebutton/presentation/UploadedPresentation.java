@@ -43,7 +43,7 @@ public final class UploadedPresentation {
   private String authzToken;
   private boolean conversionStarted = false;
 
-  private boolean isInitialPresentation;
+  private boolean defaultPresentation;
 
   public UploadedPresentation(String podId,
                               String meetingId,
@@ -55,7 +55,7 @@ public final class UploadedPresentation {
                               String authzToken,
                               Boolean uploadFailed,
                               ArrayList<String> uploadFailReason,
-                              Boolean isInitialPresentation) {
+                              Boolean defaultPresentation) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.id = id;
@@ -67,7 +67,7 @@ public final class UploadedPresentation {
     this.authzToken = authzToken;
     this.uploadFailed = uploadFailed;
     this.uploadFailReason = uploadFailReason;
-    this.isInitialPresentation = isInitialPresentation;
+    this.defaultPresentation = defaultPresentation;
   }
 
   public UploadedPresentation(String podId,
@@ -106,9 +106,9 @@ public final class UploadedPresentation {
                               String authzToken,
                               Boolean uploadFailed,
                               ArrayList<String> uploadFailReason,
-                              Boolean isInitialPresentation) {
+                              Boolean defaultPresentation) {
     this(podId, meetingId, id, "", name, baseUrl,
-            current, authzToken, uploadFailed, uploadFailReason, isInitialPresentation);
+            current, authzToken, uploadFailed, uploadFailReason, defaultPresentation);
   }
 
   public File getUploadedFile() {
@@ -211,8 +211,8 @@ public final class UploadedPresentation {
     return uploadFailReason;
   }
 
-  public boolean getIsInitialPresentation() {
-    return isInitialPresentation;
+  public boolean isDefaultPresentation() {
+    return defaultPresentation;
   }
 
   public String getFilenameConverted() {
@@ -226,15 +226,5 @@ public final class UploadedPresentation {
   public void generateFilenameConverted(String newExtension) {
     String nameWithoutExtension = FilenameUtils.removeExtension(name);
     this.filenameConverted = nameWithoutExtension.concat("." + newExtension);
-  }
-
-  public void deleteOriginalFile() {
-    String pathToFileWithoutExtension = FilenameUtils.removeExtension(uploadedFile.getPath());
-    String newExtension = FilenameUtils.getExtension(uploadedFile.getPath());
-    String originalExtension = FilenameUtils.getExtension(name);
-    if (!originalExtension.equals("pdf") && newExtension.equals("pdf")) {
-      File originalFile = new File(pathToFileWithoutExtension + "." + originalExtension);
-      originalFile.delete();
-    }
   }
 }

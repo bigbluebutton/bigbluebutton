@@ -1,8 +1,8 @@
 package org.bigbluebutton
 
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.server.Directives._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.service.{ HealthzService, MeetingInfoService, PubSubReceiveStatus, PubSubSendStatus, RecordingDBSendStatus }
 import spray.json._

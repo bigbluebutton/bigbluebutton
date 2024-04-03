@@ -1,0 +1,20 @@
+name: Merge branches
+on:
+  workflow_call:
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.base.ref || '' }}
+        fetch-depth: 0 # Fetch all history
+    - name: Merge pr-${{ github.event.number }} into ${{ github.event.pull_request.base.ref }}
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: |
+        git config user.name "BBB Automated Tests"
+        git config user.email "tests@bigbluebutton.org"
+        git config pull.rebase false
+        git pull origin pull/${{ github.event.number }}/head:${{ github.head_ref }}

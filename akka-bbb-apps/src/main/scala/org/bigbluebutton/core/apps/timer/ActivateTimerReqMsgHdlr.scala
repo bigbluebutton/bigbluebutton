@@ -3,7 +3,8 @@ package org.bigbluebutton.core.apps.timer
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.{ TimerModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait, TimerModel }
+import org.bigbluebutton.core.db.TimerDAO
 
 trait ActivateTimerReqMsgHdlr extends RightsManagementTrait {
   this: TimerApp2x =>
@@ -41,8 +42,9 @@ trait ActivateTimerReqMsgHdlr extends RightsManagementTrait {
         val reason = "You need to be the presenter or moderator to activate timer"
         PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       } else {
-        TimerModel.reset(liveMeeting.timerModel, msg.body.stopwatch, msg.body.time, msg.body.accumulated, msg.body.timestamp, msg.body.track)
+        TimerModel.reset(liveMeeting.timerModel)
         TimerModel.setIsActive(liveMeeting.timerModel, true)
+        TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
         broadcastEvent(msg.body.stopwatch, msg.body.running, msg.body.time, msg.body.accumulated, msg.body.track)
       }
     }

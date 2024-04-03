@@ -19,7 +19,7 @@ public class UserSessionValidator implements ConstraintValidator<UserSessionCons
             return false;
         }
 
-        UserSession userSession = ServiceUtils.getMeetingService().getUserSessionWithAuthToken(sessionToken);
+        UserSession userSession = ServiceUtils.getMeetingService().getUserSessionWithSessionToken(sessionToken);
 
         if(userSession == null) {
             return false;

@@ -40,9 +40,8 @@ fi
 find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-[0-9]*" -mtime +$history -exec rm -rf '{}' +
 
 #
-# Delete streams from Kurento and mediasoup older than N days
+# Delete streams from mediasoup older than N days
 #
-kurento_dir=/var/kurento/
 mediasoup_dir=/var/mediasoup/
 bbb_webrtc_recorder_dir=/var/lib/bbb-webrtc-recorder/
 
@@ -56,7 +55,6 @@ remove_stale_sfu_raw_files() {
   done
 }
 
-remove_stale_sfu_raw_files "$kurento_dir"
 remove_stale_sfu_raw_files "$mediasoup_dir"
 remove_stale_sfu_raw_files "$bbb_webrtc_recorder_dir"
 
@@ -72,7 +70,6 @@ find /var/freeswitch/meetings/ -name "*.opus" -mtime +$history -delete
 find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
 find /var/log/bigbluebutton -type f -mtime +$log_history -delete
 find /var/log/bbb-webrtc-sfu -type f -mtime +$log_history -delete
-find /var/log/kurento-media-server -name "*.pid*.log" -type f -mtime +$log_history -delete
 
 #
 # Delete raw files of recordings without recording marks older than N days
@@ -125,7 +122,7 @@ remove_raw_of_published_recordings(){
 remove_raw_of_published_recordings
 
 #
-# Remove untagged and unamed docker images, cleanning /var/lib/docker/overlay2
+# Remove untagged and unnamed docker images, cleaning /var/lib/docker/overlay2
 #
 docker image prune -f
 

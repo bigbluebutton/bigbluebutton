@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { MultiUsers } = require('../user/multiusers');
 const { Webcam } = require('./webcam');
 
@@ -42,8 +42,16 @@ test.describe.parallel('Webcam', () => {
     await webcam.webcamFullscreen();
   });
 
-  test.describe('Webcam background', () => {
-    test('Select one of the default backgrounds @ci', async ({ browser, page }) => {
+  test('Disable Self-view', async ({ browser, page }) => {
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, true);
+    await webcam.disableSelfView();
+  });
+
+  test.describe('Webcam background @ci', () => {
+    /* this test has the flaky tag because it is breaking due to a default video from chrome that
+    is overlapping the virtual background. */
+    test('Select one of the default backgrounds', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.applyBackground();
@@ -51,13 +59,13 @@ test.describe.parallel('Webcam', () => {
 
     // following test is throwing failures due to mis-comparison screenshot
     // as the emulated video is not static, we may add a mask in the middle part - where it moves the most
-    test('Managing new background @flaky', async ({ browser, page }) => {
+    test('Managing new background', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.managingNewBackground();
     });
 
-    test('Keep background when rejoin @ci', async ({ browser, context, page }) => {
+    test('Keep background when rejoin', async ({ browser, context, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.keepBackgroundWhenRejoin(context);

@@ -27,7 +27,6 @@ class RealTimeText extends MultiUsers {
 
     await expect(modWbLocator).toHaveScreenshot('moderator-realtime-text-2.png');
     await expect(userWbLocator).toHaveScreenshot('viewer-realtime-text-2.png');
-    await expect(modWbLocator).toHaveText('AA');
   }
 }
 

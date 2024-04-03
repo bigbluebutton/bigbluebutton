@@ -47,7 +47,10 @@ module BigBlueButton
         ffmpeg_cmd += [*pass, '-passlogfile', output_basename, lastoutput]
         Dir.chdir(File.dirname(output)) do
           exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
-          raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
+          if exitstatus != 0
+            FileUtils.rm_f(lastoutput) if File.exists?(lastoutput)
+            raise "ffmpeg failed, exit code #{exitstatus}"
+          end
         end
       end
 

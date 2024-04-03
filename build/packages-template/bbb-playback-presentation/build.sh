@@ -42,5 +42,4 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh \
     --description "BigBlueButton presentation recording format" \
     $DIRECTORIES \
-    $OPTS \
-    -d 'yq (>= 3)' -d 'yq (<< 4)'
+    $OPTS

@@ -1,11 +1,16 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
+import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessageType, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
+import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 
 object GroupChatApp {
+  def getGroupChatOfUsers(userId: String, participantIds: Vector[String], state: MeetingState2x): Option[GroupChat] = {
+    state.groupChats.findAllPrivateChatsForUser(userId)
+      .find(groupChat => participantIds.forall(groupChat.users.map(u => u.id).contains))
+  }
 
   val MAIN_PUBLIC_CHAT = "MAIN-PUBLIC-GROUP-CHAT"
 
@@ -15,10 +20,10 @@ object GroupChatApp {
     GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
-  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser): GroupChatMessage = {
+  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.chatEmphasizedText, msg.message)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
@@ -26,8 +31,14 @@ object GroupChatApp {
       sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message)
   }
 
-  def addGroupChatMessage(chat: GroupChat, chats: GroupChats,
-                          msg: GroupChatMessage): GroupChats = {
+  def addGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats,
+                          msg: GroupChatMessage, messageType: String = GroupChatMessageType.DEFAULT): GroupChats = {
+    if (msg.sender.id == SystemUser.ID) {
+      ChatMessageDAO.insertSystemMsg(meetingId, chat.id, msg.message, messageType, Map(), msg.sender.name)
+    } else {
+      ChatMessageDAO.insert(meetingId, chat.id, msg)
+    }
+
     val c = chat.add(msg)
     chats.update(c)
   }
@@ -69,9 +80,9 @@ object GroupChatApp {
         sender <- GroupChatApp.findGroupChatUser(userId, liveMeeting.users2x)
         chat <- state.groupChats.find(chatId)
       } yield {
-
-        val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg)
-        val gcs1 = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm1)
+        val emphasizedText = sender.role == Roles.MODERATOR_ROLE
+        val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg, emphasizedText)
+        val gcs1 = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm1)
         state.update(gcs1)
       }
 

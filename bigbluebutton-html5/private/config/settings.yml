@@ -12,6 +12,7 @@ public:
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
     skipCheck: false
+    instanceId: ''
     # Skips the echo test when connecting with microphone right after user
     # joins the room the first time. Subsequent joins to microphone won't
     # have echo test skipped, for example if user leaves and joins the mic
@@ -24,13 +25,13 @@ public:
     # audio. Default value is true
     # Firefox users: if no output devices is shown, you may set the flag
     # "media.setsinkid.enabled" to make it work properly
-    # enableDynamicAudioDeviceSelection: true
+    enableDynamicAudioDeviceSelection: true
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2023 BigBlueButton Inc.'
+    copyright: '©2024 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -87,6 +88,7 @@ public:
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
     # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
+    skipMeteorConnection: false
     audioCaptions:
       enabled: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
@@ -152,12 +154,20 @@ public:
       # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
       # If both reactionsButton and raiseHandActionButton are enabled, reactionsButton takes precedence.
       enabled: true
+    emojiRain:
+      # If true, new reactions will be activated
+      enabled: false
+      # Can set the throttle, the number of emojis that will be displayed and their size
+      intervalEmojis: 2000
+      numberOfEmojis: 5
+      # emojiSize: size of the emoji in 'em' units
+      emojiSize: 2
     # If enabled, before joining microphone the client will perform a trickle
-    # ICE against Kurento and use the information about successfull
+    # ICE against Kurento and use the information about successful
     # candidate-pairs to filter out local candidates in SIP.js's SDP.
     # Try enabling this setting in scenarios where the listenonly mode works,
     # but microphone doesn't (for example, when using VPN).
-    # For compatibility check "Browser compatbility" section in:
+    # For compatibility check "Browser compatibility" section in:
     # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
     # This is an EXPERIMENTAL setting and the default value is false
     # experimentalUseKmsTrickleIceForMicrophone: false
@@ -191,6 +201,8 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        autoCloseReactionsBar: true
+        directLeaveButton: true
         darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
@@ -205,7 +217,7 @@ public:
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
         #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
-        #Noise Supression, etc.
+        #Noise Suppression, etc.
         #For more deails, see:
         # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
         #Currently, google chrome sets {ideal: true} for autoGainControl,
@@ -275,6 +287,12 @@ public:
     # string will be returned.
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
+    # Maximum number of bytes allowed in each mutation message payload.
+    # Defaults to 10485760 (10MB)
+    maxMutationPayloadSize: 10485760
+  # plugins:
+  #   - name: SamplePresentationToolbarPlugin
+  #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -588,12 +606,25 @@ public:
     autoConvertEmoji: true
     emojiPicker:
       enable: false
-      frequentEmojiSortOnClick: false
-    # e.g.: disableEmojis: ['1F595','1F922']
+    # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
+    allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
   userReaction:
     enabled: true
-    expire: 60
+    expire: 30
+    reactions:
+      - id: 'smiley'
+        native: '😃'
+      - id: 'neutral_face'
+        native: '😐'
+      - id: 'slightly_frowning_face'
+        native: '🙁'
+      - id: '+1'
+        native: '👍'
+      - id: '-1'
+        native: '👎'
+      - id: 'clap'
+        native: '👏'
   userStatus:
     enabled: false
   notes:
@@ -808,9 +839,6 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
-  selectRandomUser:
-    enabled: true
-    countdown: false
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -832,6 +860,18 @@ public:
         update: DRAW_UPDATE
         end: DRAW_END
     styles:
+      # color is one of 'black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'
+      colorStyle: 'black'
+      # dash is one of 'dashed', 'dotted', 'draw', 'solid'
+      dashStyle: 'draw'
+      # fill is one of 'none', 'pattern', 'semi', 'solid'
+      fillStyle: 'none'
+      # font is one of 'draw','mono','sans', 'serif'
+      fontStyle: 'draw'
+      # size is one of 'l', 'm', 's', 'xl'
+      sizeStyle: 'm'
+
+      # this one is obsoleted now
       text:
         # Initial font family.
         # family: mono|sans|script|serif
@@ -936,6 +976,13 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
+  postgresql:
+    host: localhost
+    port: 5432
+    database: bbb_graphql
+    user: bbb_frontend
+    password: bbb_frontend
+    timeout: 30000
   analytics:
     includeChat: true
   app:

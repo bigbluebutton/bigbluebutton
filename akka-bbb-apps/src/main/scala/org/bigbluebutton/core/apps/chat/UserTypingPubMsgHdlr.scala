@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.chat
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.ChatUserDAO
 import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
 
 trait UserTypingPubMsgHdlr extends LogHelper {
@@ -16,6 +17,7 @@ trait UserTypingPubMsgHdlr extends LogHelper {
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
+    ChatUserDAO.updateUserTyping(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId)
     broadcastEvent(msg)
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
-const BASE_SHORTCUTS = Meteor.settings.public.app.shortcuts;
+const BASE_SHORTCUTS = window.meetingClientSettings.public.app.shortcuts;
 
 const withShortcutHelper = (WrappedComponent, param) => (props) => {
   const ENABLED_SHORTCUTS = getFromUserSettings('bbb_shortcuts', null);

@@ -12,7 +12,7 @@ stages:
 
 # define which docker image to use for builds
 default:
-  image: bigbluebutton/bbb-build:bbb27-2023-06-13-java17
+  image: bigbluebutton/bbb-build:v3.0.x-release--2023-09-26-152524
 
 # This stage uses git to find out since when each package has been unmodified.
 # it then checks an API endpoint on the package server to find out for which of
@@ -102,6 +102,16 @@ bbb-html5-build:
   script:
     - build/setup-inside-docker.sh bbb-html5
 
+bbb-graphql-middleware-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-graphql-middleware
+
+bbb-graphql-server-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-graphql-server
+
 bbb-learning-dashboard-build:
   extends: .build_job
   script:
@@ -111,11 +121,6 @@ bbb-libreoffice-docker-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-libreoffice-docker
-
-bbb-lti-build:
-  extends: .build_job
-  script:
-    - build/setup-inside-docker.sh bbb-lti
 
 bbb-mkclean-build:
   extends: .build_job
@@ -176,6 +181,11 @@ bbb-webrtc-recorder-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-webrtc-recorder
+
+bbb-livekit:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-livekit
 
 bbb-transcription-controller-build:
   extends: .build_job

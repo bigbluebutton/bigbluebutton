@@ -1,24 +1,49 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import Users from '/imports/api/users';
-import Auth from '/imports/ui/services/auth';
+import { useMutation } from '@apollo/client';
 import PollingService from './service';
 import PollService from '/imports/ui/components/poll/service';
 import PollingComponent from './component';
 import { isPollingEnabled } from '/imports/ui/services/features';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { POLL_SUBMIT_TYPED_VOTE, POLL_SUBMIT_VOTE } from '/imports/ui/components/poll/mutations';
+import PollingGraphqlContainer from './polling-graphql/component';
 
 const propTypes = {
   pollExists: PropTypes.bool.isRequired,
 };
 
 const PollingContainer = ({ pollExists, ...props }) => {
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
-  const showPolling = pollExists && !currentUser.presenter && isPollingEnabled();
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+  const showPolling = pollExists && !currentUserData?.presenter && isPollingEnabled();
+
+  const [pollSubmitUserTypedVote] = useMutation(POLL_SUBMIT_TYPED_VOTE);
+  const [pollSubmitUserVote] = useMutation(POLL_SUBMIT_VOTE);
+
+  const handleTypedVote = (pollId, answer) => {
+    pollSubmitUserTypedVote({
+      variables: {
+        pollId,
+        answer,
+      },
+    });
+  };
+
+  const handleVote = (pollId, answerIds) => {
+    pollSubmitUserVote({
+      variables: {
+        pollId,
+        answerIds,
+      },
+    });
+  };
 
   if (showPolling) {
     return (
-      <PollingComponent {...props} />
+      <PollingComponent handleTypedVote={handleTypedVote} handleVote={handleVote} {...props} />
     );
   }
   return null;
@@ -26,9 +51,9 @@ const PollingContainer = ({ pollExists, ...props }) => {
 
 PollingContainer.propTypes = propTypes;
 
-export default withTracker(() => {
+withTracker(() => {
   const {
-    pollExists, handleVote, poll, handleTypedVote,
+    pollExists, poll,
   } = PollingService.mapPolls();
   const { pollTypes } = PollService;
 
@@ -39,8 +64,6 @@ export default withTracker(() => {
 
   return ({
     pollExists,
-    handleVote,
-    handleTypedVote,
     poll,
     pollAnswerIds: PollService.pollAnswerIds,
     pollTypes,
@@ -48,3 +71,5 @@ export default withTracker(() => {
     isMeteorConnected: Meteor.status().connected,
   });
 })(PollingContainer);
+
+export default PollingGraphqlContainer;

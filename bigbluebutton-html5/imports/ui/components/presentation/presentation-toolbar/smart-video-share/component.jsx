@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import { safeMatch } from '/imports/utils/string-utils';
-import { isUrlValid, startWatching } from '/imports/ui/components/external-video-player/service';
+import { isUrlValid } from '/imports/ui/components/external-video-player/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 
@@ -12,10 +12,10 @@ const intlMessages = defineMessages({
   },
 });
 
-const createAction = (url) => {
-  const hasHttps = url?.startsWith("https://");
+const createAction = (url, startWatching) => {
+  const hasHttps = url?.startsWith('https://');
   const finalUrl = hasHttps ? url : `https://${url}`;
-  const label = hasHttps ? url?.replace("https://", "") : url;
+  const label = hasHttps ? url?.replace('https://', '') : url;
 
   if (isUrlValid(finalUrl)) {
     return {
@@ -27,7 +27,7 @@ const createAction = (url) => {
 
 export const SmartMediaShare = (props) => {
   const {
-    currentSlide, intl, isMobile, isRTL,
+    currentSlide, intl, isMobile, isRTL, startWatching,
   } = props;
   const linkPatt = /(https?:\/\/.*?)(?=\s|$)/g;
   const externalLinks = safeMatch(linkPatt, currentSlide?.content?.replace(/[\r\n]/g, '  '), false);
@@ -36,7 +36,7 @@ export const SmartMediaShare = (props) => {
   const actions = [];
 
   externalLinks?.forEach((l) => {
-    const action = createAction(l);
+    const action = createAction(l, startWatching);
     if (action) actions.push(action);
   });
 

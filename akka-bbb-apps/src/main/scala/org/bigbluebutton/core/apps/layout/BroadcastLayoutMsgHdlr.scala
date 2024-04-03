@@ -5,6 +5,8 @@ import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.LayoutDAO
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>
@@ -34,6 +36,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         Layouts.setPresentationVideoRate(liveMeeting.layouts, msg.body.presentationVideoRate)
         Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
+        LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
         sendBroadcastLayoutEvtMsg(msg.header.userId)
       }
     }
@@ -58,5 +61,18 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
     outGW.send(msgEvent)
+
+    if (body.pushLayout) {
+      val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+        fromUserId,
+        liveMeeting.props.meetingProp.intId,
+        "info",
+        "user",
+        "app.layoutUpdate.label",
+        "Notification to when the presenter changes size of cams",
+        Vector()
+      )
+      outGW.send(notifyEvent)
+    }
   }
 }

@@ -1,20 +1,18 @@
 package org.bigbluebutton
 
-import akka.actor.ActorSystem
-import akka.event.Logging
-import akka.http.scaladsl.Http
-import akka.stream.ActorMaterializer
-import org.bigbluebutton.common2.redis.{ MessageSender, RedisConfig, RedisPublisher }
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.event.Logging
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.stream.ActorMaterializer
+import org.bigbluebutton.common2.redis.{MessageSender, RedisConfig, RedisPublisher}
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
 import org.bigbluebutton.core2.AnalyticsActor
 import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
-import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
-import org.bigbluebutton.endpoint.redis.{ RedisRecorderActor, ExportAnnotationsActor }
-import org.bigbluebutton.endpoint.redis.LearningDashboardActor
+import org.bigbluebutton.endpoint.redis.{AppsRedisSubscriberActor, ExportAnnotationsActor, GraphqlConnectionsActor, LearningDashboardActor, RedisRecorderActor}
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
-import org.bigbluebutton.service.{ HealthzService, MeetingInfoActor, MeetingInfoService }
+import org.bigbluebutton.service.{HealthzService, MeetingInfoActor, MeetingInfoService}
 
 object Boot extends App with SystemConfiguration {
 
@@ -69,6 +67,12 @@ object Boot extends App with SystemConfiguration {
     "LearningDashboardActor"
   )
 
+  val graphqlConnectionsActor = system.actorOf(
+    GraphqlConnectionsActor.props(system, eventBus, outGW),
+    "GraphqlConnectionsActor"
+  )
+
+  ClientSettings.loadClientSettingsFromFile()
   recordingEventBus.subscribe(redisRecorderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 
@@ -84,6 +88,9 @@ object Boot extends App with SystemConfiguration {
 
   outBus2.subscribe(learningDashboardActor, outBbbMsgMsgChannel)
   bbbMsgBus.subscribe(learningDashboardActor, analyticsChannel)
+
+  eventBus.subscribe(graphqlConnectionsActor, meetingManagerChannel)
+  bbbMsgBus.subscribe(graphqlConnectionsActor, analyticsChannel)
 
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW, healthzService), "bigbluebutton-actor")
   eventBus.subscribe(bbbActor, meetingManagerChannel)

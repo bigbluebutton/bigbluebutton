@@ -62,7 +62,7 @@ public final class SupportedFileTypes {
 			add(JPEG); add(JPG); add(PNG);
 		}
 	});
-	
+
 	/*
 	 * Returns if the file with extension is supported.
 	 */
@@ -108,14 +108,21 @@ public final class SupportedFileTypes {
 		return "";
 	}
 
+	public static String detectFileExtensionBasedOnMimeType(File pres) {
+		String mimeType = detectMimeType(pres);
+		return mimeTypeUtils.getExtensionBasedOnMimeType(mimeType);
+	}
+
 	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
 		String mimeType = detectMimeType(pres);
 
 		if (mimeType.equals("")) {
+			log.error("Not able to detect mimeType.");
 			return false;
 		}
 
 		if (!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) {
+			log.error("MimeType is not valid for this meeting, [{}]", mimeType);
 			return false;
 		}
 

@@ -2,4 +2,4 @@ after-install.sh
 bbb-webrtc-recorder.service
 before-remove.sh
 build.sh
-opts-focal.sh
+opts-jammy.sh

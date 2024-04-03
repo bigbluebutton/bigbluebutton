@@ -42,15 +42,21 @@ public interface IBbbWebApiGWApp {
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,
                      Integer html5InstanceId,
+                     String logoutUrl,
+                     String customLogoURL,
+                     String bannerText,
+                     String bannerColor,
                      ArrayList<Group> groups,
                      ArrayList<String> disabledFeatures,
                      Boolean notifyRecordingIsOn,
                      String presentationUploadExternalDescription,
-                     String presentationUploadExternalUrl);
+                     String presentationUploadExternalUrl,
+                     String overrideClientSettings);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String avatarURL,
-                    Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard);
+                    String externUserID, String authToken, String sessionToken, String avatarURL,
+                    Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
+                    String enforceLayout, Map<String, String> customParameters);
   void guestWaitingLeft(String meetingID, String internalUserId);
 
   void destroyMeeting(DestroyMeetingMessage msg);

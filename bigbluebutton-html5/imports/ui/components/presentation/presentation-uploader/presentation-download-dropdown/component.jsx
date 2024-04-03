@@ -38,23 +38,42 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   handleDownloadingOfPresentation: PropTypes.func.isRequired,
-  handleToggleDownloadable: PropTypes.func.isRequired,
+  handleDownloadableChange: PropTypes.func.isRequired,
   isDownloadable: PropTypes.bool.isRequired,
+  allowDownloadOriginal: PropTypes.bool.isRequired,
+  allowDownloadConverted: PropTypes.bool.isRequired,
+  allowDownloadWithAnnotations: PropTypes.bool.isRequired,
   item: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    filename: PropTypes.string.isRequired,
-    isCurrent: PropTypes.bool.isRequired,
-    temporaryPresentationId: PropTypes.string.isRequired,
-    isDownloadable: PropTypes.bool.isRequired,
-    isRemovable: PropTypes.bool.isRequired,
-    conversion: PropTypes.shape,
-    upload: PropTypes.shape,
-    exportation: PropTypes.shape,
-    uploadTimestamp: PropTypes.number.isRequired,
-  }).isRequired,
+    id: PropTypes.string,
+    filename: PropTypes.string,
+    filenameConverted: PropTypes.string,
+    isCurrent: PropTypes.bool,
+    temporaryPresentationId: PropTypes.string,
+    isDownloadable: PropTypes.bool,
+    isRemovable: PropTypes.bool,
+    conversion: PropTypes.shape({
+      done: PropTypes.bool,
+      error: PropTypes.bool,
+      status: PropTypes.string,
+      numPages: PropTypes.number,
+      pagesCompleted: PropTypes.number,
+    }),
+    upload: PropTypes.shape({
+      done: PropTypes.bool,
+      error: PropTypes.bool,
+    }),
+    exportation: PropTypes.shape({
+      status: PropTypes.string,
+    }),
+    uploadTimestamp: PropTypes.string,
+    downloadableExtension: PropTypes.string,
+  }),
   closeModal: PropTypes.func.isRequired,
-  isRTL: PropTypes.bool.isRequired,
   disabled: PropTypes.bool.isRequired,
+};
+
+const defaultProps = {
+  item: {},
 };
 
 class PresentationDownloadDropdown extends PureComponent {
@@ -72,9 +91,10 @@ class PresentationDownloadDropdown extends PureComponent {
     const {
       intl,
       handleDownloadingOfPresentation,
-      handleToggleDownloadable,
+      handleDownloadableChange,
       isDownloadable,
       allowDownloadOriginal,
+      allowDownloadConverted,
       allowDownloadWithAnnotations,
       item,
       closeModal,
@@ -82,29 +102,59 @@ class PresentationDownloadDropdown extends PureComponent {
 
     this.menuItems = [];
 
-    const toggleDownloadOriginalPresentation = (enableDownload) => {
-      handleToggleDownloadable(item);
+    const { filenameConverted, name, downloadFileUri } = item;
+    const convertedFileExtension = filenameConverted?.split('.').slice(-1)[0];
+    const downloadableExtension = downloadFileUri?.split('.').slice(-1)[0];
+    const originalFileExtension = name?.split('.').slice(-1)[0];
+    const changeDownloadOriginalOrConvertedPresentation = (enableDownload, fileStateType) => {
+      handleDownloadableChange(item?.presentationId, fileStateType, enableDownload);
       if (enableDownload) {
-        handleDownloadingOfPresentation('Original');
+        handleDownloadingOfPresentation(fileStateType);
       }
       closeModal();
     };
 
     if (allowDownloadOriginal) {
-      if (!isDownloadable) {
+      if (isDownloadable && !!downloadableExtension
+        && downloadableExtension === originalFileExtension) {
         this.menuItems.push({
           key: this.actionsKey[0],
-          dataTest: 'enableOriginalPresentationDownload',
-          label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload),
-          onClick: () => toggleDownloadOriginalPresentation(true),
+          dataTest: 'disableOriginalPresentationDownload',
+          label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
+            { 0: originalFileExtension }),
+          onClick: () => changeDownloadOriginalOrConvertedPresentation(false, 'Original'),
         });
       } else {
         this.menuItems.push({
           key: this.actionsKey[0],
-          dataTest: 'disableOriginalPresentationDownload',
-          label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload),
-          onClick: () => toggleDownloadOriginalPresentation(false),
+          dataTest: 'enableOriginalPresentationDownload',
+          label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
+            { 0: originalFileExtension }),
+          onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Original'),
         });
+      }
+    }
+    if (allowDownloadConverted) {
+      if ((!!filenameConverted && filenameConverted !== '')
+        && convertedFileExtension !== originalFileExtension) {
+        if (isDownloadable && !!downloadableExtension
+          && downloadableExtension === convertedFileExtension) {
+          this.menuItems.push({
+            key: this.actionsKey[0],
+            dataTest: 'disableOriginalPresentationDownload',
+            label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
+              { 0: convertedFileExtension }),
+            onClick: () => changeDownloadOriginalOrConvertedPresentation(false, 'Converted'),
+          });
+        } else {
+          this.menuItems.push({
+            key: this.actionsKey[0],
+            dataTest: 'enableOriginalPresentationDownload',
+            label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
+              { 0: convertedFileExtension }),
+            onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Converted'),
+          });
+        }
       }
     }
     if (allowDownloadWithAnnotations) {
@@ -123,7 +173,7 @@ class PresentationDownloadDropdown extends PureComponent {
   }
 
   render() {
-    const { intl, isRTL, disabled } = this.props;
+    const { intl, disabled } = this.props;
 
     const customStyles = { zIndex: 9999 };
 
@@ -147,8 +197,8 @@ class PresentationDownloadDropdown extends PureComponent {
             elevation: 2,
             getcontentanchorel: null,
             fullwidth: 'true',
-            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+            anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+            transformOrigin: { vertical: 'top', horizontal: 'left' },
           }}
           actions={this.getAvailableActions()}
         />
@@ -158,5 +208,6 @@ class PresentationDownloadDropdown extends PureComponent {
 }
 
 PresentationDownloadDropdown.propTypes = propTypes;
+PresentationDownloadDropdown.defaultProps = defaultProps;
 
 export default injectIntl(PresentationDownloadDropdown);

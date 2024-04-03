@@ -16,9 +16,12 @@ class Pan extends MultiUsers {
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
+    const zoomResetBtn = this.modPage.getLocator(e.resetZoomButton);
 
     for(let i = 100; i < 200; i += 25) {
+      const currentZoomLabel = await zoomResetBtn.textContent();
       await this.modPage.waitAndClick(e.zoomInButton);
+      await expect(zoomResetBtn).not.toContainText(currentZoomLabel);
     }
 
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
@@ -26,8 +29,10 @@ class Pan extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
+    await this.modPage.setHeightWidthViewPortSize();
     await expect(modWbLocator).toHaveScreenshot('moderator-pan.png', screenshotOptions);
 
+    await this.userPage.setHeightWidthViewPortSize();
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-pan.png', screenshotOptions);
   }

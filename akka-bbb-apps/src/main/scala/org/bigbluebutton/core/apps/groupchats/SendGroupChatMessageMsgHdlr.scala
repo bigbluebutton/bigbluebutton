@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPath, getConfigPropertyValueByPathAsBooleanOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
@@ -48,8 +49,18 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
         val userIsAParticipant = chat.users.filter(u => u.id == sender.id).length > 0;
 
         if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
-          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg)
-          val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
+          val moderatorChatEmphasizedEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
+            liveMeeting.clientSettings,
+            "public.chat.moderatorChatEmphasized",
+            alternativeValue = true
+          )
+
+          val emphasizedText = moderatorChatEmphasizedEnabled &&
+            !chatIsPrivate &&
+            sender.role == Roles.MODERATOR_ROLE
+
+          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg, emphasizedText)
+          val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm)
 
           val event = buildGroupChatMessageBroadcastEvtMsg(
             liveMeeting.props.meetingProp.intId,

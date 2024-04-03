@@ -13,7 +13,7 @@ class CustomParameters extends MultiUsers {
 
   async showPublicChatOnLogin() {
     await this.modPage.waitForSelector(e.actions);
-    await this.modPage.wasRemoved(e.publicChat);
+    await this.modPage.wasRemoved(e.hidePublicChat);
   }
 
   async recordMeeting() {
@@ -26,7 +26,7 @@ class CustomParameters extends MultiUsers {
 
   async clientTitle() {
     const pageTitle = await this.modPage.page.title();
-    await expect(pageTitle).toContain(`${c.docTitle} - `);
+    expect(pageTitle).toContain(`${c.docTitle} - `);
   }
 
   async askForFeedbackOnLogout() {
@@ -59,7 +59,7 @@ class CustomParameters extends MultiUsers {
     const resp = await this.modPage.page.evaluate((elem) => {
       return document.querySelectorAll(elem)[0].offsetHeight == 0;
     }, e.presentationTitle);
-    await expect(resp).toBeTruthy();
+    expect(resp).toBeTruthy();
   }
 
   async autoSwapLayout() {
@@ -68,7 +68,7 @@ class CustomParameters extends MultiUsers {
     const resp = await this.modPage.page.evaluate((elem) => {
       return document.querySelectorAll(elem)[0].offsetHeight !== 0;
     }, e.restorePresentation);
-    await expect(resp).toBeTruthy();
+    expect(resp).toBeTruthy();
   }
 
   async autoJoin() {
@@ -121,13 +121,14 @@ class CustomParameters extends MultiUsers {
     const notificationBarColor = await notificationLocator.evaluate((elem) => {
       return getComputedStyle(elem).backgroundColor;
     }, e.notificationBannerBar);
-    await expect(notificationBarColor).toBe(colorToRGB);
+    expect(notificationBarColor).toBe(colorToRGB);
   }
 
   async hidePresentationOnJoin() {
     await this.modPage.waitForSelector(e.actions);
     await this.modPage.hasElement(e.restorePresentation);
-    await this.modPage.wasRemoved(e.presentationPlaceholder);
+    await this.userPage.hasElement(e.restorePresentation);
+    await this.userPage.wasRemoved(e.whiteboard);
   }
 
   async forceRestorePresentationOnNewEvents(joinParameter) {
@@ -135,9 +136,9 @@ class CustomParameters extends MultiUsers {
     const { presentationHidden, pollEnabled } = getSettings();
     if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
     const zoomInCase = await util.zoomIn(this.modPage);
-    await expect(zoomInCase).toBeTruthy();
+    expect(zoomInCase).toBeTruthy();
     const zoomOutCase = await util.zoomOut(this.modPage);
-    await expect(zoomOutCase).toBeTruthy();
+    expect(zoomOutCase).toBeTruthy();
     if (pollEnabled) await util.poll(this.modPage, this.userPage);
     await util.nextSlide(this.modPage);
     await util.previousSlide(this.modPage);
@@ -183,7 +184,7 @@ class CustomParameters extends MultiUsers {
     const resp = await this.userPage.page.evaluate((toolsElement) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.childElementCount === 1;
     }, e.wbToolbar);
-    await expect(resp).toBeTruthy();
+    expect(resp).toBeTruthy();
   }
 
   async presenterTools() {
@@ -192,7 +193,7 @@ class CustomParameters extends MultiUsers {
     const resp = await this.modPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
     }, [e.wbToolbar, e.toolbarToolsList]);
-    await expect(resp).toBeTruthy();
+    expect(resp).toBeTruthy();
   }
 
   async multiUserTools() {
@@ -201,7 +202,7 @@ class CustomParameters extends MultiUsers {
     const resp = await this.userPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
     }, [e.wbToolbar, e.toolbarToolsList]);
-    await expect(resp).toBeTruthy();
+    expect(resp).toBeTruthy();
   }
 
   async autoShareWebcam() {

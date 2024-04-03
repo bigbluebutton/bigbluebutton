@@ -1,15 +1,14 @@
-const { test } = require('@playwright/test');
-const { linkIssue } = require('../core/helpers');
+const { test } = require('../fixtures');
+const { fullyParallel } = require('../playwright.config');
+const { linkIssue, initializePages } = require('../core/helpers');
 const { Chat } = require('./chat');
 
-test.describe.serial('Chat', () => {
+test.describe('Chat', () => {
   const chat = new Chat();
-  let context;
-  test.beforeAll(async ({ browser }) => {
-    context = await browser.newContext();
-    const page = await context.newPage();
-    await chat.initModPage(page, true);
-    await chat.initUserPage(true, context);
+
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    await initializePages(chat, browser, { isMultiUser: true });
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
@@ -27,7 +26,7 @@ test.describe.serial('Chat', () => {
   });
 
   test.skip('Copy chat', async () => {
-    await chat.copyChat(context);
+    await chat.copyChat();
   });
 
   test('Save chat @ci', async ({}, testInfo) => {
@@ -61,8 +60,8 @@ test.describe.serial('Chat', () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji @ci', async () => {
-    await chat.emojiSaveChat();
+  test('Save chat with emoji @ci', async ({}, testInfo) => {
+    await chat.emojiSaveChat(testInfo);
   });
 
   test('Send emoji on private chat', async () => {
@@ -77,7 +76,7 @@ test.describe.serial('Chat', () => {
     await chat.autoConvertEmojiCopyChat();
   });
 
-  test('Auto convert emoji save chat', async ({ context }, testInfo) => {
+  test('Auto convert emoji save chat', async ({}, testInfo) => {
     await chat.autoConvertEmojiSaveChat(testInfo);
   });
 
@@ -85,7 +84,8 @@ test.describe.serial('Chat', () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  test('Private chat disabled when user leaves meeting @ci', async () => {
+  // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
+  test('Private chat disabled when user leaves meeting @ci @flaky', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

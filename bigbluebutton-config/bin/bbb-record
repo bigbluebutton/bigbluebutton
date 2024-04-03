@@ -23,7 +23,7 @@
 #       Daniel Petri Rocha <danielpetrirocha@gmail.com>
 #
 # Changelog:
-#   2011-08-18 FFD  Inital Version
+#   2011-08-18 FFD  Initial Version
 #   2011-11-20 FFD  Added more checks for processing of recording
 #   2012-01-04 GUG  Add option to check for errors
 #   2012-02-27 GUG  Add option to delete one meeting and recording
@@ -46,6 +46,9 @@
 #set -e
 #set -x
 
+unset HEADER WATCH WITHDESC LIST LISTWORKFLOWS LIST WITHDESC REBUILD REBUILDALL \
+      REPUBLISH DELETE DELETEALL CHECK DEBUG CLEAN DISABLE ENABLE TOEXTERNAL TOINTERNAL
+
 source /etc/bigbluebutton/bigbluebutton-release
 
 declare -r BBB_USER=bigbluebutton
@@ -54,7 +57,7 @@ declare -r BBB_YML=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 # $1: Desired property
 # Only returns 'PRODUCTION' values
 get_yml_value(){
-   yq read "$BBB_YML" "$1" --prettyPrint
+   yq e ".\"$1\"" "$BBB_YML" --prettyPrint
 }
 
 PLAYBACK_PROTOCOL=$(get_yml_value playback_protocol)

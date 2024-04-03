@@ -2,17 +2,19 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationConversionCompletedSysPubMsgHdlr {
-
   this: PresentationPodHdlrs =>
 
   def handle(
-      msg: PresentationConversionCompletedSysPubMsg, state: MeetingState2x,
-      liveMeeting: LiveMeeting, bus: MessageBus
+      msg: PresentationConversionCompletedSysPubMsg,
+      state: MeetingState2x,
+      liveMeeting: LiveMeeting,
+      bus: MessageBus
   ): MeetingState2x = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
@@ -23,7 +25,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       pres <- pod.getPresentation(msg.body.presentation.id)
     } yield {
       val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres, temporaryPresentationId,
-        msg.body.presentation.isInitialPresentation, msg.body.presentation.filenameConverted)
+        msg.body.presentation.defaultPresentation, msg.body.presentation.filenameConverted)
       PresentationSender.broadcastPresentationConversionCompletedEvtMsg(
         bus,
         meetingId,
@@ -33,6 +35,8 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         msg.body.code,
         presVO,
       )
+
+      val originalDownloadableExtension = pres.name.split("\\.").last
       PresentationSender.broadcastSetPresentationDownloadableEvtMsg(
         bus,
         meetingId,
@@ -40,14 +44,17 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         msg.header.userId,
         pres.id,
         pres.downloadable,
-        pres.name
+        pres.name,
+        originalDownloadableExtension
       )
 
-      val presWithConvertedName = PresentationInPod(pres.id, pres.name, pres.current, pres.pages,
-        pres.downloadable, pres.removable, msg.body.presentation.filenameConverted)
+      val presWithConvertedName = PresentationInPod(pres.id, pres.name, default = msg.body.presentation.defaultPresentation,
+        pres.current, pres.pages, pres.downloadable, pres.downloadFileExtension, pres.removable, msg.body.presentation.filenameConverted,
+        uploadCompleted = true, numPages = pres.numPages, errorDetails = Map.empty)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
 
+      PresPresentationDAO.updatePages(presWithConvertedName)
       state.update(pods)
     }
 

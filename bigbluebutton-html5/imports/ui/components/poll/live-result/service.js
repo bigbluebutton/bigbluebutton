@@ -1,5 +1,3 @@
-import { makeCall } from '/imports/ui/services/api';
-
 const sortUsers = (a, b) => {
   const sortByResponse = (a, b) => {
     const DEFAULT_CHAR = '-';
@@ -34,5 +32,4 @@ const sortUsers = (a, b) => {
 
 export default {
   sortUsers,
-  publishPoll: () => makeCall('publishPoll'),
 };

@@ -1,14 +1,17 @@
 package org.bigbluebutton.core.apps.users
 
-import akka.actor.ActorContext
-import akka.event.Logging
+import org.apache.pekko.actor.ActorContext
+import org.apache.pekko.event.Logging
+import org.bigbluebutton.Boot.eventBus
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ ExternalVideoModel }
-import org.bigbluebutton.core.bus.InternalEventBus
+import org.bigbluebutton.core.api.{SetPresenterInDefaultPodInternalMsg}
+import org.bigbluebutton.core.apps.ExternalVideoModel
+import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core2.message.senders.{MsgBuilder}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.db.UserStateDAO
 
 object UsersApp {
   def broadcastAddUserToPresenterGroup(meetingId: String, userId: String, requesterId: String,
@@ -40,8 +43,8 @@ object UsersApp {
     for {
       u <- RegisteredUsers.findWithUserId(guest.guest, liveMeeting.registeredUsers)
     } yield {
-
       RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, guest.status)
+      UserStateDAO.updateGuestStatus(guest.guest, guest.status, approvedBy)
       // send message to user that he has been approved
 
       val event = MsgBuilder.buildGuestApprovedEvtMsg(
@@ -66,14 +69,18 @@ object UsersApp {
       moderator <- Users2x.findModerator(liveMeeting.users2x)
       newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
     } yield {
-      // println(s"automaticallyAssignPresenter: moderator=${moderator} newPresenter=${newPresenter.intId}");
       sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
+      sendPresenterInPodReq(meetingId, newPresenter.intId)
     }
   }
 
   def sendPresenterAssigned(outGW: OutMsgRouter, meetingId: String, intId: String, name: String, assignedBy: String): Unit = {
     def event = MsgBuilder.buildPresenterAssignedEvtMsg(meetingId, intId, name, assignedBy)
     outGW.send(event)
+  }
+
+  def sendPresenterInPodReq(meetingId: String, newPresenterIntId: String): Unit = {
+    eventBus.publish(BigBlueButtonEvent(meetingId, SetPresenterInDefaultPodInternalMsg(newPresenterIntId)))
   }
 
   def sendUserLeftMeetingToAllClients(outGW: OutMsgRouter, meetingId: String,
@@ -124,6 +131,7 @@ object UsersApp {
         // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
+      UserStateDAO.updateEjected(userId, reason, reasonCode, ejectedBy)
     }
 
     for {
@@ -150,16 +158,17 @@ class UsersApp(
   with RegisterUserReqMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
+  with SetUserSpeechOptionsMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr
   with GetRecordingStatusReqMsgHdlr
-  with SelectRandomViewerReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with ChangeUserMobileFlagReqMsgHdlr
+  with UserConnectionAliveReqMsgHdlr
   with ChangeUserReactionEmojiReqMsgHdlr
   with ChangeUserRaiseHandReqMsgHdlr
   with ChangeUserAwayReqMsgHdlr

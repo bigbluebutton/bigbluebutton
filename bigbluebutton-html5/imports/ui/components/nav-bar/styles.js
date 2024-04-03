@@ -6,6 +6,7 @@ import {
   colorDanger,
   colorGrayDark,
   colorBackground,
+  colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { phoneLandscape, smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -79,6 +80,28 @@ const PresentationTitle = styled.h1`
   }
 `;
 
+const PluginInfoComponent = styled.h1`
+  font-weight: 400;
+  color: ${colorWhite};
+  font-size: ${fontSizeBase};
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 30vw;
+`;
+
+const PluginComponentWrapper = styled.div`
+  margin: 0 .5rem;
+`;
+
+const PluginSeparatorWrapper = styled.div`
+  color: ${colorGray};
+  font-size: ${fontSizeBase};
+  margin: 0 1rem;
+`;
+
 const Right = styled.div`
   display: flex;
   flex-direction: row;
@@ -128,4 +151,7 @@ export default {
   Right,
   Bottom,
   NavbarToggleButton,
+  PluginInfoComponent,
+  PluginComponentWrapper,
+  PluginSeparatorWrapper,
 };

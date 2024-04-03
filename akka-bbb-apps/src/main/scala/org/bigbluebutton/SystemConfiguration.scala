@@ -1,6 +1,9 @@
 package org.bigbluebutton
 
-import scala.util.Try
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+
+import scala.util.{ Failure, Success, Try }
 import com.typesafe.config.ConfigFactory
 
 trait SystemConfiguration {
@@ -10,6 +13,7 @@ trait SystemConfiguration {
   lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
   lazy val bbbWebAPI = Try(config.getString("services.bbbWebAPI")).getOrElse("localhost")
   lazy val bbbWebSharedSecret = Try(config.getString("services.sharedSecret")).getOrElse("changeme")
+  lazy val checkSumAlgorithmForBreakouts = Try(config.getString("services.checkSumAlgorithmForBreakouts")).getOrElse("sha256")
   lazy val bbbWebModeratorPassword = Try(config.getString("services.moderatorPassword")).getOrElse("changeme")
   lazy val bbbWebViewerPassword = Try(config.getString("services.viewerPassword")).getOrElse("changeme")
   lazy val keysExpiresInSec = Try(config.getInt("redis.keyExpiry")).getOrElse(14 * 86400) // 14 days
@@ -76,6 +80,13 @@ trait SystemConfiguration {
   lazy val fromBbbWebRedisChannel = Try(config.getString("redis.fromBbbWebRedisChannel")).getOrElse("from-bbb-web-redis-channel")
 
   lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
+
+  lazy val clientSettingsPath = Try(config.getString("client.clientSettingsFilePath")).getOrElse(
+    "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml"
+  )
+  lazy val clientSettingsPathOverride = Try(config.getString("client.clientSettingsOverrideFilePath")).getOrElse(
+    "/etc/bigbluebutton/bbb-html5.yml"
+  )
 
   // Grab the "interface" parameter from the http config
   val httpHost = config.getString("http.interface")

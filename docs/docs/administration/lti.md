@@ -24,7 +24,7 @@ There are two components for LTI integration that you need to install on your Bi
 
 The broker component handles the incoming launch, while the rooms component handles the rendering of the interface to the educator and student. 
 
-When installing using [bbb-install-2.6.sh](https://github.com/bigbluebutton/bbb-install#bbb-install), you can add the parameter `-t` to add LTI credentials have have `bbb-install-2.6.sh` install the above components for you.
+When installing using [bbb-install.sh](https://github.com/bigbluebutton/bbb-install#bbb-install), you can add the parameter `-t` to add LTI credentials have have `bbb-install.sh` install the above components for you.
 
 ```
 -t <key>:<secret>      Install BigBlueButton LTI framework tools and add/update LTI consumer credentials <key>:<secret>

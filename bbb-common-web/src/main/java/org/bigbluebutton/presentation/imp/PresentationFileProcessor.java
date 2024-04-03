@@ -1,6 +1,7 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
+import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
 import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.messages.*;
@@ -65,7 +66,15 @@ public class PresentationFileProcessor {
     private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {
         try {
             File presentationFileDir = pres.getUploadedFile().getParentFile();
-            Util.makePresentationDownloadable(presentationFileDir, pres.getId(), pres.isDownloadable());
+            if (!pres.getFilenameConverted().equals("")) {
+                String fileExtensionConverted = FilenameUtils.getExtension(pres.getFilenameConverted());
+                Util.makePresentationDownloadable(presentationFileDir, pres.getId(), pres.isDownloadable(),
+                        fileExtensionConverted);
+
+            }
+            String fileExtensionOriginal = FilenameUtils.getExtension(pres.getName());
+            Util.makePresentationDownloadable(presentationFileDir, pres.getId(), pres.isDownloadable(),
+                    fileExtensionOriginal);
         } catch (IOException e) {
             log.error("Failed to make presentation downloadable: {}", e);
         }
@@ -182,10 +191,12 @@ public class PresentationFileProcessor {
                 pres.getMeetingId(),
                 pres.getId(),
                 pres.getName(),
+                pres.getFilenameConverted(),
                 pres.getAuthzToken(),
                 pres.isDownloadable(),
                 pres.isRemovable(),
                 pres.isCurrent(),
+                pres.isDefaultPresentation(),
                 pres.getNumberOfPages());
         notifier.sendDocConversionProgress(progress);
     }

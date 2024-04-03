@@ -1,18 +1,11 @@
 import UserReaction from '/imports/api/user-reaction';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { isReactionsEnabled } from '/imports/ui/services/features/index';
 
-const ENABLED = Meteor.settings.public.userReaction.enabled;
+const ENABLED = window.meetingClientSettings.public.userReaction.enabled;
 
 const isEnabled = () => isReactionsEnabled() && getFromUserSettings('enable-user-reaction', ENABLED);
-
-const setUserReaction = (reaction) => {
-  if (isEnabled()) {
-    makeCall('setUserReaction', reaction);
-  }
-};
 
 const getUsersIdFromUserReaction = () => UserReaction.find(
   { meetingId: Auth.meetingID },
@@ -46,7 +39,6 @@ const getUserReaction = (userId) => {
 
 export default {
   getUserReaction,
-  setUserReaction,
   getUsersIdFromUserReaction,
   isEnabled,
 };

@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.pads
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.SharedNotesDAO
 import org.bigbluebutton.core.models.Pads
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -29,8 +30,11 @@ trait PadPinnedReqMsgHdlr extends RightsManagementTrait {
         PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       } else {
         Pads.getGroup(liveMeeting.pads, msg.body.externalId) match {
-          case Some(group) => broadcastEvent(group.externalId, msg.body.pinned)
-          case _           =>
+          case Some(group) => {
+            SharedNotesDAO.updatePinned(liveMeeting.props.meetingProp.intId, msg.body.externalId, msg.body.pinned)
+            broadcastEvent(group.externalId, msg.body.pinned)
+          }
+          case _ =>
         }
       }
     }

@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { ConnectionStatus } = require('./connectionStatus');
 
 test.describe.parallel('Connection Status', () => {
@@ -14,13 +14,17 @@ test.describe.parallel('Connection Status', () => {
     await connectionStatus.usersConnectionStatus();
   });
 
-  test('Report a User with bad connection in Connection Issues @ci', async ({ browser, context, page }) => {
+  test('Report a User with bad connection in Connection Issues @ci @flaky', async ({ browser, context, page }) => {
+    // The following test emulates a bad connection with a custom event
+    // PR #19289 changed the way it's measured, not able to do so with a custom event anymore
     const connectionStatus = new ConnectionStatus(browser, context);
     await connectionStatus.initModPage(page);
     await connectionStatus.reportUserInConnectionIssues();
   });
 
-  test('Redirect to data saving settings when a bad connection is detected @ci', async ({ browser, context, page }) => {
+  test('Redirect to data saving settings when a bad connection is detected @ci @flaky', async ({ browser, context, page }) => {
+    // The following test emulates a bad connection with a custom event
+    // PR #19289 changed the way it's measured, not able to do so with a custom event anymore
     const connectionStatus = new ConnectionStatus(browser, context);
     await connectionStatus.initModPage(page);
     await connectionStatus.linkToSettingsTest();

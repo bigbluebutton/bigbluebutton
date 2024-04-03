@@ -1,7 +1,6 @@
 package org.bigbluebutton.core2
 
 import java.util.concurrent.TimeUnit
-
 import org.bigbluebutton.core.util.TimeUtil
 
 case class Permissions(

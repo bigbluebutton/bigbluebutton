@@ -1,7 +1,6 @@
 import React from 'react';
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
-import GroupChat from '/imports/api/group-chat';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
 import UserReaction from '/imports/api/user-reaction';
@@ -14,22 +13,19 @@ import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import logger from '/imports/startup/client/logger';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
 import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
-import { indexOf } from '/imports/utils/array-utils';
-import { isEmpty, throttle } from 'radash';
-import ChatService from '/imports/ui/components/chat/service';
+import { isEmpty } from 'radash';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
-const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
+const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -155,30 +151,6 @@ const userFindSorting = {
   userId: 1,
 };
 
-const addWhiteboardAccess = (users) => {
-  const whiteboardId = WhiteboardService.getCurrentWhiteboardId();
-
-  if (whiteboardId) {
-    const multiUserWhiteboard = WhiteboardService.getMultiUser(whiteboardId);
-    return users.map((user) => {
-      const whiteboardAccess = multiUserWhiteboard.includes(user.userId);
-
-      return {
-        ...user,
-        whiteboardAccess,
-      };
-    });
-  }
-
-  return users.map((user) => {
-    const whiteboardAccess = false;
-    return {
-      ...user,
-      whiteboardAccess,
-    };
-  });
-};
-
 const addIsSharingWebcam = (users) => {
   const usersId = VideoService.getUsersIdFromVideoStreams();
 
@@ -222,14 +194,14 @@ const getUsers = () => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      { fields: { 'lockSettings.hideUserList': 1 } });
+    if (meeting && meeting.lockSettings && meeting.lockSettings.hideUserList) {
       const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
     }
   }
 
-  return addIsSharingWebcam(addUserReaction(addWhiteboardAccess(users))).sort(sortUsers);
+  return addIsSharingWebcam(addUserReaction(users)).sort(sortUsers);
 };
 
 const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) => {
@@ -238,8 +210,8 @@ const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) =
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      { fields: { 'lockSettings.hideUserList': 1 } });
+    if (meeting && meeting.lockSettings && meeting.lockSettings.hideUserList) {
       const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
     }
@@ -371,11 +343,11 @@ const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id },
-    { fields: { lockSettingsProps: 1, usersProp: 1 } });
+    { fields: { lockSettings: 1, usersPolicies: 1 } });
   let isLocked = false;
 
-  if (meeting.lockSettingsProps !== undefined) {
-    const { lockSettingsProps: lockSettings, usersProp } = meeting;
+  if (meeting.lockSettings !== undefined) {
+    const { lockSettings, usersPolicies } = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
@@ -385,7 +357,7 @@ const isMeetingLocked = (id) => {
       || lockSettings.hideUserList
       || lockSettings.hideViewersCursor
       || lockSettings.hideViewersAnnotation
-      || usersProp.webcamsOnlyForModerator) {
+      || usersPolicies.webcamsOnlyForModerator) {
       isLocked = true;
     }
   }
@@ -398,14 +370,14 @@ const getUsersProp = () => {
     { meetingId: Auth.meetingID },
     {
       fields: {
-        'usersProp.allowModsToUnmuteUsers': 1,
-        'usersProp.allowModsToEjectCameras': 1,
-        'usersProp.authenticatedGuest': 1,
+        'usersPolicies.allowModsToUnmuteUsers': 1,
+        'usersPolicies.allowModsToEjectCameras': 1,
+        'usersPolicies.authenticatedGuest': 1,
       },
     },
   );
 
-  if (meeting.usersProp) return meeting.usersProp;
+  if (meeting.usersPolicies) return meeting.usersPolicies;
 
   return {
     allowModsToUnmuteUsers: false,
@@ -414,8 +386,8 @@ const getUsersProp = () => {
   };
 };
 
-const curatedVoiceUser = (intId) => {
-  const voiceUser = VoiceUsers.findOne({ intId });
+const curatedVoiceUser = (userId) => {
+  const voiceUser = VoiceUsers.findOne({ userId });
   return {
     isVoiceUser: voiceUser ? voiceUser.joined : false,
     isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
@@ -508,53 +480,16 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
-  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
-  return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, emoji)
-    : makeCall('setEmojiStatus', userId, 'none');
-});
-
-const setUserAway = throttle({ interval: 1000 }, (userId, away) => {
-  return makeCall('changeAway', away);
-}, 250, { leading: false, trailing: true });
-
-const setUserRaiseHand = throttle({ interval: 1000 }, (userId, raiseHand) => {
-  return makeCall('changeRaiseHand', raiseHand);
-}, 250, { leading: false, trailing: true });
-
-const clearAllEmojiStatus = () => {
-  makeCall('clearAllUsersEmoji');
-};
-
-const clearAllReactions = () => {
-  makeCall('clearAllUsersReaction');
-};
-
-const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
-
-const removeUser = (userId, banUser) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId, banUser);
-  } else {
-    makeCall('removeUser', userId, banUser);
-  }
-};
-
-const toggleVoice = (userId) => {
+const toggleVoice = (userId, voiceToggle) => {
   if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone();
+    AudioService.toggleMuteMicrophone(voiceToggle);
   } else {
-    makeCall('toggleVoice', userId);
+    voiceToggle(userId);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
-};
-
-const ejectUserCameras = (userId) => {
-  makeCall('ejectUserCameras', userId);
 };
 
 const getEmoji = () => {
@@ -567,12 +502,6 @@ const getEmoji = () => {
 
   return currentUser.emoji;
 };
-
-const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
-
-const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
-
-const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
@@ -645,33 +574,6 @@ const roving = (...args) => {
   }
 };
 
-const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
-  .findOne({ users: { $all: [receiverId, senderId] } });
-
-const getGroupChatPrivate = (senderUserId, receiver) => {
-  const chat = hasPrivateChatBetweenUsers(senderUserId, receiver.userId);
-  if (!chat) {
-    makeCall('createGroupChat', receiver);
-  } else {
-    const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
-    if (indexOf(startedChats, chat.chatId) < 0) {
-      startedChats.push(chat.chatId);
-      Session.set(STARTED_CHAT_LIST_KEY, startedChats);
-    }
-
-    const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-
-    if (ChatService.isChatClosed(chat.chatId)) {
-      const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chat.chatId);
-      Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
-    }
-  }
-};
-
-const toggleUserLock = (userId, lockStatus) => {
-  makeCall('toggleUserLock', userId, lockStatus);
-};
-
 const requestUserInformation = (userId) => {
   makeCall('requestUserInformation', userId);
 };
@@ -724,8 +626,8 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
 
   const link = document.createElement('a');
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'meetingProp.name': 1 } });
-  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${getDateString()}.txt`);
+    { fields: { name: 1 } });
+  link.setAttribute('download', `bbb-${meeting.name}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
     `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,
@@ -742,9 +644,9 @@ const UserJoinedMeetingAlert = (obj) => {
   if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
 
   if (userJoinAudioAlerts) {
-    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename
-      + Meteor.settings.public.app.instanceId}`
+    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
+      + window.meetingClientSettings.public.app.basename
+      + window.meetingClientSettings.public.app.instanceId}`
       + '/resources/sounds/userJoin.mp3');
   }
 
@@ -770,9 +672,9 @@ const UserLeftMeetingAlert = (obj) => {
   if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
 
   if (userLeaveAudioAlerts) {
-    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename
-      + Meteor.settings.public.app.instanceId}`
+    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
+      + window.meetingClientSettings.public.app.basename
+      + window.meetingClientSettings.public.app.instanceId}`
       + '/resources/sounds/notify.mp3');
   }
 
@@ -792,17 +694,7 @@ const UserLeftMeetingAlert = (obj) => {
 export default {
   sortUsersByName,
   sortUsers,
-  setEmojiStatus,
-  setUserAway,
-  setUserRaiseHand,
-  clearAllEmojiStatus,
-  clearAllReactions,
-  assignPresenter,
-  removeUser,
   toggleVoice,
-  muteAllUsers,
-  muteAllExceptPresenter,
-  changeRole,
   getUsers,
   formatUsers,
   getActiveChats,
@@ -813,19 +705,15 @@ export default {
   isPublicChat,
   roving,
   getCustomLogoUrl,
-  getGroupChatPrivate,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji,
-  hasPrivateChatBetweenUsers,
-  toggleUserLock,
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
-  ejectUserCameras,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
 };

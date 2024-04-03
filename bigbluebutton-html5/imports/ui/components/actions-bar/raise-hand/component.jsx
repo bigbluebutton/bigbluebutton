@@ -41,7 +41,6 @@ class RaiseHandDropdown extends PureComponent {
 
   getAvailableActions() {
     const {
-      userId,
       getEmojiList,
       setEmojiStatus,
       intl,
@@ -55,7 +54,7 @@ class RaiseHandDropdown extends PureComponent {
         key: s,
         label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${s}Label` }),
         onClick: () => {
-          setEmojiStatus(userId, s);
+          setEmojiStatus(s);
         },
         icon: getEmojiList[s],
       });
@@ -99,7 +98,7 @@ class RaiseHandDropdown extends PureComponent {
         size="lg"
         onClick={(e) => {
           e.stopPropagation();
-          setEmojiStatus(currentUser.userId, btnEmoji);
+          setEmojiStatus(btnEmoji);
         }}
       />
     );

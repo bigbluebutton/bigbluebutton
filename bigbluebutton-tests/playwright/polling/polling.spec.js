@@ -1,14 +1,14 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
+const { fullyParallel } = require('../playwright.config');
 const { Polling } = require('./poll');
+const { initializePages } = require('../core/helpers');
 
-
-test.describe.serial('Polling', () => {
+test.describe('Polling', async () => {
   const polling = new Polling();
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await polling.initModPage(page, true);
-    await polling.initUserPage(true, context);
+
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    await initializePages(polling, browser, { isMultiUser: true });
   });
 
   // Manage
@@ -24,7 +24,7 @@ test.describe.serial('Polling', () => {
     await polling.quickPoll();
   });
 
-  test('Create poll with user response @ci', async () => {
+  test('Create poll with user response @ci @flaky', async () => {
     await polling.pollUserResponse();
   });
 
