@@ -202,6 +202,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       ],
       fallbackOnEmptyLocaleString: true,
       disableWebsocketFallback: true,
+      maxMutationPayloadSize: 10485760, // 10MB
     },
     externalVideoPlayer: {
       enabled: true,
@@ -781,10 +782,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           mime: 'image/webp',
         },
       ],
-    },
-    selectRandomUser: {
-      enabled: true,
-      countdown: false,
     },
     user: {
       role_moderator: 'MODERATOR',

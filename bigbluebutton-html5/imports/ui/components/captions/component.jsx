@@ -29,7 +29,7 @@ const intlMessages = defineMessages({
   },
   dictationStop: {
     id: 'app.captions.dictationStop',
-    description: 'Label for stoping speech recognition',
+    description: 'Label for stopping speech recognition',
   },
   dictationOnDesc: {
     id: 'app.captions.dictationOnDesc',

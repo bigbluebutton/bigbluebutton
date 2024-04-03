@@ -46,7 +46,8 @@ const PresentationDropdownPluginStateContainer = ((
 
   pluginApi.setPresentationDropdownItems = (items: PluginSdk.PresentationDropdownInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.PresentationDropdownInterface[];
-    return setPresentationDropdownItems(itemsWithId);
+    setPresentationDropdownItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

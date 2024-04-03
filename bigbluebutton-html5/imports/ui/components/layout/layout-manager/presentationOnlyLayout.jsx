@@ -358,7 +358,7 @@ const PresentationOnlyLayout = (props) => {
             hasExternalVideo: input.externalVideo.hasExternalVideo,
           },
           genericComponent: {
-            hasGenericComponent: input.genericComponent.hasGenericComponent,
+            genericComponentId: input.genericComponent.genericComponentId,
           },
           screenShare: {
             hasScreenShare: input.screenShare.hasScreenShare,

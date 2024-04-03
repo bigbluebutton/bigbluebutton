@@ -88,6 +88,7 @@ public:
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
     # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
+    skipMeteorConnection: false
     audioCaptions:
       enabled: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
@@ -162,11 +163,11 @@ public:
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
     # If enabled, before joining microphone the client will perform a trickle
-    # ICE against Kurento and use the information about successfull
+    # ICE against Kurento and use the information about successful
     # candidate-pairs to filter out local candidates in SIP.js's SDP.
     # Try enabling this setting in scenarios where the listenonly mode works,
     # but microphone doesn't (for example, when using VPN).
-    # For compatibility check "Browser compatbility" section in:
+    # For compatibility check "Browser compatibility" section in:
     # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
     # This is an EXPERIMENTAL setting and the default value is false
     # experimentalUseKmsTrickleIceForMicrophone: false
@@ -216,7 +217,7 @@ public:
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
         #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
-        #Noise Supression, etc.
+        #Noise Suppression, etc.
         #For more deails, see:
         # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
         #Currently, google chrome sets {ideal: true} for autoGainControl,
@@ -286,6 +287,9 @@ public:
     # string will be returned.
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
+    # Maximum number of bytes allowed in each mutation message payload.
+    # Defaults to 10485760 (10MB)
+    maxMutationPayloadSize: 10485760
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
@@ -835,9 +839,6 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
-  selectRandomUser:
-    enabled: true
-    countdown: false
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER

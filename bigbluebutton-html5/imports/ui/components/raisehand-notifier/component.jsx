@@ -5,10 +5,7 @@ import { toast } from 'react-toastify';
 import Icon from '/imports/ui/components/common/icon/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import Styled from './styles';
-import { Meteor } from 'meteor/meteor';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const messages = defineMessages({
   lowerHandsLabel: {
@@ -137,7 +134,7 @@ class RaiseHandNotifier extends Component {
           onClick={() => lowerUserHands(u.userId)}
           onKeyDown={(e) => (e.keyCode === ENTER ? lowerUserHands(u.userId) : null)}
           data-test="avatarsWrapperAvatar"
-          moderator={u.role === ROLE_MODERATOR}
+          moderator={u.isModerator}
           avatar={u.avatar}
         >
           {u.name.slice(0, 2)}

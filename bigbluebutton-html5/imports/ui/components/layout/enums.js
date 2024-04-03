@@ -112,6 +112,16 @@ export const ACTIONS = {
 
   SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
   SET_NOTES_IS_PINNED: 'setNotesIsPinned',
+
+  SET_PILE_CONTENT_FOR_PRESENTATION_AREA: 'setPileContentForPresentationArea',
+};
+
+export const PRESENTATION_AREA = {
+  GENERIC_COMPONENT: 'genericComponent',
+  PINNED_NOTES: 'pinnedNotes',
+  EXTERNAL_VIDEO: 'externalVideo',
+  SCREEN_SHARE: 'screenShare',
+  WHITEBOARD_OPEN: 'whiteboardOpen',
 };
 
 export const PANELS = {

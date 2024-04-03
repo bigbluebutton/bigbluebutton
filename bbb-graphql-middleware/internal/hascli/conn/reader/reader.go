@@ -54,13 +54,19 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, fromHasuraToBr
 			subscription, ok := hc.BrowserConn.ActiveSubscriptions[queryId]
 			hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
 			if !ok {
-				log.Debugf("Subscription with Id %s doesn't exist anymore, skiping response.", queryId)
+				log.Debugf("Subscription with Id %s doesn't exist anymore, skipping response.", queryId)
 				return
 			}
 
 			//When Hasura send msg type "complete", this query is finished
 			if messageType == "complete" {
 				handleCompleteMessage(hc, queryId)
+				common.ActivitiesOverviewCompleted(string(subscription.Type) + "-" + subscription.OperationName)
+				common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
+			}
+
+			if messageType == "data" {
+				common.ActivitiesOverviewDataReceived(string(subscription.Type) + "-" + subscription.OperationName)
 			}
 
 			if messageType == "data" &&
@@ -95,6 +101,12 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 			for dataKey, dataItem := range data {
 				if currentDataProp, okCurrentDataProp := dataItem.([]interface{}); okCurrentDataProp {
 					if dataAsJson, err := json.Marshal(currentDataProp); err == nil {
+						if common.ActivitiesOverviewEnabled {
+							dataSize := len(string(dataAsJson))
+							dataCount := len(currentDataProp)
+							common.ActivitiesOverviewDataSize(string(subscription.Type)+"-"+subscription.OperationName, int64(dataSize), int64(dataCount))
+						}
+
 						//Check whether ReceivedData is different from the LastReceivedData
 						//Otherwise stop forwarding this message
 						dataChecksum := crc32.ChecksumIEEE(dataAsJson)

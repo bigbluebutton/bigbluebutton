@@ -101,7 +101,8 @@ object PluginDataChannelMessageDAO {
     DatabaseConnection.db.run(
       sqlu"""UPDATE "pluginDataChannelMessage" SET
                 "deletedAt" = current_timestamp
-                WHERE "meetingId" = ${meetingId}
+                WHERE "deletedAt" is null
+                AND "meetingId" = ${meetingId}
                 AND "pluginName" = ${pluginName}
                 AND "dataChannel" = ${dataChannel}
                 AND "messageId" = ${messageId}"""

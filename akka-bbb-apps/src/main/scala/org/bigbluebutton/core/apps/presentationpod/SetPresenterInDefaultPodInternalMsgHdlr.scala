@@ -15,7 +15,7 @@ trait SetPresenterInDefaultPodInternalMsgHdlr {
       msg: SetPresenterInDefaultPodInternalMsg, state: MeetingState2x,
       liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
-    // Swith presenter as default presenter pod has changed.
+    // Switch presenter as default presenter pod has changed.
     log.info("Presenter pod change will trigger a presenter change")
     SetPresenterInPodActionHandler.handleAction(state, liveMeeting, bus.outGW, "", PresentationPod.DEFAULT_PRESENTATION_POD, msg.presenterId)
   }

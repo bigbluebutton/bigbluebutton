@@ -22,11 +22,11 @@ const isModerator = () => {
 
 const getLearningDashboardAccessToken = () => ((
   Meetings.findOne(
-    { meetingId: Auth.meetingID, learningDashboardAccessToken: { $exists: true } },
+    { meetingId: Auth.meetingID },
     {
-      fields: { learningDashboardAccessToken: 1 },
+      fields: { 'learningDashboard.learningDashboardAccessToken': 1 },
     },
-  ) || {}).learningDashboardAccessToken || null);
+  ) || {})?.learningDashboard?.learningDashboardAccessToken || null);
 
 const setLearningDashboardCookie = () => {
   const learningDashboardAccessToken = getLearningDashboardAccessToken();
