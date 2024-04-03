@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { useRef } from "react";
 import { debounce, isEqual } from "radash";
@@ -9,7 +9,7 @@ import {
   DefaultFillStyle,
   DefaultFontStyle,
   DefaultSizeStyle,
-  InstancePresenceRecordType
+  InstancePresenceRecordType,
 } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
@@ -22,6 +22,7 @@ import {
   mapLanguage
 } from "./utils";
 import { useMouseEvents, useCursor } from "./hooks";
+import getFromUserSettings from "/imports/ui/services/users-settings";
 
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
@@ -797,6 +798,14 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const handleTldrawMount = (editor) => {
     setTlEditor(editor);
     setTldrawAPI(editor);
+
+      const isPenSelected = getFromUserSettings(
+        'pen_select',
+        false,
+      );
+      if (isPenSelected && !isModerator) {
+        editor.setCurrentTool('draw');
+      }
 
     editor?.user?.updateUserPreferences({ locale: language });
 
