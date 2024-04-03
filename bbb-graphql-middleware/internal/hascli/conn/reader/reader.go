@@ -101,6 +101,12 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 			for dataKey, dataItem := range data {
 				if currentDataProp, okCurrentDataProp := dataItem.([]interface{}); okCurrentDataProp {
 					if dataAsJson, err := json.Marshal(currentDataProp); err == nil {
+						if common.ActivitiesOverviewEnabled {
+							dataSize := len(string(dataAsJson))
+							dataCount := len(currentDataProp)
+							common.ActivitiesOverviewDataSize(string(subscription.Type)+"-"+subscription.OperationName, int64(dataSize), int64(dataCount))
+						}
+
 						//Check whether ReceivedData is different from the LastReceivedData
 						//Otherwise stop forwarding this message
 						dataChecksum := crc32.ChecksumIEEE(dataAsJson)

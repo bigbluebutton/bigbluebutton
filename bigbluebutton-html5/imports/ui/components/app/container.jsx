@@ -18,7 +18,7 @@ import { isEqual } from 'radash';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { useMutation } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -36,8 +36,10 @@ import {
 import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
+import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
 
 const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
 const AppContainer = (props) => {
   function usePrevious(value) {
@@ -57,7 +59,6 @@ const AppContainer = (props) => {
     pushLayoutMeeting,
     currentUserId,
     shouldShowScreenshare: propsShouldShowScreenshare,
-    shouldShowSharedNotes,
     presentationRestoreOnUpdate,
     isModalOpen,
     meetingLayout,
@@ -88,6 +89,9 @@ const AppContainer = (props) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
   const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
+  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const shouldShowSharedNotes = !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const setMobileUser = (mobile) => {
     setMobileFlag({
@@ -283,7 +287,6 @@ export default withTracker(() => {
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
-  const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare();
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
@@ -323,7 +326,6 @@ export default withTracker(() => {
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
     viewScreenshare,
-    shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',

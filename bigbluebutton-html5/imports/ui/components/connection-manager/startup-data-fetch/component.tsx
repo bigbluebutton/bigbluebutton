@@ -66,7 +66,7 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       .then((resp) => resp.json())
       .then((data: Response) => {
         const settings = data.meeting_clientSettings[0];
-        sessionStorage.setItem('clientStartupSettings', JSON.stringify(settings));
+        sessionStorage.setItem('clientStartupSettings', JSON.stringify(settings || {}));
         setSettingsFetched(true);
         clearTimeout(timeoutRef.current);
         setLoading(false);
