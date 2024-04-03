@@ -37,11 +37,11 @@ subscription userCurrentSubscription {
   isDialIn
   isModerator
   joined
+  userId
   breakoutRooms {
     currentRoomJoined
     assignedAt
     breakoutRoomId
-    currentRoomIsOnline
     currentRoomPriority
     currentRoomRegisteredAt
     durationInSeconds
@@ -59,35 +59,15 @@ subscription userCurrentSubscription {
     shortName
     showInvitation
     startedAt
+    currentRoomIsOnline
   }
   lastBreakoutRoom {
-    expired
-    extId
-    guest
-    guestStatus
-    hasDrawPermissionOnCurrentPage
-    inactivityWarningDisplay
-    inactivityWarningTimeoutSecs
-    isDialIn
-    isModerator
-    isOnline
-    isRunningEchoTest
-    joinErrorCode
-    joinErrorMessage
-    joined
-    locked
-    loggedOut
-    mobile
-    name
-    nameSortable
-    pinned
-    presenter
-    raiseHand
-    registeredAt
-    registeredOn
-    role
-    speechLocale
-    userId
+    breakoutRoomId
+    currentlyInRoom
+    isDefaultName
+    sequence
+    shortName
+  }
     customParameters {
       parameter
       value
