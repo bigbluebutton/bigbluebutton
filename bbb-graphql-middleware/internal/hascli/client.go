@@ -31,8 +31,8 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 		//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
 		browserConnection.ActiveSubscriptionsMutex.RLock()
 		for _, subscription := range browserConnection.ActiveSubscriptions {
-			common.ActivitiesOverviewStarted(string(subscription.Type) + "-" + subscription.OperationName)
-			common.ActivitiesOverviewStarted("_Sum-" + string(subscription.Type))
+			common.ActivitiesOverviewCompleted(string(subscription.Type) + "-" + subscription.OperationName)
+			common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
 		}
 		browserConnection.ActiveSubscriptionsMutex.RUnlock()
 	}()
