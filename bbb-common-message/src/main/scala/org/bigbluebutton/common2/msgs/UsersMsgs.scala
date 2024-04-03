@@ -298,14 +298,7 @@ case class ChangeUserMobileFlagReqMsgBody(userId: String, mobile: Boolean)
  */
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
 case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
-case class UserConnectionAliveReqMsgBody(userId: String)
-
-/**
- * Sent from client to inform the RTT (time it took to send the Alive and receive confirmation).
- */
-object UserConnectionUpdateRttReqMsg { val NAME = "UserConnectionUpdateRttReqMsg" }
-case class UserConnectionUpdateRttReqMsg(header: BbbClientMsgHeader, body: UserConnectionUpdateRttReqMsgBody) extends StandardMsg
-case class UserConnectionUpdateRttReqMsgBody(userId: String, networkRttInMs: Double)
+case class UserConnectionAliveReqMsgBody(userId: String, networkRttInMs: Double)
 
 /**
  * Sent to all clients about a user mobile flag.
@@ -532,3 +525,11 @@ case class SetUserSpeechLocaleReqMsgBody(locale: String, provider: String)
 object UserSpeechLocaleChangedEvtMsg { val NAME = "UserSpeechLocaleChangedEvtMsg" }
 case class UserSpeechLocaleChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechLocaleChangedEvtMsgBody) extends BbbCoreMsg
 case class UserSpeechLocaleChangedEvtMsgBody(locale: String, provider: String)
+
+object SetUserSpeechOptionsReqMsg { val NAME = "SetUserSpeechOptionsReqMsg" }
+case class SetUserSpeechOptionsReqMsg(header: BbbClientMsgHeader, body: SetUserSpeechOptionsReqMsgBody) extends StandardMsg
+case class SetUserSpeechOptionsReqMsgBody(partialUtterances: Boolean, minUtteranceLength: Int)
+
+object UserSpeechOptionsChangedEvtMsg { val NAME = "UserSpeechOptionsChangedEvtMsg" }
+case class UserSpeechOptionsChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechOptionsChangedEvtMsgBody) extends BbbCoreMsg
+case class UserSpeechOptionsChangedEvtMsgBody(partialUtterances: Boolean, minUtteranceLength: Int)

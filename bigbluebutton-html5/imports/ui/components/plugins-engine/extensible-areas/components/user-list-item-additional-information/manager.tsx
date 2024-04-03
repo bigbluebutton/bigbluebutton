@@ -46,7 +46,8 @@ const UserListItemAdditionalInformationPluginStateContainer = ((
 
   pluginApi.setUserListItemAdditionalInformation = (items: PluginSdk.UserListItemAdditionalInformationInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.UserListItemAdditionalInformationInterface[];
-    return setUserListItemAdditionalInformation(itemsWithId);
+    setUserListItemAdditionalInformation(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

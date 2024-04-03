@@ -22,11 +22,9 @@ select_permissions:
       columns:
         - connectionAliveAt
         - meetingId
-        - applicationRttInMs
         - networkRttInMs
         - status
         - statusUpdatedAt
-        - userClientResponseAt
         - userId
       filter:
         _and:

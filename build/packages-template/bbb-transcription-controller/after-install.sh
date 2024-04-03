@@ -5,6 +5,9 @@ case "$1" in
     TARGET=/usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
     cp /usr/local/bigbluebutton/bbb-transcription-controller/config/default.example.yml $TARGET
 
+    touch /var/log/bigbluebutton/gladia-proxy.log
+    chown bigbluebutton:bigbluebutton /var/log/bigbluebutton/gladia-proxy.log
+
     startService bbb-transcription-controller|| echo "bbb-transcription-controller could not be registered or started"
   ;;
 
