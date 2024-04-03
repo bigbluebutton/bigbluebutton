@@ -184,7 +184,6 @@ class Base extends Component {
     const {
       subscriptionsReady,
     } = this.props;
-    console.log('subscriptionsReady', subscriptionsReady);
     if (!subscriptionsReady) {
       return (<LoadingScreen />);
     }
