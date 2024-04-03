@@ -15,7 +15,9 @@ type ActivitiesOverviewObj struct {
 	Completed    int64
 	DataReceived int64
 	DataSizeAvg  int64
+	DataSizeMax  int64
 	DataCountAvg int64
+	DataCountMax int64
 }
 
 var ActivitiesOverviewEnabled = false
@@ -36,7 +38,9 @@ func ActivitiesOverviewStarted(index string) {
 			Completed:    0,
 			DataReceived: 0,
 			DataSizeAvg:  0,
+			DataSizeMax:  0,
 			DataCountAvg: 0,
+			DataCountMax: 0,
 		}
 	}
 
@@ -61,21 +65,6 @@ func ActivitiesOverviewDataReceived(index string) {
 	}
 }
 
-func ActivitiesOverviewDataSize(index string, dataSize int64, dataCount int64) {
-	if !ActivitiesOverviewEnabled {
-		return
-	}
-
-	activitiesOverviewMux.Lock()
-	defer activitiesOverviewMux.Unlock()
-
-	if updatedValues, exists := activitiesOverview[index]; exists {
-		updatedValues.DataSizeAvg = ((updatedValues.DataSizeAvg*updatedValues.DataReceived - 1) + dataSize) / updatedValues.DataReceived
-		updatedValues.DataCountAvg = ((updatedValues.DataCountAvg * (updatedValues.DataReceived - 1)) + dataCount) / updatedValues.DataReceived
-		activitiesOverview[index] = updatedValues
-	}
-}
-
 func ActivitiesOverviewCompleted(index string) {
 	if !ActivitiesOverviewEnabled {
 		return
@@ -89,7 +78,27 @@ func ActivitiesOverviewCompleted(index string) {
 
 		activitiesOverview[index] = updatedValues
 	}
+}
 
+func ActivitiesOverviewDataSize(index string, dataSize int64, dataCount int64) {
+	if !ActivitiesOverviewEnabled {
+		return
+	}
+
+	activitiesOverviewMux.Lock()
+	defer activitiesOverviewMux.Unlock()
+
+	if updatedValues, exists := activitiesOverview[index]; exists {
+		updatedValues.DataSizeAvg = ((updatedValues.DataSizeAvg * (updatedValues.DataReceived - 1)) + dataSize) / updatedValues.DataReceived
+		if dataSize > updatedValues.DataSizeMax {
+			updatedValues.DataSizeMax = dataSize
+		}
+		updatedValues.DataCountAvg = ((updatedValues.DataCountAvg * (updatedValues.DataReceived - 1)) + dataCount) / updatedValues.DataReceived
+		if dataCount > updatedValues.DataCountMax {
+			updatedValues.DataCountMax = dataCount
+		}
+		activitiesOverview[index] = updatedValues
+	}
 }
 
 func GetActivitiesOverview() map[string]ActivitiesOverviewObj {
@@ -114,8 +123,10 @@ func ActivitiesOverviewLogRoutine() {
 			if strings.HasPrefix(index, "_") ||
 				item.Started > hasuraConnections*3 ||
 				item.DataReceived > hasuraConnections*5 ||
-				item.DataSizeAvg > 3000 ||
-				item.DataCountAvg > 5 {
+				item.DataSizeAvg > 4000 ||
+				item.DataSizeMax > 50000 ||
+				item.DataCountAvg > 5 ||
+				(item.DataCountMax > 10 && item.DataCountMax >= hasuraConnections) {
 				topMessages[index] = item
 			}
 		}
