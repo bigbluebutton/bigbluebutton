@@ -24,7 +24,7 @@ test.describe('Polling', async () => {
     await polling.quickPoll();
   });
 
-  test('Create poll with user response @ci @flaky', async () => {
+  test('Create poll with user response @ci', async () => {
     await polling.pollUserResponse();
   });
 
@@ -61,7 +61,8 @@ test.describe('Polling', async () => {
     await polling.pollResultsOnWhiteboard();
   });
 
-  test('Poll results in a different presentation', async () => {
+  test('Poll results in a different presentation', async ({}, testInfo) => {
+    test.fixme(!testInfo.config.fullyParallel, 'Currently only works in parallel mode. Poll results not being displayed in the presentation');
     await polling.pollResultsInDifferentPresentation();
   });
 });

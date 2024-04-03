@@ -186,7 +186,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
                   users.map((user) => (
                     <tr key={user.user.userId}>
                       <Styled.ResultLeft>{user.user.name}</Styled.ResultLeft>
-                      <Styled.ResultRight>{user.optionDescIds.join()}</Styled.ResultRight>
+                      <Styled.ResultRight data-test="userVoteLiveResult">{user.optionDescIds.join()}</Styled.ResultRight>
                     </tr>
                   ))
                 }
