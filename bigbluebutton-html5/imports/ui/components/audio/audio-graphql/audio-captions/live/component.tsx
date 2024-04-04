@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { Caption, GET_CAPTIONS, getCaptions } from './queries';
 import logger from '/imports/startup/client/logger';
 import OldCaptionsService from '/imports/ui/components/captions/service';
-import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { splitTranscript, isAudioTranscription } from '../service';
