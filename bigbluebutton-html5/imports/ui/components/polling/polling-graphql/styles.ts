@@ -117,8 +117,7 @@ const MultipleResponseAnswersTableAnswerText = styled.td`
 
 const Overlay = styled.div`
   position: absolute;
-  height: 100vh;
-  width: 100vw;
+  inset: 0;
   z-index: ${overlayIndex};
   pointer-events: none;
 

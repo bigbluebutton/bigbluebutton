@@ -5,7 +5,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PANELS } from '/imports/ui/components/layout/enums';
-import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import {

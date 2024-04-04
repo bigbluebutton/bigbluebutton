@@ -14,6 +14,4 @@ export const usePreviousValue = <T = unknown>(value: T) => {
   return ref.current;
 };
 
-export default {
-  usePreviousValue,
-};
+export default usePreviousValue;
