@@ -23,7 +23,7 @@ import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 import Settings from '/imports/ui/services/settings';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
-import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 const APP_CONFIG = window.meetingClientSettings.public.app;
 const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
