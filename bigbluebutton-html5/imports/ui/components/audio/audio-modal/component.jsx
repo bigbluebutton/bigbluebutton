@@ -132,6 +132,7 @@ class AudioModal extends Component {
       content: null,
       hasError: false,
       errCode: null,
+      errMessage: null,
     };
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
@@ -258,6 +259,7 @@ class AudioModal extends Component {
       return this.setState({
         content: 'help',
         errCode: MIC_ERROR.NO_SSL,
+        errMessage: 'NoSSL',
       });
     }
 
@@ -363,6 +365,7 @@ class AudioModal extends Component {
         this.setState({
           content: 'help',
           errCode: 0,
+          errMessage: type,
           disableActions: false,
         });
         break;
@@ -370,6 +373,7 @@ class AudioModal extends Component {
       default:
         this.setState({
           errCode: 0,
+          errMessage: type,
           disableActions: false,
         });
         break;
@@ -514,16 +518,22 @@ class AudioModal extends Component {
       localEchoEnabled,
       showVolumeMeter,
       notify,
+      AudioError,
     } = this.props;
+    const { MIC_ERROR } = AudioError;
 
     const confirmationCallback = !localEchoEnabled
       ? this.handleRetryGoToEchoTest
       : this.handleJoinLocalEcho;
 
-    const handleGUMFailure = () => {
+    const handleGUMFailure = (error) => {
+      const errCode = error?.name === 'NotAllowedError'
+        ? MIC_ERROR.NO_PERMISSION
+        : 0
       this.setState({
         content: 'help',
-        errCode: 0,
+        errCode,
+        errMessage: error?.name || 'GUMFailure',
         disableActions: false,
       });
     };
@@ -550,18 +560,20 @@ class AudioModal extends Component {
   }
 
   renderHelp() {
-    const { errCode } = this.state;
-    const { AudioError } = this.props;
+    const { errCode, errMessage } = this.state;
+    const { AudioError, getTroubleshootingLink } = this.props;
 
     const audioErr = {
       ...AudioError,
       code: errCode,
+      message: errMessage,
     };
 
     return (
       <Help
         handleBack={this.handleGoToAudioOptions}
         audioErr={audioErr}
+        troubleshootingLink={getTroubleshootingLink(errCode)}
       />
     );
   }
