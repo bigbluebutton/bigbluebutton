@@ -870,7 +870,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
                   : baseZoom * (currentZoom / HUNDRED_PERCENT);
 
               setCamera(zoomToApply, camera.x, camera.y);
-            }, 25);
+            }, 50);
           } else {
             // Viewer logic
             const effectiveZoom = calculateEffectiveZoom(
