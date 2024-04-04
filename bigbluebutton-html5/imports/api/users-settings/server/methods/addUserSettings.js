@@ -51,7 +51,7 @@ const currentParameters = [
   'bbb_mirror_own_webcam',
   // PRESENTATION
   'bbb_force_restore_presentation_on_new_events',
-  'pen_select',
+  'bbb_pen_select',
   // WHITEBOARD
   'bbb_multi_user_pen_only',
   'bbb_presenter_tools',
