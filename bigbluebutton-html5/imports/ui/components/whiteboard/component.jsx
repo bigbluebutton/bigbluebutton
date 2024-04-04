@@ -800,7 +800,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     setTldrawAPI(editor);
 
       const isPenSelected = getFromUserSettings(
-        'pen_select',
+        'bbb_pen_select',
         false,
       );
       if (isPenSelected && !isModerator) {
