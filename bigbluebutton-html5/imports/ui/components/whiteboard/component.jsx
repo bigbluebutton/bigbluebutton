@@ -9,7 +9,7 @@ import {
   DefaultFillStyle,
   DefaultFontStyle,
   DefaultSizeStyle,
-  InstancePresenceRecordType
+  InstancePresenceRecordType,
 } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
@@ -18,9 +18,7 @@ import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 import Settings from "/imports/ui/services/settings";
 import KEY_CODES from "/imports/utils/keyCodes";
 import Styled from "./styles";
-import {
-  mapLanguage
-} from "./utils";
+import { mapLanguage } from "./utils";
 import { useMouseEvents, useCursor } from "./hooks";
 import { notifyShapeNumberExceeded } from "./service";
 
@@ -158,7 +156,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     hasWBAccessRef.current = hasWBAccess;
 
     if (!hasWBAccess && !isPresenter) {
-      tlEditorRef?.current?.setCurrentTool('select');
+      tlEditorRef?.current?.setCurrentTool("select");
     }
   }, [hasWBAccess]);
 
@@ -177,7 +175,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     if (!isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
-      setShapesVersion(v => v + 1);
+      setShapesVersion((v) => v + 1);
     }
   }, [shapes]);
 
@@ -189,11 +187,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   React.useEffect(() => {
     if (whiteboardRef.current) {
-      whiteboardRef.current.addEventListener('keydown', handleKeyDown, { capture: true });
+      whiteboardRef.current.addEventListener("keydown", handleKeyDown, {
+        capture: true,
+      });
     }
 
     return () => {
-      whiteboardRef.current?.removeEventListener('keydown', handleKeyDown);
+      whiteboardRef.current?.removeEventListener("keydown", handleKeyDown);
     };
   }, [whiteboardRef.current]);
 
@@ -208,7 +208,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   const handleKeyDown = (event) => {
     if (!isPresenterRef.current) {
-      if (!hasWBAccessRef.current || (hasWBAccessRef.current && (!tlEditorRef.current.editingShape))) {
+      if (
+        !hasWBAccessRef.current ||
+        (hasWBAccessRef.current && !tlEditorRef.current.editingShape)
+      ) {
         event.preventDefault();
         event.stopPropagation();
         return;
@@ -224,25 +227,38 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
     const debouncePersistShape = debounce({ delay: 0 }, persistShapeWrapper);
 
-    const colorStyles = ['black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'];
-    const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
-    const fillStyles = ['none', 'pattern', 'semi', 'solid'];
-    const fontStyles = ['draw','mono','sans', 'serif'];
-    const sizeStyles = ['l', 'm', 's', 'xl'];
+    const colorStyles = [
+      "black",
+      "blue",
+      "green",
+      "grey",
+      "light-blue",
+      "light-green",
+      "light-red",
+      "light-violet",
+      "orange",
+      "red",
+      "violet",
+      "yellow",
+    ];
+    const dashStyles = ["dashed", "dotted", "draw", "solid"];
+    const fillStyles = ["none", "pattern", "semi", "solid"];
+    const fontStyles = ["draw", "mono", "sans", "serif"];
+    const sizeStyles = ["l", "m", "s", "xl"];
 
-    if ( colorStyles.includes(colorStyle) ) {
+    if (colorStyles.includes(colorStyle)) {
       editor.setStyleForNextShapes(DefaultColorStyle, colorStyle);
     }
-    if ( dashStyles.includes(dashStyle) ) {
+    if (dashStyles.includes(dashStyle)) {
       editor.setStyleForNextShapes(DefaultDashStyle, dashStyle);
     }
-    if ( fillStyles.includes(fillStyle) ) {
+    if (fillStyles.includes(fillStyle)) {
       editor.setStyleForNextShapes(DefaultFillStyle, fillStyle);
     }
-    if ( fontStyles.includes(fontStyle)) {
+    if (fontStyles.includes(fontStyle)) {
       editor.setStyleForNextShapes(DefaultFontStyle, fontStyle);
     }
-    if ( sizeStyles.includes(sizeStyle) ) {
+    if (sizeStyles.includes(sizeStyle)) {
       editor.setStyleForNextShapes(DefaultSizeStyle, sizeStyle);
     }
 
@@ -260,11 +276,17 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             },
           };
 
-          persistShapeWrapper(updatedRecord, whiteboardIdRef.current, isModeratorRef.current);
+          persistShapeWrapper(
+            updatedRecord,
+            whiteboardIdRef.current,
+            isModeratorRef.current
+          );
         });
 
         Object.values(updated).forEach(([_, record]) => {
-          const createdBy = prevShapesRef.current[record?.id]?.meta?.createdBy || currentUser?.userId;
+          const createdBy =
+            prevShapesRef.current[record?.id]?.meta?.createdBy ||
+            currentUser?.userId;
           const updatedRecord = {
             ...record,
             meta: {
@@ -273,7 +295,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             },
           };
 
-          persistShapeWrapper(updatedRecord, whiteboardIdRef.current, isModeratorRef.current);
+          persistShapeWrapper(
+            updatedRecord,
+            whiteboardIdRef.current,
+            isModeratorRef.current
+          );
         });
 
         Object.values(removed).forEach((record) => {
@@ -311,12 +337,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
               currentPresentationPage?.scaledHeight
             );
 
-            zoomSlide(
-              viewedRegionW,
-              viewedRegionH,
-              nextCam.x,
-              nextCam.y,
-            );
+            zoomSlide(viewedRegionW, viewedRegionH, nextCam.x, nextCam.y);
           }
         }
       },
@@ -378,19 +399,23 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
       editor.store.onBeforeChange = (prev, next, source) => {
         if (next?.typeName === "instance_page_state") {
-
           if (isPresenter || isModeratorRef.current) return next;
 
           // Filter selectedShapeIds based on shape owner
-          if (next.selectedShapeIds.length > 0 && !isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
-            next.selectedShapeIds = next.selectedShapeIds.filter(shapeId => {
-              const shapeOwner = prevShapesRef.current[shapeId]?.meta?.createdBy;
+          if (
+            next.selectedShapeIds.length > 0 &&
+            !isEqual(prev.selectedShapeIds, next.selectedShapeIds)
+          ) {
+            next.selectedShapeIds = next.selectedShapeIds.filter((shapeId) => {
+              const shapeOwner =
+                prevShapesRef.current[shapeId]?.meta?.createdBy;
               return !shapeOwner || shapeOwner === currentUser?.userId;
             });
           }
 
           if (!isEqual(prev.hoveredShapeId, next.hoveredShapeId)) {
-            const hoveredShapeOwner = prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
+            const hoveredShapeOwner =
+              prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
             if (hoveredShapeOwner !== currentUser?.userId) {
               next.hoveredShapeId = null;
             }
@@ -407,20 +432,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         const zoomed = next?.id?.includes("camera") && prev.z !== next.z;
         if (panned) {
           // // limit bounds
-          if (
-            maxX >
-            currentPresentationPage?.scaledWidth
-          ) {
-            next.x +=
-              maxX - currentPresentationPage?.scaledWidth;
+          if (maxX > currentPresentationPage?.scaledWidth) {
+            next.x += maxX - currentPresentationPage?.scaledWidth;
           }
-          if (
-            maxY >
-            currentPresentationPage?.scaledHeight
-          ) {
-            next.y +=
-              maxY -
-              currentPresentationPage?.scaledHeight;
+          if (maxY > currentPresentationPage?.scaledHeight) {
+            next.y += maxY - currentPresentationPage?.scaledHeight;
           }
           if (next.x > 0 || minX < 0) {
             next.x = 0;
@@ -439,8 +455,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const { shapesToAdd, shapesToUpdate, shapesToRemove } = React.useMemo(() => {
     const selectedShapeIds = tlEditorRef.current?.getSelectedShapeIds() || [];
     const localShapes = tlEditorRef.current?.getCurrentPageShapes();
-    const filteredShapes = localShapes?.filter((item) => item?.index !== "a0") || [];
-    const localLookup = new Map(filteredShapes.map((shape) => [shape.id, shape]));
+    const filteredShapes =
+      localShapes?.filter((item) => item?.index !== "a0") || [];
+    const localLookup = new Map(
+      filteredShapes.map((shape) => [shape.id, shape])
+    );
     const remoteShapeIds = Object.keys(prevShapesRef.current);
     const toAdd = [];
     const toUpdate = [];
@@ -458,9 +477,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       const prevShape = prevShapesRef.current[remoteShape.id];
 
       if (!localShape) {
-          delete remoteShape.isModerator
-          delete remoteShape.questionType
-          toAdd.push(remoteShape);
+        delete remoteShape.isModerator;
+        delete remoteShape.questionType;
+        toAdd.push(remoteShape);
       } else if (!isEqual(localShape, remoteShape) && prevShape) {
         const diff = {
           id: remoteShape.id,
@@ -469,7 +488,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         };
 
         Object.keys(remoteShape).forEach((key) => {
-          if (key !== "isModerator" && !isEqual(remoteShape[key], localShape[key])) {
+          if (
+            key !== "isModerator" &&
+            !isEqual(remoteShape[key], localShape[key])
+          ) {
             diff[key] = remoteShape[key];
           }
         });
@@ -483,8 +505,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           });
         }
 
-        delete diff.isModerator
-        delete diff.questionType
+        delete diff.isModerator;
+        delete diff.questionType;
         toUpdate.push(diff);
       }
     });
@@ -522,6 +544,24 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           );
     }
 
+    return calcedZoom === 0 || calcedZoom === Infinity
+      ? HUNDRED_PERCENT
+      : calcedZoom;
+  };
+
+  const calculateZoomWithGapValue = (
+    localWidth,
+    localHeight,
+    isViewer = false,
+    widthAdjustment = 0
+  ) => {
+    let presentationWidth = presentationAreaWidth - widthAdjustment;
+    let calcedZoom = (baseZoom = fitToWidth
+      ? presentationWidth / localWidth
+      : Math.min(
+          presentationWidth / localWidth,
+          presentationAreaHeight / localHeight
+        ));
     return calcedZoom === 0 || calcedZoom === Infinity
       ? HUNDRED_PERCENT
       : calcedZoom;
@@ -568,9 +608,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       const changeSlide = (direction) => {
         if (!currentPresentationPage) return;
         let newSlideNum = currPageNum + direction;
-        const outOfBounds = direction > 0
-          ? newSlideNum > currentPresentationPage?.totalPages
-          : newSlideNum < 1;
+        const outOfBounds =
+          direction > 0
+            ? newSlideNum > currentPresentationPage?.totalPages
+            : newSlideNum < 1;
 
         if (outOfBounds) return;
 
@@ -586,7 +627,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           changeSlide(-1); // Move to the previous slide
         }
       }
-    }
+    };
 
     const handleUndoRedoOnCondition = (condition, action) => {
       if (condition) {
@@ -595,10 +636,15 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     };
 
     const handleKeyDown = (event) => {
-      const undoCondition = event.ctrlKey && event.key === 'z' && !event.shiftKey;
-      const redoCondition = event.ctrlKey && event.shiftKey && event.key === 'Z';
+      const undoCondition =
+        event.ctrlKey && event.key === "z" && !event.shiftKey;
+      const redoCondition =
+        event.ctrlKey && event.shiftKey && event.key === "Z";
 
-      if ((undoCondition || redoCondition) && (isPresenter || hasWBAccessRef.current)) {
+      if (
+        (undoCondition || redoCondition) &&
+        (isPresenter || hasWBAccessRef.current)
+      ) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -610,24 +656,32 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         }
       }
 
-      if ((event.keyCode === KEY_CODES.ARROW_RIGHT || event.keyCode === KEY_CODES.ARROW_LEFT) && isPresenter) {
-        handleArrowPress(event)
+      if (
+        (event.keyCode === KEY_CODES.ARROW_RIGHT ||
+          event.keyCode === KEY_CODES.ARROW_LEFT) &&
+        isPresenter
+      ) {
+        handleArrowPress(event);
       }
     };
 
     const handleKeyUp = (event) => {
-      if ((event.key === 'z' || event.key === 'Z') && undoRedoIntervalId) {
+      if ((event.key === "z" || event.key === "Z") && undoRedoIntervalId) {
         clearInterval(undoRedoIntervalId);
         undoRedoIntervalId = null;
       }
     };
 
-    whiteboardRef.current?.addEventListener('keydown', handleKeyDown, { capture: true });
-    whiteboardRef.current?.addEventListener('keyup', handleKeyUp, { capture: true });
+    whiteboardRef.current?.addEventListener("keydown", handleKeyDown, {
+      capture: true,
+    });
+    whiteboardRef.current?.addEventListener("keyup", handleKeyUp, {
+      capture: true,
+    });
 
     return () => {
-      whiteboardRef.current?.removeEventListener('keydown', handleKeyDown);
-      whiteboardRef.current?.removeEventListener('keyup', handleKeyUp);
+      whiteboardRef.current?.removeEventListener("keydown", handleKeyDown);
+      whiteboardRef.current?.removeEventListener("keyup", handleKeyUp);
       if (undoRedoIntervalId) {
         clearInterval(undoRedoIntervalId);
       }
@@ -638,37 +692,54 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     zoomValueRef.current = zoomValue;
     let timeoutId = null;
 
-    if (tlEditor && curPageIdRef.current && currentPresentationPage && isPresenter && isWheelZoomRef.current === false) {
-      // Use initialZoom for resetting to 100% to ensure it fits perfectly as it did on initial mount
-      const zoomLevelForReset = initialZoomRef.current || calculateZoomValue(
-        currentPresentationPage.scaledWidth,
-        currentPresentationPage.scaledHeight
-      );
+    if (
+      tlEditor &&
+      curPageIdRef.current &&
+      currentPresentationPage &&
+      isPresenter &&
+      isWheelZoomRef.current === false
+    ) {
+      const zoomLevelForReset =
+        initialZoomRef.current ||
+        calculateZoomValue(
+          currentPresentationPage.scaledWidth,
+          currentPresentationPage.scaledHeight
+        );
 
-      // Calculate zoom based on whether the presenter is viewing at 100% or a different zoom level
-      const zoomCamera = zoomValue === HUNDRED_PERCENT ? zoomLevelForReset : (zoomLevelForReset * zoomValue) / HUNDRED_PERCENT;
+      const zoomCamera =
+        zoomValue === HUNDRED_PERCENT
+          ? zoomLevelForReset
+          : (zoomLevelForReset * zoomValue) / HUNDRED_PERCENT;
       const camera = tlEditorRef.current.getCamera();
 
-      // Calculate the new camera position to maintain the center after zoom
-      // If zooming to 100%, use the initial zoom reference to reset the camera
       const nextCamera = {
-        x: zoomValue === HUNDRED_PERCENT ? 0 : camera.x + ((camera.x + tlEditorRef.current.getViewportPageBounds().w / 2) / zoomCamera - camera.x),
-        y: zoomValue === HUNDRED_PERCENT ? 0 : camera.y + ((camera.y + tlEditorRef.current.getViewportPageBounds().h / 2) / zoomCamera - camera.y),
+        x:
+          zoomValue === HUNDRED_PERCENT
+            ? 0
+            : camera.x +
+              ((camera.x + tlEditorRef.current.getViewportPageBounds().w / 2) /
+                zoomCamera -
+                camera.x),
+        y:
+          zoomValue === HUNDRED_PERCENT
+            ? 0
+            : camera.y +
+              ((camera.y + tlEditorRef.current.getViewportPageBounds().h / 2) /
+                zoomCamera -
+                camera.y),
         z: zoomCamera,
       };
 
-      if (zoomValue !== prevZoomValueRef.current || zoomValue === HUNDRED_PERCENT) {
+      if (
+        zoomValue !== prevZoomValueRef.current ||
+        zoomValue === HUNDRED_PERCENT
+      ) {
         tlEditor.setCamera(nextCamera, false);
 
         timeoutId = setTimeout(() => {
           if (zoomValue === HUNDRED_PERCENT) {
             zoomChanger(HUNDRED_PERCENT);
-            zoomSlide(
-              HUNDRED_PERCENT,
-              HUNDRED_PERCENT,
-              0,
-              0,
-            );
+            zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
           } else {
             // Recalculate viewed region width and height for zoomSlide call
             let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
@@ -680,12 +751,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
               currentPresentationPage.scaledHeight
             );
 
-            zoomSlide(
-              viewedRegionW,
-              viewedRegionH,
-              nextCamera.x,
-              nextCamera.y,
-            );
+            zoomSlide(viewedRegionW, viewedRegionH, nextCamera.x, nextCamera.y);
           }
         }, 300);
       }
@@ -699,18 +765,29 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     // A slight delay to ensure the canvas has rendered
     const timeoutId = setTimeout(() => {
-      if (currentPresentationPage.scaledWidth > 0 && currentPresentationPage.scaledHeight > 0) {
+      if (
+        currentPresentationPage.scaledWidth > 0 &&
+        currentPresentationPage.scaledHeight > 0
+      ) {
         // Subtract the toolbar height from the presentation area height for the presenter
-        const adjustedPresentationAreaHeight = isPresenter ? presentationAreaHeight - 40 : presentationAreaHeight;
-        const slideAspectRatio = currentPresentationPage.scaledWidth / currentPresentationPage.scaledHeight;
-        const presentationAreaAspectRatio = presentationAreaWidth / adjustedPresentationAreaHeight;
+        const adjustedPresentationAreaHeight = isPresenter
+          ? presentationAreaHeight - 40
+          : presentationAreaHeight;
+        const slideAspectRatio =
+          currentPresentationPage.scaledWidth /
+          currentPresentationPage.scaledHeight;
+        const presentationAreaAspectRatio =
+          presentationAreaWidth / adjustedPresentationAreaHeight;
 
         let initialZoom;
 
         if (slideAspectRatio > presentationAreaAspectRatio) {
-          initialZoom = presentationAreaWidth / currentPresentationPage.scaledWidth;
+          initialZoom =
+            presentationAreaWidth / currentPresentationPage.scaledWidth;
         } else {
-          initialZoom = adjustedPresentationAreaHeight / currentPresentationPage.scaledHeight;
+          initialZoom =
+            adjustedPresentationAreaHeight /
+            currentPresentationPage.scaledHeight;
         }
 
         const tldrawZoom = initialZoom;
@@ -718,7 +795,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         setInitialZoomSet(true);
         prevZoomValueRef.current = zoomValue;
       }
-
     }, 1000);
 
     return () => clearTimeout(timeoutId);
@@ -732,8 +808,12 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     const handleResize = () => {
       // Calculate the absolute difference
-      const heightDifference = Math.abs(presentationAreaHeight - lastKnownHeight.current);
-      const widthDifference = Math.abs(presentationAreaWidth - lastKnownWidth.current);
+      const heightDifference = Math.abs(
+        presentationAreaHeight - lastKnownHeight.current
+      );
+      const widthDifference = Math.abs(
+        presentationAreaWidth - lastKnownWidth.current
+      );
 
       // Check if the difference is greater than the threshold
       if (heightDifference > THRESHOLD || widthDifference > THRESHOLD) {
@@ -755,38 +835,42 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             currentPresentationPage.scaledHeight
           );
           let adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
-
           if (isPresenter) {
-            const camera = tlEditorRef.current.getCamera();
-
-            if (fitToWidth && currentPresentationPage) {
-              const currentAspectRatio =
-                Math.round((presentationAreaWidth / presentationAreaHeight) * 100) / 100;
-              const previousAspectRatio =
-                Math.round(
-                  (currentPresentationPage.scaledViewBoxWidth /
-                    currentPresentationPage.scaledViewBoxHeight) *
-                    100
-                ) / 100;
-
-              setCamera(adjustedZoom, camera.x, camera.y);
-
-              const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
-                tlEditorRef.current?.viewportPageBounds.height,
-                currentPresentationPage.scaledHeight
+            setTimeout(() => {
+              const container = document.querySelector(
+                '[data-test="presentationContainer"]'
               );
-              setZoom(HUNDRED_PERCENT);
-              zoomChanger(HUNDRED_PERCENT);
-              zoomSlide(
-                HUNDRED_PERCENT,
-                viewedRegionH,
-                camera.x,
-                camera.y,
-                presentationId
+              const innerWrapper = document.getElementById(
+                "presentationInnerWrapper"
               );
-            } else {
-              setCamera(adjustedZoom, camera.x, camera.y);
-            }
+              const containerWidth = container ? container.offsetWidth : 0;
+              const innerWrapperWidth = innerWrapper
+                ? innerWrapper.offsetWidth
+                : 0;
+              const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
+              const camera = tlEditorRef.current.getCamera();
+
+              let adjustedZoom;
+              if (widthGap > 0) {
+                adjustedZoom = calculateZoomWithGapValue(
+                  currentPresentationPage.scaledWidth,
+                  currentPresentationPage.scaledHeight,
+                  false,
+                  widthGap
+                );
+
+                adjustedZoom *= currentZoom / HUNDRED_PERCENT;
+              } else {
+                adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
+              }
+
+              const zoomToApply =
+                widthGap > 0
+                  ? adjustedZoom
+                  : baseZoom * (currentZoom / HUNDRED_PERCENT);
+
+              setCamera(zoomToApply, camera.x, camera.y);
+            }, 25);
           } else {
             // Viewer logic
             const effectiveZoom = calculateEffectiveZoom(
@@ -800,7 +884,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           }
         }
       }
-    }
+    };
 
     const timeoutId = setTimeout(handleResize, 300);
 
@@ -810,12 +894,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   React.useEffect(() => {
     if (!fitToWidth && isPresenter) {
       zoomChanger(HUNDRED_PERCENT);
-      zoomSlide(
-        HUNDRED_PERCENT,
-        HUNDRED_PERCENT,
-        0,
-        0,
-      );
+      zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
     }
   }, [fitToWidth, isPresenter]);
 
@@ -892,7 +971,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           const id = InstancePresenceRecordType.createId(userId);
           const active = yPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
-          if (!active || (hideViewersCursor && user.role === 'VIEWER' && !currentUser?.presenter) || (!presenter && !isMultiUserActive)) {
+          if (
+            !active ||
+            (hideViewersCursor &&
+              user.role === "VIEWER" &&
+              !currentUser?.presenter) ||
+            (!presenter && !isMultiUserActive)
+          ) {
             tlEditorRef.current?.store.remove([id]);
             return null;
           }
@@ -979,7 +1064,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           currentPresentationPage.scaledWidth > 0 &&
           currentPresentationPage.scaledHeight > 0
         ) {
-          const adjustedPresentationAreaHeight = isPresenter ? presentationAreaHeight - 40 : presentationAreaHeight;
+          const adjustedPresentationAreaHeight = isPresenter
+            ? presentationAreaHeight - 40
+            : presentationAreaHeight;
 
           let baseZoom;
           if (isPresenter) {
@@ -988,7 +1075,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
               ? presentationAreaWidth / currentPresentationPage.scaledWidth
               : Math.min(
                   presentationAreaWidth / currentPresentationPage.scaledWidth,
-                  adjustedPresentationAreaHeight / currentPresentationPage.scaledHeight
+                  adjustedPresentationAreaHeight /
+                    currentPresentationPage.scaledHeight
                 );
           } else {
             // Use effectiveZoom for viewer logic to ensure proper zoom based on viewBox adjustments
@@ -1005,7 +1093,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           }
 
           // Final zoom adjustment to handle edge cases
-          let adjustedZoom = baseZoom === 0 || baseZoom === Infinity ? HUNDRED_PERCENT : baseZoom;
+          let adjustedZoom =
+            baseZoom === 0 || baseZoom === Infinity
+              ? HUNDRED_PERCENT
+              : baseZoom;
 
           // Apply the calculated zoom
           setCamera(adjustedZoom);
@@ -1046,7 +1137,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         onMount={handleTldrawMount}
       />
       <Styled.TldrawV2GlobalStyle
-        {...{ hasWBAccess: hasWBAccessRef.current, isPresenter, isRTL, isMultiUserActive, isToolbarVisible }}
+        {...{
+          hasWBAccess: hasWBAccessRef.current,
+          isPresenter,
+          isRTL,
+          isMultiUserActive,
+          isToolbarVisible,
+        }}
       />
     </div>
   );
@@ -1111,7 +1208,7 @@ Whiteboard.defaultProps = {
   sidebarNavigationWidth: 0,
   presentationId: undefined,
   currentUser: {
-    userId: '',
+    userId: "",
   },
   isPresenter: false,
   numberOfPages: 0,
