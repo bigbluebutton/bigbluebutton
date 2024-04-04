@@ -64,6 +64,7 @@ const propTypes = {
     MIC_ERROR: PropTypes.number.isRequired,
     NO_SSL: PropTypes.number.isRequired,
   }).isRequired,
+  getTroubleshootingLink: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -145,6 +146,7 @@ const AudioModal = (props) => {
   const [hasError, setHasError] = useState(false);
   const [disableActions, setDisableActions] = useState(false);
   const [errCode, setErrCode] = useState(null);
+  const [errMessage, setErrMessage] = useState(null);
   const [autoplayChecked, setAutoplayChecked] = useState(false);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
@@ -186,6 +188,7 @@ const AudioModal = (props) => {
     isOpen,
     priority,
     setIsOpen,
+    getTroubleshootingLink,
   } = props;
 
   const prevAutoplayBlocked = usePreviousValue(autoplayBlocked);
@@ -202,15 +205,17 @@ const AudioModal = (props) => {
       case 'MEDIA_ERROR':
         setContent('help');
         setErrCode(0);
+        setErrMessage(type);
         setDisableActions(false);
         break;
       case 'CONNECTION_ERROR':
       default:
         setErrCode(0);
+        setErrMessage(type);
         setDisableActions(false);
         break;
     }
-  };
+  }
 
   const handleGoToLocalEcho = () => {
     // Simplified echo test: this will return the AudioSettings with:
@@ -227,6 +232,7 @@ const AudioModal = (props) => {
     if (noSSL) {
       setContent('help');
       setErrCode(MIC_ERROR.NO_SSL);
+      setErrMessage('NoSSL');
       return null;
     }
 
@@ -389,9 +395,13 @@ const AudioModal = (props) => {
       ? handleRetryGoToEchoTest
       : handleJoinLocalEcho;
 
-    const handleGUMFailure = () => {
+    const handleGUMFailure = (error) => {
+      const code = error?.name === 'NotAllowedError'
+        ? AudioError.MIC_ERROR.NO_PERMISSION
+        : 0;
       setContent('help');
-      setErrCode(0);
+      setErrCode(code);
+      setErrMessage(error?.name || 'GUMFailure');
       setDisableActions(false);
     };
 
@@ -420,12 +430,14 @@ const AudioModal = (props) => {
     const audioErr = {
       ...AudioError,
       code: errCode,
+      message: errMessage,
     };
 
     return (
       <Help
         handleBack={handleGoToAudioOptions}
         audioErr={audioErr}
+        troubleshootingLink={getTroubleshootingLink(errCode)}
       />
     );
   };
