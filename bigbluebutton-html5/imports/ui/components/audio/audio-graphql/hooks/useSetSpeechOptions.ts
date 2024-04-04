@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
 import { useMutation } from '@apollo/client';
-import { USER_SET_SPEECH_OPTIONS } from '../queries';
+import { USER_SET_SPEECH_OPTIONS } from '../mutations';
 
 const useSetSpeechOptions = () => {
-  const [mutation] = useMutation(USER_SET_SPEECH_OPTIONS);
+  const [userSetSpeechOptions] = useMutation(USER_SET_SPEECH_OPTIONS);
 
   const setSpeechOptions = (
     partialUtterances: boolean,
     minUtteranceLength: number,
   ) => {
-    mutation({
+    userSetSpeechOptions({
       variables: {
         partialUtterances,
         minUtteranceLength,
@@ -17,7 +17,7 @@ const useSetSpeechOptions = () => {
     });
   };
 
-  return useCallback(setSpeechOptions, [mutation]);
+  return useCallback(setSpeechOptions, [userSetSpeechOptions]);
 };
 
 export default useSetSpeechOptions;
