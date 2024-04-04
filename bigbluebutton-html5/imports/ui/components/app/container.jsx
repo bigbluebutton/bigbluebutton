@@ -156,7 +156,7 @@ const AppContainer = (props) => {
         syncWithPresenterLayout: pushLayout,
         presentationIsOpen,
         isResizing,
-        cameraPosition: cameraDock.position,
+        cameraPosition: cameraDock.position || 'contentTop',
         focusedCamera: focusedId,
         presentationVideoRate,
       },
