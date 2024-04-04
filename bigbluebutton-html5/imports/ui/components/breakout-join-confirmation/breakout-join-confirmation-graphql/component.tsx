@@ -1,4 +1,4 @@
-import { useSubscription } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -10,8 +10,8 @@ import {
   getBreakoutData,
   GetBreakoutDataResponse,
 } from './queries';
-import { requestJoinURL } from './service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../../breakout-room/mutations';
 
 const intlMessages = defineMessages({
   title: {
@@ -59,11 +59,16 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   breakouts,
   currentUserJoined,
 }) => {
+  const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
+
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
   const [selectValue, setSelectValue] = React.useState('');
 
+  const requestJoinURL = (breakoutRoomId: string) => {
+    breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
+  };
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectValue(event.target.value);
     const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === event.target.value);
@@ -157,7 +162,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 };
 
 const BreakoutJoinConfirmationContainer: React.FC = () => {
-  const { data: currentUser, loading: currentUserLoading } = useCurrentUser((u) => {
+  const { data: currentUser } = useCurrentUser((u) => {
     return {
       isModerator: u.isModerator,
       breakoutRooms: u.breakoutRooms,
@@ -165,14 +170,10 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   });
   const {
     data: breakoutData,
-    loading: breakoutDataLoading,
-    error: breakoutDataError,
   } = useSubscription<GetBreakoutDataResponse>(getBreakoutData);
 
   const {
     data: breakoutCountData,
-    loading: breakoutCountLoading,
-    error: breakoutCountError,
   } = useSubscription<GetBreakoutCountResponse>(getBreakoutCount);
   if (!breakoutCountData || !breakoutCountData.breakoutRoom_aggregate.aggregate.count) return null;
   if (!breakoutData || breakoutData.breakoutRoom.length === 0) return null;

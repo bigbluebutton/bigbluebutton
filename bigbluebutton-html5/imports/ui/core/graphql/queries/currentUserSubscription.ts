@@ -17,60 +17,66 @@ subscription userCurrentSubscription {
     ejected
     emoji
     enforceLayout
-    cameras {
-    streamId
-  }
-  clientType
-  color
-  customParameters {
-    parameter
-    value
-  }
-  disconnected
-  away
-  raiseHand
-  emoji
-  extId
-  guest
-  guestStatus
-  hasDrawPermissionOnCurrentPage
-  isDialIn
-  isModerator
-  joined
-  userId
-  breakoutRooms {
-    currentRoomJoined
-    assignedAt
-    breakoutRoomId
-    currentRoomPriority
-    currentRoomRegisteredAt
-    durationInSeconds
-    endedAt
-    freeJoin
-    inviteDismissedAt
-    isDefaultName
-    joinURL
-    lastRoomIsOnline
-    lastRoomJoinedAt
-    lastRoomJoinedId
+    expired
+    extId
+    guest
+    guestStatus
+    hasDrawPermissionOnCurrentPage
+    inactivityWarningDisplay
+    inactivityWarningTimeoutSecs
+    isDialIn
+    isModerator
+    isOnline
+    isRunningEchoTest
+    joinErrorCode
+    joinErrorMessage
+    joined
+    locked
+    loggedOut
+    mobile
     name
-    sendInvitationToModerators
-    sequence
-    shortName
-    showInvitation
-    startedAt
-    currentRoomIsOnline
-  }
-  lastBreakoutRoom {
-    breakoutRoomId
-    currentlyInRoom
-    isDefaultName
-    sequence
-    shortName
-  }
+    nameSortable
+    pinned
+    presenter
+    raiseHand
+    registeredAt
+    registeredOn
+    role
+    speechLocale
+    userId
     customParameters {
       parameter
       value
+    }
+    breakoutRooms {
+      currentRoomJoined
+      assignedAt
+      breakoutRoomId
+      currentRoomPriority
+      currentRoomRegisteredAt
+      durationInSeconds
+      endedAt
+      freeJoin
+      inviteDismissedAt
+      isDefaultName
+      joinURL
+      lastRoomIsOnline
+      lastRoomJoinedAt
+      lastRoomJoinedId
+      name
+      sendInvitationToModerators
+      sequence
+      shortName
+      showInvitation
+      startedAt
+      currentRoomIsOnline
+    }
+    lastBreakoutRoom {
+      breakoutRoomId
+      currentlyInRoom
+      isDefaultName
+      sequence
+      shortName
     }
     cameras {
       streamId
