@@ -1,5 +1,4 @@
 import { defineMessages } from 'react-intl';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
@@ -9,7 +8,6 @@ import ScreenshareService from '/imports/ui/components/screenshare/service';
 
 const STATS = window.meetingClientSettings.public.stats;
 const NOTIFICATION = STATS.notification;
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   saved: {
@@ -88,22 +86,6 @@ const sortOnline = (a, b) => {
 };
 
 const isEnabled = () => STATS.enabled;
-
-const isModerator = () => {
-  const user = Users.findOne(
-    {
-      meetingId: Auth.meetingID,
-      userId: Auth.userID,
-    },
-    { fields: { role: 1 } },
-  );
-
-  if (user && user.role === ROLE_MODERATOR) {
-    return true;
-  }
-
-  return false;
-};
 
 if (STATS.enabled) {
   window.addEventListener('audiostats', handleAudioStatsEvent);
@@ -393,7 +375,6 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
 
 export default {
-  isModerator,
   getStats,
   getHelp,
   isEnabled,
