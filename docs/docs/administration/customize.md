@@ -1496,7 +1496,7 @@ Useful tools for development:
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------- |
 | `userdata-bbb_multi_user_pen_only=` | If set to `true`, only the pen tool will be available to non-participants when multi-user whiteboard is enabled | `false`       |
 | `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`                                                         | all enabled   |
-| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`
+| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`                                      | all enabled   |
 | `userdata-bbb_pen_select=`    | If set to true, allows viewers to start multi-user whiteboard with pen tool selected.                                      | false  |
 
 #### Themeing & styling parameters
