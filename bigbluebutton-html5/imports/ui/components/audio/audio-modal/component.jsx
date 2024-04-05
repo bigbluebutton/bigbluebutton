@@ -13,7 +13,7 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
 import CaptionsSelectContainer from '/imports/ui/components/audio/captions/select/container';
-import { usePreviousValue } from '../../utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 const propTypes = {
   intl: PropTypes.shape({
