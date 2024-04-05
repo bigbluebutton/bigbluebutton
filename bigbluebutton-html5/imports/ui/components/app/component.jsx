@@ -22,6 +22,7 @@ import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
+import ScreenReaderAlertAdapter from '../screenreader-alert/adapter';
 import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
@@ -601,6 +602,7 @@ setRandomUserSelectModalIsOpen(value) {
     } = this.state;
     return (
       <>
+        <ScreenReaderAlertAdapter />
         <PluginsEngineManager />
         <FloatingWindowContainer />
         <TimeSync />
