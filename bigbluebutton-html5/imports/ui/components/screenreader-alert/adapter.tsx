@@ -3,7 +3,7 @@ import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
 import { useSubscription } from '@apollo/client';
 import { UNREAD_CHATS_SUBSCRIPTION, UnreadChatsSubscriptionResponse } from './queries';
-import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { addAlert } from './service';
 
 const intlMessages = defineMessages({
