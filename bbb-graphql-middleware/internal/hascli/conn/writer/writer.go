@@ -131,6 +131,9 @@ RangeLoop:
 					common.ActivitiesOverviewStarted(string(messageType) + "-" + operationName)
 					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
 
+					//Dump of all subscriptions for analysis purpose
+					//saveItToFile(fmt.Sprintf("%02s-%s-%s", queryId, string(messageType), operationName), fromBrowserMessageAsMap)
+					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessageAsMap)
 				}
 
 				if fromBrowserMessageAsMap["type"] == "stop" {
@@ -168,3 +171,22 @@ RangeLoop:
 		}
 	}
 }
+
+//
+//func saveItToFile(filename string, contentInBytes interface{}) {
+//	filePath := fmt.Sprintf("/tmp/%s.txt", filename)
+//	message, err := json.Marshal(contentInBytes)
+//
+//	fmt.Printf("Saving %s\n", filePath)
+//
+//	file, err := os.Create(filePath)
+//	if err != nil {
+//		panic(err)
+//	}
+//	defer file.Close()
+//
+//	_, err = file.Write(message)
+//	if err != nil {
+//		panic(err)
+//	}
+//}

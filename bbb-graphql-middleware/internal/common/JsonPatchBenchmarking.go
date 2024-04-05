@@ -74,13 +74,6 @@ func JsonPatchBenchmarkingCompleted(index string) {
 	}
 }
 
-func GetJsonPatchBenchmarking() map[string]JsonPatchBenchmarkingObj {
-	JsonPatchBenchmarkingMux.Lock()
-	defer JsonPatchBenchmarkingMux.Unlock()
-
-	return JsonPatchBenchmarking
-}
-
 func JsonPatchBenchmarkingLogRoutine() {
 	JsonPatchBenchmarkingEnabled = true
 	log.Info("Activities Overview routine started!")
@@ -91,14 +84,15 @@ func JsonPatchBenchmarkingLogRoutine() {
 
 		//hasuraConnections := GetJsonPatchBenchmarking()["__HasuraConnection"].Started
 		topMessages := make(map[string]JsonPatchBenchmarkingObj)
-		JsonPatchBenchmarking := GetJsonPatchBenchmarking()
+		JsonPatchBenchmarkingMux.Lock()
 		for index, item := range JsonPatchBenchmarking {
 			if strings.HasPrefix(index, "_") ||
-				item.Count > 200 ||
+				item.Count > 380 ||
 				item.TotalDurationSecs > 1 {
 				topMessages[index] = item
 			}
 		}
+		JsonPatchBenchmarkingMux.Unlock()
 
 		jsonIndentOverviewBytes, err := json.MarshalIndent(topMessages, "", "   ")
 		if err != nil {

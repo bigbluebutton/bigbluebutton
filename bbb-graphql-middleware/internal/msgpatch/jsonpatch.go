@@ -18,7 +18,10 @@ func getConnPath(connectionId string) string {
 	return cacheDir + connectionId
 }
 
-func getSubscriptionCacheDirPath(bConn *common.BrowserConnection, subscriptionId string, createIfNotExists bool) (string, error) {
+func getSubscriptionCacheDirPath(
+	bConn *common.BrowserConnection,
+	subscriptionId string,
+	createIfNotExists bool) (string, error) {
 	//Using SessionToken as path to reinforce security (once connectionId repeats on restart of middleware)
 	connectionPatchCachePath := getConnPath(bConn.Id) + "/" + bConn.SessionToken + "/"
 	subscriptionCacheDirPath := connectionPatchCachePath + subscriptionId + "/"
@@ -27,7 +30,7 @@ func getSubscriptionCacheDirPath(bConn *common.BrowserConnection, subscriptionId
 		if os.IsNotExist(err) && createIfNotExists {
 			err = os.MkdirAll(subscriptionCacheDirPath, 0755)
 			if err != nil {
-				log.Errorf("Error on create cache directory:", err)
+				log.Errorf("Error on create cache directory: %v", err)
 				return subscriptionCacheDirPath, nil
 			}
 		} else {
@@ -42,7 +45,7 @@ func RemoveConnCacheDir(connectionId string) {
 	err := os.RemoveAll(getConnPath(connectionId))
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Errorf("Error while removing CLI patch cache directory:", err)
+			log.Errorf("Error while removing CLI patch cache directory: %v", err)
 		}
 		return
 	}
@@ -56,7 +59,7 @@ func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscripti
 		err = os.RemoveAll(subsCacheDirPath)
 		if err != nil {
 			if !os.IsNotExist(err) {
-				log.Errorf("Error while removing CLI subscription patch cache directory:", err)
+				log.Errorf("Error while removing CLI subscription patch cache directory: %v", err)
 			}
 			return
 		}
@@ -82,7 +85,35 @@ func ClearAllCaches() {
 	}
 }
 
-func PatchMessage(receivedMessage *map[string]interface{}, queryId string, dataKey string, dataAsJson []byte, bConn *common.BrowserConnection, cacheKey string) {
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
+}
+
+func PatchMessage(
+	receivedMessage *map[string]interface{},
+	queryId string,
+	dataKey string,
+	dataAsJson []byte,
+	bConn *common.BrowserConnection,
+	cacheKey string,
+	lastDataChecksum uint32,
+	currDataChecksum uint32) {
+
+	if lastDataChecksum != 0 {
+		common.JsonPatchBenchmarkingStarted(cacheKey)
+		defer common.JsonPatchBenchmarkingCompleted(cacheKey)
+	}
+
+	//Avoid other routines from processing the same JsonPatch
+	common.GlobalCacheLocks.Lock(cacheKey)
+	jsonDiffPatch, jsonDiffPatchExists := common.GetJsonPatchCache(cacheKey)
+	if jsonDiffPatchExists {
+		common.GlobalCacheLocks.Unlock(cacheKey)
+	} else {
+		defer common.GlobalCacheLocks.Unlock(cacheKey)
+	}
+
 	var receivedMessageMap = *receivedMessage
 
 	fileCacheDirPath, err := getSubscriptionCacheDirPath(bConn, queryId, true)
@@ -92,56 +123,48 @@ func PatchMessage(receivedMessage *map[string]interface{}, queryId string, dataK
 	}
 	filePath := fileCacheDirPath + dataKey + ".json"
 
-	lastContent, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		//Last content doesn't exist, probably it's the first response
-	}
-	lastDataAsJsonString := string(lastContent)
-	if string(dataAsJson) == lastDataAsJsonString {
-		//Content didn't change, set message as null to avoid sending it to the browser
-		//This case is usual when the middleware reconnects with Hasura and receives the data again
-		*receivedMessage = nil
-	} else {
-		//Content was changed, creating json patch
-		//If data is small (< minLengthToPatch) it's not worth creating the patch
-		if lastDataAsJsonString != "" && len(string(dataAsJson)) > minLengthToPatch {
-			if _, exists := common.JsonPatchCache[cacheKey]; !exists {
-				diffPatch, e := jsonpatch.CreatePatch([]byte(lastDataAsJsonString), dataAsJson)
-				if e != nil {
-					log.Errorf("Error creating JSON patch:%v", e)
-					return
+	if !jsonDiffPatchExists {
+		if currDataChecksum == lastDataChecksum {
+			//Content didn't change, set message as null to avoid sending it to the browser
+			//This case is usual when the middleware reconnects with Hasura and receives the data again
+			*receivedMessage = nil
+		} else {
+			//Content was changed, creating json patch
+			//If data is small (< minLengthToPatch) it's not worth creating the patch
+			if len(string(dataAsJson)) > minLengthToPatch {
+				if lastContent, lastContentErr := ioutil.ReadFile(filePath); lastContentErr == nil && string(lastContent) != "" {
+					if diffPatch, diffPatchErr := jsonpatch.CreatePatch(lastContent, dataAsJson); diffPatchErr == nil {
+						if jsonDiffPatch, jsonDiffPatchErr := json.Marshal(diffPatch); jsonDiffPatchErr == nil {
+							common.StoreJsonPatchCache(cacheKey, jsonDiffPatch)
+						} else {
+							log.Errorf("Error marshaling patch array: %v", err)
+						}
+					} else {
+						log.Errorf("Error creating JSON patch: %v\n%v", diffPatchErr, string(dataAsJson))
+					}
 				}
-				jsonDiffPatch, err := json.Marshal(diffPatch)
-				if err != nil {
-					log.Errorf("Error marshaling patch array:", err)
-					return
-				}
-
-				common.JsonPatchCache[cacheKey] = jsonDiffPatch
-			}
-
-			//Use patch if the length is {minShrinkToUsePatch}% smaller than the original msg
-			if float64(len(string(common.JsonPatchCache[cacheKey])))/float64(len(string(dataAsJson))) < minShrinkToUsePatch {
-				//Modify receivedMessage to include the Patch and remove the previous data
-				//The key of the original message is kept to avoid errors (Apollo-client expects to receive this prop)
-				receivedMessageMap["payload"] = map[string]interface{}{
-					"data": map[string]interface{}{
-						"patch": json.RawMessage(common.JsonPatchCache[cacheKey]),
-						dataKey: json.RawMessage("[]"),
-					},
-				}
-				*receivedMessage = receivedMessageMap
 			}
 		}
+	}
 
-		//Store current result to be used to create json patch in the future
-		if lastDataAsJsonString != "" || len(string(dataAsJson)) > minLengthToPatch {
-			go func(filePath string, dataAsJson []byte) {
-				errWritingOutput := ioutil.WriteFile(filePath, dataAsJson, 0644)
-				if errWritingOutput != nil {
-					log.Errorf("Error on trying to write cache of json diff:", errWritingOutput)
-				}
-			}(filePath, dataAsJson)
+	//Use patch if the length is {minShrinkToUsePatch}% smaller than the original msg
+	if jsonDiffPatch != nil && float64(len(string(jsonDiffPatch)))/float64(len(string(dataAsJson))) < minShrinkToUsePatch {
+		//Modify receivedMessage to include the Patch and remove the previous data
+		//The key of the original message is kept to avoid errors (Apollo-client expects to receive this prop)
+		receivedMessageMap["payload"] = map[string]interface{}{
+			"data": map[string]interface{}{
+				"patch": json.RawMessage(jsonDiffPatch),
+				dataKey: json.RawMessage("[]"),
+			},
+		}
+		*receivedMessage = receivedMessageMap
+	}
+
+	//Store current result to be used to create json patch in the future
+	if len(string(dataAsJson)) > minLengthToPatch || fileExists(filePath) {
+		errWritingOutput := ioutil.WriteFile(filePath, dataAsJson, 0644)
+		if errWritingOutput != nil {
+			log.Errorf("Error on trying to write cache of json diff: %v", errWritingOutput)
 		}
 	}
 }

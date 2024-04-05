@@ -115,8 +115,8 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 							return false
 						}
 
-						lastWas := subscription.LastReceivedDataChecksum
-						hashWouldBe := fmt.Sprintf("%s-%s-%v-%v", string(subscription.Type), subscription.OperationName, subscription.LastReceivedDataChecksum, dataChecksum)
+						lastDataChecksumWas := subscription.LastReceivedDataChecksum
+						cacheKey := fmt.Sprintf("%s-%s-%v-%v", string(subscription.Type), subscription.OperationName, subscription.LastReceivedDataChecksum, dataChecksum)
 
 						//Store LastReceivedData Checksum
 						subscription.LastReceivedDataChecksum = dataChecksum
@@ -126,26 +126,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 
 						//Apply msg patch when it supports it
 						if subscription.JsonPatchSupported {
-							if lastWas != 0 {
-								common.JsonPatchBenchmarkingStarted(hashWouldBe)
-							}
-
-							common.GlobalCacheLocks.Lock(hashWouldBe)
-							locked := true
-							if _, exists := common.JsonPatchCache[hashWouldBe]; exists {
-								common.GlobalCacheLocks.Unlock(hashWouldBe)
-								locked = false
-							}
-
-							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn, hashWouldBe)
-
-							if locked {
-								common.GlobalCacheLocks.Unlock(hashWouldBe)
-							}
-
-							if lastWas != 0 {
-								common.JsonPatchBenchmarkingCompleted(hashWouldBe)
-							}
+							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn, cacheKey, lastDataChecksumWas, dataChecksum)
 						}
 					}
 				}

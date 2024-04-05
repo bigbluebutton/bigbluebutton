@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/google/uuid"
+	"sync"
 )
 
 var uniqueID string
@@ -15,3 +16,30 @@ func GetUniqueID() string {
 }
 
 var JsonPatchCache = make(map[string][]byte)
+var JsonPatchCacheMutex sync.RWMutex
+
+func GetJsonPatchCache(cacheKey string) ([]byte, bool) {
+	JsonPatchCacheMutex.RLock()
+	defer JsonPatchCacheMutex.RUnlock()
+
+	jsonDiffPatch, jsonDiffPatchExists := JsonPatchCache[cacheKey]
+	return jsonDiffPatch, jsonDiffPatchExists
+}
+
+func StoreJsonPatchCache(cacheKey string, data []byte) {
+	JsonPatchCacheMutex.Lock()
+	defer JsonPatchCacheMutex.Unlock()
+
+	JsonPatchCache[cacheKey] = data
+}
+
+var FilesCounterMutex sync.Mutex
+var FilesCounter = 0
+
+func GetFilesCounter() int {
+	FilesCounterMutex.Lock()
+	defer FilesCounterMutex.Unlock()
+
+	FilesCounter++
+	return FilesCounter - 1
+}

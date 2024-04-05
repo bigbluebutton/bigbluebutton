@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -35,14 +34,4 @@ func (c *CacheLocks) Unlock(id string) {
 		mtx.Unlock()
 	}
 	c.mutex.Unlock()
-}
-
-// Your cache management function
-func ManageCache(id string, cacheLocks *CacheLocks) {
-	cacheLocks.Lock(id)
-	defer cacheLocks.Unlock(id)
-
-	// Process the ID, ensuring that the same ID is not processed concurrently
-	fmt.Println("Processing ID:", id)
-	// Simulate processing
 }
