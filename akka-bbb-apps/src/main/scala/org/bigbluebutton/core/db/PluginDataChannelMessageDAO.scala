@@ -71,6 +71,7 @@ object PluginDataChannelMessageDAO {
         .filter(_.meetingId === meetingId)
         .filter(_.pluginName === pluginName)
         .filter(_.dataChannel === dataChannel)
+        .filter(_.deletedAt.isEmpty)
         .map(u => (u.deletedAt))
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
     ).onComplete {
