@@ -7,7 +7,7 @@ import Header from '/imports/ui/components/common/control-header/component';
 import { useMutation, useSubscription } from '@apollo/client';
 import { Input } from '../../layout/layoutTypes';
 import { layoutDispatch, layoutSelectInput } from '../../layout/context';
-import { addNewAlert } from '../../screenreader-alert/service';
+import { addAlert } from '../../screenreader-alert/service';
 import { PANELS, ACTIONS } from '../../layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { POLL_CANCEL } from './mutation';
@@ -339,7 +339,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     setQuestionAndOptions(questionAndOptionsList.length > 0
       ? questionAndOptionsList.join('\n') : '');
     setWarning(clearWarning ? null : warning);
-    addNewAlert(`${intl.formatMessage(intlMessages.removePollOpt,
+    addAlert(`${intl.formatMessage(intlMessages.removePollOpt,
       { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
   };
 
