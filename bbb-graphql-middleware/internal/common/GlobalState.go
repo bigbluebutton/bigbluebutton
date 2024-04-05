@@ -3,6 +3,7 @@ package common
 import (
 	"github.com/google/uuid"
 	"sync"
+	"time"
 )
 
 var uniqueID string
@@ -31,4 +32,15 @@ func StoreJsonPatchCache(cacheKey string, data []byte) {
 	defer JsonPatchCacheMutex.Unlock()
 
 	JsonPatchCache[cacheKey] = data
+
+	//Remove the cache after 30 seconds
+	go RemoveJsonPatchCache(cacheKey, 30)
+}
+
+func RemoveJsonPatchCache(cacheKey string, delayInSecs time.Duration) {
+	time.Sleep(delayInSecs * time.Second)
+
+	JsonPatchCacheMutex.Lock()
+	defer JsonPatchCacheMutex.Unlock()
+	delete(JsonPatchCache, cacheKey)
 }

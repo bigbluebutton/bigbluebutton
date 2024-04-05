@@ -109,8 +109,10 @@ func PatchMessage(
 	common.GlobalCacheLocks.Lock(cacheKey)
 	jsonDiffPatch, jsonDiffPatchExists := common.GetJsonPatchCache(cacheKey)
 	if jsonDiffPatchExists {
+		//Unlock immediately once the cache was already created by other routine
 		common.GlobalCacheLocks.Unlock(cacheKey)
 	} else {
+		//It will create the cache and then Unlock (others will wait to benefit from this cache)
 		defer common.GlobalCacheLocks.Unlock(cacheKey)
 	}
 
