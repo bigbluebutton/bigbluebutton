@@ -32,14 +32,3 @@ func StoreJsonPatchCache(cacheKey string, data []byte) {
 
 	JsonPatchCache[cacheKey] = data
 }
-
-var FilesCounterMutex sync.Mutex
-var FilesCounter = 0
-
-func GetFilesCounter() int {
-	FilesCounterMutex.Lock()
-	defer FilesCounterMutex.Unlock()
-
-	FilesCounter++
-	return FilesCounter - 1
-}
