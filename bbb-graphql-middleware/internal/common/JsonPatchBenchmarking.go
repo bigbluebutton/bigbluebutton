@@ -42,21 +42,6 @@ func JsonPatchBenchmarkingStarted(index string) {
 	JsonPatchBenchmarking[index] = updatedValues
 }
 
-//func JsonPatchBenchmarkingDataReceived(index string) {
-//	if !JsonPatchBenchmarkingEnabled {
-//		return
-//	}
-//
-//	JsonPatchBenchmarkingMux.Lock()
-//	defer JsonPatchBenchmarkingMux.Unlock()
-//
-//	if updatedValues, exists := JsonPatchBenchmarking[index]; exists {
-//		updatedValues.DataReceived++
-//
-//		JsonPatchBenchmarking[index] = updatedValues
-//	}
-//}
-
 func JsonPatchBenchmarkingCompleted(index string) {
 	if !JsonPatchBenchmarkingEnabled {
 		return
