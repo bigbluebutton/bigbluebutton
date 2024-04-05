@@ -98,11 +98,10 @@ export const useSubscription = <T>(
   query: DocumentNode | TypedQueryDocumentNode,
   variables: Record<string, unknown> = {},
   patched = false,
-  projection?: (element: Partial<T>) => Partial<T>,
 ) => {
   const client = useApolloClient();
   const subscriptionRef = useRef<{ unsubscribe(): void, closed: boolean }>();
-  const oldDataToRetunRef = useRef<GraphqlDataHookSubscriptionResponse<Partial<T>[]>>();
+  const dataToRetunRef = useRef<GraphqlDataHookSubscriptionResponse<T[]>>();
   const dataRef = useRef<T[]>([]);
   const paramsDidChange = useDeepComparison(query, variables, patched);
   const [response, setResponse] = useState<FetchResult<unknown>>();
@@ -163,20 +162,17 @@ export const useSubscription = <T>(
     dataRef.current = currentData;
   }
 
-  const newProjectionOfData = projection ? currentData.map(projection) : currentData;
-
-  if (!oldDataToRetunRef.current || !R.equals(oldDataToRetunRef.current.data, newProjectionOfData)) {
+  if (!dataToRetunRef.current || !R.equals(dataToRetunRef.current.data, currentData)) {
     const loading = response.data === undefined && response.errors === undefined;
-    const dataToReturn: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
+    const dataToReturn: GraphqlDataHookSubscriptionResponse<T[]> = {
       ...response,
       loading,
-      data: newProjectionOfData,
+      data: currentData,
     };
-    oldDataToRetunRef.current = dataToReturn;
-    return dataToReturn;
+    dataToRetunRef.current = dataToReturn;
   }
 
-  return oldDataToRetunRef.current;
+  return dataToRetunRef.current;
 };
 
 export const useCreateUseSubscription = <T>(
