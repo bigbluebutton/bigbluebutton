@@ -8,7 +8,7 @@ import LiveResult from '/imports/ui/components/poll/live-result/component';
 import Styled from './styles';
 import Toggle from '/imports/ui/components/common/switch/component';
 import { PANELS, ACTIONS } from '../layout/enums';
-import { addNewAlert } from '../screenreader-alert/service';
+import { addAlert } from '../screenreader-alert/service';
 import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
@@ -418,7 +418,7 @@ class Poll extends Component {
         : [],
       warning: clearWarning ? null : warning,
     }, () => {
-      addNewAlert(`${intl.formatMessage(intlMessages.removePollOpt,
+      addAlert(`${intl.formatMessage(intlMessages.removePollOpt,
         { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
     });
   }
