@@ -27,6 +27,7 @@ func main() {
 
 	if activitiesOverviewEnabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ACTIVITIES_OVERVIEW_ENABLED"); activitiesOverviewEnabled == "true" {
 		go common.ActivitiesOverviewLogRoutine()
+		//go common.JsonPatchBenchmarkingLogRoutine()
 	}
 
 	common.InitUniqueID()
