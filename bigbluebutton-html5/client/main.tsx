@@ -25,14 +25,14 @@ const Main: React.FC = () => {
             {/* from there the error messages are located */}
             <LocatedErrorBoundary Fallback={ErrorScreen}>
               <ConnectionManager>
-                <PresenceManager>
-                  <CoreProviders>
+                <CoreProviders>
+                  <PresenceManager>
                     <SettingsLoader />
                     <UserGrapQlMiniMongoAdapter />
                     <VoiceUserGrapQlMiniMongoAdapter />
                     <MeetingGrapQlMiniMongoAdapter />
-                  </CoreProviders>
-                </PresenceManager>
+                  </PresenceManager>
+                </CoreProviders>
               </ConnectionManager>
             </LocatedErrorBoundary>
           </IntlLoaderContainer>

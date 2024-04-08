@@ -1,22 +1,43 @@
 import React, { createContext } from 'react';
 import CURRENT_USER_SUBSCRIPTION from '../graphql/queries/currentUserSubscription';
+import CURRENT_UNJOINED_USER_SUBSCRIPTION from '../graphql/queries/currentUnjoinedUserSubscription';
 import { useSubscription } from '../hooks/createUseSubscription';
-import { User } from '../../Types/user';
+import { User, UnjoinedUser } from '../../Types/user';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 
-type CurrentUserContext = GraphqlDataHookSubscriptionResponse<User>
+type CurrentUserContext = {
+  joined: GraphqlDataHookSubscriptionResponse<User>;
+  unjoined: GraphqlDataHookSubscriptionResponse<UnjoinedUser>;
+};
 
-export const CurrentUserContext = createContext<CurrentUserContext>({ loading: true });
+export const CurrentUserContext = createContext<CurrentUserContext>({
+  joined: { loading: true },
+  unjoined: { loading: true },
+});
 
 interface CurrentUserProviderProps {
   children: React.ReactNode;
 }
 
 const CurrentUserProvider: React.FC<CurrentUserProviderProps> = (({ children }) => {
-  const response = useSubscription<User>(CURRENT_USER_SUBSCRIPTION, {}, true);
-  const { data } = response;
+  const unjoined = useSubscription<UnjoinedUser>(
+    CURRENT_UNJOINED_USER_SUBSCRIPTION,
+    {},
+    true,
+  );
+  const joined = useSubscription<User>(
+    CURRENT_USER_SUBSCRIPTION,
+    {},
+    true,
+    unjoined.loading || !unjoined.data || !unjoined.data[0].joined,
+  );
   return (
-    <CurrentUserContext.Provider value={{ ...response, data: data && data[0] }}>
+    <CurrentUserContext.Provider
+      value={{
+        joined: { ...joined, data: joined.data && joined.data[0] },
+        unjoined: { ...unjoined, data: unjoined.data && unjoined.data[0] },
+      }}
+    >
       {children}
     </CurrentUserContext.Provider>
   );

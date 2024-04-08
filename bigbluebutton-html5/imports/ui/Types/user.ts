@@ -102,3 +102,15 @@ export interface User {
   customParameters: Array<CustomParameter>;
   userClientSettings: UserClientSettings;
 }
+
+export type UnjoinedUser = Pick<
+  User,
+  'authToken'
+  | 'ejectReasonCode'
+  | 'extId'
+  | 'joinErrorCode'
+  | 'joinErrorMessage'
+  | 'joined'
+  | 'name'
+  | 'userId'
+>;

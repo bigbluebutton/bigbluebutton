@@ -98,12 +98,13 @@ export const useSubscription = <T>(
   query: DocumentNode | TypedQueryDocumentNode,
   variables: Record<string, unknown> = {},
   patched = false,
+  skip = false,
 ) => {
   const client = useApolloClient();
   const subscriptionRef = useRef<{ unsubscribe(): void, closed: boolean }>();
   const dataToRetunRef = useRef<GraphqlDataHookSubscriptionResponse<T[]>>();
   const dataRef = useRef<T[]>([]);
-  const paramsDidChange = useDeepComparison(query, variables, patched);
+  const paramsDidChange = useDeepComparison(query, variables, patched, skip);
   const [response, setResponse] = useState<FetchResult<unknown>>();
   let newSubscriptionGql = query;
 
@@ -113,6 +114,13 @@ export const useSubscription = <T>(
 
   useEffect(() => {
     if (paramsDidChange) {
+      if (skip) {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.unsubscribe();
+        }
+        dataToRetunRef.current = { loading: true };
+        return;
+      }
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
       }

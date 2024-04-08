@@ -131,3 +131,14 @@ export interface Meeting {
   metadata: Array<Metadata>;
   groups: Array<groups>;
 }
+
+export interface MeetingUnjoined {
+  bannerColor: string;
+  bannerText: string;
+  ended: boolean;
+  endedByUserName: string;
+  endedReasonCode: string;
+  logoutUrl: string;
+  meetingId: string;
+  name: string;
+}

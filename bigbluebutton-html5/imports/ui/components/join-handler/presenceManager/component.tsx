@@ -1,44 +1,40 @@
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useContext, useEffect, useRef } from 'react';
 import { Meteor } from 'meteor/meteor';
 // @ts-ignore - type avaible only to server package
 import { DDP } from 'meteor/ddp-client';
 import { Session } from 'meteor/session';
-import {
-  getUserCurrent,
-  GetUserCurrentResponse,
-  getUserInfo,
-  GetUserInfoResponse,
-  userJoinMutation,
-} from './queries';
+import { userJoinMutation } from './queries';
 import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
 import MeetingEndedContainer from '../../meeting-ended/meeting-ended-ts/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
+import useCurrentUnjoinedUser from '/imports/ui/core/hooks/useCurrentUnjoinedUser';
+import useMeetingUnjoined from '/imports/ui/core/hooks/useMeetingUnjoined';
 
 const connectionTimeout = 60000;
 
 interface PresenceManagerContainerProps {
-    children: React.ReactNode;
-  }
+  children: React.ReactNode;
+}
 
 interface PresenceManagerProps extends PresenceManagerContainerProps {
-    authToken: string;
-    logoutUrl: string;
-    meetingId: string;
-    meetingName: string;
-    userName: string;
-    extId: string;
-    userId: string;
-    joinErrorCode: string;
-    joinErrorMessage: string;
-    joined: boolean;
-    meetingEnded: boolean;
-    endedReasonCode: string;
-    endedBy: string;
-    ejectReasonCode: string;
-    bannerColor: string;
-    bannerText: string;
+  authToken: string;
+  logoutUrl: string;
+  meetingId: string;
+  meetingName: string;
+  userName: string;
+  extId: string;
+  userId: string;
+  joinErrorCode: string;
+  joinErrorMessage: string;
+  joined: boolean;
+  meetingEnded: boolean;
+  endedReasonCode: string;
+  endedBy: string;
+  ejectReasonCode: string;
+  bannerColor: string;
+  bannerText: string;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -159,41 +155,46 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 };
 
 const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ children }) => {
-  const { loading, error, data } = useSubscription<GetUserCurrentResponse>(getUserCurrent);
-
   const {
-    loading: userInfoLoading,
-    error: userInfoError,
-    data: userInfoData,
-  } = useQuery<GetUserInfoResponse>(getUserInfo);
+    data: userData,
+    loading: userLoading,
+    errors: userErrors,
+  } = useCurrentUnjoinedUser((u) => u);
+  const {
+    data: meetingData,
+    loading: meetingLoading,
+    errors: meetingErrors,
+  } = useMeetingUnjoined((m) => m);
 
   const loadingContextInfo = useContext(LoadingContext);
-  if (loading || userInfoLoading) return null;
-  if (error || userInfoError) {
+  if (userLoading || meetingLoading) return null;
+  if (userErrors || meetingErrors) {
     loadingContextInfo.setLoading(false, '');
-    throw new Error('Error on user authentication: ', error);
+    throw new Error('Error on user authentication: ', userErrors?.[0] ?? meetingErrors?.[0]);
   }
 
-  if (!data || data.user_current.length === 0) return null;
-  if (!userInfoData
-      || userInfoData.meeting.length === 0
-      || userInfoData.user_current.length === 0) return null;
+  if (!userData) return null;
+  if (!meetingData) return null;
   const {
     authToken,
     joinErrorCode,
     joinErrorMessage,
     joined,
     ejectReasonCode,
-    meeting,
-  } = data.user_current[0];
+    name: userName,
+    extId,
+    userId,
+  } = userData;
   const {
     logoutUrl,
     meetingId,
     name: meetingName,
     bannerColor,
     bannerText,
-  } = userInfoData.meeting[0];
-  const { extId, name: userName, userId } = userInfoData.user_current[0];
+    endedReasonCode: meetingEndedReasonCode,
+    ended: meetingEnded,
+    endedByUserName: meetingEndedByUserName,
+  } = meetingData;
 
   return (
     <PresenceManager
@@ -207,9 +208,9 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       joined={joined}
       joinErrorCode={joinErrorCode}
       joinErrorMessage={joinErrorMessage}
-      meetingEnded={meeting.ended}
-      endedReasonCode={meeting.endedReasonCode}
-      endedBy={meeting.endedByUserName}
+      meetingEnded={meetingEnded}
+      endedReasonCode={meetingEndedReasonCode}
+      endedBy={meetingEndedByUserName}
       ejectReasonCode={ejectReasonCode}
       bannerColor={bannerColor}
       bannerText={bannerText}
