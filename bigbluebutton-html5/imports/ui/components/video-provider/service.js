@@ -531,6 +531,8 @@ class VideoService {
 
   getGridUsers(users, streams) {
     const pageSize = this.getMyPageSize();
+    const gridSize = this.getGridSize();
+
     const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
 
     const isGridEnabled = this.isGridEnabled();
@@ -545,7 +547,7 @@ class VideoService {
         ).map((user) => ({
           isGridItem: true,
           ...user,
-        }));
+        })).slice(0, gridSize - streams.length);
       }
 
       return gridUsers;
@@ -560,7 +562,7 @@ class VideoService {
       ).map((user) => ({
         isGridItem: true,
         ...user,
-      }));
+      })).slice(0, gridSize - paginatedStreams.length);
     }
     return gridUsers;
   }
