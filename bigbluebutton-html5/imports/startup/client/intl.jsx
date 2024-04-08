@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
@@ -10,6 +12,7 @@ import Logger from '/imports/startup/client/logger';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import Intl from '/imports/ui/services/locale';
 import { isEmpty } from 'radash';
+import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -17,9 +20,9 @@ const propTypes = {
   children: PropTypes.element.isRequired,
 };
 
-const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
-const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
-const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
+const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
+const CLIENT_VERSION = window.meetingClientSettings.public.app.html5ClientBuild;
+const FALLBACK_ON_EMPTY_STRING = window.meetingClientSettings.public.app.fallbackOnEmptyLocaleString;
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
@@ -44,17 +47,20 @@ class IntlStartup extends Component {
     }
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
+    this.sendUiDataToPlugins = this.sendUiDataToPlugins.bind(this);
   }
 
   componentDidMount() {
     const { locale, overrideLocaleFromPassedParameter } = this.props;
     this.fetchLocalizedMessages(overrideLocaleFromPassedParameter || locale, true);
+    window.addEventListener(`${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`, this.sendUiDataToPlugins);
   }
 
   componentDidUpdate(prevProps) {
     const { fetching, messages, normalizedLocale } = this.state;
     const { locale, overrideLocaleFromPassedParameter } = this.props;
 
+    this.sendUiDataToPlugins();
     if (overrideLocaleFromPassedParameter !== prevProps.overrideLocaleFromPassedParameter) {
       this.fetchLocalizedMessages(overrideLocaleFromPassedParameter);
     } else {
@@ -63,9 +69,26 @@ class IntlStartup extends Component {
     }
   }
 
+  componentWillUnmount() {
+    window.removeEventListener(`${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`, this.sendUiDataToPlugins);
+  }
+
+  sendUiDataToPlugins() {
+    const {
+      locale,
+    } = this.props;
+    window.dispatchEvent(new CustomEvent(PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE, {
+      detail: {
+        locale,
+        fallbackLocale: DEFAULT_LANGUAGE,
+      },
+    }));
+  }
+
   fetchLocalizedMessages(locale, init = false) {
     const url = `./locale?locale=${locale}&init=${init}`;
     const localesPath = 'locales';
+    const { setLocalSettings } = this.props;
 
     Intl.fetching = true;
     this.setState({ fetching: true }, () => {
@@ -155,7 +178,7 @@ class IntlStartup extends Component {
                 window.dispatchEvent(new Event('localeChanged'));
                 document.getElementsByTagName('html')[0].lang = formattedLocale;
                 document.body.classList.add(`lang-${language}`);
-                Settings.save();
+                Settings.save(setLocalSettings);
               });
             });
         });
@@ -183,16 +206,28 @@ class IntlStartup extends Component {
   }
 }
 
-const IntlStartupContainer = withTracker(() => {
+const IntlStartupContainer = (props) => {
+  const setLocalSettings = useUserChangedLocalSettings();
+
+  return (
+    <IntlStartup
+      {...{
+        setLocalSettings,
+        ...props,
+      }}
+    />
+  );
+};
+
+export default withTracker(() => {
   const { locale } = Settings.application;
   const overrideLocaleFromPassedParameter = getFromUserSettings('bbb_override_default_locale', null);
+
   return {
     locale,
     overrideLocaleFromPassedParameter,
   };
-})(IntlStartup);
-
-export default IntlStartupContainer;
+})(IntlStartupContainer);
 
 IntlStartup.propTypes = propTypes;
 IntlStartup.defaultProps = defaultProps;

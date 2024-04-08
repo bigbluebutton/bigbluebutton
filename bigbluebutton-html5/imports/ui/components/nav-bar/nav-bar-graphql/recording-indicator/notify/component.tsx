@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { makeCall } from '/imports/ui/services/api';
+import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
+import { useMutation } from '@apollo/client';
 
 import Styled from './styles';
 
@@ -49,9 +50,11 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
   isOpen,
   priority,
 }) => {
+  const [userLeaveMeeting] = useMutation(USER_LEAVE_MEETING);
+
   const intl = useIntl();
   const skipButtonHandle = useCallback(() => {
-    makeCall('userLeftMeeting');
+    userLeaveMeeting();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Session is a global variable in Meteor
     Session.set('codeError', LOGOUT_CODE);

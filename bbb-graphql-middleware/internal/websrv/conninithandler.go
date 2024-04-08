@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-func ConnectionInitHandler(browserConnectionId string, browserConnectionContext context.Context, fromBrowser *common.SafeChannel, wg *sync.WaitGroup) {
+func ConnectionInitHandler(browserConnectionId string, browserConnectionContext context.Context, fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannel, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "ConnectionInitHandler").WithField("browserConnectionId", browserConnectionId)
 
 	log.Debugf("starting")
@@ -21,7 +21,7 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 
 	// Intercept the fromBrowserMessage channel to get the sessionToken
 	for {
-		fromBrowserMessage, ok := fromBrowser.Receive()
+		fromBrowserMessage, ok := fromBrowserToHasuraConnectionEstablishingChannel.Receive()
 		if !ok {
 			//Received all messages. Channel is closed
 			return
@@ -35,13 +35,13 @@ func ConnectionInitHandler(browserConnectionId string, browserConnectionContext 
 				var sessionToken = headersAsMap["X-Session-Token"]
 				if sessionToken != nil {
 					sessionToken := headersAsMap["X-Session-Token"].(string)
-					log.Infof("[SessionTokenReader] intercepted session token %v", sessionToken)
+					log.Debugf("[SessionTokenReader] intercepted session token %v", sessionToken)
 					BrowserConnectionsMutex.Lock()
 					browserConnection.SessionToken = sessionToken
 					BrowserConnectionsMutex.Unlock()
 
-					go SendUserGraphqlConnectionStablishedSysMsg(sessionToken, browserConnectionId)
-					fromBrowser.Close()
+					go SendUserGraphqlConnectionEstablishedSysMsg(sessionToken, browserConnectionId)
+					fromBrowserToHasuraConnectionEstablishingChannel.Close()
 					break
 				}
 			}

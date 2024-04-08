@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"sync"
 
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
@@ -18,11 +19,23 @@ import (
 )
 
 var lastHasuraConnectionId int
-var hasuraEndpoint = "ws://127.0.0.1:8080/v1/graphql"
+var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 
 // Hasura client connection
-func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserChannel chan interface{}, toBrowserChannel chan interface{}) error {
+func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserToHasuraChannel *common.SafeChannel, fromHasuraToBrowserChannel *common.SafeChannel) error {
 	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
+	common.ActivitiesOverviewStarted("__HasuraConnection")
+	defer common.ActivitiesOverviewCompleted("__HasuraConnection")
+
+	defer func() {
+		//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
+		browserConnection.ActiveSubscriptionsMutex.RLock()
+		for _, subscription := range browserConnection.ActiveSubscriptions {
+			common.ActivitiesOverviewCompleted(string(subscription.Type) + "-" + subscription.OperationName)
+			common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
+		}
+		browserConnection.ActiveSubscriptionsMutex.RUnlock()
+	}()
 
 	// Obtain id for this connection
 	lastHasuraConnectionId++
@@ -59,14 +72,21 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	defer hasuraConnectionContextCancel()
 
 	var thisConnection = common.HasuraConnection{
-		Id:                hasuraConnectionId,
-		Browserconn:       browserConnection,
-		Context:           hasuraConnectionContext,
-		ContextCancelFunc: hasuraConnectionContextCancel,
+		Id:                       hasuraConnectionId,
+		BrowserConn:              browserConnection,
+		Context:                  hasuraConnectionContext,
+		ContextCancelFunc:        hasuraConnectionContextCancel,
+		FreezeMsgFromBrowserChan: common.NewSafeChannel(1),
 	}
 
 	browserConnection.HasuraConnection = &thisConnection
-	defer func() { browserConnection.HasuraConnection = nil }()
+	defer func() {
+		browserConnection.HasuraConnection = nil
+
+		//It's necessary to freeze the channel to avoid client trying to start subscriptions before Hasura connection is initialised
+		//It will unfreeze after `connection_ack` is sent by Hasura
+		fromBrowserToHasuraChannel.FreezeChannel()
+	}()
 
 	// Make the connection
 	c, _, err := websocket.Dial(hasuraConnectionContext, hasuraEndpoint, &dialOptions)
@@ -89,15 +109,10 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	// Start routines
 
 	// reads from browser, writes to hasura
-	go writer.HasuraConnectionWriter(&thisConnection, fromBrowserChannel, &wg)
+	go writer.HasuraConnectionWriter(&thisConnection, fromBrowserToHasuraChannel, &wg, browserConnection.ConnectionInitMessage)
 
 	// reads from hasura, writes to browser
-	go reader.HasuraConnectionReader(&thisConnection, toBrowserChannel, fromBrowserChannel, &wg)
-
-	// if it's a reconnect, inject authentication
-	if !browserConnection.Disconnected && browserConnection.ConnectionInitMessage != nil {
-		fromBrowserChannel <- browserConnection.ConnectionInitMessage
-	}
+	go reader.HasuraConnectionReader(&thisConnection, fromHasuraToBrowserChannel, fromBrowserToHasuraChannel, &wg)
 
 	// Wait
 	wg.Wait()

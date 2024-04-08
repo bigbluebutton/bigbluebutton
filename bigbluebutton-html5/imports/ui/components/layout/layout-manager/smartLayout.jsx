@@ -11,7 +11,7 @@ const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const SmartLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -35,6 +35,7 @@ const SmartLayout = (props) => {
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const genericComponentInput = layoutSelectInput((i) => i.genericComponent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const layoutContextDispatch = layoutDispatch();
@@ -102,6 +103,9 @@ const SmartLayout = (props) => {
             externalVideo: {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
             },
+            genericComponent: {
+              genericComponentId: genericComponentInput.genericComponentId,
+            },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
               width: screenShareInput.width,
@@ -142,6 +146,9 @@ const SmartLayout = (props) => {
             },
             externalVideo: {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
+            },
+            genericComponent: {
+              genericComponentId: genericComponentInput.genericComponentId,
             },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
@@ -184,7 +191,8 @@ const SmartLayout = (props) => {
       return baseBounds;
     }
 
-    const { camerasMargin, presentationToolbarMinWidth, navBarHeight } = DEFAULT_VALUES;
+    const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
@@ -197,7 +205,7 @@ const SmartLayout = (props) => {
 
     cameraDockBounds.top = navBarHeight;
     cameraDockBounds.left = mediaAreaBounds.left;
-    cameraDockBounds.right = isRTL ? sidebarSize + camerasMargin * 2 : null;
+    cameraDockBounds.right = isRTL ? sidebarSize : null;
     cameraDockBounds.zIndex = 1;
 
     if (mediaBounds.width < mediaAreaBounds.width) {
@@ -280,12 +288,13 @@ const SmartLayout = (props) => {
   const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize, screenShareSize) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
+    const { genericComponentId } = genericComponentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
-    const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
+      && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
 
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
@@ -303,7 +312,8 @@ const SmartLayout = (props) => {
     if (
       fullscreenElement === 'Presentation' ||
       fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo'
+      fullscreenElement === 'ExternalVideo' ||
+      fullscreenElement === 'GenericComponent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -317,7 +327,8 @@ const SmartLayout = (props) => {
     const mediaContentSize = hasScreenShare ? screenShareSize : slideSize;
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
-      if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0 && !hasExternalVideo) {
+      if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0 
+        && !hasExternalVideo && !genericComponentId) {
         if (mediaContentSize.width < mediaAreaBounds.width && !isMobile) {
           if (mediaContentSize.width < mediaAreaBounds.width * 0.8) {
             mediaBounds.width = mediaContentSize.width;
@@ -558,6 +569,17 @@ const SmartLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: isRTL ? mediaBounds.right + horizontalCameraDiff : null,
+      },
+    });
+    
+    layoutContextDispatch({
+      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
       value: {
         width: mediaBounds.width,
         height: mediaBounds.height,

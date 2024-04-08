@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { Notifications } = require('./notifications');
 const { ChatNotifications } = require('./chatNotifications');
 const { PresenterNotifications } = require('./presenterNotifications');
@@ -31,13 +31,14 @@ test.describe.parallel('Notifications', () => {
   });
 
   test.describe.parallel('Chat', () => {
+    // both tests are flaky due to missing refactor to get data from GraphQL
     test('Public Chat notification @ci @flaky', async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page, true);
       await chatNotifications.publicChatNotification();
     });
 
-    test('Private Chat notification', async ({ browser, context, page }) => {
+    test('Private Chat notification @flaky', async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page, true);
       await chatNotifications.privateChatNotification();
@@ -70,11 +71,11 @@ test.describe.parallel('Notifications', () => {
   test.describe.parallel('Presenter @ci', () => {
     test('Poll results notification', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
-      await presenterNotifications.initModPage(page);
+      await presenterNotifications.initPages(page, true);
       await presenterNotifications.publishPollResults();
     });
 
-    test('Presentation upload notification', async ({ browser, context, page }) => {
+    test('Presentation upload notification @flaky', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page, true);
       await presenterNotifications.fileUploaderNotification();

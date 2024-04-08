@@ -95,7 +95,7 @@ object PermissionCheck extends SystemConfiguration {
       for {
         regUser <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
       } yield {
-        Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, reason, outGW)
+        Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, reason, outGW)
       }
     } else {
       // TODO: get this object a context so it can use the akka logging system

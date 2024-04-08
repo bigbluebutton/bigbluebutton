@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.TimerModel
-import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getEndedAt, getIsACtive, getRunning, getStartedAt, getStopwatch, getTime, getTrack}
+import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getEndedAt, getIsActive, getRunning, getStartedAt, getStopwatch, getTime, getTrack}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.util.{Failure, Success}
@@ -14,8 +14,8 @@ case class TimerDbModel(
     active:           Boolean,
     time:             Long,
     accumulated:      Long,
-    startedAt:        Long,
-    endedAt:          Long,
+    startedOn:        Long,
+    endedOn:          Long,
     songTrack:        String,
 )
 
@@ -26,10 +26,10 @@ class TimerDbTableDef(tag: Tag) extends Table[TimerDbModel](tag, None, "timer") 
   val active = column[Boolean]("active")
   val time = column[Long]("time")
   val accumulated = column[Long]("accumulated")
-  val startedAt = column[Long]("startedAt")
-  val endedAt = column[Long]("endedAt")
+  val startedOn = column[Long]("startedOn")
+  val endedOn = column[Long]("endedOn")
   val songTrack = column[String]("songTrack")
-  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedAt, endedAt, songTrack) <> (TimerDbModel.tupled, TimerDbModel.unapply)
+  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedOn, endedOn, songTrack) <> (TimerDbModel.tupled, TimerDbModel.unapply)
 }
 
 object TimerDAO {
@@ -43,8 +43,8 @@ object TimerDAO {
           active = false,
           time = 300000,
           accumulated = 0,
-          startedAt = 0,
-          endedAt = 0,
+          startedOn = 0,
+          endedOn = 0,
           songTrack = "noTrack",
         )
       )
@@ -58,8 +58,8 @@ object TimerDAO {
     DatabaseConnection.db.run(
       TableQuery[TimerDbTableDef]
         .filter(_.meetingId === meetingId)
-        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.endedAt, t.songTrack))
-        .update((getStopwatch(timerModel), getRunning(timerModel), getIsACtive(timerModel), getTime(timerModel), getAccumulated(timerModel), getStartedAt(timerModel), getEndedAt(timerModel), getTrack(timerModel))
+        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedOn, t.endedOn, t.songTrack))
+        .update((getStopwatch(timerModel), getRunning(timerModel), getIsActive(timerModel), getTime(timerModel), getAccumulated(timerModel), getStartedAt(timerModel), getEndedAt(timerModel), getTrack(timerModel))
         )
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on Timer table!")

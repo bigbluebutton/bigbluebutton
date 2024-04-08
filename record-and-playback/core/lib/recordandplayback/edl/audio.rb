@@ -120,12 +120,16 @@ module BigBlueButton
 
             # Check for and handle audio files with mismatched lengths (generated
             # by buggy versions of freeswitch in old BigBlueButton
-            if entry[:original_duration] && (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
-               ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
-                      entry[:original_duration]).abs < 0.05
-              BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
+            if ((audioinfo[audio[:filename]][:format][:format_name] == 'wav' ||
+                 audioinfo[audio[:filename]][:audio][:codec_name] == 'vorbis') &&
+                 entry[:original_duration] &&
+                 (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
+                 ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
+                   entry[:original_duration]).abs < 0.05)
+
               speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
               seek = 0
+              BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
             end
 
             # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen

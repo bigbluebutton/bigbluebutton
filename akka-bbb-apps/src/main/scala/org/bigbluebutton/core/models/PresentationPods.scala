@@ -1,9 +1,6 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.domain.PageVO
-import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.db.{ PresPageDAO, PresPresentationDAO }
 
 object PresentationPodFactory {
@@ -25,6 +22,7 @@ case class PresentationPage(
     id:          String,
     num:         Int,
     urls:        Map[String, String],
+    content:     String,
     current:     Boolean             = false,
     xOffset:     Double              = 0,
     yOffset:     Double              = 0,
@@ -178,8 +176,8 @@ case class PresentationPod(id: String, currentPresenter: String,
     // 100D-checkedWidth is the maximum the page can be moved over
     val checkedWidth = Math.min(widthRatio, 100D) //if (widthRatio <= 100D) widthRatio else 100D
     val checkedHeight = Math.min(heightRatio, 100D)
-    val checkedXOffset = Math.min(xOffset, 0D)
-    val checkedYOffset = Math.min(yOffset, 0D)
+    val checkedXOffset = xOffset
+    val checkedYOffset = yOffset
 
     for {
       pres <- presentations.get(presentationId)

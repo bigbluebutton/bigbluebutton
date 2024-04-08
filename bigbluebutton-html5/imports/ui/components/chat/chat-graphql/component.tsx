@@ -13,15 +13,16 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import browserInfo from '/imports/utils/browserInfo';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface ChatProps {
-
+  isRTL: boolean;
 }
 
-const Chat: React.FC<ChatProps> = () => {
+const Chat: React.FC<ChatProps> = ({ isRTL }) => {
   const { isChrome } = browserInfo;
   return (
-    <Styled.Chat isChrome={isChrome}>
+    <Styled.Chat isRTL={isRTL} isChrome={isChrome}>
       <ChatHeader />
       <ChatMessageListContainer />
       <ChatMessageFormContainer />
@@ -30,10 +31,10 @@ const Chat: React.FC<ChatProps> = () => {
   );
 };
 
-const ChatLoading: React.FC = () => {
+export const ChatLoading: React.FC<ChatProps> = ({ isRTL }) => {
   const { isChrome } = browserInfo;
   return (
-    <Styled.Chat isChrome={isChrome}>
+    <Styled.Chat isRTL={isRTL} isChrome={isChrome}>
       <CircularProgress style={{ alignSelf: 'center' }} />
     </Styled.Chat>
   );
@@ -41,18 +42,19 @@ const ChatLoading: React.FC = () => {
 
 const ChatContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
-  const chats = useChat((chat) => {
+  const { data: chats } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       participant: chat.participant,
     };
-  }) as Partial<ChatType>[];
+  }) as GraphqlDataHookSubscriptionResponse<Partial<ChatType>[]>;
 
   const [pendingChat, setPendingChat] = usePendingChat();
 
-  if (pendingChat) {
+  if (pendingChat && chats) {
     const chat = chats.find((c) => {
       return c.participant?.userId === pendingChat;
     });
@@ -66,8 +68,8 @@ const ChatContainer: React.FC = () => {
   }
 
   if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
-  if (!idChatOpen) return <ChatLoading />;
-  return <Chat />;
+  if (!idChatOpen) return <ChatLoading isRTL={isRTL} />;
+  return <Chat isRTL={isRTL} />;
 };
 
 export default ChatContainer;

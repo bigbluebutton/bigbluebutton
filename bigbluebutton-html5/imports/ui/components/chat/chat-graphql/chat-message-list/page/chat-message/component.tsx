@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
@@ -16,6 +17,7 @@ interface ChatMessageProps {
   message: Message;
   previousMessage: Message;
   lastSenderPreviousPage: string | null | undefined;
+  setMessagesRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForChatMessageDomElements[]>>
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
 }
@@ -25,10 +27,6 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
-  presentationLabel: {
-    id: 'app.presentationUploder.title',
-    description: 'presentation area element label',
-  },
   systemLabel: {
     id: 'app.toast.chat.system',
     description: 'presentation area element label',
@@ -36,6 +34,14 @@ const intlMessages = defineMessages({
   chatClear: {
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
+  },
+  userAway: {
+    id: 'app.chat.away',
+    description: 'message when user is away',
+  },
+  userNotAway: {
+    id: 'app.chat.notAway',
+    description: 'message when user is no longer away',
   },
 });
 
@@ -54,6 +60,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   lastSenderPreviousPage,
   scrollRef,
   message,
+  setMessagesRequestedFromPlugin,
   markMessageAsSeen,
 }) => {
   const intl = useIntl();
@@ -62,7 +69,19 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       markMessageAsSeen(message);
     }
   }, [message, messageRef]);
+  const messageContentRef = React.createRef<HTMLDivElement>();
 
+  useEffect(() => {
+    setMessagesRequestedFromPlugin((messages) => {
+      if (messageContentRef.current && !messages.some((m) => m.messageId === message.messageId)) {
+        messages.push({
+          messageId: message.messageId,
+          message: messageContentRef.current,
+        });
+      }
+      return messages;
+    });
+  }, [messageContentRef]);
   useEffect(() => {
     const callbackFunction = () => {
       if (messageRef.current && isInViewport(messageRef.current)) {
@@ -87,11 +106,21 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     || lastSenderPreviousPage) === message?.user?.userId;
   const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
   const dateTime = new Date(message?.createdAt);
+  const formattedTime = intl.formatTime(dateTime, {
+    hour: 'numeric',
+    minute: 'numeric',
+  });
+
+  const msgTime = formattedTime;
+  const clearMessage = `${msgTime} ${intl.formatMessage(intlMessages.chatClear)}`;
+
   const messageContent: {
     name: string,
     color: string,
     isModerator: boolean,
+    isPresentationUpload?: boolean,
     component: React.ReactElement,
+    avatarIcon?: string,
   } = useMemo(() => {
     switch (message.messageType) {
       case ChatMessageType.POLL:
@@ -102,25 +131,32 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           component: (
             <ChatPollContent metadata={message.messageMetadata} />
           ),
+          avatarIcon: 'icon-bbb-polling',
         };
       case ChatMessageType.PRESENTATION:
         return {
-          name: intl.formatMessage(intlMessages.presentationLabel),
+          name: '',
           color: '#0F70D7',
-          isModerator: true,
+          isModerator: false,
+          isPresentationUpload: true,
           component: (
-            <ChatMessagePresentationContent metadata={message.messageMetadata} />
+            <ChatMessagePresentationContent
+              metadata={message.messageMetadata}
+            />
           ),
+          avatarIcon: 'icon-bbb-download',
         };
       case ChatMessageType.CHAT_CLEAR:
         return {
           name: intl.formatMessage(intlMessages.systemLabel),
-          color: '#0F70D7',
-          isModerator: true,
+          color: '',
+          isModerator: false,
+          isSystemSender: true,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage
-              text={intl.formatMessage(intlMessages.chatClear)}
+              emphasizedMessage={false}
+              text={clearMessage}
+              systemMsg
             />
           ),
         };
@@ -132,11 +168,30 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
+              systemMsg
               emphasizedMessage
               text={message.message}
             />
           ),
         };
+      case ChatMessageType.USER_AWAY_STATUS_MSG: {
+        const { away } = JSON.parse(message.messageMetadata);
+        const awayMessage = (away)
+          ? `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
+          : `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
+        return {
+          name: message.senderName,
+          color: '',
+          isModerator: false,
+          component: (
+            <ChatMessageTextContent
+              emphasizedMessage={false}
+              text={awayMessage}
+              systemMsg
+            />
+          ),
+        };
+      }
       case ChatMessageType.TEXT:
       default:
         return {
@@ -146,31 +201,48 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: ChatMessageType.BREAKOUT_ROOM,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage={message?.user?.isModerator}
+              emphasizedMessage={message.chatEmphasizedText}
               text={message.message}
+              systemMsg={false}
             />
           ),
         };
     }
   }, []);
   return (
-    <ChatWrapper isSystemSender={isSystemSender} sameSender={sameSender} ref={messageRef}>
+    <ChatWrapper
+      isSystemSender={isSystemSender}
+      sameSender={sameSender}
+      ref={messageRef}
+      isPresentationUpload={messageContent.isPresentationUpload}
+    >
       {(!message?.user || !sameSender) && (
-        <ChatAvatar
-          avatar={message.user?.avatar}
-          color={messageContent.color}
-          moderator={messageContent.isModerator}
-        >
-          {!message.user || message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) || 'q' : 'a'}
-        </ChatAvatar>
+        message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
+        && message.messageType !== ChatMessageType.CHAT_CLEAR) && (
+          <ChatAvatar
+            avatar={message.user?.avatar}
+            color={messageContent.color}
+            moderator={messageContent.isModerator}
+          >
+            {!messageContent.avatarIcon ? (
+              !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
+            ) : (
+              <i className={messageContent.avatarIcon} />
+            )}
+          </ChatAvatar>
       )}
-      <ChatContent sameSender={message?.user ? sameSender : false}>
-        <ChatMessageHeader
-          sameSender={message?.user ? sameSender : false}
-          name={messageContent.name}
-          isOnline={message.user?.isOnline ?? true}
-          dateTime={dateTime}
-        />
+      <ChatContent
+        sameSender={message?.user ? sameSender : false}
+      >
+        {message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
+          && message.messageType !== ChatMessageType.CHAT_CLEAR && (
+            <ChatMessageHeader
+              sameSender={message?.user ? sameSender : false}
+              name={messageContent.name}
+              isOnline={message.user?.isOnline ?? true}
+              dateTime={dateTime}
+            />
+        )}
         {messageContent.component}
       </ChatContent>
     </ChatWrapper>

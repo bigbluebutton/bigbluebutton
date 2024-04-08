@@ -1,9 +1,4 @@
 import * as React from 'react';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-
-export interface PluginProvidedStateContainerProps {
-    uuid: string;
-}
 
 export interface PluginsEngineComponentProps {
     containerRef: React.RefObject<HTMLDivElement>;
@@ -14,50 +9,7 @@ export interface PluginConfig {
     url: string;
 }
 
-export interface PluginLoaderContainerProps {
-    uuid: string;
-    containerRef: React.RefObject<HTMLDivElement>;
-    loadedPlugins: React.MutableRefObject<number>;
-    setLastLoadedPlugin: React.Dispatch<React.SetStateAction<HTMLScriptElement | undefined>>;
-    pluginConfig: PluginConfig;
-}
-
 export interface EffectivePluginConfig extends PluginConfig {
+    name: string;
     uuid: string;
 }
-
-export interface PluginProvidedState {
-    presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
-    userListDropdownItems: PluginSdk.UserListDropdownItem[];
-    actionButtonDropdownItems: PluginSdk.ActionButtonDropdownItem[];
-    audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownItem[];
-    actionsBarItems: PluginSdk.ActionsBarItem[];
-    presentationDropdownItems: PluginSdk.PresentationDropdownItem[];
-    navBarItems: PluginSdk.NavBarItem[];
-    optionsDropdownItems: PluginSdk.OptionsDropdownItem[];
-    cameraSettingsDropdownItems: PluginSdk.CameraSettingsDropdownItem[];
-    userCameraDropdownItems: PluginSdk.UserCameraDropdownItem[];
-    userListItemAdditionalInformation: PluginSdk.UserListItemAdditionalInformation[];
-}
-
-/**
- * @description This represents the map containing the state provided by
- * each plugin with its own UUID.
- * @example {UUID -> Plugin information} // Maps the UUID from the
- * loaded plugin to object it will render
- * {"0005538e-5844-44e4-a405-0cad635bee19": {presentationToolbarItems: [{id: "123",
- *  label: "I am a plugin", ...restOfObject}]}}
- */
-export type PluginsProvidedStateMap = {
-    [uuid: string]: PluginProvidedState;
-}
-
-export interface PluginProvidedStateContainerChildProps {
-    uuid: string;
-    generateItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(
-        item: T, index: number): T;
-    pluginProvidedStateMap: PluginsProvidedStateMap;
-    pluginApi: PluginSdk.PluginApi;
-}
-
-export type PluginProvidedStateContainerChild = React.FC<PluginProvidedStateContainerChildProps>;

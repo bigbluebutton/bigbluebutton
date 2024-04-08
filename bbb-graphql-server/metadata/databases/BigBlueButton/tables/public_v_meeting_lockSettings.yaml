@@ -17,8 +17,10 @@ select_permissions:
         - disablePublicChat
         - hasActiveLockSetting
         - hideUserList
-        - hideViewersCursor
         - hideViewersAnnotation
+        - hideViewersCursor
+        - lockOnJoin
+        - lockOnJoinConfigurable
         - webcamsOnlyForModerator
       filter:
         meetingId:

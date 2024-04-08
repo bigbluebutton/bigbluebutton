@@ -12,9 +12,11 @@ class Status extends Page {
 
   async changeUserStatus() {
     const { userStatusEnabled } = getSettings();
-    test.fail(!userStatusEnabled, 'User status is disabled');
 
-    await waitAndClearDefaultPresentationNotification(this);
+    if(!userStatusEnabled) {
+      await this.waitAndClick(e.currentUser);
+      return this.wasRemoved(e.setStatus);
+    }
     await setStatus(this, e.applaud);
     await this.waitForSelector(e.smallToastMsg);
     await this.checkElement(e.applauseIcon);

@@ -9,7 +9,7 @@ import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 import { Session } from 'meteor/session';
 
-const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentationOnJoin;
+const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -43,6 +43,8 @@ const propTypes = {
   setPushLayout: PropTypes.func,
   shouldShowScreenshare: PropTypes.bool,
   shouldShowExternalVideo: PropTypes.bool,
+  enforceLayout: PropTypes.string,
+  setLocalSettings: PropTypes.func.isRequired,
 };
 
 class PushLayoutEngine extends React.Component {
@@ -63,23 +65,34 @@ class PushLayoutEngine extends React.Component {
       meetingPresentationIsOpen,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      enforceLayout,
+      setLocalSettings,
+      pushLayoutMeeting,
     } = this.props;
 
-    const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
-    Settings.application.selectedLayout = userLayout || meetingLayout;
+    const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
+    const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
 
-    let selectedLayout = Settings.application.selectedLayout;
+    Settings.application.selectedLayout = enforceLayout
+      || changeLayout
+      || defaultLayout
+      || meetingLayout;
+
+    let { selectedLayout } = Settings.application;
     if (isMobile()) {
       selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
       Settings.application.selectedLayout = selectedLayout;
     }
     Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
 
-    Settings.save();
+    Settings.save(setLocalSettings);
 
-    const initialPresentation = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
-    MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
-    Session.set('presentationLastState', initialPresentation);
+    const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
+    let presentationIsOpen = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
+    presentationIsOpen = pushLayoutMeeting ? meetingPresentationIsOpen : presentationIsOpen;
+    presentationIsOpen = shouldOpenPresentation || presentationIsOpen;
+    MediaService.setPresentationIsOpen(layoutContextDispatch, presentationIsOpen);
+    Session.set('presentationLastState', presentationIsOpen);
 
     if (selectedLayout === 'custom') {
       setTimeout(() => {
@@ -90,7 +103,7 @@ class PushLayoutEngine extends React.Component {
 
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition,
+          value: meetingLayoutCameraPosition || 'contentTop',
         });
 
         if (!equalDouble(meetingLayoutVideoRate, 0)) {
@@ -142,19 +155,23 @@ class PushLayoutEngine extends React.Component {
       selectedLayout,
       setMeetingLayout,
       setPushLayout,
+      enforceLayout,
+      setLocalSettings,
     } = this.props;
 
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
     const pushLayoutMeetingDidChange = pushLayoutMeeting !== prevProps.pushLayoutMeeting;
+    const enforceLayoutDidChange = enforceLayout !== prevProps.enforceLayout;
     const shouldSwitchLayout = isPresenter
-      ? meetingLayoutDidChange
-      : (meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting;
+      ? meetingLayoutDidChange || enforceLayoutDidChange
+      : ((meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting) || enforceLayoutDidChange;
 
     if (shouldSwitchLayout) {
-
-      let contextLayout = meetingLayout;
+      let contextLayout = enforceLayout || meetingLayout;
       if (isMobile()) {
-        contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
+        if (contextLayout === 'custom') {
+          contextLayout = 'smart';
+        }
       }
 
       layoutContextDispatch({
@@ -167,16 +184,16 @@ class PushLayoutEngine extends React.Component {
           ...Settings.application,
           selectedLayout: contextLayout,
         },
-      });
+      }, null, setLocalSettings);
     }
 
-    if (pushLayoutMeetingDidChange) {
+    if (!enforceLayout && pushLayoutMeetingDidChange) {
       updateSettings({
         application: {
           ...Settings.application,
           pushLayout: pushLayoutMeeting,
         },
-      });
+      }, null, setLocalSettings);
     }
 
     if (meetingLayout === "custom" && selectedLayout === "custom" && !isPresenter) {
@@ -244,6 +261,7 @@ class PushLayoutEngine extends React.Component {
       || cameraIsResizing !== prevProps.cameraIsResizing
       || cameraPosition !== prevProps.cameraPosition
       || focusedCamera !== prevProps.focusedCamera
+      || enforceLayout !== prevProps.enforceLayout
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
     if (pushLayout !== prevProps.pushLayout) { // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers

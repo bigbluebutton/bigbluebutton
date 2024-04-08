@@ -1,0 +1,106 @@
+version: 2
+updates:
+
+  # maintaining legacy branch
+  # no configuration for now
+
+  # current branch
+  ## excluding bigbluebutton-tests/playwright, bigbluebutton-tests/puppeteer, docs
+  - package-ecosystem: npm
+    directory: "/bbb-export-annotations"
+    target-branch: "v2.7.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 0 # zero means only security pull requests and no (optional) version updates
+  - package-ecosystem: npm
+    directory: "/bigbluebutton-html5"
+    target-branch: "v2.7.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 0 # zero means only security pull requests and no (optional) version updates
+  - package-ecosystem: npm
+    directory: "/bbb-learning-dashboard"
+    target-branch: "v2.7.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 0 # zero means only security pull requests and no (optional) version updates
+  - package-ecosystem: gradle
+    directory: "/bigbluebutton-web"
+    target-branch: "v2.7.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 0 # zero means only security pull requests and no (optional) version updates
+  - package-ecosystem: bundler
+    directory: "/record-and-playback/core"
+    target-branch: "v2.7.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 0 # zero means only security pull requests and no (optional) version updates
+    vendor: true
+  - package-ecosystem: maven
+    directory: "/bbb-fsesl-client"
+    target-branch: "v2.7.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 0 # zero means only security pull requests and no (optional) version updates
+  
+
+  # upcoming release branch
+  ## excluding bigbluebutton-tests/playwright, bigbluebutton-tests/puppeteer, docs, bbb-graphql-client-test
+  - package-ecosystem: npm
+    directory: "/bbb-graphql-actions"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+  - package-ecosystem: npm
+    directory: "/bbb-export-annotations"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+  - package-ecosystem: npm
+    directory: "/bigbluebutton-html5"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+  - package-ecosystem: npm
+    directory: "/bbb-learning-dashboard"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+    - package-ecosystem: gradle
+    directory: "/bigbluebutton-web"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+  - package-ecosystem: bundler
+    directory: "/record-and-playback/core"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+  - package-ecosystem: maven
+    directory: "/bbb-fsesl-client"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+  - package-ecosystem: gomod
+    directory: "/bbb-graphql-middleware"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+  - package-ecosystem: gomod
+    directory: "/bbb-graphql-server"
+    target-branch: "v3.0.x-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20 # both security and versions updates
+
+  # upstream (default) branch
+  # no configuration for now

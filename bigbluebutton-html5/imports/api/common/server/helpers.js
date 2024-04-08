@@ -36,20 +36,6 @@ export const parseMessage = (message) => {
   return parsedMessage;
 };
 
-export const textToMarkdown = (message) => {
-  let parsedMessage = message || '';
-  parsedMessage = parsedMessage.trim();
-
-  // replace url with markdown links
-  const urlRegex = /(?<!\]\()https?:\/\/([\w-]+\.)+\w{1,6}([/?=&#.]?[\w-]+)*/gm;
-  parsedMessage = parsedMessage.replace(urlRegex, '[$&]($&)');
-
-  // replace new lines with markdown new lines
-  parsedMessage = parsedMessage.replace(/\n\r?/g, '  \n');
-
-  return parsedMessage;
-};
-
 export const spokeTimeoutHandles = {};
 export const clearSpokeTimeout = (meetingId, userId) => {
   if (spokeTimeoutHandles[`${meetingId}-${userId}`]) {

@@ -7,6 +7,8 @@ const MEETING_SUBSCRIPTION = gql`
         disabledFeatures
         durationInSeconds
         extId
+        endWhenNoModerator
+        endWhenNoModeratorDelayInMinutes
         lockSettings {
           disableCam
           disableMic
@@ -16,7 +18,14 @@ const MEETING_SUBSCRIPTION = gql`
           hasActiveLockSetting
           hideUserList
           hideViewersCursor
+          hideViewersAnnotation
           webcamsOnlyForModerator
+          lockOnJoin
+          lockOnJoinConfigurable
+        }
+        metadata {
+          name
+          value
         }
         maxPinnedCameras
         meetingCameraCap
@@ -31,14 +40,24 @@ const MEETING_SUBSCRIPTION = gql`
           record
           keepEvents
         }
+        groups {
+          groupId
+          name
+        }
+        learningDashboard {
+          learningDashboardAccessToken
+        }
         screenshare {
+          contentType
           hasAudio
+          screenshareConf
           screenshareId
+          startedAt
+          stoppedAt
           stream
           vidHeight
           vidWidth
           voiceConf
-          screenshareConf
         }
         usersPolicies {
           allowModsToEjectCameras
@@ -53,6 +72,16 @@ const MEETING_SUBSCRIPTION = gql`
           userCameraCap
           webcamsOnlyForModerator
           guestLobbyMessage
+        }
+        layout {
+          cameraDockAspectRatio
+          cameraDockIsResizing
+          cameraDockPlacement
+          cameraWithFocus
+          currentLayoutType
+          presentationMinimized
+          propagateLayout
+          updatedAt
         }
         isBreakout
         breakoutPolicies {
@@ -73,6 +102,24 @@ const MEETING_SUBSCRIPTION = gql`
           muteOnStart
           voiceConf
           telVoice
+        }
+        externalVideo {
+          externalVideoId
+          playerCurrentTime
+          playerPlaybackRate
+          playerPlaying
+          externalVideoUrl
+          startedSharingAt
+          stoppedSharingAt
+          updatedAt
+        }
+        componentsFlags {
+          hasCaption
+          hasBreakoutRoom
+          hasExternalVideo
+          hasPoll
+          hasScreenshare
+          hasTimer
         }
       }
   }

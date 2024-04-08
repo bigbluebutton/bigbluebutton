@@ -1,12 +1,14 @@
-import createUseSubscription from './createUseSubscription';
-import CURRENT_USER_SUBSCRIPTION from '../graphql/queries/currentUserSubscription';
+import { useContext } from 'react';
 import { User } from '../../Types/user';
-
-const useCurrentUserSubscription = createUseSubscription<Partial<User>>(CURRENT_USER_SUBSCRIPTION, false);
+import { CurrentUserContext } from '../providers/current-user';
 
 const useCurrentUser = (fn: (c: Partial<User>) => Partial<User>) => {
-  const currentUser = useCurrentUserSubscription(fn)[0];
-  return currentUser;
+  const response = useContext(CurrentUserContext);
+  const returnObject = {
+    ...response,
+    data: response.data ? response.data.map(fn)[0] : null,
+  };
+  return returnObject;
 };
 
 export default useCurrentUser;

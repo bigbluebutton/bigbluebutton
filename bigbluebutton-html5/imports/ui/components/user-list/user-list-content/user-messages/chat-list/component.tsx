@@ -7,6 +7,7 @@ import ChatListItem from './chat-list-item/component';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import Service from '/imports/ui/components/user-list/service';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -44,27 +45,11 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   const { roving } = Service;
 
   React.useEffect(() => {
-    messageListRef.current?.addEventListener(
-      'keydown',
-      rove,
-      true,
-    );
-
-    return () => {
-      messageListRef.current?.removeEventListener(
-        'keydown',
-        rove,
-        true,
-      );
-    };
-  }, [messageListRef]);
-
-  React.useEffect(() => {
     const firstChild = (selectedChat as HTMLElement)?.firstChild;
     if (firstChild && firstChild instanceof HTMLElement) firstChild.focus();
   }, [selectedChat]);
 
-  const rove = (event: KeyboardEvent) => {
+  const rove = (event: React.KeyboardEvent) => {
     // eslint-disable-next-line react/no-find-dom-node
     const msgItemsRef = findDOMNode(messageItemsRef.current);
     const msgItemsRefChild = msgItemsRef?.firstChild;
@@ -84,6 +69,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
         role="tabpanel"
         tabIndex={0}
         ref={messageListRef}
+        onKeyDown={rove}
       >
         <Styled.List ref={messageItemsRef}>
           <TransitionGroup>
@@ -96,10 +82,12 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
 };
 
 const ChatListContainer: React.FC = () => {
-  const chats = useChat((chat) => chat) as Chat[];
-  return (
-    <ChatList chats={chats} />
-  );
+  const { data: chats } = useChat((chat) => chat) as GraphqlDataHookSubscriptionResponse<Chat[]>;
+  if (chats) {
+    return (
+      <ChatList chats={chats} />
+    );
+  } return <></>;
 };
 
 export default ChatListContainer;

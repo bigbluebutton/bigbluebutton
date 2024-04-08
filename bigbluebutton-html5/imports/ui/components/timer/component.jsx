@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Service from './service';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -81,7 +82,6 @@ const propTypes = {
   }).isRequired,
   layoutContextDispatch: PropTypes.shape().isRequired,
   timeOffset: PropTypes.number.isRequired,
-  isRTL: PropTypes.bool.isRequired,
   isActive: PropTypes.bool.isRequired,
   isModerator: PropTypes.bool.isRequired,
   currentTrack: PropTypes.string.isRequired,
@@ -89,10 +89,6 @@ const propTypes = {
 };
 
 class Timer extends Component {
-  static handleOnTrackChange(event) {
-    Service.setTrack(event.target.value);
-  }
-
   constructor(props) {
     super(props);
 
@@ -124,59 +120,70 @@ class Timer extends Component {
   }
 
   handleControlClick() {
-    const { timer } = this.props;
+    const {
+      timer, startTimer, stopTimer,
+    } = this.props;
 
     if (timer.running) {
-      Service.stopTimer();
+      stopTimer();
     } else {
-      Service.startTimer();
+      startTimer();
     }
   }
 
   handleOnHoursChange(event) {
-    const { timer } = this.props;
+    const { timer, setHours } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const hours = parseInt(target.value, 10);
-      Service.setHours(hours, timer.time);
+      setHours(hours, timer.time);
     }
   }
 
   handleOnMinutesChange(event) {
-    const { timer } = this.props;
+    const { timer, setMinutes } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const minutes = parseInt(target.value, 10);
-      Service.setMinutes(minutes, timer.time);
+      setMinutes(minutes, timer.time);
     }
   }
 
   handleOnSecondsChange(event) {
-    const { timer } = this.props;
+    const { timer, setSeconds } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const seconds = parseInt(target.value, 10);
-      Service.setSeconds(seconds, timer.time);
+      setSeconds(seconds, timer.time);
     }
   }
 
   handleSwitchToStopwatch() {
-    const { timer } = this.props;
+    const { timer, stopTimer, switchTimer } = this.props;
 
     if (!timer.stopwatch) {
-      Service.switchTimer(true);
+      stopTimer();
+      switchTimer(true);
     }
   }
 
   handleSwitchToTimer() {
-    const { timer } = this.props;
+    const { timer, stopTimer, switchTimer } = this.props;
 
     if (timer.stopwatch) {
-      Service.switchTimer(false);
+      stopTimer();
+      switchTimer(false);
     }
+  }
+
+  handleOnTrackChange(event) {
+    const { setTrack } = this.props;
+    const { target } = event;
+
+    setTrack(target.value);
   }
 
   getTime() {
@@ -202,13 +209,22 @@ class Timer extends Component {
       updatedTime = Math.max(time - elapsedTime, 0);
     }
 
+    return updatedTime;
+  }
+
+  getTimeString() {
+    const { timer } = this.props;
+    const { stopwatch } = timer;
+
+    const updatedTime = this.getTime();
+
     return Service.getTimeAsString(updatedTime, stopwatch);
   }
 
   updateTime() {
     const { current } = this.timeRef;
     if (current) {
-      current.textContent = this.getTime();
+      current.textContent = this.getTimeString();
     }
   }
 
@@ -229,6 +245,7 @@ class Timer extends Component {
     const {
       intl,
       timer,
+      timerReset,
     } = this.props;
 
     const { running } = timer;
@@ -242,11 +259,13 @@ class Timer extends Component {
           color={color}
           label={intl.formatMessage(label)}
           onClick={() => this.handleControlClick()}
+          data-test="startStopTimer"
         />
         <Styled.TimerControlButton
           color="secondary"
           label={intl.formatMessage(intlMessages.reset)}
-          onClick={() => Service.resetTimer()}
+          onClick={() => timerReset()}
+          data-test="resetTimerStopWatch"
         />
       </Styled.TimerControls>
     );
@@ -282,7 +301,7 @@ class Timer extends Component {
                   id={track}
                   value={track}
                   checked={currentTrack === track}
-                  onChange={Timer.handleOnTrackChange}
+                  onChange={(event) => this.handleOnTrackChange(event)}
                   disabled={stopwatch}
                 />
                 {intl.formatMessage(intlMessages[track])}
@@ -327,6 +346,7 @@ class Timer extends Component {
               max={Service.getMaxHours()}
               min="0"
               onChange={(event) => this.handleOnHoursChange(event)}
+              data-test="hoursInput"
             />
             <Styled.StopwatchTimeInputLabel>
               {intl.formatMessage(intlMessages.hours)}
@@ -342,6 +362,7 @@ class Timer extends Component {
               max="59"
               min="0"
               onChange={(event) => this.handleOnMinutesChange(event)}
+              data-test="minutesInput"
             />
             <Styled.StopwatchTimeInputLabel>
               {intl.formatMessage(intlMessages.minutes)}
@@ -357,6 +378,7 @@ class Timer extends Component {
               max="59"
               min="0"
               onChange={(event) => this.handleOnSecondsChange(event)}
+              data-test="secondsInput"
             />
             <Styled.StopwatchTimeInputLabel>
               {intl.formatMessage(intlMessages.seconds)}
@@ -386,19 +408,22 @@ class Timer extends Component {
         <Styled.TimerCurrent
           aria-hidden
           ref={this.timeRef}
+          data-test="timerCurrent"
         >
-          {this.getTime()}
+          {this.getTimeString()}
         </Styled.TimerCurrent>
         <Styled.TimerType>
           <Styled.TimerSwitchButton
             label={intl.formatMessage(intlMessages.stopwatch)}
             onClick={() => this.handleSwitchToStopwatch()}
             color={stopwatch ? 'primary' : 'secondary'}
+            data-test="stopwatch"
           />
           <Styled.TimerSwitchButton
             label={intl.formatMessage(intlMessages.timer)}
             onClick={() => this.handleSwitchToTimer()}
             color={!stopwatch ? 'primary' : 'secondary'}
+            data-test="timer"
           />
         </Styled.TimerType>
         {this.renderTimer()}
@@ -409,7 +434,6 @@ class Timer extends Component {
   render() {
     const {
       intl,
-      isRTL,
       isActive,
       isModerator,
       layoutContextDispatch,
@@ -428,16 +452,13 @@ class Timer extends Component {
       <Styled.TimerSidebarContent
         data-test="timer"
       >
-        <Styled.TimerHeader>
-          <Styled.TimerTitle>
-            <Styled.TimerMinimizeButton
-              onClick={() => Service.closePanel(layoutContextDispatch)}
-              aria-label={intl.formatMessage(intlMessages.hideTimerLabel)}
-              label={intl.formatMessage(message)}
-              icon={isRTL ? 'right_arrow' : 'left_arrow'}
-            />
-          </Styled.TimerTitle>
-        </Styled.TimerHeader>
+        <Header
+          leftButtonProps={{
+            onClick: () => { Service.closePanel(layoutContextDispatch); },
+            'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
+            label: intl.formatMessage(message),
+          }}
+        />
         {this.renderContent()}
       </Styled.TimerSidebarContent>
     );

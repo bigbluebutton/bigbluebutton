@@ -6,7 +6,6 @@ const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultip
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification, waitAndClearNotification } = require('../notifications/util');
 
 const defaultZoomLevel = '100%';
 
@@ -33,6 +32,20 @@ class Presentation extends MultiUsers {
     await checkSvgIndex(this.modPage, '/svg/1');
   }
 
+  async shareCameraAsContent() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.shareCameraAsContent);
+    await this.modPage.waitForSelector(e.videoPreview);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+
+    const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
+    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-share-camera-as-content.png', {
+      maxDiffPixels: 1000,
+    });
+  }
+
   async hideAndRestorePresentation() {
     const { presentationHidden } = getSettings();
     if (!presentationHidden) {
@@ -47,10 +60,13 @@ class Presentation extends MultiUsers {
 
   async startExternalVideo() {
     const { externalVideoPlayer } = getSettings();
-    test.fail(!externalVideoPlayer, 'External video is disabled');
 
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
+    if(!externalVideoPlayer) {
+      await this.modPage.hasElement(e.managePresentations);
+      return this.modPage.wasRemoved(e.shareExternalVideoBtn);
+    }
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
     await this.modPage.waitForSelector(e.closeModal);
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
@@ -75,11 +91,17 @@ class Presentation extends MultiUsers {
     await this.userPage.wasRemoved(e.presentationStatusInfo);
     await this.userPage.wasRemoved(e.smallToastMsg);
     
+    await this.modPage.reloadPage();
+    await this.modPage.closeAudioModal();
+    await this.modPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
     
+    await this.userPage.reloadPage();
+    await this.userPage.closeAudioModal();
+    await this.userPage.closeAllToastNotifications();
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
@@ -168,12 +190,15 @@ class Presentation extends MultiUsers {
 
   async enableAndDisablePresentationDownload(testInfo) {
     const { originalPresentationDownloadable } = getSettings();
-    test.fail(!originalPresentationDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     // enable original presentation download
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
+    if(!originalPresentationDownloadable) {
+      await this.modPage.hasElement(e.presentationOptionsDownloadBtn);
+      return this.modPage.wasRemoved(e.enableOriginalPresentationDownloadBtn);
+    }
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.enableOriginalPresentationDownloadBtn);
     await this.userPage.hasElement(e.smallToastMsg);
@@ -198,12 +223,15 @@ class Presentation extends MultiUsers {
 
   async sendPresentationToDownload(testInfo) {
     const { presentationWithAnnotationsDownloadable } = getSettings();
-    test.fail(!presentationWithAnnotationsDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    if(!presentationWithAnnotationsDownloadable) {
+      await this.modPage.hasElement(e.presentationOptionsDownloadBtn);
+      return this.modPage.wasRemoved(e.sendPresentationInCurrentStateBtn);
+    }
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
     await this.modPage.hasElement(e.smallToastMsg, 20000);

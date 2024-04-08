@@ -7,7 +7,8 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
              authToken: String, sessionToken: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
-             guestStatus: String, excludeFromDashboard: Boolean, customParameters: Map[String, String], loggedOut: Boolean): RegisteredUser = {
+             guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
+             customParameters: Map[String, String], loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -25,6 +26,7 @@ object RegisteredUsers {
       0,
       false,
       false,
+      enforceLayout,
       customParameters,
       loggedOut,
     )
@@ -89,7 +91,7 @@ object RegisteredUsers {
           // will fail and can't join.
           // ralam april 21, 2020
           val bannedUser = user.copy(banned = true)
-          //UserDAO.insert(meetingId, bannedUser)
+          UserDAO.insert(meetingId, bannedUser)
           users.save(bannedUser)
         } else {
           // If user hasn't been ejected, we allow user to join
@@ -120,7 +122,7 @@ object RegisteredUsers {
       u
     } else {
       users.delete(ejectedUser.id)
-//      UserDAO.delete(ejectedUser) it's being removed in User2x already
+//      UserDAO.softDelete(ejectedUser) it's being removed in User2x already
       ejectedUser
     }
   }
@@ -214,6 +216,7 @@ case class RegisteredUser(
     lastAuthTokenValidatedOn: Long,
     joined:                   Boolean,
     banned:                   Boolean,
+    enforceLayout:            String,
     customParameters:         Map[String,String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,

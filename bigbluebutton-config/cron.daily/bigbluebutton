@@ -122,7 +122,7 @@ remove_raw_of_published_recordings(){
 remove_raw_of_published_recordings
 
 #
-# Remove untagged and unamed docker images, cleanning /var/lib/docker/overlay2
+# Remove untagged and unnamed docker images, cleaning /var/lib/docker/overlay2
 #
 docker image prune -f
 

@@ -31,7 +31,7 @@ const VideoListItem = (props) => {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
-    disabledCams,
+    disabledCams, amIModerator, stream,
   } = props;
 
   const intl = useIntl();
@@ -121,7 +121,7 @@ const VideoListItem = (props) => {
   const renderSqueezedButton = () => (
     <UserActions
       name={name}
-      user={user}
+      user={{ ...user, ...stream }}
       videoContainer={videoContainer}
       isVideoSqueezed={isVideoSqueezed}
       cameraId={cameraId}
@@ -134,6 +134,7 @@ const VideoListItem = (props) => {
       isStream={isStream}
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
       isSelfViewDisabled={isSelfViewDisabled}
+      amIModerator={amIModerator}
     />
   );
 
@@ -143,7 +144,7 @@ const VideoListItem = (props) => {
       animations={animations}
     >
       <UserAvatarVideo
-        user={user}
+        user={{ ...user, ...stream }}
         voiceUser={voiceUser}
         unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed={false}
@@ -151,7 +152,7 @@ const VideoListItem = (props) => {
       <Styled.BottomBar>
         <UserActions
           name={name}
-          user={user}
+          user={{ ...user, ...stream }}
           cameraId={cameraId}
           numOfStreams={numOfStreams}
           onHandleVideoFocus={onHandleVideoFocus}
@@ -162,9 +163,11 @@ const VideoListItem = (props) => {
           isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
           isSelfViewDisabled={isSelfViewDisabled}
+          amIModerator={amIModerator}
         />
         <UserStatus
           voiceUser={voiceUser}
+          user={{ ...user, ...stream }}
         />
       </Styled.BottomBar>
     </Styled.WebcamConnecting>
@@ -176,7 +179,7 @@ const VideoListItem = (props) => {
       animations={animations}
     >
       <UserAvatarVideo
-        user={user}
+        user={{ ...user, ...stream }}
         unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed
       />
@@ -188,7 +191,8 @@ const VideoListItem = (props) => {
     <>
       <Styled.TopBar>
         <PinArea
-          user={user}
+          user={{ ...user, ...stream }}
+          amIModerator={amIModerator}
         />
         <ViewActions
           videoContainer={videoContainer}
@@ -202,7 +206,7 @@ const VideoListItem = (props) => {
       <Styled.BottomBar>
         <UserActions
           name={name}
-          user={user}
+          user={{ ...user, ...stream }}
           cameraId={cameraId}
           numOfStreams={numOfStreams}
           onHandleVideoFocus={onHandleVideoFocus}
@@ -213,9 +217,11 @@ const VideoListItem = (props) => {
           isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
           isSelfViewDisabled={isSelfViewDisabled}
+          amIModerator={amIModerator}
         />
         <UserStatus
           voiceUser={voiceUser}
+          user={{ ...user, ...stream }}
         />
       </Styled.BottomBar>
     </>

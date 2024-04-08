@@ -2,6 +2,8 @@ import React from 'react';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 
 interface ChatPollContentProps {
@@ -23,6 +25,29 @@ interface Answers {
   numVotes: number;
   id: number;
 }
+
+const intlMessages = defineMessages({
+  true: {
+    id: 'app.poll.t',
+    description: 'Poll true option value',
+  },
+  false: {
+    id: 'app.poll.f',
+    description: 'Poll false option value',
+  },
+  yes: {
+    id: 'app.poll.y',
+    description: 'Poll yes option value',
+  },
+  no: {
+    id: 'app.poll.n',
+    description: 'Poll no option value',
+  },
+  abstention: {
+    id: 'app.poll.abstention',
+    description: 'Poll Abstention option value',
+  },
+});
 
 function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
   if (typeof metadata !== 'object' || metadata === null) {
@@ -46,28 +71,40 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
   if (!Array.isArray((metadata as Metadata).answers)) {
     throw new Error('metadata.answers is not an array');
   }
-  if ((metadata as Metadata).answers.length === 0) {
-    throw new Error('metadata.answers is empty');
-  }
 }
 
 const ChatPollContent: React.FC<ChatPollContentProps> = ({
   metadata: string,
 }) => {
+  const intl = useIntl();
+
   const pollData = JSON.parse(string) as unknown;
   assertAsMetadata(pollData);
+
+  const answers = pollData.answers.reduce(caseInsensitiveReducer, []);
+
+  const translatedAnswers = answers.map((answer: Answers) => {
+    const translationKey = intlMessages[answer.key.toLowerCase() as keyof typeof intlMessages];
+    const pollAnswer = translationKey ? intl.formatMessage(translationKey) : answer.key;
+    return {
+      ...answer,
+      pollAnswer,
+    };
+  });
+
+  const height = translatedAnswers.length * 50;
   return (
     <div data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
-      <ResponsiveContainer width="100%" height={250}>
+      <ResponsiveContainer width="90%" height={height}>
         <BarChart
-          data={pollData.answers}
+          data={translatedAnswers}
           layout="vertical"
         >
           <XAxis type="number" />
-          <YAxis type="category" dataKey="key" />
+          <YAxis width={80} type="category" dataKey="pollAnswer" />
           <Bar dataKey="numVotes" fill="#0C57A7" />
         </BarChart>
       </ResponsiveContainer>

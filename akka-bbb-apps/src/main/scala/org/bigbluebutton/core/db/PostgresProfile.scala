@@ -1,8 +1,11 @@
 package org.bigbluebutton.core.db
 
 import com.github.tminglei.slickpg._
-import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter }
-import spray.json._
+import org.apache.pekko.http.scaladsl.model.ParsingException
+import org.bigbluebutton.common2.domain.SimpleVoteOutVO
+import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter, _ }
+
+import scala.util.{ Failure, Success, Try }
 
 trait PostgresProfile extends ExPostgresProfile
   with PgArraySupport
@@ -27,16 +30,17 @@ object PostgresProfile extends PostgresProfile
 object JsonUtils {
   implicit object AnyJsonWriter extends JsonWriter[Any] {
     def write(x: Any): JsValue = x match {
-      case n: Int       => JsNumber(n)
-      case s: String    => JsString(s)
-      case b: Boolean   => JsBoolean(b)
-      case f: Float     => JsNumber(f)
-      case d: Double    => JsNumber(d)
-      case m: Map[_, _] => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
-      case l: List[_]   => JsArray(l.map(write).toVector)
-      case a: Array[_]  => JsArray(a.map(write).toVector)
-      case null         => JsNull
-      case _            => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
+      case n: Int             => JsNumber(n)
+      case s: String          => JsString(s)
+      case b: Boolean         => JsBoolean(b)
+      case f: Float           => JsNumber(f)
+      case d: Double          => JsNumber(d)
+      case m: Map[_, _]       => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
+      case l: List[_]         => JsArray(l.map(write).toVector)
+      case a: Array[_]        => JsArray(a.map(write).toVector)
+      case v: SimpleVoteOutVO => JsObject("id" -> JsNumber(v.id), "key" -> JsString(v.key), "numVotes" -> JsNumber(v.numVotes))
+      case null               => JsNull
+      case _                  => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
       //      case _            => JsNull
     }
   }
@@ -49,6 +53,15 @@ object JsonUtils {
 
   def mapToJson(genericMap: Map[String, Any]) = {
     genericMap.toJson
+  }
+
+  def stringToJson(jsonString: String): JsValue = {
+    Try(jsonString.parseJson) match {
+      case Success(jsValue) => jsValue
+      case Failure(exception) =>
+        println(s"Failed to parse JSON string: $exception")
+        "{}".parseJson
+    }
   }
 
 }

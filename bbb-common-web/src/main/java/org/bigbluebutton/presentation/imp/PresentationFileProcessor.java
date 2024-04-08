@@ -191,10 +191,12 @@ public class PresentationFileProcessor {
                 pres.getMeetingId(),
                 pres.getId(),
                 pres.getName(),
+                pres.getFilenameConverted(),
                 pres.getAuthzToken(),
                 pres.isDownloadable(),
                 pres.isRemovable(),
                 pres.isCurrent(),
+                pres.isDefaultPresentation(),
                 pres.getNumberOfPages());
         notifier.sendDocConversionProgress(progress);
     }

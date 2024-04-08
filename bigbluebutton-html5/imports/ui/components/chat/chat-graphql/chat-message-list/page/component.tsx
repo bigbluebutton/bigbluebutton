@@ -1,17 +1,23 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React from 'react';
-import { useSubscription } from '@apollo/client';
+import React, { useContext, useEffect, useState } from 'react';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
+import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
-  ChatMessagePrivateSubscriptionResponse,
-  ChatMessagePublicSubscriptionResponse,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
+import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
+import { ChatLoading } from '../../component';
 
 // @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
 interface ChatListPageContainerProps {
@@ -34,39 +40,51 @@ interface ChatListPageProps {
   scrollRef: React.RefObject<HTMLDivElement>;
 }
 
-const verifyIfIsPublicChat = (message: unknown):
-// eslint-disable-next-line max-len
-message is ChatMessagePublicSubscriptionResponse => (message as ChatMessagePublicSubscriptionResponse).chat_message_public !== undefined;
-
-// eslint-disable-next-line max-len
-const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateSubscriptionResponse => (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined;
-
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
   lastSenderPreviousPage,
   page,
   markMessageAsSeen,
   scrollRef,
-}) => (
-  // eslint-disable-next-line react/jsx-filename-extension
-  <div key={`messagePage-${page}`} id={`${page}`}>
-    {messages.map((message, index, Array) => {
-      const previousMessage = Array[index - 1];
-      return (
-        <ChatMessage
-          key={message.createdAt}
-          message={message}
-          previousMessage={previousMessage}
-          lastSenderPreviousPage={
-            !previousMessage ? lastSenderPreviousPage : null
-          }
-          scrollRef={scrollRef}
-          markMessageAsSeen={markMessageAsSeen}
-        />
-      );
-    })}
-  </div>
-);
+}) => {
+  const { domElementManipulationMessageIds } = useContext(PluginsContext);
+  const [messagesRequestedFromPlugin, setMessagesRequestedFromPlugin] = useState<
+  UpdatedEventDetailsForChatMessageDomElements[]>([]);
+  useEffect(() => {
+    const dataToSend = messagesRequestedFromPlugin.filter((
+      message,
+    ) => domElementManipulationMessageIds.indexOf(message.messageId) !== -1);
+    window.dispatchEvent(
+      new CustomEvent<UpdatedEventDetails<UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.UPDATED, {
+        detail: {
+          hook: DomElementManipulationHooks.CHAT_MESSAGE,
+          data: dataToSend,
+        },
+      }),
+    );
+  }, [domElementManipulationMessageIds]);
+  return (
+    // eslint-disable-next-line react/jsx-filename-extension
+    <div key={`messagePage-${page}`} id={`${page}`}>
+      {messages.map((message, index, Array) => {
+        const previousMessage = Array[index - 1];
+        return (
+          <ChatMessage
+            key={message.createdAt}
+            message={message}
+            previousMessage={previousMessage}
+            setMessagesRequestedFromPlugin={setMessagesRequestedFromPlugin}
+            lastSenderPreviousPage={
+              !previousMessage ? lastSenderPreviousPage : null
+            }
+            scrollRef={scrollRef}
+            markMessageAsSeen={markMessageAsSeen}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
 const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   page,
@@ -84,38 +102,28 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const defaultVariables = { offset: (page) * pageSize, limit: pageSize };
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
+
+  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
   const {
     data: chatMessageData,
-    loading: chatMessageLoading,
-    error: chatMessageError,
-  } = useSubscription<ChatMessagePublicSubscriptionResponse|ChatMessagePrivateSubscriptionResponse>(
-    chatQuery,
-    { variables },
-  );
+  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
-  if (chatMessageError) {
-    return (
-      <p>
-        chatMessageError:
-        {JSON.stringify(chatMessageError)}
-      </p>
-    );
-  }
-  if (chatMessageLoading) return null;
-  let messages: Array<Message> = [];
-  if (verifyIfIsPublicChat(chatMessageData)) {
-    messages = chatMessageData.chat_message_public || [];
-  } else if (verifyIfIsPrivateChat(chatMessageData)) {
-    messages = chatMessageData.chat_message_private || [];
-  }
+  useEffect(() => {
+    // component will unmount
+    return () => {
+      setLoadedMessageGathering(page, []);
+    };
+  }, []);
 
-  if (messages.length > 0) {
-    setLastSender(page, messages[messages.length - 1].user?.userId);
+  if (!chatMessageData) return null;
+  if (chatMessageData.length > 0 && chatId !== chatMessageData[0].chatId) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+  if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
+    setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
   }
-
+  setLoadedMessageGathering(page, chatMessageData);
   return (
     <ChatListPage
-      messages={messages}
+      messages={chatMessageData}
       lastSenderPreviousPage={lastSenderPreviousPage}
       page={page}
       markMessageAsSeen={markMessageAsSeen}

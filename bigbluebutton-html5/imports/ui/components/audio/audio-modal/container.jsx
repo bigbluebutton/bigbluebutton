@@ -19,7 +19,7 @@ import Service from '../service';
 
 const AudioModalContainer = (props) => <AudioModal {...props} />;
 
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
@@ -30,14 +30,14 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceProp: 1 } });
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceSettings: 1 } });
   const getEchoTest = Storage.getItem('getEchoTest');
 
   let formattedDialNum = '';
   let formattedTelVoice = '';
   let combinedDialInNum = '';
-  if (meeting && meeting.voiceProp) {
-    const { dialNumber, telVoice } = meeting.voiceProp;
+  if (meeting && meeting.voiceSettings) {
+    const { dialNumber, telVoice } = meeting.voiceSettings;
     if (invalidDialNumbers.indexOf(dialNumber) < 0) {
       formattedDialNum = dialNumber;
       formattedTelVoice = telVoice;

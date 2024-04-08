@@ -294,7 +294,7 @@ const RecordingIndicatorContainer: React.FC = () => {
     error: meetingRecordingError,
   } = useSubscription<getMeetingRecordingData>(GET_MEETING_RECORDING_DATA);
 
-  const currentUser = useCurrentUser((user: Partial<User>) => ({
+  const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
     userId: user.userId,
     isModerator: user.isModerator,
     voice: user.voice
@@ -305,7 +305,7 @@ const RecordingIndicatorContainer: React.FC = () => {
       : null,
   } as Partial<User>));
 
-  const currentMeeting = useMeeting((meeting) => ({
+  const { data: currentMeeting } = useMeeting((meeting) => ({
     meetingId: meeting.meetingId,
     notifyRecordingIsOn: meeting.notifyRecordingIsOn,
   }));

@@ -19,7 +19,7 @@ case class StartTimerReqMsgBody()
 
 object StopTimerReqMsg { val NAME = "StopTimerReqMsg" }
 case class StopTimerReqMsg(header: BbbClientMsgHeader, body: StopTimerReqMsgBody) extends StandardMsg
-case class StopTimerReqMsgBody(accumulated: Int)
+case class StopTimerReqMsgBody()
 
 object SwitchTimerReqMsg { val NAME = "SwitchTimerReqMsg" }
 case class SwitchTimerReqMsg(header: BbbClientMsgHeader, body: SwitchTimerReqMsgBody) extends StandardMsg

@@ -22,7 +22,7 @@ public class SessionService {
 
     private void getUserSessionWithToken() {
         if(sessionToken != null) {
-            userSession = meetingService.getUserSessionWithAuthToken(sessionToken);
+            userSession = meetingService.getUserSessionWithSessionToken(sessionToken);
         }
     }
 

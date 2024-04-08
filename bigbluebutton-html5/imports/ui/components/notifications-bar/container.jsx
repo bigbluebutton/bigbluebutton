@@ -22,7 +22,7 @@ const STATUS_FAILED = 'failed';
 // failed to connect and waiting to try to reconnect
 const STATUS_WAITING = 'waiting';
 
-const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+const METEOR_SETTINGS_APP = window.meetingClientSettings.public.app;
 
 const REMAINING_TIME_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeThreshold;
 
@@ -166,7 +166,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
   const meetingWithTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
   const Meeting = Meetings.findOne({ meetingId },
-    { fields: { 'meetingProp.isBreakout': 1 } });
+    { fields: { isBreakout: 1 } });
 
   if (meetingWithTimeRemaining && Meeting) {
     const { timeRemaining } = meetingWithTimeRemaining;

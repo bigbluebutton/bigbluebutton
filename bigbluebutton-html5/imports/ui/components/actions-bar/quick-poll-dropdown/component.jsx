@@ -4,10 +4,12 @@ import { defineMessages } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
-import { uniqueId } from '/imports/utils/string-utils';
+import { uniqueId, safeMatch } from '/imports/utils/string-utils';
+import PollService from '/imports/ui/components/poll/service';
 
-const POLL_SETTINGS = Meteor.settings.public.poll;
+const POLL_SETTINGS = window.meetingClientSettings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
 const CANCELED_POLL_DELAY = 250;
 
 const intlMessages = defineMessages({
@@ -45,7 +47,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  parseCurrentSlideContent: PropTypes.func.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
 };
 
@@ -53,7 +54,6 @@ const QuickPollDropdown = (props) => {
   const {
     amIPresenter,
     intl,
-    parseCurrentSlideContent,
     startPoll,
     stopPoll,
     currentSlide,
@@ -63,17 +63,174 @@ const QuickPollDropdown = (props) => {
     pollTypes,
   } = props;
 
-  const parsedSlide = parseCurrentSlideContent(
-    intl.formatMessage(intlMessages.yesOptionLabel),
-    intl.formatMessage(intlMessages.noOptionLabel),
-    intl.formatMessage(intlMessages.abstentionOptionLabel),
-    intl.formatMessage(intlMessages.trueOptionLabel),
-    intl.formatMessage(intlMessages.falseOptionLabel),
-  );
+  // Utility function to escape special characters for regex
+  const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  const {
-    slideId, quickPollOptions, optionsWithLabels, pollQuestion,
-  } = parsedSlide;
+  // Function to create a regex pattern
+  const createPattern = (values) => new RegExp(`.*(${escapeRegExp(values[0])}\\/${escapeRegExp(values[1])}|${escapeRegExp(values[1])}\\/${escapeRegExp(values[0])}).*`, 'gmi');
+
+  const yesValue = intl.formatMessage(intlMessages.yesOptionLabel);
+  const noValue = intl.formatMessage(intlMessages.noOptionLabel);
+  const abstentionValue = intl.formatMessage(intlMessages.abstentionOptionLabel);
+  const trueValue = intl.formatMessage(intlMessages.trueOptionLabel);
+  const falseValue = intl.formatMessage(intlMessages.falseOptionLabel);
+
+  const quickPollOptions = [];
+
+  let {
+    content,
+  } = currentSlide;
+
+  let lines = content.split('\n');
+  let questions = [];
+  let questionLines = [];
+
+  for (let line of lines) {
+    let startsWithCapital = /^[A-Z]/.test(line);
+    let isEndOfQuestion = /\?$/.test(line);
+
+    if (startsWithCapital) {
+      if (questionLines.length > 0) {
+        questions.push(questionLines.join(' '));
+      }
+      questionLines = [];
+    }
+
+    questionLines.push(line.trim());
+
+    if (isEndOfQuestion) {
+      questions.push(questionLines.join(' '));
+      questionLines = [];
+    }
+  }
+
+  if (questionLines.length > 0) {
+    questions.push(questionLines.join(' '));
+  }
+
+  const question = questions.filter(q => /^[A-Z].*\?$/.test(q?.trim()));
+
+  if (question?.length > 0) {
+    question[0] = question[0]?.replace(/\n/g, ' ');
+    const urlRegex = /\bhttps?:\/\/\S+\b/g;
+    const hasUrl = safeMatch(urlRegex, question[0], '');
+    if (hasUrl.length > 0) question.pop();
+  }
+
+  const doubleQuestionRegex = /\?{2}/gm;
+  const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
+
+  const yesNoPatt = createPattern([yesValue, noValue]);
+  const hasYN = safeMatch(yesNoPatt, content, false);
+
+  const trueFalsePatt = createPattern([trueValue, falseValue]);
+  const hasTF = safeMatch(trueFalsePatt, content, false);
+
+  const pollRegex = /\b[1-9A-Ia-i][.)] .*/g;
+  let optionsPoll = safeMatch(pollRegex, content, []);
+  const optionsWithLabels = [];
+
+  if (hasYN) {
+    optionsPoll = ['yes', 'no'];
+  }
+
+  if (optionsPoll) {
+    optionsPoll = optionsPoll.map((opt) => {
+      const formattedOpt = opt.substring(0, MAX_CHAR_LIMIT);
+      optionsWithLabels.push(formattedOpt);
+      return `\r${opt[0]}.`;
+    });
+  }
+
+  optionsPoll.reduce((acc, currentValue) => {
+    const lastElement = acc[acc.length - 1];
+
+    if (!lastElement) {
+      acc.push({
+        options: [currentValue],
+      });
+      return acc;
+    }
+
+    const {
+      options,
+    } = lastElement;
+
+    const lastOption = options[options.length - 1];
+
+    const isLastOptionInteger = !!parseInt(lastOption.charAt(1), 10);
+    const isCurrentValueInteger = !!parseInt(currentValue.charAt(1), 10);
+
+    if (isLastOptionInteger === isCurrentValueInteger) {
+      if (currentValue.toLowerCase().charCodeAt(1) > lastOption.toLowerCase().charCodeAt(1)) {
+        options.push(currentValue);
+      } else {
+        acc.push({
+          options: [currentValue],
+        });
+      }
+    } else {
+      acc.push({
+        options: [currentValue],
+      });
+    }
+    return acc;
+  }, []).filter(({
+    options,
+  }) => options.length > 1 && options.length < 10).forEach((p) => {
+    const poll = p;
+    if (doubleQuestion) poll.multiResp = true;
+    if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
+      const maxAnswer = poll.options.length > MAX_CUSTOM_FIELDS
+        ? MAX_CUSTOM_FIELDS
+        : poll.options.length;
+      quickPollOptions.push({
+        type: `${pollTypes.Letter}${maxAnswer}`,
+        poll,
+      });
+    } else {
+      quickPollOptions.push({
+        type: pollTypes.Custom,
+        poll,
+      });
+    }
+  });
+
+  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion && !hasYN && !hasTF) {
+    quickPollOptions.push({
+      type: 'R-',
+      poll: {
+        question: question[0],
+      },
+    });
+  }
+
+  if (quickPollOptions.length > 0) {
+    content = content.replace(new RegExp(pollRegex), '');
+  }
+
+  const ynPoll = PollService.matchYesNoPoll(yesValue, noValue, content);
+  const ynaPoll = PollService.matchYesNoAbstentionPoll(yesValue, noValue, abstentionValue, content);
+  const tfPoll = PollService.matchTrueFalsePoll(trueValue, falseValue, content);
+
+  ynPoll.forEach((poll) => quickPollOptions.push({
+    type: pollTypes.YesNo,
+    poll,
+  }));
+
+  ynaPoll.forEach((poll) => quickPollOptions.push({
+    type: pollTypes.YesNoAbstention,
+    poll,
+  }));
+
+  tfPoll.forEach((poll) => quickPollOptions.push({
+    type: pollTypes.TrueFalse,
+    poll,
+  }));
+
+  const pollQuestion = (question?.length > 0 && question[0]?.replace(/ *\([^)]*\) */g, '')) || '';
+
+  const slideId = currentSlide.id;
 
   const handleClickQuickPoll = (lCDispatch) => {
     lCDispatch({
@@ -179,7 +336,6 @@ const QuickPollDropdown = (props) => {
   if (quickPollOptions.length === 0) return null;
 
   let answers = null;
-  let question = '';
   let quickPollLabel = '';
   let multiResponse = false;
 
@@ -187,7 +343,6 @@ const QuickPollDropdown = (props) => {
     const { props: pollProps } = quickPolls[0];
     quickPollLabel = pollProps?.label;
     answers = pollProps?.answers;
-    question = pollProps?.question;
     multiResponse = pollProps?.multiResp;
   }
 
@@ -204,7 +359,7 @@ const QuickPollDropdown = (props) => {
       tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
       onClick={() => {
         if (activePoll) {
-            stopPoll();
+          stopPoll();
         }
 
         setTimeout(() => {

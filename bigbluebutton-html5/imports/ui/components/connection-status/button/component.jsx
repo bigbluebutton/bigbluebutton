@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
-import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';
+import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   label: {
@@ -41,10 +42,10 @@ class ConnectionStatusButton extends PureComponent {
   renderModal(isModalOpen) {
     return (
       isModalOpen ?
-      <ConnectionStatusModalContainer
+      <ConnectionStatusModalComponent
         {...{
           isModalOpen,
-          setModalIsOpen: this.setModalIsOpen
+          setModalIsOpen: this.setModalIsOpen,
         }}
       /> : null
     )
@@ -79,11 +80,11 @@ class ConnectionStatusButton extends PureComponent {
     }
 
     const {
-      stats,
+      myCurrentStatus,
     } = this.props;
 
     let color;
-    switch (stats) {
+    switch (myCurrentStatus) {
       case 'warning':
         color = 'success';
         break;
@@ -99,12 +100,10 @@ class ConnectionStatusButton extends PureComponent {
         color = 'success';
     }
 
-    const currentStatus = stats ? stats : 'normal';
-
     return (
       <Styled.ButtonWrapper>
         <Button
-          customIcon={this.renderIcon(currentStatus)}
+          customIcon={this.renderIcon(myCurrentStatus)}
           label={intl.formatMessage(intlMessages.label)}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.description)}

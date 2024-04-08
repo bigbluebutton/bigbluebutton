@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.voice
 
-import org.apache.pekko.actor.{ ActorContext, ActorSystem, Cancellable }
+import org.apache.pekko.actor.{ActorContext, ActorSystem, Cancellable}
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
@@ -11,8 +11,10 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.db.{UserDAO, UserVoiceDAO}
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core.util.TimeUtil
+
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
 
@@ -323,6 +325,8 @@ object VoiceApp extends SystemConfiguration {
       uuid
     )
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
+    UserVoiceDAO.update(voiceUserState)
+    UserDAO.updateVoiceUserJoined(voiceUserState)
 
     broadcastEvent(voiceUserState)
 

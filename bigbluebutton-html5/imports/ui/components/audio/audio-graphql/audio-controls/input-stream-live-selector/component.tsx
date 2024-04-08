@@ -21,9 +21,9 @@ import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
 
 // @ts-ignore - temporary, while meteor exists in the project
-const { enableDynamicAudioDeviceSelection } = Meteor.settings.public.app;
+const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
 // @ts-ignore - temporary, while meteor exists in the project
-const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
+const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
 
 // @ts-ignore - temporary while settings are still in .js
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -106,7 +106,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
       .then((devices) => {
         const audioInputDevices = devices.filter((i) => i.kind === AUDIO_INPUT);
         const audioOutputDevices = devices.filter((i) => i.kind === AUDIO_OUTPUT);
-        setInputDevices(audioInputDevices);
+        setInputDevices(audioInputDevices as InputDeviceInfo[]);
         setOutputDevices(audioOutputDevices);
       });
     if (isAudioConnected) {
@@ -216,7 +216,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
 };
 
 const InputStreamLiveSelectorContainer: React.FC = () => {
-  const currentUser: Partial<User> = useCurrentUser((u: Partial<User>) => {
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => {
     if (!u.voice) {
       return {
         presenter: u.presenter,
@@ -237,7 +237,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
     };
   });
 
-  const currentMeeting: Partial<Meeting> = useMeeting((m: Partial<Meeting>) => {
+  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
     return {
       lockSettings: m?.lockSettings,
       isBreakout: m?.isBreakout,

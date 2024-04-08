@@ -7,7 +7,7 @@ import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/component
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
-import { CurrentUser } from '/imports/api/users';
+import Users from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -85,7 +85,7 @@ class JoinHandler extends Component {
 
   async fetchToken() {
     const { hasAlreadyJoined } = this.state;
-    const APP = Meteor.settings.public.app;
+    const APP = window.meetingClientSettings.public.app;
     if (!this._isMounted) return;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -112,7 +112,7 @@ class JoinHandler extends Component {
         userAgent: userInfo.userAgent,
         screenSize: { width: window.screen.width, height: window.screen.height },
         windowSize: { width: window.innerWidth, height: window.innerHeight },
-        bbbVersion: Meteor.settings.public.app.bbbServerVersion,
+        bbbVersion: window.meetingClientSettings.public.app.bbbServerVersion,
         location: window.location.href,
       };
 
@@ -195,7 +195,7 @@ class JoinHandler extends Component {
       setModOnlyMessage(response);
 
       Tracker.autorun(async (cd) => {
-        const user = CurrentUser
+        const user = Users
           .findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
         if (user) {
           await setCustomData(response);
@@ -210,14 +210,13 @@ class JoinHandler extends Component {
         },
       }, 'User successfully went through main.joinRouteHandler');
     } else {
-
-      if(['missingSession','meetingForciblyEnded','notFound'].includes(response.messageKey)) {
+      if (['missingSession', 'meetingForciblyEnded', 'notFound'].includes(response.messageKey)) {
         JoinHandler.setError('410');
         Session.set('errorMessageDescription', 'meeting_ended');
-      } else if(response.messageKey == "guestDeny") {
+      } else if (response.messageKey == "guestDeny") {
         JoinHandler.setError('401');
         Session.set('errorMessageDescription', 'guest_deny');
-      } else if(response.messageKey == "maxParticipantsReached") {
+      } else if (response.messageKey == "maxParticipantsReached") {
         JoinHandler.setError('401');
         Session.set('errorMessageDescription', 'max_participants_reason');
       } else {

@@ -7,15 +7,6 @@ configuration:
   custom_name: user_current
   custom_root_fields: {}
 object_relationships:
-  - name: breakoutRooms
-    using:
-      manual_configuration:
-        column_mapping:
-          meetingId: parentMeetingId
-        insertion_order: null
-        remote_table:
-          name: v_breakoutRoom
-          schema: public
   - name: connectionStatus
     using:
       manual_configuration:
@@ -34,7 +25,7 @@ object_relationships:
         remote_table:
           name: v_user_customParameter
           schema: public
-  - name: guestStatus
+  - name: guestStatusDetails
     using:
       manual_configuration:
         column_mapping:
@@ -51,15 +42,6 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_user_breakoutRoom
-          schema: public
-  - name: localSettings
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_localSettings
           schema: public
   - name: meeting
     using:
@@ -88,6 +70,24 @@ object_relationships:
         remote_table:
           name: v_sharedNotes_session
           schema: public
+  - name: transcriptionError
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_transcriptionError
+          schema: public
+  - name: userClientSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_clientSettings
+          schema: public
   - name: voice
     using:
       manual_configuration:
@@ -98,6 +98,15 @@ object_relationships:
           name: v_user_voice
           schema: public
 array_relationships:
+  - name: breakoutRooms
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: parentMeetingId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom
+          schema: public
   - name: cameras
     using:
       manual_configuration:
@@ -130,11 +139,13 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - authToken
         - authed
         - avatar
         - away
         - banned
         - clientType
+        - enforceLayout
         - color
         - disconnected
         - echoTestRunningAt
@@ -145,10 +156,14 @@ select_permissions:
         - expired
         - extId
         - guest
+        - guestStatus
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
+        - isOnline
         - isRunningEchoTest
+        - joinErrorCode
+        - joinErrorMessage
         - joined
         - locked
         - loggedOut
@@ -158,16 +173,45 @@ select_permissions:
         - pinned
         - presenter
         - raiseHand
+        - registeredAt
         - registeredOn
         - role
         - speechLocale
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
         - userId
       filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
+        userId:
+          _eq: X-Hasura-UserId
+  - role: not_joined_bbb_client
+    permission:
+      columns:
+        - authToken
+        - authed
+        - banned
+        - color
+        - disconnected
+        - ejectReason
+        - ejectReasonCode
+        - ejected
+        - expired
+        - isOnline
+        - isModerator
+        - extId
+        - guest
+        - guestStatus
+        - joinErrorCode
+        - joinErrorMessage
+        - joined
+        - loggedOut
+        - name
+        - registeredAt
+        - registeredOn
+        - userId
+      filter:
+        userId:
+          _eq: X-Hasura-UserId
+    comment: ""
 update_permissions:
   - role: bbb_client
     permission:

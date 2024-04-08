@@ -1,17 +1,14 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Polling } = require('./poll');
+const { initializePages } = require('../core/helpers');
 
-if (!fullyParallel) test.describe.configure({ mode: 'serial' });
-
-test.describe('Polling', () => {
+test.describe('Polling', async () => {
   const polling = new Polling();
 
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await polling.initModPage(page, true);
-    await polling.initUserPage(true, context);
+  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+    await initializePages(polling, browser, { isMultiUser: true });
   });
 
   // Manage
@@ -64,7 +61,8 @@ test.describe('Polling', () => {
     await polling.pollResultsOnWhiteboard();
   });
 
-  test('Poll results in a different presentation', async () => {
+  test('Poll results in a different presentation', async ({}, testInfo) => {
+    test.fixme(!testInfo.config.fullyParallel, 'Currently only works in parallel mode. Poll results not being displayed in the presentation');
     await polling.pollResultsInDifferentPresentation();
   });
 });

@@ -32,7 +32,7 @@ select_permissions:
         - scaledViewBoxWidth
         - scaledWidth
         - slideRevealed
-        - urls
+        - urlsJson
         - viewBoxHeight
         - viewBoxWidth
         - width
@@ -42,3 +42,4 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-PresenterInMeeting
+      allow_aggregations: true

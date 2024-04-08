@@ -36,6 +36,7 @@ select_permissions:
         - talking
         - userId
         - voiceConf
+        - voiceConfCallState
         - voiceUserId
       filter:
         meetingId:

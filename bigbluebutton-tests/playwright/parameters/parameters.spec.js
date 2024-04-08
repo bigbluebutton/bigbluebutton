@@ -1,9 +1,12 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { CustomParameters } = require('./customparameters');
 const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
+const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
+
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Create Parameters', () => {
   test('Record Meeting', async ({ browser, context, page }) => {
@@ -15,26 +18,28 @@ test.describe.parallel('Create Parameters', () => {
   test.describe.parallel('Banner', () => {
     test('Banner Text @ci', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, true, { createParameter: encodeCustomParams(c.bannerText) });
+      await createParam.initModPage(page, true, { createParameter: c.bannerText });
       await createParam.bannerText();
     });
 
     test('Banner Color @ci', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
-      const colorToRGB = hexToRgb(c.color);
-      await createParam.initModPage(page, true, { createParameter: `${c.bannerColor}&${encodeCustomParams(c.bannerText)}` });
+      const colorToRGB = hexToRgb(c.color.substring(1));
+      await createParam.initModPage(page, true, { createParameter: `${encodeCustomParams(c.bannerColor)}&${c.bannerText}` });
       await createParam.bannerColor(colorToRGB);
     });
   });
 
-  test('Max Participants', async ({ browser, context, page }) => {
+  // see https://github.com/bigbluebutton/bigbluebutton/issues/19426
+  test('Max Participants @flaky', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.maxParticipants });
     await createParam.initModPage2(true, context);
     await createParam.maxParticipants(context);
   });
 
-  test('Meeting Duration', async ({ browser, context, page }) => {
+  // Not working due to missing data provided by GraphQL
+  test('Meeting Duration @flaky', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.duration });
     await createParam.duration();
@@ -369,7 +374,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.displayBrandingArea();
   });
 
-  test('Shortcuts', async ({ browser, context, page }) => {
+  test('Shortcuts @ci', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     const shortcutParam = getAllShortcutParams();
     await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(shortcutParam) });
@@ -421,6 +426,7 @@ test.describe.parallel('Custom Parameters', () => {
   });
 
   test.describe.parallel('Audio', () => {
+    // see https://github.com/bigbluebutton/bigbluebutton/issues/19427
     test('Auto join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.autoJoin });
@@ -433,6 +439,7 @@ test.describe.parallel('Custom Parameters', () => {
       await customParam.listenOnlyMode();
     });
 
+    // see https://github.com/bigbluebutton/bigbluebutton/issues/19428
     test('Force Listen Only @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initUserPage(false, context, { useModMeetingId: false, joinParameter: c.forceListenOnly });
@@ -447,19 +454,21 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Skip audio check on first join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, false, { joinParameter: c.skipCheckOnFirstJoin });
+      await customParam.initModPage(page, false, { joinParameter: `${c.skipCheckOnFirstJoin}&${hidePresentationToast}` });
       await customParam.skipCheckOnFirstJoin();
     });
   });
 
   test.describe.parallel('Presentation', () => {
+    // see https://github.com/bigbluebutton/bigbluebutton/issues/19456
     test('Hide Presentation on join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(c.hidePresentationOnJoin) });
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
       await customParam.hidePresentationOnJoin();
     });
 
-    test('Force Restore Presentation On New Events @ci', async ({ browser, context, page }) => {
+    test('Force Restore Presentation On New Events @ci @flaky', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       const joinParameter = c.forceRestorePresentationOnNewEvents;
       await customParam.initModPage(page, true, { joinParameter });
@@ -468,7 +477,7 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Force Restore Presentation On New Poll Result', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      const joinParameter = c.forceRestorePresentationOnNewEvents;
+      const joinParameter = `${c.forceRestorePresentationOnNewEvents}&${hidePresentationToast}`;
       await customParam.initModPage(page, true, { joinParameter });
       await customParam.forceRestorePresentationOnNewPollResult(joinParameter);
     });

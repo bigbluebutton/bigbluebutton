@@ -33,8 +33,8 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(msg.body.intId, msg.body.voiceUserId,
-        msg.body.callerIdName, Roles.VIEWER_ROLE, "", "", "", userColor,
-        true, true, GuestStatus.WAIT, true, Map(), false)
+        msg.body.callerIdName, Roles.VIEWER_ROLE, msg.body.intId, "", "", userColor,
+        true, true, GuestStatus.WAIT, true, "", Map(), false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
     }
 
@@ -57,8 +57,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
         color = userColor,
-        clientType = "",
-        pickExempted = false,
+        clientType = if (isDialInUser) "dial-in-user" else "",
         userLeftFlag = UserLeftFlag(false, 0)
       )
       Users2x.add(liveMeeting.users2x, newUser)

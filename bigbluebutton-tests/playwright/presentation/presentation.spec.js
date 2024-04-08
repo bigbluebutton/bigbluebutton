@@ -1,6 +1,7 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
+const { linkIssue } = require('../core/helpers');
 
 const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}`);
 
@@ -10,6 +11,12 @@ test.describe.parallel('Presentation', () => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.skipSlide();
+  });
+
+  test('Share Camera As Content', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.shareCameraAsContent();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#minimizerestore-presentation-automated
@@ -40,13 +47,13 @@ test.describe.parallel('Presentation', () => {
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot @ci', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot @ci @flaky', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
   });
 
-  test('Hide Presentation Toolbar @ci', async ({ browser, context, page }) => {
+  test('Hide Presentation Toolbar @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hidePresentationToolbar();
@@ -66,13 +73,14 @@ test.describe.parallel('Presentation', () => {
 
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
-    test('Upload single presentation @ci', async ({ browser, context, page }) => {
+    test('Upload single presentation @ci @flaky', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
     });
 
-    test('Upload Other Presentations Format @ci', async ({ browser, context, page }) => {
+    test('Upload Other Presentations Format @ci @flaky', async ({ browser, context, page }) => {
+      linkIssue(18971);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadOtherPresentationsFormat();

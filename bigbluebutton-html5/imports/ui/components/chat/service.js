@@ -1,19 +1,16 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import { makeCall } from '/imports/ui/services/api';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
 
-const APP = Meteor.settings.public.app;
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const APP = window.meetingClientSettings.public.app;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
-const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
@@ -23,7 +20,7 @@ const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const ScrollCollection = new Mongo.Collection(null);
 
@@ -43,22 +40,6 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
-  download: {
-    id: 'app.presentation.downloadLabel',
-    description: 'used as label for presentation download link',
-  },
-  notAccessibleWarning: {
-    id: 'app.presentationUploader.export.notAccessibleWarning',
-    description: 'used for indicating that a link may be not accessible',
-  },
-  original: {
-    id: 'app.presentationUploader.export.originalLabel',
-    description: 'Label to identify original presentation exported',
-  },
-  withWhiteboardAnnotations: {
-    id: 'app.presentationUploader.export.withWhiteboardAnnotations',
-    description: 'Label to identify in current state presentation exported',
-  },
 });
 
 const setUserSentMessage = (bool) => {
@@ -70,9 +51,6 @@ const setUserSentMessage = (bool) => {
 
 const getUser = (userId) => Users.findOne({ userId });
 
-const getPrivateChatByUsers = (userId) => GroupChat
-  .findOne({ users: { $all: [userId, Auth.userID] } });
-
 const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
   { fields: { welcomeProp: 1 } });
 
@@ -83,7 +61,7 @@ const mapGroupMessage = (message) => {
     time: message.timestamp || message.time,
     sender: null,
     key: message.key,
-    chatId: message.chatId
+    chatId: message.chatId,
   };
 
   if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) {
@@ -146,7 +124,7 @@ const reduceAndDontMapGroupMessages = (messages) => (messages
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disablePublicChat': 1, 'lockSettingsProps.disablePrivateChat': 1 } });
+    { fields: { 'lockSettings.disablePublicChat': 1, 'lockSettings.disablePrivateChat': 1 } });
   const user = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
     { fields: { locked: 1, role: 1 } });
   const receiver = Users.findOne({ meetingId: Auth.meetingID, userId: receiverID },
@@ -158,13 +136,13 @@ const isChatLocked = (receiverID) => {
     return !isPublic;
   }
 
-  if (meeting.lockSettingsProps !== undefined) {
+  if (meeting.lockSettings !== undefined) {
     if (user.locked && user.role !== ROLE_MODERATOR) {
       if (isPublic) {
-        return meeting.lockSettingsProps.disablePublicChat;
+        return meeting.lockSettings.disablePublicChat;
       }
       return !isReceiverModerator
-        && meeting.lockSettingsProps.disablePrivateChat;
+        && meeting.lockSettings.disablePrivateChat;
     }
   }
 
@@ -173,7 +151,7 @@ const isChatLocked = (receiverID) => {
 
 const isChatClosed = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return !!currentClosedChats.find(closedChat => closedChat.chatId === chatId);
+  return !!currentClosedChats.find((closedChat) => closedChat.chatId === chatId);
 };
 
 const lastReadMessageTime = (receiverID) => {
@@ -181,53 +159,6 @@ const lastReadMessageTime = (receiverID) => {
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : receiverID;
 
   return UnreadMessages.get(chatType);
-};
-
-const sendGroupMessage = (message, idChatOpen) => {
-  const chatIdToSent = idChatOpen === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : idChatOpen;
-  const chat = GroupChat.findOne({ chatId: chatIdToSent },
-    { fields: { users: 1 } });
-  const chatID = idChatOpen === PUBLIC_CHAT_ID
-    ? PUBLIC_GROUP_CHAT_ID
-    : chat.users.filter((id) => id !== Auth.userID)[0];
-  const isPublicChat = chatID === PUBLIC_CHAT_ID;
-
-  let destinationChatId = PUBLIC_GROUP_CHAT_ID;
-
-  const { userID: senderUserId } = Auth;
-  const receiverId = { id: chatID };
-
-  if (!isPublicChat) {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, senderUserId] } },
-      { fields: { chatId: 1 } });
-
-    if (privateChat) {
-      const { chatId: privateChatId } = privateChat;
-
-      destinationChatId = privateChatId;
-    }
-  }
-
-  const payload = {
-    correlationId: `${senderUserId}-${Date.now()}`,
-    sender: {
-      id: senderUserId,
-      name: '',
-      role: '',
-    },
-    chatEmphasizedText: CHAT_EMPHASIZE_TEXT,
-    message,
-  };
-
-  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-
-  // Remove the chat that user send messages from the session.
-  if (isChatClosed(receiverId.id)) {
-    const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== receiverId.id);
-    Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
-  }
-
-  return makeCall('sendGroupChatMsg', destinationChatId, payload);
 };
 
 const getScrollPosition = (receiverID) => {
@@ -248,8 +179,6 @@ const updateUnreadMessage = (timestamp, idChatOpen) => {
   return UnreadMessages.update(chatType, timestamp);
 };
 
-const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
-
 const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
@@ -266,8 +195,8 @@ const removeFromClosedChatsSession = (idChatOpen) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   if (isChatClosed(chatID)) {
-    const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chatID);
-    Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
+    const closedChats = currentClosedChats.filter((closedChat) => closedChat.chatId !== chatID);
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, closedChats);
   }
 };
 
@@ -285,7 +214,8 @@ const exportChat = (timeWindowList, intl) => {
       const min = date.getMinutes().toString().padStart(2, 0);
       const hourMin = `[${hour}:${min}]`;
 
-      // Skip the reduce aggregation for the sync messages because they aren't localized, causing an error in line 268
+      // Skip the reduce aggregation for the sync messages because they aren't localized
+      // (causing an error in line 268)
       // Also they're temporary (preliminary) messages, so it doesn't make sense export them
       if (['SYSTEM_MESSAGE-sync-msg', 'synced'].includes(message.id)) return acc;
 
@@ -344,24 +274,12 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   });
 };
 
-const getExportedPresentationString = (fileURI, filename, intl, fileStateType) => {
-  const intlFileStateType = fileStateType === 'Original' ? intlMessages.original : intlMessages.withWhiteboardAnnotations;
-  const href = `${APP.bbbWebBase}/${fileURI}`;
-  const warningIcon = '<i class="icon-bbb-warning"></i>';
-  const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
-  const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
-  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${href} type="application/pdf" target="_blank" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
-  const name = `<span>${filename} (${intl.formatMessage(intlFileStateType)})</span>`;
-  return `${name}</br>${link}`;
-};
-
 export default {
   setUserSentMessage,
   mapGroupMessage,
   reduceAndMapGroupMessages,
   reduceAndDontMapGroupMessages,
   getUser,
-  getPrivateChatByUsers,
   getWelcomeProp,
   getScrollPosition,
   lastReadMessageTime,
@@ -369,14 +287,11 @@ export default {
   isChatClosed,
   updateScrollPosition,
   updateUnreadMessage,
-  sendGroupMessage,
   closePrivateChat,
   removeFromClosedChatsSession,
   exportChat,
-  clearPublicChatHistory,
   maxTimestampReducer,
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
   removePackagedClassAttribute,
-  getExportedPresentationString,
 };

@@ -1,115 +1,101 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
-import { toolbarButtonColor, colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  fontSizeLarger,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/common/button/component';
 
-const TldrawGlobalStyle = createGlobalStyle`
-  ${({ hideContextMenu }) => hideContextMenu && `
-    #TD-ContextMenu {
+const TldrawV2GlobalStyle = createGlobalStyle`
+  ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
+    [data-testid="tools.hand"] {
       display: none;
     }
   `}
-  ${({ menuOffset }) => `
-    #TD-StylesMenu {
-      position: relative;
-      right: ${menuOffset};
-    }
-  `}
-  #TD-PrimaryTools-Image {
-    display: none;
-  }
-  #slide-background-shape div {
-    pointer-events: none;
-    user-select: none;
-  }
-  div[dir*="ltr"]:has(button[aria-expanded*="false"][aria-controls*="radix-"]) {
-    pointer-events: none;
-  }
-  [aria-expanded*="false"][aria-controls*="radix-"] {
-    display: none;
-  }
-  [class$="-side-right"] {
-    top: -1px;
-  }
-  ${({ hasWBAccess, isPresenter, size }) => (hasWBAccess || isPresenter) && `
-    #TD-Tools-Dots {
-      height: ${size}px;
-      width: ${size}px;
-    }
-    #TD-Delete {
-      & button {
-        height: ${size}px;
-        width: ${size}px;
-      }
-    }
-    #TD-PrimaryTools button {
-        height: ${size}px;
-        width: ${size}px;
-    }
-    #TD-Styles {
-      border-width: ${borderSize};
-    }
-    #TD-TopPanel-Undo,
-    #TD-TopPanel-Redo,
-    #TD-Styles {
-      height: 92%;
-      border-radius: 7px;
 
-      &:hover {
-        border: solid ${borderSize} #ECECEC;
-        background-color: #ECECEC;
-      }
-      &:focus {
-        border: solid ${borderSize} ${colorBlack};
-      }
-    }
-    #TD-Styles,
-    #TD-TopPanel-Undo,
-    #TD-TopPanel-Redo {
-      margin: ${borderSize} ${borderSizeLarge} 0px ${borderSizeLarge};
+  ${({ isMultiUserActive }) => !isMultiUserActive && `
+    .tl-nametag {
+      display: none;
     }
   `}
-  ${({ hasWBAccess, isPresenter, panSelected }) => (hasWBAccess || isPresenter) && panSelected && `
-    [id^="TD-PrimaryTools-"] {
-      &:hover > div,
-      &:focus > div {
-        background-color: var(--colors-hover) !important;
-      }
+
+  ${({ isRTL }) => (!isRTL) && `
+    .tlui-menu-zone {
+      right: auto;
+      left: 3.5rem;
     }
   `}
-  ${({ darkTheme }) => darkTheme && `
-    #TD-TopPanel-Undo,
-    #TD-TopPanel-Redo,
-    #TD-Styles {
-      &:focus {
-        border: solid ${borderSize} ${colorWhite} !important;
-      }
-    }
-    [id="TD-Styles-Color-Container"],
-    [id="TD-StylesMenu"] {
-      filter: invert(0%) hue-rotate(180deg) contrast(100%) !important;
-    }
-  `}
-  ${({ isPresenter, hasWBAccess }) => (!isPresenter && !hasWBAccess) && `
-    #presentationInnerWrapper div{
-      cursor: default !important;
+
+  ${({ isRTL }) => (isRTL) && `
+    .tlui-menu-zone {
+      right: 3.5rem;
+      left: auto;
     }
   `}
 
   ${({ isToolbarVisible }) => (!isToolbarVisible) && `
-    #TD-Tools {
-      visibility: hidden;
-    }
-    #TD-Styles-Parent {
+    .tlui-toolbar,
+    .tlui-style-panel__wrapper,
+    .tlui-menu-zone {
       visibility: hidden;
     }
     #WhiteboardOptionButton {
       opacity: 0.2;
     }
   `}
+
+  #whiteboard-element {
+    position: relative;
+    height: 100%;
+  }
+
+  #whiteboard-element > * {
+    position: relative; 
+    height: 100%;
+  }
+
+  #whiteboard-element .tl-overlays {
+    left: 0px;
+    bottom: 0px;
+  }
+
+  .tlui-navigation-zone,
+  .tlui-help-menu,
+  .tlui-debug-panel {
+    display: none !important;
+  }
+
+  .tlui-style-panel__wrapper {
+    right: 0px;
+    top: -0.35rem;
+    position: relative;
+  }
+
+  // Add the following lines to override height and width attributes for .tl-overlays__item
+  .tl-overlays__item {
+    height: auto !important;
+    width: auto !important;
+  }
+
+  ${({ isPresenter, isMultiUserActive }) => !isPresenter && !isMultiUserActive && `
+    .tl-cursor use {
+      transform: scale(0.05)!important;
+    }
+
+    .tl-collaborator__cursor {
+      position: absolute !important;
+      left: -7px !important;
+      top: -6px !important;
+    }
+  `}
+
+  [data-testid="main.page-menu"],
+  [data-testid="main.menu"],
+  [data-testid="tools.more.laser"],
+  [data-testid="tools.asset"],
+  .tlui-buttons__horizontal > :nth-child(1),
+  .tlui-buttons__horizontal > :nth-child(2) {
+    display: none !important;
+  }
+
+  .tl-collaborator__cursor {
+    height: auto !important;
+    width: auto !important;
+  }
 `;
 
 const EditableWBWrapper = styled.div`
@@ -118,34 +104,7 @@ const EditableWBWrapper = styled.div`
   }
 `;
 
-const PanTool = styled(Button)`
-  border: none !important;
-  padding: 0;
-  margin: 0;
-  border-radius: 7px;
-  background-color: ${colorWhite};
-  color: ${toolbarButtonColor};
-
-  & > i {
-    font-size: ${fontSizeLarger} !important;
-    [dir="rtl"] & {
-      -webkit-transform: scale(-1, 1);
-      -moz-transform: scale(-1, 1);
-      -ms-transform: scale(-1, 1);
-      -o-transform: scale(-1, 1);
-      transform: scale(-1, 1);
-    }
-  }
-  ${({ panSelected }) => !panSelected && `
-    &:hover,
-    &:focus {
-      background-color: var(--colors-hover) !important;
-    }
-  `}
-`;
-
 export default {
-  TldrawGlobalStyle,
+  TldrawV2GlobalStyle,
   EditableWBWrapper,
-  PanTool,
 };

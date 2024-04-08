@@ -25,6 +25,7 @@ select_permissions:
         - isAllowed
         - isDenied
         - isWaiting
+        - positionInWaitingQueue
         - userId
       filter:
         _or:
@@ -32,3 +33,14 @@ select_permissions:
               _eq: X-Hasura-UserId
           - meetingId:
               _eq: X-Hasura-ModeratorInMeeting
+      allow_aggregations: true
+  - role: not_joined_bbb_client
+    permission:
+      columns:
+        - guestLobbyMessage
+        - guestStatus
+        - positionInWaitingQueue
+      filter:
+        userId:
+          _eq: X-Hasura-UserId
+    comment: ""

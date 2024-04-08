@@ -252,8 +252,8 @@ class BreakoutRoom extends PureComponent {
   }
 
   transferUserToBreakoutRoom(breakoutId) {
-    const { transferToBreakout } = this.props;
-    transferToBreakout(breakoutId);
+    const { transferUserToMeeting, meetingId } = this.props;
+    transferUserToMeeting(meetingId, breakoutId);
     this.setState({ joinedAudioOnly: true, breakoutId });
   }
 
@@ -287,6 +287,7 @@ class BreakoutRoom extends PureComponent {
       rejoinAudio,
       setBreakoutAudioTransferStatus,
       getBreakoutAudioTransferStatus,
+      sendUserUnshareWebcam,
     } = this.props;
 
     const {
@@ -357,7 +358,7 @@ class BreakoutRoom extends PureComponent {
                     extraInfo: { logType: 'user_action' },
                   }, 'joining breakout room closed audio in the main room');
                   VideoService.storeDeviceIds();
-                  VideoService.exitVideo();
+                  VideoService.exitVideo(sendUserUnshareWebcam);
                   if (amIPresenter) screenshareHasEnded();
 
                   Tracker.autorun((c) => {

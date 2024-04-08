@@ -73,6 +73,7 @@ class ExportAnnotationsActor(
   private def handleStoreExportJobInRedisSysMsg(msg: StoreExportJobInRedisSysMsg) {
     val ev = new StoreExportJobInRedisPresAnnEvent()
 
+    ev.setserverSideFilename(msg.body.exportJob.serverSideFilename)
     ev.setJobId(msg.body.exportJob.jobId)
     ev.setJobType(msg.body.exportJob.jobType)
     ev.setFilename(msg.body.exportJob.filename)

@@ -34,7 +34,7 @@ class Speech extends PureComponent {
       isFinal: true,
     };
 
-    this.speechRecognition = Service.initSpeechRecognition();
+    this.speechRecognition = Service.initSpeechRecognition(props.setUserSpeechLocale);
 
     if (this.speechRecognition) {
       this.speechRecognition.onstart = () => notify(props.intl.formatMessage(intlMessages.start), 'info', 'closed_caption');
@@ -138,6 +138,7 @@ Speech.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  setUserSpeechLocale: PropTypes.func.isRequired,
 };
 
 export default injectIntl(Speech);

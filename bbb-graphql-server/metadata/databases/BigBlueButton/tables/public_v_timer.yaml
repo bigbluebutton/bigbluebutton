@@ -13,9 +13,11 @@ select_permissions:
         - accumulated
         - active
         - endedAt
+        - endedOn
         - running
         - songTrack
         - startedAt
+        - startedOn
         - stopwatch
         - time
       filter:

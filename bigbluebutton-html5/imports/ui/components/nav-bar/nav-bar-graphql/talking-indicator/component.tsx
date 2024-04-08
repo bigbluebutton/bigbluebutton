@@ -1,11 +1,9 @@
 import { useSubscription } from '@apollo/client';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
   IsBreakoutSubscriptionData,
   MEETING_ISBREAKOUT_SUBSCRIPTION,
-  TALKING_INDICATOR_SUBSCRIPTION,
-  TalkingIndicatorSubscriptionData,
 } from './queries';
 import { UserVoice } from '/imports/ui/Types/userVoice';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -13,10 +11,17 @@ import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
+import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
+import TALKING_INDICATOR_SUBSCRIPTION from '/imports/ui/core/graphql/queries/userVoiceSubscription';
+import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
+
+interface TalkingIndicatorSubscriptionData {
+  user_voice: Array<Partial<UserVoice>>;
+}
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
 
 const TALKING_INDICATORS_MAX = 8;
@@ -53,6 +58,7 @@ interface TalkingIndicatorProps {
   isBreakout: boolean;
   moreThanMaxIndicators: boolean;
   isModerator: boolean;
+  toggleVoice: (userId?: string | null, muted?: boolean | null) => void;
 }
 
 const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
@@ -60,8 +66,15 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   isBreakout,
   moreThanMaxIndicators,
   isModerator,
+  toggleVoice,
 }) => {
   const intl = useIntl();
+  useEffect(() => {
+    // component will unmount
+    return () => {
+      setTalkingIndicatorList([]);
+    };
+  }, []);
   const talkingElements = useMemo(() => talkingUsers.map((talkingUser: Partial<UserVoice>) => {
     const {
       talking,
@@ -97,7 +110,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - call signature is misse due the function being wrapped
-            muteUser(talkingUser.userId, muted, isBreakout, isModerator);
+            muteUser(talkingUser.userId, muted, isBreakout, isModerator, toggleVoice);
           }}
           label={name}
           tooltipLabel={!muted && isModerator
@@ -170,7 +183,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 const TalkingIndicatorContainer: React.FC = (() => {
   if (!enableTalkingIndicator) return () => null;
   return () => {
-    const currentUser: Partial<User> = useCurrentUser((u: Partial<User>) => ({
+    const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
       userId: u?.userId,
       isModerator: u?.isModerator,
     }));
@@ -194,6 +207,8 @@ const TalkingIndicatorContainer: React.FC = (() => {
       error: isBreakoutError,
     } = useSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
 
+    const toggleVoice = useToggleVoice();
+
     if (talkingIndicatorLoading || isBreakoutLoading) return null;
 
     if (talkingIndicatorError || isBreakoutError) {
@@ -207,13 +222,14 @@ const TalkingIndicatorContainer: React.FC = (() => {
 
     const talkingUsers = talkingIndicatorData?.user_voice ?? [];
     const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
-
+    setTalkingIndicatorList(talkingUsers);
     return (
       <TalkingIndicator
         talkingUsers={talkingUsers}
         isBreakout={isBreakout}
         moreThanMaxIndicators={talkingUsers.length >= TALKING_INDICATORS_MAX}
         isModerator={currentUser?.isModerator ?? false}
+        toggleVoice={toggleVoice}
       />
     );
   };

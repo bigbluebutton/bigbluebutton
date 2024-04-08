@@ -157,7 +157,7 @@ public class Client
      * Sends a FreeSWITCH API command to the server and blocks, waiting for an immediate response from the 
      * server.
      * <p/>
-     * The outcome of the command from the server is retured in an {@link EslMessage} object.
+     * The outcome of the command from the server is returned in an {@link EslMessage} object.
      * 
      * @param command API command to send
      * @param arg command arguments
@@ -454,7 +454,7 @@ public class Client
                         public void run() {
                             try {
                                 /**
-                                 * Custom extra parsing to get conference Events for BigBlueButton / FreeSwitch intergration
+                                 * Custom extra parsing to get conference Events for BigBlueButton / FreeSwitch integration
                                  */
                                 //FIXME: make the conference headers constants
                                 if (event.getEventSubclass().equals("conference::maintenance")) {
@@ -495,7 +495,7 @@ public class Client
                                         listener.conferenceEventPlayFile(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conf_api_sub_transfer") || eventFunc.equals("conference_api_sub_transfer")) {
-                                        //Member transfered to another conf...
+                                        //Member transferred to another conf...
                                         listener.conferenceEventTransfer(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conference_add_member") || eventFunc.equals("conference_member_add")) {

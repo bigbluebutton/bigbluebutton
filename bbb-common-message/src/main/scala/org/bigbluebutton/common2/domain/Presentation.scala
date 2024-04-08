@@ -2,7 +2,7 @@ package org.bigbluebutton.common2.domain
 
 case class PresentationVO(id: String, temporaryPresentationId: String, name: String, current: Boolean = false,
                           pages: Vector[PageVO], downloadable: Boolean, removable: Boolean,
-                          isInitialPresentation: Boolean, filenameConverted: String)
+                          defaultPresentation: Boolean, filenameConverted: String)
 
 case class PageVO(id: String, num: Int, thumbUri: String = "",
                   txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0,
@@ -15,6 +15,7 @@ case class PresentationPageConvertedVO(
     id:      String,
     num:     Int,
     urls:    Map[String, String],
+    content: String,
     current: Boolean             = false,
     width:   Double              = 1440D,
     height:  Double              = 1080D

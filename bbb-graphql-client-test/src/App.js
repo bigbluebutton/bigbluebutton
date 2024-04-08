@@ -1,145 +1,122 @@
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import {ApolloClient, ApolloProvider, gql, InMemoryCache, useQuery, useSubscription} from '@apollo/client';
  import { WebSocketLink } from "@apollo/client/link/ws";
  import React, {useEffect, useState} from "react";
 import './App.css';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
-import UserList from './UserList';
-import MeetingInfo from './MeetingInfo';
-import TotalOfUsers from './TotalOfUsers';
-import TotalOfModerators from './TotalOfModerators';
-import TotalOfViewers from './TotalOfViewers';
-import TotalOfUsersTalking from './TotalOfUsersTalking';
-import TotalOfUniqueNames from './TotalOfUniqueNames';
-import ChatMessages from "./ChatMessages";
-import ChatsInfo from "./ChatsInfo";
-import ChatPublicMessages from "./ChatPublicMessages";
-import Annotations from "./Annotations";
-import AnnotationsHistory from "./AnnotationsHistory";
-import CursorsStream from "./CursorsStream";
-import CursorsAll from "./CursorsAll";
-import TalkingStream from "./TalkingStream";
-import MyInfo from "./MyInfo";
-import UserLocalSettings from "./UserLocalSettings";
-import UserConnectionStatus from "./UserConnectionStatus";
-import UserConnectionStatusReport from "./UserConnectionStatusReport";
+import Auth from "./Auth";
 
 
 function App() {
   const [sessionToken, setSessionToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [userAuthToken, setUserAuthToken] = useState(null);
   const [graphqlClient, setGraphqlClient] = useState(null);
   const [enterApiResponse, setEnterApiResponse] = useState('');
+  const [graphqlConnected, setGraphqlConnected] = useState(false);
+  const [graphqlError, setGraphqlError] = useState('');
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
 
-  async function callApiEnter(sessionToken) {
-    // get url from input text box
-    fetch('/bigbluebutton/api/enter/?sessionToken=' + sessionToken, { credentials: 'include' })
-        .then((response) => response.json())
-        .then((json) => {
-          console.log(json.response);
-          setEnterApiResponse(json.response.returncode);
-          if(json?.response?.internalUserID) {
-            setUserId(json.response.internalUserID);
-            setUserName(json.response.fullname);
-          }
-        });
-  }
+
+    const findSessionToken = async () => {
+        if (urlParams.has('sessionToken')) {
+            const sessionTokenFromUrl = urlParams.get('sessionToken');
+
+            if (sessionTokenFromUrl !== null &&
+                sessionTokenFromUrl !== '' &&
+                sessionToken !== sessionTokenFromUrl) {
+                setSessionToken(sessionTokenFromUrl);
+            }
+        }
+    };
 
     useEffect(() => {
-        const fetchApiData = async () => {
-            if (urlParams.has('sessionToken')) {
-                const sessionTokenFromUrl = urlParams.get('sessionToken');
-
-                if (sessionTokenFromUrl !== null) {
-                    await callApiEnter(sessionTokenFromUrl);
-                    setSessionToken(sessionTokenFromUrl);
-                }
-            }
-        };
-        fetchApiData();
+        findSessionToken();
     },[]);
 
   async function connectGraphqlServer(sessionToken) {
-    // setSessionToken(sessionToken);
-    const wsLink = new WebSocketLink(
-      new SubscriptionClient(`wss://${window.location.hostname}/v1/graphql`, {
-        reconnect: true,
-        timeout: 30000,
-        connectionParams: {
-          headers: {
-            'X-Session-Token': sessionToken,
-            'json-patch-supported': 'true'
+      if(sessionToken == null) return;
+      console.log('connectGraphqlServer');
+
+      const subscriptionClient = new SubscriptionClient(`wss://${window.location.hostname}/v1/graphql`, {
+          reconnect: true,
+          timeout: 30000,
+          connectionParams: {
+              headers: {
+                  'X-Session-Token': sessionToken,
+                  'json-patch-supported': 'true'
+              }
+          },
+          connectionCallback: (error) => {
+              console.log('connectionCallback');
+              console.log(error);
+              if (error) {
+                  // Check if the error is the specific authentication error
+                  const errorMessage = error.message;
+                  if (typeof errorMessage === 'string' && errorMessage.includes('Authentication hook unauthorized this request')) {
+                      console.error('Authentication Error:', errorMessage);
+                      setGraphqlError('Authentication Error:' + errorMessage);
+                      // Handle the authentication error here
+                  } else {
+                      console.error('WebSocket Connection Error:', error);
+                      setGraphqlError('WebSocket Connection Error:' + error);
+                  }
+              } else {
+                  console.log('WebSocket Connected');
+              }
           }
-        }
-      })
-    );
+      });
+
+      // Listening for successful connection
+      subscriptionClient.onConnected(() => {
+          console.log('WebSocket Connected');
+
+          setGraphqlConnected(true);
+
+          // Perform actions after successful connection if needed
+      });
+
+      // Listening for errors
+      subscriptionClient.onError((error) => {
+          console.error('WebSocket Error', error);
+          setGraphqlError('WebSocket Error', error);
+      });
+
+      // Listening for disconnection
+      subscriptionClient.onDisconnected(() => {
+          console.log('WebSocket Disconnected');
+          // Handle disconnection scenario
+      });
+
+
+    // setSessionToken(sessionToken);
+    const wsLink = new WebSocketLink(subscriptionClient);
 
     setGraphqlClient(new ApolloClient({link: wsLink, cache: new InMemoryCache()}));
   }
 
     useEffect(() => {
-        if(enterApiResponse === 'SUCCESS' && !graphqlClient) {
-            console.log(`Creating graphql socket with token ${sessionToken}`);
-            const fetchData = async () => {
-                await connectGraphqlServer(sessionToken);
-            }
-            fetchData();
-        } else if(enterApiResponse === 'FAILED') {
-            console.log('Error on enter API call: ' + enterApiResponse.message);
-            console.log(enterApiResponse);
-        }
-    },[sessionToken, enterApiResponse]);
+        connectGraphqlServer(sessionToken);
+
+    },[sessionToken]);
 
 
   return (
     <div className="App">
-        {graphqlClient ? (
+        {graphqlClient && graphqlConnected ? (
           <div
             style={{
               height: '100vh',
             }}
           >
           <ApolloProvider client={graphqlClient}>
-            Who am I? {userName} ({userId})
-            <MeetingInfo />
-            <br />
-            <MyInfo />
-            <br />
-            <UserConnectionStatus />
-            <br />
-            <UserConnectionStatusReport />
-            <br />
-            <UserLocalSettings userId={userId} />
-            <br />
-            <UserList userId={userId} />
-            <br />
-            <ChatsInfo />
-            <br />
-            <ChatMessages userId={userId} />
-            <br />
-            <ChatPublicMessages userId={userId} />
-            <br />
-            <CursorsAll />
-            <br />
-            <TalkingStream />
-            <br />
-            <CursorsStream />
-            <br />
-            <Annotations />
-            <br />
-            <AnnotationsHistory />
-            <br />
-            <TotalOfUsers />
-            <TotalOfModerators />
-            <TotalOfViewers />
-            <TotalOfUsersTalking />
-            <TotalOfUniqueNames />
+            {/*Who am I? {userName} ({userId})*/}
+            <Auth />
         </ApolloProvider>
         </div>
-         ) : sessionToken == null ? 'Param sessionToken missing' : 'Loading...'}
+         ) : sessionToken == null ? 'Param sessionToken missing' : (graphqlError === '' ? 'Loading...' : graphqlError)}
     </div>
   );
 }

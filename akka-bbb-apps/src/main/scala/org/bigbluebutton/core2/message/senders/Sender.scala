@@ -10,9 +10,9 @@ object Sender {
     outGW.send(ejectFromMeetingSystemEvent)
   }
 
-  def sendInvalidateUserGraphqlConnectionSysMsg(meetingId: String, userId: String, sessionToken: String, reason: String, outGW: OutMsgRouter): Unit = {
-    val invalidateUserGraphqlConnectionSysMsg = MsgBuilder.buildInvalidateUserGraphqlConnectionSysMsg(meetingId, userId, sessionToken, reason)
-    outGW.send(invalidateUserGraphqlConnectionSysMsg)
+  def sendForceUserGraphqlReconnectionSysMsg(meetingId: String, userId: String, sessionToken: String, reason: String, outGW: OutMsgRouter): Unit = {
+    val ForceUserGraphqlReconnectionSysMsg = MsgBuilder.buildForceUserGraphqlReconnectionSysMsg(meetingId, userId, sessionToken, reason)
+    outGW.send(ForceUserGraphqlReconnectionSysMsg)
   }
 
   def sendUserInactivityInspectMsg(meetingId: String, userId: String, responseDelay: Long, outGW: OutMsgRouter): Unit = {

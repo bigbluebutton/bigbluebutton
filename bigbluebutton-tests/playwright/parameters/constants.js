@@ -1,10 +1,10 @@
 const e = require('../core/elements');
 
 // Create Parameters
-exports.bannerText = 'bannerText=some text';
-const color = 'FFFF00'
+exports.bannerText = 'bannerText=some+text';
+const color = '#FFFF00'
 exports.color = color;
-exports.bannerColor = `bannerColor=%23${color}`;
+exports.bannerColor = `bannerColor=${color}`;
 exports.maxParticipants = 'maxParticipants=2';
 exports.duration = 'duration=2';
 const messageModerator = 'Test';
@@ -35,13 +35,13 @@ exports.logo = 'logo=https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlu
 exports.enableVideo = 'userdata-bbb_enable_video=false';
 exports.autoShareWebcam = 'userdata-bbb_auto_share_webcam=true';
 exports.multiUserPenOnly = 'userdata-bbb_multi_user_pen_only=true';
-exports.presenterTools = 'userdata-bbb_presenter_tools=["pencil", "hand"]';
-exports.multiUserTools = 'userdata-bbb_multi_user_tools=["pencil", "hand"]';
+exports.presenterTools = 'userdata-bbb_presenter_tools=["pencil","hand"]';
+exports.multiUserTools = 'userdata-bbb_multi_user_tools=["pencil","hand"]';
 const cssCode = `${e.presentationTitle}{display: none;}`;
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
 exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
 exports.autoSwapLayout = 'userdata-bbb_auto_swap_layout=true';
-exports.hidePresentationOnJoin = 'userdata-bbb_hide_presentation_on_join="true"';
+exports.hidePresentationOnJoin = 'userdata-bbb_hide_presentation_on_join=true';
 exports.outsideToggleSelfVoice = 'userdata-bbb_outside_toggle_self_voice=true';
 exports.outsideToggleRecording = 'userdata-bbb_outside_toggle_recording=true';
 exports.showPublicChatOnLogin = 'userdata-bbb_show_public_chat_on_login=false';

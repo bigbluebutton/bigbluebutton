@@ -13,8 +13,8 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
-    //Randomly assignment
-    await this.modPage.waitAndClick(e.randomlyAssign);
+    // assign user to first room
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
 
     if (captureNotes) await this.modPage.page.check(e.captureBreakoutSharedNotes);
     if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
@@ -88,15 +88,15 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
-    //Reset assignments
-    await this.modPage.waitAndClick(e.randomlyAssign);
+    // Reset assignments
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/);
     await this.modPage.waitAndClick(e.resetAssignments);
     await this.modPage.hasText(e.breakoutBox0, /Attendee/);
 
-    //Remove specific assignment
-    await this.modPage.waitAndClick(e.randomlyAssign);
-    await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox0);
+    // Remove specific assignment
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(`${e.breakoutBox1} span[role="button"]`);
     await this.modPage.hasText(e.breakoutBox0, /Attendee/);
   }
 
@@ -109,7 +109,7 @@ class Create extends MultiUsers {
     await expect(modalConfirmButton, 'Getting error when trying to create a breakout room without designating any user.').toBeDisabled();
     await this.modPage.hasElement(e.warningNoUserAssigned);
 
-    await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/);
     await expect(modalConfirmButton).toBeEnabled();
     await this.modPage.wasRemoved(e.warningNoUserAssigned);
@@ -117,7 +117,7 @@ class Create extends MultiUsers {
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/);
+    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, ELEMENT_WAIT_LONGER_TIME);
   }
 }
 

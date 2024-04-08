@@ -8,7 +8,7 @@ import LiveResult from '/imports/ui/components/poll/live-result/component';
 import Styled from './styles';
 import Toggle from '/imports/ui/components/common/switch/component';
 import { PANELS, ACTIONS } from '../layout/enums';
-import { addNewAlert } from '../screenreader-alert/service';
+import { addAlert } from '../screenreader-alert/service';
 import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
@@ -62,7 +62,7 @@ const intlMessages = defineMessages({
   },
   customInputToggleLabel: {
     id: 'app.poll.customInput.label',
-    description: 'poll custom input toogle button label',
+    description: 'poll custom input toggle button label',
   },
   customInputInstructionsLabel: {
     id: 'app.poll.customInputInstructions.label',
@@ -214,7 +214,7 @@ const intlMessages = defineMessages({
   }
 });
 
-const POLL_SETTINGS = Meteor.settings.public.poll;
+const POLL_SETTINGS = window.meetingClientSettings.public.poll;
 
 const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
@@ -418,7 +418,7 @@ class Poll extends Component {
         : [],
       warning: clearWarning ? null : warning,
     }, () => {
-      addNewAlert(`${intl.formatMessage(intlMessages.removePollOpt,
+      addAlert(`${intl.formatMessage(intlMessages.removePollOpt,
         { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
     });
   }
@@ -576,6 +576,8 @@ class Poll extends Component {
       pollAnswerIds,
       usernames,
       isDefaultPoll,
+      publishPoll,
+      handleChatFormsOpen,
     } = this.props;
 
     return (
@@ -591,6 +593,8 @@ class Poll extends Component {
             pollAnswerIds,
             usernames,
             isDefaultPoll,
+            publishPoll,
+            handleChatFormsOpen,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -600,7 +604,7 @@ class Poll extends Component {
 
   renderStartPollButton() {
     const {
-      startPoll, startCustomPoll, intl, pollTypes, checkPollType,
+      startPoll, intl, pollTypes, checkPollType,
     } = this.props;
     const {
       type, secretPoll, optList, isMultipleResponse, question,
@@ -641,7 +645,7 @@ class Poll extends Component {
               return null;
             });
             if (verifiedPollType === pollTypes.Custom) {
-              startCustomPoll(
+              startPoll(
                 verifiedPollType,
                 secretPoll,
                 question,
@@ -953,10 +957,10 @@ class Poll extends Component {
     const { isPolling } = this.state;
     const {
       currentPoll,
-      currentSlide,
+      currentSlideId,
     } = this.props;
 
-    if (!currentSlide) return this.renderNoSlidePanel();
+    if (!currentSlideId) return this.renderNoSlidePanel();
     if (isPolling || currentPoll) {
       return this.renderActivePollOptions();
     }
@@ -1028,6 +1032,5 @@ Poll.propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
   pollTypes: PropTypes.instanceOf(Object).isRequired,
   startPoll: PropTypes.func.isRequired,
-  startCustomPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
 };

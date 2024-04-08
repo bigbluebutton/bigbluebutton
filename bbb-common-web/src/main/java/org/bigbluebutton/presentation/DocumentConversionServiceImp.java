@@ -165,7 +165,8 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
                   pres.getAuthzToken(),
                   pres.isDownloadable(),
                   pres.isRemovable(),
-                  pres.isCurrent());
+                  pres.isCurrent()
+          );
           notifier.sendDocConversionProgress(progress);
       }
   }

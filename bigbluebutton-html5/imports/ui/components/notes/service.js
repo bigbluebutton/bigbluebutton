@@ -6,8 +6,8 @@ import { Session } from 'meteor/session';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { isSharedNotesEnabled } from '/imports/ui/services/features';
 
-const NOTES_CONFIG = Meteor.settings.public.notes;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
 const hasPermission = () => {
   const user = Users.findOne(
@@ -24,11 +24,11 @@ const hasPermission = () => {
 
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disableNotes': 1 } },
+    { fields: { 'lockSettings.disableNotes': 1 } },
   );
 
   if (user.locked) {
-    return !meeting.lockSettingsProps.disableNotes;
+    return !meeting.lockSettings.disableNotes;
   }
 
   return true;
@@ -58,8 +58,8 @@ const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
-const pinSharedNotes = (pinned) => {
-  PadsService.pinPad(NOTES_CONFIG.id, pinned);
+const pinSharedNotes = (pinned, stopWatching) => {
+  PadsService.pinPad(NOTES_CONFIG.id, pinned, stopWatching);
 };
 
 const isSharedNotesPinned = () => {

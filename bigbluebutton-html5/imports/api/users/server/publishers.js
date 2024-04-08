@@ -2,43 +2,9 @@ import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
-import { extractCredentials, publicationSafeGuard } from '/imports/api/common/server/helpers';
-import { check } from 'meteor/check';
+import { publicationSafeGuard } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
-function currentUser() {
-  if (!this.userId) {
-    Mongo.Collection._publishCursor(Users.find({ meetingId: '' }), this, 'current-user');
-    return this.ready();
-  }
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-
-  const selector = {
-    meetingId,
-    userId: requesterUserId,
-    intId: { $exists: true },
-  };
-
-  const options = {
-    fields: {
-      user: false,
-      authToken: false, // Not asking for authToken from client side but also not exposing it
-    },
-  };
-  Mongo.Collection._publishCursor(Users.find(selector, options), this, 'current-user');
-  return this.ready();
-}
-
-function publishCurrentUser(...args) {
-  const boundUsers = currentUser.bind(this);
-  return boundUsers(...args);
-}
-
-Meteor.publish('current-user', publishCurrentUser);
 
 async function users() {
   const tokenValidation = await AuthTokenValidation

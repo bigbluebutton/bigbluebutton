@@ -28,7 +28,7 @@ const Container = (props) => {
   return <Captions {...{ layoutContextDispatch, isResizing, ...props }} />;
 };
 
-export default withTracker(() => {
+export default withTracker(({ amIModerator }) => {
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const {
     locale,
@@ -45,7 +45,6 @@ export default withTracker(() => {
     dictating,
     currentUserId: Auth.userID,
     isRTL,
-    hasPermission: Service.hasPermission(),
-    amIModerator: Service.amIModerator(),
+    hasPermission: Service.hasPermission(amIModerator),
   };
 })(Container);
