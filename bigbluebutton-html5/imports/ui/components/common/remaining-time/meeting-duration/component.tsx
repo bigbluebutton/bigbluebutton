@@ -43,7 +43,9 @@ const MeetingRemainingTimeContainer: React.FC = () => {
       </span>
     );
   };
-  const currentMeeting = useMeeting((m) => {
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => {
     return {
       isBreakout: m.isBreakout,
       durationInSeconds: m.durationInSeconds,
