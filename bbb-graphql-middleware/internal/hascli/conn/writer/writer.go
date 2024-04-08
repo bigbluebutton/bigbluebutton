@@ -65,10 +65,29 @@ RangeLoop:
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
 					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
+					operationName, ok := payload["operationName"].(string)
 
 					query, ok := payload["query"].(string)
 					if ok {
 						if strings.HasPrefix(query, "subscription") {
+
+							//Validate if subscription is allowed
+							if allowedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ALLOWED_SUBSCRIPTIONS"); allowedSubscriptions != "" {
+								allowedSubscriptionsSlice := strings.Split(allowedSubscriptions, ",")
+								subscriptionAllowed := false
+								for _, s := range allowedSubscriptionsSlice {
+									if s == operationName {
+										subscriptionAllowed = true
+										break
+									}
+								}
+
+								if !subscriptionAllowed {
+									log.Infof("Subscription %s not allowed!", operationName)
+									continue
+								}
+							}
+
 							messageType = common.Subscription
 
 							browserConnection.ActiveSubscriptionsMutex.RLock()
@@ -104,7 +123,6 @@ RangeLoop:
 					//Identify if the client that requested this subscription expects to receive json-patch
 					//Client append `Patched_` to the query operationName to indicate that it supports
 					jsonPatchSupported := false
-					operationName, ok := payload["operationName"].(string)
 					if ok && strings.HasPrefix(operationName, "Patched_") {
 						jsonPatchSupported = true
 					}
