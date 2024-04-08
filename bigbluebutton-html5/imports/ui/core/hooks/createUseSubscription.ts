@@ -114,13 +114,7 @@ export const useSubscription = <T>(
 
   useEffect(() => {
     if (paramsDidChange) {
-      if (skip) {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.unsubscribe();
-        }
-        dataToRetunRef.current = { loading: true };
-        return;
-      }
+      if (skip) return;
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
       }
