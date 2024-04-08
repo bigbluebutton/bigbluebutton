@@ -807,7 +807,6 @@ const Whiteboard = React.memo((props) => {
         const allElements = document.querySelectorAll('[data-testid^="tools."]');
       
         if (bbb_presenter_tools.length >= 1 && isPresenter) {
-          console.log('aaa', bbb_presenter_tools);
           allElements.forEach((element) => {
             const toolName = element.getAttribute('data-testid').split('.')[1];
       
