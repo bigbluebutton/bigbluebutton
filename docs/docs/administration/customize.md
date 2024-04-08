@@ -1495,9 +1495,9 @@ Useful tools for development:
 | Parameter                           | Description                                                                                                     | Default value |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------- |
 | `userdata-bbb_multi_user_pen_only=` | If set to `true`, only the pen tool will be available to non-participants when multi-user whiteboard is enabled | `false`       |
-| `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`                                                         | all enabled   |
-| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`                                      | all enabled   |
-
+| `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`. The options we support are: `select, hand, draw, eraser, arrow, text, note, rectangle and *more`.                                                         | all enabled   |
+| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`. The options we support are: `select, hand, draw, eraser, arrow, text, note, rectangle and *more`.                                      | all enabled   |
+*more: More includes the rest of the extra shapes, those being: `rectangle, ellipse, diamond, traingle, trapezoid, rhombus, hexagon, cloud, star, oval, x-box,check-box, arrow left, arrow up, arrow down, arrow right, frame, line, laser`.
 #### Themeing & styling parameters
 
 | Parameter                        | Description                                                                                                          | Default value |

@@ -77,8 +77,10 @@ const ActionsBarContainer = (props) => {
   );
 };
 
-const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings.public.app.raiseHandActionButton.enabled;
-const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings.public.app.raiseHandActionButton.centered;
+const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings
+  .public.app.raiseHandActionButton.enabled;
+const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings
+  .public.app.raiseHandActionButton.centered;
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
@@ -89,6 +91,7 @@ const isReactionsButtonEnabled = () => {
 
 export default withTracker(() => ({
   enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
+  multiUserTools: getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
