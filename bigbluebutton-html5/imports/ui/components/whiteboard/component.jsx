@@ -793,7 +793,7 @@ const Whiteboard = React.memo((props) => {
           const toolName = element.getAttribute('data-testid').split('.')[1];
     
           if (!bbb_multi_user_tools.includes(toolName)) {
-            element.style.display = 'none';
+            element.style?.display = 'none';
           }
         });
       }
