@@ -17,7 +17,7 @@ import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
-import { addNewAlert } from '../screenreader-alert/service';
+import { addAlert } from '../screenreader-alert/service';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
 
@@ -236,7 +236,7 @@ class Presentation extends PureComponent {
       && prevProps?.currentSlide?.num != null
       && currentSlide?.num !== prevProps.currentSlide?.num
     ) {
-      addNewAlert(
+      addAlert(
         intl.formatMessage(intlMessages.slideContentChanged, {
           0: currentSlide.num,
         }),
