@@ -31,8 +31,7 @@ const CurrentUserProvider: React.FC<CurrentUserProviderProps> = (({ children }) 
     true,
     unjoined.loading || !unjoined.data || !unjoined.data[0].joined,
   );
-  const ready = !unjoined.loading && !joined.loading;
-  return ready ? (
+  return (
     <CurrentUserContext.Provider
       value={{
         joined: { ...joined, data: joined.data && joined.data[0] },
@@ -41,7 +40,7 @@ const CurrentUserProvider: React.FC<CurrentUserProviderProps> = (({ children }) 
     >
       {children}
     </CurrentUserContext.Provider>
-  ) : null;
+  );
 });
 
 export default CurrentUserProvider;
