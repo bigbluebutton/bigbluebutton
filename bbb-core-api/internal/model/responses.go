@@ -81,7 +81,7 @@ type Meeting struct {
 	Recording             bool     `xml:"recording"`
 	HasBeenForciblyEnded  bool     `xml:"hasBeenForciblyEnded"`
 	StartTime             int64    `xml:"startTime"`
-	EndTime               int64    `xml:"EndTime"`
+	EndTime               int64    `xml:"endTime"`
 	ParticipantCount      int32    `xml:"participantCount"`
 	ListenerCount         int32    `xml:"listenerCount"`
 	VoiceParticipantCount int32    `xml:"voiceParticipantCount"`
@@ -112,7 +112,7 @@ type GetMeetingInfoResponse struct {
 	Recording             bool     `xml:"recording"`
 	HasBeenForciblyEnded  bool     `xml:"hasBeenForciblyEnded"`
 	StartTime             int64    `xml:"startTime"`
-	EndTime               int64    `xml:"EndTime"`
+	EndTime               int64    `xml:"endTime"`
 	ParticipantCount      int32    `xml:"participantCount"`
 	ListenerCount         int32    `xml:"listenerCount"`
 	VoiceParticipantCount int32    `xml:"voiceParticipantCount"`
