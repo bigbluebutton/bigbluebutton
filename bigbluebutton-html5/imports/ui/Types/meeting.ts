@@ -98,6 +98,7 @@ export interface ComponentsFlags {
   hasPoll: boolean;
   hasScreenshare: boolean;
   hasTimer: boolean;
+  showRemainingTime: boolean;
 }
 
 export interface Metadata {
