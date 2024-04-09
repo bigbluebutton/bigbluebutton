@@ -1498,6 +1498,7 @@ Useful tools for development:
 | `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`. The options we support are: `select, hand, draw, eraser, arrow, text, note, rectangle and *more`. Example: "userdata-bbb_presenter_tools=['eraser', 'diamond']" will allow only the eraser and diamond tools.                                                     | all enabled   |
 | `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`. The options we support are: `select, hand, draw, eraser, arrow, text, note, rectangle and *more`. Example: "userdata-bbb_multi_user_tools=['eraser', 'diamond']" will allow only the eraser and diamond tools.                                          | all enabled   |
 *more: More includes the rest of the extra shapes, those being: `rectangle, ellipse, diamond, traingle, trapezoid, rhombus, hexagon, cloud, star, oval, x-box,check-box, arrow left, arrow up, arrow down, arrow right, frame, line, laser`.
+
 OBS: Each tool/shape can be used separately by simply being passed in the parameter or setting by it's name. Example:  "user-data-bbb_example_paremeter=['triangle', 'cloud']".
 The use of *more will include all shapes listed above.
 #### Themeing & styling parameters
