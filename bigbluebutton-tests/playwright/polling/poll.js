@@ -309,10 +309,10 @@ class Polling extends MultiUsers {
   }
 
   async pollResultsInDifferentPresentation() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await util.startPoll(this.modPage);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.questionSlideFileName);
+    await this.modPage.hasElement(e.quickPoll);
     await this.modPage.waitAndClick(e.publishPollingLabel);
     // Check poll results
     await this.modPage.hasElement(e.wbDrawnRectangle);
