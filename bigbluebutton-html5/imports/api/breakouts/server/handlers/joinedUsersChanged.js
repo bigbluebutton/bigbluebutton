@@ -1,5 +1,4 @@
 import Breakouts from '/imports/api/breakouts';
-import updateUserBreakoutRoom from '/imports/api/users-persistent-data/server/modifiers/updateUserBreakoutRoom';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import { lowercaseTrim } from '/imports/utils/string-utils';
@@ -34,8 +33,6 @@ export default async function joinedUsersChanged({ body }) {
     const numberAffected = await Breakouts.updateAsync(selector, modifier);
 
     if (numberAffected) {
-      await updateUserBreakoutRoom(parentId, breakoutId, users);
-
       Logger.info(`Updated joined users in breakout id=${breakoutId}`);
     }
   } catch (err) {
