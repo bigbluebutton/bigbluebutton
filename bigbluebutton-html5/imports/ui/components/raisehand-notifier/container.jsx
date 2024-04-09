@@ -23,14 +23,14 @@ const StatusNotifierContainer = (props) => {
   } = useSubscription(RAISED_HAND_USERS);
   const raiseHandUsers = usersData?.user || [];
 
+  const [setRaiseHand] = useMutation(SET_RAISE_HAND);
+
   if (loading) return null;
 
   if (usersError) {
     logger.error(`Error on requesting raise hand data: ${usersError}`);
     return null;
   }
-
-  const [setRaiseHand] = useMutation(SET_RAISE_HAND);
 
   const lowerUserHands = (userId) => {
     setRaiseHand({
