@@ -143,6 +143,31 @@ func CreateAddRemovePatches(original []map[string]interface{}, modified []map[st
 }
 
 func findAndApplyMove(arr1, arr2 []map[string]interface{}, patches []map[string]interface{}, idFieldName string) ([]map[string]interface{}, []map[string]interface{}, bool) {
+	for i, item1 := range arr1 {
+		for j, item2 := range arr2 {
+			if item1[idFieldName] == item2[idFieldName] && i != j {
+				patch := map[string]interface{}{
+					"op":   "move",
+					"from": fmt.Sprintf("/%d", i),
+					"path": fmt.Sprintf("/%d", j),
+				}
+				patches = append(patches, patch)
+
+				element := arr1[i]
+				arr1 = append(arr1[:i], arr1[i+1:]...)
+				if j >= len(arr1) {
+					arr1 = append(arr1, element)
+				} else {
+					arr1 = append(arr1[:j], append([]map[string]interface{}{element}, arr1[j:]...)...)
+				}
+				return arr1, patches, true
+			}
+		}
+	}
+	return arr1, patches, false
+}
+
+func findAndApplyMoveFromArr2(arr1, arr2 []map[string]interface{}, patches []map[string]interface{}, idFieldName string) ([]map[string]interface{}, []map[string]interface{}, bool) {
 	for j, item2 := range arr2 {
 		for i, item1 := range arr1 {
 			if item1[idFieldName] == item2[idFieldName] && i != j {
@@ -198,7 +223,7 @@ func findAndApplyMoveInversely(arr1, arr2 []map[string]interface{}, patches []ma
 }
 
 func CreateMovePatches(arr1 []byte, arr2 []byte, idFieldName string) ([]byte, error) {
-	patchDirect, stepsDirect, errDirect := generateJSONPatchDirectly(arr1, arr2, idFieldName)
+	patchDirect, stepsDirect, errDirect := generateJSONPatch(arr1, arr2, idFieldName, 1)
 	if errDirect != nil {
 		//return nil, err
 		fmt.Printf("Err patch direct: %v\n", errDirect)
@@ -209,13 +234,21 @@ func CreateMovePatches(arr1 []byte, arr2 []byte, idFieldName string) ([]byte, er
 	}
 
 	//Try reverse
-	patchInverse, stepsInverse, err := generateJSONPatchInversely(arr1, arr2, idFieldName)
-	if errDirect != nil && err != nil {
-		return nil, err
+	patchInverse, stepsInverse, errInverse := generateJSONPatch(arr1, arr2, idFieldName, 2)
+	if stepsInverse <= 1 {
+		return patchInverse, nil
+	}
+
+	//Try arr2First
+	patchFromArr2, stepsFromArr2, errFromArr2 := generateJSONPatch(arr1, arr2, idFieldName, 3)
+	if errDirect != nil && errInverse != nil && errFromArr2 != nil {
+		return nil, errDirect
 	}
 
 	//Send the shorter way
-	if patchDirect != nil && stepsDirect < stepsInverse {
+	if patchFromArr2 != nil && stepsFromArr2 < stepsDirect && stepsFromArr2 < stepsInverse {
+		return patchFromArr2, nil
+	} else if patchDirect != nil && stepsDirect < stepsInverse {
 		return patchDirect, nil
 	} else if patchInverse != nil {
 		return patchInverse, nil
@@ -224,7 +257,7 @@ func CreateMovePatches(arr1 []byte, arr2 []byte, idFieldName string) ([]byte, er
 	}
 }
 
-func generateJSONPatchDirectly(arr1Json, arr2Json []byte, idFieldName string) ([]byte, int, error) {
+func generateJSONPatch(arr1Json, arr2Json []byte, idFieldName string, method int) ([]byte, int, error) {
 	arr1 := GetMapFromByte(arr1Json)
 	arr2 := GetMapFromByte(arr2Json)
 
@@ -238,31 +271,14 @@ func generateJSONPatchDirectly(arr1Json, arr2Json []byte, idFieldName string) ([
 			log.Debug(patches)
 			return nil, steps, fmt.Errorf("too many patches to generate JSON patch")
 		}
-		_, patches, changed = findAndApplyMove(arr1, arr2, patches, idFieldName)
-		if !changed {
-			break
+		if method == 1 {
+			_, patches, changed = findAndApplyMove(arr1, arr2, patches, idFieldName)
+		} else if method == 2 {
+			_, patches, changed = findAndApplyMoveInversely(arr1, arr2, patches, idFieldName)
+		} else {
+			_, patches, changed = findAndApplyMoveFromArr2(arr1, arr2, patches, idFieldName)
 		}
-		steps++
-	}
-	patchBytes, err := json.Marshal(patches)
-	return patchBytes, steps, err
-}
 
-func generateJSONPatchInversely(arr1Json, arr2Json []byte, idFieldName string) ([]byte, int, error) {
-	arr1 := GetMapFromByte(arr1Json)
-	arr2 := GetMapFromByte(arr2Json)
-
-	patches := make([]map[string]interface{}, 0)
-	steps := 0
-	changed := true
-	for {
-		if steps > 100 {
-			log.Debug(string(arr1Json))
-			log.Debug(string(arr2Json))
-			log.Debug(patches)
-			return nil, steps, fmt.Errorf("too many patches to generate JSON patch")
-		}
-		_, patches, changed = findAndApplyMoveInversely(arr1, arr2, patches, idFieldName)
 		if !changed {
 			break
 		}
