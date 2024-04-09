@@ -59,14 +59,14 @@ const rowRenderer: React.FC<RowRendererProps> = ({
         <UserActions
           user={user}
           currentUser={validCurrentUser as User}
-          lockSettings={meeting.lockSettings}
-          usersPolicies={meeting.usersPolicies}
+          lockSettings={meeting.lockSettings ?? {}}
+          usersPolicies={meeting.usersPolicies ?? {}}
           isBreakout={meeting.isBreakout}
           pageId={pageId}
           open={user.userId === openUserAction}
           setOpenUserAction={setOpenUserAction}
         >
-          <ListItem user={user} lockSettings={meeting.lockSettings} />
+          <ListItem user={user} lockSettings={meeting.lockSettings ?? {}} />
         </UserActions>
       ) : (
         <Skeleton />
