@@ -1,23 +1,25 @@
-import React, { useCallback, useMemo } from 'react';
+import { useMutation, useSubscription } from '@apollo/client';
+import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { layoutDispatch, layoutSelect } from '../../../layout/context';
-import { PANELS, ACTIONS } from '../../../layout/enums';
-import { Layout } from '../../../layout/layoutTypes';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import Header from '/imports/ui/components/common/control-header/component';
-import Styled from './style';
-import {
-  endAllBreakouts,
-  finishScreenShare,
-  forceExitAudio,
-  getIsConnected,
-  getIsMicrophoneUser,
-} from './service';
-import BreakoutDropdown from '../breakout-room-dropdown/component';
-import BreakoutRoomMessageForm from '../breakout-room-message-form/component';
-import { useSubscription } from '@apollo/client';
 import { BreakoutRoom, GetBreakoutDataResponse, getBreakoutData } from './queries';
 import logger from '/imports/startup/client/logger';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import Header from '/imports/ui/components/common/control-header/component';
+import Styled from './styles';
+import { layoutDispatch, layoutSelect } from '../../../layout/context';
+import { ACTIONS, PANELS } from '../../../layout/enums';
+import { Layout } from '../../../layout/layoutTypes';
+import BreakoutDropdown from '../breakout-room-dropdown/component';
+import { BREAKOUT_ROOM_END_ALL } from '../../mutations';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import TimeRemaingPanel from './components/timeRemaining';
+
+interface BreakoutRoomProps {
+  breakouts: BreakoutRoom[];
+  isModerator: boolean;
+  presenter: boolean;
+  durationInSeconds: number;
+}
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -86,29 +88,22 @@ const intlMessages = defineMessages({
   },
 });
 
-interface BreakoutRoomPanelProps {
-  layoutContextDispatch: (params:{
-    type: string,
-    value: string | boolean,
-  }) => void;
-  isModerator: boolean;
-  isPresenter: boolean;
-  isRTL: boolean;
-  breakouts: BreakoutRoom[];
-}
-
-const BreakoutRoomPanel: React.FC<BreakoutRoomPanelProps> = ({
-  layoutContextDispatch,
-  isModerator,
-  isPresenter,
-  isRTL,
+const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   breakouts,
+  isModerator,
+  presenter,
+  durationInSeconds,
 }) => {
+  const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
+
+  const layoutContextDispatch = layoutDispatch();
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const intl = useIntl();
+
   const panelRef = React.useRef<HTMLDivElement>(null);
-  const [openBreakoutTimeManager, setOpenBreakoutTimeManager] = React.useState(false);
-  const [waiting, setWaiting] = React.useState(false);
-  const [requestedBreakoutId, setRequestedBreakoutId] = React.useState('');
+  const [showChangeTimeForm, setShowChangeTimeForm] = React.useState(false);
+
+
   const closePanel = useCallback(() => {
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -119,114 +114,6 @@ const BreakoutRoomPanel: React.FC<BreakoutRoomPanelProps> = ({
       value: PANELS.NONE,
     });
   }, []);
-
-  const renderUserActions = useCallback((
-    breakoutRoomId: string,
-    participants: Array<{
-      userId: string,
-      name: string,
-      nameSortable: string,
-    }>,
-    shortName: string,
-  ) => {
-    const breakout = breakouts.find((b) => b.breakoutRoomId === breakoutRoomId);
-    const dataTest = `${breakout?.joinURL ? 'join' : 'askToJoin'}${shortName.replace(' ', '')}`;
-    return (
-      <Styled.BreakoutActions>
-        {
-          breakouts
-            .filter((a) => a.currentRoomJoined)
-            .length > 0 ?
-            (
-              <Styled.AlreadyConnected data-test="alreadyConnected">
-                {intl.formatMessage(intlMessages.alreadyConnected)}
-              </Styled.AlreadyConnected>
-            ) : (
-              <Styled.JoinButton
-                label={breakout?.joinURL
-                  ? intl.formatMessage(intlMessages.breakoutJoin)
-                  : intl.formatMessage(intlMessages.askToJoin)}
-                data-test={dataTest}
-                aria-label={`${
-                  breakout?.joinURL
-                    ? intl.formatMessage(intlMessages.breakoutJoin)
-                    : intl.formatMessage(intlMessages.askToJoin)} ${shortName}`}
-                onClick={() => {
-                  forceExitAudio();
-                  logger.info({
-                    logCode: 'breakoutroom_join',
-                    extraInfo: { logType: 'user_action' },
-                  }, 'joining breakout room closed audio in the main room');
-                  if (isPresenter) finishScreenShare();
-                }}
-              />
-            )
-        }
-      </Styled.BreakoutActions>
-    )
-  },
-    [
-    waiting,
-    requestedBreakoutId,
-  ]);
-
-
-  const rooms = useMemo(()=>{
-    const roomItems = breakouts.map((breakout) => {
-      return (
-        <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutRoomId}`}>
-        <Styled.Content key={`breakoutRoomList-${breakout.breakoutRoomId}`}>
-          <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
-            {breakout.isDefaultName
-              ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
-              : breakout.shortName}
-            <Styled.UsersAssignedNumberLabel>
-              (
-              {breakout.participants.length}
-              )
-            </Styled.UsersAssignedNumberLabel>
-          </Styled.BreakoutRoomListNameLabel>
-          {waiting && requestedBreakoutId === breakout.breakoutRoomId ? (
-            <span>
-              {intl.formatMessage(intlMessages.generatingURL)}
-              <Styled.ConnectingAnimation animations />
-            </span>
-          ) : renderUserActions(
-            breakout.breakoutRoomId,
-            breakout.participants,
-            breakout.shortName,
-          )}
-        </Styled.Content>
-          <Styled.JoinedUserNames
-            data-test={`userNameBreakoutRoom-${breakout.shortName}`}
-          >
-            {breakout.participants
-              .sort((a, b) => {
-                const aName = a.user.nameSortable;
-                const bName = b.user.nameSortable;
-                if (aName < bName) {
-                  return -1;
-                }
-                if (aName > bName) {
-                  return 1;
-                }
-                return 0;
-              })
-              .map((u) => u.user.name)
-              .join(', ')}
-          </Styled.JoinedUserNames>
-        </Styled.BreakoutItems>
-      );
-    });
-
-    return (
-      <Styled.BreakoutColumn>
-        <Styled.BreakoutScrollableList data-test="breakoutRoomList">
-          {roomItems}
-        </Styled.BreakoutScrollableList>
-      </Styled.BreakoutColumn>
-    );
-  },[breakouts]);
 
   return (
     <Styled.Panel
@@ -239,77 +126,74 @@ const BreakoutRoomPanel: React.FC<BreakoutRoomPanelProps> = ({
         leftButtonProps={{
           'aria-label': intl.formatMessage(intlMessages.breakoutAriaTitle),
           label: intl.formatMessage(intlMessages.breakoutTitle),
-          onClick: () => {
-            closePanel();
-          },
+          onClick: closePanel,
         }}
         customRightButton={isModerator && (
           <BreakoutDropdown
-            openBreakoutTimeManager={() => {
-              setOpenBreakoutTimeManager(true);
-            }}
+            openBreakoutTimeManager={() => setShowChangeTimeForm(true)}
             endAllBreakouts={() => {
               closePanel();
-              endAllBreakouts();
+              breakoutRoomEndAll();
             }}
-            isMeteorConnected={getIsConnected()}
+            isMeteorConnected
             amIModerator={isModerator}
             isRTL={isRTL}
           />
         )}
       />
-      {isModerator
-        ? (
-          <BreakoutRoomMessageForm
-            {...{
-              title: intl.formatMessage(intlMessages.chatTitleMsgAllRooms),
-            }}
-            chatId="breakouts"
-            chatTitle={intl.formatMessage(intlMessages.chatTitleMsgAllRooms)}
-            disabled={!getIsConnected()}
-            connected={getIsConnected()}
-            locked={false}
-          />
-        ) : null}
-      {isModerator ? <Styled.Separator /> : null }
-
+      <TimeRemaingPanel
+        showChangeTimeForm={showChangeTimeForm}
+        isModerator={isModerator}
+        breakout={breakouts[0]}
+        durationInSeconds={durationInSeconds}
+        toggleShowChangeTimeForm={setShowChangeTimeForm}
+      />
     </Styled.Panel>
   );
 };
 
-const BreakoutRoomPanelContainer: React.FC = () => {
-  const layoutContextDispatch = layoutDispatch();
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+const BreakoutRoomContainer: React.FC = () => {
+  const {
+    data: meetingData,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    durationInSeconds: m.durationInSeconds,
+  }));
 
   const {
-    data: currentUser,
+    data: currentUserData,
     loading: currentUserLoading,
-  } = useCurrentUser((u) => {
-    return {
-      presenter: u.presenter,
-      isModerator: u.isModerator,
-    };
-  });
+  } = useCurrentUser((u) => ({
+    isModerator: u.isModerator,
+    presenter: u.presenter,
+  }));
 
   const {
     data: breakoutData,
-    loading: breakoutDataLoading,
-    error: breakoutDataError,
+    loading: breakoutLoading,
+    error: breakoutError,
   } = useSubscription<GetBreakoutDataResponse>(getBreakoutData);
+  if (breakoutLoading || currentUserLoading) return null;
 
-  const isMicrophoneUser = getIsMicrophoneUser();
+  if (breakoutError) {
+    logger.error(breakoutError);
+    return (
+      <div>
+        Error:
+        {JSON.stringify(breakoutError)}
+      </div>
+    );
+  }
 
-  if (currentUserLoading || breakoutDataLoading) return null;
-  if (!currentUser) return null;
+  if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
   return (
-    <BreakoutRoomPanel
-      layoutContextDispatch={layoutContextDispatch}
-      isModerator={currentUser.isModerator ?? false}
-      isPresenter={currentUser.presenter ?? false}
-      isRTL={isRTL}
-      breakouts={breakoutData?.breakoutRooms ?? []}
+    <BreakoutRoom
+      breakouts={breakoutData.breakoutRoom || []}
+      isModerator={currentUserData.isModerator ?? false}
+      presenter={currentUserData.presenter ?? false}
+      durationInSeconds={meetingData.durationInSeconds ?? 0}
     />
   );
 };
 
-export default BreakoutRoomPanelContainer;
+export default BreakoutRoomContainer;

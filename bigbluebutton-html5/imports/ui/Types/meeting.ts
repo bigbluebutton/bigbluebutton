@@ -117,6 +117,7 @@ export interface Meeting {
   meetingCameraCap: number;
   meetingId: string;
   name: string;
+  durationInSeconds: number;
   notifyRecordingIsOn: boolean;
   presentationUploadExternalDescription: string;
   presentationUploadExternalUrl: string;
