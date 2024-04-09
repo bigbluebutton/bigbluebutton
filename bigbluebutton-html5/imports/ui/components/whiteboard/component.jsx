@@ -811,7 +811,7 @@ const Whiteboard = React.memo((props) => {
             const toolName = element.getAttribute('data-testid').split('.')[1];
       
             if (!bbb_presenter_tools.includes(toolName)) {
-              element.style.display = 'none';
+              element.style?.display = 'none';
             }
           });
         }
@@ -829,9 +829,9 @@ const Whiteboard = React.memo((props) => {
               const toolName = element.getAttribute('data-testid').split('.')[1];
         
               if (toolName != 'draw') {
-                element.style.display = 'none';
+                element.style?.display = 'none';
               } else {
-                element.style.display = 'flex';
+                element.style?.display = 'flex';
               }
             });
           }
