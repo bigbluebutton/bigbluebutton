@@ -1750,6 +1750,11 @@ ORDER BY m."createdAt";
 
 create view "v_meeting_componentsFlags" as
 select "meeting"."meetingId",
+        (case
+            when NULLIF("durationInSeconds",0) is null then false
+            when current_timestamp + '30 minutes'::interval > ("createdAt" + ("durationInSeconds" * '1 second'::interval)) then true
+            else false
+        end) "showRemainingTime",
         exists (
             select 1
             from "breakoutRoom"

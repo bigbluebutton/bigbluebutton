@@ -5,7 +5,6 @@ import { Session } from 'meteor/session';
 import { useMutation } from '@apollo/client';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
-import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { POLL_PUBLISH_RESULT, POLL_CANCEL, POLL_CREATE } from './mutations';
 import PollCreationPanelContainer from './poll-graphql/component';
@@ -34,9 +33,7 @@ const PollContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
 
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-
+  const users = [];
   const usernames = {};
 
   Object.values(users[Auth.meetingID]).forEach((user) => {

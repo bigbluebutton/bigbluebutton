@@ -8,6 +8,7 @@ export interface GetUserCurrentResponse {
     joinErrorCode: string;
     joinErrorMessage: string;
     ejectReasonCode: string;
+    loggedOut: boolean;
     meeting: {
       ended: boolean;
       endedReasonCode: string;
@@ -57,6 +58,7 @@ subscription getUserCurrent {
       joinErrorMessage
       joined
       ejectReasonCode
+      loggedOut
       meeting {
         ended
         endedReasonCode

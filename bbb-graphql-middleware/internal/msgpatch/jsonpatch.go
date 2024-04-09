@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var cacheDir = os.TempDir() + "/graphql-middleware-cache/"
@@ -135,8 +136,13 @@ func PatchMessage(
 			//If data is small (< minLengthToPatch) it's not worth creating the patch
 			if len(string(dataAsJson)) > minLengthToPatch {
 				if lastContent, lastContentErr := ioutil.ReadFile(filePath); lastContentErr == nil && string(lastContent) != "" {
-					if diffPatch, diffPatchErr := jsonpatch.CreatePatch(lastContent, dataAsJson); diffPatchErr == nil {
-						if jsonDiffPatch, jsonDiffPatchErr := json.Marshal(diffPatch); jsonDiffPatchErr == nil {
+					//Temporarily use CustomPatch only for UserList (testing feature)
+					if strings.HasPrefix(cacheKey, "subscription-Patched_UserListSubscription") &&
+						common.ValidateIfShouldUseCustomJsonPatch(lastContent, dataAsJson, "userId") {
+						jsonDiffPatch = common.CreateJsonPatch(lastContent, dataAsJson, "userId")
+						common.StoreJsonPatchCache(cacheKey, jsonDiffPatch)
+					} else if diffPatch, diffPatchErr := jsonpatch.CreatePatch(lastContent, dataAsJson); diffPatchErr == nil {
+						if jsonDiffPatch, err = json.Marshal(diffPatch); err == nil {
 							common.StoreJsonPatchCache(cacheKey, jsonDiffPatch)
 						} else {
 							log.Errorf("Error marshaling patch array: %v", err)
