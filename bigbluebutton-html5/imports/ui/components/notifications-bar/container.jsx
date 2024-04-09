@@ -164,14 +164,13 @@ export default injectIntl(withTracker(({ intl }) => {
     }
   }
 
-  const meetingWithTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
   const Meeting = Meetings.findOne({ meetingId },
-    { fields: { isBreakout: 1 } });
+    { fields: { isBreakout: 1, durationInSeconds: 1 } });
 
-  if (meetingWithTimeRemaining && Meeting) {
-    const { timeRemaining } = meetingWithTimeRemaining;
-    const { isBreakout } = Meeting.meetingProp;
-    const underThirtyMin = timeRemaining && timeRemaining <= (REMAINING_TIME_THRESHOLD * 60);
+  if (Meeting) {
+    const { isBreakout, durationInSeconds } = Meeting;
+    const underThirtyMin = durationInSeconds
+    && durationInSeconds <= (REMAINING_TIME_THRESHOLD * 60);
 
     if (underThirtyMin && !isBreakout) {
       data.message = (
