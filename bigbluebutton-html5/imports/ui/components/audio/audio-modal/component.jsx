@@ -200,22 +200,23 @@ const AudioModal = (props) => {
   }, [autoplayBlocked]);
 
   const handleJoinMicrophoneError = (err) => {
-    const { type } = err;
+    const { type, errCode, errMessage } = err;
+
     switch (type) {
       case 'MEDIA_ERROR':
         setContent('help');
-        setErrCode(0);
-        setErrMessage(type);
+        setErrCode(errCode);
+        setErrMessage(errMessage);
         setDisableActions(false);
         break;
       case 'CONNECTION_ERROR':
       default:
-        setErrCode(0);
+        setErrCode(errCode);
         setErrMessage(type);
         setDisableActions(false);
         break;
     }
-  }
+  };
 
   const handleGoToLocalEcho = () => {
     // Simplified echo test: this will return the AudioSettings with:
@@ -401,7 +402,7 @@ const AudioModal = (props) => {
         : 0;
       setContent('help');
       setErrCode(code);
-      setErrMessage(error?.name || 'GUMFailure');
+      setErrMessage(error?.name || 'NotAllowedError');
       setDisableActions(false);
     };
 
