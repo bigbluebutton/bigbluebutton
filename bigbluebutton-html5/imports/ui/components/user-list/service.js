@@ -183,27 +183,6 @@ const addUserReaction = (users) => {
   });
 };
 
-// TODO I think this method is no longer used, verify
-const getUsers = () => {
-  let users = Users
-    .find({
-      meetingId: Auth.meetingID,
-    }, userFindSorting)
-    .fetch();
-
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
-  if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettings.hideUserList': 1 } });
-    if (meeting && meeting.lockSettings && meeting.lockSettings.hideUserList) {
-      const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
-      users = users.filter(moderatorOrCurrentUser);
-    }
-  }
-
-  return addIsSharingWebcam(addUserReaction(users)).sort(sortUsers);
-};
-
 const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) => {
   let users = contextUsers.filter((user) => user.loggedOut === false && user.left === false);
 
@@ -598,9 +577,9 @@ const isUserPresenter = (userId = Auth.userID) => {
   return user ? user.presenter : false;
 };
 
-export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
+export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users) => {
   const mimeType = 'text/plain';
-  const userNamesObj = getUsers()
+  const userNamesObj = users
     .map((u) => {
       const name = u.name.split(' ');
       return ({
@@ -695,7 +674,6 @@ export default {
   sortUsersByName,
   sortUsers,
   toggleVoice,
-  getUsers,
   formatUsers,
   getActiveChats,
   getAvailableActions,
