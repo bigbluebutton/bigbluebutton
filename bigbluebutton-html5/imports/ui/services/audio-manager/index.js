@@ -333,14 +333,16 @@ class AudioManager {
     return this.bridge
       .joinAudio(callOptions, callStateCallback.bind(this))
       .catch((error) => {
-        const { name } = error;
-
-        if (!name) {
-          throw error;
-        }
+        const { name, message } = error;
+        const errorPayload = {
+          type: 'MEDIA_ERROR',
+          errMessage: message || 'MEDIA_ERROR',
+          errCode: AudioErrors.MIC_ERROR.UNKNOWN,
+        };
 
         switch (name) {
           case 'NotAllowedError':
+            errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
             logger.error(
               {
                 logCode: 'audiomanager_error_getting_device',
@@ -353,6 +355,7 @@ class AudioManager {
             );
             break;
           case 'NotFoundError':
+            errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
             logger.error(
               {
                 logCode: 'audiomanager_error_device_not_found',
@@ -364,17 +367,21 @@ class AudioManager {
               `Error getting microphone - {${error.name}: ${error.message}}`
             );
             break;
-
           default:
+            logger.error({
+              logCode: 'audiomanager_error_unknown',
+              extraInfo: {
+                errorName: error.name,
+                errorMessage: error.message,
+              },
+            }, `Error getting microphone - {${name}: ${message}}`);
             break;
         }
 
         this.isConnecting = false;
         this.isWaitingPermissions = false;
 
-        throw {
-          type: 'MEDIA_ERROR',
-        };
+        throw errorPayload;
       });
   }
 

@@ -359,20 +359,21 @@ class AudioModal extends Component {
   }
 
   handleJoinMicrophoneError(err) {
-    const { type } = err;
+    const { type, errCode, errMessage } = err;
+
     switch (type) {
       case 'MEDIA_ERROR':
         this.setState({
           content: 'help',
-          errCode: 0,
-          errMessage: type,
+          errCode,
+          errMessage,
           disableActions: false,
         });
         break;
       case 'CONNECTION_ERROR':
       default:
         this.setState({
-          errCode: 0,
+          errCode,
           errMessage: type,
           disableActions: false,
         });
@@ -533,7 +534,7 @@ class AudioModal extends Component {
       this.setState({
         content: 'help',
         errCode,
-        errMessage: error?.name || 'GUMFailure',
+        errMessage: error?.name || 'NotAllowedError',
         disableActions: false,
       });
     };
