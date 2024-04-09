@@ -4,7 +4,6 @@ import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import { setCapturedContentUploading } from './service';
 import { Text, Time } from './styles';
 import { notify } from '/imports/ui/services/notification';
-import { Meteor } from 'meteor/meteor';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 
 type intlMsg = {
@@ -28,7 +27,7 @@ const defaultProps = {
 };
 
 const METEOR_SETTINGS_APP = window.meetingClientSettings.public.app;
-const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: [number] = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
+const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: number[] = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
 
 let lastAlertTime: number | null = null;
 
