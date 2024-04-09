@@ -19,7 +19,6 @@ import clearRecordMeeting from './clearRecordMeeting';
 import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
-import clearUsersPersistentData from '/imports/api/users-persistent-data/server/modifiers/clearUsersPersistentData';
 import clearReactions from '/imports/api/user-reaction/server/modifiers/clearReactions';
 
 import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
@@ -49,7 +48,6 @@ export default async function meetingHasEnded(meetingId) {
     clearAuthTokenValidation(meetingId),
     clearWhiteboardMultiUser(meetingId),
     clearScreenshare(meetingId),
-    clearUsersPersistentData(meetingId),
     clearReactions(meetingId),
   ]);
   await Metrics.removeMeeting(meetingId);
