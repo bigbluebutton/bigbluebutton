@@ -27,7 +27,7 @@ const defaultProps = {
   alertLabel: undefined,
 };
 
-const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+const METEOR_SETTINGS_APP = window.meetingClientSettings.public.app;
 const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: [number] = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
 
 let lastAlertTime: number | null = null;
