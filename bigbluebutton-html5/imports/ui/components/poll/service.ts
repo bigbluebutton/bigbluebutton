@@ -1,21 +1,12 @@
-import Auth from '/imports/ui/services/auth';
-import { CurrentPoll } from '/imports/api/polls';
-import { escapeHtml } from '/imports/utils/string-utils';
 import { defineMessages } from 'react-intl';
+import { escapeHtml } from '/imports/utils/string-utils';
 
 const POLL_AVATAR_COLOR = '#3B48A9';
 const MAX_POLL_RESULT_BARS = 10;
 const MAX_POLL_RESULT_KEY_LENGTH = 30;
 const POLL_BAR_CHAR = '\u220E';
 
-// 'YN' = Yes,No
-// 'YNA' = Yes,No,Abstention
-// 'TF' = True,False
-// 'A-2' = A,B
-// 'A-3' = A,B,C
-// 'A-4' = A,B,C,D
-// 'A-5' = A,B,C,D,E
-const pollTypes = {
+export const pollTypes = {
   YesNo: 'YN',
   YesNoAbstention: 'YNA',
   TrueFalse: 'TF',
@@ -94,7 +85,7 @@ const getUsedLabels = (listOfAnswers, possibleLabels) => listOfAnswers.map(
   },
 );
 
-const getFormattedAnswerValue = (answerText) => {
+const getFormattedAnswerValue = (answerText: string) => {
   // In generatePossibleLabels there is a check to see if the
   // answer's length is greater than 2
   const newText = answerText.slice(2).trim();
@@ -104,7 +95,7 @@ const getFormattedAnswerValue = (answerText) => {
 const generateAlphabetList = () => Array.from(Array(26))
   .map((e, i) => i + 65).map((x) => String.fromCharCode(x));
 
-const generatePossibleLabels = (alphabetCharacters) => {
+const generatePossibleLabels = (alphabetCharacters: string[]) => {
   // Remove the Letter from the beginning and the following sign, if any, like so:
   // "A- the answer is" -> Remove "A-" -> "the answer is"
   const listOfForbiddenSignsToStart = ['.', ':', '-'];
@@ -118,7 +109,7 @@ const generatePossibleLabels = (alphabetCharacters) => {
   return possibleLabels;
 };
 
-const truncate = (text, length) => {
+const truncate = (text: string, length: number) => {
   let resultText = text;
   if (resultText.length < length) {
     const diff = length - resultText.length;
@@ -130,7 +121,7 @@ const truncate = (text, length) => {
   return resultText;
 };
 
-const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
+const getPollResultsText = (isDefaultPoll: boolean, answers: { key: string }, numRespondents: number, intl) => {
   let responded = 0;
   let resultString = '';
   let optionsString = '';
@@ -182,13 +173,10 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   return { resultString, optionsString };
 };
 
-const isDefaultPoll = (pollType) => pollType !== pollTypes.Custom
-  && pollType !== pollTypes.Response;
-
 const getPollResultString = (pollResultData, intl) => {
-  const formatBoldBlack = (s) => s.bold().fontcolor('black');
+  const formatBoldBlack = (s: string) => s.bold().fontcolor('black');
 
-  const sanitize = (value) => escapeHtml(value);
+  const sanitize = (value: string) => escapeHtml(value);
 
   const { answers, numRespondents, questionType } = pollResultData;
   const isDefault = isDefaultPoll(questionType);
@@ -215,39 +203,72 @@ const getPollResultString = (pollResultData, intl) => {
   return pollText;
 };
 
-const matchYesNoPoll = (yesValue, noValue, contentString) => {
+export const validateInput = (input: string) => {
+  let i = input;
+  while (/^\s/.test(i)) i = i.substring(1);
+  return i;
+};
+
+export const getSplittedQuestionAndOptions = (questionAndOptions: string[] | string) => {
+  const inputList = Array.isArray(questionAndOptions)
+    ? questionAndOptions
+    : questionAndOptions.split('\n').filter((val: string) => val !== '');
+  const splittedQuestion = inputList.length > 0 ? inputList[0] : questionAndOptions;
+  const optList = inputList.slice(1);
+
+  const optionsList = optList.map((val) => {
+    const option = validateInput(val);
+    return { val: option };
+  });
+
+  return {
+    splittedQuestion,
+    optionsList,
+  };
+};
+
+export const removeEmptyLineSpaces = (input: string) => {
+  const filteredInput = input.split('\n').filter((val) => val.trim() !== '');
+  return filteredInput;
+};
+
+export const isDefaultPoll = (pollType: string) => pollType !== pollTypes.Response;
+
+const matchYesNoPoll = (yesValue: string, noValue: string, contentString: string) => {
   const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
   const ynOptionsRegex = new RegExp(ynPollString, 'gi');
   const ynPoll = contentString.replace(/\n/g, '').match(ynOptionsRegex) || [];
   return ynPoll;
 };
 
-const matchYesNoAbstentionPoll = (yesValue, noValue, abstentionValue, contentString) => {
+const matchYesNoAbstentionPoll = (yesValue:string, noValue:string, abstentionValue:string, contentString:string) => {
+  /* eslint max-len: [off] */
   const ynaPollString = `(${yesValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${abstentionValue})|(${yesValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${noValue})|(${abstentionValue}\\s*\\/\\s*${noValue}\\s*\\/\\s*${yesValue})|(${noValue}\\s*\\/\\s*${yesValue}\\s*\\/\\s*${abstentionValue})|(${noValue}\\s*\\/\\s*${abstentionValue}\\s*\\/\\s*${yesValue})`;
   const ynaOptionsRegex = new RegExp(ynaPollString, 'gi');
   const ynaPoll = contentString.replace(/\n/g, '').match(ynaOptionsRegex) || [];
   return ynaPoll;
 };
 
-const matchTrueFalsePoll = (trueValue, falseValue, contentString) => {
+const matchTrueFalsePoll = (trueValue:string, falseValue:string, contentString:string) => {
   const tfPollString = `(${trueValue}\\s*\\/\\s*${falseValue})|(${falseValue}\\s*\\/\\s*${trueValue})`;
   const tgOptionsRegex = new RegExp(tfPollString, 'gi');
   const tfPoll = contentString.match(tgOptionsRegex) || [];
   return tfPoll;
 };
 
-const checkPollType = (
-  type,
-  optList,
-  yesValue,
-  noValue,
-  abstentionValue,
-  trueValue,
-  falseValue,
+export const checkPollType = (
+  type: string | null,
+  optList: { val: string }[],
+  yesValue: string,
+  noValue: string,
+  abstentionValue: string,
+  trueValue: string,
+  falseValue: string,
 ) => {
+  /* eslint no-underscore-dangle: "off" */
   let _type = type;
   let pollString = '';
-  let defaultMatch = null;
+  let defaultMatch: RegExpMatchArray | [] | null = null;
   let isDefault = null;
 
   switch (_type) {
@@ -255,22 +276,22 @@ const checkPollType = (
       pollString = optList.map((x) => x.val.toUpperCase()).sort().join('');
       defaultMatch = pollString.match(/^(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
       isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
-      _type = isDefault ? `${_type}${defaultMatch[0].length}` : pollTypes.Custom;
+      _type = isDefault && Array.isArray(defaultMatch) ? `${_type}${defaultMatch[0].length}` : pollTypes.Custom;
       break;
     case pollTypes.TrueFalse:
       pollString = optList.map((x) => x.val).join('/');
       defaultMatch = matchTrueFalsePoll(trueValue, falseValue, pollString);
-      isDefault = defaultMatch.length > 0 && pollString.length === defaultMatch[0].length;
+      isDefault = defaultMatch.length > 0 && pollString.length === (defaultMatch[0]?.length);
       if (!isDefault) _type = pollTypes.Custom;
       break;
     case pollTypes.YesNoAbstention:
       pollString = optList.map((x) => x.val).join('/');
       defaultMatch = matchYesNoAbstentionPoll(yesValue, noValue, abstentionValue, pollString);
-      isDefault = defaultMatch.length > 0 && pollString.length === defaultMatch[0].length;
+      isDefault = Array.isArray(defaultMatch) && defaultMatch.length > 0 && pollString.length === defaultMatch[0]?.length;
       if (!isDefault) {
         // also try to match only yes/no
         defaultMatch = matchYesNoPoll(yesValue, noValue, pollString);
-        isDefault = defaultMatch.length > 0 && pollString.length === defaultMatch[0].length;
+        isDefault = defaultMatch.length > 0 && pollString.length === defaultMatch[0]?.length;
         _type = isDefault ? pollTypes.YesNo : _type = pollTypes.Custom;
       }
       break;
@@ -280,57 +301,18 @@ const checkPollType = (
   return _type;
 };
 
-/**
- * 
- * @param {String} input
- */
- const validateInput = (input) => {
-  let _input = input;
-  while (/^\s/.test(_input)) _input = _input.substring(1);
-  return _input;
-};
-
-/**
- * 
- * @param {String} input
- */
-const removeEmptyLineSpaces = (input) => {
-  const filteredInput = input.split('\n').filter((val) => val.trim() !== '');
-  return filteredInput;
-};
-
-/**
- * 
- * @param {String|Array} questionAndOptions
- */
-const getSplittedQuestionAndOptions = (questionAndOptions) => {
-  const inputList = Array.isArray(questionAndOptions)
-    ? questionAndOptions
-    : questionAndOptions.split('\n').filter((val) => val !== '');
-  const splittedQuestion = inputList.length > 0 ? inputList[0] : questionAndOptions;
-  const optionsList = inputList.slice(1);
-
-  optionsList.forEach((val, i) => { optionsList[i] = { val }; });
-
-  return {
-    splittedQuestion,
-    optionsList,
-  };
-};
-
 export default {
   pollTypes,
-  currentPoll: () => CurrentPoll.findOne({ meetingId: Auth.meetingID }),
+  validateInput,
+  getSplittedQuestionAndOptions,
+  removeEmptyLineSpaces,
+  isDefaultPoll,
   pollAnswerIds,
   POLL_AVATAR_COLOR,
-  isDefaultPoll,
   getPollResultString,
   matchYesNoPoll,
   matchYesNoAbstentionPoll,
   matchTrueFalsePoll,
   checkPollType,
-  validateInput,
-  removeEmptyLineSpaces,
-  getSplittedQuestionAndOptions,
   POLL_BAR_CHAR,
 };

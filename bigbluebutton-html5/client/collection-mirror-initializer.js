@@ -4,7 +4,6 @@ import AbstractCollection from '/imports/ui/services/LocalCollectionSynchronizer
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Screenshare from '/imports/api/screenshare';
 import UserInfos from '/imports/api/users-infos';
-import Polls, { CurrentPoll } from '/imports/api/polls';
 import UserSettings from '/imports/api/users-settings';
 import VideoStreams from '/imports/api/video-streams';
 import VoiceUsers from '/imports/api/voice-users';
@@ -21,8 +20,6 @@ import Users from '/imports/api/users';
 
 // Custom Publishers
 export const localCollectionRegistry = {
-  localCurrentPollSync: new AbstractCollection(CurrentPoll, CurrentPoll),
-  localPollsSync: new AbstractCollection(Polls, Polls),
   localPresentationUploadTokenSync: new AbstractCollection(
     PresentationUploadToken,
     PresentationUploadToken,

@@ -14,7 +14,7 @@ import {
 } from '../queries';
 import logger from '/imports/startup/client/logger';
 import Settings from '/imports/ui/services/settings';
-import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutation';
+import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
 import { layoutDispatch } from '../../../layout/context';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 
