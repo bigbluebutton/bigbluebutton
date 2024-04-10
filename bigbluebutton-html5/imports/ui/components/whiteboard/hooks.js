@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import useUpdate from '/imports/ui/hooks/useUpdate';
 
 const useCursor = (publishCursorUpdate, whiteboardId) => {
     const [cursorPosition, setCursorPosition] = useState({ x: -1, y: -1 });
@@ -7,12 +8,18 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
         setCursorPosition({ x: newX, y: newY });
     };
 
-    useEffect(() => {
-        publishCursorUpdate({
-            whiteboardId,
-            xPercent: cursorPosition?.x,
-            yPercent: cursorPosition?.y,
-        });
+    useUpdate(() => {
+        if (
+            typeof whiteboardId === 'string'
+            && typeof cursorPosition.x === 'number'
+            && typeof cursorPosition.y === 'number'
+        ) {
+            publishCursorUpdate({
+                whiteboardId,
+                xPercent: cursorPosition?.x,
+                yPercent: cursorPosition?.y,
+            });
+        }
     }, [cursorPosition, publishCursorUpdate, whiteboardId]);
 
     return [cursorPosition, updateCursorPosition];
