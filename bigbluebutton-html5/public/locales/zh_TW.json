@@ -812,6 +812,7 @@
     "app.toast.chat.system": "系統",
     "app.toast.chat.poll": "投票結果",
     "app.toast.chat.pollClick": "投票結果已發佈。點擊此處查看。",
+    "app.toast.chat.exportedPresentation": "簡報檔案",
     "app.toast.clearedEmoji.label": "已清除表情狀態",
     "app.toast.setEmoji.label": "表情狀態設置為 {0}",
     "app.toast.meetingMuteOn.label": "所有使用者已靜音",
