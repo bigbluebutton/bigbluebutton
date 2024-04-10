@@ -21,7 +21,6 @@ const SUBSCRIPTIONS = [
   'users-settings',
   'users-infos',
   'meeting-time-remaining',
-  'local-settings',
   'record-meetings',
   'video-streams',
   'voice-call-states',
