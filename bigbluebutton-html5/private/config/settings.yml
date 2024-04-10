@@ -204,6 +204,8 @@ public:
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
+        # set a custom color for talking highlight in webcam
+        webcamBorderHighlightColor: []
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
