@@ -78,3 +78,11 @@ export const GET_USER_IDS = gql`
     }
   }
 `;
+
+export const GET_USER_NAMES = gql`
+  query Users {
+    user {
+      name
+    }
+  }
+`;

@@ -35,6 +35,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
   ejectReasonCode: string;
   bannerColor: string;
   bannerText: string;
+  loggedOut: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -55,6 +56,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   ejectReasonCode,
   bannerColor,
   bannerText,
+  loggedOut,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -136,16 +138,18 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   },
   [joinErrorCode, joinErrorMessage]);
 
+  const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
+
   return (
     <>
-      {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode) ? children : null}
+      {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut) ? children : null}
       {
-        meetingEnded || joinErrorCode || ejectReasonCode
+        meetingEnded || joinErrorCode || ejectReasonCode || loggedOut
           ? (
             <MeetingEndedContainer
               meetingEndedCode={endedReasonCode}
               endedBy={endedBy}
-              joinErrorCode={joinErrorCode || ejectReasonCode}
+              joinErrorCode={errorCode}
             />
           )
           : null
@@ -184,6 +188,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     name: userName,
     extId,
     userId,
+    loggedOut,
   } = userData;
   const {
     logoutUrl,
@@ -214,6 +219,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       ejectReasonCode={ejectReasonCode}
       bannerColor={bannerColor}
       bannerText={bannerText}
+      loggedOut={loggedOut}
     >
       {children}
     </PresenceManager>

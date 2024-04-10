@@ -154,9 +154,7 @@ export default withTracker(() => {
   const ready = subscriptionsHandlers
     .every((handler) => handler.ready() || clientSettings.skipMeteorConnection);
   // TODO: Refactor all the late subscribers
-  let usersPersistentDataHandler = {};
   if (ready) {
-    usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
     Object.values(localCollectionRegistry).forEach((localCollection) =>
       localCollection.checkForStaleData()
     );

@@ -98,6 +98,7 @@ export interface ComponentsFlags {
   hasPoll: boolean;
   hasScreenshare: boolean;
   hasTimer: boolean;
+  showRemainingTime: boolean;
 }
 
 export interface Metadata {
@@ -108,7 +109,7 @@ export interface Metadata {
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
-  duration: number;
+  durationInSeconds: number;
   extId: string;
   html5InstanceId: string | null;
   isBreakout: boolean;
