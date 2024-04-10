@@ -16,6 +16,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 
 const VirtualBackgroundRowThumbnail = styled.div`
@@ -33,9 +34,12 @@ const BgWrapper = styled(ScrollboxVertical)`
   padding: ${borderSizeLarge};
 
   ${({ isVisualEffects }) => isVisualEffects && `
-    flex-wrap: wrap;
-    align-content: flex-start;
+    justify-content: flex-start;
   `}
+
+  @media ${smallOnly} {
+    justify-content: center;
+  }
 `;
 
 const BgNoneButton = styled(Button)`

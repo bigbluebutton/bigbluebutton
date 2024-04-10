@@ -759,7 +759,7 @@ class VideoPreview extends Component {
     } = this.state;
 
     return (
-      <Styled.Col>
+      <Styled.InternCol>
         <Styled.Label htmlFor="setCam">
           {intl.formatMessage(intlMessages.cameraLabel)}
         </Styled.Label>
@@ -784,7 +784,7 @@ class VideoPreview extends Component {
           )
         }
         {this.renderQualitySelector()}
-      </Styled.Col>
+      </Styled.InternCol>
     );
   }
 
@@ -873,7 +873,7 @@ class VideoPreview extends Component {
     if(cameraAsContent){ return null }
 
     return (
-      <Styled.Col>
+      <Styled.InternCol>
         <Styled.Label htmlFor="brightness">
           {intl.formatMessage(intlMessages.brightness)}
         </Styled.Label>
@@ -921,7 +921,7 @@ class VideoPreview extends Component {
             label={intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
           />
         </div>
-      </Styled.Col>
+      </Styled.InternCol>
     );
   }
 
@@ -953,13 +953,8 @@ class VideoPreview extends Component {
   
     const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled() && !cameraAsContent;
   
-    const containerStyle = {
-      width: '60%',
-      height: '25vh',
-    };
-  
     return (
-      <div style={containerStyle}>
+      <Styled.ContentCol>
         {tabNumber === 0 && (
           <Styled.Col>
             {this.renderDeviceSelectors()}
@@ -971,7 +966,7 @@ class VideoPreview extends Component {
             {this.renderVirtualBgSelector()}
           </Styled.Col>
         )}
-      </div>
+      </Styled.ContentCol>
     );
   }
 
@@ -1094,7 +1089,7 @@ class VideoPreview extends Component {
 
         <Styled.Footer>
           <Styled.BottomSeparator />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: showStopAllButton ? 'flex-start' : 'flex-end' }}>
+            <Styled.FooterContainer>
               {showStopAllButton ? (
                 <Styled.ExtraActions>
                   <Styled.StopAllButton
@@ -1105,12 +1100,10 @@ class VideoPreview extends Component {
                   />
                 </Styled.ExtraActions>
               ) : null}
-              <Styled.Actions>
                 {!shared && camCapReached ? (
                   <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
                 ) : (
                   <div style={{ display: 'flex' }}>
-                    <div>
                       <Styled.CancelButton
                         data-test="cancelSharingWebcam"
                         label={intl.formatMessage(intlMessages.cancelLabel)}
@@ -1123,11 +1116,10 @@ class VideoPreview extends Component {
                         onClick={shared ? this.handleStopSharing : this.handleStartSharing}
                         disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
                       />
-                    </div>
                   </div>
                 )}
-              </Styled.Actions>
-            </div>
+
+            </Styled.FooterContainer>
         </Styled.Footer>
       </>
     );
@@ -1151,7 +1143,6 @@ class VideoPreview extends Component {
 
     const { selectedTab } = this.state;
     
-    console.log("OLHA AS SETTINGS! ", window.meetingClientSettings.public.app)
     const BASE_NAME = window.meetingClientSettings.public.app.basename;
     const WebcamSettingsImg = `${BASE_NAME}/resources/images/webcam_settings.svg`;
     const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;

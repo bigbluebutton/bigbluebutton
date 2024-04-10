@@ -56,10 +56,32 @@ const Col = styled.div`
   justify-content: center;
   margin: 0 0.5rem 0 0.5rem;
 
-  width: 50%;
+  @media ${smallOnly} {
+    justify-content: space-between;
+    align-items: center;
+    overflow: auto;
+    margin: 0;
+  }
+`;
+
+const InternCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  margin: 0 0.5rem 0 0.5rem;
+
   @media ${smallOnly} {
     width: 90%;
-    height: unset;
+  }
+`;
+
+const ContentCol = styled.div`
+  width: 60%;
+  height: 25vh;
+
+  @media ${smallOnly} {
+    width: 90%;
   }
 `;
 
@@ -116,8 +138,10 @@ const Content = styled.div`
   font-weight: normal;
 
   @media ${smallOnly} {
-    flex-direction: column;
-    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: 5px;
   }
 `;
 
@@ -133,6 +157,17 @@ const BrowserWarning = styled.p`
 const Footer = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const FooterContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: ${({ showStopAllButton }) => (showStopAllButton ? 'flex-start' : 'flex-end')};
+
+  @media ${smallOnly} {
+    display: flex;
+    flex-direction: column;
+  }
 `;
 
 const Actions = styled.div`
@@ -184,7 +219,6 @@ const VideoPreviewModal = styled(ModalSimple)`
   @media ${smallOnly} {
     height: unset;
     min-height: 22.5rem;
-    max-height: unset;
   }
 
   ${({ isPhone }) => isPhone && `
@@ -389,6 +423,8 @@ export default {
   Main,
   Text,
   Col,
+  ContentCol,
+  InternCol,
   Container,
   Header,
   WebcamTabs,
@@ -407,6 +443,7 @@ export default {
   Content,
   BrowserWarning,
   Footer,
+  FooterContainer,
   Actions,
   ExtraActions,
   VideoPreviewModal,
