@@ -23,20 +23,8 @@ const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undef
   && typeof window.speechSynthesis !== 'undefined'
   && VALID_ENVIRONMENT;
 
-const setSpeechVoices = () => {
-  if (!hasSpeechRecognitionSupport()) return;
-
-  Session.set('speechVoices', unique(window.speechSynthesis.getVoices().map((v) => v.lang)));
-};
-
-// Trigger getVoices
-setSpeechVoices();
-
 const getSpeechVoices = () => {
-  if (!isWebSpeechApi()) return LANGUAGES;
-
-  const voices = Session.get('speechVoices') || [];
-  return voices.filter((v) => LANGUAGES.includes(v));
+  return LANGUAGES;
 };
 
 const getSpeechProvider = () => {
@@ -79,7 +67,6 @@ const initSpeechRecognition = () => {
 
   if (hasSpeechRecognitionSupport()) {
     // Effectivate getVoices
-    setSpeechVoices();
     const speechRecognition = new SpeechRecognitionAPI();
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;

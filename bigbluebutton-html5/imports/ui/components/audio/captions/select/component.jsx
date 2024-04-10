@@ -122,7 +122,7 @@ const Select = ({
             key={v}
             value={v}
           >
-            {intl.formatMessage(intlMessages[v])}
+            {intlMessages[v] ? intl.formatMessage(intlMessages[v]) : v}
           </option>
         ))}
       </select>

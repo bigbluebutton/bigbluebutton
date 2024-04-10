@@ -133,7 +133,7 @@ const CaptionsButton = ({
     availableVoices.map((availableVoice) => (
       {
         icon: '',
-        label: intl.formatMessage(intlMessages[availableVoice]),
+        label: intlMessages[availableVoice] ? intl.formatMessage(intlMessages[availableVoice]) : availableVoice,
         key: availableVoice,
         iconRight: selectedLocale.current === availableVoice ? 'check' : null,
         customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
