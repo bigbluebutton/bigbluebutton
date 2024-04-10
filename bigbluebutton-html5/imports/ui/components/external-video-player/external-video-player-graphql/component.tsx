@@ -225,7 +225,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       setAutoPlayBlocked(true);
-    }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
+    }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 100);
 
     const handleExternalVideoVolumeSet = ((
       event: CustomEvent<SetExternalVideoVolumeCommandArguments>,
