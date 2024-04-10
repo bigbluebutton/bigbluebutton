@@ -11,6 +11,7 @@ export const CURRENT_UNJOINED_USER_SUBSCRIPTION = gql`
       joined
       name
       userId
+      loggedOut
     }
   }
 `;

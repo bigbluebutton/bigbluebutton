@@ -113,4 +113,5 @@ export type UnjoinedUser = Pick<
   | 'joined'
   | 'name'
   | 'userId'
+  | 'loggedOut'
 >;
