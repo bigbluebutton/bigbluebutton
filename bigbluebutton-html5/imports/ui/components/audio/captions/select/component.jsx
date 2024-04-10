@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.unsupported',
     description: 'Audio speech recognition unsupported',
   },
+  'ca-ES': {
+    id: 'app.audio.captions.select.ca-ES',
+    description: 'Audio speech recognition catalan language',
+  },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
     description: 'Audio speech recognition german language',
