@@ -6,6 +6,25 @@ const MAX_POLL_RESULT_BARS = 10;
 const MAX_POLL_RESULT_KEY_LENGTH = 30;
 const POLL_BAR_CHAR = '\u220E';
 
+interface PollResultData {
+  id: string;
+  answers: {
+    id: number;
+    key: string;
+    numVotes: number;
+  }[];
+  numRespondents: number;
+  numResponders: number;
+  questionText: string;
+  questionType: string;
+  type: string;
+  whiteboardId: string;
+}
+
+interface Intl {
+  formatMessage: (descriptor: { id: string; description: string }) => string;
+}
+
 export const pollTypes = {
   YesNo: 'YN',
   YesNoAbstention: 'YNA',
@@ -73,7 +92,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const getUsedLabels = (listOfAnswers, possibleLabels) => listOfAnswers.map(
+const getUsedLabels = (listOfAnswers: PollResultData['answers'], possibleLabels: string[]) => listOfAnswers.map(
   (answer) => {
     if (answer.key.length >= 2) {
       const formattedLabel = answer.key.slice(0, 2).toUpperCase();
@@ -93,7 +112,7 @@ const getFormattedAnswerValue = (answerText: string) => {
 };
 
 const generateAlphabetList = () => Array.from(Array(26))
-  .map((e, i) => i + 65).map((x) => String.fromCharCode(x));
+  .map((_, i) => i + 65).map((x) => String.fromCharCode(x));
 
 const generatePossibleLabels = (alphabetCharacters: string[]) => {
   // Remove the Letter from the beginning and the following sign, if any, like so:
@@ -121,7 +140,7 @@ const truncate = (text: string, length: number) => {
   return resultText;
 };
 
-const getPollResultsText = (isDefaultPoll: boolean, answers: { key: string }, numRespondents: number, intl) => {
+const getPollResultsText = (isDefaultPoll: boolean, answers: PollResultData['answers'], numRespondents: number, intl: Intl) => {
   let responded = 0;
   let resultString = '';
   let optionsString = '';
@@ -151,16 +170,16 @@ const getPollResultsText = (isDefaultPoll: boolean, answers: { key: string }, nu
     const pctBars = POLL_BAR_CHAR.repeat((pct * MAX_POLL_RESULT_BARS) / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
     if (isDefaultPoll) {
-      let translatedKey = pollAnswerIds[item.key.toLowerCase()]
-        ? intl.formatMessage(pollAnswerIds[item.key.toLowerCase()])
+      let translatedKey = pollAnswerIds[item.key.toLowerCase() as keyof typeof pollAnswerIds]
+        ? intl.formatMessage(pollAnswerIds[item.key.toLowerCase() as keyof typeof pollAnswerIds])
         : item.key;
       translatedKey = truncate(translatedKey, longestKeyLength);
       resultString += `${translatedKey}: ${item.numVotes || 0} ${pctBars}${POLL_BAR_CHAR} ${pctFotmatted}\n`;
     } else {
       if (isPollAnswerMatchFormat) {
-        resultString += `${pollAnswerMatchLabeledFormat[index][0]}`;
+        resultString += `${pollAnswerMatchLabeledFormat[index]?.[0]}`;
         const formattedAnswerValue = getFormattedAnswerValue(item.key);
-        optionsString += `${pollAnswerMatchLabeledFormat[index][0]}: ${formattedAnswerValue}\n`;
+        optionsString += `${pollAnswerMatchLabeledFormat[index]?.[0]}: ${formattedAnswerValue}\n`;
       } else {
         let { key } = item;
         key = truncate(key, longestKeyLength);
@@ -173,7 +192,7 @@ const getPollResultsText = (isDefaultPoll: boolean, answers: { key: string }, nu
   return { resultString, optionsString };
 };
 
-const getPollResultString = (pollResultData, intl) => {
+const getPollResultString = (pollResultData: PollResultData, intl: Intl) => {
   const formatBoldBlack = (s: string) => s.bold().fontcolor('black');
 
   const sanitize = (value: string) => escapeHtml(value);
