@@ -223,9 +223,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   };
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
-      setAutoPlayBlocked(true);
-    }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 100);
+    if (playing) {
+      timeoutRef.current = setTimeout(() => {
+        setAutoPlayBlocked(true);
+      }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
+    }
 
     const handleExternalVideoVolumeSet = ((
       event: CustomEvent<SetExternalVideoVolumeCommandArguments>,
@@ -326,8 +328,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   // @ts-ignore accessing lib private property
   const playerName = playerRef.current && playerRef.current.player
-  // @ts-ignore accessing lib private property
-  && playerRef.current.player.player && playerRef.current.player.player.constructor.name as string;
+    // @ts-ignore accessing lib private property
+    && playerRef.current.player.player && playerRef.current.player.player.constructor.name as string;
   let toolbarStyle = 'hoverToolbar';
 
   if (deviceInfo.isMobile && !showHoverToolBar) {
@@ -408,7 +410,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               hideVolume={hideVolume[playerName as keyof typeof hideVolume]}
             />
           ) : null
-      }
+        }
       </Styled.VideoPlayerWrapper>
     </Styled.Container>
   );
@@ -515,7 +517,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const currentDate = new Date(Date.now() + timeSync);
   const isPaused = !currentMeeting.externalVideo?.playerPlaying ?? false;
   const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
-  + playerCurrentTime) * playerPlaybackRate;
+    + playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
 
   return (
