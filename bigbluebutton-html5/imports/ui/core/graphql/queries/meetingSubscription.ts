@@ -120,6 +120,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasPoll
           hasScreenshare
           hasTimer
+          showRemainingTime
         }
       }
   }

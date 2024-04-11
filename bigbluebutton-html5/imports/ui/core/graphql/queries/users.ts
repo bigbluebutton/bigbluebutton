@@ -71,15 +71,6 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
   }
 `;
 
-export const USERS_OVERVIEW = gql`
-subscription UsersOverview {
-  user {
-    userId
-    name
-    role
-  }
-}`;
-
 export const GET_USER_IDS = gql`
   query Users {
     user {
@@ -88,9 +79,10 @@ export const GET_USER_IDS = gql`
   }
 `;
 
-export default {
-  USER_LIST_SUBSCRIPTION,
-  USER_AGGREGATE_COUNT_SUBSCRIPTION,
-  USERS_OVERVIEW,
-  GET_USER_IDS,
-};
+export const GET_USER_NAMES = gql`
+  query Users {
+    user {
+      name
+    }
+  }
+`;

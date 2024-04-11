@@ -21,7 +21,6 @@ const SUBSCRIPTIONS = [
   'users-settings',
   'users-infos',
   'meeting-time-remaining',
-  'local-settings',
   'record-meetings',
   'video-streams',
   'voice-call-states',
@@ -49,6 +48,10 @@ const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-rea
 let oldRole = '';
 
 class Subscriptions extends Component {
+  componentDidMount() {
+    Session.set('subscriptionsReady', false);
+  }
+
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
@@ -69,8 +72,8 @@ class Subscriptions extends Component {
 
 export default withTracker(() => {
   const { credentials } = Auth;
-  const { meetingId, requesterUserId } = credentials;
-  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
+  const { requesterUserId } = credentials;
+  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
   const userWillAuth = Session.get('userWillAuth');
   // This if exist because when a unauth user try to subscribe to a publisher
   // it returns a empty collection to the subscription
@@ -97,7 +100,7 @@ export default withTracker(() => {
     },
   };
 
-  const currentUser = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
+  const currentUser = Users.findOne({ userId: requesterUserId }, { fields: { role: 1 } });
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
     if (clientSettings.skipMeteorConnection) return null;
@@ -150,9 +153,7 @@ export default withTracker(() => {
   const ready = subscriptionsHandlers
     .every((handler) => handler.ready() || clientSettings.skipMeteorConnection);
   // TODO: Refactor all the late subscribers
-  let usersPersistentDataHandler = {};
   if (ready) {
-    usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
     Object.values(localCollectionRegistry).forEach((localCollection) =>
       localCollection.checkForStaleData()
     );

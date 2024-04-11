@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.msgs.AnnotationVO
-import PostgresProfile.api._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
+import slick.jdbc.PostgresProfile.api._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class PresAnnotationDbModel(
     annotationId:        String,
@@ -42,8 +42,8 @@ object PresAnnotationDAO {
             )
           )
         ).onComplete {
-            case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresAnnotation table!")
-            case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PresAnnotation: $e")
+            case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted or updated on PresAnnotation table!")
+            case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting or updating PresAnnotation: $e")
           }
 
       }
@@ -51,8 +51,36 @@ object PresAnnotationDAO {
     }
   }
 
-  def delete(wbId: String, userId: String, annotationId: String) = {
+  def prepareInsertOrUpdate(annotation: AnnotationVO) = {
+    TableQuery[PresAnnotationDbTableDef].insertOrUpdate(
+      PresAnnotationDbModel(
+        annotationId = annotation.id,
+        pageId = annotation.wbId,
+        userId = annotation.userId,
+        annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo).compactPrint,
+        lastHistorySequence = 0,
+        lastUpdatedAt = new java.sql.Timestamp(System.currentTimeMillis())
+      )
+    )
+  }
 
+  def insertOrUpdateMap(annotations: Map[String, AnnotationVO]) = {
+    DatabaseConnection.db.run(
+      DBIO.sequence(
+        annotations.map { annotation =>
+          prepareInsertOrUpdate(annotation._2)
+        }
+      ).transactionally
+    )
+      .onComplete {
+        case Success(rowsAffected) =>
+          DatabaseConnection.logger.debug(s"${rowsAffected.sum} row(s) inserted or updated on PresAnnotation table!")
+        case Failure(e) =>
+          DatabaseConnection.logger.debug(s"Error inserting or updating PresAnnotation: $e")
+      }
+  }
+
+  def delete(wbId: String, userId: String, annotationId: String) = {
     PresAnnotationHistoryDAO.delete(wbId, userId, annotationId).onComplete {
       case Success(sequence) => {
         DatabaseConnection.db.run(
@@ -67,6 +95,18 @@ object PresAnnotationDAO {
       }
       case Failure(e) => DatabaseConnection.logger.error(s"Error inserting PresAnnotationHistory: $e")
     }
+  }
+
+  def delete(annotationIds: Array[String]) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresAnnotationDbTableDef]
+        .filter(_.annotationId inSet annotationIds)
+        .map(a => (a.annotationInfo, a.lastHistorySequence, a.lastUpdatedAt))
+        .update("", 0, new java.sql.Timestamp(System.currentTimeMillis()))
+    ).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated annotationInfo=null on PresAnnotation table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating annotationInfo=null PresAnnotation: $e")
+      }
   }
 
 }

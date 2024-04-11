@@ -63,9 +63,7 @@ object PluginDataChannelMessageDAO {
         )
       )
     ).onComplete {
-        case Success(rowsAffected) =>
-          println(s"Teste pra ver o que aconteceu ---> $rowsAffected $subChannelName ")
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PluginDataChannelMessage table!")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PluginDataChannelMessage table!")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PluginDataChannelMessage: $e")
       }
   }
@@ -78,12 +76,11 @@ object PluginDataChannelMessageDAO {
         .filter(_.pluginName === pluginName)
         .filter(_.dataChannel === dataChannel)
         .filter(_.subChannelName === subChannelName)
+        .filter(_.deletedAt.isEmpty)
         .map(u => (u.deletedAt))
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
     ).onComplete {
-      case Success(rowsAffected) =>
-        println(s"Teste pra ver o que aconteceu --(sucesso no reset)-> $rowsAffected $subChannelName ")
-        DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated deleted=now() on pluginDataChannelMessage table!")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated deleted=now() on pluginDataChannelMessage table!")
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating deleted=now() pluginDataChannelMessage: $e")
     }
   }
@@ -120,8 +117,7 @@ object PluginDataChannelMessageDAO {
                 AND "subChannelName" = ${subChannelName}
                 AND "messageId" = ${messageId}"""
     ).onComplete {
-      case Success(rowsAffected) =>
-        DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated deleted=now() on pluginDataChannelMessage table!")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated deleted=now() on pluginDataChannelMessage table!")
       case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating deleted=now() pluginDataChannelMessage: $e")
     }
   }

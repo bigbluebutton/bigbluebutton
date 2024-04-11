@@ -3,6 +3,7 @@ package common
 import (
 	"github.com/google/uuid"
 	"sync"
+	"time"
 )
 
 var uniqueID string
@@ -15,60 +16,31 @@ func GetUniqueID() string {
 	return uniqueID
 }
 
-type ActivitiesOverviewObj struct {
-	Started      int64
-	Completed    int64
-	DataReceived int64
+var JsonPatchCache = make(map[string][]byte)
+var JsonPatchCacheMutex sync.RWMutex
+
+func GetJsonPatchCache(cacheKey string) ([]byte, bool) {
+	JsonPatchCacheMutex.RLock()
+	defer JsonPatchCacheMutex.RUnlock()
+
+	jsonDiffPatch, jsonDiffPatchExists := JsonPatchCache[cacheKey]
+	return jsonDiffPatch, jsonDiffPatchExists
 }
 
-var activitiesOverview = make(map[string]ActivitiesOverviewObj)
-var activitiesOverviewMux = sync.Mutex{}
+func StoreJsonPatchCache(cacheKey string, data []byte) {
+	JsonPatchCacheMutex.Lock()
+	defer JsonPatchCacheMutex.Unlock()
 
-func ActivitiesOverviewStarted(index string) {
-	activitiesOverviewMux.Lock()
-	defer activitiesOverviewMux.Unlock()
+	JsonPatchCache[cacheKey] = data
 
-	if _, exists := activitiesOverview[index]; !exists {
-		activitiesOverview[index] = ActivitiesOverviewObj{
-			Started:      0,
-			Completed:    0,
-			DataReceived: 0,
-		}
-	}
-
-	updatedValues := activitiesOverview[index]
-	updatedValues.Started++
-
-	activitiesOverview[index] = updatedValues
+	//Remove the cache after 30 seconds
+	go RemoveJsonPatchCache(cacheKey, 30)
 }
 
-func ActivitiesOverviewDataReceived(index string) {
-	activitiesOverviewMux.Lock()
-	defer activitiesOverviewMux.Unlock()
+func RemoveJsonPatchCache(cacheKey string, delayInSecs time.Duration) {
+	time.Sleep(delayInSecs * time.Second)
 
-	if updatedValues, exists := activitiesOverview[index]; exists {
-		updatedValues.DataReceived++
-
-		activitiesOverview[index] = updatedValues
-	}
-
-}
-
-func ActivitiesOverviewCompleted(index string) {
-	activitiesOverviewMux.Lock()
-	defer activitiesOverviewMux.Unlock()
-
-	if updatedValues, exists := activitiesOverview[index]; exists {
-		updatedValues.Completed++
-
-		activitiesOverview[index] = updatedValues
-	}
-
-}
-
-func GetActivitiesOverview() map[string]ActivitiesOverviewObj {
-	activitiesOverviewMux.Lock()
-	defer activitiesOverviewMux.Unlock()
-
-	return activitiesOverview
+	JsonPatchCacheMutex.Lock()
+	defer JsonPatchCacheMutex.Unlock()
+	delete(JsonPatchCache, cacheKey)
 }

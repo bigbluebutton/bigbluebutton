@@ -117,8 +117,8 @@ object UserDAO {
         .map(u => (u.guest, u.guestStatus, u.authed, u.joined))
         .update((false, "ALLOW", true, true))
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user voice table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user voice: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user table: $e")
     }
   }
 

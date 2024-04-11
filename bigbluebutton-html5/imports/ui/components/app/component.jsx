@@ -10,9 +10,8 @@ import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import UserInfoContainer from '/imports/ui/components/user-info/container';
 import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
-import { Meteor } from 'meteor/meteor';
 import ToastContainer from '/imports/ui/components/common/toast/container';
-import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
+import PadsSessionsContainer from '/imports/ui/components/pads/pads-graphql/sessions/component';
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
@@ -23,6 +22,7 @@ import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
+import ScreenReaderAlertAdapter from '../screenreader-alert/adapter';
 import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
@@ -130,7 +130,6 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  actionsbar: PropTypes.element,
   captions: PropTypes.element,
   darkTheme: PropTypes.bool.isRequired,
 };
@@ -168,7 +167,6 @@ class App extends Component {
 
   componentDidMount() {
     const {
-      notify,
       intl,
       layoutContextDispatch,
       isRTL,
@@ -604,6 +602,7 @@ setRandomUserSelectModalIsOpen(value) {
     } = this.state;
     return (
       <>
+        <ScreenReaderAlertAdapter />
         <PluginsEngineManager />
         <FloatingWindowContainer />
         <TimeSync />
@@ -631,8 +630,29 @@ setRandomUserSelectModalIsOpen(value) {
           <GenericComponentContainer
             genericComponentId={genericComponentId}
           />
-          {shouldShowPresentation ? <PresentationContainer setPresentationFitToWidth={this.setPresentationFitToWidth} fitToWidth={presentationFitToWidth} darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} layoutType={selectedLayout} /> : null}
-          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} /> : null}
+          {
+          shouldShowPresentation
+            ? (
+              <PresentationContainer
+                setPresentationFitToWidth={this.setPresentationFitToWidth}
+                fitToWidth={presentationFitToWidth}
+                darkTheme={darkTheme}
+                presentationIsOpen={presentationIsOpen}
+                layoutType={selectedLayout}
+              />
+            )
+            : null
+            }
+          {
+          shouldShowScreenshare
+            ? (
+              <ScreenshareContainer
+                isLayoutSwapped={!presentationIsOpen}
+                isPresenter={isPresenter}
+              />
+            )
+            : null
+          }
           {shouldShowSharedNotes
             ? (
               <NotesContainer

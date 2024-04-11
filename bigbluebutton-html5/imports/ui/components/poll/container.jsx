@@ -5,9 +5,9 @@ import { Session } from 'meteor/session';
 import { useMutation } from '@apollo/client';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
-import { UsersContext } from '../components-data/users-context/context';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { POLL_PUBLISH_RESULT, POLL_CANCEL, POLL_CREATE } from './mutations';
+import PollCreationPanelContainer from './poll-graphql/component';
 import { ACTIONS, PANELS } from '../layout/enums';
 
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -33,9 +33,7 @@ const PollContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
 
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-
+  const users = [];
   const usernames = {};
 
   Object.values(users[Auth.meetingID]).forEach((user) => {
@@ -87,7 +85,7 @@ const PollContainer = (props) => {
   );
 };
 
-export default withTracker(({ amIPresenter, currentSlideId }) => {
+withTracker(({ amIPresenter, currentSlideId }) => {
   const isPollSecret = Session.get('secretPoll') || false;
 
   Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
@@ -109,3 +107,5 @@ export default withTracker(({ amIPresenter, currentSlideId }) => {
     getSplittedQuestionAndOptions: Service.getSplittedQuestionAndOptions,
   };
 })(PollContainer);
+
+export default PollCreationPanelContainer;

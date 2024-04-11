@@ -53,7 +53,7 @@ const VideoListItem = (props) => {
   const videoContainer = useRef();
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
-  const { animations } = Settings.application;
+  const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
 
   const onStreamStateChange = (e) => {
@@ -231,6 +231,7 @@ const VideoListItem = (props) => {
     <Styled.Content
       ref={videoContainer}
       talking={talking}
+      customHighlight={webcamBorderHighlightColor}
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
