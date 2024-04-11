@@ -28,5 +28,9 @@ func (app *Config) routes() http.Handler {
 
 	mux.Get("/getMeetings", app.getMeetings)
 
+	mux.Get("/createMeeting", app.createMeeting)
+
+	mux.Post("/createMeeting", app.createMeeting)
+
 	return mux
 }

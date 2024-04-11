@@ -201,3 +201,7 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 
 	app.writeXML(w, http.StatusAccepted, payload)
 }
+
+func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
+	log.Println("Handling createMeeting request")
+}

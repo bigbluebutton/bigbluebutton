@@ -125,6 +125,25 @@ type GetMeetingInfoResponse struct {
 	BreakoutRooms         BreakoutRooms
 }
 
+type CreateMeetingResponse struct {
+	XMLName              xml.Name `xml:"response"`
+	ReturnCode           string   `xml:"returnCode"`
+	MeetingId            string   `xml:"meetingID"`
+	InternalMeetingId    string   `xml:"internalMeetingID"`
+	ParentMeetingId      string   `xml:"parentMeetingID"`
+	AttendeePW           string   `xml:"attendeePW,omitempty"`
+	ModeratorPW          string   `xml:"moderatorPw,omitempty"`
+	CreateTime           int64    `xml:"createTime"`
+	VoiceBridge          string   `xml:"voiceBridge"`
+	DialNumber           string   `xml:"dialNumber"`
+	CreateDate           string   `xml:"createDate"`
+	HasUserJoined        bool     `xml:"hasUserJoined"`
+	Duration             int32    `xml:"duration"`
+	HasBeenForciblyEnded bool     `xml:"hasBeenForciblyEnded"`
+	MessageKey           string   `xml:"messageKey"`
+	Message              string   `xml:"message"`
+}
+
 func (m MapData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	tagName := "metadata"
 	if m.TagName != "" {

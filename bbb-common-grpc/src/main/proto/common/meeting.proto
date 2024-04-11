@@ -57,3 +57,128 @@ message MeetingInfo {
     ParticipantInfo participant_info = 15;
     BreakoutInfo breakout_info = 16;
 }
+
+message MeetingProps {
+    string name = 1;
+    string meeting_ext_id = 2;
+    string meeting_int_id = 3;
+    int32 meeting_camera_cap = 4;
+    int32 max_pinned_cameras = 5;
+    bool is_breakout = 6;
+    repeated string disabled_features = 7;
+    bool notify_recording_is_on = 8;
+    string pres_upload_ext_desc = 9;
+    string pres_upload_ext_url = 10;
+}
+
+message BreakoutProps {
+    string parent_id = 1;
+    int32 sequence = 2;
+    bool free_join = 3;
+    repeated string breakout_rooms = 4;
+    bool record = 5;
+    bool private_chat_enabled = 6;
+    bool capture_notes = 7;
+    bool capture_slides = 8;
+    string capture_notes_file_name = 9;
+    string capture_slides_file_name = 10;
+}
+
+message DurationProps {
+    int32 duration = 1;
+    int64 create_time = 2;
+    string create_date = 3;
+    int32 meeting_exp_no_user_joined_in_min = 4;
+    int32 meeting_exp_last_user_left_in_min = 5;
+    int32 user_inactivity_inspect_time_in_min = 6;
+    int32 user_inactivity_threshold_in_min = 7;
+    int32 user_activity_sign_response_delay_in_min = 8;
+    bool end_when_no_mod = 9;
+    int32 end_when_no_mod_delay_in_min = 10;
+}
+
+message PasswordProps {
+    string moderator_pw = 1;
+    string attendee_pw = 2;
+    string learning_dashboard_access_token = 3;
+}
+
+message RecordProps {
+    bool record = 1;
+    bool auto_start_recording = 2;
+    bool allow_start_stop_recording = 3;
+    bool record_full_duration_media = 4;
+    bool keep_events = 5;
+}
+
+message WelcomeProps {
+    string welcome_msg_template = 1;
+    string welcome_msg = 2;
+    string mod_only_msg = 3;
+}
+
+message VoiceProps {
+    string voice_bridge = 1;
+    string voice_conf = 2;
+    string dial_number = 3;
+    bool mute_on_start = 4;
+}
+
+message UsersProps {
+    int32 max_users = 1;
+    int32 max_user_concurrent_accesses = 2;
+    bool webcams_only_for_mod = 3;
+    int32 user_camera_cap = 4;
+    string guest_policy = 5;
+    string meeting_layout = 6;
+    bool allow_mods_unmute_users = 7;
+    bool allow_mods_eject_cameras = 8;
+    bool authenticate_guest = 9;
+}
+
+message MetadataProps {
+    map<string, string> metadata = 1;
+}
+
+message LockSettingsProps {
+    bool disable_cam = 1;
+    bool disable_mic = 2;
+    bool disable_private_chat = 3;
+    bool disable_public_chat = 4;
+    bool disable_notes = 5;
+    bool hide_user_list = 6;
+    bool lock_on_join = 7;
+    bool lock_on_join_configurable = 8;
+    bool hide_viewers_cursor = 9;
+    bool hide_viewers_annotation = 10;
+}
+
+message SystemProps {
+    int32 html5_instance_id = 1;
+    string logout_url = 2;
+    string custom_logo_url = 3;
+    string banner_text = 4;
+    string banner_colour = 5;
+}
+
+message GroupProps {
+    string group_id = 1;
+    string name = 2;
+    repeated string users_ext_ids = 3;
+}
+
+message MeetingSettings {
+    MeetingProps meeting_props = 1;
+    BreakoutProps breakout_props = 2;
+    DurationProps duration_props = 3;
+    PasswordProps password_props = 4;
+    RecordProps record_props = 5;
+    WelcomeProps welcome_props = 6;
+    VoiceProps voice_props = 7;
+    UsersProps users_props = 8;
+    MetadataProps metadata_props = 9;
+    LockSettingsProps lock_settings_props = 10;
+    SystemProps system_props = 11;
+    repeated GroupProps group_props = 12;
+    string override_client_settings = 13;
+}
