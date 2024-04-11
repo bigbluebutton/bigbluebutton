@@ -73,7 +73,7 @@ export const generateActionsPermissions = (
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
-    && lockSettings.hasActiveLockSetting;
+    && lockSettings?.hasActiveLockSetting;
 
   const allowedToChangeWhiteboardAccess = currentUser.presenter
     && !amISubjectUser;
