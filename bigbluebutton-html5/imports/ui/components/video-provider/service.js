@@ -517,13 +517,13 @@ class VideoService {
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
-    if (!isPaginationDisabled) {
-      return this.getVideoPage(streams, pageSize);
-    }
-
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) {
       streams.push(connectingStream);
+    }
+
+    if (!isPaginationDisabled) {
+      return this.getVideoPage(streams, pageSize);
     }
 
     return streams;
