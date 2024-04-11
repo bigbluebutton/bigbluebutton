@@ -9,7 +9,10 @@ const ScreenReaderAlert = ({ olderAlert }) => {
     if (olderAlert) setTimeout(() => removeAlert(olderAlert.id), ARIA_ALERT_EXT_TIMEOUT);
   }, [olderAlert?.id]);
 
-  return olderAlert ? createPortal(olderAlert.text, document.getElementById('aria-polite-alert')) : null;
+  const ariaAlertsElement = document.getElementById('aria-polite-alert');
+  const shouldAddAlert = olderAlert && olderAlert.text && ariaAlertsElement !== null;
+
+  return shouldAddAlert ? createPortal(olderAlert.text, ariaAlertsElement) : null;
 };
 
 export default ScreenReaderAlert;
