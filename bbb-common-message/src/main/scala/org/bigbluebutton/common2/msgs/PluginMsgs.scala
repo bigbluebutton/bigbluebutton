@@ -10,6 +10,7 @@ case class PluginDataChannelDispatchMessageMsg(header: BbbClientMsgHeader, body:
 case class PluginDataChannelDispatchMessageMsgBody(
                                               pluginName: String,
                                               dataChannel: String,
+                                              subChannelName: String,
                                               payloadJson: String,
                                               toRoles: List[String],
                                               toUserIds: List[String],
@@ -19,6 +20,7 @@ object PluginDataChannelDeleteMessageMsg { val NAME = "PluginDataChannelDeleteMe
 case class PluginDataChannelDeleteMessageMsg(header: BbbClientMsgHeader, body: PluginDataChannelDeleteMessageMsgBody) extends StandardMsg
 case class PluginDataChannelDeleteMessageMsgBody(
                                                     pluginName: String,
+                                                    subChannelName: String,
                                                     dataChannel: String,
                                                     messageId: String
                                                   )
@@ -28,5 +30,6 @@ object PluginDataChannelResetMsg { val NAME = "PluginDataChannelResetMsg" }
 case class PluginDataChannelResetMsg(header: BbbClientMsgHeader, body: PluginDataChannelResetMsgBody) extends StandardMsg
 case class PluginDataChannelResetMsgBody(
                                                     pluginName: String,
+                                                    subChannelName: String,
                                                     dataChannel: String
                                                   )

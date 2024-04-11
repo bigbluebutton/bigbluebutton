@@ -18,6 +18,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const body = {
     pluginName: input.pluginName,
     dataChannel: input.dataChannel,
+    subChannelName: input.subChannelName,
     messageId: input.messageId
   };
 

@@ -22,6 +22,7 @@ select_permissions:
       columns:
         - createdAt
         - pluginName
+        - subChannelName
         - dataChannel
         - messageId
         - payloadJson

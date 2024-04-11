@@ -42,6 +42,7 @@ trait PluginDataChannelDispatchMessageMsgHdlr extends HandlerHelpers {
             meetingId,
             msg.body.pluginName,
             msg.body.dataChannel,
+            msg.body.subChannelName,
             msg.header.userId,
             msg.body.payloadJson,
             msg.body.toRoles,

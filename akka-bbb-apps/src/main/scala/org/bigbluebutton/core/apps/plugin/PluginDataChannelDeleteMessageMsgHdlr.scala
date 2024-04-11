@@ -36,6 +36,7 @@ trait PluginDataChannelDeleteMessageMsgHdlr extends HandlerHelpers {
                 meetingId,
                 msg.body.pluginName,
                 msg.body.dataChannel,
+                msg.body.subChannelName,
                 msg.body.messageId
               )
               senderUserId == msg.header.userId
@@ -51,6 +52,7 @@ trait PluginDataChannelDeleteMessageMsgHdlr extends HandlerHelpers {
             meetingId,
             msg.body.pluginName,
             msg.body.dataChannel,
+            msg.body.subChannelName,
             msg.body.messageId
           )
         }

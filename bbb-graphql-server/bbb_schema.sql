@@ -1737,20 +1737,21 @@ CREATE TABLE "pluginDataChannelMessage" (
 	"pluginName" varchar(255),
 	"dataChannel" varchar(255),
 	"messageId" varchar(50) DEFAULT uuid_generate_v4(),
+    "subChannelName" varchar(255),
 	"payloadJson" jsonb,
 	"fromUserId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
 	"toUserIds" varchar[],
 	"createdAt" timestamp with time zone DEFAULT current_timestamp,
 	"deletedAt" timestamp with time zone,
-	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId")
+	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId", "subChannelName")
 );
 
-create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
+create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "subChannelName", "createdAt") where "deletedAt" is null;
 create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
 CREATE OR REPLACE VIEW "v_pluginDataChannelMessage" AS
-SELECT u."meetingId", u."userId", m."pluginName", m."dataChannel", m."messageId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
+SELECT u."meetingId", u."userId", m."pluginName", m."dataChannel", m."subChannelName", m."messageId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
 FROM "user" u
 JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
 			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)

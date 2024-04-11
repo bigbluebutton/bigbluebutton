@@ -41,7 +41,8 @@ trait PluginDataChannelResetMsgHdlr extends HandlerHelpers {
           PluginDataChannelMessageDAO.reset(
             meetingId,
             msg.body.pluginName,
-            msg.body.dataChannel
+            msg.body.dataChannel,
+            msg.body.subChannelName
           )
         }
       }
