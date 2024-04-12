@@ -7,7 +7,7 @@ import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
-import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, MeetingDAO, MeetingRecordingDAO, UserBreakoutRoomDAO}
+import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, MeetingDAO, MeetingRecordingDAO, NotificationDAO, UserBreakoutRoomDAO}
 import org.bigbluebutton.core.domain.{MeetingEndReason, MeetingState2x}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -101,6 +101,7 @@ trait HandlerHelpers extends SystemConfiguration {
               Vector(s"${newUser.name}")
             )
             outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
 
             val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
             if (!Users2x.hasPresenter(liveMeeting.users2x)) {
