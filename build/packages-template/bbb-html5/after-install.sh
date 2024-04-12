@@ -80,7 +80,7 @@ chmod go+r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.y
 # Clear nginx cache for meteor-assets
 if [ -d /tmp/meteor-assets-nginx-cache/ ] && [ "$(ls -A /tmp/meteor-assets-nginx-cache/)" ] ; then
   echo "Clearing Nginx cache to refresh Meteor assets"
-  sudo find /tmp/meteor-assets-nginx-cache/ -type f -exec rm {} +
+  rm -rf /tmp/meteor-assets-nginx-cache/*
 fi
 
 startService bbb-html5 || echo "bbb-html5 service could not be registered or started"
