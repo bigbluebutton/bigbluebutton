@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import DraggableTextArea from '/imports/ui/components/poll/dragAndDrop/component';
+import DraggableTextArea from './DragAndDrop';
 import { pollTypes } from '../service';
 import Styled from '../styles';
 

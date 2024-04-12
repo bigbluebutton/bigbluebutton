@@ -6,7 +6,6 @@ import { removeExternalVideoStreamer } from '/imports/api/external-videos/server
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearUsersSettings from '/imports/api/users-settings/server/modifiers/clearUsersSettings';
 import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
-import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
 import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions';
 import clearPads from '/imports/api/pads/server/modifiers/clearPads';
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
@@ -33,7 +32,6 @@ export default async function meetingHasEnded(meetingId) {
     clearCaptions(meetingId),
     clearPads(meetingId),
     clearBreakouts(meetingId),
-    clearPolls(meetingId),
     clearUsers(meetingId),
     clearUsersSettings(meetingId),
     clearVoiceUsers(meetingId),
