@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.webcam
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.MeetingUsersPoliciesDAO
+import org.bigbluebutton.core.db.{ MeetingUsersPoliciesDAO, NotificationDAO }
 import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
@@ -64,6 +64,7 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
                 Vector()
               )
               bus.outGW.send(notifyEvent)
+              NotificationDAO.insert(notifyEvent)
             } else {
               val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
                 meetingId,
@@ -74,6 +75,7 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
                 Vector()
               )
               bus.outGW.send(notifyEvent)
+              NotificationDAO.insert(notifyEvent)
             }
 
             broadcastEvent(meetingId, msg.body.setBy, value)

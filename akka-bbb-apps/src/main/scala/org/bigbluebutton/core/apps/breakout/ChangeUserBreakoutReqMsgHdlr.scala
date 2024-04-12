@@ -5,7 +5,7 @@ import org.bigbluebutton.core.api.EjectUserFromBreakoutInternalMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers.getRedirectUrls
 import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
-import org.bigbluebutton.core.db.BreakoutRoomUserDAO
+import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, NotificationDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.EjectReasonCode
 import org.bigbluebutton.core.running.{MeetingActor, OutMsgRouter}
@@ -75,6 +75,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
             Vector(roomTo.shortName)
           )
           outGW.send(notifyUserEvent)
+          NotificationDAO.insert(notifyUserEvent)
         }
       }
 

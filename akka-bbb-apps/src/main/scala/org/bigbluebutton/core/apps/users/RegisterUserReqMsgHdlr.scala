@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.NotificationDAO
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.util.ColorPicker
@@ -107,6 +108,7 @@ trait RegisterUserReqMsgHdlr {
           Vector(s"${regUser.name}")
         )
         outGW.send(notifyEvent)
+        NotificationDAO.insert(notifyEvent)
       case GuestStatus.DENY =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
