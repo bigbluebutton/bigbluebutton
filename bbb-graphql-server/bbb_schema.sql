@@ -1753,6 +1753,7 @@ where  (
             n."role" = u."role" or
             (n."role" = 'PRESENTER' and u.presenter is true)
 		)
+and n."createdAt" > u."registeredAt"
 and n."createdAt" > current_timestamp - '5 seconds'::interval;
 
 create index idx_notification on notification("meetingId","userId","role","createdAt");
