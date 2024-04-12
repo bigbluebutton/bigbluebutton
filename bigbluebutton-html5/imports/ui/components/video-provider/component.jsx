@@ -220,9 +220,11 @@ class VideoProvider extends Component {
     this._isMounted = false;
     VideoService.updatePeerDictionaryReference({});
 
-    this.ws.onmessage = null;
-    this.ws.onopen = null;
-    this.ws.onclose = null;
+    if (this.ws) {
+      this.ws.onmessage = null;
+      this.ws.onopen = null;
+      this.ws.onclose = null;
+    }
 
     window.removeEventListener('beforeunload', VideoProvider.onBeforeUnload);
     VideoService.exitVideo();
