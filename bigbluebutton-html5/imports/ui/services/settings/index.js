@@ -1,5 +1,5 @@
-import {default as LocalStorage} from '/imports/ui/services/storage/local';
-import {default as SessionStorage} from '/imports/ui/services/storage/session';
+import LocalStorage from '/imports/ui/services/storage/local';
+import SessionStorage from '/imports/ui/services/storage/session';
 
 import { isEmpty } from 'radash';
 
@@ -56,7 +56,7 @@ class Settings {
       this.defaultSettings[`_${key}`] = defaultValues[key];
     });
 
-    this.save(DEFAULT_SETTINGS);
+    this.save(undefined, DEFAULT_SETTINGS);
   }
 
   loadChanged() {
@@ -86,7 +86,7 @@ class Settings {
 
         if (!values) return;
         const changedValues = Object.keys(values)
-          .filter(item => values[item] !== defaultValues[item])
+          .filter((item) => values[item] !== defaultValues[item])
           .reduce((acc, item) => ({
             ...acc,
             [item]: values[item],
@@ -101,22 +101,15 @@ class Settings {
       });
     }
 
-
     const userSettings = {};
 
     SETTINGS.forEach((e) => {
       userSettings[e] = this[e];
     });
 
-    Tracker.autorun((c) => {
-      const { status } = Meteor.status();
-      if (status === 'connected') {
-        c.stop();
-        if (typeof mutation === 'function') {
-          mutation(userSettings);
-        }
-      }
-    });
+    if (typeof mutation === 'function') {
+      mutation(userSettings);
+    }
   }
 }
 

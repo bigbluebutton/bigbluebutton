@@ -517,52 +517,33 @@ class VideoService {
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
-    if (!isPaginationDisabled) {
-      return this.getVideoPage(streams, pageSize);
-    }
-
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) {
       streams.push(connectingStream);
+    }
+
+    if (!isPaginationDisabled) {
+      return this.getVideoPage(streams, pageSize);
     }
 
     return streams;
   }
 
   getGridUsers(users, streams) {
-    const pageSize = this.getMyPageSize();
+    const isGridEnabled = this.isGridEnabled();
     const gridSize = this.getGridSize();
 
-    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
-
-    const isGridEnabled = this.isGridEnabled();
     let gridUsers = [];
 
-    if (isPaginationDisabled) {
-      if (isGridEnabled) {
-        const streamUsers = streams.map((stream) => stream.userId);
-
-        gridUsers = users.filter(
-          (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
-        ).map((user) => ({
-          isGridItem: true,
-          ...user,
-        })).slice(0, gridSize - streams.length);
-      }
-
-      return gridUsers;
-    }
-    const paginatedStreams = this.getVideoPage(streams, pageSize);
-
     if (isGridEnabled) {
-      const streamUsers = paginatedStreams.map((stream) => stream.userId);
+      const streamUsers = streams.map((stream) => stream.userId);
 
       gridUsers = users.filter(
         (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
       ).map((user) => ({
         isGridItem: true,
         ...user,
-      })).slice(0, gridSize - paginatedStreams.length);
+      })).slice(0, gridSize - streams.length);
     }
     return gridUsers;
   }

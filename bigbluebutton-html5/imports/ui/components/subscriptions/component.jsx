@@ -14,14 +14,12 @@ const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   // 'users',
   // 'meetings',
-  'polls',
   'captions',
   // 'voiceUsers',
   'screenshare',
   'users-settings',
   'users-infos',
   'meeting-time-remaining',
-  'local-settings',
   'record-meetings',
   'video-streams',
   'voice-call-states',
@@ -154,9 +152,7 @@ export default withTracker(() => {
   const ready = subscriptionsHandlers
     .every((handler) => handler.ready() || clientSettings.skipMeteorConnection);
   // TODO: Refactor all the late subscribers
-  let usersPersistentDataHandler = {};
   if (ready) {
-    usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
     Object.values(localCollectionRegistry).forEach((localCollection) =>
       localCollection.checkForStaleData()
     );
