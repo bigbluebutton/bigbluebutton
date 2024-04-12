@@ -104,12 +104,13 @@ const SpanWarn = styled.span`
   `}
 
   ${({ valid }) => !valid && `
-    margin: .25rem;
+    margin-top: .75rem;
     position: absolute;
     font-size: ${fontSizeSmall};
     color: ${colorDanger};
     font-weight: 200;
     white-space: nowrap;
+    z-index: 1;
   `}
 `;
 
