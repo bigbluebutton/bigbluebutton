@@ -71,6 +71,7 @@ object PluginDataChannelMessageDAO {
         .filter(_.meetingId === meetingId)
         .filter(_.pluginName === pluginName)
         .filter(_.dataChannel === dataChannel)
+        .filter(_.deletedAt.isEmpty)
         .map(u => (u.deletedAt))
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
     ).onComplete {
@@ -101,7 +102,8 @@ object PluginDataChannelMessageDAO {
     DatabaseConnection.db.run(
       sqlu"""UPDATE "pluginDataChannelMessage" SET
                 "deletedAt" = current_timestamp
-                WHERE "meetingId" = ${meetingId}
+                WHERE "deletedAt" is null
+                AND "meetingId" = ${meetingId}
                 AND "pluginName" = ${pluginName}
                 AND "dataChannel" = ${dataChannel}
                 AND "messageId" = ${messageId}"""

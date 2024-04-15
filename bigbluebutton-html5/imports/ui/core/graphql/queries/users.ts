@@ -62,7 +62,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
 }`;
 
 export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
-  subscription {
+  subscription UsersCount {
     user_aggregate {
       aggregate {
         count
@@ -70,15 +70,6 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
     }
   }
 `;
-
-export const USERS_OVERVIEW = gql`
-subscription Users {
-  user {
-    userId
-    name
-    role
-  }
-}`;
 
 export const GET_USER_IDS = gql`
   query Users {
@@ -88,9 +79,10 @@ export const GET_USER_IDS = gql`
   }
 `;
 
-export default {
-  USER_LIST_SUBSCRIPTION,
-  USER_AGGREGATE_COUNT_SUBSCRIPTION,
-  USERS_OVERVIEW,
-  GET_USER_IDS,
-};
+export const GET_USER_NAMES = gql`
+  query Users {
+    user {
+      name
+    }
+  }
+`;

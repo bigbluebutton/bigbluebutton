@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express';
 import util from 'util';
 import { redisMessageFactory } from './imports/redisMessageFactory';
-import { DEBUG, SERVER_HOST, SERVER_PORT } from './config';
+import { DEBUG, SERVER_HOST, SERVER_PORT, MAX_BODY_SIZE } from './config';
 import { createRedisClient } from './imports/redis';
 import { ValidationError } from './types/ValidationError';
 
 // Initialize Express Application
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: MAX_BODY_SIZE }));
 
 // Create and configure Redis client
 const redisClient = createRedisClient();

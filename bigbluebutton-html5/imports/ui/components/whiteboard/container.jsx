@@ -261,6 +261,8 @@ const WhiteboardContainer = (props) => {
     typeName: 'shape',
   });
 
+  if (!currentPresentationPage) return;
+
   return (
     <Whiteboard
       {...{

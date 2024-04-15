@@ -46,8 +46,8 @@ class EndMeetingComponent extends PureComponent {
 
     const title = intl.formatMessage(intlMessages.endMeetingTitle, { 0: meetingTitle });
 
-    let description = users > 0
-      ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })
+    let description = users > 1
+      ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users - 1 })
       : intl.formatMessage(intlMessages.endMeetingNoUserDescription);
 
     if (warnAboutUnsavedContentOnMeetingEnd) {

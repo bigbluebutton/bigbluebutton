@@ -4,6 +4,7 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { SubscribedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
 import { CurrentPresentation } from '/imports/ui/Types/presentation';
@@ -40,9 +41,9 @@ const CurrentPresentationHookContainer = () => {
   }, [currentPresentation, sendSignal]);
 
   useEffect(() => {
-    const updateHookUseCurrentPresentation = () => {
-      setSendSignal(!sendSignal);
-    };
+    const updateHookUseCurrentPresentation = ((event: CustomEvent<SubscribedEventDetails>) => {
+      if (event.detail.hook === DataConsumptionHooks.CURRENT_PRESENTATION) setSendSignal((signal) => !signal);
+    }) as EventListener;
     window.addEventListener(
       HookEvents.SUBSCRIBED, updateHookUseCurrentPresentation,
     );

@@ -44,7 +44,7 @@ export const generateActionsPermissions = (
     && subjectUserVoice?.joined
     && !subjectUserVoice.listenOnly
     && subjectUserVoice.muted
-    && (amISubjectUser || usersPolicies.allowModsToUnmuteUsers);
+    && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers);
 
   const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
@@ -60,27 +60,27 @@ export const generateActionsPermissions = (
     && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
-    && !(isSubjectUserGuest && usersPolicies.authenticatedGuest);
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
-    && !(isSubjectUserGuest && usersPolicies.authenticatedGuest);
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest);
 
   const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
-    && lockSettings.hasActiveLockSetting;
+    && lockSettings?.hasActiveLockSetting;
 
   const allowedToChangeWhiteboardAccess = currentUser.presenter
     && !amISubjectUser;
 
   const allowedToEjectCameras = amIModerator
     && !amISubjectUser
-    && usersPolicies.allowModsToEjectCameras;
+    && usersPolicies?.allowModsToEjectCameras;
 
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/retransmiter"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
@@ -61,6 +62,12 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, fromHasuraToBr
 			//When Hasura send msg type "complete", this query is finished
 			if messageType == "complete" {
 				handleCompleteMessage(hc, queryId)
+				common.ActivitiesOverviewCompleted(string(subscription.Type) + "-" + subscription.OperationName)
+				common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
+			}
+
+			if messageType == "data" {
+				common.ActivitiesOverviewDataReceived(string(subscription.Type) + "-" + subscription.OperationName)
 			}
 
 			if messageType == "data" &&
@@ -95,12 +102,21 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 			for dataKey, dataItem := range data {
 				if currentDataProp, okCurrentDataProp := dataItem.([]interface{}); okCurrentDataProp {
 					if dataAsJson, err := json.Marshal(currentDataProp); err == nil {
+						if common.ActivitiesOverviewEnabled {
+							dataSize := len(string(dataAsJson))
+							dataCount := len(currentDataProp)
+							common.ActivitiesOverviewDataSize(string(subscription.Type)+"-"+subscription.OperationName, int64(dataSize), int64(dataCount))
+						}
+
 						//Check whether ReceivedData is different from the LastReceivedData
 						//Otherwise stop forwarding this message
 						dataChecksum := crc32.ChecksumIEEE(dataAsJson)
 						if subscription.LastReceivedDataChecksum == dataChecksum {
 							return false
 						}
+
+						lastDataChecksumWas := subscription.LastReceivedDataChecksum
+						cacheKey := fmt.Sprintf("%s-%s-%v-%v", string(subscription.Type), subscription.OperationName, subscription.LastReceivedDataChecksum, dataChecksum)
 
 						//Store LastReceivedData Checksum
 						subscription.LastReceivedDataChecksum = dataChecksum
@@ -110,7 +126,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 
 						//Apply msg patch when it supports it
 						if subscription.JsonPatchSupported {
-							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn)
+							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn, cacheKey, lastDataChecksumWas, dataChecksum)
 						}
 					}
 				}

@@ -1,5 +1,5 @@
 import {
-  ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject,
+  ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject, ApolloLink,
 } from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
@@ -20,6 +20,32 @@ interface Response {
   graphqlWebsocketUrl: string;
   }
 }
+
+const DEFAULT_MAX_MUTATION_PAYLOAD_SIZE = 10485760; // 10MB
+const getMaxMutationPayloadSize = () => window.meetingClientSettings?.public?.app?.maxMutationPayloadSize
+  ?? DEFAULT_MAX_MUTATION_PAYLOAD_SIZE;
+
+const estimatePayloadSize = (variables: Record<string, unknown>) => {
+  const variablesAsString = JSON.stringify(variables);
+  const variablesAsBlob = new Blob([variablesAsString]);
+  return variablesAsBlob.size;
+};
+
+const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
+  if (operation.query.definitions.some((def) => 'operation' in def && def.operation === 'mutation')) {
+    const size = estimatePayloadSize(operation.variables);
+    const maxPayloadSize = getMaxMutationPayloadSize();
+
+    if (size > maxPayloadSize) {
+      const errorMsg = `Mutation payload is too large: ${size} bytes. ${maxPayloadSize} maximum allowed.`;
+      logger.warn(errorMsg);
+      return null;
+    }
+  }
+
+  logger.debug(`Valid ${operation.operationName} payload. Following with the query.`);
+  return forward(operation);
+});
 
 const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): React.ReactNode => {
   const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
@@ -72,6 +98,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         wsLink = new WebSocketLink(
           subscription,
         );
+        wsLink = ApolloLink.from([payloadSizeCheckLink, wsLink]);
         wsLink.setOnError((error) => {
           loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));

@@ -49,11 +49,11 @@ const intlMessages = defineMessages({
   },
   songs: {
     id: 'app.timer.songs',
-    description: 'Songs title label',
+    description: 'Musics title label',
   },
   noTrack: {
     id: 'app.timer.noTrack',
-    description: 'No track radio label',
+    description: 'No music radio label',
   },
   track1: {
     id: 'app.timer.track1',

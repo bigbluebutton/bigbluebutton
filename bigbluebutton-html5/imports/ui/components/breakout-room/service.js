@@ -2,8 +2,8 @@ import Breakouts from '/imports/api/breakouts';
 import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
-import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UploadingPresentations } from '/imports/api/presentations';
+import Users from '/imports/api/users';
 
 const findBreakouts = () => {
   const BreakoutRooms = Breakouts.find(
@@ -143,7 +143,7 @@ const getBreakoutUserWasIn = (userId, extId) => {
     selector.userId = userId;
   }
 
-  const users = UsersPersistentData.find(
+  const users = Users.find(
     selector,
     { fields: { userId: 1, lastBreakoutRoom: 1 } },
   ).fetch();
