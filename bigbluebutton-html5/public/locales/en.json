@@ -1469,6 +1469,7 @@
     "app.layout.modal.layoutBtnDesc": "Sets layout as selected option",
     "app.layout.modal.layoutToastLabelAuto": "Auto layout updates enabled, layout updates are now applied to everyone",
     "app.layout.modal.layoutToastLabelAutoOff": "Auto layout updates disabled",
+    "app.layout.modal.layoutNotAvailable": "Layout not available on your device.",
     "app.layout.style.custom": "Custom layout",
     "app.layout.style.smart": "Smart layout",
     "app.layout.style.presentationFocus": "Focus on presentation",
