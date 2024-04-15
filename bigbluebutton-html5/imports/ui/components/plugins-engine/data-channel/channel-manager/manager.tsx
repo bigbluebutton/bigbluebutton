@@ -15,21 +15,6 @@ export interface DataChannelItemManagerProps {
   dataChannelTypes: DataChannelTypes[];
 }
 
-export interface MutationVariables {
-  pluginName: string,
-  dataChannel: string,
-  payloadJson: string,
-  toRoles: PluginSdk.DataChannelDispatcherUserRole[],
-  toUserIds: string[],
-}
-
-export interface SubscriptionVariables {
-  subChannelName: string;
-  pluginName: string;
-  channelName: string;
-  createdAt?: string;
-}
-
 export const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (
   props: DataChannelItemManagerProps,
 ) => {

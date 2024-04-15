@@ -258,8 +258,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     return undefined;
   }, []);
 
-  // --- Plugin related code ---;
   const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
+
+  // --- Plugin related code ---;
   if (internalPlayer && internalPlayer?.isMuted
     && typeof internalPlayer?.isMuted === 'function'
     && internalPlayer?.isMuted() !== isMuted.current) {

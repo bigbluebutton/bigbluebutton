@@ -28,7 +28,7 @@ import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
-import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.common2.msgs.{ PluginDataChannelDeleteEntryMsgBody, _ }
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
@@ -603,8 +603,8 @@ class MeetingActor(
         updateUserLastActivity(m.body.msg.sender.id)
 
       // Plugin
-      case m: PluginDataChannelDispatchMessageMsg => pluginHdlrs.handle(m, state, liveMeeting)
-      case m: PluginDataChannelDeleteMessageMsg   => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelPushEntryMsg       => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelDeleteEntryMsg     => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelResetMsg           => pluginHdlrs.handle(m, state, liveMeeting)
 
       // Webcams

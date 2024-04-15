@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client';
 
 export const PLUGIN_DATA_CHANNEL_DISPATCH_MUTATION = gql`
-  mutation PluginDataChannelDispatchMessage($pluginName: String!, 
-    $subChannelName: String!, $dataChannel: String!, $payloadJson: String!,
+  mutation PluginDataChannelPushEntry($pluginName: String!, 
+    $subChannelName: String!, $channelName: String!, $payloadJson: String!,
     $toRoles: [String]!, $toUserIds: [String]!) {
-      pluginDataChannelDispatchMessage(
+      pluginDataChannelPushEntry(
         pluginName: $pluginName,
-        dataChannel: $dataChannel,
+        channelName: $channelName,
         subChannelName: $subChannelName,
         payloadJson: $payloadJson,
         toRoles: $toRoles,
@@ -16,22 +16,22 @@ export const PLUGIN_DATA_CHANNEL_DISPATCH_MUTATION = gql`
 `;
 
 export const PLUGIN_DATA_CHANNEL_RESET_MUTATION = gql`
-  mutation PluginDataChannelReset($pluginName: String!, $dataChannel: String!, $subChannelName: String!) {
+  mutation PluginDataChannelReset($pluginName: String!, $channelName: String!, $subChannelName: String!) {
     pluginDataChannelReset(
       pluginName: $pluginName,
-      dataChannel: $dataChannel,
+      channelName: $channelName,
       subChannelName: $subChannelName
     )
   }
 `;
 
 export const PLUGIN_DATA_CHANNEL_DELETE_MUTATION = gql`
-  mutation PluginDataChannelDeleteMessage($pluginName: String!,
-    $dataChannel: String!, $messageId: String!, $subChannelName: String!) {
-    pluginDataChannelDeleteMessage(
+  mutation PluginDataChannelDeleteEntry($pluginName: String!,
+    $channelName: String!, $entryId: String!, $subChannelName: String!) {
+    pluginDataChannelDeleteEntry(
       pluginName: $pluginName,
-      dataChannel: $dataChannel,
-      messageId: $messageId,
+      channelName: $channelName,
+      entryId: $entryId,
       subChannelName: $subChannelName
     )
   }

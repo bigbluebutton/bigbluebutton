@@ -22,7 +22,7 @@ export interface DataChannelItemManagerWriterProps {
 
 export interface MutationVariables {
   pluginName: string,
-  dataChannel: string,
+  channelName: string,
   payloadJson: string,
   toRoles: PluginSdk.DataChannelDispatcherUserRole[],
   toUserIds: string[],
@@ -54,7 +54,7 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
     const argumentsOfDispatcher = {
       variables: {
         pluginName,
-        dataChannel: channelName,
+        channelName,
         subChannelName,
         payloadJson: JSON.stringify(msg),
         toRoles: [],
@@ -96,7 +96,7 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
         deletePluginDataChannelMessage({
           variables: {
             pluginName: hookArguments?.pluginName,
-            dataChannel: hookArguments?.channelName,
+            channelName: hookArguments?.channelName,
             messageId: eventDetails.data,
             subChannelName,
           },
@@ -107,7 +107,7 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
         resetPluginDataChannelMessage({
           variables: {
             pluginName: hookArguments?.pluginName,
-            dataChannel: hookArguments?.channelName,
+            channelName: hookArguments?.channelName,
             subChannelName,
           },
         });

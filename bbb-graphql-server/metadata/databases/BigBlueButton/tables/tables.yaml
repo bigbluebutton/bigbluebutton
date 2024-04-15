@@ -25,7 +25,7 @@
 - "!include public_v_meeting_usersPolicies.yaml"
 - "!include public_v_meeting_voiceSettings.yaml"
 - "!include public_v_notification.yaml"
-- "!include public_v_pluginDataChannelMessage.yaml"
+- "!include public_v_pluginDataChannelEntry.yaml"
 - "!include public_v_poll.yaml"
 - "!include public_v_poll_option.yaml"
 - "!include public_v_poll_response.yaml"

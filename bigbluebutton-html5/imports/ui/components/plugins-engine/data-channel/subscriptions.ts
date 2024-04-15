@@ -1,20 +1,20 @@
 import { gql } from '@apollo/client';
 
 const PLUGIN_DATA_CHANNEL_NEW_ITEMS = gql`
-  subscription FetchPluginDataChannelMessageMsg($pluginName: String!,
+  subscription FetchPluginDataChannelEntryMsg($pluginName: String!,
     $channelName: String! , $createdAt: timestamptz!, $subChannelName: String!){
-    pluginDataChannelMessage_stream(
+    pluginDataChannelEntry_stream(
       cursor: {initial_value: {createdAt: $createdAt}}, batch_size: 100,
       where: {
         pluginName: { _eq: $pluginName }
-        dataChannel: { _eq: $channelName }
+        channelName: { _eq: $channelName }
         subChannelName: { _eq: $subChannelName }
       }
     ) {
       createdAt,
-      dataChannel,
+      channelName,
       subChannelName,
-      messageId,
+      entryId,
       payloadJson,
       fromUserId,
       pluginName,
@@ -24,21 +24,21 @@ const PLUGIN_DATA_CHANNEL_NEW_ITEMS = gql`
 `;
 
 const PLUGIN_DATA_CHANNEL_All_ITEMS = gql`
-  subscription FetchPluginDataChannelMessageMsg($pluginName: String!,
+  subscription FetchPluginDataChannelEntryMsg($pluginName: String!,
     $channelName: String!, $subChannelName: String!
   ){
-    pluginDataChannelMessage(
+    pluginDataChannelEntry(
       order_by: {createdAt: desc},
       where: {
         pluginName: { _eq: $pluginName }
-        dataChannel: { _eq: $channelName }
+        channelName: { _eq: $channelName }
         subChannelName: { _eq: $subChannelName }
       }
     ) {
       createdAt,
-      dataChannel,
+      channelName,
       subChannelName,
-      messageId,
+      entryId,
       payloadJson,
       fromUserId,
       pluginName,
@@ -48,22 +48,22 @@ const PLUGIN_DATA_CHANNEL_All_ITEMS = gql`
 `;
 
 const PLUGIN_DATA_CHANNEL_LATEST_ITEM = gql`
-  subscription FetchPluginDataChannelMessageMsg($pluginName: String!,
+  subscription FetchPluginDataChannelEntryMsg($pluginName: String!,
     $channelName: String!, $subChannelName: String!
   ){
-    pluginDataChannelMessage(
+    pluginDataChannelEntry(
       order_by: {createdAt: desc},
       limit: 1,
       where: {
         pluginName: { _eq: $pluginName }
-        dataChannel: { _eq: $channelName }
+        channelName: { _eq: $channelName }
         subChannelName: { _eq: $subChannelName }
       }
     ) {
       createdAt,
-      dataChannel,
+      channelName,
       subChannelName,
-      messageId,
+      entryId,
       payloadJson,
       fromUserId,
       pluginName,

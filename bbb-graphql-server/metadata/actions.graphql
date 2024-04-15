@@ -201,19 +201,19 @@ type Mutation {
 }
 
 type Mutation {
-  pluginDataChannelDeleteMessage(
+  pluginDataChannelDeleteEntry(
     pluginName: String!
-    dataChannel: String!
+    channelName: String!
     subChannelName: String!
-    messageId: String!
+    entryId: String!
   ): Boolean
 }
 
 type Mutation {
-  pluginDataChannelDispatchMessage(
+  pluginDataChannelPushEntry(
     pluginName: String!
     subChannelName: String!
-    dataChannel: String!
+    channelName: String!
     payloadJson: String!
     toRoles: [String]!
     toUserIds: [String]!
@@ -223,7 +223,7 @@ type Mutation {
 type Mutation {
   pluginDataChannelReset(
     pluginName: String!
-    dataChannel: String!
+    channelName: String!
     subChannelName: String!
   ): Boolean
 }

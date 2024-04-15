@@ -1,10 +1,10 @@
 table:
-  name: v_pluginDataChannelMessage
+  name: v_pluginDataChannelEntry
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: pluginDataChannelMessage
+  custom_name: pluginDataChannelEntry
   custom_root_fields: {}
 object_relationships:
   - name: sender
@@ -23,8 +23,8 @@ select_permissions:
         - createdAt
         - pluginName
         - subChannelName
-        - dataChannel
-        - messageId
+        - channelName
+        - entryId
         - payloadJson
         - fromUserId
         - toRoles
