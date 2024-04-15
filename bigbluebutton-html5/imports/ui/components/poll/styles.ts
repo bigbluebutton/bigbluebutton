@@ -580,6 +580,16 @@ const THeading = styled.th`
   }
 `;
 
+const DndTextArea = styled.textarea<{ active: boolean }>`
+  ${({ active }) => active && `
+    background: ${colorGrayLighter};
+  `}
+
+  ${({ active }) => !active && `
+    background: ${colorWhite};
+  `}
+`;
+
 export default {
   ToggleLabel,
   PollOptionInput,
@@ -631,4 +641,5 @@ export default {
   LiveResultButton,
   Separator,
   THeading,
+  DndTextArea,
 };

@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { useMutation } from '@apollo/client';
 import Styled from '../styles';
 import { pollTypes, checkPollType } from '../service';
-import { POLL_CREATE } from '../mutation';
+import { POLL_CREATE } from '../mutations';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;

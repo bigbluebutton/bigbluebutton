@@ -530,30 +530,11 @@ class VideoService {
   }
 
   getGridUsers(users, streams) {
-    const pageSize = this.getMyPageSize();
-    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
-
     const isGridEnabled = this.isGridEnabled();
     let gridUsers = [];
 
-    if (isPaginationDisabled) {
-      if (isGridEnabled) {
-        const streamUsers = streams.map((stream) => stream.userId);
-
-        gridUsers = users.filter(
-          (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
-        ).map((user) => ({
-          isGridItem: true,
-          ...user,
-        }));
-      }
-
-      return gridUsers;
-    }
-    const paginatedStreams = this.getVideoPage(streams, pageSize);
-
     if (isGridEnabled) {
-      const streamUsers = paginatedStreams.map((stream) => stream.userId);
+      const streamUsers = streams.map((stream) => stream.userId);
 
       gridUsers = users.filter(
         (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),

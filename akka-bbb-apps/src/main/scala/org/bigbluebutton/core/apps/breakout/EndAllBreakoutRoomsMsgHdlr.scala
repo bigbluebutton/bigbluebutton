@@ -6,9 +6,8 @@ import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.UserBreakoutRoomDAO
+import org.bigbluebutton.core.db.{ BreakoutRoomDAO, NotificationDAO, UserBreakoutRoomDAO }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import org.bigbluebutton.core.db.BreakoutRoomDAO
 
 trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -39,6 +38,7 @@ trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
           Vector()
         )
         outGW.send(notifyEvent)
+        NotificationDAO.insert(notifyEvent)
       }
       BreakoutRoomDAO.updateRoomsEnded(meetingId)
       state.update(None)
