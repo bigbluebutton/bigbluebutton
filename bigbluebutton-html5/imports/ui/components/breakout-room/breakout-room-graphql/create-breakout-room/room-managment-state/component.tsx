@@ -46,50 +46,61 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   const [init, setInit] = useState<boolean>(false);
   const [movementRegistered, setMovementRegistered] = useState<moveUserRegistery>({});
 
-  const moveUser = (userId: string, from: number, to: number) => {
-    const room = rooms[to];
-    const roomFrom = rooms[Number(from)];
+  // accepts one or multiple users
+  const moveUser = (userId: string | string[], from: number | number[], to: number | number[]) => {
+    const userIds = Array.isArray(userId) ? userId : [userId];
+    const fromRooms = Array.isArray(from) ? from : [from];
+    const toRooms = Array.isArray(to) ? to : [to];
 
-    if (from === to) return null;
-    setMovementRegistered({
-      ...movementRegistered,
-      [userId]: {
-        fromSequence: from,
-        toSequence: to,
-        toRoomId: runningRooms?.find((r) => r.sequence === to)?.breakoutRoomId,
-        fromRoomId: runningRooms?.find((r) => r.sequence === from)?.breakoutRoomId,
-      },
-    });
+    let updatedMovementRegistered = { ...movementRegistered };
+    const updatedRooms = { ...rooms };
 
-    if (!rooms[to]) {
-      const oldStateRooms = { ...rooms };
-      oldStateRooms[from].users = (oldStateRooms[from].users.filter((user) => user.userId !== userId) || []);
-      return setRooms({
-        ...oldStateRooms,
-        [to]: {
-          id: to,
+    userIds.forEach((id, index) => {
+      const fromRoom = fromRooms[index] || fromRooms[0];
+      const toRoom = toRooms[index] || toRooms[0];
+
+      const room = updatedRooms[toRoom];
+      const roomFrom = updatedRooms[Number(fromRoom)];
+
+      if (fromRoom === toRoom) return null;
+
+      updatedMovementRegistered = {
+        ...updatedMovementRegistered,
+        [id]: {
+          fromSequence: fromRoom,
+          toSequence: toRoom,
+          toRoomId: runningRooms?.find((r) => r.sequence === toRoom)?.breakoutRoomId,
+          fromRoomId: runningRooms?.find((r) => r.sequence === fromRoom)?.breakoutRoomId,
+        },
+      };
+
+      if (!updatedRooms[toRoom]) {
+        updatedRooms[fromRoom].users = (updatedRooms[fromRoom].users.filter((user) => user.userId !== id) || []);
+        updatedRooms[toRoom] = {
+          id: toRoom,
           name: intl.formatMessage(intlMessages.breakoutRoom, {
-            0: to,
+            0: toRoom,
           }),
-          users: [users.find((user) => user.userId === userId)],
-        } as Room,
-      });
-    }
-
-    return setRooms({
-      ...rooms,
-      [to]: {
-        ...room,
-        users: [
-          ...(room?.users ?? []),
-          roomFrom?.users?.find((user) => user.userId === userId),
-        ],
-      } as Room,
-      [Number(from)]: {
-        ...roomFrom,
-        users: roomFrom?.users.filter((user) => user.userId !== userId),
-      } as Room,
+          users: [users.find((user) => user.userId === id)],
+        } as Room;
+      } else {
+        updatedRooms[toRoom] = {
+          ...room,
+          users: [
+            ...(room?.users ?? []),
+            roomFrom?.users?.find((user) => user.userId === id),
+          ],
+        } as Room;
+        updatedRooms[fromRoom] = {
+          ...roomFrom,
+          users: roomFrom?.users.filter((user) => user.userId !== id),
+        } as Room;
+      }
+      return null;
     });
+
+    setMovementRegistered(updatedMovementRegistered);
+    setRooms(updatedRooms);
   };
 
   const roomName = (room: number) => {
@@ -119,10 +130,9 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
 
   const randomlyAssign = () => {
     const withoutModerators = rooms[0].users.filter((user) => !user.isModerator);
-    withoutModerators.forEach((user) => {
-      const randomRoom = Math.floor(Math.random() * numberOfRooms) + 1;
-      moveUser(user.userId, 0, randomRoom);
-    });
+    const userIds = withoutModerators.map((user) => user.userId);
+    const randomRooms = withoutModerators.map(() => Math.floor(Math.random() * numberOfRooms) + 1);
+    moveUser(userIds, 0, randomRooms);
   };
 
   const resetRooms = (cap: number) => {
