@@ -1,7 +1,7 @@
 const { default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const { MultiUsers } = require('../user/multiusers');
-const { startScreenshare } = require('./util');
+const { startScreenshare, getFrame } = require('./util');
 const e = require('../core/elements');
 const { getSettings } = require('../core/settings');
 
@@ -23,6 +23,31 @@ class ScreenShare extends Page {
 
   async testMobileDevice() {
     await this.wasRemoved(e.startScreenSharing);
+  }
+
+  async screenshareStopsExternalVideo() {
+    const { screensharingEnabled } = getSettings();
+
+    if(!screensharingEnabled) {
+      await this.hasElement(e.joinVideo);
+      return this.wasRemoved(e.startScreenSharing);
+    }
+
+    await this.waitAndClick(e.actions);
+    await this.waitAndClick(e.shareExternalVideoBtn);
+    await this.waitForSelector(e.closeModal);
+    await this.type(e.videoModalInput, e.youtubeLink);
+    await this.waitAndClick(e.startShareVideoBtn);
+
+    const modFrame = await getFrame(this, e.youtubeFrame);
+    await modFrame.hasElement('video');
+
+    await startScreenshare(this);
+    await this.hasElement(e.isSharingScreen);
+
+    await this.hasElement(e.stopScreenSharing);
+    await this.waitAndClick(e.stopScreenSharing);
+    await this.hasElement(e.whiteboard);
   }
 }
 
