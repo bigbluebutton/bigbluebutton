@@ -145,8 +145,11 @@ export default function Whiteboard(props) {
     } else {
       setIsPanning(false);
       setPanSelected(false);
-      panButton.classList.add('selectOverride');
-      panButton.classList.remove('select');
+      if (panButton) {
+        // only presenter has the pan button
+        panButton.classList.add('selectOverride');
+        panButton.classList.remove('select');
+      }
     }
   };
 
