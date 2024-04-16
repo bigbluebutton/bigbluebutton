@@ -35,10 +35,11 @@ object SharedNotesSessionDAO {
       }
   }
 
-  def delete(intId: String, sessionId: String) = {
+  def delete(meetingId: String, userId: String, sessionId: String) = {
     DatabaseConnection.db.run(
       TableQuery[SharedNotesSessionDbTableDef]
-        .filter(_.userId === intId)
+        .filter(_.meetingId === meetingId)
+        .filter(_.userId === userId)
         .filter(_.sessionId === sessionId)
         .delete
     ).onComplete {

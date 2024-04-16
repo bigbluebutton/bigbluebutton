@@ -6,9 +6,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 case class UserDbModel(
+    meetingId:              String,
     userId:                 String,
     extId:                  String,
-    meetingId:              String,
     name:                   String,
     role:                   String,
     avatar:                 String = "",
@@ -32,10 +32,11 @@ case class UserDbModel(
 
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
-    userId,extId,meetingId,name,role,avatar,color, sessionToken, authToken, authed,joined,joinErrorCode, joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
+    meetingId,userId,extId,name,role,avatar,color, sessionToken, authToken, authed,joined,joinErrorCode,
+    joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
+  val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
-  val meetingId = column[String]("meetingId")
   val name = column[String]("name")
   val role = column[String]("role")
   val avatar = column[String]("avatar")
@@ -89,7 +90,7 @@ object UserDAO {
         case Success(rowsAffected) => {
           DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in User table!")
           UserConnectionStatusDAO.insert(meetingId, regUser.id)
-          UserCustomParameterDAO.insert(regUser.id, regUser.customParameters)
+          UserCustomParameterDAO.insert(meetingId, regUser.id, regUser.customParameters)
           UserClientSettingsDAO.insert(regUser.id, meetingId)
           ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
         }
@@ -100,6 +101,7 @@ object UserDAO {
   def update(regUser: RegisteredUser) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
+        .filter(_.meetingId === regUser.meetingId)
         .filter(_.userId === regUser.id)
         .map(u => (u.guest, u.guestStatus, u.role, u.authed, u.joined, u.banned, u.loggedOut))
         .update((regUser.guest, regUser.guestStatus, regUser.role, regUser.authed, regUser.joined, regUser.banned, regUser.loggedOut))
@@ -113,6 +115,7 @@ object UserDAO {
 
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
+        .filter(_.meetingId === voiceUserState.meetingId)
         .filter(_.userId === voiceUserState.intId)
         .map(u => (u.guest, u.guestStatus, u.authed, u.joined))
         .update((false, "ALLOW", true, true))
@@ -122,9 +125,10 @@ object UserDAO {
     }
   }
 
-  def updateJoinError(userId: String, joinErrorCode: String, joinErrorMessage: String) = {
+  def updateJoinError(meetingId: String, userId: String, joinErrorCode: String, joinErrorMessage: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
+        .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .map(u => (u.joined, u.joinErrorCode, u.joinErrorMessage))
         .update((false, Some(joinErrorCode), Some(joinErrorMessage)))
@@ -134,11 +138,11 @@ object UserDAO {
     }
   }
 
-
-  def softDelete(intId: String) = {
+  def softDelete(meetingId: String, userId: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
-        .filter(_.userId === intId)
+        .filter(_.meetingId === meetingId)
+        .filter(_.userId === userId)
         .map(u => (u.loggedOut))
         .update((true))
     ).onComplete {

@@ -55,7 +55,7 @@ object FakeUserGenerator {
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
     val color = "#ff6242"
 
-    val ru = RegisteredUsers.create(userId = id, extId, name, role,
+    val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
       authToken, sessionToken, avatarURL, color, guest, authed, guestStatus = GuestStatus.ALLOW, false, "", Map(), false)
     RegisteredUsers.add(users, ru, meetingId)
     ru
@@ -65,22 +65,50 @@ object FakeUserGenerator {
                           listenOnly: Boolean, floor: Boolean = false): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val lastFloorTime = System.currentTimeMillis().toString();
-    VoiceUserState(intId = user.id, voiceUserId = voiceUserId, callingWith, callerName = user.name,
-      callerNum = user.name, "#ff6242", muted, talking, listenOnly, "freeswitch", System.currentTimeMillis(), floor, lastFloorTime,
+    VoiceUserState(
+      intId = user.id,
+      voiceUserId = voiceUserId,
+      meetingId = user.meetingId,
+      callingWith,
+      callerName = user.name,
+      callerNum = user.name,
+      "#ff6242",
+      muted,
+      talking,
+      listenOnly,
+      "freeswitch",
+      System.currentTimeMillis(),
+      floor,
+      lastFloorTime,
       false,
-      "9b3f4504-275d-4315-9922-21174262d88c")
+      "9b3f4504-275d-4315-9922-21174262d88c"
+    )
   }
 
-  def createFakeVoiceOnlyUser(callingWith: String, muted: Boolean, talking: Boolean,
+  def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, talking: Boolean,
                               listenOnly: Boolean, floor: Boolean = false): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
     val name = getRandomElement(firstNames, random) + " " + getRandomElement(lastNames, random)
     val lastFloorTime = System.currentTimeMillis().toString();
-    VoiceUserState(intId, voiceUserId = voiceUserId, callingWith, callerName = name,
-      callerNum = name, "#ff6242", muted, talking, listenOnly, "freeswitch", System.currentTimeMillis(), floor, lastFloorTime,
-      false,
-      "9b3f4504-275d-4315-9922-21174262d88c")
+    VoiceUserState(
+      intId,
+      voiceUserId = voiceUserId,
+      meetingId = "",
+      callingWith,
+      callerName = name,
+      callerNum = name,
+      "#ff6242",
+      muted,
+      talking,
+      listenOnly,
+      "freeswitch",
+      System.currentTimeMillis(),
+      floor,
+      lastFloorTime,
+      hold = false,
+      "9b3f4504-275d-4315-9922-21174262d88c"
+    )
   }
 
   def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {

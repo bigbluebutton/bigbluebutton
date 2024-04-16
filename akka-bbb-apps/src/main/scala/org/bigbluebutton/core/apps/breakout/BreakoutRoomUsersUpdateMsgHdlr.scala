@@ -53,8 +53,8 @@ trait BreakoutRoomUsersUpdateMsgHdlr {
         breakoutRoomUser <- updatedRoom.users
         u <- RegisteredUsers.findWithBreakoutRoomId(breakoutRoomUser.id, liveMeeting.registeredUsers)
       } yield u.id
-      UserBreakoutRoomDAO.updateLastBreakoutRoom(usersInRoom, updatedRoom)
-      BreakoutRoomUserDAO.updateUserJoined(usersInRoom, updatedRoom)
+      UserBreakoutRoomDAO.updateLastBreakoutRoom(props.meetingProp.intId, usersInRoom, updatedRoom)
+      BreakoutRoomUserDAO.updateUserJoined(props.meetingProp.intId, usersInRoom, updatedRoom)
       model.update(updatedRoom)
     }
 
