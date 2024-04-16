@@ -83,7 +83,7 @@ class WhiteboardModel extends SystemConfiguration {
       }
     }
 
-    PresAnnotationDAO.insertOrUpdateMap(newAnnotationsMap)
+    PresAnnotationDAO.insertOrUpdateMap(annotationsAdded)
 
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
