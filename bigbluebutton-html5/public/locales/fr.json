@@ -23,7 +23,7 @@
     "app.chat.offline": "Déconnecté",
     "app.chat.pollResult": "Résultats du sondage",
     "app.chat.breakoutDurationUpdated": "Le temps restant aux groupes de travail est désormais de {0} minutes",
-    "app.chat.breakoutDurationUpdatedModerator": "Le temps en groupe de travail est de {0} minutes; une notification a été envoyée",
+    "app.chat.breakoutDurationUpdatedModerator": "Le temps en groupe de travail est de {0} minutes, une notification a été envoyée",
     "app.chat.emptyLogLabel": "Journal de discussion vide",
     "app.chat.away": "Est absent",
     "app.chat.notAway": "N'est plus absent",
