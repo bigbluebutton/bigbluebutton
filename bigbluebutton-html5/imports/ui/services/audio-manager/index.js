@@ -29,8 +29,6 @@ const STATS = window.meetingClientSettings.public.stats;
 const MEDIA = window.meetingClientSettings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-const MAX_LISTEN_ONLY_RETRIES = 1;
-const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
   window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
@@ -396,7 +394,7 @@ class AudioManager {
                 errorName: error.name,
                 errorMessage: error.message,
               },
-            }, `Error getting microphone - {${name}: ${message}}`);
+            }, `Error enabling audio - {${name}: ${message}}`);
             break;
         }
 
@@ -407,17 +405,11 @@ class AudioManager {
     });
   }
 
-  async joinListenOnly(r = 0) {
+  async joinListenOnly() {
     this.audioJoinStartTime = new Date();
     this.logAudioJoinTime = false;
-    let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
-
-    const callOptions = {
-      isListenOnly: true,
-      extension: null,
-    };
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
@@ -428,60 +420,20 @@ class AudioManager {
       iosWebviewAudioPolyfills();
     }
 
-    // We need this until we upgrade to SIP 9x. See #4690
-    const listenOnlyCallTimeoutErr = 'SIP_CALL_TIMEOUT';
-
-    const iceGatheringTimeout = new Promise((resolve, reject) => {
-      setTimeout(reject, LISTEN_ONLY_CALL_TIMEOUT_MS, listenOnlyCallTimeoutErr);
-    });
-
-    const handleListenOnlyError = (err) => {
-      if (iceGatheringTimeout) {
-        clearTimeout(iceGatheringTimeout);
-      }
-
-      const errorReason =
-        (typeof err === 'string' ? err : undefined) || err.errorReason || err.errorMessage;
-
-      logger.error(
-        {
-          logCode: 'audiomanager_listenonly_error',
-          extraInfo: {
-            errorReason,
-            audioBridge: this.bridge?.bridgeName,
-            retries,
-          },
-        },
-        `Listen only error - ${errorReason} - bridge: ${this.bridge?.bridgeName}`
-      );
-    };
-
-    logger.info(
-      {
-        logCode: 'audiomanager_join_listenonly',
-        extraInfo: { logType: 'user_action' },
-      },
-      'user requested to connect to audio conference as listen only'
-    );
+    logger.info({
+      logCode: 'audiomanager_join_listenonly',
+      extraInfo: { logType: 'user_action' },
+    }, 'user requested to connect to audio conference as listen only');
 
     window.addEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    return this.onAudioJoining()
-      .then(() =>
-        Promise.race([
-          this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
-          iceGatheringTimeout,
-        ])
-      )
-      .catch(async (err) => {
-        handleListenOnlyError(err);
-
-        if (retries < MAX_LISTEN_ONLY_RETRIES) {
-          retries += 1;
-          this.joinListenOnly(retries);
-        }
-
-        return null;
+    return this.onAudioJoining.bind(this)()
+      .then(() => {
+        const callOptions = {
+          isListenOnly: true,
+          extension: null,
+        };
+        return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
