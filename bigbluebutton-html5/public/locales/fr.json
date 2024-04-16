@@ -32,7 +32,7 @@
     "app.chat.someone.typing": "Quelqu'un est en train d'écrire",
     "app.chat.one.typing": "{0} est en train d'écrire",
     "app.chat.two.typing": "{0} et {1} sont en train d'écrire",
-    "app.chat.copySuccess": "La transcription de la discussion est  copiée",
+    "app.chat.copySuccess": "La transcription de la discussion est copiée",
     "app.chat.copyErr": "La copie de la transcription de la discussion a échouée",
     "app.timer.toolTipTimerStopped": "Le minuteur est arrêté",
     "app.timer.toolTipTimerRunning": "Le minuteur est déclenché",
