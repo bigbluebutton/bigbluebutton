@@ -1,7 +1,7 @@
 {
     "app.home.greeting": "Votre présentation commencera dans quelques instants...",
     "app.chat.submitLabel": "Envoyer le message",
-    "app.chat.loading": "Messages de discussion chargés: {0}%",
+    "app.chat.loading": "Messages de la discussion chargés: {0}%",
     "app.chat.errorMaxMessageLength": "Le message est trop long, il excède le maximum de {0} caractères. ",
     "app.chat.disconnected": "Vous êtes déconnecté, les messages ne peuvent pas être envoyés",
     "app.chat.locked": "La discussion est verrouillée, les messages ne peuvent pas être envoyés",
