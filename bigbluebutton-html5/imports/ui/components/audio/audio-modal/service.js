@@ -48,19 +48,15 @@ export const joinListenOnly = () => {
   Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, false);
   Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, true);
 
-  const call = new Promise((resolve) => {
-    Service.joinListenOnly().then(() => {
-      // Autoplay block wasn't triggered. Close the modal. If autoplay was
-      // blocked, that'll be handled in the modal component when then
-      // prop transitions to a state where it was handled OR the user opts
-      // to close the modal.
-      if (!Service.autoplayBlocked()) {
-        document.dispatchEvent(new Event("CLOSE_MODAL_AUDIO"));
-      }
-      resolve();
-    });
-  });
-  return call.catch((error) => {
+  return Service.joinListenOnly().then(() => {
+    // Autoplay block wasn't triggered. Close the modal. If autoplay was
+    // blocked, that'll be handled in the modal component when then
+    // prop transitions to a state where it was handled OR the user opts
+    // to close the modal.
+    if (!Service.autoplayBlocked()) {
+      document.dispatchEvent(new Event("CLOSE_MODAL_AUDIO"));
+    }
+  }).catch((error) => {
     throw error;
   });
 };
