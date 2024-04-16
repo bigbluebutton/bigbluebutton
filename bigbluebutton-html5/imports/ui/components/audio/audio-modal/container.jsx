@@ -100,5 +100,6 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
     isRTL,
     AudioError,
     getTroubleshootingLink: AudioModalService.getTroubleshootingLink,
+    isListenOnly: Service.isListenOnly(),
   });
 })(AudioModalContainer));

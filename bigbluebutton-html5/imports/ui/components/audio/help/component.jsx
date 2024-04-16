@@ -7,6 +7,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  isListenOnly: PropTypes.bool.isRequired,
   audioErr: PropTypes.shape({
     code: PropTypes.number,
     message: PropTypes.string,
@@ -25,9 +26,13 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
-  helpSubtitle: {
-    id: 'app.audioModal.helpSubtitle',
-    description: 'Text description for the audio help subtitle',
+  helpSubtitleMic: {
+    id: 'app.audioModal.helpSubtitleMic',
+    description: 'Text description for the audio help subtitle (microphones)',
+  },
+  helpSubtitleGeneric: {
+    id: 'app.audioModal.helpSubtitleGeneric',
+    description: 'Text description for the audio help subtitle (generic)',
   },
   helpPermissionStep1: {
     id: 'app.audioModal.helpPermissionStep1',
@@ -68,6 +73,14 @@ const intlMessages = defineMessages({
 });
 
 class Help extends Component {
+  getSubtitle() {
+    const { intl, isListenOnly } = this.props;
+
+    return !isListenOnly
+      ? intl.formatMessage(intlMessages.helpSubtitleMic)
+      : intl.formatMessage(intlMessages.helpSubtitleGeneric);
+  }
+
   renderNoSSL() {
     const { intl } = this.props;
 
@@ -93,7 +106,7 @@ class Help extends Component {
     return (
       <>
         <Styled.Text>
-          {intl.formatMessage(intlMessages.helpSubtitle)}
+          {this.getSubtitle()}
         </Styled.Text>
         <Styled.PermissionHelpSteps>
           <li>{intl.formatMessage(intlMessages.helpPermissionStep1)}</li>
@@ -111,7 +124,7 @@ class Help extends Component {
     return (
       <>
         <Styled.Text>
-          {intl.formatMessage(intlMessages.helpSubtitle)}
+          {this.getSubtitle()}
         </Styled.Text>
         <Styled.Text>
           {intl.formatMessage(intlMessages.unknownError)}

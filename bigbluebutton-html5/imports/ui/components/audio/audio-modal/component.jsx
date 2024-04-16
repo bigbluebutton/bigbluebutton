@@ -38,6 +38,7 @@ const propTypes = {
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
   isUsingAudio: PropTypes.bool.isRequired,
+  isListenOnly: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
@@ -145,8 +146,7 @@ const AudioModal = (props) => {
   const [content, setContent] = useState(null);
   const [hasError, setHasError] = useState(false);
   const [disableActions, setDisableActions] = useState(false);
-  const [errCode, setErrCode] = useState(null);
-  const [errMessage, setErrMessage] = useState(null);
+  const [errorInfo, setErrorInfo] = useState(null);
   const [autoplayChecked, setAutoplayChecked] = useState(false);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
@@ -157,6 +157,7 @@ const AudioModal = (props) => {
     listenOnlyMode,
     audioLocked,
     isUsingAudio,
+    isListenOnly,
     autoplayBlocked,
     closeModal,
     isEchoTest,
@@ -199,20 +200,24 @@ const AudioModal = (props) => {
     }
   }, [autoplayBlocked]);
 
-  const handleJoinMicrophoneError = (err) => {
+  const handleJoinAudioError = (err) => {
     const { type, errCode, errMessage } = err;
 
     switch (type) {
       case 'MEDIA_ERROR':
         setContent('help');
-        setErrCode(errCode);
-        setErrMessage(errMessage);
+        setErrorInfo({
+          errCode,
+          errMessage,
+        });
         setDisableActions(false);
         break;
       case 'CONNECTION_ERROR':
       default:
-        setErrCode(errCode);
-        setErrMessage(type);
+        setErrorInfo({
+          errCode,
+          errMessage: type,
+        });
         setDisableActions(false);
         break;
     }
@@ -232,8 +237,10 @@ const AudioModal = (props) => {
 
     if (noSSL) {
       setContent('help');
-      setErrCode(MIC_ERROR.NO_SSL);
-      setErrMessage('NoSSL');
+      setErrorInfo({
+        errCode: MIC_ERROR.NO_SSL,
+        errMessage: 'NoSSL',
+      });
       return null;
     }
 
@@ -248,7 +255,7 @@ const AudioModal = (props) => {
       setContent('echoTest');
       setDisableActions(true);
     }).catch((err) => {
-      handleJoinMicrophoneError(err);
+      handleJoinAudioError(err);
     });
   };
 
@@ -267,6 +274,7 @@ const AudioModal = (props) => {
   const handleRetryGoToEchoTest = () => {
     setHasError(false);
     setContent(null);
+    setErrorInfo(null);
 
     return handleGoToEchoTest();
   };
@@ -285,14 +293,14 @@ const AudioModal = (props) => {
     if (disableActions && isConnecting) return null;
 
     setDisableActions(true);
+    setHasError(false);
+    setErrorInfo(null);
 
     return joinListenOnly().then(() => {
       setDisableActions(false);
       disableAwayMode();
     }).catch((err) => {
-      if (err.type === 'MEDIA_ERROR') {
-        setContent('help');
-      }
+      handleJoinAudioError(err);
     });
   };
 
@@ -301,11 +309,12 @@ const AudioModal = (props) => {
 
     setHasError(false);
     setDisableActions(true);
+    setErrorInfo(null);
 
     joinMicrophone().then(() => {
       setDisableActions(false);
     }).catch((err) => {
-      handleJoinMicrophoneError(err);
+      handleJoinAudioError(err);
     });
   };
 
@@ -401,8 +410,10 @@ const AudioModal = (props) => {
         ? AudioError.MIC_ERROR.NO_PERMISSION
         : 0;
       setContent('help');
-      setErrCode(code);
-      setErrMessage(error?.name || 'NotAllowedError');
+      setErrorInfo({
+        errCode: code,
+        errMessage: error?.name || 'NotAllowedError',
+      });
       setDisableActions(false);
     };
 
@@ -430,15 +441,16 @@ const AudioModal = (props) => {
   const renderHelp = () => {
     const audioErr = {
       ...AudioError,
-      code: errCode,
-      message: errMessage,
+      code: errorInfo?.errCode,
+      message: errorInfo?.errMessage,
     };
 
     return (
       <Help
         handleBack={handleGoToAudioOptions}
         audioErr={audioErr}
-        troubleshootingLink={getTroubleshootingLink(errCode)}
+        isListenOnly={isListenOnly}
+        troubleshootingLink={getTroubleshootingLink(errorInfo?.errCode)}
       />
     );
   };

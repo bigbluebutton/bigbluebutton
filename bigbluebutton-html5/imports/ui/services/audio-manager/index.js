@@ -363,28 +363,26 @@ class AudioManager {
         switch (name) {
           case 'NotAllowedError':
             errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
-            logger.error(
-              {
+            logger.error({
                 logCode: 'audiomanager_error_getting_device',
                 extraInfo: {
                   errorName: error.name,
                   errorMessage: error.message,
                 },
               },
-              `Error getting microphone - {${error.name}: ${error.message}}`
+              `Error getting microphone - {${error.name}: ${error.message}}`,
             );
             break;
           case 'NotFoundError':
             errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
-            logger.error(
-              {
+            logger.error({
                 logCode: 'audiomanager_error_device_not_found',
                 extraInfo: {
                   errorName: error.name,
                   errorMessage: error.message,
                 },
               },
-              `Error getting microphone - {${error.name}: ${error.message}}`
+              `Error getting microphone - {${error.name}: ${error.message}}`,
             );
             break;
           default:
@@ -398,11 +396,11 @@ class AudioManager {
             break;
         }
 
-      this.isConnecting = false;
-      this.isWaitingPermissions = false;
+        this.isConnecting = false;
+        this.isWaitingPermissions = false;
 
-      throw errorPayload;
-    });
+        throw errorPayload;
+      });
   }
 
   async joinListenOnly() {
