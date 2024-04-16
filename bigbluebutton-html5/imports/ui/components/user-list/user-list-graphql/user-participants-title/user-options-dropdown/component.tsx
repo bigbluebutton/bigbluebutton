@@ -1,4 +1,9 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, {
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+} from 'react';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainerGraphql from '../../../../breakout-room/breakout-room-graphql/create-breakout-room/component';
@@ -17,9 +22,10 @@ import {
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled, isCaptionsEnabled } from '/imports/ui/services/features';
-import { useMutation } from '@apollo/client';
+import { useMutation, useLazyQuery } from '@apollo/client';
 import { CLEAR_ALL_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SET_MUTED } from './mutations';
+import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 
@@ -183,6 +189,22 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
   const [clearAllEmoji] = useMutation(CLEAR_ALL_EMOJI);
   const [setMuted] = useMutation(SET_MUTED);
+  const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
+  const users = usersData?.user || [];
+
+  if (usersError) {
+    logger.error({
+      logCode: 'user_options_get_users_error',
+      extraInfo: { usersError },
+    }, 'Error fetching users names');
+  }
+
+  // users will only be fetched when getUsers is called
+  useEffect(() => {
+    if (users.length > 0) {
+      onSaveUserNames(intl, meetingName ?? '', users);
+    }
+  }, [users]);
 
   const toggleStatus = () => {
     clearAllEmoji();
@@ -264,7 +286,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         allow: isModerator,
         key: uuids.current[4],
         label: intl.formatMessage(intlMessages.saveUserNames),
-        onClick: onSaveUserNames.bind(null, intl, meetingName ?? ''),
+        onClick: () => getUsers(),
         icon: 'download',
         dataTest: 'downloadUserNamesList',
       },

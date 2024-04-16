@@ -10,7 +10,7 @@ import org.bigbluebutton.core.api.SendRecordingTimerInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.db.MeetingRecordingDAO
+import org.bigbluebutton.core.db.{ MeetingRecordingDAO, NotificationDAO }
 
 trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -49,6 +49,7 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
             Vector()
           )
           outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
 
           MeetingStatus2x.recordingStarted(liveMeeting.status)
           MeetingRecordingDAO.insertRecording(liveMeeting.props.meetingProp.intId, msg.body.setBy)
@@ -75,6 +76,7 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
             Vector()
           )
           outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
 
           MeetingStatus2x.recordingStopped(liveMeeting.status)
           MeetingRecordingDAO.updateStopped(liveMeeting.props.meetingProp.intId, msg.body.setBy)

@@ -7,8 +7,8 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.{ ChatMessageDAO, JsonUtils }
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.db.{ChatMessageDAO, JsonUtils, NotificationDAO}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import spray.json.DefaultJsonProtocol.jsonFormat2
 
@@ -37,6 +37,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
         Vector()
       )
       bus.outGW.send(notifyEvent)
+      NotificationDAO.insert(notifyEvent)
 
       // SendWhiteboardAnnotationPubMsg
       val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)

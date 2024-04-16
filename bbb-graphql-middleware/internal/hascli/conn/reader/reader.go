@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/retransmiter"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
@@ -114,6 +115,9 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 							return false
 						}
 
+						lastDataChecksumWas := subscription.LastReceivedDataChecksum
+						cacheKey := fmt.Sprintf("%s-%s-%v-%v", string(subscription.Type), subscription.OperationName, subscription.LastReceivedDataChecksum, dataChecksum)
+
 						//Store LastReceivedData Checksum
 						subscription.LastReceivedDataChecksum = dataChecksum
 						hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
@@ -122,7 +126,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 
 						//Apply msg patch when it supports it
 						if subscription.JsonPatchSupported {
-							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn)
+							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn, cacheKey, lastDataChecksumWas, dataChecksum)
 						}
 					}
 				}

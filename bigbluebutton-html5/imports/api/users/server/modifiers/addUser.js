@@ -3,7 +3,6 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users/';
-import addUserPsersistentData from '/imports/api/users-persistent-data/server/modifiers/addUserPersistentData';
 import flat from 'flat';
 import { lowercaseTrim } from '/imports/utils/string-utils';
 
@@ -63,7 +62,6 @@ export default async function addUser(meetingId, userData) {
   const modifier = {
     $set: userInfos,
   };
-  await addUserPsersistentData(userInfos);
   // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
   // dial-in user. We want to avoid overwriting good data
   const voiceUser = await VoiceUsers.findOneAsync({ meetingId, intId: userId });

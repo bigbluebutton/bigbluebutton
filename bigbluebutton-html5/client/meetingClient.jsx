@@ -27,7 +27,6 @@ import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/c
 import Subscriptions from '/imports/ui/components/subscriptions/component';
 import IntlStartup from '/imports/startup/client/intl';
 import ContextProviders from '/imports/ui/components/context-providers/component';
-import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
 import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 // The adapter import is "unused" as far as static code is concerned, but it
@@ -91,7 +90,6 @@ const Startup = () => {
           </IntlAdapter>
         </Subscriptions>
       </PresenceAdapter>
-      <UsersAdapter />
     </ContextProviders>
   );
 };

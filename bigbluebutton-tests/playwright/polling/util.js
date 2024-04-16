@@ -1,6 +1,7 @@
 const { test } = require('@playwright/test');
 const e = require('../core/elements.js');
 const { getSettings } = require('../core/settings.js');
+const path = require('path');
 
 async function openPoll(testPage) {
   const { pollEnabled } = getSettings();
@@ -19,5 +20,17 @@ async function startPoll(test, isAnonymous = false) {
   await test.waitAndClick(e.startPoll);
 }
 
+async function uploadSPresentationForTestingPolls(test, fileName) {
+  await test.waitAndClick(e.actions);
+  await test.waitAndClick(e.managePresentations);
+  await test.waitForSelector(e.presentationFileUpload);
+
+  await test.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${fileName}`));
+  await test.hasText('body', e.statingUploadPresentationToast);
+
+  await test.waitAndClick(e.confirmManagePresentation);
+}
+
 exports.openPoll = openPoll;
 exports.startPoll = startPoll;
+exports.uploadSPresentationForTestingPolls = uploadSPresentationForTestingPolls;

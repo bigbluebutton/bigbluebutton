@@ -12,7 +12,7 @@ import {
   PinnedPadSubscriptionResponse,
 } from '/imports/ui/components/notes/notes-graphql/queries';
 import Styled from './styles';
-import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
 import useNotesLastRev from '/imports/ui/components/notes/notes-graphql/hooks/useNotesLastRev';
 import useHasUnreadNotes from '/imports/ui/components/notes/notes-graphql/hooks/useHasUnreadNotes';

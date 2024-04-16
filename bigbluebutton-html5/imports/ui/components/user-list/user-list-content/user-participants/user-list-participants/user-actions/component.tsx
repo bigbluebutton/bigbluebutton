@@ -284,12 +284,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowedToSetAway,
   } = actionsnPermitions;
 
-  const {
-    disablePrivateChat,
-  } = lockSettings;
-
   const userLocked = user.locked
-    && lockSettings.hasActiveLockSetting
+    && lockSettings?.hasActiveLockSetting
     && !user.isModerator;
 
   let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
@@ -373,7 +369,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         && (
           currentUser.isModerator ? allowedToChatPrivately
             : allowedToChatPrivately && (
-              !(currentUser.locked && disablePrivateChat)
+              !(currentUser.locked && lockSettings?.disablePrivateChat)
               // TODO: Add check for hasPrivateChat between users
               || user.isModerator
             )
@@ -434,7 +430,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: allowedToUnmuteAudio
-        && !lockSettings.disableMic
+        && !lockSettings?.disableMic
         && !isBreakout,
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),

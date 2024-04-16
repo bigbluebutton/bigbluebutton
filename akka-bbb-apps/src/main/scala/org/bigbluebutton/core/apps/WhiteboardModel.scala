@@ -70,7 +70,6 @@ class WhiteboardModel extends SystemConfiguration {
           val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
           newAnnotationsMap += (annotation.id -> newAnnotation)
           annotationsAdded :+= newAnnotation
-          PresAnnotationDAO.insertOrUpdate(newAnnotation, newAnnotation)
           println(s"Updated annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
         } else {
           println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
@@ -78,12 +77,13 @@ class WhiteboardModel extends SystemConfiguration {
       } else if (annotation.annotationInfo.contains("type")) {
         newAnnotationsMap += (annotation.id -> annotation)
         annotationsAdded :+= annotation
-        PresAnnotationDAO.insertOrUpdate(annotation, annotation)
         println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
       } else {
         println(s"New annotation [${annotation.id}] with no type, ignoring...")
       }
     }
+
+    PresAnnotationDAO.insertOrUpdateMap(annotationsAdded)
 
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
@@ -143,7 +143,7 @@ class WhiteboardModel extends SystemConfiguration {
     val updatedWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(updatedWb)
 
-    annotationsIdsRemoved.map(PresAnnotationDAO.delete(wbId, userId, _))
+    PresAnnotationDAO.delete(annotationsIdsRemoved)
 
     annotationsIdsRemoved
   }

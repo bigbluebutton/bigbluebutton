@@ -41,7 +41,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.UserStateDAO
+import org.bigbluebutton.core.db.{ NotificationDAO, UserStateDAO }
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
@@ -924,6 +924,7 @@ class MeetingActor(
           Vector(s"${u.name}")
         )
         outGW.send(notifyEvent)
+        NotificationDAO.insert(notifyEvent)
 
         if (u.presenter) {
           log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)

@@ -2,7 +2,7 @@ const { expect, test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { uploadSinglePresentation, skipSlide } = require('../presentation/util');
@@ -36,7 +36,7 @@ class Polling extends MultiUsers {
   }
 
   async quickPoll() {
-    await uploadSinglePresentation(this.modPage, e.questionSlideFileName);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.questionSlideFileName);
 
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
@@ -129,7 +129,8 @@ class Polling extends MultiUsers {
   }
 
   async customInput() {
-    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.uploadPresentationFileName);
+    await this.modPage.waitForSelector(e.whiteboard, 20000);
 
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.polling);
@@ -183,11 +184,11 @@ class Polling extends MultiUsers {
 
   async smartSlidesQuestions() {
     await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides1);
     await this.userPage.hasElement(e.userListItem);
 
     // Type Response
-    await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.responsePollQuestion);
     await this.userPage.type(e.pollAnswerOptionInput, 'test');
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
@@ -308,10 +309,10 @@ class Polling extends MultiUsers {
   }
 
   async pollResultsInDifferentPresentation() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await util.startPoll(this.modPage);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await uploadSinglePresentation(this.modPage, e.questionSlideFileName);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.questionSlideFileName);
+    await this.modPage.hasElement(e.quickPoll);
     await this.modPage.waitAndClick(e.publishPollingLabel);
     // Check poll results
     await this.modPage.hasElement(e.wbDrawnRectangle);

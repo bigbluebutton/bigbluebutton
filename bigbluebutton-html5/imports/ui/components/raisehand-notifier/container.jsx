@@ -6,6 +6,7 @@ import RaiseHandNotifier from './component';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { RAISED_HAND_USERS } from './queries';
+import logger from '/imports/startup/client/logger';
 
 const StatusNotifierContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -22,7 +23,10 @@ const StatusNotifierContainer = (props) => {
   const raiseHandUsers = usersData?.user || [];
 
   if (usersError) {
-    throw new Error(`Error on requesting raise hand data: ${usersError}`);
+    logger.error({
+      logCode: 'raisehand_notifier_container_subscription_error',
+      extraInfo: { usersError },
+    }, 'Error on requesting raise hand data');
   }
 
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);

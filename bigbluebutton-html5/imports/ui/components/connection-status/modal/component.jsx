@@ -525,6 +525,7 @@ class ConnectionStatusComponent extends PureComponent {
       setModalIsOpen,
       intl,
       isModalOpen,
+      amIModerator,
     } = this.props;
 
     const { selectedTab } = this.state;
@@ -557,7 +558,7 @@ class ConnectionStatusComponent extends PureComponent {
               <Styled.ConnectionTabSelector selectedClassName="is-selected">
                 <span id="my-logs-tab">{intl.formatMessage(intlMessages.myLogs)}</span>
               </Styled.ConnectionTabSelector>
-              {Service.isModerator()
+              {amIModerator
                 && (
                   <Styled.ConnectionTabSelector selectedClassName="is-selected">
                     <span id="session-logs-tab">{intl.formatMessage(intlMessages.sessionLogs)}</span>
@@ -574,7 +575,7 @@ class ConnectionStatusComponent extends PureComponent {
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
               <ul>{this.renderConnections()}</ul>
             </Styled.ConnectionTabPanel>
-            {Service.isModerator()
+            {amIModerator
               && (
                 <Styled.ConnectionTabPanel selectedClassName="is-selected">
                   <ul>{this.renderConnections()}</ul>

@@ -1693,6 +1693,13 @@ SELECT *
 FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
+CREATE OR REPLACE VIEW "v_caption_typed_activeLocales" AS
+select distinct "meetingId", "lang", "userId"
+from "caption"
+where "captionType" = 'TYPED';
+
+create index "idx_caption_typed_activeLocales" on caption("meetingId","lang","userId") where "captionType" = 'TYPED';
+
 ------------------------------------
 ----
 
@@ -1710,6 +1717,46 @@ CREATE TABLE "layout" (
 
 CREATE VIEW "v_layout" AS
 SELECT * FROM "layout";
+
+------------------------------------
+----
+
+CREATE TABLE "notification" (
+	"notificationId"        serial primary key,
+	"meetingId" 			varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"notificationType"      varchar(100),
+	"icon"                  varchar(100),
+	"messageId"             varchar(100),
+	"messageDescription"    varchar(100),
+	"messageValues"         jsonb,
+	"role"                  varchar(100), --MODERATOR, PRESENTER, VIEWER
+	"userId"                varchar(50) references "user"("userId") ON DELETE CASCADE,
+	"createdAt"             timestamp with time zone DEFAULT current_timestamp
+);
+
+create or replace VIEW "v_notification" AS
+select 	u."meetingId",
+        u."userId",
+		n."notificationId",
+		n."notificationType",
+		n."icon",
+		n."messageId",
+		n."messageDescription",
+		n."messageValues",
+		n."role",
+		case when n."userId" = u."userId" then true else false end "isSingleUserNotification",
+		n."createdAt"
+from notification n
+join "user" u on n."meetingId" = u."meetingId" and (n."userId" is null or n."userId" = u."userId")
+where  (
+            n."role" is null or
+            n."role" = u."role" or
+            (n."role" = 'PRESENTER' and u.presenter is true)
+		)
+and n."createdAt" > u."registeredAt"
+and n."createdAt" > current_timestamp - '5 seconds'::interval;
+
+create index idx_notification on notification("meetingId","userId","role","createdAt");
 
 
 --------------------------------
@@ -1750,6 +1797,11 @@ ORDER BY m."createdAt";
 
 create view "v_meeting_componentsFlags" as
 select "meeting"."meetingId",
+        (case
+            when NULLIF("durationInSeconds",0) is null then false
+            when current_timestamp + '30 minutes'::interval > ("createdAt" + ("durationInSeconds" * '1 second'::interval)) then true
+            else false
+        end) "showRemainingTime",
         exists (
             select 1
             from "breakoutRoom"

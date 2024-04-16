@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import { makeCall } from '/imports/ui/services/api';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
@@ -43,6 +42,7 @@ const propTypes = {
   isMeteorConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
   isMobile: PropTypes.bool.isRequired,
+  userLeaveMeeting: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -72,7 +72,9 @@ class LeaveMeetingButton extends PureComponent {
   }
 
   leaveSession() {
-    makeCall('userLeftMeeting');
+    const { userLeaveMeeting } = this.props;
+
+    userLeaveMeeting();
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
     Session.set('codeError', this.LOGOUT_CODE);
