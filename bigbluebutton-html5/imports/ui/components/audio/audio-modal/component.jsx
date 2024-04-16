@@ -30,6 +30,7 @@ const propTypes = {
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
   isUsingAudio: PropTypes.bool.isRequired,
+  isListenOnly: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
@@ -131,8 +132,7 @@ class AudioModal extends Component {
     this.state = {
       content: null,
       hasError: false,
-      errCode: null,
-      errMessage: null,
+      errorInfo: null,
     };
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
@@ -235,6 +235,7 @@ class AudioModal extends Component {
     this.setState({
       hasError: false,
       content: null,
+      errorInfo: null,
     });
 
     return this.handleGoToEchoTest();
@@ -258,8 +259,10 @@ class AudioModal extends Component {
     if (noSSL) {
       return this.setState({
         content: 'help',
-        errCode: MIC_ERROR.NO_SSL,
-        errMessage: 'NoSSL',
+        errorInfo: {
+          errCode: MIC_ERROR.NO_SSL,
+          errMessage: 'NoSSL',
+        },
       });
     }
 
@@ -280,6 +283,7 @@ class AudioModal extends Component {
     this.setState({
       hasError: false,
       disableActions: true,
+      errorInfo: null,
     });
 
     return joinEchoTest().then(() => {
@@ -288,7 +292,7 @@ class AudioModal extends Component {
         disableActions: false,
       });
     }).catch((err) => {
-      this.handleJoinMicrophoneError(err);
+      this.handleJoinAudioError(err);
     });
   }
 
@@ -306,6 +310,8 @@ class AudioModal extends Component {
 
     this.setState({
       disableActions: true,
+      hasError: false,
+      errorInfo: null,
     });
 
     return joinListenOnly().then(() => {
@@ -313,11 +319,7 @@ class AudioModal extends Component {
         disableActions: false,
       });
     }).catch((err) => {
-      if (err.type === 'MEDIA_ERROR') {
-        this.setState({
-          content: 'help',
-        });
-      }
+      this.handleJoinAudioError(err);
     });
   }
 
@@ -347,6 +349,7 @@ class AudioModal extends Component {
     this.setState({
       hasError: false,
       disableActions: true,
+      errorInfo: null,
     });
 
     joinMicrophone().then(() => {
@@ -354,28 +357,32 @@ class AudioModal extends Component {
         disableActions: false,
       });
     }).catch((err) => {
-      this.handleJoinMicrophoneError(err);
+      this.handleJoinAudioError(err);
     });
   }
 
-  handleJoinMicrophoneError(err) {
+  handleJoinAudioError(err) {
     const { type, errCode, errMessage } = err;
 
     switch (type) {
       case 'MEDIA_ERROR':
         this.setState({
           content: 'help',
-          errCode,
-          errMessage,
           disableActions: false,
+          errorInfo: {
+            errCode,
+            errMessage,
+          }
         });
         break;
       case 'CONNECTION_ERROR':
       default:
         this.setState({
-          errCode,
-          errMessage: type,
           disableActions: false,
+          errorInfo: {
+            errCode,
+            errMessage: type,
+          },
         });
         break;
     }
@@ -533,9 +540,11 @@ class AudioModal extends Component {
         : 0
       this.setState({
         content: 'help',
-        errCode,
-        errMessage: error?.name || 'NotAllowedError',
         disableActions: false,
+        errorInfo: {
+          errCode,
+          errMessage: error?.name || 'NotAllowedError',
+        },
       });
     };
 
@@ -561,20 +570,21 @@ class AudioModal extends Component {
   }
 
   renderHelp() {
-    const { errCode, errMessage } = this.state;
-    const { AudioError, getTroubleshootingLink } = this.props;
+    const { errorInfo } = this.state;
+    const { AudioError, getTroubleshootingLink, isListenOnly } = this.props;
 
     const audioErr = {
       ...AudioError,
-      code: errCode,
-      message: errMessage,
+      code: errorInfo?.errCode,
+      message: errorInfo?.errMessage,
     };
 
     return (
       <Help
         handleBack={this.handleGoToAudioOptions}
         audioErr={audioErr}
-        troubleshootingLink={getTroubleshootingLink(errCode)}
+        isListenOnly={isListenOnly}
+        troubleshootingLink={getTroubleshootingLink(errorInfo?.errCode)}
       />
     );
   }
