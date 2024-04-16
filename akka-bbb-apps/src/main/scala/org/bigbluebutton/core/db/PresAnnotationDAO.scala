@@ -64,12 +64,12 @@ object PresAnnotationDAO {
     )
   }
 
-  def insertOrUpdateMap(annotations: Map[String, AnnotationVO]) = {
+  def insertOrUpdateMap(annotations: Array[AnnotationVO]) = {
     DatabaseConnection.db.run(
       DBIO.sequence(
         annotations.map { annotation =>
-          prepareInsertOrUpdate(annotation._2)
-        }
+          prepareInsertOrUpdate(annotation)
+        }.toVector
       ).transactionally
     )
       .onComplete {
