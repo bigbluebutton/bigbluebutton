@@ -185,6 +185,7 @@ const messages = {
 
 export default lockContextContainer(injectIntl(withTracker(({
   intl, userLocks, isAudioModalOpen, setAudioModalIsOpen, setVideoPreviewModalIsOpen,
+  speechLocale,
 }) => {
   const { microphoneConstraints } = Settings.application;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
@@ -239,7 +240,7 @@ export default lockContextContainer(injectIntl(withTracker(({
     setAudioModalIsOpen,
     microphoneConstraints,
     init: async (toggleVoice) => {
-      await Service.init(messages, intl, toggleVoice);
+      await Service.init(messages, intl, toggleVoice, speechLocale);
       if ((!autoJoin || didMountAutoJoin)) {
         if (enableVideo && autoShareWebcam) {
           openVideoPreviewModal();

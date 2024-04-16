@@ -5,15 +5,60 @@ import Captions from './component';
 import Auth from '/imports/ui/services/auth';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import useCurrentUser from '../../core/hooks/useCurrentUser';
+import logger from '/imports/startup/client/logger';
+import { useSubscription } from '@apollo/client';
+import { getActiveCaptions } from './queries';
 
 const Container = (props) => {
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
 
-  const { amIModerator } = props;
+  const {
+    data: currentUserData,
+    loading: currentUserLoading,
+    errors: currentUserErrors,
+  } = useCurrentUser((u) => ({
+    isModerator: u.isModerator,
+    userId: u.userId,
+  }));
 
-  if (!amIModerator) {
+  const {
+    loading: captionsLoading,
+    error: captionsError,
+    data: captionsData,
+  } = useSubscription(getActiveCaptions);
+
+  if (currentUserLoading || captionsLoading) return null;
+  if (currentUserErrors) {
+    logger.info('Error while fetching current user', currentUserErrors);
+    return (
+      <div>
+        {JSON.stringify(currentUserErrors)}
+      </div>
+    );
+  }
+
+  if (captionsError) {
+    logger.info('Error while fetching captions', captionsError);
+    return (
+      <div>
+        {JSON.stringify(captionsError)}
+      </div>
+    );
+  }
+  if (!captionsData) return null;
+  const locale = Service.getCaptionsLocale();
+  const ownerId = captionsData?.caption_typed_activeLocales?.userOwner?.userId
+    ?? currentUserData.userId;
+  const ownerName = captionsData?.caption_typed_activeLocales?.userOwner?.name
+    ?? currentUserData.name;
+  const dictating = true;
+  const dictation = Service.canIDictateThisPad(ownerId);
+  const hasPermission = ownerId === currentUserData.userId;
+
+  if (!currentUserData.isModerator) {
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: false,
@@ -25,26 +70,30 @@ const Container = (props) => {
     return null;
   }
 
-  return <Captions {...{ layoutContextDispatch, isResizing, ...props }} />;
+  return (
+    <Captions
+      {
+        ...{
+          ...props,
+          layoutContextDispatch,
+          isResizing,
+          locale,
+          ownerId,
+          ownerName,
+          dictating,
+          dictation,
+          hasPermission,
+        }
+      }
+    />
+  );
 };
 
-export default withTracker(({ amIModerator }) => {
+export default withTracker(() => {
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-  const {
-    locale,
-    name,
-    ownerId,
-    dictating,
-  } = Service.getCaptions();
 
   return {
-    locale,
-    name,
-    ownerId,
-    dictation: Service.canIDictateThisPad(ownerId),
-    dictating,
     currentUserId: Auth.userID,
     isRTL,
-    hasPermission: Service.hasPermission(amIModerator),
   };
 })(Container);

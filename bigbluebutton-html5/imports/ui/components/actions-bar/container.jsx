@@ -7,7 +7,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import Service from './service';
-import CaptionsService from '/imports/ui/components/captions/service';
 import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
@@ -31,6 +30,7 @@ const ActionsBarContainer = (props) => {
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
+    componentsFlags: m.componentsFlags,
   }));
 
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
@@ -57,6 +57,7 @@ const ActionsBarContainer = (props) => {
   const amIModerator = currentUserData?.isModerator;
 
   if (actionsBarStyle.display === false) return null;
+  if (!currentMeeting) return null;
 
   return (
     <ActionsBar {
@@ -71,14 +72,17 @@ const ActionsBarContainer = (props) => {
         isThereCurrentPresentation,
         isSharingVideo,
         stopExternalVideoShare,
+        isCaptionsAvailable: currentMeeting.componentsFlags.hasCaption,
       }
     }
     />
   );
 };
 
-const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings.public.app.raiseHandActionButton.enabled;
-const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings.public.app.raiseHandActionButton.centered;
+const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings
+  .public.app.raiseHandActionButton.enabled;
+const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings
+  .public.app.raiseHandActionButton.centered;
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
@@ -93,7 +97,6 @@ export default withTracker(() => ({
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
-  isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isTimerActive: TimerService.isActive(),
   isTimerEnabled: TimerService.isEnabled(),
   isMeteorConnected: Meteor.status().connected,

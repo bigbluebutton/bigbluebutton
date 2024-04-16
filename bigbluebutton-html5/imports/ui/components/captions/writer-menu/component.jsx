@@ -79,10 +79,12 @@ class WriterMenu extends PureComponent {
     const {
       setIsOpen,
       layoutContextDispatch,
+      availableLocales,
     } = this.props;
 
     const { locale } = this.state;
-    Service.createCaptions(locale);
+    const localeObj = availableLocales.find((l) => l.locale === locale);
+    Service.createCaptions(locale, localeObj.name);
 
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,

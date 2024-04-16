@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
@@ -168,11 +167,6 @@ class ActionsBar extends PureComponent {
           {isCaptionsAvailable
             ? (
               <>
-                <CaptionsButtonContainer {...{
-                  intl,
-                  setIsOpen: this.setCaptionsReaderMenuModalIsOpen,
-                }}
-                />
                 {
                   isCaptionsReaderMenuModalOpen ? (
                     <CaptionsReaderMenuContainer
@@ -188,11 +182,7 @@ class ActionsBar extends PureComponent {
               </>
             )
             : null}
-          {!deviceInfo.isMobile
-            ? (
-              <AudioCaptionsButtonContainer />
-            )
-            : null}
+          <AudioCaptionsButtonContainer />
         </Styled.Left>
         <Styled.Center>
           {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}

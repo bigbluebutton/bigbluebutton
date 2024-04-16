@@ -1,33 +1,12 @@
 import Captions from '/imports/api/captions';
 import Auth from '/imports/ui/services/auth';
 import PadsService from '/imports/ui/components/pads/service';
-import SpeechService from '/imports/ui/components/captions/speech/service';
 import { makeCall } from '/imports/ui/services/api';
-import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { isCaptionsEnabled } from '/imports/ui/services/features';
 
 const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
 const LINE_BREAK = '\n';
-
-const getAvailableLocales = () => {
-  const availableLocales = Captions.find(
-    { meetingId: Auth.meetingID, ownerId: '' },
-    { sort: { locale: 1 } },
-    { fields: { ownerId: 1, locale: 1, name: 1 } },
-  ).fetch();
-
-  return availableLocales;
-};
-
-const getOwnedLocales = () => {
-  const ownedLocales = Captions.find(
-    { meetingId: Auth.meetingID, ownerId: { $not: '' } },
-    { fields: { ownerId: 1, locale: 1, name: 1 } },
-  ).fetch();
-
-  return ownedLocales;
-};
 
 const updateCaptionsOwner = (locale, name) => makeCall('updateCaptionsOwner', locale, name);
 
@@ -56,34 +35,6 @@ const setCaptionsSettings = (settings) => Session.set('captionsSettings', settin
 
 const getCaptionsLocale = () => Session.get('captionsLocale') || '';
 
-const getCaptions = () => {
-  const locale = getCaptionsLocale();
-  if (locale) {
-    const {
-      name,
-      ownerId,
-      dictating,
-    } = Captions.findOne({
-      meetingId: Auth.meetingID,
-      locale,
-    });
-
-    return {
-      locale,
-      name,
-      ownerId,
-      dictating,
-    };
-  }
-
-  return {
-    locale,
-    name: '',
-    ownerId: '',
-    dictating: false,
-  };
-};
-
 const setCaptionsLocale = (locale) => Session.set('captionsLocale', locale);
 
 const getCaptionsActive = () => Session.get('captionsActive') || '';
@@ -102,41 +53,9 @@ const formatCaptionsText = (text) => {
   return filteredText.join(LINE_BREAK);
 };
 
-const getCaptionsData = () => {
-  const locale = getCaptionsActive();
-  if (locale) {
-    const captions = Captions.findOne({
-      meetingId: Auth.meetingID,
-      locale,
-      dictating: true,
-    });
-
-    let data = '';
-    if (captions) {
-      data = captions.transcript;
-    } else {
-      data = PadsService.getPadTail(locale);
-    }
-
-    return formatCaptionsText(data);
-  }
-
-  return '';
-};
-
 const setCaptionsActive = (locale) => Session.set('captionsActive', locale);
 
 const amICaptionsOwner = (ownerId) => ownerId === Auth.userID;
-
-const isCaptionsAvailable = () => {
-  if (isCaptionsEnabled()) {
-    const ownedLocales = getOwnedLocales();
-
-    return (ownedLocales.length > 0);
-  }
-
-  return false;
-};
 
 const isCaptionsActive = () => {
   const enabled = isCaptionsEnabled();
@@ -152,30 +71,10 @@ const activateCaptions = (locale, settings) => {
   setCaptionsActive(locale);
 };
 
-const getName = (locale) => {
-  const captions = Captions.findOne({
-    meetingId: Auth.meetingID,
-    locale,
-  });
-
-  return captions.name;
-};
-
-const createCaptions = (locale) => {
-  const name = getName(locale);
+const createCaptions = (locale, name) => {
   PadsService.createGroup(locale, CAPTIONS_CONFIG.id, name);
   updateCaptionsOwner(locale, name);
   setCaptionsLocale(locale);
-};
-
-const hasPermission = (isModerator) => {
-  if (isModerator) {
-    const { ownerId } = getCaptions();
-
-    return Auth.userID === ownerId;
-  }
-
-  return false;
 };
 
 const getDictationStatus = (isModerator) => {
@@ -214,25 +113,19 @@ const canIDictateThisPad = (ownerId) => {
 
   if (ownerId !== Auth.userID) return false;
 
-  if (!SpeechService.hasSpeechRecognitionSupport()) return false;
+  if (!(typeof SpeechRecognitionAPI !== 'undefined')) return false;
 
   return true;
 };
 
 export default {
   ID: CAPTIONS_CONFIG.id,
-  getAvailableLocales,
-  getOwnedLocales,
   updateCaptionsOwner,
   startDictation,
   stopDictation,
-  getCaptionsSettings,
-  getCaptionsData,
-  getCaptions,
-  hasPermission,
+  getCaptionsSettings,  
   amICaptionsOwner,
   isCaptionsEnabled,
-  isCaptionsAvailable,
   isCaptionsActive,
   deactivateCaptions,
   activateCaptions,

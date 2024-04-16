@@ -14,7 +14,7 @@ const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   // 'users',
   // 'meetings',
-  'captions',
+  // 'captions',
   // 'voiceUsers',
   'screenshare',
   'users-settings',
