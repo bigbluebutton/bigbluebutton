@@ -28,6 +28,8 @@ class ScreenShare extends Page {
   async screenshareStopsExternalVideo() {
     const { screensharingEnabled } = getSettings();
 
+    await this.waitForSelector(e.whiteboard);
+
     if(!screensharingEnabled) {
       await this.hasElement(e.joinVideo);
       return this.wasRemoved(e.startScreenSharing);
