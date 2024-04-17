@@ -4,13 +4,20 @@ import BreakoutRoomItem from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const BreakoutRoomContainer = ({ breakoutRoom }) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
 
-  const hasBreakoutRoom = !!breakoutRoom;
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
+  const hasBreakoutRoom = currentMeeting?.componentsFlags?.hasBreakoutRoom ?? false;
 
   return (
     <BreakoutRoomItem {...{
@@ -23,13 +30,4 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
   );
 };
 
-export default withTracker(() => {
-  const breakoutRoom = Breakouts.findOne(
-    { parentMeetingId: Auth.meetingID },
-    { fields: { timeRemaining: 1 } },
-  );
-
-  return {
-    breakoutRoom,
-  };
-})(BreakoutRoomContainer);
+export default BreakoutRoomContainer;
