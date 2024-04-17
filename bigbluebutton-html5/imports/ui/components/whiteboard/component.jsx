@@ -19,7 +19,8 @@ import Settings from "/imports/ui/services/settings";
 import KEY_CODES from "/imports/utils/keyCodes";
 import Styled from "./styles";
 import {
-  mapLanguage
+  mapLanguage,
+  isValidShapeType,
 } from "./utils";
 import { useMouseEvents, useCursor } from "./hooks";
 import { notifyShapeNumberExceeded } from "./service";
@@ -95,6 +96,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     skipToSlide,
     intl,
     maxNumberOfAnnotations,
+    notifyNotAllowedChange,
   } = props;
 
   clearTldrawCache();
@@ -833,10 +835,15 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
         const addedCount = Object.keys(added).length;
         const shapeNumberExceeded = Object.keys(prevShapesRef.current).length + addedCount > maxNumberOfAnnotations;
+        const invalidShapeType = Object.keys(added).find((id) => !isValidShapeType(added[id]));
 
-        if (shapeNumberExceeded) {
+        if (shapeNumberExceeded || invalidShapeType) {
           // notify and undo last command without persisting to not generate the onUndo/onRedo callback
-          notifyShapeNumberExceeded(intl, maxNumberOfAnnotations);
+          if (shapeNumberExceeded) {
+            notifyShapeNumberExceeded(intl, maxNumberOfAnnotations);
+          } else {
+            notifyNotAllowedChange(intl);
+          }
           editor.history.undo({ persist: false });
         } else {
           Object.values(added).forEach((record) => {
