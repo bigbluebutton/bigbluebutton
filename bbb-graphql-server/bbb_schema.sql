@@ -279,6 +279,7 @@ CREATE TABLE "user" (
 	"guestLobbyMessage" text,
 	"mobile" bool,
 	"clientType" varchar(50),
+	"transferredFromParentMeeting" bool default false, --when a user join in breakoutRoom only in audio
 	"disconnected" bool default false, -- this is the old leftFlag (that was renamed), set when the user just closed the client
 	"expired" bool default false, -- when it is been some time the user is disconnected
 	"ejected" bool,
