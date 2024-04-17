@@ -163,6 +163,62 @@ object UserDAO {
     }
   }
 
+  def transferUserToBreakoutRoomAsAudioOnly(userId: String, meetingIdFrom: String, meetingIdTo: String) = {
+
+    //Create a copy of the user using the same userId, but with the meetingId of the breakoutRoom
+    //The user will be flagged by `transferredFromParentMeeting=true`
+    DatabaseConnection.db.run(
+      sqlu"""
+        WITH upsert AS (
+            UPDATE "user"
+            SET "loggedOut"=false
+            where "userId" = ${userId}
+            and "meetingId" = ${meetingIdTo}
+          RETURNING *)
+            insert into "user"("meetingId","userId","extId","name","role","guest","authed","guestStatus","locked",
+            "color","loggedOut","expired","ejected","joined","registeredOn","transferredFromParentMeeting","clientType")
+             select
+               ${meetingIdTo} as "meetingId",
+               "userId",
+               "extId",
+               "name",
+               "role",
+               true as "guest",
+               true as "authed",
+               'ALLOW' as "guestStatus",
+               false as "locked",
+               "color",
+               "loggedOut",
+               "expired",
+               "ejected",
+               "joined",
+               "registeredOn",
+               true as "transferredFromParentMeeting",
+               'dial-in-user' as "clientType"
+              from "user"
+              where "userId" = ${userId}
+              and "meetingId" = ${meetingIdFrom}
+              and NOT EXISTS (SELECT * FROM upsert)
+          """
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in user (transferredFromParentMeeting) table")
+      case Failure(e)            => DatabaseConnection.logger.error(s"Error inserting user (transferredFromParentMeeting): $e")
+    }
+
+    //Set user as loggedOut in the old meeting (if it is from transferred origin)
+    DatabaseConnection.db.run(
+      sqlu"""update "user"
+             set "loggedOut" = true
+              where "userId" = ${userId}
+              and "meetingId" = ${meetingIdFrom}
+              and "transferredFromParentMeeting" is true
+              """
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated in user (transferredFromParentMeeting) table")
+      case Failure(e)            => DatabaseConnection.logger.error(s"Error updating user (transferredFromParentMeeting): $e")
+    }
+  }
+
   def permanentlyDeleteAllFromMeeting(meetingId: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]

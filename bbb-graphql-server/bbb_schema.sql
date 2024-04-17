@@ -279,6 +279,7 @@ CREATE TABLE "user" (
 	"guestLobbyMessage" text,
 	"mobile" bool,
 	"clientType" varchar(50),
+	"transferredFromParentMeeting" bool default false, --when a user join in breakoutRoom only in audio
 	"disconnected" bool default false, -- this is the old leftFlag (that was renamed), set when the user just closed the client
 	"expired" bool default false, -- when it is been some time the user is disconnected
 	"ejected" bool,
@@ -1619,7 +1620,7 @@ SELECT *,
     	AND ("isModerator" is false OR "sendInvitationToModerators")
     	THEN TRUE ELSE FALSE END "showInvitation"
 from (
-    SELECT u."meetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
+    SELECT u."meetingId" as "userMeetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
                 bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
                 --CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
@@ -1642,15 +1643,25 @@ from (
 ) a;
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
-SELECT "parentMeetingId", "breakoutRoomId", "meetingId", "userId"
+SELECT "parentMeetingId", "breakoutRoomId", "userMeetingId", "userId"
 FROM "v_breakoutRoom"
 WHERE "assignedAt" IS NOT NULL;
 
 --TODO improve performance (and handle two users with same extId)
-CREATE OR REPLACE VIEW "v_breakoutRoom_participant" AS
-SELECT DISTINCT "parentMeetingId", "breakoutRoomId", "meetingId", "userId"
+CREATE OR REPLACE VIEW "v_breakoutRoom_participant" as
+SELECT DISTINCT "parentMeetingId", "breakoutRoomId", "userMeetingId", "userId"
 FROM "v_breakoutRoom"
-WHERE "currentRoomIsOnline" IS TRUE;
+WHERE "currentRoomIsOnline" IS TRUE
+union all --include users that joined only with audio
+select parent_user."meetingId" as "parentMeetingId",
+        bk_user."meetingId" as "breakoutRoomId",
+        bk_user."meetingId" as "userMeetingId",
+        bk_user."userId"
+from "user" bk_user
+join "user" parent_user on parent_user."userId" = bk_user."userId" and parent_user."transferredFromParentMeeting" is false
+where bk_user."transferredFromParentMeeting" is true
+and bk_user."loggedOut" is false;
+
 --SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."meetingId", "user"."userId"
 --FROM v_user "user"
 --JOIN "meeting" m using("meetingId")
