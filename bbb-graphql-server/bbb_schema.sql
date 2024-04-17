@@ -1792,7 +1792,7 @@ CREATE TABLE "notification" (
 	"userMeetingId"         varchar(50),
 	"userId"                varchar(50),
 	"createdAt"             timestamp with time zone DEFAULT current_timestamp,
-	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("userMeetingId","userId") ON DELETE CASCADE
+	FOREIGN KEY ("userMeetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 
 create or replace VIEW "v_notification" AS
