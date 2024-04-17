@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client"''
+import { gql } from '@apollo/client';
 
 export interface BreakoutRoom {
   freeJoin: boolean;
@@ -23,9 +23,17 @@ export interface GetBreakoutDataResponse {
   breakoutRoom: BreakoutRoom[];
 }
 
+export interface GetIfUserJoinedBreakoutRoomResponse {
+  breakoutRoom_aggregate:{
+  aggregate: {
+    count: number;
+  }
+};
+}
+
 export const getBreakoutData = gql`
   subscription getBreakoutData {
-    breakoutRoom {
+    breakoutRoom(order_by: {sequence: asc}){
       freeJoin
       shortName
       sendInvitationToModerators
@@ -46,6 +54,17 @@ export const getBreakoutData = gql`
   }
 `;
 
+export const getIfUserJoinedBreakoutRoom = gql`
+  subscription getIdUserJoinedABreakout {
+    breakoutRoom_aggregate(where: {currentRoomJoined: {_eq: true}}) {
+      aggregate {
+        count
+      }
+    }
+  }
+`;
+
 export default {
   getBreakoutData,
+  getIfUserJoinedBreakoutRoom,
 };

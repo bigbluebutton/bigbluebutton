@@ -1,7 +1,7 @@
 import { useMutation, useSubscription } from '@apollo/client';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { BreakoutRoom, GetBreakoutDataResponse, getBreakoutData } from './queries';
+import { BreakoutRoom, GetBreakoutDataResponse, GetIfUserJoinedBreakoutRoomResponse, getBreakoutData, getIfUserJoinedBreakoutRoom } from './queries';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -10,15 +10,19 @@ import { layoutDispatch, layoutSelect } from '../../../layout/context';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import { Layout } from '../../../layout/layoutTypes';
 import BreakoutDropdown from '../breakout-room-dropdown/component';
-import { BREAKOUT_ROOM_END_ALL } from '../../mutations';
+import { BREAKOUT_ROOM_END_ALL, BREAKOUT_ROOM_REQUEST_JOIN_URL, BREAKOUT_ROOM_SET_TIME, USER_TRANSFER_VOICE_TO_MEETING } from '../../mutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import TimeRemaingPanel from './components/timeRemaining';
+import BreakoutMessageForm from './components/messageForm';
+import { CAMERA_BROADCAST_STOP } from '../../../video-provider/mutations';
+import { finishScreenShare, forceExitAudio, rejoinAudio, stopVideo } from './service';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoom[];
   isModerator: boolean;
   presenter: boolean;
   durationInSeconds: number;
+  userJoinedRooms: number;
 }
 
 const intlMessages = defineMessages({
@@ -91,10 +95,14 @@ const intlMessages = defineMessages({
 const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   breakouts,
   isModerator,
-  presenter,
   durationInSeconds,
+  presenter,
+  userJoinedRooms,
 }) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
+  const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
+  const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
 
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -102,7 +110,27 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
 
   const panelRef = React.useRef<HTMLDivElement>(null);
   const [showChangeTimeForm, setShowChangeTimeForm] = React.useState(false);
+  const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = React.useState<string>('');
+  const [joinedRooms, setJoinedRooms] = React.useState<number>(0);
 
+  const sendUserUnshareWebcam = (cameraId: string) => {
+    cameraBroadcastStop({ variables: { cameraId } });
+  };
+
+  const transferUserToMeeting = (fromMeeting: string, toMeeting: string) => {
+    breakoutRoomTransfer(
+      {
+        variables: {
+          fromMeetingId: fromMeeting,
+          toMeetingId: toMeeting,
+        },
+      },
+    );
+  };
+
+  const requestJoinURL = (breakoutRoomId: string) => {
+    breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
+  };
 
   const closePanel = useCallback(() => {
     layoutContextDispatch({
@@ -114,6 +142,27 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
       value: PANELS.NONE,
     });
   }, []);
+
+  useEffect(() => {
+    if (userJoinedRooms !== joinedRooms) {
+      setJoinedRooms((prev) => {
+        if (userJoinedRooms === 0 && prev > 0) {
+          rejoinAudio();
+        }
+        return userJoinedRooms;
+      });
+    }
+  }, [userJoinedRooms]);
+
+  useEffect(() => {
+    if (requestedBreakoutRoomId) {
+      const breakout = breakouts.find((b) => b.breakoutRoomId === requestedBreakoutRoomId);
+      if (breakout && breakout.joinURL) {
+        window.open(breakout.joinURL, '_blank');
+        setRequestedBreakoutRoomId('');
+      }
+    }
+  }, [breakouts]);
 
   return (
     <Styled.Panel
@@ -148,6 +197,105 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
         durationInSeconds={durationInSeconds}
         toggleShowChangeTimeForm={setShowChangeTimeForm}
       />
+      {isModerator ? <BreakoutMessageForm /> : null}
+      {isModerator ? <Styled.Separator /> : null}
+      <Styled.BreakoutsList>
+        {
+          breakouts.map((breakout) => {
+            const breakoutLabel = breakout.joinURL
+              ? intl.formatMessage(intlMessages.breakoutJoin)
+              : intl.formatMessage(intlMessages.askToJoin);
+            const dataTest = `${breakout.joinURL ? 'join' : 'askToJoin'}${breakout.shortName.replace(' ', '')}`;
+            return (
+              <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutRoomId}`}>
+                <Styled.Content key={`breakoutRoomList-${breakout.breakoutRoomId}`}>
+                  <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
+                    {breakout.isDefaultName
+                      ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
+                      : breakout.shortName}
+                    <Styled.UsersAssignedNumberLabel>
+                      (
+                      {breakout.participants.length}
+                      )
+                    </Styled.UsersAssignedNumberLabel>
+                  </Styled.BreakoutRoomListNameLabel>
+                  {requestedBreakoutRoomId === breakout.breakoutRoomId ? (
+                    <span>
+                      {intl.formatMessage(intlMessages.generatingURL)}
+                      <Styled.ConnectingAnimation animations />
+                    </span>
+                  ) : (
+                    <Styled.BreakoutActions>
+                      {
+                        breakout.currentRoomJoined
+                          ? (
+                            <Styled.AlreadyConnected data-test="alreadyConnected">
+                              {intl.formatMessage(intlMessages.alreadyConnected)}
+                            </Styled.AlreadyConnected>
+                          )
+                          : (
+                            <Styled.JoinButton
+                              label={breakoutLabel}
+                              data-test={dataTest}
+                              aria-label={`${breakoutLabel} ${breakout.shortName}`}
+                              onClick={() => {
+                                if (!breakout.joinURL) {
+                                  setRequestedBreakoutRoomId(breakout.breakoutRoomId);
+                                  requestJoinURL(breakout.breakoutRoomId);
+                                } else {
+                                  window.open(breakout.joinURL, '_blank');
+                                  // leave main room's audio,
+                                  // and stops video and screenshare when joining a breakout room
+                                  forceExitAudio();
+                                  stopVideo(sendUserUnshareWebcam);
+                                  logger.info({
+                                    logCode: 'breakoutroom_join',
+                                    extraInfo: { logType: 'user_action' },
+                                  }, 'joining breakout room closed audio in the main room');
+                                  if (presenter) finishScreenShare();
+                                }
+                              }}
+                              disabled={requestedBreakoutRoomId}
+                            />
+                          )
+                      }
+                      {/* {
+                      moderatorJoinedAudio
+                        ? [
+                          ('|'),
+                          (
+                            <Styled.AudioButton
+                              label={
+                                stateBreakoutId === breakoutId
+                                  && (joinedAudioOnly || isInBreakoutAudioTransfer)
+                                  ? intl.formatMessage(intlMessages.breakoutReturnAudio)
+                                  : intl.formatMessage(intlMessages.breakoutJoinAudio)
+                              }
+                              disabled={stateBreakoutId !== breakoutId && joinedAudioOnly}
+                              key={`join-audio-${breakoutId}`}
+                              onClick={audioAction}
+                            />
+                          ),
+                        ]
+                        : null
+                    } */}
+                    </Styled.BreakoutActions>
+                  )
+                  }
+                </Styled.Content>
+                <Styled.JoinedUserNames
+                  data-test={`userNameBreakoutRoom-${breakout.shortName}`}
+                >
+                  {breakout.participants
+                    .sort((a, b) => a.user.nameSortable.localeCompare(b.user.nameSortable))
+                    .map((u) => u.user.name)
+                    .join(', ')}
+                </Styled.JoinedUserNames>
+              </Styled.BreakoutItems>
+            );
+          })
+        }
+      </Styled.BreakoutsList>
     </Styled.Panel>
   );
 };
@@ -155,7 +303,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
 const BreakoutRoomContainer: React.FC = () => {
   const {
     data: meetingData,
-    loading: meetingLoading,
   } = useMeeting((m) => ({
     durationInSeconds: m.durationInSeconds,
   }));
@@ -169,11 +316,21 @@ const BreakoutRoomContainer: React.FC = () => {
   }));
 
   const {
+    data: getIfUserJoinedBreakoutRoomData,
+    loading: getIfUserJoinedBreakoutRoomLoading,
+  } = useSubscription<GetIfUserJoinedBreakoutRoomResponse>(getIfUserJoinedBreakoutRoom);
+
+  const {
     data: breakoutData,
     loading: breakoutLoading,
     error: breakoutError,
   } = useSubscription<GetBreakoutDataResponse>(getBreakoutData);
-  if (breakoutLoading || currentUserLoading) return null;
+
+  if (
+    breakoutLoading
+    || currentUserLoading
+    || getIfUserJoinedBreakoutRoomLoading
+  ) return null;
 
   if (breakoutError) {
     logger.error(breakoutError);
@@ -184,7 +341,6 @@ const BreakoutRoomContainer: React.FC = () => {
       </div>
     );
   }
-
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
   return (
     <BreakoutRoom
@@ -192,8 +348,8 @@ const BreakoutRoomContainer: React.FC = () => {
       isModerator={currentUserData.isModerator ?? false}
       presenter={currentUserData.presenter ?? false}
       durationInSeconds={meetingData.durationInSeconds ?? 0}
+      userJoinedRooms={getIfUserJoinedBreakoutRoomData?.breakoutRoom_aggregate.aggregate.count ?? 0}
     />
   );
 };
-
 export default BreakoutRoomContainer;

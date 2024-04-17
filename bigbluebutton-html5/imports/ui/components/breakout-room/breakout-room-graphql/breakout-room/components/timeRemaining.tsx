@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import Styled from '../styles';
-import { useIntl } from 'react-intl';
-import { BreakoutRoom } from '../queries';
 import { useMutation } from '@apollo/client';
+import { defineMessages, useIntl } from 'react-intl';
+import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
+import Styled from '../styles';
+import { BreakoutRoom } from '../queries';
 import { BREAKOUT_ROOM_SET_TIME } from '../../../mutations';
 
 const intlMessages = defineMessages({
@@ -105,16 +106,9 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
       centeredText={!showChangeTimeForm}
       ref={durationContainerRef}
     >
-      {/*
-        have been implemented in PR #18920
-        https://github.com/bigbluebutton/bigbluebutton/pull/18920
-        <Styled.Duration>
-          <MeetingRemainingTime
-            messageDuration={intlMessages.breakoutDuration}
-            breakoutRoom={breakoutRooms[0]}
-            fromBreakoutPanel
-          />
-        </Styled.Duration> */}
+      <BreakoutRemainingTime
+        boldText
+      />
       {isModerator && showChangeTimeForm ? (
         <Styled.SetTimeContainer>
           <label htmlFor="inputSetTimeSelector">
@@ -144,7 +138,7 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
               onClick={() => {
                 setShowFormError(false);
 
-                if (newTime > durationInSeconds) {
+                if (durationInSeconds !== 0 && newTime > durationInSeconds) {
                   setShowFormError(true);
                 } else if (setBreakoutsTime(newTime)) {
                   toggleShowChangeTimeForm(false);

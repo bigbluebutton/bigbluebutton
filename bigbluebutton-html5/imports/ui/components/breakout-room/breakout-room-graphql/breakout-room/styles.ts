@@ -99,8 +99,11 @@ const ellipsis = keyframes`
     width: 1.5em;
   }
 `
+type ConnectingAnimationProps = {
+  animations: boolean;
 
-const ConnectingAnimation = styled.span`
+};
+const ConnectingAnimation = styled.span<ConnectingAnimationProps>`
   &:after {
     overflow: hidden;
     display: inline-block;
@@ -117,6 +120,10 @@ const ConnectingAnimation = styled.span`
       animation: ${ellipsis} steps(4, end) 900ms infinite;
     `}
   }
+`;
+
+const BreakoutsList = styled.div`
+  overflow: auto;
 `;
 
 const JoinedUserNames = styled.div`
@@ -362,4 +369,5 @@ export default {
   Input,
   SendButton,
   ErrorMessage,
+  BreakoutsList
 };
