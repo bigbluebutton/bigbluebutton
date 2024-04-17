@@ -18,7 +18,7 @@ class UserConnectionStatusDbTableDef(tag: Tag) extends Table[UserConnectionStatu
     userId, meetingId, connectionAliveAt, networkRttInMs, status, statusUpdatedAt
   ) <> (UserConnectionStatusDbModel.tupled, UserConnectionStatusDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
-  val meetingId = column[String]("meetingId")
+  val meetingId = column[String]("meetingId", O.PrimaryKey)
   val connectionAliveAt = column[Option[java.sql.Timestamp]]("connectionAliveAt")
   val networkRttInMs = column[Option[Double]]("networkRttInMs")
   val status = column[String]("status")
@@ -45,9 +45,10 @@ object UserConnectionStatusDAO {
       }
   }
 
-  def updateUserAlive(userId: String, rtt: Option[Double], status: String) = {
+  def updateUserAlive(meetingId: String, userId: String, rtt: Option[Double], status: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserConnectionStatusDbTableDef]
+        .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .map(t => (t.connectionAliveAt, t.networkRttInMs, t.status, t.statusUpdatedAt))
         .update(

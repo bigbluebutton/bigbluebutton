@@ -5,13 +5,14 @@ import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
-  def create(userId: String, extId: String, name: String, roles: String,
+  def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
              authToken: String, sessionToken: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
              customParameters: Map[String, String], loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
+      meetingId,
       name,
       roles,
       authToken,
@@ -202,6 +203,7 @@ class RegisteredUsers {
 case class RegisteredUser(
     id:                       String,
     externId:                 String,
+    meetingId:                String,
     name:                     String,
     role:                     String,
     authToken:                String,

@@ -26,7 +26,7 @@ trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
       } yield {
         model.rooms.values.foreach { room =>
           eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(meetingId, room.id, MeetingEndReason.BREAKOUT_ENDED_BY_MOD)))
-          UserBreakoutRoomDAO.updateLastBreakoutRoom(Vector(), room)
+          UserBreakoutRoomDAO.updateLastBreakoutRoom(meetingId, Vector(), room)
         }
 
         val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(

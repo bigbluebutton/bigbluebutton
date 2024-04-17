@@ -51,6 +51,9 @@ select_permissions:
         - showInvitation
         - startedAt
       filter:
-        userId:
-          _eq: X-Hasura-UserId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
       allow_aggregations: true
