@@ -68,12 +68,12 @@ object PresAnnotationDAO {
     )
   }
 
-  def insertOrUpdateMap(meetingId: String, annotations: Map[String, AnnotationVO]) = {
+  def insertOrUpdateMap(meetingId: String, annotations: Array[AnnotationVO]) = {
     DatabaseConnection.db.run(
       DBIO.sequence(
         annotations.map { annotation =>
-          prepareInsertOrUpdate(meetingId, annotation._2)
-        }
+          prepareInsertOrUpdate(meetingId, annotation)
+        }.toVector
       ).transactionally
     )
       .onComplete {
@@ -90,8 +90,8 @@ object PresAnnotationDAO {
         DatabaseConnection.db.run(
           TableQuery[PresAnnotationDbTableDef]
             .filter(_.annotationId === annotationId)
-            .map(a => (a.annotationInfo, a.lastHistorySequence, a.lastUpdatedAt))
-            .update("", sequence.getOrElse(0), new java.sql.Timestamp(System.currentTimeMillis()))
+            .map(a => (a.annotationInfo, a.lastHistorySequence, a.meetingId, a.userId, a.lastUpdatedAt))
+            .update("", sequence.getOrElse(0), meetingId, userId, new java.sql.Timestamp(System.currentTimeMillis()))
         ).onComplete {
             case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated annotationInfo=null on PresAnnotation table!")
             case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating annotationInfo=null PresAnnotation: $e")
