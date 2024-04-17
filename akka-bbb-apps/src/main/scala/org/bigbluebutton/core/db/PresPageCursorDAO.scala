@@ -19,10 +19,9 @@ class PresPageCursorDbTableDef(tag: Tag) extends Table[PresPageCursorDbModel](ta
   override def * = (
     pageId, meetingId, userId, xPercent, yPercent, lastUpdatedAt
   ) <> (PresPageCursorDbModel.tupled, PresPageCursorDbModel.unapply)
-  def pk = primaryKey("pres_page_cursor_pkey", (pageId, userId))
-  val pageId = column[String]("pageId")
-  val meetingId = column[String]("meetingId")
-  val userId = column[String]("userId")
+  val pageId = column[String]("pageId", O.PrimaryKey)
+  val meetingId = column[String]("meetingId", O.PrimaryKey)
+  val userId = column[String]("userId", O.PrimaryKey)
   val xPercent = column[Double]("xPercent")
   val yPercent = column[Double]("yPercent")
   val lastUpdatedAt = column[java.sql.Timestamp]("lastUpdatedAt")

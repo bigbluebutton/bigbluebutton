@@ -15,6 +15,7 @@ case class NotificationDbModel(
     messageDescription: String,
     messageValues:      JsValue,
     role:               Option[String],
+    userMeetingId:      Option[String],
     userId:             Option[String],
     createdAt:          java.sql.Timestamp,
 )
@@ -27,9 +28,10 @@ class NotificationDbTableDef(tag: Tag) extends Table[NotificationDbModel](tag, N
   val messageDescription = column[String]("messageDescription")
   val messageValues = column[JsValue]("messageValues")
   val role = column[Option[String]]("role")
+  val userMeetingId = column[Option[String]]("userMeetingId")
   val userId = column[Option[String]]("userId")
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  override def * = (meetingId, notificationType, icon, messageId, messageDescription, messageValues, role, userId, createdAt) <> (NotificationDbModel.tupled, NotificationDbModel.unapply)
+  override def * = (meetingId, notificationType, icon, messageId, messageDescription, messageValues, role, userMeetingId, userId, createdAt) <> (NotificationDbModel.tupled, NotificationDbModel.unapply)
 }
 
 object NotificationDAO {
@@ -57,6 +59,10 @@ object NotificationDAO {
             messageDescription,
             JsonUtils.vectorToJson(messageValues),
             role,
+            userMeetingId = userId match {
+              case Some(u) => Some(meetingId)
+              case _ => None
+            },
             userId,
             createdAt = new java.sql.Timestamp(System.currentTimeMillis())
           )

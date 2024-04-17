@@ -519,7 +519,7 @@ create table "user_customParameter"(
     "userId" varchar(50),
 	"parameter" varchar(255),
 	"value" varchar(255),
-	CONSTRAINT "user_customParameter_pkey" PRIMARY KEY ("userId","parameter"),
+	CONSTRAINT "user_customParameter_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 
@@ -1789,9 +1789,10 @@ CREATE TABLE "notification" (
 	"messageDescription"    varchar(100),
 	"messageValues"         jsonb,
 	"role"                  varchar(100), --MODERATOR, PRESENTER, VIEWER
+	"userMeetingId"         varchar(50),
 	"userId"                varchar(50),
 	"createdAt"             timestamp with time zone DEFAULT current_timestamp,
-	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("userMeetingId","userId") ON DELETE CASCADE
 );
 
 create or replace VIEW "v_notification" AS

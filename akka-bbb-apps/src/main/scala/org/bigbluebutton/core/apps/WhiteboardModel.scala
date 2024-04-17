@@ -148,10 +148,10 @@ class WhiteboardModel extends SystemConfiguration {
     annotationsIdsRemoved
   }
 
-  def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) {
+  def modifyWhiteboardAccess(meetingId: String, wbId: String, multiUser: Array[String]) {
     val wb = getWhiteboard(wbId)
     val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
-    PresPageWritersDAO.updateMultiuser(newWb)
+    PresPageWritersDAO.updateMultiuser(meetingId, newWb)
     saveWhiteboard(newWb)
   }
 

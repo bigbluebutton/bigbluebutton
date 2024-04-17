@@ -7,8 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
 case class UserCustomParameterDbModel(
-    userId:    String,
     meetingId: String,
+    userId:    String,
     parameter: String,
     value:     String
 )

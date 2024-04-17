@@ -57,7 +57,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   }
 
   def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting) {
-    liveMeeting.wbModel.modifyWhiteboardAccess(whiteboardId, multiUser)
+    liveMeeting.wbModel.modifyWhiteboardAccess(liveMeeting.props.meetingProp.intId, whiteboardId, multiUser)
   }
 
   def filterWhiteboardMessage(whiteboardId: String, userId: String, liveMeeting: LiveMeeting): Boolean = {
