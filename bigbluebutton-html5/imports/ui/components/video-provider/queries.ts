@@ -14,6 +14,7 @@ subscription getvideoData($userIds: [String]!) {
     disconnected
     emoji
     name
+    nameSortable
     role
     avatar
     color
@@ -37,6 +38,7 @@ subscription getVideoDataGrid {
     disconnected
     emoji
     name
+    nameSortable
     role
     avatar
     color

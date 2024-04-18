@@ -7,25 +7,28 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 case class UserCameraDbModel(
-        streamId:        String,
+        streamId:      String,
+        meetingId:     String,
         userId:        String,
 )
 
 class UserCameraDbTableDef(tag: Tag) extends Table[UserCameraDbModel](tag, None, "user_camera") {
   override def * = (
-    streamId, userId) <> (UserCameraDbModel.tupled, UserCameraDbModel.unapply)
+    streamId, meetingId, userId) <> (UserCameraDbModel.tupled, UserCameraDbModel.unapply)
   val streamId = column[String]("streamId", O.PrimaryKey)
+  val meetingId = column[String]("meetingId")
   val userId = column[String]("userId")
 }
 
 object UserCameraDAO {
 
-  def insert(webcam: WebcamStream) = {
+  def insert(meetingId: String, webcam: WebcamStream) = {
     DatabaseConnection.db.run(
       TableQuery[UserCameraDbTableDef].forceInsert(
         UserCameraDbModel(
           streamId = webcam.streamId,
-            userId = webcam.userId
+          meetingId = meetingId,
+          userId = webcam.userId,
         )
       )
     ).onComplete {

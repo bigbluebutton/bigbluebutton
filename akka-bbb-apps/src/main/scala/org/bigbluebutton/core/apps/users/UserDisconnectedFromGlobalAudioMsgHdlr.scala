@@ -28,7 +28,7 @@ trait UserDisconnectedFromGlobalAudioMsgHdlr {
     for {
       user <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
     } yield {
-      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.intId)
+      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, liveMeeting.props.meetingProp.intId, user.intId)
       broadcastEvent(user)
     }
   }

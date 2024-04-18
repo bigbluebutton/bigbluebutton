@@ -67,7 +67,7 @@ object BreakoutRoomDAO {
               userId <- room.assignedUsers
               (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
             } yield {
-              BreakoutRoomUserDAO.prepareInsert(room.id, userId, redirectToHtml5JoinURL)
+              BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL)
             }
           ).transactionally)
             .onComplete {

@@ -57,6 +57,7 @@ trait HandlerHelpers extends SystemConfiguration {
       UserState(
         intId = regUser.id,
         extId = regUser.externId,
+        meetingId = regUser.meetingId,
         name = regUser.name,
         role = regUser.role,
         guest = regUser.guest,
@@ -237,7 +238,7 @@ trait HandlerHelpers extends SystemConfiguration {
     } yield {
       model.rooms.values.foreach { room =>
         eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.meetingProp.intId, room.id, reason)))
-        UserBreakoutRoomDAO.updateLastBreakoutRoom(Vector(), room)
+        UserBreakoutRoomDAO.updateLastBreakoutRoom(liveMeeting.props.meetingProp.intId, Vector(), room)
       }
     }
 

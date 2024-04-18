@@ -26,7 +26,7 @@ trait UserConnectionAliveReqMsgHdlr extends RightsManagementTrait {
 
       val status = getLevelFromRtt(msg.body.networkRttInMs)
 
-      UserConnectionStatusDAO.updateUserAlive(user.intId, rtt, status)
+      UserConnectionStatusDAO.updateUserAlive(user.meetingId, user.intId, rtt, status)
     }
   }
 
