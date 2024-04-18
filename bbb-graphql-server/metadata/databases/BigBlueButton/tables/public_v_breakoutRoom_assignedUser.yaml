@@ -11,8 +11,8 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
-          userMeetingId: meetingId
           userId: userId
+          userMeetingId: meetingId
         insertion_order: null
         remote_table:
           name: v_user_ref
