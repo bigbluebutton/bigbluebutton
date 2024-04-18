@@ -1649,14 +1649,20 @@ WHERE "assignedAt" IS NOT NULL;
 
 --TODO improve performance (and handle two users with same extId)
 CREATE OR REPLACE VIEW "v_breakoutRoom_participant" as
-SELECT DISTINCT "parentMeetingId", "breakoutRoomId", "userMeetingId", "userId"
+SELECT DISTINCT
+        "parentMeetingId",
+        "breakoutRoomId",
+        "userMeetingId",
+        "userId",
+        false as "isAudioOnly"
 FROM "v_breakoutRoom"
 WHERE "currentRoomIsOnline" IS TRUE
-union all --include users that joined only with audio
+union --include users that joined only with audio
 select parent_user."meetingId" as "parentMeetingId",
         bk_user."meetingId" as "breakoutRoomId",
-        bk_user."meetingId" as "userMeetingId",
-        bk_user."userId"
+        parent_user."meetingId" as "userMeetingId",
+        parent_user."userId",
+        true as "isAudioOnly"
 from "user" bk_user
 join "user" parent_user on parent_user."userId" = bk_user."userId" and parent_user."transferredFromParentMeeting" is false
 where bk_user."transferredFromParentMeeting" is true
