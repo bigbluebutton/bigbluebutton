@@ -15,8 +15,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface ContentTypeConstraint {
 
-    String key() default "contentTypeError";
-    String message() default "Request content type is not supported or no Content-Type header was specified";
+    String key() default "unsupportedContentType";
+    String message() default "POST request Content-Type is missing or unsupported";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
