@@ -2,7 +2,6 @@ import styled, { css, keyframes } from 'styled-components';
 import {
   mdPaddingX,
   borderSize,
-  listItemBgHover,
   borderSizeSmall,
   borderRadius,
   jumboPaddingY,
@@ -18,6 +17,7 @@ import {
   colorGrayLighter,
   colorGrayLightest,
   colorBlueLight,
+  listItemBgHover,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -28,7 +28,6 @@ import {
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import Button from '/imports/ui/components/common/button/component';
 import TextareaAutosize from 'react-autosize-textarea';
-
 
 const BreakoutActions = styled.div`
   display: flex;
@@ -48,7 +47,7 @@ const AlreadyConnected = styled.span`
   vertical-align: middle;
   white-space: nowrap;
 `;
-
+// @ts-ignore - as button comes from JS, we can't provide its props
 const JoinButton = styled(Button)`
   flex: 0 1 48%;
   color: ${colorPrimary};
@@ -56,7 +55,7 @@ const JoinButton = styled(Button)`
   font-weight: inherit;
   padding: 0 .5rem 0 .5rem !important;
 `;
-
+// @ts-ignore - as button comes from JS, we can't provide its props
 const AudioButton = styled(Button)`
   flex: 0 1 48%;
   color: ${colorPrimary};
@@ -98,7 +97,8 @@ const ellipsis = keyframes`
   to {
     width: 1.5em;
   }
-`
+`;
+
 type ConnectingAnimationProps = {
   animations: boolean;
 
@@ -222,7 +222,7 @@ const SetDurationInput = styled.input`
 const WithError = styled.span`
   color: ${colorDanger};
 `;
-
+// @ts-ignore - as button comes from JS, we can't provide its props
 const EndButton = styled(Button)`
   padding: .5rem;
   font-weight: ${headingsFontWeight} !important;
@@ -316,7 +316,7 @@ const Input = styled(TextareaAutosize)`
     outline-width: ${borderSize};
   }
 `;
-
+// @ts-ignore - as button comes from JS, we can't provide its props
 const SendButton = styled(Button)`
   margin:0 0 0 ${smPaddingX};
   align-self: center;
@@ -369,5 +369,5 @@ export default {
   Input,
   SendButton,
   ErrorMessage,
-  BreakoutsList
+  BreakoutsList,
 };

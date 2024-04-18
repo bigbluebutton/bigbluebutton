@@ -56,7 +56,6 @@ export const rejoinAudio = () => {
   }
 };
 
-
 export default {
   getIsMicrophoneUser,
   getIsReconnecting,

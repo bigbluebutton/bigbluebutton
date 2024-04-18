@@ -3,7 +3,6 @@ import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
 import Styled from '../styles';
-import { BreakoutRoom } from '../queries';
 import { BREAKOUT_ROOM_SET_TIME } from '../../../mutations';
 
 const intlMessages = defineMessages({
@@ -76,7 +75,6 @@ const intlMessages = defineMessages({
 interface TimeRemainingPanelProps {
   showChangeTimeForm: boolean;
   isModerator: boolean;
-  breakout: BreakoutRoom;
   durationInSeconds: number;
   toggleShowChangeTimeForm: (value: boolean) => void;
 }
@@ -84,7 +82,6 @@ interface TimeRemainingPanelProps {
 const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
   showChangeTimeForm,
   isModerator,
-  breakout,
   durationInSeconds,
   toggleShowChangeTimeForm,
 }) => {

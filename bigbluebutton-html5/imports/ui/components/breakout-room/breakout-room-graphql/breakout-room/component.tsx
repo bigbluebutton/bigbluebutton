@@ -212,7 +212,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
       <TimeRemaingPanel
         showChangeTimeForm={showChangeTimeForm}
         isModerator={isModerator}
-        breakout={breakouts[0]}
         durationInSeconds={durationInSeconds}
         toggleShowChangeTimeForm={setShowChangeTimeForm}
       />

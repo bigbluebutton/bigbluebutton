@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { defineMessages, injectIntl, useIntl } from 'react-intl';
-import BBBMenu, { MenuItem } from '/imports/ui/components/common/menu/component';
+import { defineMessages, useIntl } from 'react-intl';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import CreateBreakoutRoomContainerGraphql from '/imports/ui/components/breakout-room/breakout-room-graphql/create-breakout-room/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 
@@ -29,6 +29,14 @@ interface BreakoutDropdownProps {
   isMeteorConnected: boolean;
   amIModerator: boolean;
   isRTL: boolean;
+}
+
+interface MenuItem {
+  key: string;
+  dataTest: string;
+  label: string;
+  disabled?: boolean;
+  onClick: () => void;
 }
 
 const BreakoutDropdown: React.FC<BreakoutDropdownProps> = ({
@@ -110,7 +118,6 @@ const BreakoutDropdown: React.FC<BreakoutDropdownProps> = ({
       {isCreateBreakoutRoomModalOpen ? (
         <CreateBreakoutRoomContainerGraphql
           isUpdate
-          onRequestClose={() => setCreateBreakoutRoomModalIsOpen(false)}
           priority="low"
           setIsOpen={setCreateBreakoutRoomModalIsOpen}
           isOpen={isCreateBreakoutRoomModalOpen}
