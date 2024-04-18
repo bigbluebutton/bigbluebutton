@@ -55,7 +55,7 @@ export interface BreakoutRooms {
   breakoutRoomId: string;
   currentRoomIsOnline: boolean | null;
   currentRoomPriority: number;
-  currentRoomRegisteredAt: string | null; 
+  currentRoomRegisteredAt: string | null;
   durationInSeconds: number;
   endedAt: string | null;
   freeJoin: boolean;

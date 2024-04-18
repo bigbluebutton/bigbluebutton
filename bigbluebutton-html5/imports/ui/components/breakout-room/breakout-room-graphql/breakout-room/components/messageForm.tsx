@@ -146,7 +146,7 @@ const BreakoutMessageForm: React.FC = () => {
           label={intl.formatMessage(intlMessages.submitLabel)}
           color="primary"
           icon="send"
-          onClick={() =>{}}
+          onClick={() => {}}
           data-test="sendMessageButton"
         />
       </Styled.Wrapper>
