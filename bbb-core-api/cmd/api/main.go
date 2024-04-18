@@ -15,6 +15,7 @@ import (
 type Config struct {
 	BbbCore            bbbcore.BbbCoreServiceClient `yaml:"-"`
 	ChecksumAlgorithms map[string]struct{}          `yaml:"-"`
+	DisabledFeatures   map[string]struct{}          `yaml:"-"`
 	Server             struct {
 		Host string `yaml:"host"`
 		Port string `yaml:"port"`
@@ -29,6 +30,31 @@ type Config struct {
 			Algorithms []string `yaml:"algorithms"`
 		} `yaml:"checksum"`
 	} `yaml:"security"`
+	Meeting struct {
+		Camera struct {
+			Cap       uint8 `yaml:"cap"`
+			MaxPinned uint8 `yaml:"max_pinned"`
+		} `yaml:"camera"`
+		Features struct {
+			Disabled []string `yaml:"disabled"`
+		} `yaml:"features"`
+	} `yaml:"meeting"`
+	User struct {
+		Camera struct {
+			Cap uint8 `yaml:"cap"`
+		} `yaml:"camera"`
+	}
+	Recording struct {
+		NotifyRecordingIsOn bool `yaml:"notifyRecordingIsOn"`
+	} `yaml:"recording"`
+	Presentation struct {
+		Upload struct {
+			External struct {
+				Description string `yaml:"description"`
+				Url         string `yaml:"url"`
+			} `yaml:"external"`
+		} `yaml:"upload"`
+	} `yaml:"presentation"`
 }
 
 const retryPolicy = `{
@@ -97,6 +123,12 @@ func parseConfiguration() *Config {
 		checksumAlgorithms[algorithm] = struct{}{}
 	}
 	app.ChecksumAlgorithms = checksumAlgorithms
+
+	disabledFeatures := make(map[string]struct{})
+	for _, feature := range app.Meeting.Features.Disabled {
+		disabledFeatures[feature] = struct{}{}
+	}
+	app.DisabledFeatures = disabledFeatures
 
 	return &app
 }

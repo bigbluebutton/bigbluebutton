@@ -9,9 +9,13 @@ import (
 	"hash"
 	"log"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 )
 
 func (app *Config) writeXML(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
@@ -110,4 +114,89 @@ func (app *Config) removeQueryParam(queryString, param string) string {
 	}
 
 	return strings.Join(newEntries, "&")
+}
+
+func (app *Config) processCreateQueryParams(params *url.Values) *common.MeetingSettings {
+	var settings common.MeetingSettings
+
+	settings.MeetingProps = app.processMeetingProps(params)
+
+	return &settings
+}
+
+func (app *Config) processMeetingProps(params *url.Values) *common.MeetingProps {
+	name := validation.StripCtrlChars(params.Get("name"))
+	meetingExtId := validation.StripCtrlChars(params.Get("meetingID"))
+	meetingIntId := app.generateHashString(meetingExtId, sha1.New())
+
+	meetingCameraCap := getIntOrDefaultValue(params.Get("meetingCameraCap"), int(app.Meeting.Camera.Cap))
+	maxPinnedCameras := getIntOrDefaultValue(params.Get("maxPinnedCamera"), int(app.Meeting.Camera.MaxPinned))
+
+	isBreakout := getBoolOrDefaultValue(params.Get("isBreakout"), false)
+
+	disabledFeaturesMap := make(map[string]struct{})
+	for k, v := range app.DisabledFeatures {
+		disabledFeaturesMap[k] = v
+	}
+	if featuresParam := params.Get("disabledFeatures"); featuresParam != "" {
+		features := strings.Split(featuresParam, ",")
+		for _, feature := range features {
+			disabledFeaturesMap[feature] = struct{}{}
+		}
+	}
+	disabledFeatures := make([]string, len(disabledFeaturesMap))
+	i := 0
+	for feature := range disabledFeaturesMap {
+		disabledFeatures[i] = feature
+		i++
+	}
+
+	notifyRecordingIsOn := getBoolOrDefaultValue(params.Get("notfiyRecordingIsOn"), app.Recording.NotifyRecordingIsOn)
+
+	presUploadExtDesc := getStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalDescription")), app.Presentation.Upload.External.Description)
+	presUploadExtUrl := getStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalUrl")), app.Presentation.Upload.External.Url)
+
+	return &common.MeetingProps{
+		Name:                name,
+		MeetingExtId:        meetingExtId,
+		MeetingIntId:        meetingIntId,
+		MeetingCameraCap:    int32(meetingCameraCap),
+		MaxPinnedCameras:    int32(maxPinnedCameras),
+		IsBreakout:          isBreakout,
+		DisabledFeatures:    disabledFeatures,
+		NotifyRecordingIsOn: notifyRecordingIsOn,
+		PresUploadExtDesc:   presUploadExtDesc,
+		PresUploadExtUrl:    presUploadExtUrl,
+	}
+}
+
+func getIntOrDefaultValue(param string, defaultValue int) int {
+	if param != "" {
+		conv, err := strconv.Atoi(param)
+		if err != nil {
+			return defaultValue
+		} else {
+			return conv
+		}
+	}
+	return defaultValue
+}
+
+func getBoolOrDefaultValue(param string, defaultValue bool) bool {
+	if param != "" {
+		conv, err := strconv.ParseBool(param)
+		if err != nil {
+			return defaultValue
+		} else {
+			return conv
+		}
+	}
+	return defaultValue
+}
+
+func getStringOrDefaultValue(param string, defaultValue string) string {
+	if param != "" {
+		return param
+	}
+	return defaultValue
 }

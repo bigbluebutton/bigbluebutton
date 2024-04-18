@@ -204,4 +204,11 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 
 func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling createMeeting request")
+
+	params := r.URL.Query()
+	app.processCreateQueryParams(&params)
+}
+
+func (app *Config) createMeetingPost(w http.ResponseWriter, r *http.Request) {
+
 }

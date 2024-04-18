@@ -13,3 +13,23 @@ security:
       - sha-256
       - sha-384
       - sha-512
+
+meeting:
+  camera:
+    cap: 0
+    max_pinned: 3
+  features:
+    disabled:
+
+user:
+  camera:
+    cap: 3
+
+recording:
+  notify_recording_is_on: false
+
+presentation:
+  upload:
+    external:
+      description:
+      url:

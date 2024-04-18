@@ -86,4 +86,6 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
       case ex: Throwable => Source.single(MeetingInfoResponse(None))
     }
   }
+
+  override def createMeeting(in: CreateMeetingRequest): Future[CreateMeetingResponse] = ???
 }
