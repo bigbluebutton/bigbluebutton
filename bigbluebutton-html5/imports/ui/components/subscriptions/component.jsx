@@ -24,7 +24,7 @@ const SUBSCRIPTIONS = [
   'video-streams',
   'voice-call-states',
   'breakouts',
-  'breakouts-history',
+  // 'breakouts-history',
   'pads',
   'pads-sessions',
   'pads-updates',
@@ -139,7 +139,7 @@ export default withTracker(() => {
         SubscriptionRegistry.getSubscription('meetings'),
         SubscriptionRegistry.getSubscription('users'),
         SubscriptionRegistry.getSubscription('breakouts'),
-        SubscriptionRegistry.getSubscription('breakouts-history'),
+        // SubscriptionRegistry.getSubscription('breakouts-history'),
         SubscriptionRegistry.getSubscription('guestUser'),
       ].forEach((item) => {
         if (item) item.stop();
