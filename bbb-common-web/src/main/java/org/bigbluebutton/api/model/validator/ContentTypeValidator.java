@@ -28,11 +28,12 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
     public boolean isValid(HttpServletRequest request, ConstraintValidatorContext context) {
         String requestMethod = request.getMethod();
         String contentType = request.getContentType();
+        String contentTypeHeader = request.getHeader("Content-Type");
         log.info("Validating {} request with content type {}", requestMethod, contentType);
 
         boolean requestBodyPresent = request.getContentLength() > 0;
         if (requestBodyPresent) {
-            if (contentType == null) return false;
+            if (contentType == null || contentTypeHeader == null) return false;
             else {
                 return SUPPORTED_CONTENT_TYPES.contains(contentType);
             }
