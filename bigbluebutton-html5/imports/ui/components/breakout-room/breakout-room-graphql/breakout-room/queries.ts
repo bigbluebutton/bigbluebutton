@@ -11,10 +11,11 @@ export interface BreakoutRoom {
   isDefaultName: boolean;
   currentRoomJoined: boolean;
   participants: Array<{
+    userId: string;
+    isAudioOnly: string;
     user: {
       name: string;
       nameSortable: string;
-      userId: string;
     }
   }>
 }
@@ -44,10 +45,11 @@ export const getBreakoutData = gql`
       isDefaultName
       currentRoomJoined
       participants {
+        userId
+        isAudioOnly
         user {
           name
           nameSortable
-          userId
         }
       }
     }
