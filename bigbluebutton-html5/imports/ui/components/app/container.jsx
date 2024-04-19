@@ -68,7 +68,6 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
-    isSharedNotesPinned,
     viewScreenshare,
     ...otherProps
   } = props;
@@ -81,6 +80,7 @@ const AppContainer = (props) => {
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
+  const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
@@ -90,8 +90,9 @@ const AppContainer = (props) => {
   const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
   const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
-  const shouldShowSharedNotes = !!pinnedPadData
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
 
   const setMobileUser = (mobile) => {
     setMobileFlag({
@@ -185,7 +186,7 @@ const AppContainer = (props) => {
 
   const shouldShowScreenshare = propsShouldShowScreenshare
     && (viewScreenshare || isPresenter);
-  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes
+  const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
   return currentUserId
@@ -227,7 +228,7 @@ const AppContainer = (props) => {
           enforceLayout: validateEnforceLayout(currentUserData),
           isModerator,
           shouldShowScreenshare,
-          shouldShowSharedNotes,
+          isSharedNotesPinned,
           shouldShowPresentation,
           setMobileUser,
           toggleVoice,
@@ -335,7 +336,6 @@ export default withTracker(() => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
-    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
     User: currentUser,
   };
 })(AppContainer);
