@@ -19,6 +19,7 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import { getActiveCaptions } from '/imports/ui/components/captions/queries';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -32,6 +33,9 @@ const ActionsBarContainer = (props) => {
     externalVideo: m.externalVideo,
     componentsFlags: m.componentsFlags,
   }));
+
+  const { data: captionsData } = useSubscription(getActiveCaptions);
+  const activeCaptions = captionsData?.caption_typed_activeLocales || [];
 
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
 
@@ -73,6 +77,7 @@ const ActionsBarContainer = (props) => {
         isSharingVideo,
         stopExternalVideoShare,
         isCaptionsAvailable: currentMeeting.componentsFlags.hasCaption,
+        activeCaptions,
       }
     }
     />

@@ -26,8 +26,8 @@ export interface GetAudioCaptions {
 }
 
 export const GET_CAPTIONS = gql`
-  subscription getCaptions {
-    caption {
+  subscription getCaptions($lang: String!) {
+    caption(where: {lang: {_eq: $lang}}) {
       user {
         avatar
         color

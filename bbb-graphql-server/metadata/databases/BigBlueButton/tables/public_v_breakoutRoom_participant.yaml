@@ -12,6 +12,7 @@ object_relationships:
       manual_configuration:
         column_mapping:
           userId: userId
+          userMeetingId: meetingId
         insertion_order: null
         remote_table:
           name: v_user_ref
@@ -20,6 +21,7 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - isAudioOnly
         - userId
       filter:
         parentMeetingId:

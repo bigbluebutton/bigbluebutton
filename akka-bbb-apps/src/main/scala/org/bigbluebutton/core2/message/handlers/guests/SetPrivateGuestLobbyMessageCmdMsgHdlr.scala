@@ -21,7 +21,7 @@ trait SetPrivateGuestLobbyMessageCmdMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       GuestsWaiting.setPrivateGuestLobbyMessage(liveMeeting.guestsWaiting, msg.body.guestId, msg.body.message)
-      UserStateDAO.updateGuestLobbyMessage(msg.body.guestId, msg.body.message)
+      UserStateDAO.updateGuestLobbyMessage(msg.header.meetingId, msg.body.guestId, msg.body.message)
       val event = MsgBuilder.buildPrivateGuestLobbyMsgChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
         msg.header.userId,

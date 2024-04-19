@@ -5,7 +5,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 object TestDataGen {
-  def createRegisteredUser(users: RegisteredUsers, name: String, role: String,
+  def createRegisteredUser(meetingId: String, users: RegisteredUsers, name: String, role: String,
                            guest: Boolean, authed: Boolean, waitForApproval: Boolean): RegisteredUser = {
     val id = "w_" + RandomStringGenerator.randomAlphanumericString(16)
     val extId = RandomStringGenerator.randomAlphanumericString(16)
@@ -15,7 +15,7 @@ object TestDataGen {
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
     val color = "#ff6242"
 
-    val ru = RegisteredUsers.create(userId = id, extId, name, role,
+    val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
       authToken, sessionToken, avatarURL, color, guest, authed, GuestStatus.ALLOW, false, "", Map(), false)
 
     RegisteredUsers.add(users, ru, meetingId = "test")
@@ -25,19 +25,45 @@ object TestDataGen {
   def createVoiceUserForUser(user: RegisteredUser, callingWith: String, muted: Boolean, talking: Boolean,
                              listenOnly: Boolean): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
-    VoiceUserState(intId = user.id, voiceUserId = voiceUserId, callingWith, callerName = user.name,
-      callerNum = user.name, "#ff6242", muted, talking, listenOnly,
-      false,
+    VoiceUserState(
+      intId = user.id,
+      voiceUserId = voiceUserId,
+      meetingId = user.meetingId,
+      callingWith,
+      callerName = user.name,
+      callerNum = user.name,
+      color = "#ff6242",
+      muted,
+      talking,
+      listenOnly,
+      calledInto = "freeswitch",
+      lastStatusUpdateOn = System.currentTimeMillis(),
+      floor = false,
+      lastFloorTime = System.currentTimeMillis().toString(),
+      hold = false,
       "9b3f4504-275d-4315-9922-21174262d88c")
   }
 
-  def createFakeVoiceOnlyUser(callingWith: String, muted: Boolean, talking: Boolean,
+  def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, talking: Boolean,
                               listenOnly: Boolean, name: String): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
-    VoiceUserState(intId, voiceUserId = voiceUserId, callingWith, callerName = name,
-      callerNum = name, "#ff6242", muted, talking, listenOnly
-      false,
+    VoiceUserState(
+      intId,
+      voiceUserId = voiceUserId,
+      meetingId,
+      callingWith,
+      callerName = name,
+      callerNum = name,
+      color = "#ff6242",
+      muted,
+      talking,
+      listenOnly,
+      calledInto = "freeswitch",
+      lastStatusUpdateOn = System.currentTimeMillis(),
+      floor = false,
+      lastFloorTime = System.currentTimeMillis().toString(),
+      hold = false,
       "9b3f4504-275d-4315-9922-21174262d88c")
   }
 
@@ -47,8 +73,8 @@ object TestDataGen {
   }
 
   def createUserFor(liveMeeting: LiveMeeting, regUser: RegisteredUser, presenter: Boolean): UserState = {
-    val u = UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, role = regUser.role,
-      guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
+    val u = UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId, name = regUser.name,
+      role = regUser.role, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       emoji = "none", reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
       locked = false, presenter = false, avatar = regUser.avatarURL, color = "#ff6242",
       clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))

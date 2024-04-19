@@ -101,7 +101,9 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   availableVoices,
   isSupported,
   isVoiceUser,
+  activeCaptions,
 }) => {
+  const knownLocales = window.meetingClientSettings.public.captions.locales;
   const intl = useIntl();
   const [active] = useAudioCaptionEnable();
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
@@ -129,6 +131,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   }, [currentSpeechLocale]);
 
   const shouldRenderChevron = isSupported && isVoiceUser;
+  const shouldRenderSelector = isSupported && activeCaptions.length > 0;
 
   const toggleTranscription = () => {
     setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale);
@@ -167,37 +170,67 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
     ];
   };
 
-  const getAvailableLocalesList = () => (
-    [{
+  const getAvailableCaptions = () => {
+    return activeCaptions.map((caption) => {
+      const localeName = knownLocales.find((l) => l.locale === caption.lang).name;
+
+      return {
+        key: caption.lang,
+        label: localeName,
+        customStyles: (selectedLocale.current === caption.lang) && Styled.SelectedLabel,
+        iconRight: selectedLocale.current === caption.lang ? 'check' : null,
+        onClick: () => {
+          selectedLocale.current = caption.lang;
+          setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
+        },
+      };
+    });
+  };
+
+  const getAvailableLocalesList = () => {
+    // audio captions
+    if (shouldRenderChevron) {
+      return [{
+        key: 'availableLocalesList',
+        label: intl.formatMessage(intlMessages.language),
+        customStyles: Styled.TitleLabel,
+        disabled: true,
+      },
+      ...getAvailableLocales(),
+      {
+        key: 'divider',
+        label: intl.formatMessage(intlMessages.transcription),
+        customStyles: Styled.TitleLabel,
+        disabled: true,
+      },
+      {
+        key: 'separator-02',
+        isSeparator: true,
+      },
+      {
+        key: 'transcriptionStatus',
+        label: intl.formatMessage(
+          isTranscriptionDisabled()
+            ? intlMessages.transcriptionOn
+            : intlMessages.transcriptionOff,
+        ),
+        customStyles: isTranscriptionDisabled()
+          ? Styled.EnableTrascription : Styled.DisableTrascription,
+        disabled: false,
+        onClick: toggleTranscription,
+      }];
+    }
+
+    // typed captions
+    return [{
       key: 'availableLocalesList',
       label: intl.formatMessage(intlMessages.language),
       customStyles: Styled.TitleLabel,
       disabled: true,
     },
-    ...getAvailableLocales(),
-    {
-      key: 'divider',
-      label: intl.formatMessage(intlMessages.transcription),
-      customStyles: Styled.TitleLabel,
-      disabled: true,
-    },
-    {
-      key: 'separator-02',
-      isSeparator: true,
-    },
-    {
-      key: 'transcriptionStatus',
-      label: intl.formatMessage(
-        isTranscriptionDisabled()
-          ? intlMessages.transcriptionOn
-          : intlMessages.transcriptionOff,
-      ),
-      customStyles: isTranscriptionDisabled()
-        ? Styled.EnableTrascription : Styled.DisableTrascription,
-      disabled: false,
-      onClick: toggleTranscription,
-    }]
-  );
+    ...getAvailableCaptions(),
+    ];
+  };
   const onToggleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setAudioCaptions(!active);
@@ -217,7 +250,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   );
 
   return (
-    shouldRenderChevron
+    shouldRenderChevron || shouldRenderSelector
       ? (
         <Styled.SpanButtonWrapper>
           <BBBMenu
@@ -250,7 +283,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   );
 };
 
-const AudioCaptionsButtonContainer: React.FC = () => {
+const AudioCaptionsButtonContainer: React.FC<{ activeCaptions: object }> = ({ activeCaptions }) => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const {
     data: currentUser,
@@ -288,6 +321,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
       currentSpeechLocale={currentSpeechLocale}
       isSupported={isSupported}
       isVoiceUser={isVoiceUser}
+      activeCaptions={activeCaptions}
     />
   );
 };
