@@ -12,7 +12,6 @@ import Captions from '/imports/api/captions';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Breakouts from '/imports/api/breakouts';
-import BreakoutsHistory from '/imports/api/breakouts-history';
 import Meetings, {
   RecordMeetings, MeetingTimeRemaining, Notifications,
 } from '/imports/api/meetings';
@@ -38,7 +37,6 @@ export const localCollectionRegistry = {
   localRecordMeetingsSync: new AbstractCollection(RecordMeetings, RecordMeetings),
   localMeetingTimeRemainingSync: new AbstractCollection(MeetingTimeRemaining, MeetingTimeRemaining),
   localBreakoutsSync: new AbstractCollection(Breakouts, Breakouts),
-  localBreakoutsHistorySync: new AbstractCollection(BreakoutsHistory, BreakoutsHistory),
   localMeetingsSync: new AbstractCollection(Meetings, Meetings),
   localUsersSync: new AbstractCollection(Users, Users),
   localNotificationsSync: new AbstractCollection(Notifications, Notifications),
