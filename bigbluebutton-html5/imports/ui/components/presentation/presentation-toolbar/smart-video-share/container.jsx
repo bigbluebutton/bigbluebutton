@@ -23,9 +23,6 @@ const SmartMediaShareContainer = (props) => {
       externalVideoUrl = Panopto.getSocialUrl(url);
     }
 
-    // Close Shared Notes if open.
-    NotesService.pinSharedNotes(false);
-
     startExternalVideo({ variables: { externalVideoUrl } });
   };
 

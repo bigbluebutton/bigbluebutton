@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation, useSubscription } from '@apollo/client';
-import { Session } from 'meteor/session';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import NotesService from '/imports/ui/components/notes/notes-graphql/service';
 import PadContainer from '/imports/ui/components/pads/container';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from './notes-dropdown/component';
-import { PANELS, ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import {
+  PANELS, ACTIONS,
+} from '/imports/ui/components/layout/enums';
 import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '/imports/ui/components/layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useHasPermission from './hooks/useHasPermission';
@@ -22,9 +22,7 @@ import {
   isScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 
 const intlMessages = defineMessages({
@@ -44,7 +42,6 @@ const intlMessages = defineMessages({
 
 interface NotesContainerGraphqlProps {
   area: 'media' | undefined;
-  layoutType: string;
   isToSharedNotesBeShow: boolean;
 }
 
@@ -73,7 +70,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     layoutContextDispatch,
     isResizing,
     area,
-    layoutType,
     sidebarContent,
     sharedNotesOutput,
     amIPresenter,
@@ -113,64 +109,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     }
     return () => clearTimeout(timoutRef);
   }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
-  // eslint-disable-next-line consistent-return
-  useEffect(() => {
-    if (
-      isOnMediaArea
-      && (sidebarContent.isOpen || !isPresentationEnabled())
-      && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES || !isPresentationEnabled())
-    ) {
-      if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.CHAT,
-        });
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: PUBLIC_CHAT_ID,
-        });
-      } else {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: false,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.NONE,
-        });
-      }
-
-      layoutContextDispatch({
-        type: ACTIONS.SET_NOTES_IS_PINNED,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
-      });
-
-      return () => {
-        layoutContextDispatch({
-          type: ACTIONS.SET_NOTES_IS_PINNED,
-          value: false,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-          value: Session.get('presentationLastState'),
-        });
-      };
-    } if (shouldShowSharedNotesOnPresentationArea) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_NOTES_IS_PINNED,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
-      });
-    }
-  }, []);
 
   const renderHeaderOnMedia = () => {
     return amIPresenter ? (
@@ -228,7 +166,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 };
 
 const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
-  const { area, layoutType, isToSharedNotesBeShow } = props;
+  const { area, isToSharedNotesBeShow } = props;
 
   const hasPermission = useHasPermission();
   const { data: pinnedPadData } = useSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
@@ -272,7 +210,6 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       amIPresenter={amIPresenter}
       shouldShowSharedNotesOnPresentationArea={shouldShowSharedNotesOnPresentationArea}
       isRTL={isRTL}
-      layoutType={layoutType}
       isToSharedNotesBeShow={isToSharedNotesBeShow}
       handlePinSharedNotes={handlePinSharedNotes}
     />
