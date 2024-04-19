@@ -13,5 +13,8 @@ select_permissions:
         - welcomeMsg
         - welcomeMsgForModerators
       filter:
-        userId:
-          _eq: X-Hasura-UserId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId

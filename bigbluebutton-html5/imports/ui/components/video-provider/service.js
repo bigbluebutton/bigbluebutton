@@ -531,6 +531,8 @@ class VideoService {
 
   getGridUsers(users, streams) {
     const isGridEnabled = this.isGridEnabled();
+    const gridSize = this.getGridSize();
+
     let gridUsers = [];
 
     if (isGridEnabled) {
@@ -541,7 +543,7 @@ class VideoService {
       ).map((user) => ({
         isGridItem: true,
         ...user,
-      }));
+      })).slice(0, gridSize - streams.length);
     }
     return gridUsers;
   }

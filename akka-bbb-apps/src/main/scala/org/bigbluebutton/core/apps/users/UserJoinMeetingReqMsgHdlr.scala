@@ -58,7 +58,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
   private def handleFailedUserJoin(msg: UserJoinMeetingReqMsg, failReason: String, failReasonCode: String) = {
     log.info("Ignoring user {} attempt to join in meeting {}. Reason Code: {}, Reason Message: {}", msg.body.userId, msg.header.meetingId, failReasonCode, failReason)
-    UserDAO.updateJoinError(msg.body.userId, failReasonCode, failReason)
+    UserDAO.updateJoinError(msg.header.meetingId, msg.body.userId, failReasonCode, failReason)
     state
   }
 
@@ -145,7 +145,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, regUser.id)
 
   private def clearExpiredUserState(regUser: RegisteredUser) =
-    UserStateDAO.updateExpired(regUser.id, false)
+    UserStateDAO.updateExpired(regUser.meetingId, regUser.id, false)
 
   private def ForceUserGraphqlReconnection(regUser: RegisteredUser) =
     Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "user_joined", outGW)

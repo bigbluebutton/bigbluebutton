@@ -30,7 +30,7 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
       //PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       broadcastEvent(msg)
-      PresPageCursorDAO.insertOrUpdate(msg.body.whiteboardId, msg.header.userId, msg.body.xPercent, msg.body.yPercent)
+      PresPageCursorDAO.insertOrUpdate(msg.body.whiteboardId, liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.xPercent, msg.body.yPercent)
     }
   }
 }

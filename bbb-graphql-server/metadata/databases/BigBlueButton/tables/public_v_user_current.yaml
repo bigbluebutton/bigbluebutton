@@ -181,8 +181,11 @@ select_permissions:
         - inactivityWarningTimeoutSecs
         - userId
       filter:
-        userId:
-          _eq: X-Hasura-UserId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
   - role: not_joined_bbb_client
     permission:
       columns:
@@ -209,8 +212,11 @@ select_permissions:
         - registeredOn
         - userId
       filter:
-        userId:
-          _eq: X-Hasura-UserId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
     comment: ""
 update_permissions:
   - role: bbb_client
