@@ -122,6 +122,7 @@ class ActionsBar extends PureComponent {
       showPushLayout,
       setPushLayout,
       setPresentationFitToWidth,
+      activeCaptions,
     } = this.props;
 
     const { isCaptionsReaderMenuModalOpen } = this.state;
@@ -182,7 +183,7 @@ class ActionsBar extends PureComponent {
               </>
             )
             : null}
-          <AudioCaptionsButtonContainer />
+          <AudioCaptionsButtonContainer activeCaptions={activeCaptions} />
         </Styled.Left>
         <Styled.Center>
           {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}

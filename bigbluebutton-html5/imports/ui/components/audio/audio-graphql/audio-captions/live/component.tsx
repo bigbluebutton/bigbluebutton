@@ -53,12 +53,16 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
   );
 };
 
-const AudioCaptionsLiveContainer: React.FC = () => {
+const AudioCaptionsLiveContainer: React.FC = ({speechLocale}) => {
   const {
     data: AudioCaptionsLiveData,
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
-  } = useSubscription<getCaptions>(GET_CAPTIONS);
+  } = useSubscription<getCaptions>(GET_CAPTIONS, {
+    variables: { lang: speechLocale || 'en' },
+  });
+
+  console.log('AudioCaptionsLiveData', {AudioCaptionsLiveData, AudioCaptionsLiveLoading, AudioCaptionsLiveError})
 
   const [audioCaptionsEnable] = useAudioCaptionEnable();
 
