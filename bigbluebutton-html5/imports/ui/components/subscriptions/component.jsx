@@ -21,7 +21,7 @@ const SUBSCRIPTIONS = [
   // 'users-infos',
   'meeting-time-remaining',
   // 'record-meetings',
-  'video-streams',
+  // 'video-streams',
   // 'voice-call-states',
   // 'breakouts',
   // 'breakouts-history',

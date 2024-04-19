@@ -3,7 +3,7 @@ import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
 function createUseLocalState<T>(initialValue: T):
 [
   () => [T, (value: T) => void], // hook that returns [state, setter]
-  (value: T) => void, // setter
+  (value: T | Function) => void, // setter
   ReactiveVar<T> // state
 ] {
   const localState = makeVar(initialValue);
