@@ -13,6 +13,7 @@ import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useHasUnreadNotes from '../notes/notes-graphql/hooks/useHasUnreadNotes';
+import useMeeting from '../../core/hooks/useMeeting';
 
 const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
@@ -81,7 +82,6 @@ const NavBarContainer = ({ children, ...props }) => {
 
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
-  const unread = NotesService.hasUnreadNotes();
 
   let meetingTitle, breakoutNum, breakoutName, meetingName;
   const meetingId = Auth.meetingID;
@@ -114,14 +114,12 @@ export default withTracker(() => {
   );
 
   return {
-    isPinned: NotesService.isSharedNotesPinned(),
     currentUserId: Auth.userID,
     meetingId,
     presentationTitle: meetingTitle,
     breakoutNum,
     breakoutName,
     meetingName,
-    unread,
     isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
     isMeteorConnected: Meteor.status().connected,
   };

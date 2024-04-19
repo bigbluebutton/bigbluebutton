@@ -64,7 +64,6 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
-    isSharedNotesPinned,
     viewScreenshare,
     ...otherProps
   } = props;
@@ -118,7 +117,7 @@ const AppContainer = (props) => {
       layoutContextDispatch
       && (typeof meetingLayout !== 'undefined')
       && (layoutType.current !== meetingLayout)
-      && isSharedNotesPinned
+      && shouldShowSharedNotes
     ) {
       layoutType.current = meetingLayout;
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
@@ -166,7 +165,7 @@ const AppContainer = (props) => {
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo);
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo, shouldShowSharedNotes);
   });
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
@@ -330,7 +329,6 @@ export default withTracker(() => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
-    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
     User: currentUser,
   };
 })(AppContainer);

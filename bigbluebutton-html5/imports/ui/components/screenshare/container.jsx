@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { useMutation } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
 import {
   getSharingContentType,
   getBroadcastContentType,
@@ -16,8 +16,10 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaService from '/imports/ui/components/media/service';
 import { defineMessages } from 'react-intl';
-import NotesService from '/imports/ui/components/notes/service';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
+
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -99,6 +101,10 @@ const ScreenshareContainer = (props) => {
   const fullscreenContext = (element === fullscreenElementId);
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
+  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const isSharedNotesPinned = !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+
   const { isPresenter } = props;
 
   const info = {
@@ -133,6 +139,7 @@ const ScreenshareContainer = (props) => {
           ...screenShare,
           fullscreenContext,
           fullscreenElementId,
+          isSharedNotesPinned,
           stopExternalVideoShare,
           ...selectedInfo,
         }
@@ -152,7 +159,5 @@ export default withTracker(() => {
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     enableVolumeControl: shouldEnableVolumeControl(),
     outputDeviceId: AudioService.outputDeviceId(),
-    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
-    pinSharedNotes: NotesService.pinSharedNotes,
   };
 })(ScreenshareContainer);

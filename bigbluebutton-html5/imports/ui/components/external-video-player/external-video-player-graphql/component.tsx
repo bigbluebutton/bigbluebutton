@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
 import audioManager from '/imports/ui/services/audio-manager';
-import { useReactiveVar, useMutation } from '@apollo/client';
+import { useReactiveVar, useMutation, useSubscription } from '@apollo/client';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
 import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
@@ -38,8 +38,10 @@ import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
+import { PINNED_PAD_SUBSCRIPTION } from '../../notes/notes-graphql/queries';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
 const intlMessages = defineMessages({
   autoPlayWarning: {
@@ -74,7 +76,7 @@ interface ExternalVideoPlayerProps {
   currentTime: number;
   key: string;
   setKey: (key: string) => void;
-  shouldShowSharedNotes(): boolean;
+  shouldShowSharedNotes: boolean;
   pinSharedNotes(pinned: boolean): void;
 }
 
@@ -258,7 +260,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, [playerRef.current]);
 
   useEffect(() => {
-    if (shouldShowSharedNotes()) {
+    if (shouldShowSharedNotes) {
       pinSharedNotes(false);
       return () => {
         pinSharedNotes(true);
@@ -512,6 +514,9 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
   const [key, setKey] = React.useState(uniqueId('react-player'));
+  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const shouldShowSharedNotes = !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   if (!currentUser || !currentMeeting) return null;
   if (!hasExternalVideoOnLayout) return null;
   const playerCurrentTime = currentMeeting.externalVideo?.playerCurrentTime ?? 0;
@@ -539,7 +544,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       currentTime={isPresenter ? playerCurrentTime : currentTime}
       key={key}
       setKey={setKey}
-      shouldShowSharedNotes={MediaService.shouldShowSharedNotes}
+      shouldShowSharedNotes={shouldShowSharedNotes}
       pinSharedNotes={NotesService.pinSharedNotes}
     />
   );
