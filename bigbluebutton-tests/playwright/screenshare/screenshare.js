@@ -41,7 +41,7 @@ class ScreenShare extends Page {
     await this.type(e.videoModalInput, e.youtubeLink);
     await this.waitAndClick(e.startShareVideoBtn);
 
-    const modFrame = await this.getYoutubeFrame(this, e.youtubeFrame);
+    const modFrame = await this.getYoutubeFrame();
     await modFrame.hasElement('video');
 
     await startScreenshare(this);

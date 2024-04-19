@@ -315,12 +315,12 @@ class Page {
     await this.page.setViewportSize({ width: 1366, height: 768 });
   }
 
-  async getYoutubeFrame(test, frameSelector) {
-    await test.waitForSelector(frameSelector);
-    const iframeElement = await test.getLocator('iframe').elementHandle();
+  async getYoutubeFrame() {
+    await this.waitForSelector(e.youtubeFrame);
+    const iframeElement = await this.getLocator('iframe').elementHandle();
     const frame = await iframeElement.contentFrame();
     await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    const ytFrame = new Page(test.browser, frame);
+    const ytFrame = new Page(this.page.browser, frame);
     return ytFrame;
   }
 }

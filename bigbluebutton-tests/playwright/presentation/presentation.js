@@ -72,8 +72,8 @@ class Presentation extends MultiUsers {
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
-    const modFrame = await this.modPage.getYoutubeFrame(this.modPage, e.youtubeFrame);
-    const userFrame = await this.userPage.getYoutubeFrame(this.userPage, e.youtubeFrame);
+    const modFrame = await this.modPage.getYoutubeFrame();
+    const userFrame = await this.userPage.getYoutubeFrame();
 
     await modFrame.hasElement('video');
     await userFrame.hasElement('video');
