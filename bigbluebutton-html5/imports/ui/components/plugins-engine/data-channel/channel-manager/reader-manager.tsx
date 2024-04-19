@@ -20,7 +20,7 @@ export interface MutationVariables {
   pluginName: string,
   dataChannel: string,
   payloadJson: string,
-  toRoles: PluginSdk.DataChannelPushFunctionUserRole[],
+  toRoles: PluginSdk.DataChannelPushEntryFunctionUserRole[],
   toUserIds: string[],
 }
 
