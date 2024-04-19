@@ -1,7 +1,7 @@
 const { default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const { MultiUsers } = require('../user/multiusers');
-const { startScreenshare, getFrame } = require('./util');
+const { startScreenshare } = require('./util');
 const e = require('../core/elements');
 const { getSettings } = require('../core/settings');
 
@@ -41,7 +41,7 @@ class ScreenShare extends Page {
     await this.type(e.videoModalInput, e.youtubeLink);
     await this.waitAndClick(e.startShareVideoBtn);
 
-    const modFrame = await getFrame(this, e.youtubeFrame);
+    const modFrame = await this.getYoutubeFrame(this, e.youtubeFrame);
     await modFrame.hasElement('video');
 
     await startScreenshare(this);
