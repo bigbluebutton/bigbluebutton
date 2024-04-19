@@ -74,6 +74,7 @@ interface ExternalVideoPlayerProps {
   playerPlaybackRate: number;
   currentTime: number;
   key: string;
+  isSidebarContentOpen: boolean;
   setKey: (key: string) => void;
   shouldShowSharedNotes(): boolean;
   pinSharedNotes(pinned: boolean): void;
@@ -86,6 +87,7 @@ Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 
 const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   isGridLayout,
+  isSidebarContentOpen,
   currentVolume,
   isMuted,
   isResizing,
@@ -341,7 +343,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }
 
   const shouldShowTools = () => {
-    if (isPresenter || (!isPresenter && isGridLayout && )) {
+    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen)) {
       return false;
     }
     return true;
@@ -510,6 +512,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
   const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const { isOpen: isSidebarContentOpen } = sidebarContent;
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -531,6 +535,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   return (
     <ExternalVideoPlayer
+      isSidebarContentOpen={isSidebarContentOpen}
       isGridLayout={isGridLayout}
       currentVolume={currentVolume}
       isMuted={isMuted}
