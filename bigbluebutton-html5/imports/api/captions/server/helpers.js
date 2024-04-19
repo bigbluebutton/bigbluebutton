@@ -20,7 +20,6 @@ const init = (meetingId) => {
 
     const locales = response.data;
     await Promise.all(locales.map(async (locale) => {
-      console.log("🚀 -> awaitPromise.all -> locale:", locale)
       const caption = await createCaptions(meetingId, locale.locale, locale.name);
       return caption;
     }));
