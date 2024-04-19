@@ -19,7 +19,7 @@ export const NotifyPublishedPoll = (
   if (
     // @ts-ignore - JS code
     Settings.application.chatPushAlerts
-    && !presenter
+    && presenter
   ) {
     notifier(notification);
   }

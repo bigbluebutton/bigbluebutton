@@ -45,6 +45,7 @@ const Notifications: React.FC = () => {
     notify(
       <FormattedMessage
         id={notification.messageId}
+        // @ts-ignore - JS code
         values={notification.messageValues}
         description={notification.messageDescription}
       />,
@@ -75,6 +76,8 @@ const Notifications: React.FC = () => {
               currentUser?.isModerator,
               currentUser?.presenter,
             );
+          } else {
+            notifier(notification);
           }
         }
       });
