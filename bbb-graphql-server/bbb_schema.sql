@@ -1806,7 +1806,7 @@ CREATE TABLE "notification" (
 	"messageDescription"    varchar(100),
 	"messageValues"         jsonb,
 	"role"                  varchar(100), --MODERATOR, PRESENTER, VIEWER
-	"userMeetingId"         varchar(50),
+	"userMeetingId"         varchar(100),
 	"userId"                varchar(50),
 	"createdAt"             timestamp with time zone DEFAULT current_timestamp,
 	FOREIGN KEY ("userMeetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE

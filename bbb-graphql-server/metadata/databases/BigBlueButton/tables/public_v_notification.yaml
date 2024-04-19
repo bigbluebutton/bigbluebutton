@@ -16,7 +16,6 @@ select_permissions:
         - messageDescription
         - messageId
         - messageValues
-        - notificationId
         - notificationType
         - role
       filter:
