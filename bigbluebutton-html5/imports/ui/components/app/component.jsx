@@ -557,7 +557,7 @@ setRandomUserSelectModalIsOpen(value) {
       pushAlertEnabled,
       shouldShowPresentation,
       shouldShowScreenshare,
-      shouldShowSharedNotes,
+      isSharedNotesPinned,
       isPresenter,
       selectedLayout,
       presentationIsOpen,
@@ -595,7 +595,7 @@ setRandomUserSelectModalIsOpen(value) {
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
-          <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
+          <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <ExternalVideoPlayerContainer />
@@ -625,11 +625,10 @@ setRandomUserSelectModalIsOpen(value) {
             )
             : null
           }
-          {shouldShowSharedNotes
+          {isSharedNotesPinned
             ? (
               <NotesContainer
                 area="media"
-                layoutType={selectedLayout}
               />
             ) : null}
           <AudioCaptionsSpeechContainer />
