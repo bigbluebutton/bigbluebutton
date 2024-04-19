@@ -7,7 +7,6 @@ import React, {
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainerGraphql from '../../../../breakout-room/breakout-room-graphql/create-breakout-room/component';
-import WriterMenuContainer from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { defineMessages, useIntl } from 'react-intl';
@@ -21,7 +20,7 @@ import {
 } from './service';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { isBreakoutRoomsEnabled, isLearningDashboardEnabled, isCaptionsEnabled } from '/imports/ui/services/features';
+import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CLEAR_ALL_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SET_MUTED } from './mutations';
@@ -101,14 +100,6 @@ const intlMessages = defineMessages({
   saveUserNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Save user name feature description',
-  },
-  captionsLabel: {
-    id: 'app.actionsBar.actionsDropdown.captionsLabel',
-    description: 'Captions menu toggle label',
-  },
-  captionsDesc: {
-    id: 'app.actionsBar.actionsDropdown.captionsDesc',
-    description: 'Captions menu toggle description',
   },
   newTab: {
     id: 'app.modal.newTab',
@@ -313,15 +304,6 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'createBreakoutRooms',
       },
       {
-        allow: isModerator && isCaptionsEnabled(),
-        icon: 'closed_caption',
-        label: intl.formatMessage(intlMessages.captionsLabel),
-        description: intl.formatMessage(intlMessages.captionsDesc),
-        key: uuids.current[7],
-        onClick: () => setIsWriterMenuModalOpen(true),
-        dataTest: 'writeClosedCaptions',
-      },
-      {
         key: 'separator-02',
         isSeparator: true,
         allow: true,
@@ -382,14 +364,6 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         setIsOpen: setGuestPolicyModalIsOpen,
         priority: 'low',
         Component: GuestPolicyContainer,
-        otherOptions: {},
-      })}
-
-      {renderModal({
-        isOpen: isWriterMenuModalOpen,
-        setIsOpen: setIsWriterMenuModalOpen,
-        priority: 'low',
-        Component: WriterMenuContainer,
         otherOptions: {},
       })}
 
