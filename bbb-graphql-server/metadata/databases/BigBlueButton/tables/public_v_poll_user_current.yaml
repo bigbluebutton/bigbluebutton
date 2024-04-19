@@ -12,6 +12,9 @@ select_permissions:
       columns:
         - responded
       filter:
-        userId:
-          _eq: X-Hasura-UserId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
     comment: ""

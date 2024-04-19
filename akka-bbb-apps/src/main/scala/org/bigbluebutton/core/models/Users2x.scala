@@ -49,7 +49,7 @@ object Users2x {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
       users.save(newUser)
       UserStateDAO.update(newUser)
-      UserStateDAO.updateExpired(u.intId, false)
+      UserStateDAO.updateExpired(u.meetingId, u.intId, false)
       newUser
     }
   }
@@ -101,7 +101,7 @@ object Users2x {
   def resetLastInactivityInspect(users: Users2x, u: UserState): UserState = {
     val newUserState = modify(u)(_.lastInactivityInspect).setTo(0)
     users.save(newUserState)
-    UserStateDAO.updateInactivityWarning(u.intId, inactivityWarningDisplay = false, 0)
+    UserStateDAO.updateInactivityWarning(u.meetingId, u.intId, inactivityWarningDisplay = false, 0)
     newUserState
   }
 
@@ -207,7 +207,7 @@ object Users2x {
         .modify(_.reactionChangedOn).setTo(System.currentTimeMillis())
 
       users.save(newUser)
-      UserReactionDAO.insert(intId, reactionEmoji, durationInSeconds)
+      UserReactionDAO.insert(u.meetingId, u.intId, reactionEmoji, durationInSeconds)
       newUser
     }
   }
@@ -409,6 +409,7 @@ case class UserLeftFlag(left: Boolean, leftOn: Long)
 case class UserState(
     intId:                 String,
     extId:                 String,
+    meetingId:             String,
     name:                  String,
     role:                  String,
     guest:                 Boolean,

@@ -165,7 +165,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     };
   }, [isPresenter]);
 
-  const [autoPlayBlocked, setAutoPlayBlocked] = React.useState(false);
+  const [showUnsynchedMsg, setShowUnsynchedMsg] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
   const [mute, setMute] = React.useState(false);
   const [volume, setVolume] = React.useState(1);
@@ -177,6 +177,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const presenterRef = useRef(isPresenter);
   const [duration, setDuration] = React.useState(0);
+  const [reactPlayerState, setReactPlayerState] = React.useState(false);
 
   const [updateExternalVideo] = useMutation(EXTERNAL_VIDEO_UPDATE);
 
@@ -223,10 +224,18 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   };
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
-      setAutoPlayBlocked(true);
-    }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
+    const unsynchedPlayer = reactPlayerState !== playing;
+    if (unsynchedPlayer) {
+      timeoutRef.current = setTimeout(() => {
+        setShowUnsynchedMsg(true);
+      }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
+    } else {
+      setShowUnsynchedMsg(false);
+      clearTimeout(timeoutRef.current);
+    }
+  }, [reactPlayerState, playing]);
 
+  useEffect(() => {
     const handleExternalVideoVolumeSet = ((
       event: CustomEvent<SetExternalVideoVolumeCommandArguments>,
     ) => setVolume(event.detail.volume)) as EventListener;
@@ -290,12 +299,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, [isPresenter]);
 
   const handleOnPlay = () => {
-    setAutoPlayBlocked(false);
-    clearTimeout(timeoutRef.current);
+    setReactPlayerState(true);
     if (isPresenter) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
       const currentTime = played * duration;
       sendMessage('play', {
@@ -308,6 +313,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   };
 
   const handleOnStop = () => {
+    setReactPlayerState(false);
     if (isPresenter) {
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
@@ -326,8 +332,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   // @ts-ignore accessing lib private property
   const playerName = playerRef.current && playerRef.current.player
-  // @ts-ignore accessing lib private property
-  && playerRef.current.player.player && playerRef.current.player.player.constructor.name as string;
+    // @ts-ignore accessing lib private property
+    && playerRef.current.player.player && playerRef.current.player.player.constructor.name as string;
   let toolbarStyle = 'hoverToolbar';
 
   if (deviceInfo.isMobile && !showHoverToolBar) {
@@ -357,7 +363,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       >
 
         {
-          autoPlayBlocked
+          showUnsynchedMsg
             ? (
               <Styled.AutoPlayWarning>
                 {intl.formatMessage(intlMessages.autoPlayWarning)}
@@ -408,7 +414,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               hideVolume={hideVolume[playerName as keyof typeof hideVolume]}
             />
           ) : null
-      }
+        }
       </Styled.VideoPlayerWrapper>
     </Styled.Container>
   );
@@ -515,7 +521,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const currentDate = new Date(Date.now() + timeSync);
   const isPaused = !currentMeeting.externalVideo?.playerPlaying ?? false;
   const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
-  + playerCurrentTime) * playerPlaybackRate;
+    + playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
 
   return (

@@ -934,7 +934,7 @@ class MeetingActor(
           Polls.handleStopPollReqMsg(state, u.intId, liveMeeting)
         }
 
-        UserStateDAO.updateExpired(u.intId, true)
+        UserStateDAO.updateExpired(u.meetingId, u.intId, true)
       }
     }
 
@@ -985,7 +985,7 @@ class MeetingActor(
 
         val secsToDisconnect = TimeUnit.MILLISECONDS.toSeconds(expiryTracker.userActivitySignResponseDelayInMs);
         Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, secsToDisconnect, outGW)
-        UserStateDAO.updateInactivityWarning(u.intId, inactivityWarningDisplay = true, secsToDisconnect)
+        UserStateDAO.updateInactivityWarning(u.meetingId, u.intId, inactivityWarningDisplay = true, secsToDisconnect)
         updateUserLastInactivityInspect(u.intId)
       }
     }
