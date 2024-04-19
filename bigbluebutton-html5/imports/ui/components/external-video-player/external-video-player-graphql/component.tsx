@@ -64,6 +64,7 @@ interface ExternalVideoPlayerProps {
   currentVolume: React.MutableRefObject<number>;
   isMuted: React.MutableRefObject<boolean>;
   isEchoTest: boolean;
+  isGridLayout: boolean;
   isPresenter: boolean;
   videoUrl: string;
   isResizing: boolean;
@@ -84,6 +85,7 @@ Styled.VideoPlayer.addCustomPlayer(PeerTube);
 Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 
 const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
+  isGridLayout,
   currentVolume,
   isMuted,
   isResizing,
@@ -338,6 +340,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     toolbarStyle = 'showMobileHoverToolbar';
   }
 
+  const shouldShowTools = () => {
+    if (isPresenter || (!isPresenter && isGridLayout && )) {
+      return false;
+    }
+    return true;
+  };
+
   return (
     <Styled.Container
       style={{
@@ -388,7 +397,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           muted={mute || isEchoTest}
         />
         {
-          !isPresenter ? (
+          shouldShowTools() ? (
             <ExternalVideoPlayerToolbar
               handleOnMuted={(m: boolean) => { setMute(m); }}
               handleReload={() => setKey(uniqueId('react-player'))}
@@ -427,6 +436,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
+    layout: m.layout,
   }));
 
   useEffect(() => {
@@ -517,9 +527,11 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
   + playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
+  const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
 
   return (
     <ExternalVideoPlayer
+      isGridLayout={isGridLayout}
       currentVolume={currentVolume}
       isMuted={isMuted}
       isEchoTest={isEchoTest}
