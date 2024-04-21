@@ -812,6 +812,7 @@
     "app.toast.chat.system": "Σύστημα",
     "app.toast.chat.poll": "Αποτελέσματα δημοσκόπησης",
     "app.toast.chat.pollClick": "Τα αποτελέσματα της δημοσκόπησης δημοσιεύθηκαν. Κάντε κλικ εδώ για προβολή.",
+    "app.toast.chat.exportedPresentation": "Αρχείο παρουσίασης",
     "app.toast.clearedEmoji.label": "Εκκαθάριση κατάστασης emoji",
     "app.toast.setEmoji.label": "Η κατάσταση του Emoji ορίστηκε σε {0}",
     "app.toast.meetingMuteOn.label": "Όλοι οι χρήστες είναι σε σίγαση",
