@@ -17,9 +17,7 @@ export const NotifyPublishedPoll = (
   presenter: boolean,
 ) => {
   if (
-    // @ts-ignore - JS code
-    Settings.application.chatPushAlerts
-    && (presenter || isModerator)
+    (presenter || isModerator)
   ) {
     notifier(notification);
   }
