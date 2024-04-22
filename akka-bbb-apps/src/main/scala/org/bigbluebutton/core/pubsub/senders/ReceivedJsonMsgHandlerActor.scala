@@ -470,7 +470,7 @@ class ReceivedJsonMsgHandlerActor(
         route[CheckGraphqlMiddlewareAlivePongSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case _ =>
-        log.error("Cannot route envelope name " + envelope.name)
+        log.debug("Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }

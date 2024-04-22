@@ -3,7 +3,6 @@ import '/imports/startup/server';
 // 2x
 import '/imports/api/meetings/server';
 import '/imports/api/users/server';
-import '/imports/api/captions/server';
 import '/imports/api/presentation-upload-token/server';
 import '/imports/api/breakouts/server';
 import '/imports/api/screenshare/server';
