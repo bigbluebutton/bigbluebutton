@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
+import { defineMessages } from 'react-intl';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
@@ -17,6 +18,17 @@ import Button from '/imports/ui/components/common/button/component';
 import Settings from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
 
+const messages = defineMessages({
+  awayLabel: {
+    id: 'app.userList.menu.away',
+    description: 'Text for identifying away user',
+  },
+  notAwayLabel: {
+    id: 'app.userList.menu.notAway',
+    description: 'Text for identifying not away user',
+  },
+});
+
 class ActionsBar extends PureComponent {
   constructor(props) {
     super(props);
@@ -27,6 +39,7 @@ class ActionsBar extends PureComponent {
 
     this.setCaptionsReaderMenuModalIsOpen = this.setCaptionsReaderMenuModalIsOpen.bind(this);
     this.setRenderRaiseHand = this.renderRaiseHand.bind(this);
+    this.setRenderAwayButton = this.renderAwayButton.bind(this);
     this.actionsBarRef = React.createRef();
     this.renderPluginsActionBarItems = this.renderPluginsActionBarItems.bind(this);
   }
@@ -92,6 +105,28 @@ class ActionsBar extends PureComponent {
           : isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{ currentUser, intl }} />
             : null}
       </>
+    );
+  }
+
+  renderAwayButton() {
+    const { intl, currentUser, setUserAway } = this.props;
+    const { away } = currentUser;
+
+    const awayLabel = away
+      ? intl.formatMessage(messages.notAwayLabel)
+      : intl.formatMessage(messages.awayLabel);
+
+    return (
+      <Button
+        onClick={() => setUserAway(!away)}
+        hideLabel
+        color={away ? 'primary' : 'default'}
+        ghost={!away}
+        icon="time"
+        size="lg"
+        circle
+        label={awayLabel}
+      />
     );
   }
 
@@ -210,6 +245,7 @@ class ActionsBar extends PureComponent {
             />
           )}
           {isRaiseHandButtonCentered && this.renderRaiseHand()}
+          {this.renderAwayButton()}
           {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
         </Styled.Center>
         <Styled.Right>

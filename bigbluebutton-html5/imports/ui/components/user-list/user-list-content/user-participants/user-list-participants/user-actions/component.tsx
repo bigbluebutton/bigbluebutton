@@ -6,7 +6,6 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import logger from '/imports/startup/client/logger';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
-  SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
@@ -27,9 +26,6 @@ import {
   generateActionsPermissions,
   isVoiceOnlyUser,
 } from './service';
-
-import VideoService from '/imports/ui/components/video-provider/service';
-import AudioService from '/imports/ui/components/audio/service';
 
 import { isChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
@@ -152,14 +148,6 @@ const messages = defineMessages({
   backTriggerLabel: {
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
-  },
-  awayLabel: {
-    id: 'app.userList.menu.away',
-    description: 'Text for identifying away user',
-  },
-  notAwayLabel: {
-    id: 'app.userList.menu.notAway',
-    description: 'Text for identifying not away user',
   },
 });
 const makeDropdownPluginItem: (
@@ -284,7 +272,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowUserLookup,
     allowedToRemove,
     allowedToEjectCameras,
-    allowedToSetAway,
   } = actionsnPermitions;
 
   const userLocked = user.locked
@@ -306,7 +293,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     (page: { pageId: string; userId: string }) => (page.pageId === pageId && page.userId === user.userId),
   );
 
-  const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
   const [chatCreateWithUser] = useMutation(CHAT_CREATE_WITH_USER);
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
@@ -334,25 +320,6 @@ const UserActions: React.FC<UserActionsProps> = ({
           banUser,
         },
       });
-    }
-  };
-
-  const muteAway = () => {
-    const isMuted = user.voice?.muted;
-    const prevAwayMuted = prevMutedRef.current;
-
-    if (!isMuted && !user.away && !prevAwayMuted) {
-      AudioService.toggleMuteMicrophone(toggleVoice, voiceToggle);
-      prevMutedRef.current = true;
-    } else if (isMuted && user.away && prevAwayMuted) {
-      AudioService.toggleMuteMicrophone(toggleVoice, voiceToggle);
-      prevMutedRef.current = false;
-    }
-
-    if (!user.away) {
-      VideoService.setTrackEnabled(false);
-    } else {
-      VideoService.setTrackEnabled(true);
     }
   };
 
@@ -586,21 +553,6 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
       dataTest: 'ejectCamera',
-    },
-    {
-      allowed: allowedToSetAway,
-      key: 'setAway',
-      label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
-      onClick: () => {
-        muteAway();
-        setAway({
-          variables: {
-            away: !user.away,
-          },
-        });
-        setOpenUserAction(null);
-      },
-      icon: 'time',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
       (item: PluginSdk.UserListDropdownInterface) => (item?.type !== UserListDropdownItemType.INFORMATION),

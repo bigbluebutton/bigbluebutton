@@ -20,6 +20,11 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import { toggleVoice } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/service';
+import VideoService from '/imports/ui/components/video-provider/service';
+import AudioService from '/imports/ui/components/audio/service';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -49,10 +54,38 @@ const ActionsBarContainer = (props) => {
     presenter: user.presenter,
     emoji: user.emoji,
     isModerator: user.isModerator,
+    away: user.away,
+    voice: user.voice,
   }));
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
+  const [setAway] = useMutation(SET_AWAY);
+  const voiceToggle = useToggleVoice();
+
+  const muteAway = (away) => {
+    const isMuted = currentUserData?.voice?.muted;
+
+    if (isMuted === away) {
+      AudioService.toggleMuteMicrophone(toggleVoice, voiceToggle);
+    }
+
+    VideoService.setTrackEnabled(away);
+  };
+
+  const setUserAway = (away) => {
+    muteAway(!away);
+    setAway({
+      variables: {
+        away,
+      },
+    });
+  };
+
+  const currentUser = {
+    userId: Auth.userID,
+    emoji: currentUserData?.emoji,
+    away: currentUserData?.away,
+  };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
 
@@ -71,6 +104,7 @@ const ActionsBarContainer = (props) => {
         isThereCurrentPresentation,
         isSharingVideo,
         stopExternalVideoShare,
+        setUserAway,
       }
     }
     />

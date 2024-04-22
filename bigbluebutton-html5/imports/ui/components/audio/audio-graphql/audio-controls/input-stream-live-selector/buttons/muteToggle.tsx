@@ -6,6 +6,7 @@ import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import Settings from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary while settings are still in .js
@@ -48,6 +49,7 @@ export const Mutetoggle: React.FC<MuteToggleProps> = ({
     e.stopPropagation();
 
     if (muted) {
+      VideoService.setTrackEnabled(true);
       setAway({
         variables: {
           away: false,
