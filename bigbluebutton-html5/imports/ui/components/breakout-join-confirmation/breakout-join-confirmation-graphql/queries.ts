@@ -24,6 +24,14 @@ export interface GetBreakoutCountResponse {
   breakoutRoom_aggregate: BreakoutRoomAggregate;
 }
 
+export const handleinviteDismissedAt = gql`
+  mutation {
+    update_breakoutRoom_user(where: {}, _set: {inviteDismissedAt: "now()"}) {
+      affected_rows
+    }
+  }
+`;
+
 export const getBreakoutCount = gql`
   subscription getBreakoutCount  {
     breakoutRoom_aggregate (where: {showInvitation: {_eq: true}}) {
