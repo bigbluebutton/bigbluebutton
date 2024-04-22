@@ -28,6 +28,9 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
+import VideoService from '/imports/ui/components/video-provider/service';
+import AudioService from '/imports/ui/components/audio/service';
+
 import { isChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
@@ -314,6 +317,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
   const [requestUserInfo] = useMutation(REQUEST_USER_INFO);
+  const prevMutedRef = React.useRef<boolean>(false);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -330,6 +334,25 @@ const UserActions: React.FC<UserActionsProps> = ({
           banUser,
         },
       });
+    }
+  };
+
+  const muteAway = () => {
+    const isMuted = user.voice?.muted;
+    const prevAwayMuted = prevMutedRef.current;
+
+    if (!isMuted && !user.away && !prevAwayMuted) {
+      AudioService.toggleMuteMicrophone(toggleVoice, voiceToggle);
+      prevMutedRef.current = true;
+    } else if (isMuted && user.away && prevAwayMuted) {
+      AudioService.toggleMuteMicrophone(toggleVoice, voiceToggle);
+      prevMutedRef.current = false;
+    }
+
+    if (!user.away) {
+      VideoService.setTrackEnabled(false);
+    } else {
+      VideoService.setTrackEnabled(true);
     }
   };
 
@@ -569,6 +592,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'setAway',
       label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
       onClick: () => {
+        muteAway();
         setAway({
           variables: {
             away: !user.away,
