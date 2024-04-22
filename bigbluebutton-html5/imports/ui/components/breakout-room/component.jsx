@@ -239,7 +239,6 @@ class BreakoutRoom extends PureComponent {
 
   showSetTimeForm() {
     this.setState({ visibleSetTimeForm: true });
-    console.log('showSetTimeForm');
     window.addEventListener('click', this.handleClickOutsideDurationContainer);
   }
 
