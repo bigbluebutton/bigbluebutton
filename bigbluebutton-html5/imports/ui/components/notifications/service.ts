@@ -13,7 +13,7 @@ const lastLayoutUpdateNotification = makeVar(new Date().getTime());
 export const NotifyPublishedPoll = (
   notification: Notification,
   notifier: (notification: Notification) => void,
-  isModerator: boolean,
+  _: boolean,
   presenter: boolean,
 ) => {
   if (
