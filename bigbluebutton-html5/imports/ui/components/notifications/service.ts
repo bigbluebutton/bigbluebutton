@@ -13,13 +13,13 @@ const lastLayoutUpdateNotification = makeVar(new Date().getTime());
 export const NotifyPublishedPoll = (
   notification: Notification,
   notifier: (notification: Notification) => void,
-  _: boolean,
+  isModerator: boolean,
   presenter: boolean,
 ) => {
   if (
     // @ts-ignore - JS code
     Settings.application.chatPushAlerts
-    && presenter
+    && (presenter || isModerator)
   ) {
     notifier(notification);
   }
