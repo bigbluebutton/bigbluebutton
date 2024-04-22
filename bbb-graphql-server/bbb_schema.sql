@@ -1776,11 +1776,11 @@ CREATE OR REPLACE FUNCTION "update_caption_locale_owner_func"() RETURNS TRIGGER 
 BEGIN
     WITH upsert AS (
         UPDATE "caption_locale" SET
-        "ownerUserId" = NEW.userId,
+        "ownerUserId" = NEW."userId",
         "updatedAt" = current_timestamp
         WHERE "meetingId"=NEW."meetingId" AND "locale"=NEW."locale" AND "captionType"= NEW."captionType"
     RETURNING *)
-    INSERT INTO "user_connectionStatusMetrics"("meetingId","locale","captionType","ownerUserId")
+    INSERT INTO "caption_locale"("meetingId","locale","captionType","ownerUserId")
     SELECT NEW."meetingId", NEW."locale", NEW."captionType", NEW."userId"
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
