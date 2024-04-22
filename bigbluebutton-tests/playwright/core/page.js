@@ -42,9 +42,9 @@ class Page {
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
-    await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
+    await expect(hasErrorLabel, 'should pass the authentication and the layout element should be displayed').toBeFalsy();
     if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
-      await this.waitForSelector('div#layout', ELEMENT_WAIT_LONGER_TIME);
+      await this.waitForSelector('div#layout', 70000);
       this.settings = await generateSettingsData(this.page);
       const { autoJoinAudioModal } = this.settings;
       if (isRecording && !isModerator) await this.closeRecordingModal();
@@ -198,9 +198,9 @@ class Page {
     return this.page.evaluate(checkElement, [selector, index]);
   }
 
-  async wasRemoved(selector, timeout = ELEMENT_WAIT_TIME) {
+  async wasRemoved(selector, description, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
-    await expect(locator).toBeHidden({ timeout });
+    await expect(locator, description).toBeHidden({ timeout });
   }
 
   async wasNthElementRemoved(selector, count, timeout = ELEMENT_WAIT_TIME) {
@@ -208,9 +208,9 @@ class Page {
     await expect(locator).toBeHidden({ timeout });
   }
 
-  async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
+  async hasElement(selector, description, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
-    await expect(locator).toBeVisible({ timeout });
+    await expect(locator, description).toBeVisible({ timeout });
   }
 
   async hasNElements(selector, count, timeout = ELEMENT_WAIT_TIME) {
@@ -228,9 +228,9 @@ class Page {
     await expect(locator).toBeEnabled({ timeout });
   }
 
-  async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {
+  async hasText(selector, text, description, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector).first();
-    await expect(locator).toContainText(text, { timeout });
+    await expect(locator, description).toContainText(text, { timeout });
   }
 
   async haveTitle(title) {
@@ -265,9 +265,9 @@ class Page {
     await this.page.mouse.up();
   }
 
-  async checkElementCount(selector, count) {
+  async checkElementCount(selector, count, description) {
     const locator = await this.page.locator(selector);
-    await expect(locator).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
   }
 
   async hasValue(selector, value) {
