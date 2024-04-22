@@ -4,17 +4,18 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/common/menu/component';
+import { defineMessages, useIntl } from 'react-intl';
+import { useMutation, useSubscription } from '@apollo/client';
 import Styled from './styles';
 import {
-  getSpeechVoices, setAudioCaptions, setSpeechLocale,
+  setAudioCaptions, setSpeechLocale,
 } from '../service';
-import { defineMessages, useIntl } from 'react-intl';
 import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { User } from '/imports/ui/Types/user';
-import { useMutation } from '@apollo/client';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
 
 const intlMessages = defineMessages({
   start: {
@@ -101,7 +102,6 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   availableVoices,
   isSupported,
   isVoiceUser,
-  activeCaptions,
 }) => {
   const knownLocales = window.meetingClientSettings.public.captions.locales;
   const intl = useIntl();
@@ -131,7 +131,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   }, [currentSpeechLocale]);
 
   const shouldRenderChevron = isSupported && isVoiceUser;
-  const shouldRenderSelector = isSupported && activeCaptions.length > 0;
+  const shouldRenderSelector = isSupported && availableVoices.length > 0;
 
   const toggleTranscription = () => {
     setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale);
@@ -171,16 +171,16 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   };
 
   const getAvailableCaptions = () => {
-    return activeCaptions.map((caption) => {
-      const localeName = knownLocales.find((l) => l.locale === caption.lang).name;
+    return availableVoices.map((caption) => {
+      const localeName = knownLocales ? knownLocales.find((l) => l.locale === caption)?.name : 'en';
 
       return {
-        key: caption.lang,
+        key: caption,
         label: localeName,
-        customStyles: (selectedLocale.current === caption.lang) && Styled.SelectedLabel,
-        iconRight: selectedLocale.current === caption.lang ? 'check' : null,
+        customStyles: (selectedLocale.current === caption) && Styled.SelectedLabel,
+        iconRight: selectedLocale.current === caption ? 'check' : null,
         onClick: () => {
-          selectedLocale.current = caption.lang;
+          selectedLocale.current = caption;
           setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
         },
       };
@@ -302,12 +302,19 @@ const AudioCaptionsButtonContainer: React.FC<{ activeCaptions: object }> = ({ ac
     componentsFlags: m.componentsFlags,
   }));
 
+  const {
+    data: activeCaptionsData,
+    loading: activeCaptionsLoading,
+  } = useSubscription<ActiveCaptionsResponse>(getactiveCaptions);
+
   if (currentUserLoading) return null;
   if (currentMeetingLoading) return null;
+  if (activeCaptionsLoading) return null;
   if (!currentUser) return null;
   if (!currentMeetingData) return null;
+  if (!activeCaptionsData) return null;
 
-  const availableVoices = getSpeechVoices();
+  const availableVoices = activeCaptionsData.caption_activeLocales.map((caption) => caption.locale);
   const currentSpeechLocale = currentUser.speechLocale || '';
   const isSupported = availableVoices.length > 0;
   const isVoiceUser = !!currentUser.voice;
@@ -321,7 +328,6 @@ const AudioCaptionsButtonContainer: React.FC<{ activeCaptions: object }> = ({ ac
       currentSpeechLocale={currentSpeechLocale}
       isSupported={isSupported}
       isVoiceUser={isVoiceUser}
-      activeCaptions={activeCaptions}
     />
   );
 };

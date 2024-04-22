@@ -25,7 +25,10 @@ export interface Public {
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
 }
-
+export interface Locales {
+  locale: string
+  name: string
+}
 export interface App {
   instanceId: string
   mobileFontSize: string
@@ -453,6 +456,7 @@ export interface Captions {
   font: Font
   lines: number
   time: number
+  locales: Locales[]
 }
 
 export interface Font {

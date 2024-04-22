@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
@@ -111,7 +110,7 @@ class ActionsBar extends PureComponent {
       showPushLayout,
       setPushLayout,
       setPresentationFitToWidth,
-      activeCaptions,
+
     } = this.props;
 
     const { selectedLayout } = Settings.application;
