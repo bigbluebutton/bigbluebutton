@@ -283,7 +283,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   );
 };
 
-const AudioCaptionsButtonContainer: React.FC<{ activeCaptions: object }> = ({ activeCaptions }) => {
+const AudioCaptionsButtonContainer: React.FC = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const {
     data: currentUser,
