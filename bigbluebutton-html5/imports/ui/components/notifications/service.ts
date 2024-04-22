@@ -8,7 +8,7 @@ const BASENAME = window.meetingClientSettings.public.app.basename;
 const HOST = CDN + BASENAME;
 const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
 
-const lastLayoutUpdateNotification = makeVar(new Date());
+const lastLayoutUpdateNotification = makeVar(new Date().getTime());
 
 export const NotifyPublishedPoll = (
   notification: Notification,
