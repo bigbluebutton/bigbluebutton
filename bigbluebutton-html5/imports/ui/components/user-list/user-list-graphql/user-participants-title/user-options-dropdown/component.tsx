@@ -176,7 +176,6 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   const [isCreateBreakoutRoomModalOpen, setCreateBreakoutRoomModalIsOpen] = useState(false);
   const [isGuestPolicyModalOpen, setGuestPolicyModalIsOpen] = useState(false);
   const [isLockViewersModalOpen, setLockViewersModalIsOpen] = useState(false);
-  const [isWriterMenuModalOpen, setIsWriterMenuModalOpen] = useState(false);
 
   const [clearAllEmoji] = useMutation(CLEAR_ALL_EMOJI);
   const [setMuted] = useMutation(SET_MUTED);
