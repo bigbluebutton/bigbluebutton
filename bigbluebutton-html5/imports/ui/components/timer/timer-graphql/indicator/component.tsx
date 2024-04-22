@@ -1,6 +1,6 @@
 import { useSubscription, useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
-import GET_TIMER, { GetTimerResponse } from './queries';
+import GET_TIMER, { GetTimerResponse } from '../queries';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
