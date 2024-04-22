@@ -129,13 +129,11 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  captions: PropTypes.element,
   darkTheme: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   actionsbar: null,
-  captions: null,
 };
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
@@ -370,31 +368,6 @@ class App extends Component {
     return sidebarNavigationIsOpen
       && sidebarContentIsOpen
       && (isPhone || isLayeredView.matches);
-  }
-
-  renderCaptions() {
-    const {
-      captions,
-      captionsStyle,
-    } = this.props;
-
-    if (!captions) return null;
-
-    return (
-      <Styled.CaptionsWrapper
-        role="region"
-        style={
-          {
-            position: 'absolute',
-            left: captionsStyle.left,
-            right: captionsStyle.right,
-            maxWidth: captionsStyle.maxWidth,
-          }
-        }
-      >
-        {captions}
-      </Styled.CaptionsWrapper>
-    );
   }
 
   renderAudioCaptions() {
@@ -659,7 +632,6 @@ setRandomUserSelectModalIsOpen(value) {
                 area="media"
               />
             ) : null}
-          {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
           <PresentationUploaderToastContainer intl={intl} />

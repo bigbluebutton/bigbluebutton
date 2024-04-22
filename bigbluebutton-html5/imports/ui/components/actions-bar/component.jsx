@@ -4,7 +4,6 @@ import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugi
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
-import CaptionsReaderMenuContainer from '/imports/ui/components/captions/reader-menu/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import ReactionsButtonContainer from './reactions-button/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
@@ -20,18 +19,9 @@ class ActionsBar extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      isCaptionsReaderMenuModalOpen: false,
-    };
-
-    this.setCaptionsReaderMenuModalIsOpen = this.setCaptionsReaderMenuModalIsOpen.bind(this);
     this.setRenderRaiseHand = this.renderRaiseHand.bind(this);
     this.actionsBarRef = React.createRef();
     this.renderPluginsActionBarItems = this.renderPluginsActionBarItems.bind(this);
-  }
-
-  setCaptionsReaderMenuModalIsOpen(value) {
-    this.setState({ isCaptionsReaderMenuModalOpen: value });
   }
 
   renderPluginsActionBarItems(position) {
@@ -110,7 +100,6 @@ class ActionsBar extends PureComponent {
       stopExternalVideoShare,
       isTimerActive,
       isTimerEnabled,
-      isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
       isRaiseHandButtonCentered,
@@ -124,8 +113,6 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       activeCaptions,
     } = this.props;
-
-    const { isCaptionsReaderMenuModalOpen } = this.state;
 
     const { selectedLayout } = Settings.application;
     const shouldShowPresentationButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
@@ -165,25 +152,8 @@ class ActionsBar extends PureComponent {
             setPresentationFitToWidth,
           }}
           />
-          {isCaptionsAvailable
-            ? (
-              <>
-                {
-                  isCaptionsReaderMenuModalOpen ? (
-                    <CaptionsReaderMenuContainer
-                      {...{
-                        onRequestClose: () => this.setCaptionsReaderMenuModalIsOpen(false),
-                        priority: 'low',
-                        setIsOpen: this.setCaptionsReaderMenuModalIsOpen,
-                        isOpen: isCaptionsReaderMenuModalOpen,
-                      }}
-                    />
-                  ) : null
-                }
-              </>
-            )
-            : null}
-          <AudioCaptionsButtonContainer activeCaptions={activeCaptions} />
+
+          <AudioCaptionsButtonContainer />
         </Styled.Left>
         <Styled.Center>
           {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}

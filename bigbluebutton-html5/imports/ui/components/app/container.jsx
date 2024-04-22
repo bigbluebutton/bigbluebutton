@@ -300,6 +300,7 @@ export default withTracker(() => {
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
   return {
+    audioCaptions: <AudioCaptionsLiveContainer />,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),

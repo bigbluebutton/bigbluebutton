@@ -12,7 +12,7 @@ export default async function handleWebcamSync({ body }, meetingId) {
 
   const streamsIds = webcamListSync.map((webcam) => webcam.stream);
 
-  const webcamStreams = VideoStreams.find({
+  const webcamStreams = await VideoStreams.find({
     meetingId,
     stream: { $in: streamsIds },
   }, {
@@ -42,7 +42,7 @@ export default async function handleWebcamSync({ body }, meetingId) {
       stream: 1,
       userId: 1,
     },
-  }).fetchAsynch();
+  }).fetchAsync();
 
   await Promise.all(videoStreamsToRemove
     .map(async (videoStream) => {
