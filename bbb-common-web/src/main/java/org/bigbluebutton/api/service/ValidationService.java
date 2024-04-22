@@ -119,47 +119,47 @@ public class ValidationService {
 
         switch(apiCall.requestType) {
             case GET:
-                checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString, servletRequest);
+                checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString);
                 switch(apiCall) {
                     case CREATE:
-                        request = new CreateMeeting(checksum);
+                        request = new CreateMeeting(checksum, servletRequest);
                         break;
                     case JOIN:
-                        request = new JoinMeeting(checksum);
+                        request = new JoinMeeting(checksum, servletRequest);
                         break;
                     case MEETING_RUNNING:
-                        request = new MeetingRunning(checksum);
+                        request = new MeetingRunning(checksum, servletRequest);
                         break;
                     case END:
-                        request = new EndMeeting(checksum);
+                        request = new EndMeeting(checksum, servletRequest);
                         break;
                     case GET_MEETING_INFO:
-                        request = new MeetingInfo(checksum);
+                        request = new MeetingInfo(checksum, servletRequest);
                         break;
                     case GET_MEETINGS:
                     case GET_SESSIONS:
-                        request = new SimpleRequest(checksum);
+                        request = new SimpleRequest(checksum, servletRequest);
                         break;
                     case INSERT_DOCUMENT:
-                        request = new InsertDocument(checksum);
+                        request = new InsertDocument(checksum, servletRequest);
                         break;
                     case GUEST_WAIT:
-                        request = new GuestWait();
+                        request = new GuestWait(servletRequest);
                         break;
                     case ENTER:
-                        request = new Enter();
+                        request = new Enter(servletRequest);
                         break;
                     case STUNS:
-                        request = new Stuns();
+                        request = new Stuns(servletRequest);
                         break;
                     case SIGN_OUT:
-                        request = new SignOut();
+                        request = new SignOut(servletRequest);
                         break;
                     case LEARNING_DASHBOARD:
-                        request = new LearningDashboard();
+                        request = new LearningDashboard(servletRequest);
                         break;
                     case GET_JOIN_URL:
-                        request = new GetJoinUrl();
+                        request = new GetJoinUrl(servletRequest);
                         break;
                 }
         }
