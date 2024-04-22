@@ -1,9 +1,11 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useMutation } from '@apollo/client';
 import Styled from '../styles';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import Settings from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary while settings are still in .js
@@ -38,11 +40,20 @@ export const Mutetoggle: React.FC<MuteToggleProps> = ({
   const intl = useIntl();
   const toggleMuteShourtcut = useShortcut('toggleMute');
   const toggleVoice = useToggleVoice();
+  const [setAway] = useMutation(SET_AWAY);
 
   const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
     : intl.formatMessage(intlMessages.muteAudio);
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+
+    if (muted) {
+      setAway({
+        variables: {
+          away: false,
+        },
+      });
+    }
     toggleMuteMicrophone(muted, toggleVoice);
   };
   return (
