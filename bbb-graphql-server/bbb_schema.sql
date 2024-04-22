@@ -1748,21 +1748,51 @@ SELECT
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
 
 ------------------------------------
-----audioCaption
+----audioCaption or typedCaption
+
+CREATE TABLE "caption_locale" (
+    "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+    "locale" varchar(15) NOT NULL,
+    "captionType" varchar(100) NOT NULL, --Audio Transcription or Typed Caption
+    "ownerUserId" varchar(50),
+    "createdAt" timestamp with time zone default current_timestamp,
+    "updatedAt" timestamp with time zone,
+    CONSTRAINT "caption_locale_pk" primary key ("meetingId","locale","captionType"),
+    FOREIGN KEY ("meetingId", "ownerUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
 
 CREATE TABLE "caption" (
     "captionId" varchar(100) NOT NULL PRIMARY KEY,
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
     "captionType" varchar(100) NOT NULL, --Audio Transcription or Typed Caption
     "userId" varchar(50),
-    "lang" varchar(15),
+    "locale" varchar(15),
     "captionText" text,
     "createdAt" timestamp with time zone,
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 
-create index idx_caption on caption("meetingId","lang","createdAt");
-create index idx_caption_captionType on caption("meetingId","lang","captionType","createdAt");
+CREATE OR REPLACE FUNCTION "update_caption_locale_owner_func"() RETURNS TRIGGER AS $$
+BEGIN
+    WITH upsert AS (
+        UPDATE "caption_locale" SET
+        "ownerUserId" = NEW.userId,
+        "updatedAt" = current_timestamp
+        WHERE "meetingId"=NEW."meetingId" AND "locale"=NEW."locale" AND "captionType"= NEW."captionType"
+    RETURNING *)
+    INSERT INTO "user_connectionStatusMetrics"("meetingId","locale","captionType","ownerUserId")
+    SELECT NEW."meetingId", NEW."locale", NEW."captionType", NEW."userId"
+    WHERE NOT EXISTS (SELECT * FROM upsert);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "insert_caption_trigger" BEFORE INSERT ON "caption" FOR EACH ROW
+EXECUTE FUNCTION "update_caption_locale_owner_func"();
+
+create index idx_caption on caption("meetingId","locale","createdAt");
+create index idx_caption_captionType on caption("meetingId","locale","captionType","createdAt");
 
 CREATE OR REPLACE VIEW "v_caption" AS
 SELECT *
@@ -1770,11 +1800,11 @@ FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
 CREATE OR REPLACE VIEW "v_caption_typed_activeLocales" AS
-select distinct "meetingId", "lang", "userId"
-from "caption"
+select distinct "meetingId", "locale", "ownerUserId"
+from "caption_locale"
 where "captionType" = 'TYPED';
 
-create index "idx_caption_typed_activeLocales" on caption("meetingId","lang","userId") where "captionType" = 'TYPED';
+create index "idx_caption_typed_activeLocales" on caption("meetingId","locale","userId") where "captionType" = 'TYPED';
 
 ------------------------------------
 ----
@@ -1806,7 +1836,7 @@ CREATE TABLE "notification" (
 	"messageDescription"    varchar(100),
 	"messageValues"         jsonb,
 	"role"                  varchar(100), --MODERATOR, PRESENTER, VIEWER
-	"userMeetingId"         varchar(50),
+	"userMeetingId"         varchar(100),
 	"userId"                varchar(50),
 	"createdAt"             timestamp with time zone DEFAULT current_timestamp,
 	FOREIGN KEY ("userMeetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
