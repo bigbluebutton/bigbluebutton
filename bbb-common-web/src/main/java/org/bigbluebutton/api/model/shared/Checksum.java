@@ -16,13 +16,9 @@ public abstract class Checksum {
 
     protected String queryStringWithoutChecksum;
 
-    @ContentTypeConstraint
-    protected HttpServletRequest request;
-
-    public Checksum(String apiCall, String checksum, HttpServletRequest request) {
+    public Checksum(String apiCall, String checksum) {
         this.apiCall = ParamsUtil.sanitizeString(apiCall);
         this.checksum = ParamsUtil.sanitizeString(checksum);
-        this.request = request;
     }
 
     public String getApiCall() {
@@ -37,13 +33,9 @@ public abstract class Checksum {
         return checksum;
     }
 
-    public HttpServletRequest getRequest() { return request; }
-
     public void setChecksum(String checksum) {
         this.checksum = checksum;
     }
-
-    public void setRequest(HttpServletRequest request) { this.request = request; }
 
     public String getQueryStringWithoutChecksum() {
         return queryStringWithoutChecksum;

@@ -3,6 +3,7 @@ package org.bigbluebutton.api.model.validator;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.compress.utils.Sets;
 import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
+import org.bigbluebutton.api.model.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Set;
 
-public class ContentTypeValidator implements ConstraintValidator<ContentTypeConstraint, HttpServletRequest> {
+public class ContentTypeValidator implements ConstraintValidator<ContentTypeConstraint, Request> {
 
     private static final Logger log = LoggerFactory.getLogger(ContentTypeValidator.class);
 
@@ -25,17 +26,18 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
     public void initialize(ContentTypeConstraint constraintAnnotation) {}
 
     @Override
-    public boolean isValid(HttpServletRequest request, ConstraintValidatorContext context) {
-        String requestMethod = request.getMethod();
-        String contentType = request.getContentType();
-        String contentTypeHeader = request.getHeader("Content-Type");
+    public boolean isValid(Request request, ConstraintValidatorContext context) {
+        HttpServletRequest servletRequest = request.getServletRequest();
+        String requestMethod = servletRequest.getMethod();
+        String contentType = servletRequest.getContentType();
+        String contentTypeHeader = servletRequest.getHeader("Content-Type");
         log.info("Validating {} request with content type {}", requestMethod, contentType);
 
-        boolean requestBodyPresent = request.getContentLength() > 0;
+        boolean requestBodyPresent = servletRequest.getContentLength() > 0;
         if (requestBodyPresent) {
             if (contentType == null || contentTypeHeader == null) return false;
             else {
-                return SUPPORTED_CONTENT_TYPES.contains(contentType);
+                return request.getSupportedContentTypes().contains(contentType);
             }
         }
 
