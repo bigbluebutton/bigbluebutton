@@ -1,9 +1,12 @@
 package org.bigbluebutton.api.model.request;
 
+import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.shared.Checksum;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+@ContentTypeConstraint
 public class SimpleRequest extends RequestWithChecksum<SimpleRequest.Params> {
 
     public enum Params implements RequestParameters {
@@ -16,8 +19,8 @@ public class SimpleRequest extends RequestWithChecksum<SimpleRequest.Params> {
         public String getValue() { return value; }
     }
 
-    public SimpleRequest(Checksum checksum) {
-        super(checksum);
+    public SimpleRequest(Checksum checksum, HttpServletRequest servletRequest) {
+        super(checksum, servletRequest);
     }
 
     @Override

@@ -12,8 +12,8 @@ public class GetChecksum extends Checksum {
     @NotEmpty(message = "You must provide the query string")
     private String queryString;
 
-    public GetChecksum(String apiCall, String checksum, String queryString, HttpServletRequest request) {
-        super(apiCall, checksum, request);
+    public GetChecksum(String apiCall, String checksum, String queryString) {
+        super(apiCall, checksum);
         this.queryString = ParamsUtil.sanitizeString(queryString);
         removeChecksumFromQueryString();
     }
