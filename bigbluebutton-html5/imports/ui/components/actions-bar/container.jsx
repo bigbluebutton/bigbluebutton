@@ -61,11 +61,16 @@ const ActionsBarContainer = (props) => {
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
+  const prevMutedRef = React.useRef(false);
 
   const muteAway = (away) => {
     const isMuted = currentUserData?.voice?.muted;
+    const prevAwayMuted = prevMutedRef.current;
 
-    if (isMuted === away) {
+    if (isMuted === away && isMuted === prevAwayMuted) {
+      AudioService.toggleMuteMicrophone(toggleVoice, voiceToggle);
+      prevMutedRef.current = !isMuted;
+    } else if (!away && !isMuted && prevAwayMuted) {
       AudioService.toggleMuteMicrophone(toggleVoice, voiceToggle);
     }
 
