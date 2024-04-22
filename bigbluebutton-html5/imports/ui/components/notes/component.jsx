@@ -7,16 +7,11 @@ import PadContainer from '/imports/ui/components/pads/container';
 import Styled from './styles';
 import {
   PANELS, ACTIONS,
-  LAYOUT_TYPE,
-  PRESENTATION_AREA,
 } from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from '/imports/ui/components/notes/notes-dropdown/container';
-import { isPresentationEnabled } from '../../services/features';
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 const intlMessages = defineMessages({
   hide: {
@@ -103,60 +98,6 @@ const Notes = ({
     }
     return () => clearTimeout(timoutRef);
   }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
-  useEffect(() => {
-    if (
-      isOnMediaArea
-      && (sidebarContent.isOpen || !isPresentationEnabled())
-      && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES || !isPresentationEnabled())
-    ) {
-      if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.CHAT,
-        });
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: PUBLIC_CHAT_ID,
-        });
-      } else {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: false,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.NONE,
-        });
-      }
-
-      layoutContextDispatch({
-        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-        value: {
-          content: PRESENTATION_AREA.PINNED_NOTES,
-          open: true,
-        },
-      });
-
-      return () => {
-        layoutContextDispatch({
-          type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-          value: {
-            content: PRESENTATION_AREA.PINNED_NOTES,
-            open: false,
-          },
-        });
-      };
-    } if (shouldShowSharedNotesOnPresentationArea) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-        value: {
-          content: PRESENTATION_AREA.PINNED_NOTES,
-          open: true,
-        },
-      });
-    }
-  }, []);
 
   const renderHeaderOnMedia = () => {
     return amIPresenter ? (

@@ -4,23 +4,12 @@ import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import NotesService from '/imports/ui/components/notes/service';
-import BreakoutsHistory from '/imports/api/breakouts-history';
 
 const DIAL_IN_USER = 'dial-in-user';
 
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
   .sort((a, b) => a.sequence - b.sequence);
-
-const getLastBreakouts = () => {
-  const lastBreakouts = BreakoutsHistory.findOne({ meetingId: Auth.meetingID });
-  if (lastBreakouts) {
-    return lastBreakouts.rooms
-      .sort((a, b) => a.sequence - b.sequence);
-  }
-
-  return [];
-};
 
 const currentBreakoutUsers = (user) => !Breakouts.findOne({
   'joinedUsers.userId': new RegExp(`^${user.userId}`),
@@ -50,7 +39,6 @@ export default {
     joinedUsers: { $exists: true },
   }, { fields: { joinedUsers: 1, breakoutId: 1, sequence: 1 }, sort: { sequence: 1 } }).fetch(),
   getBreakouts,
-  getLastBreakouts,
   getUsersNotJoined,
   isSharedNotesPinned: () => NotesService.isSharedNotesPinned(),
 };

@@ -2,7 +2,6 @@ import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import flat from 'flat';
-import handleBreakoutRoomsListHist from '/imports/api/breakouts-history/server/handlers/breakoutRoomsList';
 
 export default async function handleBreakoutRoomsList({ body }, meetingId) {
   // 0 seconds default breakout time, forces use of real expiration time
@@ -52,6 +51,5 @@ export default async function handleBreakoutRoomsList({ body }, meetingId) {
     } else {
       Logger.error(`updating breakout: ${numberAffected}`);
     }
-    handleBreakoutRoomsListHist({ body });
   });
 }

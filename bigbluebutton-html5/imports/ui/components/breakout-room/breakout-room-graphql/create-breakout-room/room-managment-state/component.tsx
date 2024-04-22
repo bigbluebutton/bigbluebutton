@@ -174,13 +174,21 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
 
   useEffect(() => {
     if (runningRooms && init) {
+      const usersToMove: string[] = [];
+      const toRooms: number[] = [];
+
       runningRooms.forEach((r: breakoutRoom) => {
         r.participants.forEach((u) => {
           if (!rooms[r.sequence]?.users?.find((user) => user.userId === u.user.userId)) {
-            moveUser(u.user.userId, 0, r.sequence);
+            usersToMove.push(u.user.userId);
+            toRooms.push(r.sequence);
           }
         });
       });
+
+      if (usersToMove.length > 0) {
+        moveUser(usersToMove, 0, toRooms);
+      }
     }
   }, [runningRooms, init]);
 
