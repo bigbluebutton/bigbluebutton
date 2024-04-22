@@ -1,20 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import Meetings, { LayoutMeetings } from '/imports/api/meetings';
+import Meetings from '/imports/api/meetings';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
-import AudioCaptionsService from '/imports/ui/components/audio/captions/service';
 import { notify } from '/imports/ui/services/notification';
-import CaptionsContainer from '/imports/ui/components/captions/live/container';
-import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
-import { isEqual } from 'radash';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
@@ -298,8 +294,7 @@ export default withTracker(() => {
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
   return {
-    captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
-    audioCaptions: AudioCaptionsService.getAudioCaptions() ? <AudioCaptionsLiveContainer /> : null,
+    audioCaptions: <AudioCaptionsLiveContainer />,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
