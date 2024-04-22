@@ -97,20 +97,20 @@ const toggleMuteMicrophone = throttle((toggleVoice, voiceToggle) => {
     userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
-  Storage.setItem(MUTED_KEY, !user.muted);
+  Storage.setItem(MUTED_KEY, !user?.muted);
 
-  if (user.muted) {
+  if (user?.muted) {
     logger.info({
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
-    toggleVoice(user.userId, voiceToggle);
+    toggleVoice(Auth.userID, voiceToggle);
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
-    toggleVoice(user.userId, voiceToggle);
+    toggleVoice(Auth.userID, voiceToggle);
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
