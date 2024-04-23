@@ -84,6 +84,10 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   }, [songTrack]);
 
   useEffect(() => {
+    setTime(passedTime);
+  }, []);
+
+  useEffect(() => {
     alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
   }, []);
 

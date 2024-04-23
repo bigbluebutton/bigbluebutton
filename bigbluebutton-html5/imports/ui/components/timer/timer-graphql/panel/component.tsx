@@ -199,6 +199,10 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     });
   }, []);
 
+  useEffect(() => {
+    setRunningTime(timePassed);
+  }, []);
+
   // if startedOn is 0, means the time was reset
   useEffect(() => {
     if (startedOn === 0) {
