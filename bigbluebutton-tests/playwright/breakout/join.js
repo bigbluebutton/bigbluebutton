@@ -61,6 +61,7 @@ class Join extends Create {
     await breakoutUserPage.hasElement(e.presentationTitle);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.hasElement(e.breakoutRemainingTime);
     await this.modPage.type(e.chatBox, "test");
     await this.modPage.waitAndClick(e.sendButton);
 
