@@ -15,6 +15,7 @@ import ExtensibleAreaStateManager from './extensible-areas/manager';
 import PluginDataChannelManager from './data-channel/manager';
 import PluginUiCommandsHandler from './ui-commands/handler';
 import PluginDomElementManipulationManager from './dom-element-manipulation/manager';
+import PluginServerCommandsHandler from './server-commands/handler';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
@@ -53,6 +54,7 @@ const PluginsEngineManager = () => {
         }}
       />
       <PluginDataConsumptionManager />
+      <PluginServerCommandsHandler />
       <PluginUiCommandsHandler />
       <PluginDomElementManipulationManager />
       {

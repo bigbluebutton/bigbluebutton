@@ -559,6 +559,7 @@ class MeetingActor(
       case m: EditCaptionHistoryPubMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: UpdateCaptionOwnerPubMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: SendCaptionHistoryReqMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: CaptionSubmitTranscriptPubMsg                  => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg                 => handleGetGuestsWaitingApprovalReqMsg(m)

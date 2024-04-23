@@ -72,6 +72,14 @@ type Mutation {
 }
 
 type Mutation {
+  captionSubmitTranscript(
+    transcriptId: String!
+    transcript: String!
+    locale: String!
+  ): Boolean
+}
+
+type Mutation {
   chatCreateWithUser(
     userId: String!
   ): Boolean
@@ -566,4 +574,12 @@ type Mutation {
   ): Boolean
 }
 
+input SampleInput {
+  username: String!
+  password: String!
+}
+
+type SampleOutput {
+  accessToken: String!
+}
 

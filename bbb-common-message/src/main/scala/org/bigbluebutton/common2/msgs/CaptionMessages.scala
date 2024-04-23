@@ -9,6 +9,21 @@ object UpdateCaptionOwnerPubMsg { val NAME = "UpdateCaptionOwnerPubMsg" }
 case class UpdateCaptionOwnerPubMsg(header: BbbClientMsgHeader, body: UpdateCaptionOwnerPubMsgBody) extends StandardMsg
 case class UpdateCaptionOwnerPubMsgBody(name: String, locale: String, ownerId: String)
 
+object CaptionSubmitTranscriptPubMsg { val NAME = "CaptionSubmitTranscriptPubMsg" }
+case class CaptionSubmitTranscriptPubMsg(header: BbbClientMsgHeader, body: CaptionSubmitTranscriptPubMsgBody) extends StandardMsg
+case class CaptionSubmitTranscriptPubMsgBody(
+                                       transcriptId: String,
+                                       transcript:   String,
+                                       locale:       String,
+                                     )
+object CaptionSubmitTranscriptSuccessEvtMsg { val NAME = "CaptionSubmitTranscriptSuccessEvtMsg" }
+case class CaptionSubmitTranscriptSuccessEvtMsg(header: BbbClientMsgHeader, body: CaptionSubmitTranscriptSuccessEvtMsgBody) extends StandardMsg
+case class CaptionSubmitTranscriptSuccessEvtMsgBody(
+                                              transcriptId: String,
+                                              transcript:   String,
+                                              locale:       String,
+                                            )
+
 object SendCaptionHistoryReqMsg { val NAME = "SendCaptionHistoryReqMsg" }
 case class SendCaptionHistoryReqMsg(header: BbbClientMsgHeader, body: SendCaptionHistoryReqMsgBody) extends StandardMsg
 case class SendCaptionHistoryReqMsgBody()
