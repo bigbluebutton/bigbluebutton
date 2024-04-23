@@ -12,7 +12,6 @@ import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserIn
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearTimer from '/imports/api/timer/server/modifiers/clearTimer';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
-import clearRecordMeeting from './clearRecordMeeting';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
 import clearReactions from '/imports/api/user-reaction/server/modifiers/clearReactions';
@@ -35,7 +34,6 @@ export default async function meetingHasEnded(meetingId) {
     clearUserInfo(meetingId),
     clearTimer(meetingId),
     clearMeetingTimeRemaining(meetingId),
-    clearRecordMeeting(meetingId),
     clearVideoStreams(meetingId),
     clearAuthTokenValidation(meetingId),
     clearWhiteboardMultiUser(meetingId),

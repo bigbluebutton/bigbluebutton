@@ -9,10 +9,9 @@ import VideoStreams from '/imports/api/video-streams';
 import VoiceUsers from '/imports/api/voice-users';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
-import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Breakouts from '/imports/api/breakouts';
 import Meetings, {
-  RecordMeetings, MeetingTimeRemaining, Notifications,
+  MeetingTimeRemaining, Notifications,
 } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
@@ -31,8 +30,6 @@ export const localCollectionRegistry = {
   localPadsSync: new AbstractCollection(Pads, Pads),
   localPadsSessionsSync: new AbstractCollection(PadsSessions, PadsSessions),
   localPadsUpdatesSync: new AbstractCollection(PadsUpdates, PadsUpdates),
-  localAuthTokenValidationSync: new AbstractCollection(AuthTokenValidation, AuthTokenValidation),
-  localRecordMeetingsSync: new AbstractCollection(RecordMeetings, RecordMeetings),
   localMeetingTimeRemainingSync: new AbstractCollection(MeetingTimeRemaining, MeetingTimeRemaining),
   localBreakoutsSync: new AbstractCollection(Breakouts, Breakouts),
   localMeetingsSync: new AbstractCollection(Meetings, Meetings),

@@ -1,10 +1,10 @@
 table:
-  name: v_caption_typed_activeLocales
+  name: v_caption_activeLocales
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: caption_typed_activeLocales
+  custom_name: caption_activeLocales
   custom_root_fields: {}
 object_relationships:
   - name: userOwner
@@ -22,6 +22,7 @@ select_permissions:
     permission:
       columns:
         - locale
+        - captionType
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

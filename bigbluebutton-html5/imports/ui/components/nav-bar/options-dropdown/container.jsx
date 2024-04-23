@@ -4,7 +4,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import OptionsDropdown from './component';
-import audioCaptionsService from '/imports/ui/components/audio/captions/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutSelect } from '../../layout/context';
@@ -18,6 +17,9 @@ const { isIphone } = deviceInfo;
 const { isSafari, isValidSafariVersion } = browserInfo;
 
 const noIOSFullscreen = !!(((isSafari && !isValidSafariVersion) || isIphone));
+const getAudioCaptions = () => Session.get('audioCaptions') || false;
+
+const setAudioCaptions = (value) => Session.set('audioCaptions', value);
 
 const OptionsDropdownContainer = (props) => {
   const { width: browserWidth } = layoutSelectInput((i) => i.browser);
@@ -56,8 +58,8 @@ export default withTracker((props) => {
   const handleToggleFullscreen = () => FullscreenService.toggleFullScreen();
   return {
     amIModerator: props.amIModerator,
-    audioCaptionsActive: audioCaptionsService.getAudioCaptions(),
-    audioCaptionsSet: (value) => audioCaptionsService.setAudioCaptions(value),
+    audioCaptionsActive: getAudioCaptions(),
+    audioCaptionsSet: (value) => setAudioCaptions(value),
     isMobile: deviceInfo.isMobile,
     handleToggleFullscreen,
     noIOSFullscreen,

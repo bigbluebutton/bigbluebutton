@@ -8,6 +8,20 @@ export interface GetAudioCaptionsCountResponse {
   };
 }
 
+export interface ActiveCaptionsResponse {
+  caption_activeLocales: Array<{
+    locale: string;
+  }>;
+}
+
+export const getactiveCaptions = gql`
+  subscription activeCaptions {
+    caption_activeLocales {
+      locale
+    }
+  }
+`;
+
 export const GET_AUDIO_CAPTIONS_COUNT = gql`
   subscription GetAudioCaptionsCount {
     caption_aggregate {
@@ -20,4 +34,5 @@ export const GET_AUDIO_CAPTIONS_COUNT = gql`
 
 export default {
   GET_AUDIO_CAPTIONS_COUNT,
+  getactiveCaptions,
 };
