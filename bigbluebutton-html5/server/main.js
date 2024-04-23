@@ -14,7 +14,6 @@ import '/imports/api/users-infos/server';
 import '/imports/api/connection-status/server';
 import '/imports/api/timer/server';
 import '/imports/api/pads/server';
-import '/imports/api/voice-call-states/server';
 import '/imports/api/user-reaction/server';
 
 // Commons
