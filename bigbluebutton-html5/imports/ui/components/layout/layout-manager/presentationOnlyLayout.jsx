@@ -289,7 +289,7 @@ const PresentationOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_COMPONENT_MAIN_CONTENT_OUTPUT,
       value: {
         width: isOpen ? mediaBounds.width : 0,
         height: isOpen ? mediaBounds.height : 0,
@@ -357,8 +357,8 @@ const PresentationOnlyLayout = (props) => {
           externalVideo: {
             hasExternalVideo: input.externalVideo.hasExternalVideo,
           },
-          genericComponent: {
-            genericComponentId: input.genericComponent.genericComponentId,
+          genericComponentMainContent: {
+            genericComponentMainContentId: input.genericComponentMainContent.genericComponentMainContentId,
           },
           screenShare: {
             hasScreenShare: input.screenShare.hasScreenShare,

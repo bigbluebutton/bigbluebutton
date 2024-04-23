@@ -297,7 +297,7 @@ const CamerasOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_COMPONENT_MAIN_CONTENT_OUTPUT,
       value: {
         display: false,
         width: mediaBounds.width,
@@ -365,8 +365,8 @@ const CamerasOnlyLayout = (props) => {
           externalVideo: {
             hasExternalVideo: false,
           },
-          genericComponent: {
-            genericComponentId: undefined,
+          genericComponentMainContent: {
+            genericComponentMainContentId: undefined,
           },
           screenShare: {
             hasScreenShare: false,

@@ -69,7 +69,7 @@ const AppContainer = (props) => {
   } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
-  const genericComponent = layoutSelectInput((i) => i.genericComponent);
+  const genericComponentMainContent = layoutSelectInput((i) => i.genericComponentMainContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
@@ -172,7 +172,7 @@ const AppContainer = (props) => {
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
-  const shouldShowGenericComponent = !!genericComponent.genericComponentId;
+  const shouldShowGenericComponent = !!genericComponentMainContent.genericComponentMainContentId;
 
   const validateEnforceLayout = (currentUser) => {
     const layoutTypes = Object.values(LAYOUT_TYPE);
@@ -229,7 +229,7 @@ const AppContainer = (props) => {
           setMobileUser,
           toggleVoice,
           setLocalSettings,
-          genericComponentId: genericComponent.genericComponentId,
+          genericComponentMainContentId: genericComponentMainContent.genericComponentMainContentId,
         }}
         {...otherProps}
       />

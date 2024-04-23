@@ -1,5 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { GenericComponentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-component/enums';
 
 import {
   layoutDispatch,
@@ -19,64 +20,64 @@ import getDifferenceBetweenLists from './utils';
 import { GenericComponentContainerProps } from './types';
 
 const GenericComponentContainer: React.FC<GenericComponentContainerProps> = (props: GenericComponentContainerProps) => {
-  const { genericComponentId } = props;
+  const { genericComponentMainContentId } = props;
 
   const previousPluginGenericComponents = useRef<PluginSdk.GenericComponent[]>([]);
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   const layoutContextDispatch: DispatcherFunction = layoutDispatch();
-  let genericComponentExtensibleArea = [] as PluginSdk.GenericComponent[];
+  let genericComponentMainContentExtensibleArea = [] as PluginSdk.GenericComponent[];
 
   if (pluginsExtensibleAreasAggregatedState.genericComponents) {
-    genericComponentExtensibleArea = [
+    genericComponentMainContentExtensibleArea = [
       ...pluginsExtensibleAreasAggregatedState.genericComponents as PluginSdk.GenericComponent[],
-    ];
+    ].filter((p) => p.type === GenericComponentType.MAIN_CONTENT);
     const [
-      genericComponentsAdded,
-      genericComponentsRemoved,
-    ] = getDifferenceBetweenLists(previousPluginGenericComponents.current, genericComponentExtensibleArea);
-    if (genericComponentsAdded.length > 0 || genericComponentsRemoved.length > 0) {
-      previousPluginGenericComponents.current = [...genericComponentExtensibleArea];
-      genericComponentsAdded.forEach((g) => {
+      genericComponentMainContentsAdded,
+      genericComponentMainContentsRemoved,
+    ] = getDifferenceBetweenLists(previousPluginGenericComponents.current, genericComponentMainContentExtensibleArea);
+    if (genericComponentMainContentsAdded.length > 0 || genericComponentMainContentsRemoved.length > 0) {
+      previousPluginGenericComponents.current = [...genericComponentMainContentExtensibleArea];
+      genericComponentMainContentsAdded.forEach((g) => {
         layoutContextDispatch({
           type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
           value: {
-            content: PRESENTATION_AREA.GENERIC_COMPONENT,
+            content: PRESENTATION_AREA.GENERIC_COMPONENT_MAIN_CONTENT,
             open: true,
-            genericComponentId: g.id,
+            genericComponentMainContentId: g.id,
           },
         });
       });
-      genericComponentsRemoved.forEach((g) => {
+      genericComponentMainContentsRemoved.forEach((g) => {
         layoutContextDispatch({
           type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
           value: {
-            content: PRESENTATION_AREA.GENERIC_COMPONENT,
+            content: PRESENTATION_AREA.GENERIC_COMPONENT_MAIN_CONTENT,
             open: false,
-            genericComponentId: g.id,
+            genericComponentMainContentId: g.id,
           },
         });
       });
     }
   }
 
-  const genericComponentLayoutInformation: GenericComponentFromLayout = layoutSelectOutput(
-    (i: Output) => i.genericComponent,
+  const genericComponentMainContentLayoutInformation: GenericComponentFromLayout = layoutSelectOutput(
+    (i: Output) => i.genericComponentMainContent,
   );
 
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const { isResizing } = cameraDock;
 
-  if (!genericComponentExtensibleArea
-    || genericComponentExtensibleArea.length === 0
-    || !genericComponentId) return null;
+  if (!genericComponentMainContentExtensibleArea
+    || genericComponentMainContentExtensibleArea.length === 0
+    || !genericComponentMainContentId) return null;
   return (
     <GenericComponentContent
-      genericComponentId={genericComponentId}
-      renderFunctionComponents={genericComponentExtensibleArea}
+      genericComponentMainContentId={genericComponentMainContentId}
+      renderFunctionComponents={genericComponentMainContentExtensibleArea}
       isResizing={isResizing}
-      genericComponentLayoutInformation={genericComponentLayoutInformation}
+      genericComponentMainContentLayoutInformation={genericComponentMainContentLayoutInformation}
     />
   );
 };

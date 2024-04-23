@@ -336,7 +336,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_COMPONENT_MAIN_CONTENT_OUTPUT,
       value: {
         display: false,
         width: 0,
@@ -409,8 +409,8 @@ const ParticipantsAndChatOnlyLayout = (props) => {
             width: 0,
             height: 0,
           },
-          genericComponent: {
-            genericComponentId: undefined,
+          genericComponentMainContent: {
+            genericComponentMainContentId: undefined,
             width: 0,
             height: 0,
           },

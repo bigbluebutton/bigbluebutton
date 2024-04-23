@@ -13,7 +13,7 @@ const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: 
   useEffect(() => {
     setPresentationAreaContent(presentationAreaContentPile.map((p) => {
       let currentElement;
-      let genericComponentId;
+      let genericComponentMainContentId;
       switch (p.value.content) {
         case PRESENTATION_AREA.PINNED_NOTES:
           currentElement = UiLayouts.PINNED_SHARED_NOTES;
@@ -21,9 +21,9 @@ const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: 
         case PRESENTATION_AREA.EXTERNAL_VIDEO:
           currentElement = UiLayouts.EXTERNAL_VIDEO;
           break;
-        case PRESENTATION_AREA.GENERIC_COMPONENT:
+        case PRESENTATION_AREA.GENERIC_COMPONENT_MAIN_CONTENT:
           currentElement = UiLayouts.GENERIC_COMPONENT;
-          genericComponentId = p.value.genericComponentId;
+          genericComponentMainContentId = p.value.genericComponentMainContentId;
           break;
         case PRESENTATION_AREA.SCREEN_SHARE:
           currentElement = UiLayouts.SCREEN_SHARE;
@@ -35,7 +35,7 @@ const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: 
       return {
         isOpen: p.value.open,
         currentElement,
-        genericComponentId,
+        genericComponentMainContentId,
       };
     }));
   }, [layoutContextState]);

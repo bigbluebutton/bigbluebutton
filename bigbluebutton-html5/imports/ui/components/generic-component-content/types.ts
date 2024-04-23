@@ -2,11 +2,11 @@ import { GenericComponent } from 'bigbluebutton-html-plugin-sdk';
 import { GenericComponent as GenericComponentLayout } from '../layout/layoutTypes';
 
 export interface GenericComponentContainerProps {
-    genericComponentId: string;
+    genericComponentMainContentId: string;
 }
 export interface GenericComponentProps {
     isResizing: boolean;
-    genericComponentId: string;
-    genericComponentLayoutInformation: GenericComponentLayout;
+    genericComponentMainContentId: string;
+    genericComponentMainContentLayoutInformation: GenericComponentLayout;
     renderFunctionComponents: GenericComponent[];
 }

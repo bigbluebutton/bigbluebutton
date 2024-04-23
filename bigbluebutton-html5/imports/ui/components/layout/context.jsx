@@ -1204,24 +1204,24 @@ const reducer = (state, action) => {
     }
 
     // GENERIC COMPONENT
-    case ACTIONS.SET_HAS_GENERIC_COMPONENT: {
-      const { genericComponent } = state.input;
-      if (genericComponent.genericComponentId === action.value) {
+    case ACTIONS.SET_HAS_GENERIC_COMPONENT_MAIN_CONTENT: {
+      const { genericComponentMainContent } = state.input;
+      if (genericComponentMainContent.genericComponentMainContentId === action.value) {
         return state;
       }
       return {
         ...state,
         input: {
           ...state.input,
-          genericComponent: {
-            ...genericComponent,
-            genericComponentId: action.value,
+          genericComponentMainContent: {
+            ...genericComponentMainContent,
+            genericComponentMainContentId: action.value,
           },
         },
       };
     }
 
-    case ACTIONS.SET_GENERIC_COMPONENT_OUTPUT: {
+    case ACTIONS.SET_GENERIC_COMPONENT_MAIN_CONTENT_OUTPUT: {
       const {
         width,
         height,
@@ -1229,20 +1229,20 @@ const reducer = (state, action) => {
         left,
         right,
       } = action.value;
-      const { genericComponent } = state.output;
-      if (genericComponent.width === width
-        && genericComponent.height === height
-        && genericComponent.top === top
-        && genericComponent.left === left
-        && genericComponent.right === right) {
+      const { genericComponentMainContent } = state.output;
+      if (genericComponentMainContent.width === width
+        && genericComponentMainContent.height === height
+        && genericComponentMainContent.top === top
+        && genericComponentMainContent.left === left
+        && genericComponentMainContent.right === right) {
         return state;
       }
       return {
         ...state,
         output: {
           ...state.output,
-          genericComponent: {
-            ...genericComponent,
+          genericComponentMainContent: {
+            ...genericComponentMainContent,
             width,
             height,
             top,
@@ -1307,11 +1307,12 @@ const reducer = (state, action) => {
         presentationAreaContentActions.push(action);
       } else {
         const indexOfOpenedContent = presentationAreaContentActions.findIndex((p) => {
-          if (action.value.content === PRESENTATION_AREA.GENERIC_COMPONENT) {
+          if (action.value.content === PRESENTATION_AREA.GENERIC_COMPONENT_MAIN_CONTENT) {
             return (
               p.value.content === action.value.content
                 && p.value.open
-                && p.value.genericComponentId === action.value.genericComponentId
+                && p.value
+                  .genericComponentMainContentId === action.value.genericComponentMainContentId
             );
           }
           return (
@@ -1340,6 +1341,7 @@ const updatePresentationAreaContent = (
 ) => {
   const { layoutType } = layoutContextState;
   const { sidebarContent } = layoutContextState.input;
+  console.log('teste aqui pra saber o que vem  ---> ', layoutContextState);
   const {
     presentationAreaContentActions: currentPresentationAreaContentActions,
   } = layoutContextState;
@@ -1352,14 +1354,14 @@ const updatePresentationAreaContent = (
     const lastIndex = currentPresentationAreaContentActions.length - 1;
     const lastPresentationContentInPile = currentPresentationAreaContentActions[lastIndex];
     switch (lastPresentationContentInPile.value.content) {
-      case PRESENTATION_AREA.GENERIC_COMPONENT: {
+      case PRESENTATION_AREA.GENERIC_COMPONENT_MAIN_CONTENT: {
         layoutContextDispatch({
           type: ACTIONS.SET_NOTES_IS_PINNED,
           value: !lastPresentationContentInPile.value.open,
         });
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
-          value: lastPresentationContentInPile.value.genericComponentId,
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT_MAIN_CONTENT,
+          value: lastPresentationContentInPile.value.genericComponentMainContentId,
         });
         break;
       }
@@ -1391,7 +1393,7 @@ const updatePresentationAreaContent = (
         }
 
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT_MAIN_CONTENT,
           value: undefined,
         });
         layoutContextDispatch({
@@ -1402,7 +1404,7 @@ const updatePresentationAreaContent = (
       }
       case PRESENTATION_AREA.EXTERNAL_VIDEO: {
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT_MAIN_CONTENT,
           value: undefined,
         });
         layoutContextDispatch({
@@ -1417,7 +1419,7 @@ const updatePresentationAreaContent = (
       }
       case PRESENTATION_AREA.SCREEN_SHARE: {
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT_MAIN_CONTENT,
           value: undefined,
         });
         layoutContextDispatch({
@@ -1440,7 +1442,7 @@ const updatePresentationAreaContent = (
           value: !lastPresentationContentInPile.value.open,
         });
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          type: ACTIONS.SET_HAS_GENERIC_COMPONENT_MAIN_CONTENT,
           value: undefined,
         });
         layoutContextDispatch({

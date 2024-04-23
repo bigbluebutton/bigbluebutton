@@ -150,6 +150,7 @@ class UserNotes extends Component {
         disabled={isPinned}
         $disabled={isPinned}
       >
+        Teste doidão aqui ---
         <Icon iconName="copy" />
         <div aria-hidden>
           <Styled.NotesTitle data-test="sharedNotes">

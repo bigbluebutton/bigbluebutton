@@ -5,9 +5,9 @@ import GenericComponentItem from './generic-component-item/component';
 
 const GenericComponentContent: React.FC<GenericComponentProps> = ({
   isResizing,
-  genericComponentLayoutInformation,
+  genericComponentMainContentLayoutInformation,
   renderFunctionComponents,
-  genericComponentId,
+  genericComponentMainContentId,
 }) => {
   const {
     height,
@@ -15,11 +15,11 @@ const GenericComponentContent: React.FC<GenericComponentProps> = ({
     top,
     left,
     right,
-  } = genericComponentLayoutInformation;
+  } = genericComponentMainContentLayoutInformation;
 
   const isMinimized = width === 0 && height === 0;
 
-  const componentToRender = renderFunctionComponents.filter((g) => genericComponentId === g.id);
+  const componentToRender = renderFunctionComponents.filter((g) => genericComponentMainContentId === g.id);
   return (
     <Styled.Container
       style={{

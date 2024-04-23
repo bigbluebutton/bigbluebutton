@@ -35,7 +35,7 @@ const SmartLayout = (props) => {
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
-  const genericComponentInput = layoutSelectInput((i) => i.genericComponent);
+  const genericComponentMainContentInput = layoutSelectInput((i) => i.genericComponentMainContent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const layoutContextDispatch = layoutDispatch();
@@ -103,8 +103,8 @@ const SmartLayout = (props) => {
             externalVideo: {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
             },
-            genericComponent: {
-              genericComponentId: genericComponentInput.genericComponentId,
+            genericComponentMainContent: {
+              genericComponentMainContentId: genericComponentMainContentInput.genericComponentMainContentId,
             },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
@@ -147,8 +147,8 @@ const SmartLayout = (props) => {
             externalVideo: {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
             },
-            genericComponent: {
-              genericComponentId: genericComponentInput.genericComponentId,
+            genericComponentMainContent: {
+              genericComponentMainContentId: genericComponentMainContentInput.genericComponentMainContentId,
             },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
@@ -288,13 +288,13 @@ const SmartLayout = (props) => {
   const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize, screenShareSize) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { genericComponentId } = genericComponentInput;
+    const { genericComponentMainContentId } = genericComponentMainContentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
-      && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
+      && !hasScreenShare && !isSharedNotesPinned && !genericComponentMainContentId;
 
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
@@ -328,7 +328,7 @@ const SmartLayout = (props) => {
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
       if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0 
-        && !hasExternalVideo && !genericComponentId) {
+        && !hasExternalVideo && !genericComponentMainContentId) {
         if (mediaContentSize.width < mediaAreaBounds.width && !isMobile) {
           if (mediaContentSize.width < mediaAreaBounds.width * 0.8) {
             mediaBounds.width = mediaContentSize.width;
@@ -579,7 +579,7 @@ const SmartLayout = (props) => {
     });
     
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_COMPONENT_MAIN_CONTENT_OUTPUT,
       value: {
         width: mediaBounds.width,
         height: mediaBounds.height,

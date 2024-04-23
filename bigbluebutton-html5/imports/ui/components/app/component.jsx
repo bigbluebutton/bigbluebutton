@@ -564,7 +564,7 @@ setRandomUserSelectModalIsOpen(value) {
       darkTheme,
       intl,
       isModerator,
-      genericComponentId,
+      genericComponentMainContentId,
     } = this.props;
 
     const {
@@ -600,7 +600,7 @@ setRandomUserSelectModalIsOpen(value) {
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <ExternalVideoPlayerContainer />
           <GenericComponentContainer
-            genericComponentId={genericComponentId}
+            genericComponentMainContentId={genericComponentMainContentId}
           />
           {
           shouldShowPresentation

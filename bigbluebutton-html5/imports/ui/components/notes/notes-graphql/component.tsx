@@ -126,12 +126,14 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     ) : null;
   };
 
+  // Aqui que eu preciso "duplicar"
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes
       data-test="notes"
       isChrome={isChrome}
       style={style}
     >
+      Teste doidão aqui --(1)-
       {!isOnMediaArea ? (
         // @ts-ignore Until everything in Typescript
         <Header
