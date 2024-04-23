@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 
 export default async function userEjected(meetingId, userId, ejectedReason) {
   check(meetingId, String);
@@ -24,7 +23,6 @@ export default async function userEjected(meetingId, userId, ejectedReason) {
     const numberAffected = await Users.updateAsync(selector, modifier);
 
     if (numberAffected) {
-      await clearUserInfoForRequester(meetingId, userId);
       Logger.info(`Ejected user id=${userId} meeting=${meetingId} reason=${ejectedReason}`);
     }
   } catch (err) {

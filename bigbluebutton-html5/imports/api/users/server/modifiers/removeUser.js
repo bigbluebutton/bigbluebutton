@@ -2,7 +2,6 @@ import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
-import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 import userEjected from '/imports/api/users/server/modifiers/userEjected';
 import clearVoiceUser from '/imports/api/voice-users/server/modifiers/clearVoiceUser';
@@ -41,8 +40,6 @@ export default async function removeUser(body, meetingId) {
       }
 
       await VideoStreams.removeAsync({ meetingId, userId });
-
-      await clearUserInfoForRequester(meetingId, userId);
 
       await Users.removeAsync(selector);
       await clearVoiceUser(meetingId, userId);

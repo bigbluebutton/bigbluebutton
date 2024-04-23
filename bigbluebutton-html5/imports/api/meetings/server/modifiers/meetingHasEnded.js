@@ -8,7 +8,6 @@ import clearUsersSettings from '/imports/api/users-settings/server/modifiers/cle
 import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
 import clearPads from '/imports/api/pads/server/modifiers/clearPads';
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
-import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearTimer from '/imports/api/timer/server/modifiers/clearTimer';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
@@ -28,13 +27,11 @@ export default async function meetingHasEnded(meetingId) {
 
   await Meetings.removeAsync({ meetingId });
   await Promise.all([
-    clearCaptions(meetingId),
     clearPads(meetingId),
     clearBreakouts(meetingId),
     clearUsers(meetingId),
     clearUsersSettings(meetingId),
     clearVoiceUsers(meetingId),
-    clearUserInfo(meetingId),
     clearTimer(meetingId),
     clearMeetingTimeRemaining(meetingId),
     clearRecordMeeting(meetingId),
