@@ -145,6 +145,6 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
 
     @Override
     public Set<String> getSupportedContentTypes() {
-        return Set.of(MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_XML);
+        return Set.of(MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_XML, MediaType.TEXT_XML);
     }
 }

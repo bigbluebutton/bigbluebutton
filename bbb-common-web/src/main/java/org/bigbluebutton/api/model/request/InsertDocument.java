@@ -43,6 +43,6 @@ public class InsertDocument extends RequestWithChecksum<InsertDocument.Params> {
 
     @Override
     public Set<String> getSupportedContentTypes() {
-        return Set.of(MediaType.APPLICATION_XML);
+        return Set.of(MediaType.APPLICATION_XML, MediaType.TEXT_XML);
     }
 }
