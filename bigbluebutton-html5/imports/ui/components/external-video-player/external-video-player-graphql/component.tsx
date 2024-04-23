@@ -251,16 +251,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   }, [playerRef.current]);
 
-  useEffect(() => {
-    if (shouldShowSharedNotes()) {
-      pinSharedNotes(false);
-      return () => {
-        pinSharedNotes(true);
-      };
-    }
-    return undefined;
-  }, []);
-
   // --- Plugin related code ---;
   const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
   if (internalPlayer && internalPlayer?.isMuted
