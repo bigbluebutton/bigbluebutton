@@ -10,7 +10,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import Breakouts from '/imports/api/breakouts';
 import Meetings, {
-  RecordMeetings, MeetingTimeRemaining, Notifications,
+  MeetingTimeRemaining, Notifications,
 } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
@@ -26,7 +26,6 @@ export const localCollectionRegistry = {
   localVideoStreamsSync: new AbstractCollection(VideoStreams, VideoStreams),
   localVoiceUsersSync: new AbstractCollection(VoiceUsers, VoiceUsers),
   localWhiteboardMultiUserSync: new AbstractCollection(WhiteboardMultiUser, WhiteboardMultiUser),
-  localRecordMeetingsSync: new AbstractCollection(RecordMeetings, RecordMeetings),
   localMeetingTimeRemainingSync: new AbstractCollection(MeetingTimeRemaining, MeetingTimeRemaining),
   localBreakoutsSync: new AbstractCollection(Breakouts, Breakouts),
   localMeetingsSync: new AbstractCollection(Meetings, Meetings),

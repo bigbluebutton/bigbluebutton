@@ -33,6 +33,7 @@ const ActionsBarContainer = (props) => {
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
+    componentsFlags: m.componentsFlags,
   }));
 
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
@@ -65,6 +66,7 @@ const ActionsBarContainer = (props) => {
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
 
   if (actionsBarStyle.display === false) return null;
+  if (!currentMeeting) return null;
 
   return (
     <ActionsBar {
@@ -86,8 +88,10 @@ const ActionsBarContainer = (props) => {
   );
 };
 
-const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings.public.app.raiseHandActionButton.enabled;
-const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings.public.app.raiseHandActionButton.centered;
+const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings
+  .public.app.raiseHandActionButton.enabled;
+const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings
+  .public.app.raiseHandActionButton.centered;
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;

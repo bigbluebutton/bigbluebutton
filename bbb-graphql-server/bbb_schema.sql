@@ -1799,10 +1799,9 @@ SELECT *
 FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
-CREATE OR REPLACE VIEW "v_caption_typed_activeLocales" AS
-select distinct "meetingId", "locale", "ownerUserId"
-from "caption_locale"
-where "captionType" = 'TYPED';
+CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
+select distinct "meetingId", "locale", "ownerUserId", "captionType"
+from "caption_locale";
 
 create index "idx_caption_typed_activeLocales" on caption("meetingId","locale","userId") where "captionType" = 'TYPED';
 

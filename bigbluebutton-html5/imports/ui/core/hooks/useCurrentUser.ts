@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { User } from '../../Types/user';
 import { CurrentUserContext } from '../providers/current-user';
 
-const useCurrentUser = (fn: (c: Partial<User>) => Partial<User>) => {
+const useCurrentUser = (fn: (c: Partial<User>) => Partial<User> = (u) => u) => {
   const response = useContext(CurrentUserContext);
   const returnObject = {
     ...response,
