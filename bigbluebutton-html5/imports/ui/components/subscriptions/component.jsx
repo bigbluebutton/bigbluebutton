@@ -23,7 +23,7 @@ const SUBSCRIPTIONS = [
   'record-meetings',
   'video-streams',
   // 'voice-call-states',
-  'breakouts',
+  // 'breakouts',
   // 'breakouts-history',
   'pads',
   'pads-sessions',

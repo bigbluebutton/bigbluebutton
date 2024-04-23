@@ -35,7 +35,7 @@ const DEFAULT_BREAKOUT_TIME = 15;
 interface CreateBreakoutRoomContainerProps {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
-  priority: number,
+  priority: string,
   isUpdate?: boolean,
 }
 
