@@ -8,6 +8,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ CaptionLocaleDAO, CaptionTypes }
+import org.bigbluebutton.core.db.CaptionDAO
 import org.bigbluebutton.core.models.{ AudioCaptions, UserState, Users2x }
 
 import java.time.LocalDateTime
@@ -76,7 +77,7 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
-    CaptionLocaleDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId,
+    CaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId,
       msg.body.transcript, msg.body.locale)
 
     broadcastSuccessEvent(msg.body.transcriptId, msg.body.transcript, msg.body.locale)
