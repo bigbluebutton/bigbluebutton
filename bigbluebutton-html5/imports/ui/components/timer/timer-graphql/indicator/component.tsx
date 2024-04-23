@@ -222,8 +222,7 @@ const TimerIndicatorContainer: React.FC = () => {
   const timePassed = stopwatch ? (
     Math.floor(((running ? timeDifferenceMs : 0) + accumulated))
   ) : (
-    Math.floor(((time) - accumulated))
-  );
+    Math.floor(((time) - (accumulated + (running ? timeDifferenceMs : 0)))));
 
   return (
     <TimerIndicator

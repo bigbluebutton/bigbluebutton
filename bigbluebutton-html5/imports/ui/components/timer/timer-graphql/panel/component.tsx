@@ -434,14 +434,14 @@ const TimerPanelContaier: React.FC = () => {
   const timer = timerData.timer[0];
 
   const currentDate: Date = new Date();
-  const startedAtDate: Date = new Date(timer.startedOn || Date.now());
+  const startedAtDate: Date = new Date(timer.startedAt);
   const adjustedCurrent: Date = new Date(currentDate.getTime() + timeSync);
   const timeDifferenceMs: number = adjustedCurrent.getTime() - startedAtDate.getTime();
 
   const timePassed = timer.stopwatch ? (
     Math.floor(((timer.running ? timeDifferenceMs : 0) + timer.accumulated))
   ) : (
-    Math.floor(((timer.time) - timer.accumulated)));
+    Math.floor(((timer.time) - (timer.accumulated + (timer.running ? timeDifferenceMs : 0)))));
 
   return (
     <TimerPanel
@@ -454,6 +454,7 @@ const TimerPanelContaier: React.FC = () => {
       time={timer.time}
       endedOn={timer.endedOn}
       startedOn={timer.startedOn}
+      startedAt={timer.startedAt}
     />
   );
 };
