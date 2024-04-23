@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import Meetings, {
-  RecordMeetings,
   MeetingTimeRemaining,
   LayoutMeetings,
 } from '/imports/api/meetings';
@@ -71,27 +70,6 @@ function publish(...args) {
 }
 
 Meteor.publish('meetings', publish);
-
-function recordMeetings() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
-
-  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
-    Logger.warn(`Publishing RecordMeetings was requested by unauth connection ${this.connection.id}`);
-    return RecordMeetings.find({ meetingId: '' });
-  }
-
-  const { meetingId, userId } = tokenValidation;
-
-  Logger.debug(`Publishing RecordMeetings for ${meetingId} ${userId}`);
-
-  return RecordMeetings.find({ meetingId });
-}
-function recordPublish(...args) {
-  const boundRecordMeetings = recordMeetings.bind(this);
-  return boundRecordMeetings(...args);
-}
-
-Meteor.publish('record-meetings', recordPublish);
 
 function layoutMeetings() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });

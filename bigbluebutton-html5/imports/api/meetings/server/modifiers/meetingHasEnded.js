@@ -12,7 +12,6 @@ import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserIn
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearTimer from '/imports/api/timer/server/modifiers/clearTimer';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
-import clearRecordMeeting from './clearRecordMeeting';
 import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
@@ -28,7 +27,6 @@ export default async function meetingHasEnded(meetingId) {
 
   await Meetings.removeAsync({ meetingId });
   await Promise.all([
-    clearCaptions(meetingId),
     clearPads(meetingId),
     clearBreakouts(meetingId),
     clearUsers(meetingId),
@@ -37,7 +35,6 @@ export default async function meetingHasEnded(meetingId) {
     clearUserInfo(meetingId),
     clearTimer(meetingId),
     clearMeetingTimeRemaining(meetingId),
-    clearRecordMeeting(meetingId),
     clearVoiceCallStates(meetingId),
     clearVideoStreams(meetingId),
     clearAuthTokenValidation(meetingId),
