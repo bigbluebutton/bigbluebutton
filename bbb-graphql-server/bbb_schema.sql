@@ -279,6 +279,7 @@ CREATE TABLE "user" (
 	"guestLobbyMessage" text,
 	"mobile" bool,
 	"clientType" varchar(50),
+	"transferredFromParentMeeting" bool default false, --when a user join in breakoutRoom only in audio
 	"disconnected" bool default false, -- this is the old leftFlag (that was renamed), set when the user just closed the client
 	"expired" bool default false, -- when it is been some time the user is disconnected
 	"ejected" bool,
@@ -1619,7 +1620,7 @@ SELECT *,
     	AND ("isModerator" is false OR "sendInvitationToModerators")
     	THEN TRUE ELSE FALSE END "showInvitation"
 from (
-    SELECT u."meetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
+    SELECT u."meetingId" as "userMeetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
                 bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
                 --CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
@@ -1642,15 +1643,31 @@ from (
 ) a;
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
-SELECT "parentMeetingId", "breakoutRoomId", "meetingId", "userId"
+SELECT "parentMeetingId", "breakoutRoomId", "userMeetingId", "userId"
 FROM "v_breakoutRoom"
 WHERE "assignedAt" IS NOT NULL;
 
 --TODO improve performance (and handle two users with same extId)
-CREATE OR REPLACE VIEW "v_breakoutRoom_participant" AS
-SELECT DISTINCT "parentMeetingId", "breakoutRoomId", "meetingId", "userId"
+CREATE OR REPLACE VIEW "v_breakoutRoom_participant" as
+SELECT DISTINCT
+        "parentMeetingId",
+        "breakoutRoomId",
+        "userMeetingId",
+        "userId",
+        false as "isAudioOnly"
 FROM "v_breakoutRoom"
-WHERE "currentRoomIsOnline" IS TRUE;
+WHERE "currentRoomIsOnline" IS TRUE
+union --include users that joined only with audio
+select parent_user."meetingId" as "parentMeetingId",
+        bk_user."meetingId" as "breakoutRoomId",
+        parent_user."meetingId" as "userMeetingId",
+        parent_user."userId",
+        true as "isAudioOnly"
+from "user" bk_user
+join "user" parent_user on parent_user."userId" = bk_user."userId" and parent_user."transferredFromParentMeeting" is false
+where bk_user."transferredFromParentMeeting" is true
+and bk_user."loggedOut" is false;
+
 --SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."meetingId", "user"."userId"
 --FROM v_user "user"
 --JOIN "meeting" m using("meetingId")
@@ -1731,21 +1748,51 @@ SELECT
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
 
 ------------------------------------
-----audioCaption
+----audioCaption or typedCaption
+
+CREATE TABLE "caption_locale" (
+    "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+    "locale" varchar(15) NOT NULL,
+    "captionType" varchar(100) NOT NULL, --Audio Transcription or Typed Caption
+    "ownerUserId" varchar(50),
+    "createdAt" timestamp with time zone default current_timestamp,
+    "updatedAt" timestamp with time zone,
+    CONSTRAINT "caption_locale_pk" primary key ("meetingId","locale","captionType"),
+    FOREIGN KEY ("meetingId", "ownerUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
 
 CREATE TABLE "caption" (
     "captionId" varchar(100) NOT NULL PRIMARY KEY,
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
     "captionType" varchar(100) NOT NULL, --Audio Transcription or Typed Caption
     "userId" varchar(50),
-    "lang" varchar(15),
+    "locale" varchar(15),
     "captionText" text,
     "createdAt" timestamp with time zone,
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 
-create index idx_caption on caption("meetingId","lang","createdAt");
-create index idx_caption_captionType on caption("meetingId","lang","captionType","createdAt");
+CREATE OR REPLACE FUNCTION "update_caption_locale_owner_func"() RETURNS TRIGGER AS $$
+BEGIN
+    WITH upsert AS (
+        UPDATE "caption_locale" SET
+        "ownerUserId" = NEW."userId",
+        "updatedAt" = current_timestamp
+        WHERE "meetingId"=NEW."meetingId" AND "locale"=NEW."locale" AND "captionType"= NEW."captionType"
+    RETURNING *)
+    INSERT INTO "caption_locale"("meetingId","locale","captionType","ownerUserId")
+    SELECT NEW."meetingId", NEW."locale", NEW."captionType", NEW."userId"
+    WHERE NOT EXISTS (SELECT * FROM upsert);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "insert_caption_trigger" BEFORE INSERT ON "caption" FOR EACH ROW
+EXECUTE FUNCTION "update_caption_locale_owner_func"();
+
+create index idx_caption on caption("meetingId","locale","createdAt");
+create index idx_caption_captionType on caption("meetingId","locale","captionType","createdAt");
 
 CREATE OR REPLACE VIEW "v_caption" AS
 SELECT *
@@ -1753,11 +1800,11 @@ FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
 CREATE OR REPLACE VIEW "v_caption_typed_activeLocales" AS
-select distinct "meetingId", "lang", "userId"
-from "caption"
+select distinct "meetingId", "locale", "ownerUserId"
+from "caption_locale"
 where "captionType" = 'TYPED';
 
-create index "idx_caption_typed_activeLocales" on caption("meetingId","lang","userId") where "captionType" = 'TYPED';
+create index "idx_caption_typed_activeLocales" on caption("meetingId","locale","userId") where "captionType" = 'TYPED';
 
 ------------------------------------
 ----
@@ -1789,7 +1836,7 @@ CREATE TABLE "notification" (
 	"messageDescription"    varchar(100),
 	"messageValues"         jsonb,
 	"role"                  varchar(100), --MODERATOR, PRESENTER, VIEWER
-	"userMeetingId"         varchar(50),
+	"userMeetingId"         varchar(100),
 	"userId"                varchar(50),
 	"createdAt"             timestamp with time zone DEFAULT current_timestamp,
 	FOREIGN KEY ("userMeetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE

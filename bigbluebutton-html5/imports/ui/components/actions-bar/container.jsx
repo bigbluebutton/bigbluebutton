@@ -7,7 +7,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import Service from './service';
-import CaptionsService from '/imports/ui/components/captions/service';
 import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
@@ -93,7 +92,6 @@ export default withTracker(() => ({
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
-  isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isTimerActive: TimerService.isActive(),
   isTimerEnabled: TimerService.isEnabled(),
   isMeteorConnected: Meteor.status().connected,

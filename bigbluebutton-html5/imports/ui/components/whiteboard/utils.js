@@ -79,7 +79,7 @@ const filterInvalidShapes = (shapes, curPageId, tldrawAPI) => {
 };
 
 const isValidShapeType = (shape) => {
-  const invalidTypes = ['image', 'video'];
+  const invalidTypes = ['image', 'embed'];
   return !invalidTypes.includes(shape?.type);
 };
 
@@ -106,5 +106,5 @@ const Utils = {
 
 export default Utils;
 export {
-  usePrevious, findRemoved, filterInvalidShapes, mapLanguage,
+  usePrevious, findRemoved, filterInvalidShapes, mapLanguage, isValidShapeType,
 };

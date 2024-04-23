@@ -1,6 +1,6 @@
 import { useSubscription, useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
-import GET_TIMER, { GetTimerResponse } from './queries';
+import GET_TIMER, { GetTimerResponse } from '../queries';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
@@ -82,6 +82,10 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (music.current) music.current.pause();
     };
   }, [songTrack]);
+
+  useEffect(() => {
+    setTime(passedTime);
+  }, []);
 
   useEffect(() => {
     alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
@@ -222,8 +226,7 @@ const TimerIndicatorContainer: React.FC = () => {
   const timePassed = stopwatch ? (
     Math.floor(((running ? timeDifferenceMs : 0) + accumulated))
   ) : (
-    Math.floor(((time) - accumulated))
-  );
+    Math.floor(((time) - (accumulated + (running ? timeDifferenceMs : 0)))));
 
   return (
     <TimerIndicator

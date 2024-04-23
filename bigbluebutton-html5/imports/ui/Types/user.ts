@@ -49,6 +49,29 @@ export interface Reaction {
   reactionEmoji: string;
 }
 
+export interface BreakoutRooms {
+  currentRoomJoined: boolean;
+  assignedAt: string;
+  breakoutRoomId: string;
+  currentRoomIsOnline: boolean | null;
+  currentRoomPriority: number;
+  currentRoomRegisteredAt: string | null;
+  durationInSeconds: number;
+  endedAt: string | null;
+  freeJoin: boolean;
+  inviteDismissedAt: string | null;
+  isDefaultName: boolean;
+  joinURL: string;
+  lastRoomIsOnline: boolean;
+  lastRoomJoinedAt: string;
+  lastRoomJoinedId: string;
+  name: string;
+  sendInvitationToModerators: boolean;
+  sequence: number;
+  shortName: string;
+  showInvitation: boolean;
+  startedAt: string;
+}
 export interface UserClientSettings {
   userClientSettingsJson: string;
 }
@@ -87,8 +110,8 @@ export interface User {
   isDialIn: boolean;
   voice?: Partial<Voice>;
   locked: boolean;
-  registeredAt: number;
-  registeredOn: string;
+  registeredAt: string;
+  registeredOn: number;
   hasDrawPermissionOnCurrentPage: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   cameras: Array<Cameras>;
@@ -99,6 +122,7 @@ export interface User {
   away: boolean;
   raiseHand: boolean;
   reaction: Reaction;
+  breakoutRooms: BreakoutRooms;
   customParameters: Array<CustomParameter>;
   userClientSettings: UserClientSettings;
 }

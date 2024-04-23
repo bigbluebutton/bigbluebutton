@@ -1,4 +1,10 @@
 #!/bin/bash
+if [ "$EUID" -ne 0 ]; then
+	echo "Please run this script as root ( or with sudo )" ;
+	exit 1;
+fi;
+
+cd "$(dirname "$0")"
 
 export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"

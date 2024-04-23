@@ -18,7 +18,10 @@ import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 import Settings from "/imports/ui/services/settings";
 import KEY_CODES from "/imports/utils/keyCodes";
 import Styled from "./styles";
-import { mapLanguage } from "./utils";
+import {
+  mapLanguage,
+  isValidShapeType,
+} from "./utils";
 import { useMouseEvents, useCursor } from "./hooks";
 import { notifyShapeNumberExceeded } from "./service";
 
@@ -93,6 +96,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     skipToSlide,
     intl,
     maxNumberOfAnnotations,
+    notifyNotAllowedChange,
   } = props;
 
   clearTldrawCache();
@@ -273,21 +277,35 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         const { changes } = entry;
         const { added, updated, removed } = changes;
 
-        Object.values(added).forEach((record) => {
-          const updatedRecord = {
-            ...record,
-            meta: {
-              ...record.meta,
-              createdBy: currentUser?.userId,
-            },
-          };
+        const addedCount = Object.keys(added).length;
+        const shapeNumberExceeded = Object.keys(prevShapesRef.current).length + addedCount > maxNumberOfAnnotations;
+        const invalidShapeType = Object.keys(added).find((id) => !isValidShapeType(added[id]));
 
-          persistShapeWrapper(
-            updatedRecord,
-            whiteboardIdRef.current,
-            isModeratorRef.current
-          );
-        });
+        if (shapeNumberExceeded || invalidShapeType) {
+          // notify and undo last command without persisting to not generate the onUndo/onRedo callback
+          if (shapeNumberExceeded) {
+            notifyShapeNumberExceeded(intl, maxNumberOfAnnotations);
+          } else {
+            notifyNotAllowedChange(intl);
+          }
+          editor.history.undo({ persist: false });
+        } else {
+          Object.values(added).forEach((record) => {
+            const updatedRecord = {
+              ...record,
+              meta: {
+                ...record.meta,
+                createdBy: currentUser?.userId,
+              },
+            };
+
+            persistShapeWrapper(
+              updatedRecord,
+              whiteboardIdRef.current,
+              isModeratorRef.current
+            );
+          });
+        }
 
         Object.values(updated).forEach(([_, record]) => {
           const createdBy =

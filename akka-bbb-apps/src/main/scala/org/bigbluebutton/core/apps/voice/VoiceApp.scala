@@ -302,7 +302,6 @@ object VoiceApp extends SystemConfiguration {
       )
       outGW.send(msgEvent)
     }
-
     checkAndEjectOldDuplicateVoiceConfUser(intId, liveMeeting, outGW)
 
     val isListenOnly = if (callerIdName.startsWith("LISTENONLY")) true else false

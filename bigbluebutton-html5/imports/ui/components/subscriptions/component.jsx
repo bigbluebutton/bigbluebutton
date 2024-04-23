@@ -14,7 +14,7 @@ const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   // 'users',
   // 'meetings',
-  'captions',
+  // 'captions',
   // 'voiceUsers',
   'screenshare',
   'users-settings',
@@ -23,12 +23,12 @@ const SUBSCRIPTIONS = [
   'record-meetings',
   'video-streams',
   'voice-call-states',
-  'breakouts',
-  'breakouts-history',
+  // 'breakouts',
+  // 'breakouts-history',
   'pads',
   'pads-sessions',
   'pads-updates',
-  'notifications',
+  // 'notifications',
   'layout-meetings',
   'user-reaction',
   'timer',
@@ -139,7 +139,7 @@ export default withTracker(() => {
         SubscriptionRegistry.getSubscription('meetings'),
         SubscriptionRegistry.getSubscription('users'),
         SubscriptionRegistry.getSubscription('breakouts'),
-        SubscriptionRegistry.getSubscription('breakouts-history'),
+        // SubscriptionRegistry.getSubscription('breakouts-history'),
         SubscriptionRegistry.getSubscription('guestUser'),
       ].forEach((item) => {
         if (item) item.stop();

@@ -52,7 +52,7 @@ select_permissions:
         - startedAt
       filter:
         _and:
-          - meetingId:
+          - userMeetingId:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId

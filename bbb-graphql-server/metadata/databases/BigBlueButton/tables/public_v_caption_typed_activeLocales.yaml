@@ -12,7 +12,7 @@ object_relationships:
       manual_configuration:
         column_mapping:
           meetingId: meetingId
-          userId: userId
+          ownerUserId: userId
         insertion_order: null
         remote_table:
           name: v_user_ref
@@ -21,7 +21,7 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - lang
+        - locale
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
