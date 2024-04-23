@@ -7,8 +7,16 @@ import data from '@emoji-mart/data';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { init } from 'emoji-mart';
 import { SET_RAISE_HAND, SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import { useMutation } from '@apollo/client';
-
+import Toggle from '/imports/ui/components/common/switch/component';
+import VideoService from '/imports/ui/components/video-provider/service';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import {
+  getSpeakerLevel,
+  setSpeakerLevel,
+  toggleMuteMicrophone,
+} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import Styled from './styles';
 
 const REACTIONS = window.meetingClientSettings.public.userReaction.reactions;
@@ -19,6 +27,8 @@ const ReactionsButton = (props) => {
     actionsBarRef,
     userId,
     raiseHand,
+    away,
+    muted,
     isMobile,
     shortcuts,
     currentUserReaction,
@@ -29,9 +39,14 @@ const ReactionsButton = (props) => {
   init({ data });
 
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
+  const [setAway] = useMutation(SET_AWAY);
   const [setReactionEmoji] = useMutation(SET_REACTION_EMOJI);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const voiceToggle = useToggleVoice();
+  const prevMutedRef = React.useRef(false);
+  const prevSpeakerLevel = React.useRef(0);
 
   const intlMessages = defineMessages({
     reactionsLabel: {
@@ -45,6 +60,14 @@ const ReactionsButton = (props) => {
     notRaiseHandLabel: {
       id: 'app.actionsBar.reactions.lowHand',
       description: 'not Raise Hand Label',
+    },
+    setAwayLabel: {
+      id: 'app.actionsBar.reactions.setAway',
+      description: 'setAway Label',
+    },
+    setActiveLabel: {
+      id: 'app.actionsBar.reactions.setActive',
+      description: 'setActive Label',
     },
   });
 
@@ -68,6 +91,43 @@ const ReactionsButton = (props) => {
       },
     });
   };
+
+  const muteAway = () => {
+    const prevAwayMuted = prevMutedRef.current;
+    const prevSpeakerLevelValue = prevSpeakerLevel.current;
+
+    // mute/unmute microphone
+    if (muted === away && muted === prevAwayMuted) {
+      toggleMuteMicrophone(muted, voiceToggle);
+      prevMutedRef.current = !muted;
+    } else if (!away && !muted && prevAwayMuted) {
+      toggleMuteMicrophone(muted, voiceToggle);
+    }
+
+    // mute/unmute speaker
+    if (away) {
+      setSpeakerLevel(prevSpeakerLevelValue);
+    } else {
+      prevSpeakerLevel.current = getSpeakerLevel();
+      setSpeakerLevel(0);
+    }
+
+    // enable/disable video
+    VideoService.setTrackEnabled(away);
+  };
+
+  const handleToggleAFK = () => {
+    muteAway();
+    setAway({
+      variables: {
+        away: !away,
+      },
+    });
+  };
+
+  const ToggleAFKLabel = () => (away
+    ? intl.formatMessage(intlMessages.setActiveLabel)
+    : intl.formatMessage(intlMessages.setAwayLabel));
 
   const RaiseHandButtonLabel = () => {
     if (isMobile) return null;
@@ -99,6 +159,11 @@ const ReactionsButton = (props) => {
     native: '✋',
   };
 
+  const awayReaction = {
+    id: 'clock7',
+    native: '⏰',
+  };
+
   let actions = [];
 
   REACTIONS.forEach(({ id, native }) => {
@@ -111,13 +176,21 @@ const ReactionsButton = (props) => {
   });
 
   actions.push({
+    label: <Styled.ToggleButtonWrapper><Toggle icons={false} defaultChecked={away} onChange={() => { handleToggleAFK(); }} ariaLabel={ToggleAFKLabel()} showToggleLabel={false} />{ToggleAFKLabel()}</Styled.ToggleButtonWrapper>,
+    key: 'none',
+    isToggle: true,
+    onClick: () => handleToggleAFK(),
+    customStyles: {...actionCustomStyles, width: 'auto'},
+  });
+
+  actions.push({
     label: <Styled.RaiseHandButtonWrapper accessKey={shortcuts.raisehand} isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><em-emoji key={handReaction.id} native={handReaction.native} emoji={{ id: handReaction.id }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
     key: 'hand',
     onClick: () => handleRaiseHandButtonClick(),
     customStyles: {...actionCustomStyles, width: 'auto'},
   });
 
-  const icon = !raiseHand && currentUserReaction === 'none' ? 'hand' : null;
+  const icon = !raiseHand && !away && currentUserReaction === 'none' ? 'hand' : null;
   const currentUserReactionEmoji = REACTIONS.find(({ native }) => native === currentUserReaction);
 
   let customIcon = null;
@@ -128,6 +201,10 @@ const ReactionsButton = (props) => {
     if (!icon) {
       customIcon = <em-emoji key={currentUserReactionEmoji?.id} native={currentUserReactionEmoji?.native} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
     }
+  }
+
+  if (away) {
+    customIcon = <em-emoji key={awayReaction.id} native={awayReaction.native} emoji={awayReaction} {...emojiProps} />;
   }
 
   return (
@@ -182,6 +259,7 @@ const propTypes = {
   emoji: PropTypes.string,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
+  muted: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {

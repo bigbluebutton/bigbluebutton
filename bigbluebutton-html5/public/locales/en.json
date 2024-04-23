@@ -661,6 +661,8 @@
     "app.actionsBar.reactions.raiseHand": "Raise your hand",
     "app.actionsBar.reactions.lowHand": "Lower your hand",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Auto close the reactions bar",
+    "app.actionsBar.reactions.setAway": "Set away",
+    "app.actionsBar.reactions.setActive": "Set active",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Set status",
     "app.actionsBar.emojiMenu.awayLabel": "Away",
     "app.actionsBar.emojiMenu.awayDesc": "Change your status to away",

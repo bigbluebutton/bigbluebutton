@@ -16,6 +16,7 @@ import Settings from '/imports/ui/services/settings';
 import CaptionsSelectContainer from '/imports/ui/components/audio/captions/select/container';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -264,6 +265,7 @@ const AudioModal = (props) => {
         away: false,
       },
     });
+    VideoService.setTrackEnabled(true);
   };
 
   const handleJoinListenOnly = () => {

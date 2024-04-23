@@ -20,14 +20,6 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
-import VideoService from '/imports/ui/components/video-provider/service';
-import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
-import {
-  getSpeakerLevel,
-  setSpeakerLevel,
-  toggleMuteMicrophone,
-} from '../audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -57,54 +49,13 @@ const ActionsBarContainer = (props) => {
     presenter: user.presenter,
     emoji: user.emoji,
     isModerator: user.isModerator,
-    away: user.away,
-    voice: user.voice,
   }));
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const [setAway] = useMutation(SET_AWAY);
-  const voiceToggle = useToggleVoice();
-  const prevMutedRef = React.useRef(false);
-  const prevSpeakerLevel = React.useRef(0);
-
-  const muteAway = (away) => {
-    const isMuted = currentUserData?.voice?.muted;
-    const prevAwayMuted = prevMutedRef.current;
-    const prevSpeakerLevelValue = prevSpeakerLevel.current;
-
-    // mute/unmute microphone
-    if (isMuted === away && isMuted === prevAwayMuted) {
-      toggleMuteMicrophone(isMuted, voiceToggle);
-      prevMutedRef.current = !isMuted;
-    } else if (!away && !isMuted && prevAwayMuted) {
-      toggleMuteMicrophone(isMuted, voiceToggle);
-    }
-
-    // mute/unmute speaker
-    if (away) {
-      setSpeakerLevel(prevSpeakerLevelValue);
-    } else {
-      prevSpeakerLevel.current = getSpeakerLevel();
-      setSpeakerLevel(0);
-    }
-
-    // enable/disable video
-    VideoService.setTrackEnabled(away);
-  };
-
-  const setUserAway = (away) => {
-    muteAway(!away);
-    setAway({
-      variables: {
-        away,
-      },
-    });
-  };
 
   const currentUser = {
     userId: Auth.userID,
     emoji: currentUserData?.emoji,
-    away: currentUserData?.away,
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
@@ -124,7 +75,6 @@ const ActionsBarContainer = (props) => {
         isThereCurrentPresentation,
         isSharingVideo,
         stopExternalVideoShare,
-        setUserAway,
       }
     }
     />
