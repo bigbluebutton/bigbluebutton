@@ -16,12 +16,6 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
 
     private static final Logger log = LoggerFactory.getLogger(ContentTypeValidator.class);
 
-    private static final Set<String> SUPPORTED_CONTENT_TYPES = Sets.newHashSet(
-            MediaType.APPLICATION_XML,
-            MediaType.APPLICATION_FORM_URLENCODED,
-            MediaType.MULTIPART_FORM_DATA
-    );
-
     @Override
     public void initialize(ContentTypeConstraint constraintAnnotation) {}
 
