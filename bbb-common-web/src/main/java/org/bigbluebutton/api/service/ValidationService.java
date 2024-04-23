@@ -119,7 +119,7 @@ public class ValidationService {
 
         switch(apiCall.requestType) {
             case GET:
-                checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString);
+                checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString, servletRequest);
                 switch(apiCall) {
                     case CREATE:
                         request = new CreateMeeting(checksum, servletRequest);
