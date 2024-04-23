@@ -1,5 +1,4 @@
 import Auth from '/imports/ui/services/auth';
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -74,20 +73,6 @@ const sendAnnotation = (annotation, submitAnnotations) => {
     annotationsQueue.push(annotation);
   }
   if (!annotationsSenderIsRunning) setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsBufferTimeMin);
-};
-
-const getMultiUser = (whiteboardId) => {
-  const data = WhiteboardMultiUser.findOne(
-    {
-      meetingId: Auth.meetingID,
-      whiteboardId,
-    },
-    { fields: { multiUser: 1 } },
-  );
-
-  if (!data || !data.multiUser || !Array.isArray(data.multiUser)) return [];
-
-  return data.multiUser;
 };
 
 const persistShape = async (shape, whiteboardId, isModerator, submitAnnotations) => {
@@ -281,7 +266,6 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
 export {
   initDefaultPages,
   sendAnnotation,
-  getMultiUser,
   persistShape,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,

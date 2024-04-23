@@ -8,7 +8,6 @@ import '/imports/api/breakouts/server';
 import '/imports/api/screenshare/server';
 import '/imports/api/users-settings/server';
 import '/imports/api/voice-users/server';
-import '/imports/api/whiteboard-multi-user/server';
 import '/imports/api/video-streams/server';
 import '/imports/api/users-infos/server';
 import '/imports/api/connection-status/server';
