@@ -90,14 +90,14 @@ class Create extends MultiUsers {
 
     // Reset assignments
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(e.breakoutBox1, 'should have an attende on second breakout room box', /Attendee/);
+    await this.modPage.hasText(e.breakoutBox1, /Attendee/, 'should have an attende on second breakout room box');
     await this.modPage.waitAndClick(e.resetAssignments);
-    await this.modPage.hasText(e.breakoutBox0, 'should have and attende on first breakout room box', /Attendee/);
+    await this.modPage.hasText(e.breakoutBox0, /Attendee/, 'should have and attende on first breakout room box');
 
     // Remove specific assignment
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.waitAndClick(`${e.breakoutBox1} span[role="button"]`);
-    await this.modPage.hasText(e.breakoutBox0, 'should have and attende on first breakout room box', /Attendee/);
+    await this.modPage.hasText(e.breakoutBox0, /Attendee/, 'should have and attende on first breakout room box');
   }
 
   async dragDropUserInRoom() {
@@ -106,18 +106,18 @@ class Create extends MultiUsers {
 
     //testing no user assigned
     const modalConfirmButton = this.modPage.getLocator(e.modalConfirmButton);
-    await expect(modalConfirmButton, 'Should designate a user to a specific a breakout room, before creating it.').toBeDisabled();
-    await this.modPage.hasElement(e.warningNoUserAssigned, 'Should designate a user to a specific a breakout room, before creating it.');
+    await expect(modalConfirmButton, 'should designate a user to a specific a breakout room, before creating it').toBeDisabled();
+    await this.modPage.hasElement(e.warningNoUserAssigned, 'should designate a user to a specific a breakout room, before creating it');
 
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(e.breakoutBox1, 'Should have the attende on the second breakout room', /Attendee/);
+    await this.modPage.hasText(e.breakoutBox1, /Attendee/, 'should have the attende on the second breakout room');
     await expect(modalConfirmButton).toBeEnabled();
-    await this.modPage.wasRemoved(e.warningNoUserAssigned, 'Should designate a user to a specific a breakout room, before creating it.');
+    await this.modPage.wasRemoved(e.warningNoUserAssigned, 'should designate a user to a specific a breakout room, before creating it');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'Should have the attende name on the first breakout room.', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attende name on the first breakout room', ELEMENT_WAIT_LONGER_TIME);
   }
 }
 
