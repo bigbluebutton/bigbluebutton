@@ -40,7 +40,7 @@ import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineManager from '../plugins-engine/manager';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
-import Notifications from '../notifications/container';
+import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
