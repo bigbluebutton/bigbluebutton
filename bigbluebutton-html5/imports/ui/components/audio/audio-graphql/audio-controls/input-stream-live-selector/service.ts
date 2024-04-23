@@ -13,6 +13,7 @@ const TOGGLE_MUTE_THROTTLE_TIME = window.meetingClientSettings.public.media.togg
 const DEVICE_LABEL_MAX_LENGTH = 40;
 const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
 const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
+const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
 
 export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   if (!meetingIsBreakout) {
@@ -81,10 +82,24 @@ export const liveChangeInputDevice = (inputDeviceId: string) => AudioManager.liv
 export const liveChangeOutputDevice = (inputDeviceId: string, isLive: boolean) => AudioManager
   .changeOutputDevice(inputDeviceId, isLive);
 
+export const getSpeakerLevel = () => {
+  const audioElement = document.querySelector(MEDIA_TAG) as HTMLMediaElement;
+  return audioElement ? audioElement.volume : 0;
+};
+
+export const setSpeakerLevel = (level: number) => {
+  const audioElement = document.querySelector(MEDIA_TAG) as HTMLMediaElement;
+  if (audioElement) {
+    audioElement.volume = level;
+  }
+};
+
 export default {
   handleLeaveAudio,
   toggleMuteMicrophone,
   truncateDeviceName,
   notify,
   liveChangeInputDevice,
+  getSpeakerLevel,
+  setSpeakerLevel,
 };

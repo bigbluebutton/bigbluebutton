@@ -92,25 +92,25 @@ const isVoiceUser = () => {
   return voiceUser ? voiceUser.joined : false;
 };
 
-const toggleMuteMicrophone = throttle((toggleVoice, voiceToggle) => {
+const toggleMuteMicrophone = throttle((toggleVoice) => {
   const user = VoiceUsers.findOne({
     userId: Auth.userID,
   }, { fields: { muted: 1 } });
 
-  Storage.setItem(MUTED_KEY, !user?.muted);
+  Storage.setItem(MUTED_KEY, !user.muted);
 
-  if (user?.muted) {
+  if (user.muted) {
     logger.info({
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
-    toggleVoice(Auth.userID, voiceToggle);
+    toggleVoice();
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
-    toggleVoice(Auth.userID, voiceToggle);
+    toggleVoice();
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
