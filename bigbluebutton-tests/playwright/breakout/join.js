@@ -235,6 +235,8 @@ class Join extends Create {
   async userCanChooseRoom() {
     await this.userPage.bringToFront();
 
+    await this.userPage.hasElementEnabled(e.selectBreakoutRoomBtn);
+    await this.userPage.hasElementEnabled(e.modalConfirmButton);
     await this.userPage.checkElementCount(e.roomOption, 2);
 
     await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});

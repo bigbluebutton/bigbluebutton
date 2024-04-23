@@ -104,6 +104,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
           value={selectValue}
           onChange={handleSelectChange}
           disabled={waiting}
+          data-test="selectBreakoutRoomBtn"
         >
           {
             breakouts.sort((a, b) => a.sequence - b.sequence).map(({ shortName, breakoutRoomId }) => (
