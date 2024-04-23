@@ -130,7 +130,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
     if (!isTranscriptionDisabled()) selectedLocale.current = getSelectedLocaleValue;
   }, [currentSpeechLocale]);
 
-  const shouldRenderChevron = isSupported && isVoiceUser;
+  const shouldRenderChevron = isSupported;
   const shouldRenderSelector = isSupported && availableVoices.length > 0;
 
   const toggleTranscription = () => {
