@@ -77,6 +77,7 @@ interface InputStreamLiveSelectorProps {
   outputDeviceId: string;
   inputStream: string;
   meetingIsBreakout: boolean;
+  away: boolean;
 }
 
 const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
@@ -94,6 +95,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   outputDeviceId,
   inputStream,
   meetingIsBreakout,
+  away,
 }) => {
   const intl = useIntl();
   // eslint-disable-next-line no-undef
@@ -191,6 +193,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
             disabled={disabled || isAudioLocked}
             isAudioLocked={isAudioLocked}
             toggleMuteMicrophone={toggleMuteMicrophone}
+            away={away}
           />
         ) : (
           <>
@@ -201,6 +204,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
                 disabled={disabled || isAudioLocked}
                 isAudioLocked={isAudioLocked}
                 toggleMuteMicrophone={toggleMuteMicrophone}
+                away={away}
               />
             )}
             <ListenOnly
@@ -229,6 +233,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       presenter: u.presenter,
       isModerator: u.isModerator,
       locked: u?.locked ?? false,
+      away: u?.away,
       voice: {
         muted: u?.voice?.muted ?? false,
         listenOnly: u?.voice?.listenOnly ?? false,
@@ -274,6 +279,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       outputDeviceId={outputDeviceId}
       inputStream={inputStream}
       meetingIsBreakout={currentMeeting?.isBreakout ?? false}
+      away={currentUser?.away}
     />
   );
 };

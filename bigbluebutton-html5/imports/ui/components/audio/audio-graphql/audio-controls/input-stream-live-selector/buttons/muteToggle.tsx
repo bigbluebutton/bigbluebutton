@@ -21,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.unmuteLabel',
     description: 'Unmute audio button label',
   },
+  umuteAudioAndSetActive: {
+    id: 'app.actionsBar.unmuteAndSetActiveLabel',
+    description: 'unmute audio button label when user is away',
+  },
 });
 
 interface MuteToggleProps {
@@ -29,6 +33,7 @@ interface MuteToggleProps {
   disabled: boolean;
   isAudioLocked: boolean;
   toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId?: string | null, muted?: boolean | null) => void) => void;
+  away: boolean;
 }
 
 export const Mutetoggle: React.FC<MuteToggleProps> = ({
@@ -37,13 +42,15 @@ export const Mutetoggle: React.FC<MuteToggleProps> = ({
   disabled,
   isAudioLocked,
   toggleMuteMicrophone,
+  away,
 }) => {
   const intl = useIntl();
   const toggleMuteShourtcut = useShortcut('toggleMute');
   const toggleVoice = useToggleVoice();
   const [setAway] = useMutation(SET_AWAY);
 
-  const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
+  const unmuteAudioLabel = away ? intlMessages.umuteAudioAndSetActive : intlMessages.unmuteAudio;
+  const label = muted ? intl.formatMessage(unmuteAudioLabel)
     : intl.formatMessage(intlMessages.muteAudio);
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
