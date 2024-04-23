@@ -206,18 +206,6 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
       {
         key: 'separator-02',
         isSeparator: true,
-      },
-      {
-        key: 'transcriptionStatus',
-        label: intl.formatMessage(
-          isTranscriptionDisabled()
-            ? intlMessages.transcriptionOn
-            : intlMessages.transcriptionOff,
-        ),
-        customStyles: isTranscriptionDisabled()
-          ? Styled.EnableTrascription : Styled.DisableTrascription,
-        disabled: false,
-        onClick: toggleTranscription,
       }];
     }
 
