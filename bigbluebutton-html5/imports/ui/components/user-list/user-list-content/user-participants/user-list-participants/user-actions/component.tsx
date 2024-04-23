@@ -10,7 +10,6 @@ import {
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
-  REQUEST_USER_INFO,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
