@@ -17,6 +17,9 @@ import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutati
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
 
+const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
+const PROVIDER = CONFIG.provider;
+
 const intlMessages = defineMessages({
   start: {
     id: 'app.audio.captions.button.start',
@@ -131,10 +134,6 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   const shouldRenderChevron = isSupported;
   const shouldRenderSelector = isSupported && availableVoices.length > 0;
 
-  const toggleTranscription = () => {
-    setSpeechLocale(isTranscriptionDisabled() ? selectedLocale.current : DISABLED, setUserSpeechLocale);
-  };
-
   const getAvailableLocales = () => {
     let indexToInsertSeparator = -1;
     const availableVoicesObjectToMenu: (MenuOptionItemType | MenuSeparatorItemType)[] = availableVoices
@@ -219,6 +218,9 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   };
   const onToggleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!currentSpeechLocale && !active) {
+      setUserSpeechLocale(availableVoices[0], PROVIDER);
+    }
     setAudioCaptions(!active);
   };
 
