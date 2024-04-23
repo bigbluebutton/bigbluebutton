@@ -91,7 +91,6 @@ interface AudioCaptionsButtonProps {
   availableVoices: string[];
   currentSpeechLocale: string;
   isSupported: boolean;
-  isVoiceUser: boolean;
 }
 
 const DISABLED = '';
@@ -101,7 +100,6 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   currentSpeechLocale,
   availableVoices,
   isSupported,
-  isVoiceUser,
 }) => {
   const knownLocales = window.meetingClientSettings.public.captions.locales;
   const intl = useIntl();
@@ -130,7 +128,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
     if (!isTranscriptionDisabled()) selectedLocale.current = getSelectedLocaleValue;
   }, [currentSpeechLocale]);
 
-  const shouldRenderChevron = isSupported && isVoiceUser;
+  const shouldRenderChevron = isSupported;
   const shouldRenderSelector = isSupported && availableVoices.length > 0;
 
   const toggleTranscription = () => {
@@ -305,7 +303,6 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   const availableVoices = activeCaptionsData.caption_activeLocales.map((caption) => caption.locale);
   const currentSpeechLocale = currentUser.speechLocale || '';
   const isSupported = availableVoices.length > 0;
-  const isVoiceUser = !!currentUser.voice;
 
   if (!currentMeetingData.componentsFlags?.hasCaption) return null;
 
@@ -315,7 +312,6 @@ const AudioCaptionsButtonContainer: React.FC = () => {
       availableVoices={availableVoices}
       currentSpeechLocale={currentSpeechLocale}
       isSupported={isSupported}
-      isVoiceUser={isVoiceUser}
     />
   );
 };
