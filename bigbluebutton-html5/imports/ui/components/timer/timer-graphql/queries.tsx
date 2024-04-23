@@ -1,16 +1,19 @@
 import { gql } from '@apollo/client';
 
+export interface TimerData {
+  accumulated: number;
+  active: boolean;
+  songTrack: string;
+  time: number;
+  stopwatch: boolean;
+  running: boolean;
+  startedOn: number;
+  endedOn: number;
+  startedAt: string;
+}
+
 export interface GetTimerResponse {
-  timer: Array<{
-    accumulated: number;
-    active: boolean;
-    songTrack: string;
-    time: number;
-    stopwatch: boolean;
-    running: boolean;
-    startedOn: number;
-    endedOn: number;
-  }>;
+  timer: Array<TimerData>;
 }
 
 export const GET_TIMER = gql`
@@ -23,6 +26,7 @@ export const GET_TIMER = gql`
       stopwatch
       running
       startedOn
+      startedAt
       endedOn
     }
   }

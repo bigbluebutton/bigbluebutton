@@ -28,7 +28,7 @@ const SUBSCRIPTIONS = [
   // 'pads',
   // 'pads-sessions',
   // 'pads-updates',
-  'notifications',
+  // 'notifications',
   'layout-meetings',
   'user-reaction',
   'timer',

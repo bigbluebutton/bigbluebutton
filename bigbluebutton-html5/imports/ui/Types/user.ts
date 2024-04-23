@@ -110,8 +110,8 @@ export interface User {
   isDialIn: boolean;
   voice?: Partial<Voice>;
   locked: boolean;
-  registeredAt: number;
-  registeredOn: string;
+  registeredAt: string;
+  registeredOn: number;
   hasDrawPermissionOnCurrentPage: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   cameras: Array<Cameras>;
