@@ -587,6 +587,8 @@ public:
         name: "Ελληνικά"
       - locale: "en"
         name: "English"
+      - locale: "en-US"
+        name: "English"
       - locale: "eo"
         name: "Esperanto"
       - locale: "es"

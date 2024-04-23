@@ -12,8 +12,8 @@ import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
-import CaptionsSelectContainer from '/imports/ui/components/audio/captions/select/container';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -351,7 +351,7 @@ const AudioModal = (props) => {
             }}
           />
         ) : null}
-        <CaptionsSelectContainer />
+        <AudioCaptionsSelectContainer />
       </div>
     );
   };

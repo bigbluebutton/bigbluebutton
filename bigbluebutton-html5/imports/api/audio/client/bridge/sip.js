@@ -25,8 +25,8 @@ import {
   getAudioConstraints,
   filterSupportedConstraints,
   doGUM,
+  stereoUnsupported,
 } from '/imports/api/audio/client/bridge/service';
-import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -722,7 +722,7 @@ class SIPSession {
       // via SDP munging. Having it disabled on server side FS _does not suffice_
       // because the stereo parameter is client-mandated (ie replicated in the
       // answer)
-      if (SpeechService.stereoUnsupported()) {
+      if (stereoUnsupported()) {
         logger.debug({
           logCode: 'sipjs_transcription_disable_stereo',
         }, 'Transcription provider does not support stereo, forcing stereo=0');

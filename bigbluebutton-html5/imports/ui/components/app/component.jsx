@@ -18,7 +18,7 @@ import AudioContainer from '../audio/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
-import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/speech/container';
+import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/component';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import ScreenReaderAlertAdapter from '../screenreader-alert/adapter';
@@ -566,6 +566,7 @@ setRandomUserSelectModalIsOpen(value) {
       intl,
       isModerator,
       genericComponentId,
+      speechLocale,
     } = this.props;
 
     const {
@@ -642,7 +643,9 @@ setRandomUserSelectModalIsOpen(value) {
             setAudioModalIsOpen: this.setAudioModalIsOpen,
             isVideoPreviewModalOpen,
             setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-          }} />
+            speechLocale,
+          }}
+          />
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
             && (
