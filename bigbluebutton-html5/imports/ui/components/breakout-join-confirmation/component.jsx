@@ -221,7 +221,7 @@ class BreakoutJoinConfirmation extends Component {
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
-        {...{ 
+        {...{
           setIsOpen,
           isOpen,
           priority,

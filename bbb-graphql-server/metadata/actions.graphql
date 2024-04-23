@@ -562,3 +562,11 @@ input GuestUserApprovalStatus {
   status: String!
 }
 
+type Mutation {
+  captionSetOwner(
+    locale: String!
+    ownerUserId: String!
+  ): Boolean
+}
+
+

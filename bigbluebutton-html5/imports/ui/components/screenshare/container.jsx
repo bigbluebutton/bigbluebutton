@@ -16,7 +16,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaService from '/imports/ui/components/media/service';
 import { defineMessages } from 'react-intl';
-import NotesService from '/imports/ui/components/notes/service';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 
 const screenshareIntlMessages = defineMessages({
@@ -152,7 +151,5 @@ export default withTracker(() => {
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     enableVolumeControl: shouldEnableVolumeControl(),
     outputDeviceId: AudioService.outputDeviceId(),
-    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
-    pinSharedNotes: NotesService.pinSharedNotes,
   };
 })(ScreenshareContainer);

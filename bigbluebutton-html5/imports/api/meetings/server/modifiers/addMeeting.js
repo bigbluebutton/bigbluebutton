@@ -11,7 +11,6 @@ import Meetings, {
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
 import createTimer from '/imports/api/timer/server/methods/createTimer';
-import { initCaptions } from '/imports/api/captions/server/helpers';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import addUserReactionsObserver from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
@@ -248,9 +247,6 @@ export default async function addMeeting(meeting) {
       createTimer(meetingId);
       if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
         initPads(meetingId);
-      }
-      if (newMeeting.meetingProp.disabledFeatures.indexOf('captions') === -1) {
-        await initCaptions(meetingId);
       }
       if (newMeeting.meetingProp.disabledFeatures.indexOf('reactions') === -1) {
         await addUserReactionsObserver(meetingId);

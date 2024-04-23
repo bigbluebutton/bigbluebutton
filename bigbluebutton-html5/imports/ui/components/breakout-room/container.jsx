@@ -20,6 +20,7 @@ import {
 import logger from '/imports/startup/client/logger';
 import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
+import BreakoutContainerGraphql from '/imports/ui/components/breakout-room/breakout-room-graphql/breakout-room/component';
 
 const BreakoutContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -92,15 +93,7 @@ const BreakoutContainer = (props) => {
     }
   };
 
-  return <BreakoutComponent
-    amIPresenter={amIPresenter}
-    endAllBreakouts={endAllBreakouts}
-    setBreakoutsTime={setBreakoutsTime}
-    transferUserToMeeting={transferUserToMeeting}
-    requestJoinURL={requestJoinURL}
-    sendUserUnshareWebcam={sendUserUnshareWebcam}
-    {...{ layoutContextDispatch, isRTL, amIModerator, rejoinAudio, ...props }}
-  />;
+  return <BreakoutContainerGraphql />;
 };
 
 export default withTracker((props) => {
