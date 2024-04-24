@@ -7,7 +7,6 @@ import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graph
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
-import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
@@ -282,10 +281,6 @@ export default withTracker(() => {
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
 
-  const UserInfo = UserInfos.find({
-    meetingId: Auth.meetingID,
-    requesterUserId: Auth.userID,
-  }).fetch();
 
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
@@ -305,7 +300,6 @@ export default withTracker(() => {
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
     customStyleUrl,
-    UserInfo,
     notify,
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
