@@ -20,6 +20,7 @@ create table "meeting" (
 	"presentationUploadExternalUrl" varchar(500),
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
+	"loginUrl" varchar(500),
 	"logoutUrl" varchar(500),
 	"customLogoUrl" varchar(500),
 	"bannerText" text,
