@@ -155,7 +155,7 @@ public:
       enabled: true
     emojiRain:
       # If true, new reactions will be activated
-      enabled: true
+      enabled: false
       # Can set the throttle, the number of emojis that will be displayed and their size
       intervalEmojis: 2000
       numberOfEmojis: 5
