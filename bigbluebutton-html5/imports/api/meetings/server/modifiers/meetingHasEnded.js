@@ -17,7 +17,6 @@ import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clear
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
 import clearReactions from '/imports/api/user-reaction/server/modifiers/clearReactions';
 
-import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
 import Metrics from '/imports/startup/server/metrics';
 
 export default async function meetingHasEnded(meetingId) {
@@ -38,7 +37,6 @@ export default async function meetingHasEnded(meetingId) {
     clearVoiceCallStates(meetingId),
     clearVideoStreams(meetingId),
     clearAuthTokenValidation(meetingId),
-    clearWhiteboardMultiUser(meetingId),
     clearScreenshare(meetingId),
     clearReactions(meetingId),
   ]);
