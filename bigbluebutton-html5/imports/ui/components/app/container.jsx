@@ -119,7 +119,7 @@ const AppContainer = (props) => {
       layoutContextDispatch
       && (typeof meetingLayout !== 'undefined')
       && (layoutType.current !== meetingLayout)
-      && isSharedNotesPinned
+      && sharedNotesInput?.isPinned
     ) {
       layoutType.current = meetingLayout;
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
@@ -167,7 +167,7 @@ const AppContainer = (props) => {
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo);
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo, sharedNotesInput?.isPinned);
   });
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;

@@ -3,7 +3,6 @@ import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
-import NotesService from '/imports/ui/components/notes/service';
 
 const DIAL_IN_USER = 'dial-in-user';
 
@@ -40,5 +39,4 @@ export default {
   }, { fields: { joinedUsers: 1, breakoutId: 1, sequence: 1 }, sort: { sequence: 1 } }).fetch(),
   getBreakouts,
   getUsersNotJoined,
-  isSharedNotesPinned: () => NotesService.isSharedNotesPinned(),
 };

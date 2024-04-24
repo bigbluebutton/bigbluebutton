@@ -1,5 +1,4 @@
 import { makeCall } from '/imports/ui/services/api';
-import { PadsUpdates } from '/imports/api/pads';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 
@@ -34,22 +33,8 @@ const buildPadURL = (padId: string, sessionIds: Array<string>) => {
   return url;
 };
 
-const getPadTail = (externalId: string) => {
-  const updates = PadsUpdates.findOne(
-    {
-      meetingId: Auth.meetingID,
-      externalId,
-    }, { fields: { tail: 1 } },
-  );
-
-  if (updates && updates.tail) return updates.tail;
-
-  return '';
-};
-
 export default {
   createGroup,
   buildPadURL,
-  getPadTail,
   getParams,
 };
