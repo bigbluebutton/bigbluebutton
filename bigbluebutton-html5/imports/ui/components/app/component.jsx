@@ -8,7 +8,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
-import UserInfoContainer from '/imports/ui/components/user-info/container';
 import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/pads-graphql/sessions/component';
@@ -452,18 +451,6 @@ class App extends Component {
     ) : null);
   }
 
-  renderUserInformation() {
-    const { UserInfo, User } = this.props;
-
-    return (UserInfo.length > 0 ? (
-      <UserInfoContainer
-        UserInfo={UserInfo}
-        requesterUserId={User.userId}
-        meetingId={User.meetingId}
-      />
-    ) : null);
-  }
-
   renderDarkMode() {
     const { darkTheme } = this.props;
 
@@ -564,7 +551,6 @@ setRandomUserSelectModalIsOpen(value) {
       presentationIsOpen,
       darkTheme,
       intl,
-      isModerator,
       genericComponentId,
       speechLocale,
     } = this.props;
@@ -592,7 +578,6 @@ setRandomUserSelectModalIsOpen(value) {
           }}
         >
           {this.renderActivityCheck()}
-          {this.renderUserInformation()}
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />

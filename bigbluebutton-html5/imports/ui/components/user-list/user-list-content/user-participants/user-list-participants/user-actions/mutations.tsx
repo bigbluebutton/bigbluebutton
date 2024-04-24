@@ -33,18 +33,9 @@ export const CHAT_CREATE_WITH_USER = gql`
   }
 `;
 
-export const REQUEST_USER_INFO = gql`
-  mutation RequestUserInfo($extId: String!) {
-    userThirdPartyInfoResquest(
-      externalUserId: $extId
-    )
-  }
-`;
-
 export default {
   SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
-  REQUEST_USER_INFO,
 };

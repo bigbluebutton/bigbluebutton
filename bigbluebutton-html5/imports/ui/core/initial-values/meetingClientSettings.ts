@@ -41,7 +41,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: true,
       },
       allowDefaultLogoutUrl: true,
-      allowUserLookup: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       guestPolicyExtraAllowOptions: false,
