@@ -5,7 +5,6 @@ import {
 } from 'meteor/check';
 import SanitizeHTML from 'sanitize-html';
 import Meetings, {
-  RecordMeetings,
   LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
@@ -219,21 +218,6 @@ export default async function addMeeting(meeting) {
     if (process.env.BBB_HTML5_ROLE === 'frontend') {
       return;
     }
-  }
-
-  try {
-    const {
-      insertedId,
-      numberAffected,
-    } = await RecordMeetings.upsertAsync(selector, { meetingId, ...recordProp });
-
-    if (insertedId) {
-      Logger.info(`Added record prop id=${meetingId}`);
-    } else if (numberAffected) {
-      Logger.info(`Upserted record prop id=${meetingId}`);
-    }
-  } catch (err) {
-    Logger.error(`Adding record prop to collection: ${err}`);
   }
 
   await addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');

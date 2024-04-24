@@ -1,8 +1,7 @@
 import { RedisMessage } from '../types';
-import { ValidationError } from '../types/ValidationError';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  const eventName = `PluginDataChannelDispatchMessageMsg`;
+  const eventName = `PluginDataChannelDeleteMessageMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -15,18 +14,11 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
-  try {
-    JSON.parse(<string>input.payloadJson);
-  } catch (e) {
-    throw new ValidationError('Field `payloadJson` contains an invalid Json.', 400);
-  }
-
   const body = {
     pluginName: input.pluginName,
-    dataChannel: input.dataChannel,
-    payloadJson: input.payloadJson,
-    toRoles: input.toRoles,
-    toUserIds: input.toUserIds
+    channelName: input.channelName,
+    subChannelName: input.subChannelName,
+    entryId: input.entryId
   };
 
   return { eventName, routing, header, body };

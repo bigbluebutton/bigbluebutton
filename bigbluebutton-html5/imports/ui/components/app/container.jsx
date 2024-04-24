@@ -101,6 +101,7 @@ const AppContainer = (props) => {
     enforceLayout: user.enforceLayout,
     isModerator: user.isModerator,
     presenter: user.presenter,
+    speechLocale: user.speechLocale,
   }));
 
   const isModerator = currentUserData?.isModerator;
@@ -184,6 +185,9 @@ const AppContainer = (props) => {
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
+
+  if (!currentUserData) return null;
+
   return currentUserId
     ? (
       <App
@@ -221,6 +225,7 @@ const AppContainer = (props) => {
           isPresenter,
           numCameras: cameraDockInput.numCameras,
           enforceLayout: validateEnforceLayout(currentUserData),
+          speechLocale: currentUserData?.speechLocale,
           isModerator,
           shouldShowScreenshare,
           isSharedNotesPinned,
@@ -229,6 +234,7 @@ const AppContainer = (props) => {
           toggleVoice,
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,
+          audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
         }}
         {...otherProps}
       />

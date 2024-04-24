@@ -1,5 +1,4 @@
 import { unique } from 'radash';
-import logger from '/imports/startup/client/logger';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 
@@ -30,15 +29,7 @@ export const setAudioCaptions = (value: boolean) => {
 };
 
 export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
-  const voices = getSpeechVoices();
-
-  if (voices.includes(value) || value === '') {
-    setUserSpeechLocale(value, CONFIG.provider);
-  } else {
-    logger.error({
-      logCode: 'captions_speech_locale',
-    }, 'Captions speech set locale error');
-  }
+  setUserSpeechLocale(value, CONFIG.provider);
 };
 
 export const useFixedLocale = () => isAudioTranscriptionEnabled() && CONFIG.language.forceLocale;
