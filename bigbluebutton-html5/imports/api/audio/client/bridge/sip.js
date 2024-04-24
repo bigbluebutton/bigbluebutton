@@ -14,13 +14,8 @@ import {
   logSelectedCandidate,
   forceDisableStereo,
 } from '/imports/utils/sdpUtils';
-import { Tracker } from 'meteor/tracker';
-import VoiceCallStates from '/imports/api/voice-call-states';
-import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
-import Auth from '/imports/ui/services/auth';
 import browserInfo from '/imports/utils/browserInfo';
 import {
-  getCurrentAudioSessionNumber,
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
@@ -1078,34 +1073,6 @@ class SIPSession {
             break;
         }
         this._currentSessionState = state;
-      });
-
-      Tracker.autorun((c) => {
-        const selector = {
-          meetingId: Auth.meetingID,
-          userId: Auth.userID,
-          clientSession: getCurrentAudioSessionNumber(),
-        };
-
-        const query = VoiceCallStates.find(selector);
-        const callback = (id, fields) => {
-          if (!fsReady && ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
-            || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE))) {
-            fsReady = true;
-            checkIfCallReady();
-          }
-
-          if (fields.callState === CallStateOptions.CALL_ENDED) {
-            fsReady = false;
-            c.stop();
-            checkIfCallStopped();
-          }
-        };
-
-        query.observeChanges({
-          added: (id, fields) => callback(id, fields),
-          changed: (id, fields) => callback(id, fields),
-        });
       });
 
       resolve();

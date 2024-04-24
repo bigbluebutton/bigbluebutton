@@ -87,8 +87,6 @@ export const generateActionsPermissions = (
     && !isDialInUser;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary, while meteor exists in the project
-  const { allowUserLookup } = window.meetingClientSettings.public.app;
-
   const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
 
   return {
@@ -104,7 +102,6 @@ export const generateActionsPermissions = (
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
     allowedToEjectCameras,
-    allowUserLookup,
     allowedToSetAway,
   };
 };

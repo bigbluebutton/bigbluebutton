@@ -10,7 +10,6 @@ import {
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
-  REQUEST_USER_INFO,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
@@ -278,7 +277,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowedToPromote,
     allowedToDemote,
     allowedToChangeUserLockStatus,
-    allowUserLookup,
     allowedToRemove,
     allowedToEjectCameras,
     allowedToSetAway,
@@ -313,7 +311,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
-  const [requestUserInfo] = useMutation(REQUEST_USER_INFO);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -521,20 +518,6 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: userLocked ? 'unlock' : 'lock',
       dataTest: 'unlockUserButton',
-    },
-    {
-      allowed: allowUserLookup,
-      key: 'directoryLookup',
-      label: intl.formatMessage(messages.DirectoryLookupLabel),
-      onClick: () => {
-        requestUserInfo({
-          variables: {
-            extId: user.extId,
-          },
-        });
-        setOpenUserAction(null);
-      },
-      icon: 'user',
     },
     {
       allowed: allowedToRemove,
