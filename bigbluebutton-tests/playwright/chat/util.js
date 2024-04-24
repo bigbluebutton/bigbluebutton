@@ -33,7 +33,7 @@ async function openPrivateChat(testPage) {
 
 async function checkLastMessageSent(testPage, expectedMessage) {
   const lastMessageSent = await testPage.getLocator(e.chatUserMessageText).last();
-  await expect(lastMessageSent, 'should display the las message sent on the chat').toHaveText(expectedMessage);
+  await expect(lastMessageSent, 'should display the last message sent on the chat').toHaveText(expectedMessage);
 }
 
 exports.openPublicChat = openPublicChat;

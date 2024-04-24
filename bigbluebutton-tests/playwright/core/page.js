@@ -141,7 +141,7 @@ class Page {
   }
 
   async closeAudioModal() {
-    await this.hasElement(e.audioModal, 'audio modal should be displayed', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
   }
 
@@ -223,9 +223,9 @@ class Page {
     await expect(locator).toBeDisabled({ timeout });
   }
 
-  async hasElementEnabled(selector, timeout = ELEMENT_WAIT_TIME) {
+  async hasElementEnabled(selector, description, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(`${selector}:not([disabled])`);
-    await expect(locator).toBeEnabled({ timeout });
+    await expect(locator, description).toBeEnabled({ timeout });
   }
 
   async hasText(selector, text, description, timeout = ELEMENT_WAIT_TIME) {
