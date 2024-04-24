@@ -3,7 +3,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { injectIntl } from 'react-intl';
 import ReactionsButton from './component';
-import UserReactionService from '/imports/ui/components/user-reaction/service';
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 import SettingsService from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
@@ -22,7 +21,9 @@ const ReactionsButtonContainer = ({ ...props }) => {
     raiseHand: user.raiseHand,
     away: user.away,
     voice: user.voice,
+    reaction: user.reaction,
   }));
+
   const currentUser = {
     userId: Auth.userID,
     emoji: currentUserData?.emoji,
@@ -33,17 +34,17 @@ const ReactionsButtonContainer = ({ ...props }) => {
 
   return (
     <ReactionsButton {...{
-      layoutContextDispatch, sidebarContentPanel, isMobile, ...currentUser, ...props,
+      currentUserReaction: currentUserData?.reaction?.reactionEmoji ?? 'none',
+      layoutContextDispatch,
+      sidebarContentPanel,
+      isMobile,
+      ...currentUser,
+      ...props,
     }}
     />
   );
 };
 
-export default injectIntl(withTracker(() => {
-  const currentUserReaction = UserReactionService.getUserReaction(Auth.userID);
-
-  return {
-    currentUserReaction: currentUserReaction.reaction,
-    autoCloseReactionsBar: SettingsService?.application?.autoCloseReactionsBar,
-  };
-})(ReactionsButtonContainer));
+export default injectIntl(withTracker(() => ({
+  autoCloseReactionsBar: SettingsService?.application?.autoCloseReactionsBar,
+}))(ReactionsButtonContainer));

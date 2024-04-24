@@ -11,7 +11,6 @@ import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
 import createTimer from '/imports/api/timer/server/methods/createTimer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
-import addUserReactionsObserver from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const addLayout = async (meetingId, layout) => {
@@ -231,9 +230,6 @@ export default async function addMeeting(meeting) {
       createTimer(meetingId);
       if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
         initPads(meetingId);
-      }
-      if (newMeeting.meetingProp.disabledFeatures.indexOf('reactions') === -1) {
-        await addUserReactionsObserver(meetingId);
       }
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);

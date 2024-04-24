@@ -59,7 +59,7 @@ object_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_reaction
+          name: v_user_reaction_current
           schema: public
   - name: sharedNotesSession
     using:
