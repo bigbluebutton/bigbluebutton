@@ -18,9 +18,8 @@ import AudioContainer from '../audio/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
-import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/speech/container';
+import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/component';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
-import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import ScreenReaderAlertAdapter from '../screenreader-alert/adapter';
 import WebcamContainer from '../webcam/container';
@@ -41,7 +40,7 @@ import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineManager from '../plugins-engine/manager';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
-import Notifications from '../notifications/container';
+import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
@@ -52,6 +51,7 @@ import AppService from '/imports/ui/components/app/service';
 import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
+import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 
@@ -130,13 +130,11 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  captions: PropTypes.element,
   darkTheme: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   actionsbar: null,
-  captions: null,
 };
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
@@ -373,31 +371,6 @@ class App extends Component {
       && (isPhone || isLayeredView.matches);
   }
 
-  renderCaptions() {
-    const {
-      captions,
-      captionsStyle,
-    } = this.props;
-
-    if (!captions) return null;
-
-    return (
-      <Styled.CaptionsWrapper
-        role="region"
-        style={
-          {
-            position: 'absolute',
-            left: captionsStyle.left,
-            right: captionsStyle.right,
-            maxWidth: captionsStyle.maxWidth,
-          }
-        }
-      >
-        {captions}
-      </Styled.CaptionsWrapper>
-    );
-  }
-
   renderAudioCaptions() {
     const {
       audioCaptions,
@@ -593,6 +566,7 @@ setRandomUserSelectModalIsOpen(value) {
       intl,
       isModerator,
       genericComponentId,
+      speechLocale,
     } = this.props;
 
     const {
@@ -659,19 +633,19 @@ setRandomUserSelectModalIsOpen(value) {
                 area="media"
               />
             ) : null}
-          {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
           <PresentationUploaderToastContainer intl={intl} />
           <UploaderContainer />
-          <CaptionsSpeechContainer isModerator={isModerator} />
-          <BreakoutRoomInvitation isModerator={isModerator} />
+          <BreakoutJoinConfirmationContainerGraphQL />
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,
             isVideoPreviewModalOpen,
             setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-          }} />
+            speechLocale,
+          }}
+          />
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
             && (

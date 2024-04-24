@@ -5,9 +5,8 @@ import { ACTIONS, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
 import NotesContainer from '/imports/ui/components/notes/container';
 import PollContainer from '/imports/ui/components/poll/container';
-import CaptionsContainer from '/imports/ui/components/captions/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
-import TimerContainer from '/imports/ui/components/timer/container';
+import TimerContainer from '/imports/ui/components/timer/timer-graphql/panel/component';
 import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/waiting-users-graphql/component';
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
@@ -143,7 +142,6 @@ const SidebarContent = (props) => {
           isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
         />
       )}
-      {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer amIModerator={amIModerator} />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.TIMER && <TimerContainer isModerator={amIModerator} />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}

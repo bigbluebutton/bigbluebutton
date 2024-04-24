@@ -5,7 +5,6 @@ import UserListParticipants from './user-participants/user-list-participants/com
 import ChatList from './user-messages/chat-list/component';
 import UserNotesContainer from './user-notes/container';
 import TimerContainer from './timer/container';
-import UserCaptionsContainer from './user-captions/container';
 import GuestPanelOpenerContainer from '../user-list-graphql/user-participants-title/guest-panel-opener/component';
 import UserPollsContainer from './user-polls/container';
 import BreakoutRoomContainer from './breakout-room/container';
@@ -41,7 +40,6 @@ class UserContent extends PureComponent {
     return (
       <Styled.Content data-test="userListContent">
         {isChatEnabled() ? <ChatList /> : null}
-        {currentUser?.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
         <UserNotesContainer />
         {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
         {currentUser?.role === ROLE_MODERATOR ? (

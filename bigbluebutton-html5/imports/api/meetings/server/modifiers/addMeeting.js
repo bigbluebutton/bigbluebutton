@@ -5,13 +5,11 @@ import {
 } from 'meteor/check';
 import SanitizeHTML from 'sanitize-html';
 import Meetings, {
-  RecordMeetings,
   LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
 import createTimer from '/imports/api/timer/server/methods/createTimer';
-import { initCaptions } from '/imports/api/captions/server/helpers';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import addUserReactionsObserver from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
@@ -222,21 +220,6 @@ export default async function addMeeting(meeting) {
     }
   }
 
-  try {
-    const {
-      insertedId,
-      numberAffected,
-    } = await RecordMeetings.upsertAsync(selector, { meetingId, ...recordProp });
-
-    if (insertedId) {
-      Logger.info(`Added record prop id=${meetingId}`);
-    } else if (numberAffected) {
-      Logger.info(`Upserted record prop id=${meetingId}`);
-    }
-  } catch (err) {
-    Logger.error(`Adding record prop to collection: ${err}`);
-  }
-
   await addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
   try {
@@ -248,9 +231,6 @@ export default async function addMeeting(meeting) {
       createTimer(meetingId);
       if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
         initPads(meetingId);
-      }
-      if (newMeeting.meetingProp.disabledFeatures.indexOf('captions') === -1) {
-        await initCaptions(meetingId);
       }
       if (newMeeting.meetingProp.disabledFeatures.indexOf('reactions') === -1) {
         await addUserReactionsObserver(meetingId);

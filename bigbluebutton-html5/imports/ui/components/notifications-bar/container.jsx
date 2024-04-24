@@ -152,20 +152,15 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   const meetingId = Auth.meetingID;
-  const breakouts = breakoutService.getBreakouts();
-
-  if (breakouts.length > 0) {
-    const currentBreakout = breakouts.find((b) => b.breakoutId === meetingId);
-
-    if (currentBreakout) {
-      data.message = (
-        <MeetingRemainingTime />
-      );
-    }
-  }
 
   const Meeting = Meetings.findOne({ meetingId },
     { fields: { isBreakout: 1, componentsFlags: 1 } });
+
+  if (Meeting.isBreakout) {
+    data.message = (
+      <MeetingRemainingTime />
+    );
+  }
 
   if (Meeting) {
     const { isBreakout, componentsFlags } = Meeting;

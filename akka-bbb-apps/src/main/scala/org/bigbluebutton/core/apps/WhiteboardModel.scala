@@ -106,7 +106,7 @@ class WhiteboardModel extends SystemConfiguration {
   private def cleanEndOrStartProps(props: Map[String, _]): Map[String, _] = {
     props.get("type") match {
       case Some("binding") => props - ("x", "y") // Remove 'x' and 'y' for 'binding' type
-      case Some("point")   => props - ("boundShapeId", "normalizedAnchor", "isExact") // Remove unwanted properties for 'point' type
+      case Some("point")   => props - ("boundShapeId", "normalizedAnchor", "isExact", "isPrecise") // Remove unwanted properties for 'point' type
       case _               => props
     }
   }
