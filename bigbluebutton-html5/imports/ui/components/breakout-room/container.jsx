@@ -21,7 +21,6 @@ import logger from '/imports/startup/client/logger';
 import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import BreakoutContainerGraphql from '/imports/ui/components/breakout-room/breakout-room-graphql/breakout-room/component';
-import { useStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 
 const BreakoutContainer = (props) => {
