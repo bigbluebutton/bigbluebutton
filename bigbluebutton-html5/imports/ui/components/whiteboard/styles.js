@@ -95,6 +95,30 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     height: auto !important;
     width: auto !important;
   }
+
+  .tlui-layout__bottom {
+    grid-row: auto / auto !important;
+    position: absolute !important;
+    right: 10px !important;
+    top: 6.5rem !important;
+  }
+
+  .tlui-layout__mobile .tlui-button__tool {
+    height: 30px !important;
+    width: 20px !important;
+  }
+
+  .tlui-toolbar__inner {
+    flex-direction: column-reverse !important;
+  }
+
+  .tlui-toolbar__tools {
+    flex-direction: column !important;
+  }
+
+  .tlui-toolbar {
+    align-items: end !important;
+  }
 `;
 
 const EditableWBWrapper = styled.div`
