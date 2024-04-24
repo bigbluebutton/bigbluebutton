@@ -279,7 +279,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       outputDeviceId={outputDeviceId}
       inputStream={inputStream}
       meetingIsBreakout={currentMeeting?.isBreakout ?? false}
-      away={currentUser?.away}
+      away={currentUser?.away ?? false}
     />
   );
 };
