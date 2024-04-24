@@ -1,7 +1,6 @@
 import AbstractCollection from '/imports/ui/services/LocalCollectionSynchronizer/LocalCollectionSynchronizer';
 
 // Collections
-import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Screenshare from '/imports/api/screenshare';
 import UserInfos from '/imports/api/users-infos';
 import UserSettings from '/imports/api/users-settings';
@@ -16,10 +15,6 @@ import Users from '/imports/api/users';
 
 // Custom Publishers
 export const localCollectionRegistry = {
-  localPresentationUploadTokenSync: new AbstractCollection(
-    PresentationUploadToken,
-    PresentationUploadToken,
-  ),
   localScreenshareSync: new AbstractCollection(Screenshare, Screenshare),
   localUserInfosSync: new AbstractCollection(UserInfos, UserInfos),
   localUserSettingsSync: new AbstractCollection(UserSettings, UserSettings),
