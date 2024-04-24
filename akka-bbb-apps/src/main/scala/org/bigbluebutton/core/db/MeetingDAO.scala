@@ -9,7 +9,7 @@ import scala.util.{ Failure, Success }
 
 case class MeetingSystemColumnsDbModel(
       loginUrl:                              Option[String],
-      logoutUrl:                             String,
+      logoutUrl:                             Option[String],
       customLogoUrl:                         Option[String],
       bannerText:                            Option[String],
       bannerColor:                           Option[String],
@@ -71,7 +71,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
   val loginUrl = column[Option[String]]("loginUrl")
-  val logoutUrl = column[String]("logoutUrl")
+  val logoutUrl = column[Option[String]]("logoutUrl")
   val customLogoUrl = column[Option[String]]("customLogoUrl")
   val bannerText = column[Option[String]]("bannerText")
   val bannerColor = column[Option[String]]("bannerColor")
@@ -106,7 +106,10 @@ object MeetingDAO {
               case "" => None
               case loginUrl => Some(loginUrl)
             },
-            logoutUrl = meetingProps.systemProps.logoutUrl,
+            logoutUrl = meetingProps.systemProps.logoutUrl match {
+              case "" => None
+              case logoutUrl => Some(logoutUrl)
+            },
             customLogoUrl = meetingProps.systemProps.customLogoURL match {
               case "" => None
               case logoUrl => Some(logoUrl)
