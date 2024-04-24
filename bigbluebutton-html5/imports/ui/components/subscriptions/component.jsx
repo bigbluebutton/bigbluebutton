@@ -29,8 +29,8 @@ const SUBSCRIPTIONS = [
   // 'pads-sessions',
   // 'pads-updates',
   // 'notifications',
-  'layout-meetings',
-  'user-reaction',
+  // 'layout-meetings',
+  // 'user-reaction',
   'timer',
 ];
 const {
