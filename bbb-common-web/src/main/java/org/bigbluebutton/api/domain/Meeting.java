@@ -1064,10 +1064,10 @@ public class Meeting {
     	  return this;
     	}
 
-    	public Builder withLoginUrl(String l) {
-    		loginUrl = l;
-    		return this;
-    	}
+		public Builder withLoginUrl(String l) {
+			loginUrl = l;
+			return this;
+		}
 
 		public Builder withLogoutUrl(String l) {
 			logoutUrl = l;
