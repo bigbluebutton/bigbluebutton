@@ -4,7 +4,6 @@ import AbstractCollection from '/imports/ui/services/LocalCollectionSynchronizer
 import Screenshare from '/imports/api/screenshare';
 import VideoStreams from '/imports/api/video-streams';
 import VoiceUsers from '/imports/api/voice-users';
-import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import Breakouts from '/imports/api/breakouts';
 import Meetings, {
   MeetingTimeRemaining, Notifications,
@@ -16,9 +15,6 @@ export const localCollectionRegistry = {
   localScreenshareSync: new AbstractCollection(Screenshare, Screenshare),
   localVideoStreamsSync: new AbstractCollection(VideoStreams, VideoStreams),
   localVoiceUsersSync: new AbstractCollection(VoiceUsers, VoiceUsers),
-  localPadsSync: new AbstractCollection(Pads, Pads),
-  localPadsSessionsSync: new AbstractCollection(PadsSessions, PadsSessions),
-  localPadsUpdatesSync: new AbstractCollection(PadsUpdates, PadsUpdates),
   localMeetingTimeRemainingSync: new AbstractCollection(MeetingTimeRemaining, MeetingTimeRemaining),
   localBreakoutsSync: new AbstractCollection(Breakouts, Breakouts),
   localMeetingsSync: new AbstractCollection(Meetings, Meetings),

@@ -19,6 +19,9 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
+
+const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
 const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -56,6 +59,12 @@ const ActionsBarContainer = (props) => {
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
 
+  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+
+  const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
+
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
 
@@ -72,7 +81,7 @@ const ActionsBarContainer = (props) => {
         isThereCurrentPresentation,
         isSharingVideo,
         stopExternalVideoShare,
-        isCaptionsAvailable: currentMeeting.componentsFlags.hasCaption,
+        isSharedNotesPinned,
       }
     }
     />
@@ -94,7 +103,6 @@ const isReactionsButtonEnabled = () => {
 export default withTracker(() => ({
   enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
   isTimerActive: TimerService.isActive(),

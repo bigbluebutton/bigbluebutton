@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import PadContent from './content/container';
 import Service from './service';
 import Styled from './styles';
 
@@ -36,10 +35,6 @@ const Pad = ({
       setPadURL(Service.buildPadURL(response));
     });
   }, [isRTL, hasSession]);
-
-  if (!hasSession) {
-    return <PadContent externalId={externalId} />;
-  }
 
   return (
     <Styled.Pad>
