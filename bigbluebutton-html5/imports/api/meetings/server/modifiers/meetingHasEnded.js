@@ -13,8 +13,6 @@ import clearTimer from '/imports/api/timer/server/modifiers/clearTimer';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
-import clearReactions from '/imports/api/user-reaction/server/modifiers/clearReactions';
-
 import Metrics from '/imports/startup/server/metrics';
 
 export default async function meetingHasEnded(meetingId) {
@@ -34,7 +32,6 @@ export default async function meetingHasEnded(meetingId) {
     clearVideoStreams(meetingId),
     clearAuthTokenValidation(meetingId),
     clearScreenshare(meetingId),
-    clearReactions(meetingId),
   ]);
   await Metrics.removeMeeting(meetingId);
   return Logger.info(`Cleared Meetings with id ${meetingId}`);
