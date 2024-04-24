@@ -53,7 +53,6 @@ import PresentationUploaderToastContainer from '/imports/ui/components/presentat
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
-import VideoStreamAdapter from '/imports/ui/components/video-provider/video-provider-graphql/adapter';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = window.meetingClientSettings.public.app;
@@ -578,7 +577,6 @@ setRandomUserSelectModalIsOpen(value) {
             height: '100%',
           }}
         >
-          <VideoStreamAdapter />
           {this.renderActivityCheck()}
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
