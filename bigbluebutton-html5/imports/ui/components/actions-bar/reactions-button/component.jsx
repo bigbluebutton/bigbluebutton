@@ -10,12 +10,9 @@ import { SET_RAISE_HAND, SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mut
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import { useMutation } from '@apollo/client';
 import Toggle from '/imports/ui/components/common/switch/component';
-import VideoService from '/imports/ui/components/video-provider/service';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import {
-  getSpeakerLevel,
-  setSpeakerLevel,
-  toggleMuteMicrophone,
+  muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import Styled from './styles';
 
@@ -45,8 +42,6 @@ const ReactionsButton = (props) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const voiceToggle = useToggleVoice();
-  const prevMutedRef = React.useRef(false);
-  const prevSpeakerLevel = React.useRef(0);
 
   const intlMessages = defineMessages({
     reactionsLabel: {
@@ -92,32 +87,8 @@ const ReactionsButton = (props) => {
     });
   };
 
-  const muteAway = () => {
-    const prevAwayMuted = prevMutedRef.current;
-    const prevSpeakerLevelValue = prevSpeakerLevel.current;
-
-    // mute/unmute microphone
-    if (muted === away && muted === prevAwayMuted) {
-      toggleMuteMicrophone(muted, voiceToggle);
-      prevMutedRef.current = !muted;
-    } else if (!away && !muted && prevAwayMuted) {
-      toggleMuteMicrophone(muted, voiceToggle);
-    }
-
-    // mute/unmute speaker
-    if (away) {
-      setSpeakerLevel(prevSpeakerLevelValue);
-    } else {
-      prevSpeakerLevel.current = getSpeakerLevel();
-      setSpeakerLevel(0);
-    }
-
-    // enable/disable video
-    VideoService.setTrackEnabled(away);
-  };
-
   const handleToggleAFK = () => {
-    muteAway();
+    muteAway(muted, away, voiceToggle);
     setAway({
       variables: {
         away: !away,

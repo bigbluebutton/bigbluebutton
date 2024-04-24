@@ -4,6 +4,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const MUTED_KEY = 'muted';
 // @ts-ignore - temporary, while meteor exists in the project
@@ -92,6 +93,34 @@ export const setSpeakerLevel = (level: number) => {
   if (audioElement) {
     audioElement.volume = level;
   }
+};
+
+export const muteAway = (
+  muted: boolean,
+  away: boolean,
+  voiceToggle: (userId?: string | null, muted?: boolean | null) => void,
+) => {
+  const prevAwayMuted = Storage.getItem('prevAwayMuted') || false;
+  const prevSpeakerLevelValue = Storage.getItem('prevSpeakerLevel') || 1;
+
+  // mute/unmute microphone
+  if (muted === away && muted === Boolean(prevAwayMuted)) {
+    toggleMuteMicrophone(muted, voiceToggle);
+    Storage.setItem('prevAwayMuted', !muted);
+  } else if (!away && !muted && Boolean(prevAwayMuted)) {
+    toggleMuteMicrophone(muted, voiceToggle);
+  }
+
+  // mute/unmute speaker
+  if (away) {
+    setSpeakerLevel(Number(prevSpeakerLevelValue));
+  } else {
+    Storage.setItem('prevSpeakerLevel', getSpeakerLevel());
+    setSpeakerLevel(0);
+  }
+
+  // enable/disable video
+  VideoService.setTrackEnabled(away);
 };
 
 export default {
