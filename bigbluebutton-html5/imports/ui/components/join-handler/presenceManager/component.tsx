@@ -1,8 +1,5 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import React, { useContext, useEffect, useRef } from 'react';
-import { Meteor } from 'meteor/meteor';
-// @ts-ignore - type avaible only to server package
-import { DDP } from 'meteor/ddp-client';
+import React, { useContext, useEffect } from 'react';
 import { Session } from 'meteor/session';
 import {
   getUserCurrent,
