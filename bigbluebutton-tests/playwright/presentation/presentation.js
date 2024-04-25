@@ -15,33 +15,33 @@ class Presentation extends MultiUsers {
   }
 
   async skipSlide() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
 
     await checkSvgIndex(this.modPage, '/svg/1');
 
     await this.modPage.waitAndClick(e.nextSlide);
-    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.hasElement(e.whiteboard, 'should display the next slide on the whiteboard');
     await sleep(1000);
 
     await checkSvgIndex(this.modPage, '/svg/2');
 
     await this.modPage.waitAndClick(e.prevSlide);
-    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.hasElement(e.whiteboard, 'should display the previous slide on the whiteboard');
     await sleep(1000);
 
     await checkSvgIndex(this.modPage, '/svg/1');
   }
 
   async shareCameraAsContent() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard whent then moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
 
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.shareCameraAsContent);
-    await this.modPage.waitForSelector(e.videoPreview);
+    await this.modPage.hasElement(e.videoPreview, 'should display the camera preview when sharing camera as content');
     await this.modPage.waitAndClick(e.startSharingWebcam);
 
     const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
-    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-share-camera-as-content.png', {
+    await expect(modWhiteboardLocator, 'should display the same screenshot as taken before').toHaveScreenshot('moderator-share-camera-as-content.png', {
       maxDiffPixels: 1000,
     });
   }
@@ -49,53 +49,53 @@ class Presentation extends MultiUsers {
   async hideAndRestorePresentation() {
     const { presentationHidden } = getSettings();
     if (!presentationHidden) {
-      await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
       await this.modPage.waitAndClick(e.minimizePresentation);
     }
-    await this.modPage.wasRemoved(e.presentationContainer);
+    await this.modPage.wasRemoved(e.presentationContainer, 'should not display the presentation container since the presentation is minimized');
 
     await this.modPage.waitAndClick(e.restorePresentation);
-    await this.modPage.hasElement(e.presentationContainer);
+    await this.modPage.hasElement(e.presentationContainer, 'should display the presentation container since the presentation was restored');
   }
 
   async startExternalVideo() {
     const { externalVideoPlayer } = getSettings();
 
-    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting');
     await this.modPage.waitAndClick(e.actions);
     if(!externalVideoPlayer) {
-      await this.modPage.hasElement(e.managePresentations);
-      return this.modPage.wasRemoved(e.shareExternalVideoBtn);
+      await this.modPage.hasElement(e.managePresentations, 'should display the manage presentation options on the actions button');
+      return this.modPage.wasRemoved(e.shareExternalVideoBtn, 'should not display the option to share an external video, since is deactivated');
     }
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
-    await this.modPage.waitForSelector(e.closeModal);
+    await this.modPage.hasElement(e.closeModal, 'should display the close modal button after the moderator opens the modal for sharing external video');
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
     const modFrame = await this.getFrame(this.modPage, e.youtubeFrame);
     const userFrame = await this.getFrame(this.userPage, e.youtubeFrame);
 
-    await modFrame.hasElement('video');
-    await userFrame.hasElement('video');
+    await modFrame.hasElement('video', 'should display the element frame for the video that is being shared for the moderator');
+    await userFrame.hasElement('video', 'should display the element frame for the video that is being shared for the attendee');
   }
 
   async uploadSinglePresentationTest() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitForSelector(e.skipSlide);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.skipSlide, 'should display the skip slide button when the whiteboard finishes loading');
+    await this.modPage.wasRemoved(e.smallToastMsg, 'should disappear the small toast message', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
     // wait until the notifications disappear
     await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.wasRemoved(e.smallToastMsg, 'should not display the small toast message after uploading a single presentation', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo, 'should not display the presentation status info for the attendee');
+    await this.userPage.wasRemoved(e.smallToastMsg, 'should not display the small toast message for the attendee');
     
     await this.modPage.reloadPage();
     await this.modPage.closeAudioModal();
     await this.modPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
-    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
+    await expect(modWhiteboardLocator, 'should display the same screenshot as saved before, the screenshot is for the new presentation').toHaveScreenshot('moderator-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
     
@@ -103,7 +103,7 @@ class Presentation extends MultiUsers {
     await this.userPage.closeAudioModal();
     await this.userPage.closeAllToastNotifications();
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
+    await expect(userWhiteboardLocator, 'should display the same screenshot as saved before, the screenshot is for the new presentation').toHaveScreenshot('viewer-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
   }

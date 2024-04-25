@@ -89,7 +89,7 @@ class Page {
   async leaveAudio() {
     await this.waitAndClick(e.audioDropdownMenu);
     await this.waitAndClick(e.leaveAudio);
-    await this.waitForSelector(e.joinAudio);
+    await this.hasElement(e.joinAudio, 'should display the join audio button');
   }
 
   async logoutFromMeeting() {
@@ -109,17 +109,17 @@ class Page {
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
     if(!webcamSharingEnabled) {
-      return this.wasRemoved(e.joinVideo)
+      return this.wasRemoved(e.joinVideo, 'should not display the join video button')
     }
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.bringToFront();
-      await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
+      await this.hasElement(e.videoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
-    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
-    await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-    await this.wasRemoved(e.webcamConnecting);
+    await this.hasElement(e.webcamContainer, 'should display the webcam container after the camera is shared', VIDEO_LOADING_WAIT_TIME);
+    await this.hasElement(e.leaveVideo, 'should display the leave video after the camera is shared', VIDEO_LOADING_WAIT_TIME);
+    await this.wasRemoved(e.webcamConnecting, 'should the webcam connecting element disappear');
   }
 
   getLocator(selector) {
@@ -218,9 +218,9 @@ class Page {
     await expect(locator).toBeVisible({ timeout });
   }
 
-  async hasElementDisabled(selector, timeout = ELEMENT_WAIT_TIME) {
+  async hasElementDisabled(selector, description, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
-    await expect(locator).toBeDisabled({ timeout });
+    await expect(locator, description).toBeDisabled({ timeout });
   }
 
   async hasElementEnabled(selector, description, timeout = ELEMENT_WAIT_TIME) {
