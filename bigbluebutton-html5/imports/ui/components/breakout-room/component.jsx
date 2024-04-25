@@ -6,7 +6,7 @@ import Styled from './styles';
 import Service from './service';
 import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
 import MessageFormContainer from './message-form/container';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import AudioManager from '/imports/ui/services/audio-manager';
@@ -288,6 +288,8 @@ class BreakoutRoom extends PureComponent {
       setBreakoutAudioTransferStatus,
       getBreakoutAudioTransferStatus,
       sendUserUnshareWebcam,
+      streams,
+      exitVideo
     } = this.props;
 
     const {
@@ -357,8 +359,8 @@ class BreakoutRoom extends PureComponent {
                     logCode: 'breakoutroom_join',
                     extraInfo: { logType: 'user_action' },
                   }, 'joining breakout room closed audio in the main room');
-                  VideoService.storeDeviceIds();
-                  VideoService.exitVideo(sendUserUnshareWebcam);
+                  VideoService.storeDeviceIds(streams);
+                  exitVideo();
                   if (amIPresenter) screenshareHasEnded();
 
                   Tracker.autorun((c) => {

@@ -15,7 +15,7 @@ import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
-import org.bigbluebutton.core.apps.pads.PadsApp2x
+import org.bigbluebutton.core.apps.pads.{ PadsApp2x, PadslHdlrHelpers }
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
 import org.bigbluebutton.core.apps.timer.TimerApp2x
@@ -34,6 +34,7 @@ import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
 import org.apache.pekko.actor.Props
 import org.apache.pekko.actor.OneForOneStrategy
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsStringOrElse }
 import org.bigbluebutton.common2.msgs
 
 import scala.concurrent.duration._
@@ -41,7 +42,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.{ NotificationDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, UserStateDAO }
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
@@ -177,6 +178,9 @@ class MeetingActor(
   val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props)
   outGW.send(msgEvent)
 
+  //Insert meeting into the database
+  MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings)
+
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
 
@@ -203,6 +207,8 @@ class MeetingActor(
   MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
 
   initLockSettings(liveMeeting, liveMeeting.props.lockSettingsProps)
+
+  initSharedNotes(liveMeeting)
 
   /** *****************************************************************/
   // Helper to create fake users for testing (ralam jan 5, 2018)
@@ -317,6 +323,27 @@ class MeetingActor(
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)
     MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+  }
+
+  private def initSharedNotes(liveMeeting: LiveMeeting): Unit = {
+    val sharedNotesEnabledInClientSettings = getConfigPropertyValueByPathAsBooleanOrElse(
+      liveMeeting.clientSettings,
+      "public.notes.enabled",
+      alternativeValue = true
+    )
+
+    if (sharedNotesEnabledInClientSettings && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+      val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(
+        liveMeeting.clientSettings,
+        "public.notes.id",
+        alternativeValue = ""
+      )
+
+      if (!Pads.hasGroup(liveMeeting.pads, sharedNotesPadId)) {
+        Pads.addGroup(liveMeeting.pads, sharedNotesPadId, sharedNotesPadId, sharedNotesPadId, "SYSTEM")
+        PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId)
+      }
+    }
   }
 
   private def updateVoiceUserLastActivity(userId: String) {
