@@ -49,18 +49,10 @@ let oldRole = '';
 class Subscriptions extends Component {
   componentDidMount() {
     Session.set('subscriptionsReady', false);
-  }
-
-  componentDidUpdate() {
-    const { subscriptionsReady } = this.props;
-    const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
-    console.log('clientSettings', clientSettings);
-    if (subscriptionsReady || clientSettings.skipMeteorConnection) {
-      Session.set('subscriptionsReady', true);
-      const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
-      window.dispatchEvent(event);
-      Session.set('globalIgnoreDeletes', false);
-    }
+    Session.set('subscriptionsReady', true);
+    const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
+    window.dispatchEvent(event);
+    Session.set('globalIgnoreDeletes', false);
   }
 
   render() {
