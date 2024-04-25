@@ -439,9 +439,7 @@ class App extends Component {
   }
 
   renderActivityCheck() {
-    const { User } = this.props;
-
-    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = User;
+    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = this.props;
 
     return (inactivityWarningDisplay ? (
       <ActivityCheckContainer

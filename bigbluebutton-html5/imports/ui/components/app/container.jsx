@@ -102,10 +102,14 @@ const AppContainer = (props) => {
     isModerator: user.isModerator,
     presenter: user.presenter,
     speechLocale: user.speechLocale,
+    inactivityWarningDisplay: user.inactivityWarningDisplay,
+    inactivityWarningTimeoutSecs: user.inactivityWarningTimeoutSecs,
   }));
 
   const isModerator = currentUserData?.isModerator;
   const isPresenter = currentUserData?.presenter;
+  const inactivityWarningDisplay = currentUserData?.inactivityWarningDisplay;
+  const inactivityWarningTimeoutSecs = currentUserData?.inactivityWarningTimeoutSecs;
 
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
@@ -235,6 +239,8 @@ const AppContainer = (props) => {
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,
           audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
+          inactivityWarningDisplay,
+          inactivityWarningTimeoutSecs,
         }}
         {...otherProps}
       />
