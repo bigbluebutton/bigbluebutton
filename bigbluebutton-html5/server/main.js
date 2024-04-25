@@ -2,7 +2,6 @@ import '/imports/startup/server';
 
 // 2x
 import '/imports/api/meetings/server';
-import '/imports/api/video-streams/server';
 
 // Commons
 import '/imports/api/log-client/server';
