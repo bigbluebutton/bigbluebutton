@@ -4,7 +4,6 @@ import '/imports/startup/server';
 import '/imports/api/meetings/server';
 import '/imports/api/users/server';
 import '/imports/api/breakouts/server';
-import '/imports/api/screenshare/server';
 import '/imports/api/voice-users/server';
 import '/imports/api/video-streams/server';
 import '/imports/api/connection-status/server';
