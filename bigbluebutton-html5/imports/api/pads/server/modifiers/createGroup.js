@@ -29,7 +29,7 @@ export default async function createGroup(meetingId, userId, externalId, model, 
       Logger.info(`Added pad group external=${externalId} meeting=${meetingId}`);
       // Each group will get only one pad so we can control access per pad. The pad's name
       // will be the group's externalId
-      createPad(meetingId, userId, externalId, externalId);
+      // createPad(meetingId, userId, externalId, externalId);
     } else {
       Logger.info(`Upserted pad group external=${externalId} meeting=${meetingId}`);
     }
