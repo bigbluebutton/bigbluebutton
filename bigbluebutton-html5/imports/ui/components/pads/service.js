@@ -6,8 +6,6 @@ import {
   isScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 
-const THROTTLE_TIMEOUT = 2000;
-
 const getLang = () => {
   const { locale } = Settings.application;
   return locale ? locale.toLowerCase() : '';
@@ -26,10 +24,6 @@ const getParams = () => {
 
 const getPadId = (externalId) => makeCall('getPadId', externalId);
 
-const createSession = (externalId) => makeCall('createSession', externalId);
-
-const throttledCreateSession = throttle({ interval: THROTTLE_TIMEOUT }, createSession);
-
 const pinPad = (externalId, pinned, stopWatching) => {
   if (pinned) {
     // Stop external video sharing if it's running.
@@ -44,7 +38,6 @@ const throttledPinPad = throttle({ interval: 1000 }, pinPad);
 
 export default {
   getPadId,
-  createSession: (externalId) => throttledCreateSession(externalId),
   getParams,
   pinPad: throttledPinPad,
 };
