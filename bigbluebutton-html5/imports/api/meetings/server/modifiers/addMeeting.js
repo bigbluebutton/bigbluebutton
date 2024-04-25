@@ -8,7 +8,6 @@ import Meetings, {
   LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import { initPads } from '/imports/api/pads/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const addLayout = async (meetingId, layout) => {
@@ -215,10 +214,6 @@ export default async function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-      // Init Timer collection
-      if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
-        initPads(meetingId);
-      }
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }

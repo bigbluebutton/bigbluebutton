@@ -1,7 +1,5 @@
 import { throttle } from 'radash';
-import Pads from '/imports/api/pads';
 import { makeCall } from '/imports/ui/services/api';
-import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import {
   screenshareHasEnded,
