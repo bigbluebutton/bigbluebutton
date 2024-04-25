@@ -10,7 +10,6 @@ import Meetings, {
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
 import createTimer from '/imports/api/timer/server/methods/createTimer';
-import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const addLayout = async (meetingId, layout) => {
@@ -209,16 +208,6 @@ export default async function addMeeting(meeting) {
       }),
     },
   };
-
-  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-    addExternalVideoStreamer(meetingId);
-
-    // we don't want to fully process the create meeting message
-    // in frontend since it can lead to duplication of meetings in mongo.
-    if (process.env.BBB_HTML5_ROLE === 'frontend') {
-      return;
-    }
-  }
 
   await addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
