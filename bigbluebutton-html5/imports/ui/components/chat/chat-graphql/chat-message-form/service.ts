@@ -1,7 +1,7 @@
 export const textToMarkdown = (message: string) => {
   const parsedMessage = message || '';
 
-  const CODE_BLOCK_REGEX = /```\w+[\r\n\s]+([\s\S]*?)\n```/;
+  const CODE_BLOCK_REGEX = /```([\s\S]*?)```/g;
   const isCode = parsedMessage.search(CODE_BLOCK_REGEX);
 
   // regular expression to match urls
