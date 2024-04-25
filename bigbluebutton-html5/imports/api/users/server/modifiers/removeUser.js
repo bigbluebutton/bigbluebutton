@@ -4,7 +4,6 @@ import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 import userEjected from '/imports/api/users/server/modifiers/userEjected';
-import clearVoiceUser from '/imports/api/voice-users/server/modifiers/clearVoiceUser';
 
 const disconnectUser = (meetingId, userId) => {
   const sessionUserId = `${meetingId}--${userId}`;
@@ -42,7 +41,6 @@ export default async function removeUser(body, meetingId) {
       await VideoStreams.removeAsync({ meetingId, userId });
 
       await Users.removeAsync(selector);
-      await clearVoiceUser(meetingId, userId);
     }
 
     if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {

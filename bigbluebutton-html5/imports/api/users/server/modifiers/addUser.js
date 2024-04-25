@@ -2,11 +2,8 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import VoiceUsers from '/imports/api/voice-users/';
 import flat from 'flat';
 import { lowercaseTrim } from '/imports/utils/string-utils';
-
-import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 
 export default async function addUser(meetingId, userData) {
   const user = userData;
@@ -64,23 +61,6 @@ export default async function addUser(meetingId, userData) {
   };
   // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
   // dial-in user. We want to avoid overwriting good data
-  const voiceUser = await VoiceUsers.findOneAsync({ meetingId, intId: userId });
-  if (user.clientType !== 'dial-in-user' && !voiceUser) {
-    await addVoiceUser(meetingId, {
-      voiceUserId: '',
-      intId: userId,
-      callerName: user.name,
-      callerNum: '',
-      color: user.color,
-      muted: false,
-      talking: false,
-      callingWith: '',
-      listenOnly: false,
-      voiceConf: '',
-      joined: false,
-    });
-  }
-
   /**
    * Add a verification to check if the user was set as presenter.
    * In some cases the user information is set after the presenter is set
