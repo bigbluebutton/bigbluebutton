@@ -19,7 +19,7 @@ const SUBSCRIPTIONS = [
   // 'screenshare',
   // 'users-settings',
   // 'users-infos',
-  'meeting-time-remaining',
+  // 'meeting-time-remaining',
   // 'record-meetings',
   'video-streams',
   // 'voice-call-states',
@@ -31,7 +31,7 @@ const SUBSCRIPTIONS = [
   // 'notifications',
   // 'layout-meetings',
   // 'user-reaction',
-  'timer',
+  // 'timer',
 ];
 const {
   localBreakoutsSync,
