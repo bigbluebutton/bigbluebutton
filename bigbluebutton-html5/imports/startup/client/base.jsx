@@ -238,7 +238,7 @@ export default withTracker(() => {
     animations,
     isMeteorConnected: Meteor.status().connected,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    subscriptionsReady: Session.get('subscriptionsReady') || clientSettings.skipMeteorConnection,
+    subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
     codeError,
     usersVideo,

@@ -66,19 +66,12 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   const loadingContextInfo = useContext(LoadingContext);
-  const clientSettingsRef = useRef(JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}'));
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       loadingContextInfo.setLoading(false, '');
       throw new Error('Authentication timeout');
     }, connectionTimeout);
-
-    if (!clientSettingsRef.current.skipMeteorConnection) {
-      DDP.onReconnect(() => {
-        Meteor.callAsync('validateConnection', authToken, meetingId, userId);
-      });
-    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken') as string;
@@ -125,13 +118,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   useEffect(() => {
     if (joined) {
       clearTimeout(timeoutRef.current);
-      if (clientSettingsRef.current.skipMeteorConnection) {
-        setAllowToRender(true);
-      } else {
-        Meteor.callAsync('validateConnection', authToken, meetingId, userId).then(() => {
-          setAllowToRender(true);
-        });
-      }
+      setAllowToRender(true);
     }
   }, [joined]);
 

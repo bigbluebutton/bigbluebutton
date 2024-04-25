@@ -53,9 +53,7 @@ class Subscriptions extends Component {
 
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
-    const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
-    console.log('clientSettings', clientSettings);
-    if (subscriptionsReady || clientSettings.skipMeteorConnection) {
+    if (subscriptionsReady) {
       Session.set('subscriptionsReady', true);
       const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
       window.dispatchEvent(event);
@@ -102,7 +100,6 @@ export default withTracker(() => {
   const currentUser = Users.findOne({ userId: requesterUserId }, { fields: { role: 1 } });
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
-    if (clientSettings.skipMeteorConnection) return null;
     let subscriptionHandlers = subscriptionErrorHandler;
     if (
       (!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1) ||
@@ -150,7 +147,7 @@ export default withTracker(() => {
 
   subscriptionsHandlers = subscriptionsHandlers.filter((obj) => obj);
   const ready = subscriptionsHandlers
-    .every((handler) => handler.ready() || clientSettings.skipMeteorConnection);
+    .every((handler) => handler.ready());
   // TODO: Refactor all the late subscribers
   if (ready) {
     Object.values(localCollectionRegistry).forEach((localCollection) =>

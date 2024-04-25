@@ -22,7 +22,6 @@
         query: |
           query clientStartupSettings {
             meeting_clientSettings {
-              skipMeteorConnection: clientSettingsJson(path: "$.public.app.skipMeteorConnection")
               askForFeedbackOnLogout: clientSettingsJson(path: "$.public.app.askForFeedbackOnLogout")
               allowDefaultLogoutUrl: clientSettingsJson(path: "$.public.app.allowDefaultLogoutUrl")
               learningDashboardBase: clientSettingsJson(path: "$.public.app.learningDashboardBase")
