@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';

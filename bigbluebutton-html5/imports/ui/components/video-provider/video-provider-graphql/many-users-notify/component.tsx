@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';

@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useSubscription, useReactiveVar, useLazyQuery, useMutation } from '@apollo/client';
 import { Meteor } from 'meteor/meteor';

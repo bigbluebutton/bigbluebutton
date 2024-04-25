@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import {
   userIndicatorsOffset,

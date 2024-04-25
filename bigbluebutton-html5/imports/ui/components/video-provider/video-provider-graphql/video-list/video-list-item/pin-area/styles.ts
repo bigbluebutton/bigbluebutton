@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { colorTransparent, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';

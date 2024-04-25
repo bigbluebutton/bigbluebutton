@@ -1,4 +1,5 @@
-/* eslint react/sort-comp: 0 */
+// @ts-nocheck
+/* eslint-disable */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';

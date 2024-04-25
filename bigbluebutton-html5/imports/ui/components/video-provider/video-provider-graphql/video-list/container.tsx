@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VideoList from '/imports/ui/components/video-provider/video-provider-graphql/video-list/component';

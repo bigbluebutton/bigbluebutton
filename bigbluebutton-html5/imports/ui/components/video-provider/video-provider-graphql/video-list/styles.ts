@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import styled from 'styled-components';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';

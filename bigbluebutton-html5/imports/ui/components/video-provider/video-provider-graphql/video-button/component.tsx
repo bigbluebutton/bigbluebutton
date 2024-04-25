@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React, { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';

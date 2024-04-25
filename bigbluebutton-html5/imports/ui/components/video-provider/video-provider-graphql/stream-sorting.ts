@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import UserListService from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 

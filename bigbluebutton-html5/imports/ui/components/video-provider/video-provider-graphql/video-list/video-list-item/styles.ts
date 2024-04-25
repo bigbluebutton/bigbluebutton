@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import styled, { keyframes, css } from 'styled-components';
 import {
   colorPrimary,

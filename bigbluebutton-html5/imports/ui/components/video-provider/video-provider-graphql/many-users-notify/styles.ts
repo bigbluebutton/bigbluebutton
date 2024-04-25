@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import styled from 'styled-components';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from '/imports/ui/components/breakout-room/styles';

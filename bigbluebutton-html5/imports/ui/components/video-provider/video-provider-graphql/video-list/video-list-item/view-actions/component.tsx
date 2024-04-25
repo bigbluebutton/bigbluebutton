@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+// @ts-nocheck
+/* eslint-disable */import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';

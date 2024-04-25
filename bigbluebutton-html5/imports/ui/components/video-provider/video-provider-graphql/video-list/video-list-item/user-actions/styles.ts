@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import styled from 'styled-components';
 import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';

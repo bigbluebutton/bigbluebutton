@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React from 'react';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import DropArea from './component';

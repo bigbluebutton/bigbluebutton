@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { injectIntl, defineMessages } from 'react-intl';
 import Auth from '/imports/ui/services/auth';

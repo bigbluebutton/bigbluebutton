@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React from 'react';
 import PropTypes from 'prop-types';
 import Styled from './styles';

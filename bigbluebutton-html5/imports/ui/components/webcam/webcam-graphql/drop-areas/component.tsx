@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';

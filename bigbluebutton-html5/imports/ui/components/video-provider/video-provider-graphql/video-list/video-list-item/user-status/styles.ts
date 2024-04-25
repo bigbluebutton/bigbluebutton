@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import styled from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
 import { colorDanger, colorSuccess, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';

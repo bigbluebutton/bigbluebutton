@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React, { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';

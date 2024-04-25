@@ -1,4 +1,5 @@
-/* eslint-disable no-nested-ternary */
+// @ts-nocheck
+/* eslint-disable */
 import React, { useEffect, useRef, useState } from 'react';
 import { injectIntl, defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';

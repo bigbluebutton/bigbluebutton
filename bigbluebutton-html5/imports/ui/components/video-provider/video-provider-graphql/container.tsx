@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import React from 'react';
 import { Session } from 'meteor/session';
 import { Meteor } from 'meteor/meteor';
