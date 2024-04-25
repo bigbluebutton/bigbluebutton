@@ -6,7 +6,6 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import { makeCall } from '/imports/ui/services/api';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
@@ -480,10 +479,6 @@ const roving = (...args) => {
   }
 };
 
-const requestUserInformation = (userId) => {
-  makeCall('requestUserInformation', userId);
-};
-
 const sortUsersByFirstName = (a, b) => {
   const aUser = { sortName: a.firstName ? a.firstName : '' };
   const bUser = { sortName: b.firstName ? b.firstName : '' };
@@ -612,7 +607,6 @@ export default {
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji,
-  requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
   getUsersProp,
