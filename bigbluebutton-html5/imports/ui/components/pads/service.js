@@ -1,5 +1,4 @@
 import { throttle } from 'radash';
-import { makeCall } from '/imports/ui/services/api';
 import Settings from '/imports/ui/services/settings';
 import {
   screenshareHasEnded,
@@ -22,8 +21,6 @@ const getParams = () => {
   return params;
 };
 
-const getPadId = (externalId) => makeCall('getPadId', externalId);
-
 const pinPad = (externalId, pinned, stopWatching) => {
   if (pinned) {
     // Stop external video sharing if it's running.
@@ -37,7 +34,6 @@ const pinPad = (externalId, pinned, stopWatching) => {
 const throttledPinPad = throttle({ interval: 1000 }, pinPad);
 
 export default {
-  getPadId,
   getParams,
   pinPad: throttledPinPad,
 };
