@@ -129,6 +129,7 @@ export default async function addMeeting(meeting) {
     },
     systemProps: {
       html5InstanceId: Number,
+      loginUrl: String,
       logoutUrl: String,
       customLogoURL: String,
       bannerText: String,
