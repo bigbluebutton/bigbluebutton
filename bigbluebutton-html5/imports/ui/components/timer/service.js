@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import Timer from '/imports/api/timer';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
@@ -79,8 +78,6 @@ const isStopwatch = () => {
   if (timer) return timer.stopwatch;
   return false;
 };
-
-const timerEnded = () => makeCall('timerEnded');
 
 const fetchTimeOffset = () => {
   const t0 = Date.now();
@@ -247,5 +244,4 @@ export default {
   getTimeAsString,
   closePanel,
   togglePanel,
-  timerEnded,
 };
