@@ -69,6 +69,7 @@ case class LockSettingsProps(
 
 case class SystemProps(
     html5InstanceId: Int,
+    loginUrl: String,
     logoutUrl: String,
     customLogoURL: String,
     bannerText: String,

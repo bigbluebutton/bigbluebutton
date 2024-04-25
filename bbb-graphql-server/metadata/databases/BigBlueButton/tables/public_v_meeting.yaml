@@ -173,6 +173,7 @@ select_permissions:
         - extId
         - html5InstanceId
         - isBreakout
+        - loginUrl
         - logoutUrl
         - maxPinnedCameras
         - meetingCameraCap

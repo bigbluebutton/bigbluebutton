@@ -129,6 +129,7 @@ export interface Meeting {
   componentsFlags: ComponentsFlags;
   endWhenNoModerator: boolean;
   endWhenNoModeratorDelayInMinutes: number;
+  loginUrl: string | null;
   metadata: Array<Metadata>;
   groups: Array<groups>;
 }
