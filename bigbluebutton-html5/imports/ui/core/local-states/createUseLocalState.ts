@@ -3,6 +3,7 @@ import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
 function createUseLocalState<T>(initialValue: T):
 [
   () => [T, (value: T) => void], // hook that returns [state, setter]
+  // eslint-disable-next-line @typescript-eslint/ban-types
   (value: T | Function) => void, // setter
   ReactiveVar<T> // state
 ] {
