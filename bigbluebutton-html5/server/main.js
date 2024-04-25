@@ -6,7 +6,6 @@ import '/imports/api/users/server';
 import '/imports/api/screenshare/server';
 import '/imports/api/voice-users/server';
 import '/imports/api/video-streams/server';
-import '/imports/api/connection-status/server';
 import '/imports/api/timer/server';
 import '/imports/api/pads/server';
 
