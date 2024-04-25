@@ -48,6 +48,9 @@ subscription userCurrentSubscription {
       parameter
       value
     }
+    reaction {
+      reactionEmoji
+    }
     breakoutRooms {
       currentRoomJoined
       assignedAt

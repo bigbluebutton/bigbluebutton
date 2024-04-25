@@ -3,7 +3,6 @@ import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
-import UserReaction from '/imports/api/user-reaction';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -11,7 +10,6 @@ import { makeCall } from '/imports/ui/services/api';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
-import UserReactionService from '/imports/ui/components/user-reaction/service';
 import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
 import Settings from '/imports/ui/services/settings';
@@ -24,7 +22,6 @@ const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
 const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
@@ -142,75 +139,6 @@ const sortUsers = (a, b) => {
 const isPublicChat = (chat) => (
   chat.userId === PUBLIC_CHAT_ID
 );
-
-const userFindSorting = {
-  emojiTime: 1,
-  role: 1,
-  phoneUser: 1,
-  name: 1,
-  userId: 1,
-};
-
-const addIsSharingWebcam = (users) => {
-  const usersId = VideoService.getUsersIdFromVideoStreams();
-
-  return users.map((user) => {
-    const isSharingWebcam = usersId.includes(user.userId);
-
-    return {
-      ...user,
-      isSharingWebcam,
-    };
-  });
-};
-
-const addUserReaction = (users) => {
-  const usersReactions = UserReaction.find({
-    meetingId: Auth.meetingID,
-  }).fetch();
-
-  return users.map((user) => {
-    let reaction = '';
-    const obj = usersReactions.find((us) => us.userId === user.userId);
-    if (obj !== undefined) {
-      ({ reaction } = obj);
-    }
-
-    return {
-      ...user,
-      reaction,
-    };
-  });
-};
-
-const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) => {
-  let users = contextUsers.filter((user) => user.loggedOut === false && user.left === false);
-
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
-  if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettings.hideUserList': 1 } });
-    if (meeting && meeting.lockSettings && meeting.lockSettings.hideUserList) {
-      const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
-      users = users.filter(moderatorOrCurrentUser);
-    }
-  }
-
-  return users.map((user) => {
-    const isSharingWebcam = videoUsers?.includes(user.userId);
-    const whiteboardAccess = whiteboardUsers?.includes(user.userId);
-    const reaction = reactionUsers?.includes(user.userId)
-      ? UserReactionService.getUserReaction(user.userId)
-      : { reaction: 'none', reactionTime: 0 };
-
-    return {
-      ...user,
-      isSharingWebcam,
-      whiteboardAccess,
-      ...reaction,
-    };
-  }).sort(sortUsers);
-};
 
 const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();
 
@@ -668,13 +596,12 @@ const UserLeftMeetingAlert = (obj) => {
       obj.icon,
     );
   }
-}
+};
 
 export default {
   sortUsersByName,
   sortUsers,
   toggleVoice,
-  formatUsers,
   getActiveChats,
   getAvailableActions,
   curatedVoiceUser,

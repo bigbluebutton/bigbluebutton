@@ -460,4 +460,4 @@ class OptionsDropdown extends PureComponent {
 }
 OptionsDropdown.propTypes = propTypes;
 OptionsDropdown.defaultProps = defaultProps;
-export default withShortcutHelper(injectIntl(OptionsDropdown), 'openOptions');
+export default injectIntl(OptionsDropdown);
