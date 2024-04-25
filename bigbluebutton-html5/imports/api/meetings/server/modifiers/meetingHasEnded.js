@@ -4,7 +4,6 @@ import Logger from '/imports/startup/server/logger';
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearPads from '/imports/api/pads/server/modifiers/clearPads';
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
-import clearTimer from '/imports/api/timer/server/modifiers/clearTimer';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import Metrics from '/imports/startup/server/metrics';
@@ -15,7 +14,6 @@ export default async function meetingHasEnded(meetingId) {
     clearPads(meetingId),
     clearUsers(meetingId),
     clearVoiceUsers(meetingId),
-    clearTimer(meetingId),
     clearMeetingTimeRemaining(meetingId),
     clearVideoStreams(meetingId),
   ]);
