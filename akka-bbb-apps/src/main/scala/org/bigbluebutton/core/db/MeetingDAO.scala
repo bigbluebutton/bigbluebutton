@@ -144,7 +144,7 @@ object MeetingDAO {
         MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
         MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
         MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
-        TimerDAO.insert(meetingProps.meetingProp.intId)
+        TimerDAO.insert(meetingProps.meetingProp.intId, clientSettings)
         LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
         MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
       }
