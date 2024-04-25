@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import AudioService from '/imports/ui/components/audio/service';
-import { makeCall } from '/imports/ui/services/api';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
@@ -18,10 +17,6 @@ export const getIsReconnecting = () => {
 
 export const getIsConnected = () => {
   return Meteor.status().connected;
-};
-
-export const endAllBreakouts = () => {
-  makeCall('endAllBreakouts');
 };
 
 export const forceExitAudio = () => {
@@ -59,7 +54,6 @@ export const rejoinAudio = () => {
 export default {
   getIsMicrophoneUser,
   getIsReconnecting,
-  endAllBreakouts,
   forceExitAudio,
   stopVideo,
   finishScreenShare,
