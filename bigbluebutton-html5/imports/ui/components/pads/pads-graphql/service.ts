@@ -22,8 +22,6 @@ const getParams = () => {
   return params;
 };
 
-const createGroup = (externalId: string, model: string, name: string) => makeCall('createGroup', externalId, model, name);
-
 const buildPadURL = (padId: string, sessionIds: Array<string>) => {
   const params = getParams();
   const sessionIdsStr = sessionIds.join(',');
@@ -34,7 +32,6 @@ const buildPadURL = (padId: string, sessionIds: Array<string>) => {
 };
 
 export default {
-  createGroup,
   buildPadURL,
   getParams,
 };
