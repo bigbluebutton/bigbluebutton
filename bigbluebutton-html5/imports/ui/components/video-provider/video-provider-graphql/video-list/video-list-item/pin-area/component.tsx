@@ -3,7 +3,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';

@@ -3,7 +3,7 @@
 import React, { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';

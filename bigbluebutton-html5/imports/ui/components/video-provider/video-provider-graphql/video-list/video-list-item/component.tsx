@@ -3,18 +3,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { injectIntl, defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
-import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
-import PinArea from '/imports/ui/components/video-provider/video-list/video-list-item/pin-area/component';
-import UserAvatarVideo from '/imports/ui/components/video-provider/video-list/video-list-item/user-avatar/component';
-import ViewActions from '/imports/ui/components/video-provider/video-list/video-list-item/view-actions/component';
+import UserActions from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-actions/component';
+import UserStatus from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-status/component';
+import PinArea from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/pin-area/component';
+import UserAvatarVideo from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-avatar/component';
+import ViewActions from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/view-actions/component';
 import {
   isStreamStateUnhealthy,
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import Settings from '/imports/ui/services/settings';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import Styled from './styles';
 import { withDragAndDrop } from './drag-and-drop/component';
 import Auth from '/imports/ui/services/auth';
