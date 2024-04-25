@@ -228,7 +228,7 @@ export default async function addMeeting(meeting) {
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
       // Init Timer collection
-      createTimer(meetingId);
+      // createTimer(meetingId);
       if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
         initPads(meetingId);
       }
