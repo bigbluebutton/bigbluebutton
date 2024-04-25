@@ -9,7 +9,6 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
@@ -227,14 +226,6 @@ class VideoService {
     const devices = streams.filter((vs) => vs.userId === Auth.userID).map((vs) => vs.deviceId);
 
     return devices;
-  }
-
-  sendUserShareWebcam(cameraId) {
-    makeCall('userShareWebcam', cameraId);
-  }
-
-  sendUserUnshareWebcam(cameraId) {
-    makeCall('userUnshareWebcam', cameraId);
   }
 
   getAuthenticatedURL() {
