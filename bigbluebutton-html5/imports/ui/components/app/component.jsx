@@ -47,7 +47,6 @@ import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
-import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
@@ -148,7 +147,6 @@ class App extends Component {
       presentationFitToWidth: false,
     };
 
-    this.isTimerEnabled = TimerService.isEnabled();
     this.timeOffsetInterval = null;
 
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
@@ -221,12 +219,6 @@ class App extends Component {
     }
 
     if (deviceInfo.isMobile) setMobileUser(true);
-
-    if (this.isTimerEnabled) {
-      TimerService.fetchTimeOffset();
-      this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
-        TimerService.OFFSET_INTERVAL);
-    }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
