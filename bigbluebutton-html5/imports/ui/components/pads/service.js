@@ -1,15 +1,9 @@
 import { throttle } from 'radash';
-import Pads from '/imports/api/pads';
-import { makeCall } from '/imports/ui/services/api';
-import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import {
   screenshareHasEnded,
   isScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
-
-const PADS_CONFIG = window.meetingClientSettings.public.pads;
-const THROTTLE_TIMEOUT = 2000;
 
 const getLang = () => {
   const { locale } = Settings.application;
@@ -27,14 +21,6 @@ const getParams = () => {
   return params;
 };
 
-const getPadId = (externalId) => makeCall('getPadId', externalId);
-
-const createGroup = (externalId, model, name) => makeCall('createGroup', externalId, model, name);
-
-const createSession = (externalId) => makeCall('createSession', externalId);
-
-const throttledCreateSession = throttle({ interval: THROTTLE_TIMEOUT }, createSession);
-
 const pinPad = (externalId, pinned, stopWatching) => {
   if (pinned) {
     // Stop external video sharing if it's running.
@@ -43,16 +29,11 @@ const pinPad = (externalId, pinned, stopWatching) => {
     // Stop screen sharing if it's running.
     if (isScreenBroadcasting()) screenshareHasEnded();
   }
-
-  makeCall('pinPad', externalId, pinned);
 };
 
 const throttledPinPad = throttle({ interval: 1000 }, pinPad);
 
 export default {
-  getPadId,
-  createGroup,
-  createSession: (externalId) => throttledCreateSession(externalId),
   getParams,
   pinPad: throttledPinPad,
 };

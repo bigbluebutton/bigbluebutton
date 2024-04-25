@@ -1,4 +1,3 @@
-import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 
@@ -22,8 +21,6 @@ const getParams = () => {
   return params;
 };
 
-const createGroup = (externalId: string, model: string, name: string) => makeCall('createGroup', externalId, model, name);
-
 const buildPadURL = (padId: string, sessionIds: Array<string>) => {
   const params = getParams();
   const sessionIdsStr = sessionIds.join(',');
@@ -34,7 +31,6 @@ const buildPadURL = (padId: string, sessionIds: Array<string>) => {
 };
 
 export default {
-  createGroup,
   buildPadURL,
   getParams,
 };
