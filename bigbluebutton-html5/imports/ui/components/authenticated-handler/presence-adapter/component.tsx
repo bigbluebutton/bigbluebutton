@@ -33,7 +33,6 @@ const PresenceAdapter: React.FC<PresenceAdapterProps> = ({ children }) => {
       meetingName,
     );
     Auth.loggedIn = true;
-    Auth.connectionAuthTime = new Date().getTime();
     Session.set('userWillAuth', false);
     setAuthSetted(true);
   }, []);
