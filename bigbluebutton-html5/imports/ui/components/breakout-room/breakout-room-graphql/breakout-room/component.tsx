@@ -27,6 +27,7 @@ import {
   rejoinAudio,
   stopVideo,
 } from './service';
+import { useExitVideo, useStreams } from '../../../video-provider/video-provider-graphql/hooks';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoom[];
@@ -181,6 +182,9 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
     }
   }, [breakouts]);
 
+  const exitVideo = useExitVideo();
+  const { streams } = useStreams();
+
   return (
     <Styled.Panel
       ref={panelRef}
@@ -266,7 +270,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                                   // leave main room's audio,
                                   // and stops video and screenshare when joining a breakout room
                                   forceExitAudio();
-                                  stopVideo(sendUserUnshareWebcam);
+                                  stopVideo(exitVideo, streams);
                                   logger.info({
                                     logCode: 'breakoutroom_join',
                                     extraInfo: { logType: 'user_action' },

@@ -38,7 +38,7 @@ const setConnectingStream = (stream: ConnectingStream) => {
   connectingStream(stream);
 };
 
-type Stream = {
+export type Stream = {
   stream: string;
   deviceId: string;
   userId: string;
