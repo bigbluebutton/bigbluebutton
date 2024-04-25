@@ -9,11 +9,13 @@ import BreakoutJoinConfirmationComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../breakout-room/mutations';
 import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
+import { useStreams, useExitVideo } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 
 const BreakoutJoinConfirmationContrainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+  const { streams } = useStreams();
   const amIPresenter = currentUserData?.presenter;
 
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
@@ -27,11 +29,15 @@ const BreakoutJoinConfirmationContrainer = (props) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
   };
 
+  const exitVideo = useExitVideo();
+
   return <BreakoutJoinConfirmationComponent
     {...props}
     amIPresenter={amIPresenter}
     requestJoinURL={requestJoinURL}
     sendUserUnshareWebcam={sendUserUnshareWebcam}
+    streams={streams}
+    exitVideo={exitVideo}
   />
 };
 

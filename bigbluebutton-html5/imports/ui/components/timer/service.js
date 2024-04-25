@@ -1,7 +1,5 @@
-import { Meteor } from 'meteor/meteor';
 import Timer from '/imports/api/timer';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
 import { Session } from 'meteor/session';
 import { ACTIONS, PANELS } from '../layout/enums';
 
@@ -78,23 +76,6 @@ const isStopwatch = () => {
 
   if (timer) return timer.stopwatch;
   return false;
-};
-
-const timerEnded = () => makeCall('timerEnded');
-
-const fetchTimeOffset = () => {
-  const t0 = Date.now();
-
-  makeCall('getServerTime').then((result) => {
-    if (result === 0) return;
-    const t3 = Date.now();
-
-    const ts = result;
-    const rtt = t3 - t0;
-    const timeOffset = Math.round(ts - rtt / 2 - t0);
-
-    Session.set('timeOffset', timeOffset);
-  });
 };
 
 const getTimeOffset = () => {
@@ -237,7 +218,6 @@ export default {
   isRunning,
   isStopwatch,
   isAlarmEnabled,
-  fetchTimeOffset,
   getTimeOffset,
   getElapsedTime,
   getInterval,
@@ -247,5 +227,4 @@ export default {
   getTimeAsString,
   closePanel,
   togglePanel,
-  timerEnded,
 };
