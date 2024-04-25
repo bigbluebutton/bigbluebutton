@@ -38,8 +38,6 @@ const pinPad = (externalId, pinned, stopWatching) => {
     // Stop screen sharing if it's running.
     if (isScreenBroadcasting()) screenshareHasEnded();
   }
-
-  makeCall('pinPad', externalId, pinned);
 };
 
 const throttledPinPad = throttle({ interval: 1000 }, pinPad);
