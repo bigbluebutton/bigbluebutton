@@ -1,2 +1,0 @@
-import './eventHandlers';
-import './methods';
