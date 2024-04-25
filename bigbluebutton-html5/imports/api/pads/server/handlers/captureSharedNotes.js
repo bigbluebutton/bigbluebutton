@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import padCapture from '../methods/padCapture';
+// import padCapture from '../methods/padCapture';
 
 export default async function captureSharedNotes({ header, body }) {
   check(header, Object);
@@ -18,5 +18,5 @@ export default async function captureSharedNotes({ header, body }) {
   check(parentMeetingId, String);
   check(filename, String);
 
-  await padCapture(breakoutId, parentMeetingId, filename);
+  // await padCapture(breakoutId, parentMeetingId, filename);
 }

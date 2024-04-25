@@ -45,6 +45,8 @@ object Pads {
 
   def setGroupId(pads: Pads, externalId: String, groupId: String): Unit = pads.setGroupId(externalId, groupId)
 
+  def setPadId(pads: Pads, externalId: String, padId: String): Unit = pads.setGroupPadId(externalId, padId)
+
   def getGroupById(pads: Pads, groupId: String): Option[PadGroup] = pads.getGroupById(groupId)
 }
 
@@ -54,13 +56,23 @@ class Pads {
   def addGroup(externalId: String, model: String, name: String, userId: String): Unit = groups += externalId -> new PadGroup(externalId, model, name, userId)
 
   def setGroupId(externalId: String, groupId: String): Unit = {
-    groups.get(externalId) match {
-      case Some(group) => groups += externalId -> new PadGroup(externalId, group.model, group.name, group.userId, groupId)
-      case _           =>
+    for {
+      group <- groups.get(externalId)
+    } yield {
+      groups += externalId -> group.copy(groupId = groupId)
     }
   }
 
   def getGroupById(groupId: String): Option[PadGroup] = groups.values.find(_.groupId == groupId)
+
+  def setGroupPadId(externalId: String, padId: String): Unit = {
+    for {
+      group <- groups.get(externalId)
+    } yield {
+      groups += externalId -> group.copy(padId = padId)
+    }
+  }
+
 }
 
-class PadGroup(val externalId: String, val model: String, val name: String, val userId: String, val groupId: String = "")
+case class PadGroup(val externalId: String, val model: String, val name: String, val userId: String, val groupId: String = "", padId: String = "")
