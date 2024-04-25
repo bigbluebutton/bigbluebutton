@@ -72,7 +72,7 @@ message MeetingProps {
 }
 
 message BreakoutProps {
-    string parent_id = 1;
+    string parent_meeting_id = 1;
     int32 sequence = 2;
     bool free_join = 3;
     repeated string breakout_rooms = 4;

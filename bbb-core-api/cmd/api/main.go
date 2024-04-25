@@ -32,18 +32,27 @@ type Config struct {
 	} `yaml:"security"`
 	Meeting struct {
 		Camera struct {
-			Cap       uint8 `yaml:"cap"`
-			MaxPinned uint8 `yaml:"max_pinned"`
+			Cap       int32 `yaml:"cap"`
+			MaxPinned int32 `yaml:"max_pinned"`
 		} `yaml:"camera"`
 		Features struct {
 			Disabled []string `yaml:"disabled"`
 		} `yaml:"features"`
+		Duration int32 `yaml:"duration"`
+		Expiry   struct {
+			NoUserJoinedInMin int32 `yaml:"no_user_joined_in_min"`
+			LastUserLeftInMin int32 `yaml:"last_user_left_in_min"`
+		} `yaml:"expiry"`
 	} `yaml:"meeting"`
 	User struct {
 		Camera struct {
 			Cap uint8 `yaml:"cap"`
 		} `yaml:"camera"`
-	}
+		Inactivity struct {
+			InspectInterval int32 `yaml:"inspect_interval"`
+			Threshold       int32 `yaml:"threshold"`
+		} `yaml:"inactivity"`
+	} `yaml:"user"`
 	Recording struct {
 		NotifyRecordingIsOn bool `yaml:"notifyRecordingIsOn"`
 	} `yaml:"recording"`
@@ -55,6 +64,10 @@ type Config struct {
 			} `yaml:"external"`
 		} `yaml:"upload"`
 	} `yaml:"presentation"`
+	BreakoutRooms struct {
+		Record             bool `yaml:"record"`
+		PrivateChatEnabled bool `yaml:"private_chat_enabled"`
+	} `yaml:"breakout_rooms"`
 }
 
 const retryPolicy = `{

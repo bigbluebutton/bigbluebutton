@@ -20,10 +20,17 @@ meeting:
     max_pinned: 3
   features:
     disabled:
+  duration: 0
+  expiry:
+    no_user_joined_in_min: 5
+    last_user_left_in_min: 1
 
 user:
   camera:
     cap: 3
+  inactivity:
+    inspect_interval: 0
+    threshold: 30
 
 recording:
   notify_recording_is_on: false
@@ -33,3 +40,7 @@ presentation:
     external:
       description:
       url:
+
+breakout_rooms:
+  record: false
+  private_chat_enabled: true

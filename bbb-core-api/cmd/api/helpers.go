@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
@@ -12,10 +13,20 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
+	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/util"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
+)
+
+const (
+	breakoutRoomsCaptureSlides         = false
+	breakoutRoomsCaptureNotes          = false
+	breakoutRoomsCaptureSlidesFileName = "%%CONFNAME%%"
+	breakoutRoomsCaptureNotesFileName  = "%%CONFNAME%%"
 )
 
 func (app *Config) writeXML(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
@@ -116,23 +127,51 @@ func (app *Config) removeQueryParam(queryString, param string) string {
 	return strings.Join(newEntries, "&")
 }
 
-func (app *Config) processCreateQueryParams(params *url.Values) *common.MeetingSettings {
+func (app *Config) processCreateQueryParams(params *url.Values) (*common.MeetingSettings, error) {
 	var settings common.MeetingSettings
 
-	settings.MeetingProps = app.processMeetingProps(params)
+	createTime := time.Now().UnixMilli()
 
-	return &settings
+	isBreakout := util.GetBoolOrDefaultValue(params.Get("isBreakout"), false)
+	var parentMeetingInfo *common.MeetingInfo
+	if isBreakout {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		res, err := app.BbbCore.GetMeetingInfo(ctx, &bbbcore.MeetingInfoRequest{
+			MeetingId: util.GetStringOrDefaultValue(params.Get("parentMeetingID"), ""),
+		})
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		parentMeetingInfo = res.MeetingInfo
+		settings.BreakoutProps = app.processBreakoutProps(params, parentMeetingInfo)
+	}
+
+	settings.MeetingProps = app.processMeetingProps(params, createTime, isBreakout, parentMeetingInfo)
+
+	return &settings, nil
 }
 
-func (app *Config) processMeetingProps(params *url.Values) *common.MeetingProps {
+func (app *Config) processMeetingProps(params *url.Values, createTime int64, isBreakout bool, parentMeetingInfo *common.MeetingInfo) *common.MeetingProps {
 	name := validation.StripCtrlChars(params.Get("name"))
-	meetingExtId := validation.StripCtrlChars(params.Get("meetingID"))
-	meetingIntId := app.generateHashString(meetingExtId, sha1.New())
 
-	meetingCameraCap := getIntOrDefaultValue(params.Get("meetingCameraCap"), int(app.Meeting.Camera.Cap))
-	maxPinnedCameras := getIntOrDefaultValue(params.Get("maxPinnedCamera"), int(app.Meeting.Camera.MaxPinned))
+	var meetingIntId string
+	var meetingExtId string
 
-	isBreakout := getBoolOrDefaultValue(params.Get("isBreakout"), false)
+	if isBreakout {
+		meetingIntId = validation.StripCtrlChars(params.Get("meetingID"))
+		parentMeetingId := parentMeetingInfo.MeetingIntId
+		parentCreateTime := parentMeetingInfo.DurationInfo.CreateTime
+		data := parentMeetingId + "-" + strconv.Itoa(int(parentCreateTime)) + "-" + validation.StripCtrlChars(params.Get("sequence"))
+		meetingExtId = app.generateHashString(data, sha1.New()) + strconv.Itoa(int(createTime))
+	} else {
+		meetingExtId = validation.StripCtrlChars(params.Get("meetingID"))
+		meetingIntId = app.generateHashString(meetingExtId, sha1.New()) + strconv.Itoa(int(createTime))
+	}
+
+	meetingCameraCap := util.GetInt32OrDefaultValue(params.Get("meetingCameraCap"), app.Meeting.Camera.Cap)
+	maxPinnedCameras := util.GetInt32OrDefaultValue(params.Get("maxPinnedCamera"), app.Meeting.Camera.MaxPinned)
 
 	disabledFeaturesMap := make(map[string]struct{})
 	for k, v := range app.DisabledFeatures {
@@ -151,17 +190,17 @@ func (app *Config) processMeetingProps(params *url.Values) *common.MeetingProps 
 		i++
 	}
 
-	notifyRecordingIsOn := getBoolOrDefaultValue(params.Get("notfiyRecordingIsOn"), app.Recording.NotifyRecordingIsOn)
+	notifyRecordingIsOn := util.GetBoolOrDefaultValue(params.Get("notfiyRecordingIsOn"), app.Recording.NotifyRecordingIsOn)
 
-	presUploadExtDesc := getStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalDescription")), app.Presentation.Upload.External.Description)
-	presUploadExtUrl := getStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalUrl")), app.Presentation.Upload.External.Url)
+	presUploadExtDesc := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalDescription")), app.Presentation.Upload.External.Description)
+	presUploadExtUrl := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalUrl")), app.Presentation.Upload.External.Url)
 
 	return &common.MeetingProps{
 		Name:                name,
 		MeetingExtId:        meetingExtId,
 		MeetingIntId:        meetingIntId,
-		MeetingCameraCap:    int32(meetingCameraCap),
-		MaxPinnedCameras:    int32(maxPinnedCameras),
+		MeetingCameraCap:    meetingCameraCap,
+		MaxPinnedCameras:    maxPinnedCameras,
 		IsBreakout:          isBreakout,
 		DisabledFeatures:    disabledFeatures,
 		NotifyRecordingIsOn: notifyRecordingIsOn,
@@ -170,33 +209,29 @@ func (app *Config) processMeetingProps(params *url.Values) *common.MeetingProps 
 	}
 }
 
-func getIntOrDefaultValue(param string, defaultValue int) int {
-	if param != "" {
-		conv, err := strconv.Atoi(param)
-		if err != nil {
-			return defaultValue
-		} else {
-			return conv
-		}
+func (app *Config) processBreakoutProps(params *url.Values, parentMeetingInfo *common.MeetingInfo) *common.BreakoutProps {
+	return &common.BreakoutProps{
+		ParentMeetingId:       parentMeetingInfo.MeetingIntId,
+		Sequence:              util.GetInt32OrDefaultValue(params.Get("sequence"), 0),
+		FreeJoin:              util.GetBoolOrDefaultValue(params.Get("freeJoin"), false),
+		BreakoutRooms:         make([]string, 0),
+		Record:                util.GetBoolOrDefaultValue(params.Get("breakoutRoomsRecord"), app.BreakoutRooms.Record),
+		PrivateChatEnabled:    util.GetBoolOrDefaultValue(params.Get("breakoutRoomsPrivateChatEnabled"), app.BreakoutRooms.PrivateChatEnabled),
+		CaptureNotes:          util.GetBoolOrDefaultValue(params.Get("breakoutRoomsCaptureNotes"), breakoutRoomsCaptureNotes),
+		CaptureSlides:         util.GetBoolOrDefaultValue(params.Get("breakoutRoomsCaptureSlides"), breakoutRoomsCaptureSlides),
+		CaptureNotesFileName:  util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("breakoutRoomsCaptureNotesFileName")), breakoutRoomsCaptureNotesFileName),
+		CaptureSlidesFileName: util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("breakoutRoomsCaptureSlidesFileName")), breakoutRoomsCaptureSlidesFileName),
 	}
-	return defaultValue
 }
 
-func getBoolOrDefaultValue(param string, defaultValue bool) bool {
-	if param != "" {
-		conv, err := strconv.ParseBool(param)
-		if err != nil {
-			return defaultValue
-		} else {
-			return conv
-		}
+func (app *Config) processDurationProps(params *url.Values, createTime int64) *common.DurationProps {
+	return &common.DurationProps{
+		Duration:                       int32(util.GetInt32OrDefaultValue(params.Get("duration"), app.Meeting.Duration)),
+		CreateTime:                     createTime,
+		CreateDate:                     time.UnixMilli(createTime).String(),
+		MeetingExpNoUserJoinedInMin:    util.GetInt32OrDefaultValue(params.Get("meetingExpireIfNoUserJoinedInMinutes"), app.Meeting.Expiry.NoUserJoinedInMin),
+		MeetingExpLastUserLeftInMin:    util.GetInt32OrDefaultValue(params.Get("meetingExpireWhenLastUserLeftInMinutes"), app.Meeting.Expiry.LastUserLeftInMin),
+		UserInactivityInspectTimeInMin: app.User.Inactivity.InspectInterval,
+		UserInactivityThresholdInMin:   app.User.Inactivity.Threshold,
 	}
-	return defaultValue
-}
-
-func getStringOrDefaultValue(param string, defaultValue string) string {
-	if param != "" {
-		return param
-	}
-	return defaultValue
 }
