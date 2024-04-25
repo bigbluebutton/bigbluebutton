@@ -8,6 +8,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
 import Settings from '/imports/ui/services/settings';

@@ -21,6 +21,7 @@ import logger from '/imports/startup/client/logger';
 import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import BreakoutContainerGraphql from '/imports/ui/components/breakout-room/breakout-room-graphql/breakout-room/component';
+import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 
 const BreakoutContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -28,6 +29,7 @@ const BreakoutContainer = (props) => {
     presenter: user.presenter,
     isModerator: user.isModerator,
   }));
+  const { streams } = useStreams();
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
   const isRTL = layoutSelect((i) => i.isRTL);

@@ -20,13 +20,13 @@ import { BREAKOUT_ROOM_END_ALL, BREAKOUT_ROOM_REQUEST_JOIN_URL, USER_TRANSFER_VO
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import TimeRemaingPanel from './components/timeRemaining';
 import BreakoutMessageForm from './components/messageForm';
-import { CAMERA_BROADCAST_STOP } from '../../../video-provider/mutations';
 import {
   finishScreenShare,
   forceExitAudio,
   rejoinAudio,
   stopVideo,
 } from './service';
+import { useExitVideo, useStreams } from '../../../video-provider/video-provider-graphql/hooks';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoom[];
@@ -119,7 +119,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
-  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
 
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -129,10 +128,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   const [showChangeTimeForm, setShowChangeTimeForm] = React.useState(false);
   const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = React.useState<string>('');
   const [joinedRooms, setJoinedRooms] = React.useState<number>(0);
-
-  const sendUserUnshareWebcam = (cameraId: string) => {
-    cameraBroadcastStop({ variables: { cameraId } });
-  };
 
   const transferUserToMeeting = (fromMeeting: string, toMeeting: string) => {
     breakoutRoomTransfer(
@@ -180,6 +175,9 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
       }
     }
   }, [breakouts]);
+
+  const exitVideo = useExitVideo();
+  const { streams } = useStreams();
 
   return (
     <Styled.Panel
@@ -266,7 +264,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                                   // leave main room's audio,
                                   // and stops video and screenshare when joining a breakout room
                                   forceExitAudio();
-                                  stopVideo(sendUserUnshareWebcam);
+                                  stopVideo(exitVideo, streams);
                                   logger.info({
                                     logCode: 'breakoutroom_join',
                                     extraInfo: { logType: 'user_action' },

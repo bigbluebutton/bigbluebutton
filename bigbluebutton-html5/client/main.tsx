@@ -14,6 +14,7 @@ import UserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/u
 import VoiceUserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/voiceUserGraphQlMiniMongoAdapter/component';
 import MeetingGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/meetingGrapQlMiniMongoAdapter/component';
 import ScreenShareGraphQlMiniMongoAdapterContainer from '/imports/ui/components/components-data/screenshareGraphQlMiniMongoAdapter/component';
+import VideoStreamAdapter from '/imports/ui/components/video-provider/video-provider-graphql/adapter';
 
 const Main: React.FC = () => {
   // Meteor.disconnect();
@@ -31,6 +32,7 @@ const Main: React.FC = () => {
                   <VoiceUserGrapQlMiniMongoAdapter />
                   <MeetingGrapQlMiniMongoAdapter />
                   <ScreenShareGraphQlMiniMongoAdapterContainer />
+                  <VideoStreamAdapter />
                 </PresenceManager>
               </ConnectionManager>
             </LocatedErrorBoundary>

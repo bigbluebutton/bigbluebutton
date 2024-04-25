@@ -44,7 +44,7 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
     }
   }
 
-  logger.debug(`Valid ${operation.operationName} payload. Following with the query.`);
+  // logger.debug(`Valid ${operation.operationName} payload. Following with the query.`);
   return forward(operation);
 });
 

@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
+import { Stream } from '/imports/ui/components/video-provider/video-provider-graphql/state';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import { didUserSelectedListenOnly, didUserSelectedMicrophone } from '../../../audio/audio-modal/service';
 import logger from '/imports/startup/client/logger';
@@ -23,9 +24,9 @@ export const forceExitAudio = () => {
   AudioManager.forceExitAudio();
 };
 
-export const stopVideo = (unshareVideo: (stream: string)=> void) => {
-  VideoService.storeDeviceIds();
-  VideoService.exitVideo(unshareVideo);
+export const stopVideo = (exitVideo: () => void, streams: Stream[]) => {
+  VideoService.storeDeviceIds(streams);
+  exitVideo();
 };
 
 export const finishScreenShare = () => {
