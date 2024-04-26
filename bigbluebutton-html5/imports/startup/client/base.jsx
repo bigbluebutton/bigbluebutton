@@ -26,13 +26,11 @@ const HTML = document.getElementsByTagName('html')[0];
 let checkedUserSettings = false;
 
 const propTypes = {
-  subscriptionsReady: PropTypes.bool,
   approved: PropTypes.bool,
 };
 
 const defaultProps = {
   approved: false,
-  subscriptionsReady: false,
 };
 
 const fullscreenChangedEvents = [
@@ -89,7 +87,6 @@ class Base extends Component {
   componentDidUpdate(prevProps) {
     const {
       animations,
-      subscriptionsReady,
       layoutContextDispatch,
       sidebarContentPanel,
       usersVideo,
@@ -103,10 +100,6 @@ class Base extends Component {
       });
     }
 
-    if (!prevProps.subscriptionsReady && subscriptionsReady) {
-      logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
-    }
-
     const enabled = HTML.classList.contains('animationsEnabled');
     const disabled = HTML.classList.contains('animationsDisabled');
 
@@ -118,7 +111,7 @@ class Base extends Component {
       HTML.classList.add('animationsDisabled');
     }
 
-    if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true))) {
+    if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE)) {
       if (!checkedUserSettings) {
         const showAnimationsDefault = getFromUserSettings(
           'bbb_show_animations_default',
@@ -167,9 +160,7 @@ class Base extends Component {
           });
         }
 
-        if (Session.equals('subscriptionsReady', true)) {
-          checkedUserSettings = true;
-        }
+        checkedUserSettings = true;
       }
     }
   }
@@ -181,13 +172,6 @@ class Base extends Component {
   }
 
   render() {
-    const {
-      subscriptionsReady,
-    } = this.props;
-    if (!subscriptionsReady) {
-      return (<LoadingScreen />);
-    }
-
     return (
       <>
         <DebugWindow />
@@ -225,7 +209,6 @@ const BaseContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
   const {
     animations,
   } = Settings.application;
@@ -243,7 +226,6 @@ export default withTracker(() => {
     animations,
     isMeteorConnected: Meteor.status().connected,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
     codeError,
     paginationEnabled: Settings.application.paginationEnabled,
