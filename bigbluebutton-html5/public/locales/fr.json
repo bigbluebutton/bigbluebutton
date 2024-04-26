@@ -626,7 +626,7 @@
     "app.statusNotifier.raisedHandDesc": "{0} ont levé la main",
     "app.statusNotifier.raisedHandDescOneUser": "{0} a levé la main",
     "app.statusNotifier.and": "et",
-    "app.switch.onLabel": "Allumé",
+    "app.switch.onLabel": "Activé",
     "app.switch.offLabel": "Éteint",
     "app.talkingIndicator.ariaMuteDesc" : "Sélectionner pour rendre l'utilisateur silencieux",
     "app.talkingIndicator.isTalking" : "{0} est en train de parler",
