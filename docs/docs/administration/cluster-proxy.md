@@ -100,7 +100,7 @@ accessControlAllowOrigin=https://bbb-proxy.example.com
 defaultGuestWaitURL=https://bbb-01.example.com/bbb-01/html5client/guestWait
 ```
 
-Add the following options to `/etc/bigbluebutton/bbb-html5.yml`:
+Merge the following options into `/etc/bigbluebutton/bbb-html5.yml`:
 
 ```yaml
 public:
@@ -115,18 +115,20 @@ public:
     wsUrl: wss://bbb-01.example.com/bbb-webrtc-sfu
   presentation:
     uploadEndpoint: 'https://bbb-01.example.com/bigbluebutton/presentation/upload'
-  # for BBB 2.4:
-  note:
-    url: 'https://bbb-01.example.com/pad'
-  # for BBB 2.5 or later
   pads:
     url: 'https://bbb-01.example.com/pad'
 ```
 
+You may use `yq` to merge the new settings:
+
+```bash
+yq m -xi /etc/bigbluebutton/bbb-html5.yml /tmp/bbb-html5.yml
+```
+
 Create (or edit if it already exists) these unit file overrides:
 
-* `/usr/lib/systemd/system/bbb-html5-frontend@.service`
-* `/usr/lib/systemd/system/bbb-html5-backend@.service`
+* `/etc/systemd/system/bbb-html5-frontend@.service.d/cluster.conf`
+* `/etc/systemd/system/bbb-html5-backend@.service.d/cluster.conf`
 
 Each should have the following content:
 
@@ -182,7 +184,7 @@ Create the file `/etc/bigbluebutton/etherpad.json` with the following content:
 Adjust the CORS settings in `/etc/default/bbb-web`:
 
 ```shell
-JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.org,https://https://bbb-01.example.com"
+JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.org,https://bbb-01.example.com"
 ```
 
 
@@ -222,3 +224,37 @@ specific to individual setups and thus out of the scope of this document.
 For the same reason, it is advisable to keep Scalelite on a different machine and
 to provide a HA setup for the proxy server (i.e. using IP failover or Anycast).
 Please monitor your setup carefully.
+
+### Caching the HTML5 Client on the Proxy
+
+You may cache the BBB HTML5 client javascript and css files and other assets on
+the proxy. This reduces network traffic on the BBB server especially if many
+clients join in a short period of time.
+
+On the proxy server add the following configuration to the nginx configuration:
+
+```
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=bbb:10m max_size=1g
+                 inactive=60m use_temp_path=off;
+```
+
+For each BBB Server add the following snippet on the proxy:
+
+```
+location ~* ^/bbb-01/html5client/.+\.(ico|css|js|gif|jpeg|jpg|png|woff|ttf|otf|svg|woff2|eot)$ {
+    proxy_pass https://bbb-01.example.com;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_cache bbb;
+    proxy_cache_revalidate on;
+    proxy_cache_min_uses 3;
+    proxy_cache_use_stale error timeout updating http_500 http_502
+                          http_503 http_504;
+    proxy_cache_background_update on;
+    proxy_cache_lock on;
+    add_header X-Cache-Status $upstream_cache_status;
+    add_header X-Asset "yes";
+    proxy_cache_valid 200 302 60m;
+}
+```
