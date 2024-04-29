@@ -5,12 +5,6 @@ import path from 'path';
 import { Meteor } from 'meteor/meteor';
 import Logger from './logger';
 
-const {
-  metricsDumpIntervalMs,
-  metricsFolderPath,
-  removeMeetingOnEnd,
-} = Meteor.settings.private.redis.metrics;
-
 class Metrics {
   constructor() {
     this.metrics = {};

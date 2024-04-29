@@ -6,7 +6,6 @@ import Users from '/imports/api/users';
 import './settings';
 import { check } from 'meteor/check';
 import Logger from './logger';
-import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
 import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
@@ -14,7 +13,6 @@ import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 let guestWaitHtml = '';
 
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
-const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
 const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
 
 const env = Meteor.isDevelopment ? 'development' : 'production';
@@ -357,7 +355,3 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
   res.writeHead(200);
   res.end(guestWaitHtml);
 });
-
-export const eventEmitter = Redis.emitter;
-
-export const redisPubSub = Redis;
