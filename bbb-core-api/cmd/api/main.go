@@ -40,8 +40,10 @@ type Config struct {
 		} `yaml:"features"`
 		Duration int32 `yaml:"duration"`
 		Expiry   struct {
-			NoUserJoinedInMin int32 `yaml:"no_user_joined_in_min"`
-			LastUserLeftInMin int32 `yaml:"last_user_left_in_min"`
+			NoUserJoined            int32 `yaml:"no_user_joined"`
+			LastUserLeft            int32 `yaml:"last_user_left"`
+			EndWhenNoModerator      bool  `yaml:"end_when_no_moderator"`
+			EndWhenNoModeratorDelay int32 `yaml:"end_when_no_moderator_delay"`
 		} `yaml:"expiry"`
 	} `yaml:"meeting"`
 	User struct {
@@ -51,10 +53,16 @@ type Config struct {
 		Inactivity struct {
 			InspectInterval int32 `yaml:"inspect_interval"`
 			Threshold       int32 `yaml:"threshold"`
+			ResponseDelay   int32 `yaml:"response_deplay"`
 		} `yaml:"inactivity"`
 	} `yaml:"user"`
 	Recording struct {
-		NotifyRecordingIsOn bool `yaml:"notifyRecordingIsOn"`
+		NotifyRecordingIsOn     bool `yaml:"notifyRecordingIsOn"`
+		Disabled                bool `yaml:"disabled"`
+		AutoStart               bool `yaml:"auto_start"`
+		AllowStartStopRecording bool `yaml:"allow_start_stop_recording"`
+		RecordFullDurationMedia bool `yaml:"record_full_duration_media"`
+		KeepEvents              bool `yaml:"keep_events"`
 	} `yaml:"recording"`
 	Presentation struct {
 		Upload struct {
@@ -68,6 +76,9 @@ type Config struct {
 		Record             bool `yaml:"record"`
 		PrivateChatEnabled bool `yaml:"private_chat_enabled"`
 	} `yaml:"breakout_rooms"`
+	LearningDashboard struct {
+		CleanupDelay int32 `yam:"cleanup_delay"`
+	} `yaml:"learning_dashboard"`
 }
 
 const retryPolicy = `{

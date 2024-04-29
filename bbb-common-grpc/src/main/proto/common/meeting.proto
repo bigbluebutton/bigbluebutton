@@ -95,6 +95,7 @@ message DurationProps {
     int32 user_activity_sign_response_delay_in_min = 8;
     bool end_when_no_mod = 9;
     int32 end_when_no_mod_delay_in_min = 10;
+    int32 learning_dashboard_cleanup_delay_in_min = 11;
 }
 
 message PasswordProps {

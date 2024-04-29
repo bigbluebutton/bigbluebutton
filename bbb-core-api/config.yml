@@ -1,46 +1,74 @@
+# Default server settings
 server:
-  host: localhost
-  port: 9100
+  host: localhost # bbb-core-api host
+  port: 9100 # bbb-core-api port
   grpc:
-    host: localhost
-    port: 9000
+    host: localhost # akka-apps gRPC host
+    port: 9000 # akka-apps gRPC port
 
+# Default security settings
 security:
-  salt: 330a8b08c3b4c61533e1d0c5ce1ac88f
+  salt: 330a8b08c3b4c61533e1d0c5ce1ac88f # Security salt used for checksum validation
   checksum:
+    # Supported checksum validation hash algorithms
     algorithms:
       - sha-1
       - sha-256
       - sha-384
       - sha-512
 
+# Default meeting settings
 meeting:
   camera:
-    cap: 0
-    max_pinned: 3
+    cap: 0 # Per meeting camera share limit (0 means no limit)
+    max_pinned: 3 # Maximum number of cameras that can be pinned simultaneously
   features:
+    # List of features to disable (comma-separated)
+    # https://docs.bigbluebutton.org/3.0/development/api/#create
+    # Available options:
+    # chat, sharedNotes, polls, screenshare, externalVideos, layouts, captions, liveTranscription,
+    # breakoutRooms, importSharedNotesFromBreakoutRooms, importPresentationWithAnnotationsFromBreakoutRooms,
+    # presentation, downloadPresentationWithAnnotations, downloadPresentationOriginalFile, downloadPresentationConvertedToPdf,
+    # learningDashboard, learningDashboardDownloadSessionData,
+    # virtualBackgrounds, customVirtualBackgrounds
     disabled:
-  duration: 0
+  duration: 0 # Default duration of meetings in minutes (0 means meeting does not end)
   expiry:
-    no_user_joined_in_min: 5
-    last_user_left_in_min: 1
+    no_user_joined: 5 # End meeting if no user has joined within the specified number of minutes
+    last_user_left: 1 # When the last user has left a meeting end the meeting after the specified number of minutes
+    end_when_no_moderator: false # End meeting after a period of time when there are no moderators
+    end_when_no_moderator_delay: 1 # Number of minutes to wait for a moderator to rejoin before ending the meeting
 
+# Default user settings
 user:
   camera:
-    cap: 3
+    cap: 3 # Per user camera share limit (0 means no limit)
   inactivity:
-    inspect_interval: 0
-    threshold: 30
+    inspect_interval: 0 # User inactivity audit timer interval
+    threshold: 30 # Consider a user inactive after the specified number of minutes
+    response_delay: 5 # Log inactive users out if they do not respond within the specified number of mintues
 
+# Default recording settings
 recording:
-  notify_recording_is_on: false
+  notify_recording_is_on: false # Notify users that recording is on
+  disabled: false # Should the recording of any meetings be disallowed
+  auto_start: false # Should recording be started when the first user joins the meeting
+  allow_start_stop_recording: true # Can a user start/stop recording
+  record_full_duration_media: false # Should media (audio, camera, and screen sharing) be captured on their full duration
+  keep_events: false # Should meeting events be saved even if the meeting is not recorded
 
+# Default presentation settings
 presentation:
   upload:
     external:
       description:
       url:
 
+# Default breakout room settings
 breakout_rooms:
   record: false
   private_chat_enabled: true
+
+# Default learning dashboard settings
+learning_dashbaord:
+  cleanup_delay: 2 # Number of minutes that the Learning Dashboard will be available after the meeting ends (0 means the dashboard will be available permanently)

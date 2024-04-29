@@ -20,6 +20,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/util"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
+	"github.com/thanhpk/randstr"
 )
 
 const (
@@ -148,14 +149,16 @@ func (app *Config) processCreateQueryParams(params *url.Values) (*common.Meeting
 		settings.BreakoutProps = app.processBreakoutProps(params, parentMeetingInfo)
 	}
 
-	settings.MeetingProps = app.processMeetingProps(params, createTime, isBreakout, parentMeetingInfo)
+	learningDashboardEnabled := false
+	settings.MeetingProps, learningDashboardEnabled = app.processMeetingProps(params, createTime, isBreakout, parentMeetingInfo)
+	settings.DurationProps = app.processDurationProps(params, createTime)
+	settings.PasswordProps = app.processPasswordProps(params, learningDashboardEnabled)
+	settings.RecordProps = app.processRecordProps(params)
 
 	return &settings, nil
 }
 
-func (app *Config) processMeetingProps(params *url.Values, createTime int64, isBreakout bool, parentMeetingInfo *common.MeetingInfo) *common.MeetingProps {
-	name := validation.StripCtrlChars(params.Get("name"))
-
+func (app *Config) processMeetingProps(params *url.Values, createTime int64, isBreakout bool, parentMeetingInfo *common.MeetingInfo) (*common.MeetingProps, bool) {
 	var meetingIntId string
 	var meetingExtId string
 
@@ -169,9 +172,6 @@ func (app *Config) processMeetingProps(params *url.Values, createTime int64, isB
 		meetingExtId = validation.StripCtrlChars(params.Get("meetingID"))
 		meetingIntId = app.generateHashString(meetingExtId, sha1.New()) + strconv.Itoa(int(createTime))
 	}
-
-	meetingCameraCap := util.GetInt32OrDefaultValue(params.Get("meetingCameraCap"), app.Meeting.Camera.Cap)
-	maxPinnedCameras := util.GetInt32OrDefaultValue(params.Get("maxPinnedCamera"), app.Meeting.Camera.MaxPinned)
 
 	disabledFeaturesMap := make(map[string]struct{})
 	for k, v := range app.DisabledFeatures {
@@ -190,23 +190,24 @@ func (app *Config) processMeetingProps(params *url.Values, createTime int64, isB
 		i++
 	}
 
-	notifyRecordingIsOn := util.GetBoolOrDefaultValue(params.Get("notfiyRecordingIsOn"), app.Recording.NotifyRecordingIsOn)
-
-	presUploadExtDesc := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalDescription")), app.Presentation.Upload.External.Description)
-	presUploadExtUrl := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalUrl")), app.Presentation.Upload.External.Url)
+	learningDashboardEnabled := false
+	_, ok := disabledFeaturesMap["learningDashboard"]
+	if !ok {
+		learningDashboardEnabled = true
+	}
 
 	return &common.MeetingProps{
-		Name:                name,
+		Name:                validation.StripCtrlChars(params.Get("name")),
 		MeetingExtId:        meetingExtId,
 		MeetingIntId:        meetingIntId,
-		MeetingCameraCap:    meetingCameraCap,
-		MaxPinnedCameras:    maxPinnedCameras,
+		MeetingCameraCap:    util.GetInt32OrDefaultValue(params.Get("meetingCameraCap"), app.Meeting.Camera.Cap),
+		MaxPinnedCameras:    util.GetInt32OrDefaultValue(params.Get("maxPinnedCamera"), app.Meeting.Camera.MaxPinned),
 		IsBreakout:          isBreakout,
 		DisabledFeatures:    disabledFeatures,
-		NotifyRecordingIsOn: notifyRecordingIsOn,
-		PresUploadExtDesc:   presUploadExtDesc,
-		PresUploadExtUrl:    presUploadExtUrl,
-	}
+		NotifyRecordingIsOn: util.GetBoolOrDefaultValue(params.Get("notfiyRecordingIsOn"), app.Recording.NotifyRecordingIsOn),
+		PresUploadExtDesc:   util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalDescription")), app.Presentation.Upload.External.Description),
+		PresUploadExtUrl:    util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("presentationUploadExternalUrl")), app.Presentation.Upload.External.Url),
+	}, learningDashboardEnabled
 }
 
 func (app *Config) processBreakoutProps(params *url.Values, parentMeetingInfo *common.MeetingInfo) *common.BreakoutProps {
@@ -226,12 +227,44 @@ func (app *Config) processBreakoutProps(params *url.Values, parentMeetingInfo *c
 
 func (app *Config) processDurationProps(params *url.Values, createTime int64) *common.DurationProps {
 	return &common.DurationProps{
-		Duration:                       int32(util.GetInt32OrDefaultValue(params.Get("duration"), app.Meeting.Duration)),
-		CreateTime:                     createTime,
-		CreateDate:                     time.UnixMilli(createTime).String(),
-		MeetingExpNoUserJoinedInMin:    util.GetInt32OrDefaultValue(params.Get("meetingExpireIfNoUserJoinedInMinutes"), app.Meeting.Expiry.NoUserJoinedInMin),
-		MeetingExpLastUserLeftInMin:    util.GetInt32OrDefaultValue(params.Get("meetingExpireWhenLastUserLeftInMinutes"), app.Meeting.Expiry.LastUserLeftInMin),
-		UserInactivityInspectTimeInMin: app.User.Inactivity.InspectInterval,
-		UserInactivityThresholdInMin:   app.User.Inactivity.Threshold,
+		Duration:                           int32(util.GetInt32OrDefaultValue(params.Get("duration"), app.Meeting.Duration)),
+		CreateTime:                         createTime,
+		CreateDate:                         time.UnixMilli(createTime).String(),
+		MeetingExpNoUserJoinedInMin:        util.GetInt32OrDefaultValue(params.Get("meetingExpireIfNoUserJoinedInMinutes"), app.Meeting.Expiry.NoUserJoined),
+		MeetingExpLastUserLeftInMin:        util.GetInt32OrDefaultValue(params.Get("meetingExpireWhenLastUserLeftInMinutes"), app.Meeting.Expiry.LastUserLeft),
+		UserInactivityInspectTimeInMin:     app.User.Inactivity.InspectInterval,
+		UserInactivityThresholdInMin:       app.User.Inactivity.Threshold,
+		UserActivitySignResponseDelayInMin: app.User.Inactivity.ResponseDelay,
+		EndWhenNoMod:                       util.GetBoolOrDefaultValue(params.Get("endWhenNoModerator"), app.Meeting.Expiry.EndWhenNoModerator),
+		EndWhenNoModDelayInMin:             util.GetInt32OrDefaultValue(params.Get("endWhenNoModeratorDelayInMinutes"), app.Meeting.Expiry.EndWhenNoModeratorDelay),
+		LearningDashboardCleanupDelayInMin: util.GetInt32OrDefaultValue(params.Get("learningDashboardCleanupDelayInMinutes"), app.LearningDashboard.CleanupDelay),
+	}
+}
+
+func (app *Config) processPasswordProps(params *url.Values, learningDashboardEnabled bool) *common.PasswordProps {
+	learningDashboardAccessToken := ""
+	if learningDashboardEnabled {
+		learningDashboardAccessToken = randstr.String(12)
+	}
+
+	return &common.PasswordProps{
+		ModeratorPw:                  util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("moderatorPW")), ""),
+		AttendeePw:                   util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("attendeePW")), ""),
+		LearningDashboardAccessToken: learningDashboardAccessToken,
+	}
+}
+
+func (app *Config) processRecordProps(params *url.Values) *common.RecordProps {
+	record := false
+	if !app.Recording.Disabled {
+		record = util.GetBoolOrDefaultValue(params.Get("record"), false)
+	}
+
+	return &common.RecordProps{
+		Record:                  record,
+		AutoStartRecording:      util.GetBoolOrDefaultValue(params.Get("autoStartRecording"), app.Recording.AutoStart),
+		AllowStartStopRecording: util.GetBoolOrDefaultValue(params.Get("allowStartStopRecording"), app.Recording.AllowStartStopRecording),
+		RecordFullDurationMedia: util.GetBoolOrDefaultValue(params.Get("recordFullDurationMedia"), app.Recording.RecordFullDurationMedia),
+		KeepEvents:              util.GetBoolOrDefaultValue(params.Get("meetingKeepEvents"), app.Recording.KeepEvents),
 	}
 }
