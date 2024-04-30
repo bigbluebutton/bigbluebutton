@@ -109,18 +109,14 @@ class AudioControls extends PureComponent {
       inAudio,
     } = this.props;
 
-    const { isMobile } = deviceInfo;
-
     let { enableDynamicAudioDeviceSelection } = Meteor.settings.public.app;
 
     if (typeof enableDynamicAudioDeviceSelection === 'undefined') {
       enableDynamicAudioDeviceSelection = true;
     }
 
-    const _enableDynamicDeviceSelection = enableDynamicAudioDeviceSelection && !isMobile;
-
     if (inAudio) {
-      return this.renderButtonsAndStreamSelector(_enableDynamicDeviceSelection);
+      return this.renderButtonsAndStreamSelector(enableDynamicAudioDeviceSelection);
     }
 
     return this.renderJoinButton();
