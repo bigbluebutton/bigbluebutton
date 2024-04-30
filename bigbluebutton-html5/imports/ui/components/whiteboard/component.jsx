@@ -10,6 +10,8 @@ import {
   DefaultFontStyle,
   DefaultSizeStyle,
   InstancePresenceRecordType,
+  setDefaultUiAssetUrls,
+  setDefaultEditorAssetUrls,
 } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
@@ -23,7 +25,7 @@ import {
   isValidShapeType,
 } from "./utils";
 import { useMouseEvents, useCursor } from "./hooks";
-import { notifyShapeNumberExceeded } from "./service";
+import { notifyShapeNumberExceeded, customEditorAssetUrls, customAssetUrls } from "./service";
 
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
@@ -53,6 +55,10 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
       currentPresentationPage?.scaledHeight
   );
 };
+
+setDefaultEditorAssetUrls(customEditorAssetUrls);
+
+setDefaultUiAssetUrls(customAssetUrls);
 
 const Whiteboard = React.memo(function Whiteboard(props) {
   const {
