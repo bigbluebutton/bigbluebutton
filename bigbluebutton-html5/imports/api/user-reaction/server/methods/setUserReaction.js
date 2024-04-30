@@ -4,6 +4,9 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
+const ALLOWED_REACTIONS = Meteor.settings.public.userReaction.reactions;
+const nativeEmojis = ALLOWED_REACTIONS.map((reaction) => reaction.native);
+
 export default function setUserReaction(reactionEmoji, userId = undefined) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -15,6 +18,7 @@ export default function setUserReaction(reactionEmoji, userId = undefined) {
     check(meetingId, String);
     check(requesterUserId, String);
     check(reactionEmoji, String);
+    if (!nativeEmojis.includes(reactionEmoji) && reactionEmoji !== 'none') return;
 
     const payload = {
       reactionEmoji,
