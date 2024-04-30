@@ -19,6 +19,7 @@ type Config struct {
 	Server             struct {
 		Host string `yaml:"host"`
 		Port string `yaml:"port"`
+		Url  string `yaml:"url"`
 		Grpc struct {
 			Host string `yaml:"host"`
 			Port string `yaml:"port"`
@@ -45,6 +46,17 @@ type Config struct {
 			EndWhenNoModerator      bool  `yaml:"end_when_no_moderator"`
 			EndWhenNoModeratorDelay int32 `yaml:"end_when_no_moderator_delay"`
 		} `yaml:"expiry"`
+		Welcome struct {
+			Message struct {
+				Template string `yaml:"template"`
+				Footer   string `yaml:"footer"`
+			} `yaml:"message"`
+		} `yaml:"welcome"`
+		Voice struct {
+			VoiceBridgeLength int32  `yaml:"voice_bridge_length"`
+			DialAccessNumber  string `yaml:"dial_access_number"`
+			MuteOnStart       bool   `yaml:"mute_on_start"`
+		} `yaml:"voice"`
 	} `yaml:"meeting"`
 	User struct {
 		Camera struct {

@@ -28,6 +28,10 @@ const (
 	breakoutRoomsCaptureNotes          = false
 	breakoutRoomsCaptureSlidesFileName = "%%CONFNAME%%"
 	breakoutRoomsCaptureNotesFileName  = "%%CONFNAME%%"
+	dialNum                            = "%%DIALNUM%%"
+	confNum                            = "%%CONFNUM%%"
+	confName                           = "%%CONFNAME%%"
+	serverUrl                          = "%%SERVERURL%%"
 )
 
 func (app *Config) writeXML(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
@@ -155,6 +159,14 @@ func (app *Config) processCreateQueryParams(params *url.Values) (*common.Meeting
 	settings.PasswordProps = app.processPasswordProps(params, learningDashboardEnabled)
 	settings.RecordProps = app.processRecordProps(params)
 
+	voiceProps, err := app.processVoiceProps(params)
+	if err != nil {
+		return nil, err
+	}
+
+	settings.VoiceProps = voiceProps
+	settings.WelcomeProps = app.processWelcomeProps(params, isBreakout, settings.VoiceProps.DialNumber, settings.VoiceProps.VoiceBridge, settings.MeetingProps.Name)
+
 	return &settings, nil
 }
 
@@ -267,4 +279,62 @@ func (app *Config) processRecordProps(params *url.Values) *common.RecordProps {
 		RecordFullDurationMedia: util.GetBoolOrDefaultValue(params.Get("recordFullDurationMedia"), app.Recording.RecordFullDurationMedia),
 		KeepEvents:              util.GetBoolOrDefaultValue(params.Get("meetingKeepEvents"), app.Recording.KeepEvents),
 	}
+}
+
+func (app *Config) processVoiceProps(params *url.Values) (*common.VoiceProps, error) {
+	voiceBridge := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("voiceBridge")), "")
+	if voiceBridge == "" {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		res, err := app.BbbCore.GenerateVoiceBridge(ctx, &bbbcore.GenerateVoiceBridgeRequest{Length: app.Meeting.Voice.VoiceBridgeLength})
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		voiceBridge = res.VoiceBridge
+	}
+
+	return &common.VoiceProps{
+		VoiceBridge: voiceBridge,
+		VoiceConf:   voiceBridge,
+		DialNumber:  util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("dialNumber")), app.Meeting.Voice.DialAccessNumber),
+		MuteOnStart: util.GetBoolOrDefaultValue(params.Get("muteOnStart"), app.Meeting.Voice.MuteOnStart),
+	}, nil
+}
+
+func (app *Config) processWelcomeProps(params *url.Values, isBreakout bool, dialNumber string, voiceBridge string, meetingName string) *common.WelcomeProps {
+	welcomeMessageTemplate := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("welcome")), app.Meeting.Welcome.Message.Template)
+	if app.Meeting.Welcome.Message.Footer != "" && isBreakout {
+		welcomeMessageTemplate += "<br><br>" + app.Meeting.Welcome.Message.Footer
+	}
+
+	welcomeMessage := replaceKeywords(welcomeMessageTemplate, dialNumber, voiceBridge, meetingName, app.Server.Url)
+
+	modOnlyMsg := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("moderatorOnlyMessage")), "")
+	if modOnlyMsg != "" {
+		modOnlyMsg = replaceKeywords(modOnlyMsg, dialNumber, voiceBridge, meetingName, app.Server.Url)
+	}
+
+	return &common.WelcomeProps{
+		WelcomeMsgTemplate: welcomeMessageTemplate,
+		WelcomeMsg:         welcomeMessage,
+		ModOnlyMsg:         modOnlyMsg,
+	}
+}
+
+func replaceKeywords(message string, dialNumber string, voiceBridge string, meetingName string, url string) string {
+	keywords := []string{dialNum, confNum, confName, serverUrl}
+	for _, v := range keywords {
+		switch v {
+		case dialNum:
+			message = strings.ReplaceAll(message, dialNum, dialNumber)
+		case confNum:
+			message = strings.ReplaceAll(message, confNum, voiceBridge)
+		case confName:
+			message = strings.ReplaceAll(message, confName, meetingName)
+		case serverUrl:
+			message = strings.ReplaceAll(message, serverUrl, url)
+		}
+	}
+	return message
 }

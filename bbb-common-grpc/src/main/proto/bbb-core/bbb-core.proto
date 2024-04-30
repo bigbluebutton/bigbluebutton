@@ -73,10 +73,19 @@ message CreateMeetingResponse {
   bool is_duplicate = 13;
 }
 
+message GenerateVoiceBridgeRequest {
+  int32 length = 1;
+}
+
+message GenerateVoiceBridgeResponse {
+  string voice_bridge = 1;
+}
+
 service BbbCoreService {
   rpc isMeetingRunning(MeetingRunningRequest) returns (MeetingRunningResponse);
   rpc getMeetingInfo(MeetingInfoRequest) returns (MeetingInfoResponse);
   rpc listMeetings(ListMeetingsRequest) returns (ListMeetingsResponse);
   rpc getMeetingsStream(GetMeetingsStreamRequest) returns (stream MeetingInfoResponse);
   rpc createMeeting(CreateMeetingRequest) returns (CreateMeetingResponse);
+  rpc generateVoiceBridge(GenerateVoiceBridgeRequest) returns (GenerateVoiceBridgeResponse);
 }

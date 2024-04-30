@@ -2,6 +2,7 @@
 server:
   host: localhost # bbb-core-api host
   port: 9100 # bbb-core-api port
+  url: http://bigbluebutton.example.com
   grpc:
     host: localhost # akka-apps gRPC host
     port: 9000 # akka-apps gRPC port
@@ -38,6 +39,24 @@ meeting:
     last_user_left: 1 # When the last user has left a meeting end the meeting after the specified number of minutes
     end_when_no_moderator: false # End meeting after a period of time when there are no moderators
     end_when_no_moderator_delay: 1 # Number of minutes to wait for a moderator to rejoin before ending the meeting
+  # Default welcome message to display when the participant joins the web
+  # conference. This is only used for the old scheduling which will be
+  # removed in the future. Use the API to create a conference.
+  #
+  # If the message contains characters not in ISO-8859-1 character sets
+  # they must be properly escaped to unicode characters. An easy way to
+  # do this is running the native2ascii command setting UTF8 encoding and
+  # passing this file's path as input and output parameters, e.g.:
+  #
+  # native2ascii -encoding UTF8 bigbluebutton.properties bigbluebutton.properties  
+  welcome:
+    message: 
+      template: Welcome to <b>%%CONFNAME%%</b>!<br><br>For help on using BigBlueButton see these (short) <a href="https://bigbluebutton.org/teachers/tutorials/"><u>tutorial videos</u></a>.<br><br>To join the audio bridge click the speaker button.  Use a headset to avoid causing background noise for others.
+      footer: This server is running <a href="https://bigbluebutton.org/" target="_blank"><u>BigBlueButton</u></a>.
+  voice:
+    voice_bridge_length: 5 # Default number of digits for voice conference users
+    dial_access_number: 613-555-1234 # Default dial access number
+    mute_on_start: false # Mute the meeting on start
 
 # Default user settings
 user:
