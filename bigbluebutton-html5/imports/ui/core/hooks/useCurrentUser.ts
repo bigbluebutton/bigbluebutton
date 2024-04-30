@@ -1,4 +1,3 @@
-
 import { User } from '../../Types/user';
 import { useCreateUseSubscription } from './createUseSubscription';
 import CURRENT_USER_SUBSCRIPTION from '../graphql/queries/currentUserSubscription';
