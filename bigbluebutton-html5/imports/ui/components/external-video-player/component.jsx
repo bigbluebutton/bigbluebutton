@@ -252,10 +252,14 @@ class VideoPlayer extends Component {
     }, () => {
       const { subtitlesOn } = this.state;
       const { isPresenter } = this.props;
+      const internalPlayer = this?.player?.getInternalPlayer();
+      if (!internalPlayer) return;
       if (!isPresenter && subtitlesOn) {
-        this?.player?.getInternalPlayer()?.setOption('captions', 'reload', true);
-      } else {
-        this?.player?.getInternalPlayer()?.unloadModule('captions');
+        if (typeof internalPlayer.setOption === 'function') {
+          internalPlayer.setOption('captions', 'reload', true);
+        }
+      } else if (typeof internalPlayer.unloadModule === 'function') {
+        internalPlayer.unloadModule('captions');
       }
     });
   }
