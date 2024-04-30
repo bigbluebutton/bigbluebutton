@@ -14,8 +14,8 @@ import {
   GuestWaitingUser,
   GuestWaitingUsers,
 } from './queries';
-import { layoutDispatch } from '../../layout/context';
-import { ACTIONS, PANELS } from '../../layout/enums';
+import { layoutDispatch } from '../layout/context';
+import { ACTIONS, PANELS } from '../layout/enums';
 import Styled from './styles';
 import {
   privateMessageVisible,
@@ -31,7 +31,7 @@ import {
   SUBMIT_APPROVAL_STATUS,
   SET_LOBBY_MESSAGE,
   SET_LOBBY_MESSAGE_PRIVATE,
-} from '../mutations';
+} from './mutations';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
