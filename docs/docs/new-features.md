@@ -157,6 +157,12 @@ Retired events
 - `sessionsCleanupDelayInMinutes=60` added
 - `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
 
+#### Restrict supported content types on BBB API endpoints
+
+Breaking change: Requests that require both a URL query string and a request body (e.g. CREATE with pre-upload presentation or INSERTDOCUMENT) must provide a Content-Type header with a value of text/xml or application/xml.
+
+In BigBlueButton 2.6.19/2.7.7 we modified the request validation for the meeting related API endpoints such as CREATE, JOIN, GETMEETINGS, etc. These endpoints now support a limited set of content types that includes text/xml, application/xml, application/x-www-form-urlencoded, and multipart/form-data. By default each endpoint only supports application/x-www-form-urlencoded and multipart/form-data, but individual enpoints can override this and define their own set of supported content types. This is particularily relevant for the CREATE and INSERTDOCUMENT endpoints. The CREATE endpoint supports all of the four content types while INSERTDOCUMENT only supports text/xml and application/xml. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new "unsupportedContentType" error. Additonally, any requests that contain both a URL query string AND a request body will be rejected with a checksum error. The exception to this is requests which have a content type of application/xml or text/xml. This is to allow CREATE with pre-upload presentation and INSERTDOCUMENT to continuing functioning as before.
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 3.0](/development/guide).
