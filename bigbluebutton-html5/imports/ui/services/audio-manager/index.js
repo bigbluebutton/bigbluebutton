@@ -1072,7 +1072,7 @@ class AudioManager {
       receivers[0] &&
       receivers[0].transport &&
       receivers[0].transport.iceTransport &&
-      receivers[0].transport.iceTransport
+      typeof receivers[0].transport.iceTransport.getSelectedCandidatePair === 'function'
     ) {
       selectedPair = receivers[0].transport.iceTransport.getSelectedCandidatePair();
     }
