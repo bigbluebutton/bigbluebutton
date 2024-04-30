@@ -69,7 +69,8 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const [waiting, setWaiting] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const defaultSelectedBreakoutId = breakouts.find(({ showInvitation }) => showInvitation)?.breakoutRoomId || firstBreakoutId;
+  const defaultSelectedBreakoutId = breakouts.find(({ showInvitation }) => showInvitation)?.breakoutRoomId
+    || firstBreakoutId;
 
   const [selectValue, setSelectValue] = React.useState(defaultSelectedBreakoutId);
 
