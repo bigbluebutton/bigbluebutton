@@ -1,7 +1,5 @@
-import { useSubscription, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
-import GET_TIMER, { GetTimerResponse } from '../../../core/graphql/queries/timer';
-import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
