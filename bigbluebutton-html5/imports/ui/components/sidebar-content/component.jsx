@@ -5,7 +5,7 @@ import { ACTIONS, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
 import NotesContainer from '/imports/ui/components/notes/container';
 import PollContainer from '/imports/ui/components/poll/container';
-import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
+import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
 import TimerContainer from '/imports/ui/components/timer/timer-graphql/panel/component';
 import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/waiting-users-graphql/component';
 import Styled from './styles';

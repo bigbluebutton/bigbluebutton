@@ -24,7 +24,7 @@ import {
   BreakoutUser,
   moveUserRegistery,
 } from './room-managment-state/types';
-import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../../mutations';
+import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
 
 const BREAKOUT_LIM = window.meetingClientSettings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;

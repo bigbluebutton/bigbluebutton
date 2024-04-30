@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import CreateBreakoutRoomContainerGraphql from '/imports/ui/components/breakout-room/breakout-room-graphql/create-breakout-room/component';
+import CreateBreakoutRoomContainerGraphql from '../create-breakout-room/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 
 const intlMessages = defineMessages({

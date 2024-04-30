@@ -32,7 +32,7 @@ import adapter from 'webrtc-adapter';
 import collectionMirrorInitializer from './collection-mirror-initializer';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import IntlAdapter from '/imports/startup/client/intlAdapter';
-import PresenceAdapter from '/imports/ui/components/authenticated-handler/presence-adapter/component';
+import PresenceAdapter from '../imports/ui/components/presence-adapter/component';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {

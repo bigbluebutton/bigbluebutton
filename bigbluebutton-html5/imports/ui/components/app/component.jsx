@@ -8,7 +8,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
-import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/pads-graphql/sessions/component';
 import WakeLockContainer from '../wake-lock/container';
