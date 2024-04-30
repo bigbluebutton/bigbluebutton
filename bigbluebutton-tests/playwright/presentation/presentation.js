@@ -111,9 +111,9 @@ class Presentation extends MultiUsers {
   async uploadOtherPresentationsFormat() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME);
     await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.wasRemoved(e.smallToastMsg, 'should not display the small toast message for the presentation, and for the moderator(PNG file)', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo, 'should not display the presentation status info for the presentation, and for the attendee(PNG file)');
+    await this.userPage.wasRemoved(e.smallToastMsg, 'should not display the small toast message related to the presentation, and for the attendee(PNG file)');
 
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
@@ -127,9 +127,9 @@ class Presentation extends MultiUsers {
 
     await uploadSinglePresentation(this.modPage, e.presentationPPTX, UPLOAD_PDF_WAIT_TIME);
     await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.wasRemoved(e.smallToastMsg, 'should not display the small toast message for the presentation, and for the moderator(PPTX file)', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo, 'should not display the presentation status info for the presentation, and for the attendee(PPTX file)');
+    await this.userPage.wasRemoved(e.smallToastMsg, 'should not display the small toast message related to the presentation, and for the attendee(PPTX file)');
 
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
       maxDiffPixels: 1000,
@@ -140,9 +140,9 @@ class Presentation extends MultiUsers {
 
     await uploadSinglePresentation(this.modPage, e.presentationTXT, UPLOAD_PDF_WAIT_TIME);
     await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.wasRemoved(e.smallToastMsg, 'should not display the small toast message for the presentation, and for the moderator(TXT file)', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo, 'should not display the presentation status info for the presentation, and for the attendee(TXT file)');
+    await this.userPage.wasRemoved(e.smallToastMsg, 'should not display the small toast message related to the presentation, and for the attendee(TX file)');
 
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
       maxDiffPixels: 1000,
