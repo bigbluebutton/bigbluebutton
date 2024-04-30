@@ -11,7 +11,7 @@ import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
-import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
+import useToggleVoice from '../../audio/audio-graphql/hooks/useToggleVoice';
 import TALKING_INDICATOR_SUBSCRIPTION from '/imports/ui/core/graphql/queries/userVoiceSubscription';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
 

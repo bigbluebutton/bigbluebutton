@@ -1,6 +1,23 @@
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 
+export const privateMessageVisible = (id: string) => {
+  const privateInputSpace = document.getElementById(id);
+  if (privateInputSpace) {
+    if (privateInputSpace.style.display === 'block') {
+      privateInputSpace.style.display = 'none';
+    } else {
+      privateInputSpace.style.display = 'block';
+    }
+  }
+};
+
+export const getNameInitials = (name: string) => {
+  const nameInitials = name.slice(0, 2);
+
+  return nameInitials.replace(/^\w/, (c: string) => c.toUpperCase());
+};
+
 const getGuestPolicy = () => {
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
@@ -28,17 +45,9 @@ const getGuestLobbyMessage = () => {
   return '';
 };
 
-const privateMessageVisible = (id) => {
-  const privateInputSpace = document.getElementById(id);
-  if (privateInputSpace.style.display === 'block') {
-    privateInputSpace.style.display = 'none';
-  } else {
-    privateInputSpace.style.display = 'block';
-  }
-};
-
 export default {
   privateMessageVisible,
+  getNameInitials,
   getGuestPolicy,
   isWaitingRoomEnabled,
   isGuestLobbyMessageEnabled,

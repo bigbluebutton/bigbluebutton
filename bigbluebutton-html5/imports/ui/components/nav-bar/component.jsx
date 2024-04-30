@@ -5,7 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { NavBarItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/nav-bar-item/enums';
 import Styled from './styles';
-import RecordingIndicator from './nav-bar-graphql/recording-indicator/component';
+import RecordingIndicator from './recording-indicator/component';
 import TalkingIndicator from '/imports/ui/components/nav-bar/nav-bar-graphql/talking-indicator/component';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
 import ConnectionStatus from '/imports/ui/components/connection-status/component';
