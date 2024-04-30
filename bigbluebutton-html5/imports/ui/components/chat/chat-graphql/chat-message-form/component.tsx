@@ -172,7 +172,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       leading: true,
       trailing: false,
     },
-  ), []);
+  ), [chatId]);
 
   useEffect(() => {
     setMessageHint();
