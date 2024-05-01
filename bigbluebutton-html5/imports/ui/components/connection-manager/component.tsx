@@ -104,6 +104,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
         });
+        apolloContextHolder.setLink(subscription);
       } catch (error) {
         loadingContextInfo.setLoading(false, '');
         throw new Error('Error creating WebSocketLink: '.concat(JSON.stringify(error) || ''));
