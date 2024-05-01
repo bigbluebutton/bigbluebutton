@@ -99,8 +99,8 @@ mkdir -p staging/usr/lib/systemd/system
 cp bbb-html5.service staging/usr/lib/systemd/system
 cp disable-transparent-huge-pages.service staging/usr/lib/systemd/system
 
-cp bbb-html5-backend@.service staging/usr/lib/systemd/system
-cp bbb-html5-frontend@.service staging/usr/lib/systemd/system
+# cp bbb-html5-backend@.service staging/usr/lib/systemd/system
+cp bbb-html5-frontend.service staging/usr/lib/systemd/system
 
 
 mkdir -p staging/usr/share

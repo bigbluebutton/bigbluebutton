@@ -3,19 +3,8 @@
 #Allow to run outside of directory
 cd $(dirname $0)
 
-if [ -z $1 ]
-then
-  INSTANCE_ID=1
-else
-  INSTANCE_ID=$1
-fi
+PORT=4100
 
-PORT=$(echo "4099+$INSTANCE_ID" | bc)
-
-echo "instanceId = $INSTANCE_ID   and port = $PORT and role is frontend (in frontend file)"
-
-export INSTANCE_ID=$INSTANCE_ID
-export BBB_HTML5_ROLE=frontend
 # this might be already set by a systemd unit override in case this node is run
 # behind a load balancer proxy node
 if [[ -z $ROOT_URL ]] ; then

@@ -381,19 +381,7 @@ display_bigbluebutton_status () {
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         units="$units mongod bbb-html5"
 
-        source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
-
-        if [ -f /etc/bigbluebutton/bbb-html5-with-roles.conf ]; then
-          source /etc/bigbluebutton/bbb-html5-with-roles.conf
-        fi
-
-        for ((i = 1 ; i <= $NUMBER_OF_BACKEND_NODEJS_PROCESSES; i++)); do
-          units="$units bbb-html5-backend@$i"
-        done
-
-        for ((i = 1; i <= $NUMBER_OF_FRONTEND_NODEJS_PROCESSES; i++)); do
-          units="$units bbb-html5-frontend@$i"
-        done
+        units="$units bbb-html5-frontend"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
