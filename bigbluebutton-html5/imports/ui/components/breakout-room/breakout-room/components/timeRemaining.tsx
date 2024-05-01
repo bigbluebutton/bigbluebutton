@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
 import Styled from '../styles';
-import { BREAKOUT_ROOM_SET_TIME } from '../../../mutations';
+import { BREAKOUT_ROOM_SET_TIME } from '../../mutations';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
