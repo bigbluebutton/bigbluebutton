@@ -23,14 +23,4 @@ done;
 
 echo "I'm the master!"
 
-
-# Start parallel nodejs processes for bbb-html5. Number varies on restrictions file bbb-html5-with-roles.conf
-
-# source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
-
-# if [ -f /etc/bigbluebutton/bbb-html5-with-roles.conf ]; then
-#   source /etc/bigbluebutton/bbb-html5-with-roles.conf
-# fi
-
-
 systemctl start bbb-html5-frontend

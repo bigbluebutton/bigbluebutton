@@ -11,7 +11,6 @@ StartLimitAction=none
 PermissionsStartOnly=true
 #Type=simple
 Type=idle
-#EnvironmentFile=/usr/share/meteor/bundle/bbb-html5-with-roles.conf
 ExecStart=/usr/share/meteor/bundle/systemd_start_frontend.sh
 WorkingDirectory=/usr/share/meteor/bundle
 StandardOutput=syslog
