@@ -6,10 +6,8 @@ import { useSubscription, useMutation } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
-import Service from './service';
-import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
-import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
+import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
@@ -19,7 +17,7 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
+import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
@@ -54,6 +52,7 @@ const ActionsBarContainer = (props) => {
     isModerator: user.isModerator,
   }));
 
+
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
   const amIPresenter = currentUserData?.presenter;
@@ -82,6 +81,8 @@ const ActionsBarContainer = (props) => {
         isSharingVideo,
         stopExternalVideoShare,
         isSharedNotesPinned,
+        isTimerActive: currentMeeting.componentsFlags.hasTimer,
+        isTimerEnabled: isTimerFeatureEnabled(),
       }
     }
     />
@@ -105,8 +106,6 @@ export default withTracker(() => ({
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
-  isTimerActive: TimerService.isActive(),
-  isTimerEnabled: TimerService.isEnabled(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,

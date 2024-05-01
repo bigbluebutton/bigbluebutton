@@ -11,7 +11,7 @@ import ConnectionStatusButton from '/imports/ui/components/connection-status/but
 import ConnectionStatus from '/imports/ui/components/connection-status/component';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import OptionsDropdownContainer from './options-dropdown/container';
-import TimerIndicatorContainer from '/imports/ui/components/timer/timer-graphql/indicator/component';
+import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
