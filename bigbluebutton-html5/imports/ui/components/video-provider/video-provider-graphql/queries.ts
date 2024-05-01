@@ -33,7 +33,8 @@ export interface VideoStreamsUsersResponse {
     presenter: boolean;
     clientType: string;
     raiseHand: boolean;
-    isModerator: boolean
+    isModerator: boolean;
+    left: boolean;
     reaction: {
       reactionEmoji: string;
     };
@@ -102,6 +103,7 @@ export const VIDEO_STREAMS_USERS_SUBSCRIPTION = gql`
       userId
       raiseHand
       isModerator
+      left
       reaction {
         reactionEmoji
       }
@@ -110,6 +112,7 @@ export const VIDEO_STREAMS_USERS_SUBSCRIPTION = gql`
 `;
 
 export default {
+  OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_USERS_SUBSCRIPTION,

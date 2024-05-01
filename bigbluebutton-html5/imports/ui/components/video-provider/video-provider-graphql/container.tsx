@@ -1,7 +1,4 @@
-// @ts-nocheck
-/* eslint-disable */
 import React from 'react';
-import { Session } from 'meteor/session';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { useMutation } from '@apollo/client';
@@ -12,27 +9,41 @@ import Settings from '/imports/ui/services/settings';
 import {
   useCurrentVideoPageIndex,
   useExitVideo,
+  useInfo,
   useIsUserLocked,
+  useLockUser,
+  useStopVideo,
   useVideoStreams,
 } from './hooks';
 import { CAMERA_BROADCAST_START, CAMERA_BROADCAST_STOP } from './mutations';
 import VideoProvider from './component';
 import VideoService from './service';
+import { Output } from '/imports/ui/components/layout/layoutTypes';
+import { VideoItem } from './types';
 
 interface VideoProviderContainerGraphqlProps {
-  isGridLayout: boolean;
-  currUserId: string;
+  currentUserId: string;
+  focusedId: string;
+  swapLayout: boolean;
+  isGridEnabled: boolean;
   paginationEnabled: boolean;
+  isMeteorConnected: boolean;
   viewParticipantsWebcams: boolean;
-  children: React.ReactNode;
+  cameraDock: Output['cameraDock'];
+  handleVideoFocus:(id: string) => void;
 }
 
-const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps> = ({ children, ...props }) => {
+const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps> = (props) => {
   const {
-    isGridLayout,
-    currUserId,
+    currentUserId,
     paginationEnabled,
     viewParticipantsWebcams,
+    cameraDock,
+    focusedId,
+    handleVideoFocus,
+    isGridEnabled,
+    isMeteorConnected,
+    swapLayout,
   } = props;
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
@@ -68,11 +79,11 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
     gridUsers,
     totalNumberOfStreams,
     users,
-  } = useVideoStreams(isGridLayout, paginationEnabled, viewParticipantsWebcams);
+  } = useVideoStreams(isGridEnabled, paginationEnabled, viewParticipantsWebcams);
 
-  let usersVideo = streams;
+  let usersVideo: VideoItem[] = streams;
 
-  if (gridUsers.length > 0 && isGridLayout) {
+  if (gridUsers.length > 0 && isGridEnabled) {
     usersVideo = usersVideo.concat(gridUsers);
   }
 
@@ -80,45 +91,70 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
     currentMeeting?.usersPolicies?.webcamsOnlyForModerator
     && currentUser?.locked
   ) {
-    usersVideo = usersVideo.filter((uv) => uv.isUserModerator || uv.userId === currUserId);
+    usersVideo = usersVideo.filter((uv) => (uv.type !== 'connecting' && uv.isModerator) || uv.userId === currentUserId);
   }
 
   const isUserLocked = useIsUserLocked();
   const currentVideoPageIndex = useCurrentVideoPageIndex();
   const exitVideo = useExitVideo();
+  const lockUser = useLockUser();
+  const stopVideo = useStopVideo();
+  const info = useInfo();
+
+  if (!usersVideo.length && !isGridEnabled) return null;
 
   return (
-    !usersVideo.length && !isGridLayout
-      ? null
-      : (
-        <VideoProvider
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          {...props}
-          playStart={playStart}
-          sendUserUnshareWebcam={sendUserUnshareWebcam}
-          streams={usersVideo}
-          totalNumberOfStreams={totalNumberOfStreams}
-          isUserLocked={isUserLocked}
-          currentVideoPageIndex={currentVideoPageIndex}
-          exitVideo={exitVideo}
-          users={users}
-        >
-          {children}
-        </VideoProvider>
-      )
+    <VideoProvider
+      cameraDock={cameraDock}
+      focusedId={focusedId}
+      handleVideoFocus={handleVideoFocus}
+      isGridLayout={isGridEnabled}
+      isMeteorConnected={isMeteorConnected}
+      swapLayout={swapLayout}
+      currentUserId={currentUserId}
+      paginationEnabled={paginationEnabled}
+      viewParticipantsWebcams={viewParticipantsWebcams}
+      totalNumberOfStreams={totalNumberOfStreams}
+      isUserLocked={isUserLocked}
+      currentVideoPageIndex={currentVideoPageIndex}
+      streams={usersVideo}
+      users={users}
+      info={info}
+      playStart={playStart}
+      sendUserUnshareWebcam={sendUserUnshareWebcam}
+      exitVideo={exitVideo}
+      lockUser={lockUser}
+      stopVideo={stopVideo}
+    />
   );
 };
 
-export default withTracker(() => {
-  const isGridLayout = Session.get('isGridEnabled');
-  const currUserId = Auth.userID;
-  const isMeteorConnected = Meteor.status().connected;
+type TrackerData = {
+  currentUserId: string;
+  isMeteorConnected: boolean;
+  paginationEnabled: boolean;
+  viewParticipantsWebcams: boolean;
+};
 
+type TrackerProps = {
+  swapLayout: boolean;
+  cameraDock: Output['cameraDock'];
+  focusedId: string;
+  handleVideoFocus:(id: string) => void;
+  isGridEnabled: boolean;
+};
+
+export default withTracker<TrackerData, TrackerProps>(() => {
+  const currentUserId = Auth.userID ?? '';
+  const isMeteorConnected = Meteor.status().connected;
+  // @ts-expect-error -> Untyped object.
+  const { paginationEnabled } = Settings.application;
+  // @ts-expect-error -> Untyped object.
+  const { viewParticipantsWebcams } = Settings.dataSaving;
   return {
-    currUserId,
-    isGridLayout,
+    currentUserId,
     isMeteorConnected,
-    paginationEnabled: Settings.application.paginationEnabled,
-    viewParticipantsWebcams: Settings.dataSaving.viewParticipantsWebcams,
+    paginationEnabled,
+    viewParticipantsWebcams,
   };
 })(VideoProviderContainerGraphql);

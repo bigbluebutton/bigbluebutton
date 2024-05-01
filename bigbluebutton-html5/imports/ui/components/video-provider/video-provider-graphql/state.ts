@@ -12,20 +12,21 @@ const [useVideoState, setVideoState, videoState] = createUseLocalState({
 
 const getVideoState = () => videoState();
 
-type ConnectingStream = {
+export type ConnectingStream = {
   stream: string;
   name: string;
   userId: string;
+  type: 'connecting';
 } | null;
 
 const connectingStream = makeVar<ConnectingStream>(null);
 
-const useConnectingStream = (streams: { stream: string }[]) => {
+const useConnectingStream = (streams?: Stream[]) => {
   const connecting = useReactiveVar(connectingStream);
 
   if (!connecting) return null;
 
-  const hasStream = streams.find((s) => s.stream === connecting.stream);
+  const hasStream = streams && streams.find((s) => s.stream === connecting.stream);
 
   if (hasStream) {
     return null;
@@ -47,7 +48,8 @@ export type Stream = {
   pin: boolean;
   floor: boolean;
   lastFloorTime: string;
-  isUserModerator: boolean;
+  isModerator: boolean;
+  type: 'stream';
 }
 
 const streams = makeVar<Stream[]>([]);

@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable */
 import styled from 'styled-components';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from '/imports/ui/components/breakout-room/styles';
@@ -17,6 +15,7 @@ const ButtonWrapper = styled(Styled.BreakoutActions)`
   }
 `;
 
+// @ts-expect-error -> Untyped component.
 const ManyUsersButton = styled(Button)`
   flex: 0 1 48%;
   color: ${colorPrimary};

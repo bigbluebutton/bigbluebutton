@@ -1,11 +1,7 @@
-// @ts-nocheck
-/* eslint-disable */
 import React, { memo, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import { FetchResult } from '@apollo/client';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
-import VideoService from '../service';
-import { defineMessages, injectIntl } from 'react-intl';
-import Styled from './styles';
+import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from '/imports/utils/debounce';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -14,6 +10,9 @@ import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
 import Settings from '/imports/ui/services/settings';
+import { CameraSettingsDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
+import VideoService from '../service';
+import Styled from './styles';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
 const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
@@ -59,29 +58,32 @@ const intlMessages = defineMessages({
 
 const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
 
-const propTypes = {
-  intl: PropTypes.object.isRequired,
-  hasVideoStream: PropTypes.bool.isRequired,
-  status: PropTypes.string.isRequired,
-  cameraSettingsDropdownItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    type: PropTypes.string,
-  })).isRequired,
-  sendUserUnshareWebcam: PropTypes.func.isRequired,
-  setLocalSettings: PropTypes.func.isRequired,
-};
+interface JoinVideoButtonProps {
+  cameraSettingsDropdownItems: CameraSettingsDropdownInterface[];
+  hasVideoStream: boolean;
+  updateSettings: (
+    obj: object,
+    msgDescriptor: object | null,
+    mutation: (settings: Record<string, unknown>) => void,
+  ) => void;
+  disableReason: string | undefined;
+  status: string;
+  setLocalSettings: (settings: Record<string, unknown>) => Promise<FetchResult<object>>;
+  exitVideo: () => void;
+  stopVideo: (cameraId?: string | undefined) => void;
+  intl: IntlShape;
+}
 
-const JoinVideoButton = ({
+const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   intl,
   hasVideoStream,
   status,
   disableReason,
   updateSettings,
   cameraSettingsDropdownItems,
-  sendUserUnshareWebcam,
   setLocalSettings,
-  streams,
   exitVideo: exit,
+  stopVideo,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -95,18 +97,20 @@ const JoinVideoButton = ({
   const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
     || shouldEnableWebcamSelectorButton);
 
-  const [propsToPassModal, setPropsToPassModal] = useState({});
+  const [propsToPassModal, setPropsToPassModal] = useState<{ isVisualEffects?: boolean }>({});
   const [forceOpen, setForceOpen] = useState(false);
   const [isVideoPreviewModalOpen, setVideoPreviewModalIsOpen] = useState(false);
   const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
 
   useEffect(() => {
+    // @ts-expect-error -> Untyped object.
     const isSelfViewDisabled = Settings.application.selfViewDisable;
 
     if (isVideoPreviewModalOpen && isSelfViewDisabled) {
       setWasSelfViewDisabled(true);
       const obj = {
         application:
+        // @ts-expect-error -> Untyped object.
           { ...Settings.application, selfViewDisable: false },
       };
       updateSettings(obj, null, setLocalSettings);
@@ -116,7 +120,7 @@ const JoinVideoButton = ({
   const handleOnClick = debounce(() => {
     switch (status) {
       case 'videoConnecting':
-        VideoService.stopVideo(undefined, sendUserUnshareWebcam, streams);
+        stopVideo();
         break;
       case 'connected':
       default:
@@ -129,7 +133,7 @@ const JoinVideoButton = ({
     }
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
-  const handleOpenAdvancedOptions = (callback) => {
+  const handleOpenAdvancedOptions = (callback?: () => void) => {
     if (callback) callback();
     setForceOpen(isDesktopSharingCamera);
     setVideoPreviewModalIsOpen(true);
@@ -144,8 +148,8 @@ const JoinVideoButton = ({
   };
 
   const label = disableReason
-    ? intl.formatMessage(intlMessages[disableReason])
-    : intl.formatMessage(intlMessages[getMessageFromStatus()]);
+    ? intl.formatMessage(intlMessages[disableReason as keyof typeof intlMessages])
+    : intl.formatMessage(intlMessages[getMessageFromStatus() as keyof typeof intlMessages]);
 
   const isSharing = hasVideoStream || status === 'videoConnecting';
 
@@ -168,8 +172,7 @@ const JoinVideoButton = ({
         {
           key: 'virtualBgSelection',
           label: intl.formatMessage(intlMessages.visualEffects),
-          onClick: () => handleOpenAdvancedOptions((
-          ) => setPropsToPassModal({ isVisualEffects: true })),
+          onClick: () => handleOpenAdvancedOptions(() => setPropsToPassModal({ isVisualEffects: true })),
         },
       );
     }
@@ -182,8 +185,11 @@ const JoinVideoButton = ({
         case CameraSettingsDropdownItemType.OPTION:
           actions.push({
             key: plugin.id,
+            // @ts-expect-error -> Plugin-related.
             label: plugin.label,
+            // @ts-expect-error -> Plugin-related.
             onClick: plugin.onClick,
+            // @ts-expect-error -> Plugin-related.
             icon: plugin.icon,
           });
           break;
@@ -249,8 +255,11 @@ const JoinVideoButton = ({
               if (wasSelfViewDisabled) {
                 setTimeout(() => {
                   const obj = {
-                    application:
-                      { ...Settings.application, selfViewDisable: true },
+                    application: {
+                      // @ts-expect-error -> Untyped object.
+                      ...Settings.application,
+                      selfViewDisable: true,
+                    },
                   };
                   updateSettings(obj, null, setLocalSettings);
                   setWasSelfViewDisabled(false);
@@ -264,13 +273,11 @@ const JoinVideoButton = ({
             setIsOpen: setVideoPreviewModalIsOpen,
             isOpen: isVideoPreviewModalOpen,
           }}
-          {...propsToPassModal}
+          isVisualEffects={propsToPassModal.isVisualEffects}
         />
       ) : null}
     </>
   );
 };
-
-JoinVideoButton.propTypes = propTypes;
 
 export default injectIntl(memo(JoinVideoButton));

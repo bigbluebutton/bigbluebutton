@@ -204,8 +204,10 @@ const getAudioData = async () => {
  * @returns An Object containing video data for all video peers and screenshare
  *          peer
  */
-const getVideoData = async (streams) => {
-  const camerasData = await VideoService.getStats(streams) || {};
+const getVideoData = async (getVideoStreamsStats) => {
+  console.log(getVideoStreamsStats);
+  const camerasData = await getVideoStreamsStats() || {};
+  console.log(camerasData);
 
   const screenshareData = await ScreenshareService.getStats() || {};
 
@@ -220,10 +222,10 @@ const getVideoData = async (streams) => {
  * For audio, this will get information about the mic/listen-only stream.
  * @returns An Object containing all this data.
  */
-const getNetworkData = async (streams) => {
+const getNetworkData = async (getVideoStreamsStats) => {
   const audio = await getAudioData();
 
-  const video = await getVideoData(streams);
+  const video = await getVideoData(getVideoStreamsStats);
 
   const user = {
     time: new Date(),

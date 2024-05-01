@@ -130,8 +130,8 @@ const propTypes = {
 
 class VideoProviderGraphql extends Component {
   onBeforeUnload() {
-    const { sendUserUnshareWebcam } = this.props;
-    VideoService.onBeforeUnload(sendUserUnshareWebcam);
+    const { exitVideo } = this.props;
+    exitVideo();
   }
 
   static shouldAttachVideoStream(peer, videoElement) {
@@ -164,7 +164,7 @@ class VideoProviderGraphql extends Component {
       socketOpen: false,
     };
     this._isMounted = false;
-    this.info = VideoService.getInfo();
+    this.info = this.props.info;
     // Signaling message queue arrays indexed by stream (== cameraId)
     this.wsQueues = {};
     this.restartTimeout = {};
@@ -202,7 +202,7 @@ class VideoProviderGraphql extends Component {
       streams,
       currentVideoPageIndex,
       isMeteorConnected,
-      sendUserUnshareWebcam,
+      lockUser,
     } = this.props;
     const { socketOpen } = this.state;
 
@@ -212,7 +212,7 @@ class VideoProviderGraphql extends Component {
 
     if (isMeteorConnected && socketOpen) this.updateStreams(streams, shouldDebounce);
     if (!prevProps.isUserLocked && isUserLocked) {
-      VideoService.lockUser(sendUserUnshareWebcam, streams);
+      lockUser();
     }
 
     // Signaling socket expired its retries and meteor is connected - create
@@ -586,7 +586,7 @@ class VideoProviderGraphql extends Component {
 
   stopWebRTCPeer(stream, restarting = false) {
     const isLocal = VideoService.isLocalStream(stream);
-    const { sendUserUnshareWebcam, streams } = this.props;
+    const { stopVideo } = this.props;
 
     // in this case, 'closed' state is not caused by an error;
     // we stop listening to prevent this from being treated as an error
@@ -597,7 +597,7 @@ class VideoProviderGraphql extends Component {
     }
 
     if (isLocal) {
-      VideoService.stopVideo(stream, sendUserUnshareWebcam, streams);
+      stopVideo(stream);
     }
 
     const role = VideoService.getRole(isLocal);
@@ -1191,7 +1191,7 @@ class VideoProviderGraphql extends Component {
   }
 
   handleSFUError(message) {
-    const { intl, streams, sendUserUnshareWebcam } = this.props;
+    const { intl, streams, stopVideo } = this.props;
     const { code, reason, streamId } = message;
     const isLocal = VideoService.isLocalStream(streamId);
     const role = VideoService.getRole(isLocal);
@@ -1210,7 +1210,7 @@ class VideoProviderGraphql extends Component {
       // The publisher instance received an error from the server. There's no reconnect,
       // stop it.
       VideoService.notify(intl.formatMessage(intlSFUErrors[code] || intlSFUErrors[2200]));
-      VideoService.stopVideo(streamId, sendUserUnshareWebcam, streams);
+      stopVideo(streamId);
     } else {
       const peer = this.webRtcPeers[streamId];
       const stillExists = streams.some(({ stream }) => streamId === stream);
@@ -1260,7 +1260,7 @@ class VideoProviderGraphql extends Component {
       swapLayout,
       currentVideoPageIndex,
       streams,
-      cameraDockBounds,
+      cameraDock,
       focusedId,
       handleVideoFocus,
       isGridEnabled,
@@ -1273,7 +1273,7 @@ class VideoProviderGraphql extends Component {
           streams,
           swapLayout,
           currentVideoPageIndex,
-          cameraDockBounds,
+          cameraDock,
           focusedId,
           handleVideoFocus,
           isGridEnabled,

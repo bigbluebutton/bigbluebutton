@@ -297,6 +297,7 @@ export interface Kurento {
   cameraQualityThresholds: CameraQualityThresholds
   pagination: Pagination
   paginationThresholds: PaginationThresholds
+  videoMediaServer: string
 }
 
 export interface CameraWsOptions {

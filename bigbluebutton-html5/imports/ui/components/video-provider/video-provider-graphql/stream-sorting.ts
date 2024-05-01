@@ -1,12 +1,17 @@
-// @ts-nocheck
-/* eslint-disable */
+import { StreamItem } from './types';
 import UserListService from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 
 const DEFAULT_SORTING_MODE = 'LOCAL_ALPHABETICAL';
 
 // pin first
-export const sortPin = (s1, s2) => {
+export const sortPin = (s1: StreamItem, s2: StreamItem) => {
+  if (s1.type === 'connecting') {
+    return 1;
+  }
+  if (s2.type === 'connecting') {
+    return -1;
+  }
   if (s1.pin) {
     return -1;
   } if (s2.pin) {
@@ -15,19 +20,27 @@ export const sortPin = (s1, s2) => {
   return 0;
 };
 
-export const mandatorySorting = (s1, s2) => sortPin(s1, s2);
+export const mandatorySorting = (s1: StreamItem, s2: StreamItem) => sortPin(s1, s2);
 
 // lastFloorTime, descending
-export const sortVoiceActivity = (s1, s2) => {
+export const sortVoiceActivity = (s1: StreamItem, s2: StreamItem) => {
+  if (s1.type === 'connecting') {
+    return 1;
+  }
+  if (s2.type === 'connecting') {
+    return -1;
+  }
   if (s2.lastFloorTime < s1.lastFloorTime) {
     return -1;
-  } else if (s2.lastFloorTime > s1.lastFloorTime) {
+  }
+  if (s2.lastFloorTime > s1.lastFloorTime) {
     return 1;
-  } else return 0;
+  }
+  return 0;
 };
 
 // pin -> lastFloorTime (descending) -> alphabetical -> local
-export const sortVoiceActivityLocal = (s1, s2) => {
+export const sortVoiceActivityLocal = (s1: StreamItem, s2: StreamItem) => {
   if (s1.userId === Auth.userID) {
     return 1;
   } if (s2.userId === Auth.userID) {
@@ -40,26 +53,28 @@ export const sortVoiceActivityLocal = (s1, s2) => {
 };
 
 // pin -> local -> lastFloorTime (descending) -> alphabetical
-export const sortLocalVoiceActivity = (s1, s2) => mandatorySorting(s1, s2)
+export const sortLocalVoiceActivity = (s1: StreamItem, s2: StreamItem) => mandatorySorting(s1, s2)
     || UserListService.sortUsersByCurrent(s1, s2)
     || sortVoiceActivity(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
 
 // pin -> local -> alphabetic
-export const sortLocalAlphabetical = (s1, s2) => mandatorySorting(s1, s2)
+export const sortLocalAlphabetical = (s1: StreamItem, s2: StreamItem) => mandatorySorting(s1, s2)
     || UserListService.sortUsersByCurrent(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
 
-export const sortPresenter = (s1, s2) => {
+export const sortPresenter = (s1: StreamItem, s2: StreamItem) => {
   if (UserListService.isUserPresenter(s1.userId)) {
     return -1;
-  } else if (UserListService.isUserPresenter(s2.userId)) {
+  }
+  if (UserListService.isUserPresenter(s2.userId)) {
     return 1;
-  } else return 0;
+  }
+  return 0;
 };
 
 // pin -> local -> presenter -> alphabetical
-export const sortLocalPresenterAlphabetical = (s1, s2) => mandatorySorting(s1, s2)
+export const sortLocalPresenterAlphabetical = (s1: StreamItem, s2: StreamItem) => mandatorySorting(s1, s2)
     || UserListService.sortUsersByCurrent(s1, s2)
     || sortPresenter(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
@@ -95,12 +110,13 @@ const SORTING_METHODS = Object.freeze({
   LOCAL_ALPHABETICAL: {
     sortingMethod: sortLocalAlphabetical,
     neededDataTypes: MANDATORY_DATA_TYPES,
+    filter: false,
     localFirst: true,
   },
   VOICE_ACTIVITY_LOCAL: {
     sortingMethod: sortVoiceActivityLocal,
     neededDataTypes: {
-      lastFloorTime: 1, floor: 1, ...MANDATORY_DATA_TYPES,
+      lastFloorTime: 1, ...MANDATORY_DATA_TYPES,
     },
     filter: true,
     localFirst: false,
@@ -108,7 +124,7 @@ const SORTING_METHODS = Object.freeze({
   LOCAL_VOICE_ACTIVITY: {
     sortingMethod: sortLocalVoiceActivity,
     neededDataTypes: {
-      lastFloorTime: 1, floor: 1, ...MANDATORY_DATA_TYPES,
+      lastFloorTime: 1, ...MANDATORY_DATA_TYPES,
     },
     filter: true,
     localFirst: true,
@@ -116,27 +132,17 @@ const SORTING_METHODS = Object.freeze({
   LOCAL_PRESENTER_ALPHABETICAL: {
     sortingMethod: sortLocalPresenterAlphabetical,
     neededDataTypes: MANDATORY_DATA_TYPES,
+    filter: false,
     localFirst: true,
-  }
+  },
 });
 
-export const getSortingMethod = (identifier) => {
-  return SORTING_METHODS[identifier] || SORTING_METHODS[DEFAULT_SORTING_MODE];
+export const getSortingMethod = (identifier: string) => {
+  return SORTING_METHODS[identifier as keyof typeof SORTING_METHODS] || SORTING_METHODS[DEFAULT_SORTING_MODE];
 };
 
-export const sortVideoStreams = (streams, mode) => {
-  const { sortingMethod, filter } = getSortingMethod(mode);
+export const sortVideoStreams = (streams: StreamItem[], mode: string) => {
+  const { sortingMethod } = getSortingMethod(mode);
   const sorted = streams.sort(sortingMethod);
-
-  if (!filter) return sorted;
-
-  return sorted.map(videoStream => ({
-    stream: videoStream.stream,
-    isGridItem: videoStream?.isGridItem,
-    userId: videoStream.userId,
-    name: videoStream.name,
-    sortName: videoStream.sortName,
-    floor: videoStream.floor,
-    pin: videoStream.pin,
-  }));
+  return sorted;
 };
