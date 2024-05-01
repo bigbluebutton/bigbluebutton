@@ -53,12 +53,14 @@ interface BreakoutJoinConfirmationProps {
   freeJoin: boolean;
   breakouts: BreakoutRoom[];
   currentUserJoined: boolean,
+  firstBreakoutId: string;
 }
 
 const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   freeJoin,
   breakouts,
   currentUserJoined,
+  firstBreakoutId,
 }) => {
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [callHandleinviteDismissedAt] = useMutation(handleinviteDismissedAt);
@@ -66,11 +68,25 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selectValue, setSelectValue] = React.useState('');
+
+  const defaultSelectedBreakoutId = breakouts.find(({ showInvitation }) => showInvitation)?.breakoutRoomId
+    || firstBreakoutId;
+
+  const [selectValue, setSelectValue] = React.useState(defaultSelectedBreakoutId);
 
   const requestJoinURL = (breakoutRoomId: string) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
   };
+
+  // request join url if free join is enabled and user is not assigned to any room
+  if (defaultSelectedBreakoutId === firstBreakoutId) {
+    const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === defaultSelectedBreakoutId);
+    if (!selectedBreakout?.joinURL && !waiting) {
+      requestJoinURL(defaultSelectedBreakoutId);
+      setWaiting(true);
+    }
+  }
+
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectValue(event.target.value);
     const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === event.target.value);
@@ -187,6 +203,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   const {
     freeJoin,
     sendInvitationToModerators,
+    breakoutRoomId,
   } = firstBreakout;
   if (!sendInvitationToModerators && currentUser?.isModerator) return null;
   return (
@@ -194,6 +211,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
       freeJoin={freeJoin}
       breakouts={breakoutData.breakoutRoom}
       currentUserJoined={currentUser?.breakoutRooms?.currentRoomJoined ?? false}
+      firstBreakoutId={breakoutRoomId}
     />
   );
 };

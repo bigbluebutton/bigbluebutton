@@ -21,25 +21,19 @@ trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
       state
     } else {
-      for {
-        model <- state.breakout
-      } yield {
-        model.rooms.values.foreach { room =>
-          eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(meetingId, room.id, MeetingEndReason.BREAKOUT_ENDED_BY_MOD)))
-          UserBreakoutRoomDAO.updateLastBreakoutRoom(meetingId, Vector(), room)
-        }
+      endAllBreakoutRooms(eventBus, liveMeeting, state, MeetingEndReason.BREAKOUT_ENDED_BY_MOD)
 
-        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-          meetingId,
-          "info",
-          "rooms",
-          "app.toast.breakoutRoomEnded",
-          "Message when the breakout room is ended",
-          Vector()
-        )
-        outGW.send(notifyEvent)
-        NotificationDAO.insert(notifyEvent)
-      }
+      val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+        meetingId,
+        "info",
+        "rooms",
+        "app.toast.breakoutRoomEnded",
+        "Message when the breakout room is ended",
+        Vector()
+      )
+      outGW.send(notifyEvent)
+      NotificationDAO.insert(notifyEvent)
+
       BreakoutRoomDAO.updateRoomsEnded(meetingId)
       state.update(None)
     }
