@@ -12,10 +12,10 @@ import {
 } from '@apollo/client';
 import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
-import GET_TIMER, { GetTimerResponse, TimerData } from '../queries';
+import GET_TIMER, { GetTimerResponse, TimerData } from '../../../core/graphql/queries/timer';
 import logger from '/imports/startup/client/logger';
-import { layoutDispatch } from '../../../layout/context';
-import { ACTIONS, PANELS } from '../../../layout/enums';
+import { layoutDispatch } from '../../layout/context';
+import { ACTIONS, PANELS } from '../../layout/enums';
 import {
   TIMER_RESET,
   TIMER_SET_SONG_TRACK,
@@ -23,7 +23,7 @@ import {
   TIMER_START,
   TIMER_STOP,
   TIMER_SWITCH_MODE,
-} from '../../mutations';
+} from '../mutations';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 

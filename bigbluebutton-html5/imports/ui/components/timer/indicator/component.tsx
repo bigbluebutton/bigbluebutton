@@ -1,15 +1,14 @@
-import { useSubscription, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
-import GET_TIMER, { GetTimerResponse } from '../queries';
-import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { layoutSelectInput } from '../../../layout/context';
-import { Input } from '../../../layout/layoutTypes';
-import { TIMER_START, TIMER_STOP } from '../../mutations';
+import { layoutSelectInput } from '../../layout/context';
+import { Input } from '../../layout/layoutTypes';
+import { TIMER_START, TIMER_STOP } from '../mutations';
+import useTimer from '/imports/ui/core/hooks/useTImer';
 
 const CDN = window.meetingClientSettings.public.app.cdn;
 const BASENAME = window.meetingClientSettings.public.app.basename;
@@ -187,10 +186,8 @@ const TimerIndicatorContainer: React.FC = () => {
   }));
 
   const {
-    loading: timerLoading,
-    error: timerError,
     data: timerData,
-  } = useSubscription<GetTimerResponse>(GET_TIMER);
+  } = useTimer();
 
   const [timeSync] = useTimeSync();
 
@@ -199,15 +196,7 @@ const TimerIndicatorContainer: React.FC = () => {
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  if (timerLoading || !timerData || !currentUser) return null;
-
-  if (timerError) {
-    logger.error('TimerIndicatorContainer', timerError);
-    return (<div>{JSON.stringify(timerError)}</div>);
-  }
-
-  const { timer } = timerData;
-  const [currentTimer] = timer;
+  const currentTimer = timerData;
   if (!currentTimer?.active) return null;
 
   const {
@@ -224,20 +213,20 @@ const TimerIndicatorContainer: React.FC = () => {
   const timeDifferenceMs: number = adjustedCurrent.getTime() - startedAtDate.getTime();
 
   const timePassed = stopwatch ? (
-    Math.floor(((running ? timeDifferenceMs : 0) + accumulated))
+    Math.floor(((running ? timeDifferenceMs : 0) + (accumulated ?? 0)))
   ) : (
-    Math.floor(((time) - (accumulated + (running ? timeDifferenceMs : 0)))));
+    Math.floor(((time ?? 0) - ((accumulated ?? 0) + (running ? timeDifferenceMs : 0)))));
 
   return (
     <TimerIndicator
       passedTime={timePassed}
-      stopwatch={stopwatch}
-      songTrack={songTrack}
-      running={running}
-      isModerator={currentUser.isModerator ?? false}
+      stopwatch={stopwatch ?? false}
+      songTrack={songTrack ?? 'noTrack'}
+      running={running ?? false}
+      isModerator={currentUser?.isModerator ?? false}
       sidebarNavigationIsOpen={sidebarNavigationIsOpen}
       sidebarContentIsOpen={sidebarContentIsOpen}
-      startedOn={startedOn}
+      startedOn={startedOn ?? 0}
     />
   );
 };
