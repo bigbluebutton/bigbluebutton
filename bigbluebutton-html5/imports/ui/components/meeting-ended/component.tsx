@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
-import { useQuery } from '@apollo/client';
+import { ApolloLink, useQuery } from '@apollo/client';
 import {
   JoinErrorCodeTable,
   MeetingEndedTable,
@@ -21,6 +21,7 @@ import Styled from './styles';
 import Rating from './rating/component';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
+import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 
 const intlMessage = defineMessages({
   410: {
@@ -353,7 +354,36 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   }, []);
 
   useEffect(() => {
+    // Sets Loading to falsed and removes loading splash screen
     loadingContextInfo.setLoading(false, '');
+    // Stops all media tracks
+    window.dispatchEvent(new Event('StopAudioTracks'));
+    // get the media tag from the session storage
+    const data = JSON.parse((sessionStorage.getItem('clientStartupSettings')) || '{}');
+    // get media element and stops it and removes the audio source
+    const mediaElement = document.querySelector<HTMLMediaElement>(data.mediaTag);
+    if (mediaElement) {
+      mediaElement.pause();
+      mediaElement.srcObject = null;
+    }
+    // stops apollo client and removes it connection
+    const apolloClient = apolloContextHolder.getClient();
+    // stops client queries
+    if (apolloClient) {
+      apolloClient.stop();
+    }
+
+    const ws = apolloContextHolder.getLink();
+    // stops client connection after 5 seconds, if made immediately some data is lost
+    if (ws) {
+      setTimeout(() => {
+        // overwrites the link with an empty link
+        // if not new connection is made
+        apolloClient.setLink(ApolloLink.empty());
+        // closes the connection
+        ws.close();
+      }, 5000);
+    }
   }, []);
 
   return (

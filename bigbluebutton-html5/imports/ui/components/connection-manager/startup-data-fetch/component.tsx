@@ -12,6 +12,7 @@ interface Response {
     learningDashboardBase: string,
     fallbackLocale: string,
     fallbackOnEmptyString: boolean,
+    mediaTag: string,
     clientLog: {
       server: {
         level: string,
