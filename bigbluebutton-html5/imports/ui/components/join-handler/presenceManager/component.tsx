@@ -9,7 +9,7 @@ import {
   userJoinMutation,
 } from './queries';
 import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
-import MeetingEndedContainer from '../../meeting-ended/meeting-ended-ts/component';
+import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
 

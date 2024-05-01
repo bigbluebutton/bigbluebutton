@@ -18,8 +18,8 @@ import { MeetingEndDataResponse, getMeetingEndData } from './queries';
 import useAuthData from '/imports/ui/core/local-states/useAuthData';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
-import Rating from '../rating/component';
-import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
+import Rating from './rating/component';
+import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 
 const intlMessage = defineMessages({

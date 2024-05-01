@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
-import NotesService from '/imports/ui/components/notes/notes-graphql/service';
+import NotesService from '/imports/ui/components/notes/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { notify } from '/imports/ui/services/notification';
@@ -10,12 +10,12 @@ import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout
 import {
   PINNED_PAD_SUBSCRIPTION,
   PinnedPadSubscriptionResponse,
-} from '/imports/ui/components/notes/notes-graphql/queries';
+} from '/imports/ui/components/notes/queries';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
-import useNotesLastRev from '/imports/ui/components/notes/notes-graphql/hooks/useNotesLastRev';
-import useHasUnreadNotes from '/imports/ui/components/notes/notes-graphql/hooks/useHasUnreadNotes';
+import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
+import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
 
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 

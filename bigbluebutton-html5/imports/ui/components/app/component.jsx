@@ -43,7 +43,7 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import AudioService from '/imports/ui/components/audio/service';
-import NotesContainer from '/imports/ui/components/notes/container';
+import NotesContainer from '/imports/ui/components/notes/component';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
 import TimeSync from './app-graphql/time-sync/component';

@@ -3,11 +3,12 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
+// import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import logger from '/imports/startup/client/logger';
 import { makeVar } from '@apollo/client';
 
 const CONNECTION_TIMEOUT = window.meetingClientSettings.public.app.connectionTimeout;
+
 class Auth {
   constructor() {
     this._loggedIn = {
@@ -203,6 +204,24 @@ class Auth {
       // do not redirect
       resolve();
     });
+  }
+
+  allowRedirectToLogoutURL() {
+    const ALLOW_DEFAULT_LOGOUT_URL = window.meetingClientSettings.public.app.allowDefaultLogoutUrl;
+    const protocolPattern = /^((http|https):\/\/)/;
+    if (this.logoutURL) {
+      // default logoutURL
+      // compare only the host to ignore protocols
+      const urlWithoutProtocolForAuthLogout = this.logoutURL.replace(protocolPattern, '');
+      const urlWithoutProtocolForLocationOrigin = window.location.origin.replace(protocolPattern, '');
+      if (urlWithoutProtocolForAuthLogout === urlWithoutProtocolForLocationOrigin) {
+        return ALLOW_DEFAULT_LOGOUT_URL;
+      }
+      // custom logoutURL
+      return true;
+    }
+    // no logout url
+    return false;
   }
 
   authenticateURL(url) {
