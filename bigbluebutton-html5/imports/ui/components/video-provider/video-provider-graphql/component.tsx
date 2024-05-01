@@ -1,9 +1,8 @@
 // @ts-nocheck
 /* eslint-disable */
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { defineMessages, injectIntl } from 'react-intl';
+import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import { debounce } from '/imports/utils/debounce';
 import VideoService from './service';
 import VideoListContainer from './video-list/container';
@@ -23,6 +22,8 @@ import {
 import { notify } from '/imports/ui/services/notification';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
+import { StreamItem, StreamUser, VideoItem } from './types';
+import { Output } from '../../layout/layoutTypes';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -116,25 +117,46 @@ const intlSFUErrors = defineMessages({
   },
 });
 
-const propTypes = {
-  streams: PropTypes.arrayOf(Array).isRequired,
-  intl: PropTypes.objectOf(Object).isRequired,
-  isUserLocked: PropTypes.bool.isRequired,
-  swapLayout: PropTypes.bool.isRequired,
-  currentVideoPageIndex: PropTypes.number.isRequired,
-  totalNumberOfStreams: PropTypes.number.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
-  playStart: PropTypes.func.isRequired,
-  sendUserUnshareWebcam: PropTypes.func.isRequired,
-};
+interface VideoProviderGraphqlState {
+  socketOpen: boolean;
+}
 
-class VideoProviderGraphql extends Component {
+interface VideoProviderGraphqlProps {
+  cameraDock: Output['cameraDock'];
+  focusedId: string;
+  handleVideoFocus: (id: string) => void;
+  isGridEnabled: boolean;
+  isMeteorConnected: boolean;
+  swapLayout: boolean;
+  currentUserId: string;
+  paginationEnabled: boolean;
+  viewParticipantsWebcams: boolean;
+  totalNumberOfStreams: number;
+  isUserLocked: boolean;
+  currentVideoPageIndex: number;
+  streams: VideoItem[];
+  users: StreamUser[];
+  info: {
+    userId: string | null | undefined;
+    userName: string | null | undefined;
+    meetingId: string | null | undefined;
+    sessionToken: string | null;
+    voiceBridge: string | null;
+  };
+  playStart: (cameraId: string) => void;
+  exitVideo: () => void;
+  lockUser: () => void;
+  stopVideo: (cameraId?: string) => void;
+  intl: IntlShape;
+}
+
+class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoProviderGraphqlState> {
   onBeforeUnload() {
     const { exitVideo } = this.props;
     exitVideo();
   }
 
-  static shouldAttachVideoStream(peer, videoElement) {
+  static shouldAttachVideoStream(peer: WebRtcPeer, videoElement: HTMLVideoElement) {
     // Conditions to safely attach a stream to a video element in all browsers:
     // 1 - Peer exists, video element exists
     // 2 - Target stream differs from videoElement's (diff)
@@ -156,15 +178,47 @@ class VideoProviderGraphql extends Component {
       && diff;
   }
 
-  constructor(props) {
+  private info: {
+    userId: string | null | undefined;
+    userName: string | null | undefined;
+    meetingId: string | null | undefined;
+    sessionToken: string | null;
+    voiceBridge: string | null;
+  };
+
+  private mounted: boolean = false;
+
+  private webRtcPeers: Record<string, WebRtcPeer>;
+
+  private debouncedConnectStreams: Function;
+
+  private ws: ReconnectingWebSocket | null = null;
+
+  private wsQueues: Record<string, {
+    id: string;
+    cameraId?: string;
+    type?: string;
+    role?: string;
+  }[] | null>;
+
+  private outboundIceQueues: Record<string, RTCIceCandidate[]>;
+
+  private restartTimeout: Record<string, NodeJS.Timeout>;
+
+  private restartTimer: Record<string, number>;
+
+  private videoTags: Record<string, HTMLVideoElement>;
+
+  constructor(props: VideoProviderGraphqlProps) {
     super(props);
+    const { info } = this.props;
 
     // socketOpen state is there to force update when the signaling socket opens or closes
     this.state = {
       socketOpen: false,
     };
-    this._isMounted = false;
-    this.info = this.props.info;
+    this.mounted = false;
+    this.info = info;
     // Signaling message queue arrays indexed by stream (== cameraId)
     this.wsQueues = {};
     this.restartTimeout = {};
@@ -190,13 +244,13 @@ class VideoProviderGraphql extends Component {
   }
 
   componentDidMount() {
-    this._isMounted = true;
+    this.mounted = true;
     VideoService.updatePeerDictionaryReference(this.webRtcPeers);
     this.ws = this.openWs();
     window.addEventListener('beforeunload', this.onBeforeUnload);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: VideoProviderGraphqlProps) {
     const {
       isUserLocked,
       streams,
@@ -225,13 +279,15 @@ class VideoProviderGraphql extends Component {
   }
 
   componentWillUnmount() {
-    const { sendUserUnshareWebcam, streams, exitVideo } = this.props;
-    this._isMounted = false;
+    const { exitVideo } = this.props;
+    this.mounted = false;
     VideoService.updatePeerDictionaryReference({});
 
-    this.ws.onmessage = null;
-    this.ws.onopen = null;
-    this.ws.onclose = null;
+    if (this.ws) {
+      this.ws.onmessage = null;
+      this.ws.onopen = null;
+      this.ws.onclose = null;
+    }
 
     window.removeEventListener('beforeunload', this.onBeforeUnload);
     exitVideo();
@@ -248,7 +304,7 @@ class VideoProviderGraphql extends Component {
         debug: WS_DEBUG,
         maxRetries: WS_MAX_RETRIES,
         maxEnqueuedMessages: 0,
-      }
+      },
     );
     ws.onopen = this.onWsOpen;
     ws.onclose = this.onWsClose;
@@ -265,12 +321,14 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  _updateLastMsgTime() {
-    this.ws.isAlive = true;
-    this.ws.lastMsgTime = Date.now();
+  private updateLastMsgTime() {
+    if (this.ws) {
+      this.ws.isAlive = true;
+      this.ws.lastMsgTime = Date.now();
+    }
   }
 
-  _getTimeSinceLastMsg() {
+  private getTimeSinceLastMsg() {
     return Date.now() - this.ws.lastMsgTime;
   }
 
@@ -288,7 +346,7 @@ class VideoProviderGraphql extends Component {
         return;
       }
 
-      if (this._getTimeSinceLastMsg() < (
+      if (this.getTimeSinceLastMsg() < (
         WS_HEARTBEAT_OPTS.interval - WS_HEARTBEAT_OPTS.delay
       )) {
         return;
@@ -308,8 +366,8 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  onWsMessage(message) {
-    this._updateLastMsgTime();
+  onWsMessage(message: { data: string }) {
+    this.updateLastMsgTime();
     const parsedMessage = JSON.parse(message.data);
 
     if (parsedMessage.id === 'pong') return;
@@ -342,7 +400,7 @@ class VideoProviderGraphql extends Component {
   }
 
   onWsClose() {
-    const { sendUserUnshareWebcam, streams, exitVideo } = this.props;
+    const { exitVideo } = this.props;
     logger.info({
       logCode: 'video_provider_onwsclose',
     }, 'Multiple video provider websocket connection closed.');
@@ -370,15 +428,15 @@ class VideoProviderGraphql extends Component {
       logCode: 'video_provider_onwsopen',
     }, 'Multiple video provider websocket connection opened.');
 
-    this._updateLastMsgTime();
+    this.updateLastMsgTime();
     this.setupWSHeartbeat();
     this.setState({ socketOpen: true });
     // Resend queued messages that happened when socket was not connected
     Object.entries(this.wsQueues).forEach(([stream, queue]) => {
-      if (this.webRtcPeers[stream]) {
+      if (this.webRtcPeers[stream] && queue !== null) {
         // Peer - send enqueued
         while (queue.length > 0) {
-          this.sendMessage(queue.pop());
+          this.sendMessage(queue.pop()!);
         }
       } else {
         // No peer - delete queue
@@ -387,18 +445,18 @@ class VideoProviderGraphql extends Component {
     });
   }
 
-  findAllPrivilegedStreams () {
+  findAllPrivilegedStreams() {
     const { streams } = this.props;
     // Privileged streams are: floor holders, pinned users
-    return streams.filter(stream => stream.floor || stream.pin);
+    return streams.filter((stream) => stream.type === 'stream' && (stream.floor || stream.pin));
   }
 
-  updateQualityThresholds(numberOfPublishers) {
+  updateQualityThresholds(numberOfPublishers: number) {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
       const privilegedStreams = this.findAllPrivilegedStreams();
       Object.values(this.webRtcPeers)
-        .filter(peer => peer.isPublisher)
+        .filter((peer) => peer.isPublisher)
         .forEach((peer) => {
           // Conditions which make camera revert their original profile
           // 1) Threshold 0 means original profile/inactive constraint
@@ -411,33 +469,33 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  getStreamsToConnectAndDisconnect(streams) {
-    const streamsCameraIds = streams.filter(s => !s?.isGridItem).map(s => s.stream);
+  getStreamsToConnectAndDisconnect(streams: VideoItem[]) {
+    const streamsCameraIds = streams.filter((s) => s?.type !== 'grid').map((s) => (s as StreamItem).stream);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
-    const streamsToConnect = streamsCameraIds.filter(stream => {
+    const streamsToConnect = streamsCameraIds.filter((stream) => {
       return !streamsConnected.includes(stream);
     });
 
-    const streamsToDisconnect = streamsConnected.filter(stream => {
+    const streamsToDisconnect = streamsConnected.filter((stream) => {
       return !streamsCameraIds.includes(stream);
     });
 
     return [streamsToConnect, streamsToDisconnect];
   }
 
-  connectStreams(streamsToConnect) {
+  connectStreams(streamsToConnect: string[]) {
     streamsToConnect.forEach((stream) => {
       const isLocal = VideoService.isLocalStream(stream);
       this.createWebRTCPeer(stream, isLocal);
     });
   }
 
-  disconnectStreams(streamsToDisconnect) {
-    streamsToDisconnect.forEach(stream => this.stopWebRTCPeer(stream, false));
+  disconnectStreams(streamsToDisconnect: string[]) {
+    streamsToDisconnect.forEach((stream) => this.stopWebRTCPeer(stream, false));
   }
 
-  updateStreams(streams, shouldDebounce = false) {
+  updateStreams(streams: VideoItem[], shouldDebounce = false) {
     const [streamsToConnect, streamsToDisconnect] = this.getStreamsToConnectAndDisconnect(streams);
 
     if (shouldDebounce) {
@@ -449,7 +507,8 @@ class VideoProviderGraphql extends Component {
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateQualityThresholds(this.props.totalNumberOfStreams);
+      const { totalNumberOfStreams } = this.props;
+      this.updateQualityThresholds(totalNumberOfStreams);
     }
   }
 
@@ -458,14 +517,14 @@ class VideoProviderGraphql extends Component {
     this.sendMessage(message);
   }
 
-  sendMessage(message) {
+  sendMessage(message: { id: string, cameraId?: string; type?: string; role?: string }) {
     const { ws } = this;
 
     if (this.connectedToMediaServer()) {
       const jsonMessage = JSON.stringify(message);
       try {
-        ws.send(jsonMessage);
-      } catch (error) {
+        ws?.send(jsonMessage);
+      } catch (error: Error) {
         logger.error({
           logCode: 'video_provider_ws_send_error',
           extraInfo: {
@@ -479,7 +538,7 @@ class VideoProviderGraphql extends Component {
       const { cameraId } = message;
       if (cameraId) {
         if (this.wsQueues[cameraId] == null) this.wsQueues[cameraId] = [];
-        this.wsQueues[cameraId].push(message);
+        this.wsQueues[cameraId]?.push(message);
       }
     }
   }
@@ -488,7 +547,7 @@ class VideoProviderGraphql extends Component {
     return this.ws && this.ws.readyState === ReconnectingWebSocket.OPEN;
   }
 
-  processOutboundIceQueue(peer, role, stream) {
+  processOutboundIceQueue(peer: WebRtcPeer, role: string, stream: string) {
     const queue = this.outboundIceQueues[stream];
     while (queue && queue.length) {
       const candidate = queue.shift();
@@ -496,7 +555,7 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  sendLocalAnswer (peer, stream, answer) {
+  sendLocalAnswer (peer: WebRtcPeer, stream: string, answer) {
     const message = {
       id: 'subscriberAnswer',
       type: 'video',
@@ -508,7 +567,7 @@ class VideoProviderGraphql extends Component {
     this.sendMessage(message);
   }
 
-  startResponse(message) {
+  startResponse(message: { cameraId: string; stream: string; role: string }) {
     const { cameraId: stream, role } = message;
     const peer = this.webRtcPeers[stream];
 
@@ -528,7 +587,7 @@ class VideoProviderGraphql extends Component {
         peer.didSDPAnswered = true;
         this.processOutboundIceQueue(peer, role, stream);
         VideoService.processInboundIceQueue(peer, stream);
-      }).catch((error) => {
+      }).catch((error: Error & { code: string }) => {
         logger.error({
           logCode: 'video_provider_peerconnection_process_error',
           extraInfo: {
@@ -547,7 +606,7 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  handleIceCandidate(message) {
+  handleIceCandidate(message: { cameraId: string; candidate: Record<string, unknown> }) {
     const { cameraId: stream, candidate } = message;
     const peer = this.webRtcPeers[stream];
 
@@ -573,7 +632,7 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  clearRestartTimers(stream) {
+  clearRestartTimers(stream: string) {
     if (this.restartTimeout[stream]) {
       clearTimeout(this.restartTimeout[stream]);
       delete this.restartTimeout[stream];
@@ -584,7 +643,7 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  stopWebRTCPeer(stream, restarting = false) {
+  stopWebRTCPeer(stream: string, restarting = false) {
     const isLocal = VideoService.isLocalStream(stream);
     const { stopVideo } = this.props;
 
@@ -623,7 +682,7 @@ class VideoProviderGraphql extends Component {
     return this.destroyWebRTCPeer(stream);
   }
 
-  destroyWebRTCPeer(stream) {
+  destroyWebRTCPeer(stream: string) {
     let stopped = false;
     const peer = this.webRtcPeers[stream];
     const isLocal = VideoService.isLocalStream(stream);
@@ -656,7 +715,7 @@ class VideoProviderGraphql extends Component {
     return stopped;
   }
 
-  _createPublisher(stream, peerOptions) {
+  private createPublisher(stream: string, peerOptions: Record<string, unknown>) {
     return new Promise((resolve, reject) => {
       try {
         const { id: profileId } = VideoService.getCameraProfile();
@@ -697,7 +756,7 @@ class VideoProviderGraphql extends Component {
               this.replacePCVideoTracks(stream, newStream);
             }
           });
-          peer.inactivationHandler = () => this._handleLocalStreamInactive(stream);
+          peer.inactivationHandler = () => this.handleLocalStreamInactive(stream);
           bbbVideoStream.once('inactive', peer.inactivationHandler);
           resolve(offer);
         }).catch(reject);
@@ -707,7 +766,7 @@ class VideoProviderGraphql extends Component {
     });
   }
 
-  _createSubscriber(stream, peerOptions) {
+  private createSubscriber(stream: string, peerOptions: Record<string, unknown>) {
     return new Promise((resolve, reject) => {
       try {
         const peer = new WebRtcPeer('recvonly', peerOptions);
@@ -718,19 +777,19 @@ class VideoProviderGraphql extends Component {
         peer.inboundIceQueue = [];
         peer.isPublisher = false;
         peer.start();
-        resolve();
+        resolve(null);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  async createWebRTCPeer(stream, isLocal) {
+  async createWebRTCPeer(stream: string, isLocal: boolean) {
     let iceServers = [];
     const role = VideoService.getRole(isLocal);
     const peerBuilderFunc = isLocal
-      ? this._createPublisher.bind(this)
-      : this._createSubscriber.bind(this);
+      ? this.createPublisher.bind(this)
+      : this.createSubscriber.bind(this);
 
     // Check if the peer is already being processed
     if (this.webRtcPeers[stream]) {
@@ -745,7 +804,7 @@ class VideoProviderGraphql extends Component {
         audio: false,
         video: constraints,
       },
-      onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
+      onicecandidate: this.getOnIceCandidateCallback(stream, isLocal),
       configuration: {
       },
       trace: TRACE_LOGS,
@@ -776,7 +835,7 @@ class VideoProviderGraphql extends Component {
       }
 
       peerBuilderFunc(stream, peerOptions).then((offer) => {
-        if (!this._isMounted) {
+        if (!this.mounted) {
           return this.stopWebRTCPeer(stream, false);
         }
         const peer = this.webRtcPeers[stream];
@@ -784,7 +843,7 @@ class VideoProviderGraphql extends Component {
         if (peer && peer.peerConnection) {
           const conn = peer.peerConnection;
           conn.onconnectionstatechange = () => {
-            this._handleIceConnectionStateChange(stream, isLocal);
+            this.handleIceConnectionStateChange(stream, isLocal);
           };
         }
 
@@ -810,14 +869,14 @@ class VideoProviderGraphql extends Component {
         this.setReconnectionTimeout(stream, isLocal, false);
         this.sendMessage(message);
 
-        return;
-      }).catch(error => {
-        return this._onWebRTCError(error, stream, isLocal);
+        return null;
+      }).catch((error) => {
+        return this.onWebRTCError(error, stream, isLocal);
       });
     }
   }
 
-  _getWebRTCStartTimeout(stream, isLocal) {
+  private getWebRTCStartTimeout(stream: string, isLocal: boolean) {
     const { intl } = this.props;
 
     return () => {
@@ -866,12 +925,12 @@ class VideoProviderGraphql extends Component {
     };
   }
 
-  _onWebRTCError(error, stream, isLocal) {
+  private onWebRTCError(error: Error, stream: string, isLocal: boolean) {
     const { intl, streams } = this.props;
     const { name: errorName, message: errorMessage } = error;
-    const errorLocale = intlClientErrors[errorName]
-      || intlClientErrors[errorMessage]
-      || intlSFUErrors[error];
+    const errorLocale = intlClientErrors[errorName as keyof typeof intlClientErrors]
+      || intlClientErrors[errorMessage as keyof typeof intlClientErrors]
+      || intlSFUErrors[error as unknown as keyof typeof intlSFUErrors];
 
     logger.error({
       logCode: 'video_provider_webrtc_peer_error',
@@ -892,7 +951,7 @@ class VideoProviderGraphql extends Component {
       // If it's a viewer, set the reconnection timeout. There's a good chance
       // no local candidate was generated and it wasn't set.
       const peer = this.webRtcPeers[stream];
-      const stillExists = streams.some(({ stream: streamId }) => streamId === stream);
+      const stillExists = streams.some((item) => item.type === 'stream' && item.stream === stream);
 
       if (stillExists) {
         const isEstablishedConnection = peer && peer.started;
@@ -905,12 +964,12 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  reconnect(stream, isLocal) {
+  reconnect(stream: string, isLocal: boolean) {
     this.stopWebRTCPeer(stream, true);
     this.createWebRTCPeer(stream, isLocal);
   }
 
-  setReconnectionTimeout(stream, isLocal, isEstablishedConnection) {
+  setReconnectionTimeout(stream: string, isLocal: boolean, isEstablishedConnection: boolean) {
     const peer = this.webRtcPeers[stream];
     const shouldSetReconnectionTimeout = !this.restartTimeout[stream] && !isEstablishedConnection;
 
@@ -930,15 +989,16 @@ class VideoProviderGraphql extends Component {
       this.restartTimer[stream] = newReconnectTimer;
 
       this.restartTimeout[stream] = setTimeout(
-        this._getWebRTCStartTimeout(stream, isLocal),
+        this.getWebRTCStartTimeout(stream, isLocal),
         this.restartTimer[stream]
       );
     }
+    return null;
   }
 
-  _getOnIceCandidateCallback(stream, isLocal) {
+  private getOnIceCandidateCallback(stream: string, isLocal: boolean) {
     if (SIGNAL_CANDIDATES) {
-      return (candidate) => {
+      return (candidate: RTCIceCandidate) => {
         const peer = this.webRtcPeers[stream];
         const role = VideoService.getRole(isLocal);
 
@@ -954,7 +1014,7 @@ class VideoProviderGraphql extends Component {
     return null;
   }
 
-  sendIceCandidateToSFU(peer, role, candidate, stream) {
+  sendIceCandidateToSFU(peer: WebRtcPeer, role: string, candidate: RTCIceCandidate | undefined, stream: string) {
     const message = {
       type: 'video',
       role,
@@ -965,7 +1025,7 @@ class VideoProviderGraphql extends Component {
     this.sendMessage(message);
   }
 
-  _handleLocalStreamInactive(stream) {
+  private handleLocalStreamInactive(stream: string) {
     const peer = this.webRtcPeers[stream];
     const isLocal = VideoService.isLocalStream(stream);
     const role = VideoService.getRole(isLocal);
@@ -983,17 +1043,16 @@ class VideoProviderGraphql extends Component {
     }, 'Local camera stream stopped unexpectedly');
 
     const error = new Error('inactiveError');
-    this._onWebRTCError(error, stream, isLocal);
+    this.onWebRTCError(error, stream, isLocal);
   }
 
-  _handleIceConnectionStateChange(stream, isLocal) {
-    const { intl } = this.props;
+  private handleIceConnectionStateChange(stream: string, isLocal: boolean) {
     const peer = this.webRtcPeers[stream];
     const role = VideoService.getRole(isLocal);
 
     if (peer && peer.peerConnection) {
       const pc = peer.peerConnection;
-      const connectionState = pc.connectionState;
+      const { connectionState } = pc;
       notifyStreamStateChange(stream, connectionState);
 
       if (connectionState === 'failed' || connectionState === 'closed') {
@@ -1010,7 +1069,7 @@ class VideoProviderGraphql extends Component {
           },
         }, `Camera ICE connection state changed: ${connectionState}. Role: ${role}.`);
 
-        this._onWebRTCError(error, stream, isLocal);
+        this.onWebRTCError(error, stream, isLocal);
       }
     } else {
       logger.error({
@@ -1020,7 +1079,7 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  attach (peer, videoElement) {
+  static attach(peer: WebRtcPeer, videoElement: HTMLVideoElement) {
     if (peer && videoElement) {
       const stream = peer.isPublisher ? peer.getLocalStream() : peer.getRemoteStream();
       videoElement.pause();
@@ -1029,11 +1088,11 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  getVideoElement(streamId) {
+  getVideoElement(streamId: string) {
     return this.videoTags[streamId];
   }
 
-  attachVideoStream(stream) {
+  attachVideoStream(stream: string) {
     const videoElement = this.getVideoElement(stream);
     const isLocal = VideoService.isLocalStream(stream);
     const peer = this.webRtcPeers[stream];
@@ -1046,7 +1105,7 @@ class VideoProviderGraphql extends Component {
       // This is necessary to ensure that the video element is properly
       // hidden/shown when the stream is attached.
       notifyStreamStateChange(stream, pc.connectionState);
-      this.attach(peer, videoElement);
+      VideoProviderGraphql.attach(peer, videoElement);
 
       if (isLocal) {
         if (peer.bbbVideoStream == null) {
@@ -1060,14 +1119,14 @@ class VideoProviderGraphql extends Component {
         );
         const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
 
-        this.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
+        VideoProviderGraphql.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
           this.handleVirtualBgError(error, type, name);
         });
       }
     }
   }
 
-  startVirtualBackgroundByDrop(stream, type, name, data) {
+  startVirtualBackgroundByDrop(stream: string, type: string, name: string, data: string) {
     return new Promise((resolve, reject) => {
       const peer = this.webRtcPeers[stream];
       const { bbbVideoStream } = peer;
@@ -1079,13 +1138,13 @@ class VideoProviderGraphql extends Component {
           .catch(reject);
       }
     }).catch((error) => {
-      this.handleVirtualBgErrorByDropping(error, type, name);
+      VideoProviderGraphql.handleVirtualBgErrorByDropping(error, type, name);
     });
   }
 
-  handleVirtualBgErrorByDropping(error, type, name) {
+  static handleVirtualBgErrorByDropping(error: Error, type: string, name: string) {
     logger.error({
-      logCode: `video_provider_virtualbg_error`,
+      logCode: 'video_provider_virtualbg_error',
       extraInfo: {
         errorName: error.name,
         errorMessage: error.message,
@@ -1095,23 +1154,23 @@ class VideoProviderGraphql extends Component {
     }, `Failed to start virtual background by dropping image: ${error.message}`);
   }
 
-  restoreVirtualBackground(stream, type, name) {
+  static restoreVirtualBackground(stream: BBBVideoStream, type: string, name: string) {
     return new Promise((resolve, reject) => {
       if (type !== EFFECT_TYPES.NONE_TYPE) {
         stream.startVirtualBackground(type, name).then(() => {
-          resolve();
-        }).catch((error) => {
+          resolve(null);
+        }).catch((error: Error) => {
           reject(error);
         });
       }
-      resolve();
+      resolve(null);
     });
   }
 
-  handleVirtualBgError(error, type, name) {
+  handleVirtualBgError(error: Error, type?: string, name?: string) {
     const { intl } = this.props;
     logger.error({
-      logCode: `video_provider_virtualbg_error`,
+      logCode: 'video_provider_virtualbg_error',
       extraInfo: {
         errorName: error.name,
         errorMessage: error.message,
@@ -1123,7 +1182,7 @@ class VideoProviderGraphql extends Component {
     notify(intl.formatMessage(intlClientErrors.virtualBgGenericError), 'error', 'video');
   }
 
-  createVideoTag(stream, video) {
+  createVideoTag(stream: string, video: HTMLVideoElement) {
     const peer = this.webRtcPeers[stream];
     this.videoTags[stream] = video;
 
@@ -1132,7 +1191,7 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  destroyVideoTag(stream) {
+  destroyVideoTag(stream: string) {
     const videoElement = this.videoTags[stream];
 
     if (videoElement == null) return;
@@ -1145,7 +1204,7 @@ class VideoProviderGraphql extends Component {
     delete this.videoTags[stream];
   }
 
-  handlePlayStop(message) {
+  handlePlayStop(message: { cameraId: string; role: string }) {
     const { intl } = this.props;
     const { cameraId: stream, role } = message;
 
@@ -1161,7 +1220,7 @@ class VideoProviderGraphql extends Component {
     this.stopWebRTCPeer(stream, false);
   }
 
-  handlePlayStart(message) {
+  handlePlayStart(message: { cameraId: string; role: string }) {
     const { cameraId: stream, role } = message;
     const peer = this.webRtcPeers[stream];
     const { playStart } = this.props;
@@ -1190,7 +1249,7 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  handleSFUError(message) {
+  handleSFUError(message: { code: string; reason: string; streamId: string }) {
     const { intl, streams, stopVideo } = this.props;
     const { code, reason, streamId } = message;
     const isLocal = VideoService.isLocalStream(streamId);
@@ -1209,11 +1268,14 @@ class VideoProviderGraphql extends Component {
     if (isLocal) {
       // The publisher instance received an error from the server. There's no reconnect,
       // stop it.
-      VideoService.notify(intl.formatMessage(intlSFUErrors[code] || intlSFUErrors[2200]));
+      VideoService.notify(
+        intl.formatMessage(intlSFUErrors[code as unknown as keyof typeof intlSFUErrors]
+        || intlSFUErrors[2200]),
+      );
       stopVideo(streamId);
     } else {
       const peer = this.webRtcPeers[streamId];
-      const stillExists = streams.some(({ stream }) => streamId === stream);
+      const stillExists = streams.some((item) => item.type === 'stream' && streamId === item.stream);
 
       if (stillExists) {
         const isEstablishedConnection = peer && peer.started;
@@ -1224,7 +1286,7 @@ class VideoProviderGraphql extends Component {
     }
   }
 
-  replacePCVideoTracks(streamId, mediaStream) {
+  replacePCVideoTracks(streamId: string, mediaStream: MediaStream) {
     const peer = this.webRtcPeers[streamId];
     const videoElement = this.getVideoElement(streamId);
 
@@ -1250,7 +1312,7 @@ class VideoProviderGraphql extends Component {
         }
       });
       Promise.all(trackReplacers).then(() => {
-        this.attach(peer, videoElement);
+        VideoProviderGraphql.attach(peer, videoElement);
       });
     }
   }
@@ -1286,7 +1348,5 @@ class VideoProviderGraphql extends Component {
     );
   }
 }
-
-VideoProviderGraphql.propTypes = propTypes;
 
 export default injectIntl(VideoProviderGraphql);

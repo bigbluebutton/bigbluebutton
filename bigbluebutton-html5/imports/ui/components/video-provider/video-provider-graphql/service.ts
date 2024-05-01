@@ -346,7 +346,7 @@ class VideoService {
   }
 
   static isLocalStream(cameraId: string) {
-    return Auth.userID && cameraId?.startsWith(Auth.userID);
+    return !!Auth.userID && cameraId?.startsWith(Auth.userID);
   }
 
   static getCameraProfile() {

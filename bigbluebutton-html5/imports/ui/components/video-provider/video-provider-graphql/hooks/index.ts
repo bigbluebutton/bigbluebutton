@@ -85,7 +85,7 @@ export const useIsUserLocked = () => {
     locked: u.locked,
     isModerator: u.isModerator,
   }));
-  return currentUser?.locked && !currentUser.isModerator && disableCam;
+  return !!currentUser?.locked && !currentUser.isModerator && disableCam;
 };
 
 export const useVideoStreamsCount = () => {

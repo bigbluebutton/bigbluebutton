@@ -15,7 +15,7 @@ import {
   useStopVideo,
   useVideoStreams,
 } from './hooks';
-import { CAMERA_BROADCAST_START, CAMERA_BROADCAST_STOP } from './mutations';
+import { CAMERA_BROADCAST_START } from './mutations';
 import VideoProvider from './component';
 import VideoService from './service';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
@@ -46,14 +46,9 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
     swapLayout,
   } = props;
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
-  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
 
   const sendUserShareWebcam = (cameraId: string) => {
     return cameraBroadcastStart({ variables: { cameraId } });
-  };
-
-  const sendUserUnshareWebcam = (cameraId: string) => {
-    cameraBroadcastStop({ variables: { cameraId } });
   };
 
   const playStart = (cameraId: string) => {
@@ -110,7 +105,7 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
       cameraDock={cameraDock}
       focusedId={focusedId}
       handleVideoFocus={handleVideoFocus}
-      isGridLayout={isGridEnabled}
+      isGridEnabled={isGridEnabled}
       isMeteorConnected={isMeteorConnected}
       swapLayout={swapLayout}
       currentUserId={currentUserId}
@@ -123,7 +118,6 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
       users={users}
       info={info}
       playStart={playStart}
-      sendUserUnshareWebcam={sendUserUnshareWebcam}
       exitVideo={exitVideo}
       lockUser={lockUser}
       stopVideo={stopVideo}
