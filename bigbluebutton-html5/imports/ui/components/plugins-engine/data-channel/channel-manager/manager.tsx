@@ -8,6 +8,7 @@ import { DataChannelItemManagerReader } from './reader-manager';
 import DataChannelItemManagerWriter from './writer-manager';
 
 export interface DataChannelItemManagerProps {
+  identifier: string;
   pluginName: string;
   channelName: string;
   subChannelName: string;
@@ -19,6 +20,7 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
   props: DataChannelItemManagerProps,
 ) => {
   const {
+    identifier,
     pluginName,
     channelName,
     pluginApi,
@@ -44,6 +46,7 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
         dataChannelTypes.map((type) => (
           <DataChannelItemManagerReader
             {...{
+              key: identifier?.concat('::')?.concat(type),
               pluginName,
               channelName,
               dataChannelType: type,
