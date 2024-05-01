@@ -357,11 +357,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     // Sets Loading to falsed and removes loading splash screen
     loadingContextInfo.setLoading(false, '');
     // Stops all media tracks
-    navigator
-      .mediaDevices
-      .getUserMedia({ audio: true, video: true })
-      .then((m) => m.getTracks().forEach((t) => t.stop()));
-
+    window.dispatchEvent(new Event('StopAudioTracks'));
     // get the media tag from the session storage
     const data = JSON.parse((sessionStorage.getItem('clientStartupSettings')) || '{}');
     // get media element and stops it and removes the audio source
