@@ -5,7 +5,7 @@ import {
   smPaddingX,
   toastContentWidth,
   borderRadius,
-} from '../../stylesheets/styled-components/general';
+} from '../../../stylesheets/styled-components/general';
 import {
   colorGrayDark,
   colorGrayLighter,
@@ -14,8 +14,8 @@ import {
   colorBlueLight,
   colorWhite,
   colorPrimary,
-} from '../../stylesheets/styled-components/palette';
-import { TextElipsis } from '../../stylesheets/styled-components/placeholders';
+} from '../../../stylesheets/styled-components/palette';
+import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
 
 const TimerSidebarContent = styled.div`
@@ -46,7 +46,7 @@ const TimerTitle = styled.div`
     max-width: ${toastContentWidth};
   }
 `;
-
+// @ts-ignore - JS code
 const TimerMinimizeButton = styled(Button)`
   position: relative;
   background-color: ${colorWhite};
@@ -84,7 +84,6 @@ const TimerContent = styled.div`
   flex-direction: column;
   width: 100%;
   height: 100%;
-  overflow: auto;
 `;
 
 const TimerCurrent = styled.span`
@@ -101,7 +100,7 @@ const TimerType = styled.div`
   justify-content: center;
   padding-top: 2rem;
 `;
-
+// @ts-ignore - JS code
 const TimerSwitchButton = styled(Button)`
   width: 100%;
   height: 2rem;
@@ -164,7 +163,10 @@ const TimerCol = `
   flex-grow: 1;
   flex-basis: 0;
 `;
-const TimerSongsTitle = styled.div`
+type TimerSongsTitleProps = {
+  stopwatch: boolean;
+};
+const TimerSongsTitle = styled.div<TimerSongsTitleProps>`
   ${TimerRow}
   display: flex;
   font-weight: bold;
@@ -201,7 +203,7 @@ const TimerControls = styled.div`
   justify-content: center;
   margin-top: 4rem;
 `;
-
+// @ts-ignore - JS code
 const TimerControlButton = styled(Button)`
   width: 6rem;
   margin: 0 1rem;

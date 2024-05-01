@@ -6,9 +6,8 @@ import { useSubscription, useMutation } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
-import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
-import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
+import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
@@ -53,6 +52,7 @@ const ActionsBarContainer = (props) => {
     isModerator: user.isModerator,
   }));
 
+
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
   const amIPresenter = currentUserData?.presenter;
@@ -81,6 +81,8 @@ const ActionsBarContainer = (props) => {
         isSharingVideo,
         stopExternalVideoShare,
         isSharedNotesPinned,
+        isTimerActive: currentMeeting.componentsFlags.hasTimer,
+        isTimerEnabled: isTimerFeatureEnabled(),
       }
     }
     />
@@ -104,8 +106,6 @@ export default withTracker(() => ({
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
-  isTimerActive: TimerService.isActive(),
-  isTimerEnabled: TimerService.isEnabled(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
