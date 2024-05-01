@@ -111,7 +111,6 @@ export interface Meeting {
   disabledFeatures: Array<string>;
   durationInSeconds: number;
   extId: string;
-  html5InstanceId: string | null;
   isBreakout: boolean;
   learningDashboardAccessToken: string;
   maxPinnedCameras: number;

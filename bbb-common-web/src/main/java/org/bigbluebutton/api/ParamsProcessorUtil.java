@@ -134,7 +134,6 @@ public class ParamsProcessorUtil {
     private Integer maxUserConcurrentAccesses = 0;
   	private Boolean defaultEndWhenNoModerator = false;
   	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
-  	private Integer defaultHtml5InstanceId = 1;
 
     private String bbbVersion = "";
     private Boolean allowRevealOfBBBVersion = false;
@@ -731,8 +730,6 @@ public class ParamsProcessorUtil {
 
         String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
 
-        int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
-
         if(defaultAllowDuplicateExtUserid == false) {
             log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
             maxUserConcurrentAccesses = 1;
@@ -768,7 +765,6 @@ public class ParamsProcessorUtil {
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withMaxUserConcurrentAccesses(maxUserConcurrentAccesses)
-                .withHTML5InstanceId(html5InstanceId)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
@@ -795,7 +791,6 @@ public class ParamsProcessorUtil {
 		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
 		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
-//		meeting.setHtml5InstanceId(html5InstanceId);
         meeting.setEndWhenNoModerator(endWhenNoModerator);
         meeting.setEndWhenNoModeratorDelayInMinutes(endWhenNoModeratorDelayInMinutes);
 
@@ -976,17 +971,6 @@ public class ParamsProcessorUtil {
 		}
 
 		return rec;
-	}
-
-	public int processHtml5InstanceId(String instanceId) {
-		int html5InstanceId = 1;
-		try {
-            html5InstanceId = Integer.parseInt(instanceId);
-		} catch(Exception ex) {
-            html5InstanceId = defaultHtml5InstanceId;
-		}
-
-		return html5InstanceId;
 	}
 
 	public int processMaxUser(String maxUsers) {

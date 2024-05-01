@@ -97,7 +97,6 @@ const MEETING_SUBSCRIPTION = gql`
           record
           sequence
         }
-        html5InstanceId
         voiceSettings {
           dialNumber
           muteOnStart
