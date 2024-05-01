@@ -1,13 +1,26 @@
-// @ts-nocheck
-/* eslint-disable */
 import React from 'react';
-import PropTypes from 'prop-types';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import UserListService from '/imports/ui/components/user-list/service';
+import { StreamUser } from '../../../types';
 
-const UserAvatarVideo = (props) => {
-  const { user, unhealthyStream, squeezed, voiceUser } = props;
+interface UserAvatarVideoProps {
+  user: StreamUser;
+  // eslint-disable-next-line react/require-default-props
+  voiceUser?: {
+    muted?: boolean;
+    listenOnly?: boolean;
+    talking?: boolean;
+    joined?: boolean;
+  };
+  squeezed: boolean;
+  unhealthyStream: boolean;
+}
+
+const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
+  const {
+    user, unhealthyStream, squeezed, voiceUser = {},
+  } = props;
   const {
     name, color, avatar, role, emoji,
   } = user;
@@ -21,6 +34,7 @@ const UserAvatarVideo = (props) => {
 
   const handleUserIcon = () => {
     if (emoji !== 'none') {
+      // @ts-expect-error -> Untyped component.
       return <Icon iconName={UserListService.normalizeEmojiName(emoji)} />;
     }
     return name.toLowerCase().slice(0, 2);
@@ -29,7 +43,7 @@ const UserAvatarVideo = (props) => {
   // hide icons when squeezed
   if (squeezed) {
     presenter = false;
-    clientType = false;
+    clientType = '';
   }
 
   return (
@@ -42,6 +56,7 @@ const UserAvatarVideo = (props) => {
       avatar={avatar}
       unhealthyStream={unhealthyStream}
       talking={talking}
+      whiteboardAccess={undefined}
     >
       {handleUserIcon()}
     </Styled.UserAvatarStyled>
@@ -49,17 +64,3 @@ const UserAvatarVideo = (props) => {
 };
 
 export default UserAvatarVideo;
-
-UserAvatarVideo.propTypes = {
-  user: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    color: PropTypes.string.isRequired,
-    avatar: PropTypes.string.isRequired,
-    role: PropTypes.string.isRequired,
-    emoji: PropTypes.string.isRequired,
-    presenter: PropTypes.bool.isRequired,
-    clientType: PropTypes.string.isRequired,
-  }).isRequired,
-  unhealthyStream: PropTypes.bool.isRequired,
-  squeezed: PropTypes.bool.isRequired,
-};

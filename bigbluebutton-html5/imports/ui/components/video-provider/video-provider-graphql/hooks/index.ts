@@ -242,7 +242,6 @@ export const useStreamUsers = () => {
         ...user,
         pin: user.pinned,
         sortName: user.nameSortable,
-        type: 'grid' as const,
       }))
       : []),
     [data],
@@ -370,6 +369,7 @@ export const useVideoStreams = (
       )
       .map((user) => ({
         isGridItem: true,
+        type: 'grid' as const,
         ...user,
       }))
       .slice(0, gridSize - streams.length);

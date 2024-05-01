@@ -103,7 +103,6 @@ export const VIDEO_STREAMS_USERS_SUBSCRIPTION = gql`
       userId
       raiseHand
       isModerator
-      left
       reaction {
         reactionEmoji
       }

@@ -91,7 +91,9 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
     currentMeeting?.usersPolicies?.webcamsOnlyForModerator
     && currentUser?.locked
   ) {
-    usersVideo = usersVideo.filter((uv) => (uv.type !== 'connecting' && uv.isModerator) || uv.userId === currentUserId);
+    usersVideo = usersVideo.filter(
+      (uv) => (uv.type !== 'connecting' && uv.isModerator) || uv.userId === currentUserId,
+    );
   }
 
   const isUserLocked = useIsUserLocked();

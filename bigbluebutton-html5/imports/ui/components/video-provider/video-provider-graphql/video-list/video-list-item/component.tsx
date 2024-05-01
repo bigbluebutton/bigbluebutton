@@ -1,8 +1,6 @@
-// @ts-nocheck
-/* eslint-disable */
 import React, { useEffect, useRef, useState } from 'react';
-import { injectIntl, defineMessages, useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
+import { defineMessages, useIntl } from 'react-intl';
+import { Session } from 'meteor/session';
 import UserActions from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-status/component';
 import PinArea from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/pin-area/component';
@@ -16,8 +14,9 @@ import {
 import Settings from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import Styled from './styles';
-import { withDragAndDrop } from './drag-and-drop/component';
+import withDragAndDrop from './drag-and-drop/component';
 import Auth from '/imports/ui/services/auth';
+import { StreamUser, VideoItem } from '../../types';
 
 const intlMessages = defineMessages({
   disableDesc: {
@@ -27,7 +26,39 @@ const intlMessages = defineMessages({
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
-const VideoListItem = (props) => {
+interface VideoListItemProps {
+  isFullscreenContext: boolean;
+  layoutContextDispatch: (...args: unknown[]) => void;
+  isRTL: boolean;
+  amIModerator: boolean;
+  cameraId: string;
+  disabledCams: string[];
+  focused: boolean;
+  isStream: boolean;
+  name: string;
+  numOfStreams: number;
+  onHandleVideoFocus: ((id: string) => void) | null;
+  onVideoItemMount: (ref: HTMLVideoElement) => void;
+  onVideoItemUnmount: (stream: string) => void;
+  settingsSelfViewDisable: boolean;
+  stream: VideoItem | undefined;
+  user: StreamUser;
+  makeDragOperations: (userId: string) => {
+    onDragOver: (e: DragEvent) => void,
+    onDrop: (e: DragEvent) => void,
+    onDragLeave: (e: DragEvent) => void,
+  };
+  dragging: boolean;
+  draggingOver: boolean;
+  voiceUser: {
+    muted: boolean;
+    listenOnly: boolean;
+    talking: boolean;
+    joined: boolean;
+  };
+}
+
+const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
@@ -39,7 +70,7 @@ const VideoListItem = (props) => {
 
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
-  const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user?.userId));
+  const [isMirrored, setIsMirrored] = useState<boolean>(VideoService.mirrorOwnWebcam(user?.userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
 
@@ -50,14 +81,15 @@ const VideoListItem = (props) => {
     return setIsVideoSqueezed(false);
   });
 
-  const videoTag = useRef();
-  const videoContainer = useRef();
+  const videoTag = useRef<HTMLVideoElement | null>(null);
+  const videoContainer = useRef<HTMLDivElement | null>(null);
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
+  // @ts-expect-error -> Untyped object.
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
 
-  const onStreamStateChange = (e) => {
+  const onStreamStateChange = (e: CustomEvent) => {
     const { streamState } = e.detail;
     const newHealthState = !isStreamStateUnhealthy(streamState);
     e.stopPropagation();
@@ -78,8 +110,8 @@ const VideoListItem = (props) => {
   // component did mount
   useEffect(() => {
     subscribeToStreamStateChange(cameraId, onStreamStateChange);
-    onVideoItemMount(videoTag.current);
-    resizeObserver.observe(videoContainer.current);
+    onVideoItemMount(videoTag.current!);
+    if (videoContainer.current) resizeObserver.observe(videoContainer.current);
     videoTag?.current?.addEventListener('loadeddata', onLoadedData);
 
     return () => {
@@ -90,7 +122,7 @@ const VideoListItem = (props) => {
 
   // component will mount
   useEffect(() => {
-    const playElement = (elem) => {
+    const playElement = (elem: HTMLVideoElement) => {
       if (elem.paused) {
         elem.play().catch((error) => {
           // NotAllowedError equals autoplay issues, fire autoplay handling event
@@ -102,10 +134,10 @@ const VideoListItem = (props) => {
       }
     };
     if (!isSelfViewDisabled && videoDataLoaded) {
-      playElement(videoTag.current);
+      playElement(videoTag.current!);
     }
     if ((isSelfViewDisabled && user.userId === Auth.userID) || disabledCams?.includes(cameraId)) {
-      videoTag.current.pause();
+      videoTag.current?.pause?.();
     }
   }, [isSelfViewDisabled, videoDataLoaded]);
 
@@ -122,7 +154,8 @@ const VideoListItem = (props) => {
   const renderSqueezedButton = () => (
     <UserActions
       name={name}
-      user={{ ...user, ...stream }}
+      user={user}
+      stream={stream}
       videoContainer={videoContainer}
       isVideoSqueezed={isVideoSqueezed}
       cameraId={cameraId}
@@ -153,7 +186,8 @@ const VideoListItem = (props) => {
       <Styled.BottomBar>
         <UserActions
           name={name}
-          user={{ ...user, ...stream }}
+          user={user}
+          stream={stream}
           cameraId={cameraId}
           numOfStreams={numOfStreams}
           onHandleVideoFocus={onHandleVideoFocus}
@@ -180,7 +214,7 @@ const VideoListItem = (props) => {
       animations={animations}
     >
       <UserAvatarVideo
-        user={{ ...user, ...stream }}
+        user={user}
         unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed
       />
@@ -192,7 +226,8 @@ const VideoListItem = (props) => {
     <>
       <Styled.TopBar>
         <PinArea
-          user={{ ...user, ...stream }}
+          user={user}
+          stream={stream}
           amIModerator={amIModerator}
         />
         <ViewActions
@@ -207,7 +242,8 @@ const VideoListItem = (props) => {
       <Styled.BottomBar>
         <UserActions
           name={name}
-          user={{ ...user, ...stream }}
+          user={user}
+          stream={stream}
           cameraId={cameraId}
           numOfStreams={numOfStreams}
           onHandleVideoFocus={onHandleVideoFocus}
@@ -228,7 +264,14 @@ const VideoListItem = (props) => {
     </>
   );
 
+  const {
+    onDragLeave,
+    onDragOver,
+    onDrop,
+  } = makeDragOperations(user.userId);
+
   return (
+    // @ts-expect-error -> Until everything in Typescript.
     <Styled.Content
       ref={videoContainer}
       talking={talking}
@@ -238,7 +281,9 @@ const VideoListItem = (props) => {
       animations={animations}
       isStream={isStream}
       {...{
-        ...makeDragOperations(user?.userId),
+        onDragLeave,
+        onDragOver,
+        onDrop,
         dragging,
         draggingOver,
       }}
@@ -253,7 +298,7 @@ const VideoListItem = (props) => {
           unhealthyStream={videoDataLoaded && !isStreamHealthy}
           data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
           ref={videoTag}
-          muted="muted"
+          muted
           autoPlay
           playsInline
         />
@@ -280,37 +325,5 @@ const VideoListItem = (props) => {
   );
 };
 
-export default withDragAndDrop(injectIntl(VideoListItem));
-
-VideoListItem.defaultProps = {
-  numOfStreams: 0,
-  onVideoItemMount: () => { },
-  onVideoItemUnmount: () => { },
-  onVirtualBgDrop: () => { },
-};
-
-VideoListItem.propTypes = {
-  cameraId: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  numOfStreams: PropTypes.number,
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
-  onHandleVideoFocus: PropTypes.func.isRequired,
-  onVideoItemMount: PropTypes.func,
-  onVideoItemUnmount: PropTypes.func,
-  onVirtualBgDrop: PropTypes.func,
-  isFullscreenContext: PropTypes.bool.isRequired,
-  layoutContextDispatch: PropTypes.func.isRequired,
-  user: PropTypes.shape({
-    pin: PropTypes.bool.isRequired,
-    userId: PropTypes.string.isRequired,
-  }).isRequired,
-  voiceUser: PropTypes.shape({
-    muted: PropTypes.bool.isRequired,
-    listenOnly: PropTypes.bool.isRequired,
-    talking: PropTypes.bool.isRequired,
-    joined: PropTypes.bool.isRequired,
-  }).isRequired,
-  focused: PropTypes.bool.isRequired,
-};
+// @ts-expect-error -> Until everything in Typescript.
+export default withDragAndDrop(VideoListItem);

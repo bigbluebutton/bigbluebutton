@@ -1,8 +1,5 @@
-// @ts-nocheck
-/* eslint-disable */
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
+import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
@@ -12,16 +9,8 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '../service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-
-const propTypes = {
-  streams: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onVideoItemMount: PropTypes.func.isRequired,
-  onVideoItemUnmount: PropTypes.func.isRequired,
-  intl: PropTypes.objectOf(Object).isRequired,
-  swapLayout: PropTypes.bool.isRequired,
-  numberOfPages: PropTypes.number.isRequired,
-  currentVideoPageIndex: PropTypes.number.isRequired,
-};
+import { Output } from '../../../layout/layoutTypes';
+import { StreamUser, VideoItem } from '../types';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {
@@ -38,7 +27,20 @@ const intlMessages = defineMessages({
   },
 });
 
-const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItems, columns = 1) => {
+declare global {
+  interface WindowEventMap {
+    'videoPlayFailed': CustomEvent<{ mediaElement: HTMLVideoElement }>;
+  }
+}
+
+const findOptimalGrid = (
+  canvasWidth: number,
+  canvasHeight: number,
+  gutter: number,
+  aspectRatio: number,
+  numItems: number,
+  columns = 1,
+) => {
   const rows = Math.ceil(numItems / columns);
   const gutterTotalWidth = (columns - 1) * gutter;
   const gutterTotalHeight = (rows - 1) * gutter;
@@ -62,8 +64,48 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 const ASPECT_RATIO = 4 / 3;
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
-class VideoList extends Component {
-  constructor(props) {
+interface VideoListProps {
+  layoutType: string;
+  layoutContextDispatch: (...args: unknown[]) => void;
+  numberOfPages: number;
+  swapLayout: boolean;
+  currentVideoPageIndex: number;
+  cameraDock: Output['cameraDock'];
+  focusedId: string;
+  handleVideoFocus: (id: string) => void;
+  isGridEnabled: boolean;
+  users: StreamUser[];
+  streams: VideoItem[];
+  intl: IntlShape;
+  onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
+  onVideoItemUnmount: (stream: string) => void;
+  onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+}
+
+interface VideoListState {
+  optimalGrid: {
+    cols: number,
+    rows: number,
+    filledArea: number,
+    width: number;
+    height: number;
+    columns: number;
+  },
+  autoplayBlocked: boolean,
+}
+
+class VideoList extends Component<VideoListProps, VideoListState> {
+  private ticking: boolean;
+
+  private grid: HTMLDivElement | null;
+
+  private canvas: HTMLDivElement | null;
+
+  private failedMediaElements: unknown[];
+
+  private autoplayWasHandled: boolean;
+
+  constructor(props: VideoListProps) {
     super(props);
 
     this.state = {
@@ -71,6 +113,9 @@ class VideoList extends Component {
         cols: 1,
         rows: 1,
         filledArea: 0,
+        columns: 0,
+        height: 0,
+        width: 0,
       },
       autoplayBlocked: false,
     };
@@ -96,8 +141,10 @@ class VideoList extends Component {
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
-  componentDidUpdate(prevProps) {
-    const { layoutType, cameraDock, streams, focusedId } = this.props;
+  componentDidUpdate(prevProps: VideoListProps) {
+    const {
+      layoutType, cameraDock, streams, focusedId,
+    } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
       layoutType: prevLayoutType,
@@ -148,7 +195,7 @@ class VideoList extends Component {
     if (autoplayBlocked) { this.setState({ autoplayBlocked: false }); }
   }
 
-  handlePlayElementFailed(e) {
+  handlePlayElementFailed(e: CustomEvent<{ mediaElement: HTMLVideoElement }>) {
     const { mediaElement } = e.detail;
     const { autoplayBlocked } = this.state;
 
@@ -190,7 +237,7 @@ class VideoList extends Component {
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
 
-    const hasFocusedItem = streams.filter(s => s.stream === focusedId).length && numItems > 2;
+    const hasFocusedItem = streams.filter((s) => s.type !== 'grid' && s.stream === focusedId).length && numItems > 2;
 
     // Has a focused item so we need +3 cells
     if (hasFocusedItem) {
@@ -303,23 +350,24 @@ class VideoList extends Component {
     } = this.props;
     const numOfStreams = streams.length;
 
-    let videoItems = streams;
+    const videoItems = streams;
 
     return videoItems.map((item) => {
       const { userId, name } = item;
-      const isStream = !!item.stream;
+      const isStream = item.type !== 'grid';
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;
+      const user = users.find((u) => u.userId === userId);
 
       return (
         <Styled.VideoListItem
           key={key}
-          focused={isFocused}
+          $focused={isFocused}
           data-test="webcamVideoItem"
         >
           <VideoListItemContainer
-            users={users}
+            user={user}
             numOfStreams={numOfStreams}
             cameraId={stream}
             userId={userId}
@@ -329,12 +377,16 @@ class VideoList extends Component {
             onHandleVideoFocus={isStream ? handleVideoFocus : null}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
-              if (isStream) onVideoItemMount(stream, videoRef);
+              if (isStream) onVideoItemMount(item.stream, videoRef);
             }}
-            stream={streams.find((s) => s.userId === userId) || {}}
+            stream={streams.find((s) => s.userId === userId)}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
-            onVirtualBgDrop={(type, name, data) => { return isStream ? onVirtualBgDrop(stream, type, name, data) : null; }}
+            onVirtualBgDrop={
+              (type, name, data) => {
+                return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);
+              }
+            }
           />
         </Styled.VideoListItem>
       );
@@ -353,7 +405,7 @@ class VideoList extends Component {
 
     return (
       <Styled.VideoCanvas
-        position={position}
+        $position={position}
         ref={(ref) => {
           this.canvas = ref;
         }}
@@ -396,7 +448,5 @@ class VideoList extends Component {
     );
   }
 }
-
-VideoList.propTypes = propTypes;
 
 export default injectIntl(VideoList);

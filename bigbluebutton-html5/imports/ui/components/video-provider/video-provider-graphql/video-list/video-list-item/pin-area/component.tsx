@@ -1,12 +1,10 @@
-// @ts-nocheck
-/* eslint-disable */
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
+import { StreamUser, VideoItem } from '../../../types';
 
 const intlMessages = defineMessages({
   unpinLabel: {
@@ -17,11 +15,17 @@ const intlMessages = defineMessages({
   },
 });
 
-const PinArea = (props) => {
+interface PinAreaProps {
+  user: StreamUser;
+  stream: VideoItem | undefined;
+  amIModerator: boolean;
+}
+
+const PinArea: React.FC<PinAreaProps> = (props) => {
   const intl = useIntl();
 
-  const { user, amIModerator } = props;
-  const pinned = user?.pin;
+  const { stream, user, amIModerator } = props;
+  const pinned = stream?.type === 'stream' && stream?.pin;
   const userId = user?.userId;
   const shouldRenderPinButton = pinned && userId;
   const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser(amIModerator);
@@ -56,10 +60,3 @@ const PinArea = (props) => {
 };
 
 export default PinArea;
-
-PinArea.propTypes = {
-  user: PropTypes.shape({
-    pin: PropTypes.bool.isRequired,
-    userId: PropTypes.string.isRequired,
-  }).isRequired,
-};

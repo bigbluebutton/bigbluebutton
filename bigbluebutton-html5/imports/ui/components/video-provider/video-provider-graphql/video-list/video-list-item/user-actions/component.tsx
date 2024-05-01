@@ -1,19 +1,19 @@
-// @ts-nocheck
-/* eslint-disable */
-import React, { useContext } from 'react';
+import React, { MutableRefObject, useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useMutation } from '@apollo/client';
+import { Session } from 'meteor/session';
+import { UserCameraDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import browserInfo from '/imports/utils/browserInfo';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import PropTypes from 'prop-types';
 import { UserCameraDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-camera-dropdown-item/enums';
-import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
+import { StreamUser, VideoItem } from '../../../types';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -74,16 +74,35 @@ const intlMessages = defineMessages({
   },
 });
 
-const UserActions = (props) => {
+interface UserActionProps {
+  name: string;
+  user: StreamUser;
+  stream: VideoItem | undefined;
+  cameraId: string;
+  numOfStreams: number;
+  onHandleVideoFocus: ((id: string) => void) | null;
+  focused: boolean;
+  onHandleMirror: () => void;
+  isMirrored: boolean;
+  isRTL: boolean;
+  isStream: boolean;
+  onHandleDisableCam: () => void;
+  isSelfViewDisabled: boolean;
+  amIModerator: boolean;
+  isVideoSqueezed?: boolean,
+  videoContainer?: MutableRefObject<HTMLDivElement | null>,
+}
+
+const UserActions: React.FC<UserActionProps> = (props) => {
   const {
-    name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
+    name, cameraId, numOfStreams, onHandleVideoFocus, user, stream, focused, onHandleMirror,
+    isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
     amIModerator,
   } = props;
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
-  let userCameraDropdownItems = [];
+  let userCameraDropdownItems: UserCameraDropdownInterface[] = [];
   if (pluginsExtensibleAreasAggregatedState.userCameraDropdownItems) {
     userCameraDropdownItems = [
       ...pluginsExtensibleAreasAggregatedState.userCameraDropdownItems,
@@ -97,7 +116,7 @@ const UserActions = (props) => {
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
   const getAvailableActions = () => {
-    const pinned = user?.pin;
+    const pinned = stream?.type === 'stream' && stream?.pin;
     const userId = user?.userId;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
@@ -113,7 +132,7 @@ const UserActions = (props) => {
         Session.set('disabledCams', [...disabledCams, cameraId]);
         notify(intl.formatMessage(intlMessages.disableWarning), 'info', 'warning');
       } else {
-        Session.set('disabledCams', disabledCams.filter((cId) => cId !== cameraId));
+        Session.set('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
       }
     };
 
@@ -132,7 +151,8 @@ const UserActions = (props) => {
             key: `${cameraId}-fullscreen`,
             label: intl.formatMessage(intlMessages.fullscreenLabel),
             description: intl.formatMessage(intlMessages.fullscreenLabel),
-            onClick: () => FullscreenService.toggleFullScreen(videoContainer.current),
+            // @ts-expect-error -> Until everything in Typescript.
+            onClick: () => FullscreenService.toggleFullScreen(videoContainer?.current),
           },
         );
       }
@@ -142,7 +162,7 @@ const UserActions = (props) => {
         key: `${cameraId}-disable`,
         label: intl.formatMessage(intlMessages[`${enableSelfCamIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${enableSelfCamIntlKey}Label`]),
-        onClick: () => toggleDisableCam(cameraId),
+        onClick: () => toggleDisableCam(),
         dataTest: 'selfViewDisableBtn',
       });
     }
@@ -152,7 +172,7 @@ const UserActions = (props) => {
         key: `${cameraId}-mirror`,
         label: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Desc`]),
-        onClick: () => onHandleMirror(cameraId),
+        onClick: () => onHandleMirror(),
         dataTest: 'mirrorWebcamBtn',
       });
     }
@@ -162,7 +182,7 @@ const UserActions = (props) => {
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-        onClick: () => onHandleVideoFocus(cameraId),
+        onClick: () => onHandleVideoFocus?.(cameraId),
         dataTest: 'FocusWebcamBtn',
       });
     }
@@ -189,8 +209,11 @@ const UserActions = (props) => {
         case UserCameraDropdownItemType.OPTION:
           menuItems.push({
             key: pluginItem.id,
+            // @ts-expect-error -> Plugin-related.
             label: pluginItem.label,
+            // @ts-expect-error -> Plugin-related.
             onClick: pluginItem.onClick,
+            // @ts-expect-error -> Plugin-related.
             icon: pluginItem.icon,
           });
           break;
@@ -238,7 +261,7 @@ const UserActions = (props) => {
               <Styled.DropdownTrigger
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
-                isRTL={isRTL}
+                $isRTL={isRTL}
               >
                 {name}
               </Styled.DropdownTrigger>
@@ -257,8 +280,8 @@ const UserActions = (props) => {
           />
         )
         : (
-          <Styled.Dropdown isFirefox={isFirefox}>
-            <Styled.UserName noMenu={numOfStreams < 3}>
+          <Styled.Dropdown $isFirefox={isFirefox}>
+            <Styled.UserName $noMenu={numOfStreams < 3}>
               {name}
             </Styled.UserName>
           </Styled.Dropdown>
@@ -274,29 +297,3 @@ const UserActions = (props) => {
 };
 
 export default UserActions;
-
-UserActions.defaultProps = {
-  focused: false,
-  isVideoSqueezed: false,
-  videoContainer: () => { },
-  onHandleVideoFocus: () => {},
-};
-
-UserActions.propTypes = {
-  name: PropTypes.string.isRequired,
-  cameraId: PropTypes.string.isRequired,
-  numOfStreams: PropTypes.number.isRequired,
-  onHandleVideoFocus: PropTypes.func,
-  user: PropTypes.shape({
-    pin: PropTypes.bool.isRequired,
-    userId: PropTypes.string.isRequired,
-  }).isRequired,
-  focused: PropTypes.bool,
-  isVideoSqueezed: PropTypes.bool,
-  videoContainer: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-  ]),
-  onHandleMirror: PropTypes.func.isRequired,
-  onHandleDisableCam: PropTypes.func.isRequired,
-};

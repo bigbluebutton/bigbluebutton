@@ -1,10 +1,18 @@
-// @ts-nocheck
-/* eslint-disable */
 import React from 'react';
-import PropTypes from 'prop-types';
 import Styled from './styles';
+import { StreamUser } from '../../../types';
 
-const UserStatus = (props) => {
+interface UserStatusProps {
+  user: StreamUser;
+  voiceUser: {
+    muted: boolean;
+    listenOnly: boolean;
+    talking: boolean;
+    joined: boolean;
+  };
+}
+
+const UserStatus: React.FC<UserStatusProps> = (props) => {
   const { voiceUser, user } = props;
 
   const listenOnly = voiceUser?.listenOnly;
@@ -26,11 +34,3 @@ const UserStatus = (props) => {
 };
 
 export default UserStatus;
-
-UserStatus.propTypes = {
-  voiceUser: PropTypes.shape({
-    listenOnly: PropTypes.bool.isRequired,
-    muted: PropTypes.bool.isRequired,
-    joined: PropTypes.bool.isRequired,
-  }).isRequired,
-};
