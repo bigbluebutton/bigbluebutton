@@ -4,7 +4,7 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import { Stream } from '/imports/ui/components/video-provider/video-provider-graphql/state';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import { didUserSelectedListenOnly, didUserSelectedMicrophone } from '../../../audio/audio-modal/service';
+import { didUserSelectedListenOnly, didUserSelectedMicrophone } from '../../audio/audio-modal/service';
 import logger from '/imports/startup/client/logger';
 
 export const getIsMicrophoneUser = () => {

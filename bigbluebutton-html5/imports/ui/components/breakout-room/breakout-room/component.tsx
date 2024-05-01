@@ -12,11 +12,11 @@ import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
-import { layoutDispatch, layoutSelect } from '../../../layout/context';
-import { ACTIONS, PANELS } from '../../../layout/enums';
-import { Layout } from '../../../layout/layoutTypes';
+import { layoutDispatch, layoutSelect } from '../../layout/context';
+import { ACTIONS, PANELS } from '../../layout/enums';
+import { Layout } from '../../layout/layoutTypes';
 import BreakoutDropdown from '../breakout-room-dropdown/component';
-import { BREAKOUT_ROOM_END_ALL, BREAKOUT_ROOM_REQUEST_JOIN_URL, USER_TRANSFER_VOICE_TO_MEETING } from '../../mutations';
+import { BREAKOUT_ROOM_END_ALL, BREAKOUT_ROOM_REQUEST_JOIN_URL, USER_TRANSFER_VOICE_TO_MEETING } from '../mutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import TimeRemaingPanel from './components/timeRemaining';
 import BreakoutMessageForm from './components/messageForm';
@@ -26,7 +26,7 @@ import {
   rejoinAudio,
   stopVideo,
 } from './service';
-import { useExitVideo, useStreams } from '../../../video-provider/video-provider-graphql/hooks';
+import { useExitVideo, useStreams } from '../../video-provider/video-provider-graphql/hooks';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoom[];

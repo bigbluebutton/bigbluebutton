@@ -6,7 +6,6 @@ import {
 } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
-import NotesService from '/imports/ui/components/notes/service';
 import VideoStreams from '/imports/api/video-streams';
 import Auth from '/imports/ui/services/auth/index';
 

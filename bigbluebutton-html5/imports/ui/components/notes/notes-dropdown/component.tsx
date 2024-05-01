@@ -4,7 +4,7 @@ import { useQuery, useSubscription } from '@apollo/client';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import NotesService from '/imports/ui/components/notes/notes-graphql/service';
+import NotesService from '/imports/ui/components/notes/service';
 import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { PROCESSED_PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';

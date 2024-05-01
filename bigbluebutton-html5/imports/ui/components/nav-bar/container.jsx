@@ -11,7 +11,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useChat from '/imports/ui/core/hooks/useChat';
-import useHasUnreadNotes from '../notes/notes-graphql/hooks/useHasUnreadNotes';
+import useHasUnreadNotes from '../notes/hooks/useHasUnreadNotes';
 import { useShortcut } from '../../core/hooks/useShortcut';
 
 const PUBLIC_CONFIG = window.meetingClientSettings.public;

@@ -4,10 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import { injectIntl, defineMessages } from 'react-intl';
 import { range } from '/imports/utils/array-utils';
-import Auth from '/imports/ui/services/auth';
-import Breakouts from '/imports/api/breakouts';
 import AppService from '/imports/ui/components/app/service';
-import BreakoutsService from '/imports/ui/components/breakout-room/service';
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
@@ -203,33 +200,6 @@ export default lockContextContainer(injectIntl(withTracker(({
     if (userWebcam) return;
     setVideoPreviewModalIsOpen(true);
   };
-
-  const breakoutUserIsIn = BreakoutsService.getBreakoutUserIsIn(Auth.userID);
-  if (!!breakoutUserIsIn && !meetingIsBreakout) {
-    const userBreakout = Breakouts.find({ id: breakoutUserIsIn.id });
-    userBreakout.observeChanges({
-      removed() {
-        // if the user joined a breakout room, the main room's audio was
-        // programmatically dropped to avoid interference. On breakout end,
-        // offer to rejoin main room audio only if the user is not in audio already
-        if (Service.isUsingAudio()
-          || userSelectedMicrophone
-          || userSelectedListenOnly) {
-          if (enableVideo && autoShareWebcam) {
-            openVideoPreviewModal();
-          }
-
-          return;
-        }
-        setTimeout(() => {
-          openAudioModal();
-          if (enableVideo && autoShareWebcam) {
-            openVideoPreviewModal();
-          }
-        }, 0);
-      },
-    });
-  }
 
   return {
     hasBreakoutRooms,

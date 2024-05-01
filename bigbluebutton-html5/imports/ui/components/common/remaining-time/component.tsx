@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import { setCapturedContentUploading } from './service';
 import { Text, Time } from './styles';
 import { notify } from '/imports/ui/services/notification';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
@@ -102,7 +101,6 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
       }
     } else {
       clearInterval(timeRemainingInterval.current);
-      setCapturedContentUploading();
       if (endingLabel) meetingTimeMessage.current = intl.formatMessage(endingLabel);
     }
   }

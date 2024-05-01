@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { escapeHtml } from '/imports/utils/string-utils';
-import { BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL } from '../../../mutations';
+import { BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL } from '../../mutations';
 import Styled from '../styles';
 
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;

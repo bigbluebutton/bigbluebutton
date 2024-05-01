@@ -17,7 +17,7 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
+import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
