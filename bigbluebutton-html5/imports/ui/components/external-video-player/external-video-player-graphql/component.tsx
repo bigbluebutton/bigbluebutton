@@ -508,6 +508,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
     + playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
 
+  console.log('currentTime', currentTime);
+
   return (
     <ExternalVideoPlayer
       currentVolume={currentVolume}
@@ -520,7 +522,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       isResizing={isResizing}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
-      currentTime={isPresenter ? playerCurrentTime : currentTime}
+      currentTime={currentTime}
       key={key}
       setKey={setKey}
     />
