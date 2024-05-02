@@ -1,5 +1,3 @@
-import { makeCall } from '/imports/ui/services/api';
-
 export const privateMessageVisible = (id: string) => {
   const privateInputSpace = document.getElementById(id);
   if (privateInputSpace) {
@@ -16,8 +14,6 @@ export const getNameInitials = (name: string) => {
 
   return nameInitials.replace(/^\w/, (c: string) => c.toUpperCase());
 };
-
-export const setPrivateGuestLobbyMessage = (message: string, guestId: string) => makeCall('setPrivateGuestLobbyMessage', message, guestId);
 
 export default {
   privateMessageVisible,

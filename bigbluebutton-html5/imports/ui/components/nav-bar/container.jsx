@@ -5,15 +5,14 @@ import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useChat from '/imports/ui/core/hooks/useChat';
-import useHasUnreadNotes from '../notes/notes-graphql/hooks/useHasUnreadNotes';
-import useMeeting from '../../core/hooks/useMeeting';
+import useHasUnreadNotes from '../notes/hooks/useHasUnreadNotes';
+import { useShortcut } from '../../core/hooks/useShortcut';
 
 const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
@@ -30,6 +29,8 @@ const NavBarContainer = ({ children, ...props }) => {
 
   const { sidebarContentPanel } = sidebarContent;
   const { sidebarNavPanel } = sidebarNavigation;
+
+  const toggleUserList = useShortcut('toggleUserList');
 
   const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
 
@@ -71,6 +72,7 @@ const NavBarContainer = ({ children, ...props }) => {
         isExpanded,
         currentUserId: Auth.userID,
         pluginNavBarItems,
+        shortcuts: toggleUserList,
         ...props,
       }}
       style={{ ...navBar }}

@@ -60,6 +60,7 @@ public class Meeting {
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
+	private String loginUrl;
 	private String logoutUrl;
 	private int logoutTimer = 0;
 	private int maxUsers;
@@ -143,6 +144,7 @@ public class Meeting {
         maxUsers = builder.maxUsers;
         bannerColor = builder.bannerColor;
         bannerText = builder.bannerText;
+        loginUrl = builder.loginUrl;
         logoutUrl = builder.logoutUrl;
         logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
@@ -560,6 +562,10 @@ public class Meeting {
 	}
 
 
+	public String getLoginUrl() {
+		return loginUrl;
+	}
+
 	public String getLogoutUrl() {
 		return logoutUrl;
 	}
@@ -899,6 +905,7 @@ public class Meeting {
     	private String telVoice;
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
+    	private String loginUrl;
     	private String logoutUrl;
     	private String bannerColor;
     	private String bannerText;
@@ -1057,9 +1064,14 @@ public class Meeting {
     	  return this;
     	}
 
+    	public Builder withLoginUrl(String l) {
+    	  loginUrl = l;
+    	  return this;
+    	}
+
     	public Builder withLogoutUrl(String l) {
-    		logoutUrl = l;
-    		return this;
+    	  logoutUrl = l;
+    	  return this;
     	}
 
     	public Builder withLogoutTimer(int l) {

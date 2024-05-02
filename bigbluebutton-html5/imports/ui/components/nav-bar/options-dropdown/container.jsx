@@ -12,6 +12,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 
 const { isIphone } = deviceInfo;
 const { isSafari, isValidSafariVersion } = browserInfo;
@@ -45,10 +46,17 @@ const OptionsDropdownContainer = (props) => {
   const audioCaptionsEnabled = componentsFlags?.hasCaption;
 
   const [userLeaveMeeting] = useMutation(USER_LEAVE_MEETING);
+  const openOptions = useShortcut('openOptions');
 
   return (
     <OptionsDropdown {...{
-      isMobile, isRTL, optionsDropdownItems, userLeaveMeeting, audioCaptionsEnabled, ...props,
+      isMobile,
+      isRTL,
+      optionsDropdownItems,
+      userLeaveMeeting,
+      audioCaptionsEnabled,
+      shortcuts: openOptions,
+      ...props,
     }}
     />
   );

@@ -44,7 +44,7 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
     }
   }
 
-  logger.debug(`Valid ${operation.operationName} payload. Following with the query.`);
+  // logger.debug(`Valid ${operation.operationName} payload. Following with the query.`);
   return forward(operation);
 });
 
@@ -104,6 +104,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
         });
+        apolloContextHolder.setLink(subscription);
       } catch (error) {
         loadingContextInfo.setLoading(false, '');
         throw new Error('Error creating WebSocketLink: '.concat(JSON.stringify(error) || ''));

@@ -4,9 +4,6 @@ import { defineMessages } from 'react-intl';
 
 import Button from '/imports/ui/components/common/button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import { makeCall } from '/imports/ui/services/api';
-
-import { Meteor } from 'meteor/meteor';
 import Styled from './styles';
 
 const propTypes = {
@@ -30,8 +27,6 @@ const intlMessages = defineMessages({
     description: 'Check button for activity modal',
   },
 });
-
-const handleInactivityDismiss = () => makeCall('userActivitySign');
 
 class ActivityCheck extends Component {
   constructor(props) {
@@ -87,14 +82,14 @@ class ActivityCheck extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, userActivitySign } = this.props;
 
     const { responseDelay } = this.state;
 
     return (
       <ModalSimple
         hideBorder
-        onRequestClose={handleInactivityDismiss}
+        onRequestClose={() => userActivitySign()}
         shouldCloseOnOverlayClick={false}
         shouldShowCloseButton={false}
         priority="high"
@@ -107,7 +102,7 @@ class ActivityCheck extends Component {
             color="primary"
             disabled={responseDelay <= 0}
             label={intl.formatMessage(intlMessages.activityCheckButton)}
-            onClick={handleInactivityDismiss}
+            onClick={() => userActivitySign()}
             role="button"
             size="lg"
           />

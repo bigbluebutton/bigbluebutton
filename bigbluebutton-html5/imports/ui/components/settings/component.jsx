@@ -280,7 +280,7 @@ class Settings extends Component {
 
             if (saved.application.locale !== current.application.locale) {
               const { language } = formatLocaleCode(saved.application.locale);
-              const { language: newLanguage } = formatLocaleCode(current.application.locale);
+              const newLanguage = current.application.locale;
               setUseCurrentLocale(newLanguage);
               document.body.classList.remove(`lang-${language}`);
             }

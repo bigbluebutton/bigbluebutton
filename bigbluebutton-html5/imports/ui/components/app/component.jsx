@@ -8,7 +8,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
-import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/pads-graphql/sessions/component';
 import WakeLockContainer from '../wake-lock/container';
@@ -44,10 +43,9 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import AudioService from '/imports/ui/components/audio/service';
-import NotesContainer from '/imports/ui/components/notes/container';
+import NotesContainer from '/imports/ui/components/notes/component';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
-import TimerService from '/imports/ui/components/timer/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
@@ -148,7 +146,6 @@ class App extends Component {
       presentationFitToWidth: false,
     };
 
-    this.isTimerEnabled = TimerService.isEnabled();
     this.timeOffsetInterval = null;
 
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
@@ -221,12 +218,6 @@ class App extends Component {
     }
 
     if (deviceInfo.isMobile) setMobileUser(true);
-
-    if (this.isTimerEnabled) {
-      TimerService.fetchTimeOffset();
-      this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
-        TimerService.OFFSET_INTERVAL);
-    }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -439,9 +430,7 @@ class App extends Component {
   }
 
   renderActivityCheck() {
-    const { User } = this.props;
-
-    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = User;
+    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = this.props;
 
     return (inactivityWarningDisplay ? (
       <ActivityCheckContainer
