@@ -25,6 +25,8 @@ import {
 import { useMouseEvents, useCursor } from "./hooks";
 import { notifyShapeNumberExceeded } from "./service";
 
+import NoopTool from './custom-tools/noop-tool/component';
+
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
   const keysToRemove = Object.keys(localStorage).filter((key) =>
@@ -166,21 +168,17 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     hasWBAccessRef.current = hasWBAccess;
 
     if (!hasWBAccess && !isPresenter) {
-      tlEditorRef?.current?.setCurrentTool("select");
+      tlEditorRef?.current?.setCurrentTool("noop");
     }
   }, [hasWBAccess]);
 
   React.useEffect(() => {
-    if (!isEqual(isPresenterRef.current, isPresenter)) {
       isPresenterRef.current = isPresenter;
-    }
-  }, [isPresenter]);
 
-  React.useEffect(() => {
-    if (!isEqual(hasWBAccessRef.current, hasWBAccess)) {
-      hasWBAccessRef.current = hasWBAccess;
-    }
-  }, [hasWBAccess]);
+      if (!hasWBAccessRef.current && !isPresenter) {
+        tlEditorRef?.current?.setCurrentTool("noop");
+      }
+  }, [isPresenter]);
 
   React.useEffect(() => {
     if (!isEqual(prevShapesRef.current, shapes)) {
@@ -1147,6 +1145,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     presentationAreaHeight,
   ]);
 
+  const customTools = [NoopTool];
+
   return (
     <div
       ref={whiteboardRef}
@@ -1158,6 +1158,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         forceMobile={true}
         hideUi={hasWBAccessRef.current || isPresenter ? false : true}
         onMount={handleTldrawMount}
+        tools={customTools}
       />
       <Styled.TldrawV2GlobalStyle
         {...{
