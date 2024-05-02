@@ -1029,21 +1029,23 @@ SELECT 	"user"."userId",
 		cu."lastSeenAt",
 		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN true ELSE false end public
 FROM "user"
-LEFT JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
+JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 --now it will always add chat_user for public chat onUserJoin
 --JOIN "chat" ON "user"."meetingId" = chat."meetingId" AND (cu."chatId" = chat."chatId" OR chat."chatId" = 'MAIN-PUBLIC-GROUP-CHAT')
 JOIN "chat" ON "user"."meetingId" = chat."meetingId" AND cu."chatId" = chat."chatId"
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND
                                     chat_with."chatId" = chat."chatId" AND
-                                    chat."chatId" != 'MAIN-PUBLIC-GROUP-CHAT' AND
-                                    chat_with."userId" != cu."userId"
+                                    chat_with."userId" != cu."userId" AND
+                                    chat_with."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND
                              cm."chatId" = chat."chatId"
 WHERE cu."visible" is true
 GROUP BY "user"."userId", chat."meetingId", chat."chatId", cu."visible", cu."lastSeenAt", chat_with."userId";
 
+create index idx_v_chat_with on chat_user("meetingId","chatId","userId") where "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
+
 CREATE OR REPLACE VIEW "v_chat_message_public" AS
-SELECT cm.*
+SELECT cm.* 
 FROM chat_message cm
 WHERE cm."chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 
