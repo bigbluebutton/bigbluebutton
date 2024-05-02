@@ -25,12 +25,15 @@ const PresentationToolbarWrapper = styled.div`
   z-index: 1;
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
-  min-width: fit-content;
   width: 100%;
   bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   padding: 2px;
+  ${({ isMobile }) => (isMobile
+    ? 'overflow: auto;'
+    : 'min-width: fit-content;'
+  )};
 
   select {
     &:-moz-focusring {
