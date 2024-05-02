@@ -24,6 +24,7 @@ import {
 } from '../state';
 import {
   OWN_VIDEO_STREAMS_QUERY,
+  VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
   VIDEO_STREAMS_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VideoStreamsUsersResponse,
@@ -327,9 +328,17 @@ export const useStreams = () => {
   return { streams: videoStreams };
 };
 
-export const useStreamUsers = () => {
+export const useStreamUsers = (isGridEnabled: boolean) => {
+  const { streams } = useStreams();
+  const subscription = isGridEnabled
+    ? VIDEO_STREAMS_USERS_SUBSCRIPTION
+    : VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION;
+  const variables = isGridEnabled
+    ? {}
+    : { userIds: streams.map((s) => s.userId) }
   const { data, loading, error } = useSubscription<VideoStreamsUsersResponse>(
-    VIDEO_STREAMS_USERS_SUBSCRIPTION,
+    subscription,
+    { variables },
   );
   const users = useMemo(
     () => (data
@@ -433,7 +442,7 @@ export const useVideoStreams = (
 ) => {
   const [state] = useVideoState();
   const { currentVideoPageIndex, numberOfPages } = state;
-  const { users } = useStreamUsers();
+  const { users } = useStreamUsers(isGridEnabled);
   const { streams: videoStreams} = useStreams();
   const connectingStream = useConnectingStream(videoStreams);
   const gridSize = useGridSize();

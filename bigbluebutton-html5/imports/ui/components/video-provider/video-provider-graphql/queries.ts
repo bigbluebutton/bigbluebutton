@@ -109,6 +109,38 @@ export const VIDEO_STREAMS_USERS_SUBSCRIPTION = gql`
   }
 `;
 
+export const VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION = gql`
+  subscription FilteredVideoStreamsUsers($userIds: [String]!) {
+    user(
+      where: {
+        userId: {
+          _in: $userIds
+        }
+      }
+    ) {
+      name
+      userId
+      nameSortable
+      pinned
+      loggedOut
+      away
+      disconnected
+      emoji
+      role
+      avatar
+      color
+      presenter
+      clientType
+      userId
+      raiseHand
+      isModerator
+      reaction {
+        reactionEmoji
+      }
+    }
+  }
+`;
+
 export default {
   VIDEO_STREAMS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
