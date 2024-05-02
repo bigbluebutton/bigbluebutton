@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   useSubscription,
   useReactiveVar,
@@ -34,6 +34,7 @@ import videoService from '../service';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
 import { GridItem, StreamItem } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
+import logger from '/imports/startup/client/logger';
 
 const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
@@ -234,6 +235,11 @@ export const useStreams = () => {
   return { streams: videoStreams };
 };
 
+type StreamUser = VideoStreamsUsersResponse['user'][number] & {
+  pin: boolean;
+  sortName: string;
+};
+
 export const useStreamUsers = (isGridEnabled: boolean) => {
   const { streams } = useStreams();
   const subscription = isGridEnabled
@@ -246,16 +252,26 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
     subscription,
     { variables },
   );
-  const users = useMemo(
-    () => (data
-      ? data.user.map((user) => ({
+  const [users, setUsers] = useState<StreamUser[]>([]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (error) {
+      logger.error(`Error on load stream users. name=${error.name}`, error);
+    }
+
+    if (data) {
+      const newData = data.user.map((user) => ({
         ...user,
         pin: user.pinned,
         sortName: user.nameSortable,
-      }))
-      : []),
-    [data],
-  );
+      }));
+      setUsers(newData);
+    } else {
+      setUsers([]);
+    }
+  }, [data]);
 
   return {
     users,
