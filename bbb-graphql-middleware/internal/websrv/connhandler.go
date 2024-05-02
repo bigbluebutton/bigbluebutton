@@ -134,7 +134,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					if thisBrowserConnection != nil {
 						log.Debugf("created gql-actions client")
 
-						//graphqlActionsClientContext, graphqlActionsClientContextCancel := context.WithCancel(r.Context())
 						BrowserConnectionsMutex.Lock()
 						thisBrowserConnection.GraphqlActionsContext, thisBrowserConnection.GraphqlActionsContextCancel = context.WithCancel(browserConnectionContext)
 						BrowserConnectionsMutex.Unlock()

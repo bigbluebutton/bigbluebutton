@@ -49,9 +49,7 @@ RangeLoop:
 				var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
 				if fromBrowserMessageAsMap["type"] == "start" {
-					var queryId = fromBrowserMessageAsMap["id"].(string)
-
-					//Identify type based on query string
+					queryId := fromBrowserMessageAsMap["id"].(string)
 					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
 
 					query, okQuery := payload["query"].(string)
