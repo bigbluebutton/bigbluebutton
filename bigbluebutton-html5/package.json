@@ -58,7 +58,7 @@
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
     "makeup-screenreader-trap": "0.0.5",
-    "meteor-node-stubs": "^1.2.1",
+    "meteor-node-stubs": "^1.2.9",
     "mobx": "6.4.2",
     "postcss-nested": "^5.0.6",
     "probe-image-size": "^7.2.3",
