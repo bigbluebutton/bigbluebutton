@@ -541,18 +541,19 @@ class VideoService {
     this.webRtcPeersRef = newRef;
   }
 
-  setTrackEnabled(value) {
+  setTrackEnabled(value: boolean) {
     const localPeers = Object.values(this.webRtcPeersRef).filter(
+      // @ts-expect-error -> Until all codebase is in Typescript.
       (peer) => peer.isPublisher,
     );
     localPeers.forEach((peer) => {
       const stream = peer.getLocalStream();
-      MediaStreamUtils.getVideoTracks(stream).forEach((track) => {
+      MediaStreamUtils.getVideoTracks(stream).forEach((track: MediaStreamTrack) => {
         // eslint-disable-next-line no-param-reassign
         track.enabled = value;
       });
     });
-  }  
+  }
 }
 
 const videoService = new VideoService();
@@ -597,28 +598,5 @@ export default {
     CAMERA_QUALITY_THR_DEBOUNCE,
     { leading: false, trailing: true },
   ),
-  getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
-  isPaginationEnabled: () => videoService.isPaginationEnabled(),
-  getNumberOfPages: () => videoService.getNumberOfPages(),
-  getCurrentVideoPageIndex: () => videoService.getCurrentVideoPageIndex(),
-  getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
-  getNextVideoPage: () => videoService.getNextVideoPage(),
-  getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
-  getUsersIdFromVideoStreams: (streams) => videoService.getUsersIdFromVideoStreams(streams),
-  shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
-  getVideoPinByUser: (userId) => videoService.getVideoPinByUser(userId),
-  isVideoPinEnabledForCurrentUser: (user) => videoService.isVideoPinEnabledForCurrentUser(user),
-  isPinEnabled: () => videoService.isPinEnabled(),
-  getPreloadedStream: () => videoService.getPreloadedStream(),
-  getStats: (streams) => videoService.getStats(streams),
-  updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
-  joinedVideo: () => videoService.joinedVideo(),
-  fetchVideoStreams: () => videoService.fetchVideoStreams(),
-  getGridUsers: (users = [], streams = []) => videoService.getGridUsers(users, streams),
-  webcamsOnlyForModerators: () => videoService.webcamsOnlyForModerator(),
-  isGridEnabled: videoService.isGridEnabled,
-  setPageSize: videoService.setPageSize,
-  filterLocalOnly: videoService.filterLocalOnly,
-  exitedVideo: () => videoService.exitedVideo(),
-  setTrackEnabled: (value) => videoService.setTrackEnabled(value),
+  setTrackEnabled: (value: boolean) => videoService.setTrackEnabled(value),
 };
