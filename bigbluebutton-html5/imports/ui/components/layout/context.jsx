@@ -3,7 +3,7 @@ import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
 import { useSubscription } from '@apollo/client';
 import { equals } from 'ramda';
-import { PINNED_PAD_SUBSCRIPTION } from '/imports/ui/components/notes/notes-graphql/queries';
+import { PINNED_PAD_SUBSCRIPTION } from '/imports/ui/components/notes/queries';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS, LAYOUT_TYPE,
 } from '/imports/ui/components/layout/enums';

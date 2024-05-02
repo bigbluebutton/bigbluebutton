@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.db
 
+import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse}
 import org.bigbluebutton.core.apps.TimerModel
 import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getEndedAt, getIsActive, getRunning, getStartedAt, getStopwatch, getTime, getTrack}
 import slick.jdbc.PostgresProfile.api._
@@ -33,25 +34,31 @@ class TimerDbTableDef(tag: Tag) extends Table[TimerDbModel](tag, None, "timer") 
 }
 
 object TimerDAO {
-  def insert(meetingId: String) = {
-    DatabaseConnection.db.run(
-      TableQuery[TimerDbTableDef].insertOrUpdate(
-        TimerDbModel(
-          meetingId = meetingId,
-          stopwatch = true,
-          running = false,
-          active = false,
-          time = 300000,
-          accumulated = 0,
-          startedOn = 0,
-          endedOn = 0,
-          songTrack = "noTrack",
+  def insert(meetingId: String, clientSettings: Map[String, Object]) = {
+    val timerEnabled = getConfigPropertyValueByPathAsBooleanOrElse(clientSettings, "public.timer.enabled", alternativeValue = true)
+    if(timerEnabled) {
+      val timerDefaultTimeInMinutes = getConfigPropertyValueByPathAsIntOrElse(clientSettings, "public.timer.time", 5)
+      val timerDefaultTimeInMilli = timerDefaultTimeInMinutes * 60000
+      
+      DatabaseConnection.db.run(
+        TableQuery[TimerDbTableDef].insertOrUpdate(
+          TimerDbModel(
+            meetingId = meetingId,
+            stopwatch = true,
+            running = false,
+            active = false,
+            time = timerDefaultTimeInMilli,
+            accumulated = 0,
+            startedOn = 0,
+            endedOn = 0,
+            songTrack = "noTrack",
+          )
         )
-      )
-    ).onComplete {
+      ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Timer table!")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting Timer: $e")
       }
+    }
   }
 
   def update(meetingId: String, timerModel: TimerModel) = {

@@ -20,6 +20,7 @@ create table "meeting" (
 	"presentationUploadExternalUrl" varchar(500),
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
+	"loginUrl" varchar(500),
 	"logoutUrl" varchar(500),
 	"customLogoUrl" varchar(500),
 	"bannerText" text,
@@ -1799,10 +1800,9 @@ SELECT *
 FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
-CREATE OR REPLACE VIEW "v_caption_typed_activeLocales" AS
-select distinct "meetingId", "locale", "ownerUserId"
-from "caption_locale"
-where "captionType" = 'TYPED';
+CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
+select distinct "meetingId", "locale", "ownerUserId", "captionType"
+from "caption_locale";
 
 create index "idx_caption_typed_activeLocales" on caption("meetingId","locale","userId") where "captionType" = 'TYPED';
 
@@ -1871,28 +1871,29 @@ create index idx_notification on notification("meetingId","userId","role","creat
 ---Plugins Data Channel
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE "pluginDataChannelMessage" (
+CREATE TABLE "pluginDataChannelEntry" (
 	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
 	"pluginName" varchar(255),
-	"dataChannel" varchar(255),
-	"messageId" varchar(50) DEFAULT uuid_generate_v4(),
+	"channelName" varchar(255),
+	"entryId" varchar(50) DEFAULT uuid_generate_v4(),
+    "subChannelName" varchar(255),
 	"payloadJson" jsonb,
 	"fromUserId" varchar(50),
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
 	"toUserIds" varchar[],
 	"createdAt" timestamp with time zone DEFAULT current_timestamp,
 	"deletedAt" timestamp with time zone,
-	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","dataChannel","messageId"),
+	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","channelName","entryId", "subChannelName"),
 	FOREIGN KEY ("meetingId", "fromUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 
-create index "idx_pluginDataChannelMessage_dataChannel" on "pluginDataChannelMessage"("meetingId", "pluginName", "dataChannel", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
-create index "idx_pluginDataChannelMessage_roles" on "pluginDataChannelMessage"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
+create index "idx_pluginDataChannelEntry_channelName" on "pluginDataChannelEntry"("meetingId", "pluginName", "channelName", "toRoles", "toUserIds", "subChannelName", "createdAt") where "deletedAt" is null;
+create index "idx_pluginDataChannelEntry_roles" on "pluginDataChannelEntry"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
-CREATE OR REPLACE VIEW "v_pluginDataChannelMessage" AS
-SELECT u."meetingId", u."userId", m."pluginName", m."dataChannel", m."messageId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
+CREATE OR REPLACE VIEW "v_pluginDataChannelEntry" AS
+SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
 FROM "user" u
-JOIN "pluginDataChannelMessage" m ON m."meetingId" = u."meetingId"
+JOIN "pluginDataChannelEntry" m ON m."meetingId" = u."meetingId"
 			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)
 				OR u."userId" = ANY(m."toUserIds")
 				OR u."role" = ANY(m."toRoles")

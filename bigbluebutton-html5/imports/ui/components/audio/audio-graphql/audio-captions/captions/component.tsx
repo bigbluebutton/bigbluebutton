@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
@@ -144,6 +144,14 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 };
 
 const AudioCaptionsSelectContainer: React.FC = () => {
+  const [voicesList, setVoicesList] = React.useState<string[]>([]);
+  const voices = getSpeechVoices();
+
+  useEffect(() => {
+    if (voices && voicesList.length === 0) {
+      setVoicesList(voices);
+    }
+  }, [voices]);
   const {
     data: currentUser,
   } = useCurrentUser(
@@ -153,15 +161,13 @@ const AudioCaptionsSelectContainer: React.FC = () => {
     }),
   );
   const isEnabled = isAudioTranscriptionEnabled();
-  const voices = getSpeechVoices();
-
   if (!currentUser || !isEnabled || !voices) return null;
 
   return (
     <AudioCaptionsSelect
       isTranscriptionEnabled={isEnabled}
       speechLocale={currentUser.speechLocale ?? ''}
-      speechVoices={voices}
+      speechVoices={voices || voicesList}
     />
   );
 };

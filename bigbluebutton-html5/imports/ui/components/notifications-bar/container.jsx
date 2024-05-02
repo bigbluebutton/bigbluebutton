@@ -3,14 +3,13 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
-import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
+import Meetings from '/imports/api/meetings';
 import { isEmpty } from 'radash';
 import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
 import Styled from './styles';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
-import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
 
 // disconnected and trying to open a new connection
@@ -21,10 +20,6 @@ const STATUS_FAILED = 'failed';
 
 // failed to connect and waiting to try to reconnect
 const STATUS_WAITING = 'waiting';
-
-const METEOR_SETTINGS_APP = window.meetingClientSettings.public.app;
-
-const REMAINING_TIME_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeThreshold;
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -152,20 +147,15 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   const meetingId = Auth.meetingID;
-  const breakouts = breakoutService.getBreakouts();
-
-  if (breakouts.length > 0) {
-    const currentBreakout = breakouts.find((b) => b.breakoutId === meetingId);
-
-    if (currentBreakout) {
-      data.message = (
-        <MeetingRemainingTime />
-      );
-    }
-  }
 
   const Meeting = Meetings.findOne({ meetingId },
     { fields: { isBreakout: 1, componentsFlags: 1 } });
+
+  if (Meeting.isBreakout) {
+    data.message = (
+      <MeetingRemainingTime />
+    );
+  }
 
   if (Meeting) {
     const { isBreakout, componentsFlags } = Meeting;

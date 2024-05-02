@@ -2,7 +2,7 @@ import Storage from '/imports/ui/services/storage/session';
 import BBBStorage from '/imports/ui/services/storage';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import browserInfo from '/imports/utils/browserInfo';
 

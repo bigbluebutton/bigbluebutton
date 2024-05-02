@@ -7,7 +7,6 @@ import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graph
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
-import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
@@ -32,7 +31,7 @@ import {
 import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
+import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 
 const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -102,10 +101,15 @@ const AppContainer = (props) => {
     enforceLayout: user.enforceLayout,
     isModerator: user.isModerator,
     presenter: user.presenter,
+    speechLocale: user.speechLocale,
+    inactivityWarningDisplay: user.inactivityWarningDisplay,
+    inactivityWarningTimeoutSecs: user.inactivityWarningTimeoutSecs,
   }));
 
   const isModerator = currentUserData?.isModerator;
   const isPresenter = currentUserData?.presenter;
+  const inactivityWarningDisplay = currentUserData?.inactivityWarningDisplay;
+  const inactivityWarningTimeoutSecs = currentUserData?.inactivityWarningTimeoutSecs;
 
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
@@ -119,7 +123,7 @@ const AppContainer = (props) => {
       layoutContextDispatch
       && (typeof meetingLayout !== 'undefined')
       && (layoutType.current !== meetingLayout)
-      && isSharedNotesPinned
+      && sharedNotesInput?.isPinned
     ) {
       layoutType.current = meetingLayout;
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
@@ -167,7 +171,7 @@ const AppContainer = (props) => {
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo);
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo, sharedNotesInput?.isPinned);
   });
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
@@ -185,6 +189,9 @@ const AppContainer = (props) => {
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
+
+  if (!currentUserData) return null;
+
   return currentUserId
     ? (
       <App
@@ -222,6 +229,7 @@ const AppContainer = (props) => {
           isPresenter,
           numCameras: cameraDockInput.numCameras,
           enforceLayout: validateEnforceLayout(currentUserData),
+          speechLocale: currentUserData?.speechLocale,
           isModerator,
           shouldShowScreenshare,
           isSharedNotesPinned,
@@ -230,6 +238,9 @@ const AppContainer = (props) => {
           toggleVoice,
           setLocalSettings,
           genericComponentMainContentId: genericComponentMainContent.genericComponentMainContentId,
+          audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
+          inactivityWarningDisplay,
+          inactivityWarningTimeoutSecs,
         }}
         {...otherProps}
       />
@@ -276,10 +287,6 @@ export default withTracker(() => {
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
 
-  const UserInfo = UserInfos.find({
-    meetingId: Auth.meetingID,
-    requesterUserId: Auth.userID,
-  }).fetch();
 
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
@@ -299,7 +306,6 @@ export default withTracker(() => {
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
     customStyleUrl,
-    UserInfo,
     notify,
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',

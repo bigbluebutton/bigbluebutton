@@ -41,7 +41,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: true,
       },
       allowDefaultLogoutUrl: true,
-      allowUserLookup: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       guestPolicyExtraAllowOptions: false,
@@ -482,6 +481,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         family: 'Calibri',
         size: '24px',
       },
+      locales: [
+        {
+          locale: 'en-US',
+          name: 'English',
+        },
+      ],
       lines: 2,
       time: 5000,
     },

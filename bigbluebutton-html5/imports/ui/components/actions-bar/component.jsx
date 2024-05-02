@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
@@ -7,7 +6,7 @@ import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-gra
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import ReactionsButtonContainer from './reactions-button/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
-import JoinVideoOptionsContainer from '../video-provider/video-button/container';
+import JoinVideoOptionsContainer from '../video-provider/video-provider-graphql/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
 import { isPresentationEnabled } from '/imports/ui/services/features';
@@ -111,6 +110,7 @@ class ActionsBar extends PureComponent {
       showPushLayout,
       setPushLayout,
       setPresentationFitToWidth,
+
     } = this.props;
 
     const { selectedLayout } = Settings.application;
@@ -151,11 +151,8 @@ class ActionsBar extends PureComponent {
             setPresentationFitToWidth,
           }}
           />
-          {!deviceInfo.isMobile
-            ? (
-              <AudioCaptionsButtonContainer />
-            )
-            : null}
+
+          <AudioCaptionsButtonContainer />
         </Styled.Left>
         <Styled.Center>
           {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}

@@ -1,10 +1,9 @@
 import React, { createContext } from 'react';
-import CURRENT_USER_SUBSCRIPTION from '../graphql/queries/currentUserSubscription';
-import { useSubscription } from '../hooks/createUseSubscription';
 import { User } from '../../Types/user';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
+import useCurrentUser from '../hooks/useCurrentUser';
 
-type CurrentUserContext = GraphqlDataHookSubscriptionResponse<Partial<User>[]>
+type CurrentUserContext = GraphqlDataHookSubscriptionResponse<Partial<User>[]>;
 
 export const CurrentUserContext = createContext<CurrentUserContext>({ loading: true });
 
@@ -13,9 +12,14 @@ interface CurrentUserProviderProps {
 }
 
 const CurrentUserProvider: React.FC<CurrentUserProviderProps> = (({ children }) => {
-  const response = useSubscription<User>(CURRENT_USER_SUBSCRIPTION, {}, true);
+  const response = useCurrentUser();
   return (
-    <CurrentUserContext.Provider value={response}>
+    <CurrentUserContext.Provider value={{
+      loading: response.loading,
+      data: response.rawData,
+      errors: response.errors,
+    }}
+    >
       {children}
     </CurrentUserContext.Provider>
   );

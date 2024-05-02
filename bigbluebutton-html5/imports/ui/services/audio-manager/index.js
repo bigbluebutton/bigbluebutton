@@ -9,7 +9,6 @@ import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { monitorAudioConnection } from '/imports/utils/stats';
-import { Meteor } from 'meteor/meteor';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -104,6 +103,8 @@ class AudioManager {
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
     this._applyCachedOutputDeviceId();
+
+    window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
   }
 
   _applyCachedOutputDeviceId() {
