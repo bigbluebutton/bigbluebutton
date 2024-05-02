@@ -162,6 +162,7 @@ class VideoService {
     this.stopConnectingStream();
     setVideoState((curr) => ({
       ...curr,
+      isConnecting: false,
       isConnected: false,
     }));
   }

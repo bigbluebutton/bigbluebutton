@@ -41,6 +41,12 @@ export interface VideoStreamsUsersResponse {
   }[];
 }
 
+export interface OwnVideoStreamsResponse {
+  user_camera: {
+    streamId: string;
+  }[];
+}
+
 export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
     user_camera {

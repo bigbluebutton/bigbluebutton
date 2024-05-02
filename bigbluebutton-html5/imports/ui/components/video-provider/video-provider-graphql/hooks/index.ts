@@ -24,6 +24,7 @@ import {
 } from '../state';
 import {
   OWN_VIDEO_STREAMS_QUERY,
+  OwnVideoStreamsResponse,
   VIDEO_STREAMS_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VideoStreamsUsersResponse,
@@ -388,25 +389,33 @@ export const useHasVideoStream = () => {
   return streams.some((s) => s.userId === Auth.userID);
 };
 
-export const useExitVideo = () => {
-  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
-  const [getOwnVideoStreams] = useLazyQuery(OWN_VIDEO_STREAMS_QUERY, { variables: { userId: Auth.userID } });
+const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
+  OWN_VIDEO_STREAMS_QUERY,
+  { variables: { userId: Auth.userID } },
+);
 
-  const exitVideo = useCallback(() => {
+export const useExitVideo = (forceExit = false) => {
+  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+  const [getOwnVideoStreams] = useOwnVideoStreamsQuery();
+
+  const exitVideo = useCallback(async () => {
     const { isConnected } = getVideoState();
 
-    if (isConnected) {
+    if (isConnected || forceExit) {
       const sendUserUnshareWebcam = (cameraId: string) => {
         cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      getOwnVideoStreams().then(({ data }) => {
-        if (!data) return;
-        const streams = data.user_camera || [];
-        streams.forEach((s: { streamId: string }) => sendUserUnshareWebcam(s.streamId));
-        videoService.exitedVideo();
+      return getOwnVideoStreams().then(({ data }) => {
+        if (data) {
+          const streams = data.user_camera || [];
+          streams.forEach((s: { streamId: string }) => sendUserUnshareWebcam(s.streamId));
+          videoService.exitedVideo();
+        }
+        return null;
       });
     }
+    return Promise.resolve(null);
   }, [cameraBroadcastStop]);
 
   return exitVideo;
@@ -428,13 +437,15 @@ export const useLockUser = () => {
 };
 
 export const useStopVideo = () => {
-  const { streams } = useStreams();
-  const filteredStreams = useMemo(() => streams.filter((s) => s.userId === Auth.userID), [streams]);
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
+  const [getOwnVideoStreams] = useOwnVideoStreamsQuery();
+  const exit = useExitVideo(true);
 
-  return useCallback((cameraId?: string) => {
-    const hasTargetStream = filteredStreams.some((s) => s.stream === cameraId);
-    const hasOtherStream = filteredStreams.some((s) => s.stream !== cameraId);
+  return useCallback(async (cameraId?: string) => {
+    const { data } = await getOwnVideoStreams();
+    const streams = data?.user_camera ?? [];
+    const hasTargetStream = streams.some((s) => s.streamId === cameraId);
+    const hasOtherStream = streams.some((s) => s.streamId !== cameraId);
 
     if (hasTargetStream) {
       cameraBroadcastStop({ variables: { cameraId } });
@@ -443,9 +454,11 @@ export const useStopVideo = () => {
     if (!hasOtherStream) {
       videoService.exitedVideo();
     } else {
-      videoService.stopConnectingStream();
+      exit().then(() => {
+        videoService.exitedVideo();
+      });
     }
-  }, [filteredStreams]);
+  }, [cameraBroadcastStop]);
 };
 
 export const useActivePeers = (

@@ -58,6 +58,8 @@ const setStreams = (vs: Stream[]) => {
   streams(vs);
 };
 
+const getStreams = () => streams();
+
 export {
   useVideoState,
   setVideoState,
@@ -65,6 +67,7 @@ export {
   useConnectingStream,
   setConnectingStream,
   setStreams,
+  getStreams,
   streams,
 };
 
@@ -75,5 +78,6 @@ export default {
   useConnectingStream,
   setConnectingStream,
   setStreams,
+  getStreams,
   streams,
 };
