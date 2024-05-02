@@ -1,10 +1,10 @@
-package hascli
+package hasura
 
 import (
 	"context"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/conn/reader"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/conn/writer"
+	"github.com/iMDT/bbb-graphql-middleware/internal/hasura/conn/reader"
+	"github.com/iMDT/bbb-graphql-middleware/internal/hasura/conn/writer"
 	log "github.com/sirupsen/logrus"
 	"math"
 	"net/http"
