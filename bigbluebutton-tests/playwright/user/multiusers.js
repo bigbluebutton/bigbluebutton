@@ -1,4 +1,4 @@
-const { expect, default: test } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 const playwright = require("playwright");
 const Page = require('../core/page');
 const e = require('../core/elements');
@@ -205,38 +205,6 @@ class MultiUsers {
       this.modPage.meetingId,
     ];
     await checkTextContent(content, dataToCheck);
-  }
-
-  async selectRandomUser() {
-    // check with no viewer joined
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.selectRandomUser);
-    await this.modPage.hasElement(e.noViewersSelectedMessage);
-    // check with only one viewer
-    await this.modPage.waitAndClick(e.closeModal);
-    await this.initUserPage();
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.selectRandomUser);
-    await this.modPage.hasText(e.selectedUserName, this.userPage.username);
-    // check with more users
-    await this.modPage.waitAndClick(e.closeModal);
-    await this.initUserPage2();
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.selectRandomUser);
-    const nameSelected = await this.modPage.getLocator(e.selectedUserName).textContent();
-    await this.userPage.hasText(e.selectedUserName, nameSelected);
-    await this.userPage2.hasText(e.selectedUserName, nameSelected);
-    // user close modal just for you
-    await this.userPage.waitAndClick(e.closeModal);
-    await this.userPage.wasRemoved(e.selectedUserName);
-    await this.userPage2.hasElement(e.selectedUserName);
-    await this.modPage.hasElement(e.selectedUserName);
-    // moderator close modal
-    await this.modPage.waitAndClick(e.selectAgainRadomUser);
-    await sleep(500);
-    await this.modPage.waitAndClick(e.closeModal);
-    await this.userPage.wasRemoved(e.selectedUserName);
-    await this.userPage2.wasRemoved(e.selectedUserName);
   }
 
   async pinningWebcams() {
