@@ -25,7 +25,7 @@ import {
 import { useMouseEvents, useCursor } from "./hooks";
 import { notifyShapeNumberExceeded } from "./service";
 
-import { NoopTool } from './custom-tools/noop-tool/component';
+import NoopTool from './custom-tools/noop-tool/component';
 
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
