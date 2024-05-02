@@ -241,7 +241,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
     : VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION;
   const variables = isGridEnabled
     ? {}
-    : { userIds: streams.map((s) => s.userId) }
+    : { userIds: streams.map((s) => s.userId) };
   const { data, loading, error } = useSubscription<VideoStreamsUsersResponse>(
     subscription,
     { variables },
@@ -310,7 +310,7 @@ export const useVideoStreams = (
   const [state] = useVideoState();
   const { currentVideoPageIndex, numberOfPages } = state;
   const { users } = useStreamUsers(isGridEnabled);
-  const { streams: videoStreams} = useStreams();
+  const { streams: videoStreams } = useStreams();
   const connectingStream = useConnectingStream(videoStreams);
   const gridSize = useGridSize();
   const myPageSize = useMyPageSize();
