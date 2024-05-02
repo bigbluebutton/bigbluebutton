@@ -73,6 +73,7 @@ class LiveResult extends PureComponent {
       : [...users];
 
     userAnswers = userAnswers.map(id => usernames[id])
+      .filter((user) => user)
       .map((user) => {
         let answer = '';
 
