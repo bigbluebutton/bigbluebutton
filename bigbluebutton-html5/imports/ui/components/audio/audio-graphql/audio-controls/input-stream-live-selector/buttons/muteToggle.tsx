@@ -6,7 +6,7 @@ import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import Settings from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import {
   muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';

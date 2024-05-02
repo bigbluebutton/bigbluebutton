@@ -4,7 +4,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 
 const MUTED_KEY = 'muted';
 // @ts-ignore - temporary, while meteor exists in the project

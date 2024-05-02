@@ -15,7 +15,7 @@ import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import {
