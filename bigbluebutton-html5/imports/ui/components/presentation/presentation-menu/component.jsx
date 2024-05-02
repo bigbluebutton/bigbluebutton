@@ -316,8 +316,8 @@ const PresentationMenu = (props) => {
 
             try {
               // filter shapes that are inside the slide
-              const backgroundShape = tldrawAPI.currentPageShapes.find((s) => s.id === `shape:BG-${slideNum}`);
-              const shapes = tldrawAPI.currentPageShapes.filter(
+              const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
+              const shapes = tldrawAPI.getCurrentPageShapes().filter(
                 (shape) => shape.x <= backgroundShape.props.w
                   && shape.y <= backgroundShape.props.h
                   && shape.x >= 0
