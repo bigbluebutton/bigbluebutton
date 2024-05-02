@@ -64,6 +64,7 @@ interface MuteToggleProps {
   disabled: boolean;
   isAudioLocked: boolean;
   toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId?: string | null, muted?: boolean | null) => void) => void;
+  away: boolean;
 }
 
 interface LiveSelectionProps extends MuteToggleProps {
@@ -73,6 +74,7 @@ interface LiveSelectionProps extends MuteToggleProps {
   inputDeviceId: string;
   outputDeviceId: string;
   meetingIsBreakout: boolean;
+  away: boolean;
 }
 
 export const LiveSelection: React.FC<LiveSelectionProps> = ({
@@ -87,6 +89,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   disabled,
   isAudioLocked,
   toggleMuteMicrophone,
+  away,
 }) => {
   const intl = useIntl();
 
@@ -266,6 +269,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
                   disabled={disabled || isAudioLocked}
                   isAudioLocked={isAudioLocked}
                   toggleMuteMicrophone={toggleMuteMicrophone}
+                  away={away}
                 />
               )}
             <Styled.AudioDropdown
