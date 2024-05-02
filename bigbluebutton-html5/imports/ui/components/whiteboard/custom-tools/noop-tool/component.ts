@@ -5,10 +5,10 @@ export class NoopTool extends StateNode {
 	static override initial = 'idle'
 
 	override onEnter = () => {
-		this.editor.setCursor({ type: 'default', rotation: 0 })
+		this.editor.setCursor({ type: 'default', rotation: 0 });
 	}
 
 	override onExit = () => {
-		this.editor.setCursor({ type: 'default', rotation: 0 })
+		this.editor.setCursor({ type: 'default', rotation: 0 });
 	}
 }
