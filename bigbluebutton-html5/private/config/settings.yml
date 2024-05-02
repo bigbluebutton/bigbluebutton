@@ -1039,9 +1039,9 @@ private:
     - browser: ie
       version: Infinity
     - browser: safari
-      version: [12, 1]
+      version: [13, 1]
     - browser: mobileSafari
-      version: [12, 1]
+      version: [13, 4]
     - browser: opera
       version: 50
     - browser: electron
