@@ -4,6 +4,7 @@ import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
+import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
@@ -13,7 +14,13 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import {
+  muteAway,
+} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -139,6 +146,8 @@ const AudioModal = (props) => {
   const [disableActions, setDisableActions] = useState(false);
   const [errCode, setErrCode] = useState(null);
   const [autoplayChecked, setAutoplayChecked] = useState(false);
+  const [setAway] = useMutation(SET_AWAY);
+  const voiceToggle = useToggleVoice();
 
   const {
     forceListenOnlyAttendee,
@@ -255,6 +264,16 @@ const AudioModal = (props) => {
     return handleGoToEchoTest();
   };
 
+  const disableAwayMode = () => {
+    muteAway(false, true, voiceToggle);
+    setAway({
+      variables: {
+        away: false,
+      },
+    });
+    VideoService.setTrackEnabled(true);
+  };
+
   const handleJoinListenOnly = () => {
     if (disableActions && isConnecting) return null;
 
@@ -262,6 +281,7 @@ const AudioModal = (props) => {
 
     return joinListenOnly().then(() => {
       setDisableActions(false);
+      disableAwayMode();
     }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         setContent('help');
@@ -288,6 +308,7 @@ const AudioModal = (props) => {
     setContent(null);
     if (inputStream) changeInputStream(inputStream);
     handleJoinMicrophone();
+    disableAwayMode();
   };
 
   const skipAudioOptions = () => (isConnecting || (forceListenOnlyAttendee && !autoplayChecked))

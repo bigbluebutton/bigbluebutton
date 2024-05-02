@@ -6,7 +6,6 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import logger from '/imports/startup/client/logger';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
-  SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
@@ -149,14 +148,6 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
-  awayLabel: {
-    id: 'app.userList.menu.away',
-    description: 'Text for identifying away user',
-  },
-  notAwayLabel: {
-    id: 'app.userList.menu.notAway',
-    description: 'Text for identifying not away user',
-  },
 });
 const makeDropdownPluginItem: (
   userDropdownItems: PluginSdk.UserListDropdownInterface[]) => DropdownItem[] = (
@@ -279,7 +270,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowedToChangeUserLockStatus,
     allowedToRemove,
     allowedToEjectCameras,
-    allowedToSetAway,
   } = actionsnPermitions;
 
   const userLocked = user.locked
@@ -301,7 +291,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     (page: { pageId: string; userId: string }) => (page.pageId === pageId && page.userId === user.userId),
   );
 
-  const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
   const [chatCreateWithUser] = useMutation(CHAT_CREATE_WITH_USER);
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
@@ -546,20 +535,6 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
       dataTest: 'ejectCamera',
-    },
-    {
-      allowed: allowedToSetAway,
-      key: 'setAway',
-      label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
-      onClick: () => {
-        setAway({
-          variables: {
-            away: !user.away,
-          },
-        });
-        setOpenUserAction(null);
-      },
-      icon: 'time',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
       (item: PluginSdk.UserListDropdownInterface) => (item?.type !== UserListDropdownItemType.INFORMATION),

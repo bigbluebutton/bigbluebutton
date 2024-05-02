@@ -23,6 +23,7 @@ import {
 } from './state';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { Constraints2, DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles;
 const MULTIPLE_CAMERAS = window.meetingClientSettings.public.app.enableMultipleCameras;
@@ -539,6 +540,19 @@ class VideoService {
   updatePeerDictionaryReference(newRef: Record<string, WebRtcPeer>) {
     this.webRtcPeersRef = newRef;
   }
+
+  setTrackEnabled(value) {
+    const localPeers = Object.values(this.webRtcPeersRef).filter(
+      (peer) => peer.isPublisher,
+    );
+    localPeers.forEach((peer) => {
+      const stream = peer.getLocalStream();
+      MediaStreamUtils.getVideoTracks(stream).forEach((track) => {
+        // eslint-disable-next-line no-param-reassign
+        track.enabled = value;
+      });
+    });
+  }  
 }
 
 const videoService = new VideoService();
@@ -583,4 +597,28 @@ export default {
     CAMERA_QUALITY_THR_DEBOUNCE,
     { leading: false, trailing: true },
   ),
+  getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
+  isPaginationEnabled: () => videoService.isPaginationEnabled(),
+  getNumberOfPages: () => videoService.getNumberOfPages(),
+  getCurrentVideoPageIndex: () => videoService.getCurrentVideoPageIndex(),
+  getPreviousVideoPage: () => videoService.getPreviousVideoPage(),
+  getNextVideoPage: () => videoService.getNextVideoPage(),
+  getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
+  getUsersIdFromVideoStreams: (streams) => videoService.getUsersIdFromVideoStreams(streams),
+  shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
+  getVideoPinByUser: (userId) => videoService.getVideoPinByUser(userId),
+  isVideoPinEnabledForCurrentUser: (user) => videoService.isVideoPinEnabledForCurrentUser(user),
+  isPinEnabled: () => videoService.isPinEnabled(),
+  getPreloadedStream: () => videoService.getPreloadedStream(),
+  getStats: (streams) => videoService.getStats(streams),
+  updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
+  joinedVideo: () => videoService.joinedVideo(),
+  fetchVideoStreams: () => videoService.fetchVideoStreams(),
+  getGridUsers: (users = [], streams = []) => videoService.getGridUsers(users, streams),
+  webcamsOnlyForModerators: () => videoService.webcamsOnlyForModerator(),
+  isGridEnabled: videoService.isGridEnabled,
+  setPageSize: videoService.setPageSize,
+  filterLocalOnly: videoService.filterLocalOnly,
+  exitedVideo: () => videoService.exitedVideo(),
+  setTrackEnabled: (value) => videoService.setTrackEnabled(value),
 };
