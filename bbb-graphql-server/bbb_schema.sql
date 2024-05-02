@@ -298,6 +298,7 @@ CREATE TABLE "user" (
 	CONSTRAINT "user_pkey" PRIMARY KEY ("meetingId","userId"),
 	FOREIGN KEY ("meetingId", "guestStatusSetByModerator") REFERENCES "user"("meetingId","userId") ON DELETE SET NULL
 );
+create index "idx_user_pk_reverse" on "user" ("userId", "meetingId");
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
 
@@ -524,6 +525,7 @@ create table "user_customParameter"(
 	CONSTRAINT "user_customParameter_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
+create index "idx_user_customParameter_pk_reverse" on "user_customParameter" ("userId", "meetingId");
 
 CREATE VIEW "v_user_customParameter" AS
 SELECT *
@@ -562,6 +564,9 @@ CREATE TABLE "user_voice" (
 	CONSTRAINT "user_voice_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
+create index "idx_user_voice_pk_reverse" on "user_voice" ("userId", "meetingId");
+
+
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
 -- + 6000 means it will hide after 6 seconds
 ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
@@ -668,6 +673,7 @@ CREATE TABLE "user_camera" (
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_user_camera_userId" ON "user_camera"("meetingId", "userId");
+CREATE INDEX "idx_user_camera_userId_reverse" ON "user_camera"("userId", "meetingId");
 
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT * FROM "user_camera";
@@ -683,7 +689,7 @@ CREATE TABLE "user_breakoutRoom" (
 	CONSTRAINT "user_breakoutRoom_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
---CREATE INDEX "idx_user_breakoutRoom_userId" ON "user_breakoutRoom"("meetingId", "userId");
+CREATE INDEX "idx_user_breakoutRoom_pk_reverse" ON "user_breakoutRoom"("userId", "meetingId");
 
 CREATE OR REPLACE VIEW "v_user_breakoutRoom" AS
 SELECT * FROM "user_breakoutRoom";
@@ -699,6 +705,7 @@ CREATE TABLE "user_connectionStatus" (
 	CONSTRAINT "user_connectionStatus_voice_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
+create index "idx_user_connectionStatus_pk_reverse" on "user_connectionStatus"("userId", "meetingId");
 create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("meetingId");
 
 create view "v_user_connectionStatus" as select * from "user_connectionStatus";
@@ -753,8 +760,7 @@ CREATE TABLE "user_connectionStatusMetrics" (
 	CONSTRAINT "user_connectionStatusMetrics_pkey" PRIMARY KEY ("meetingId","userId","status"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-
-create index "idx_user_connectionStatusMetrics_userId" on "user_connectionStatusMetrics"("meetingId","userId");
+create index "idx_user_connectionStatusMetrics_pk_reverse" on "user_connectionStatusMetrics"("userId", "meetingId");
 
 --This function populate rtt, status and the table user_connectionStatusMetrics
 CREATE OR REPLACE FUNCTION "update_user_connectionStatus_trigger_func"() RETURNS TRIGGER AS $$
@@ -837,9 +843,8 @@ CREATE TABLE "user_clientSettings"(
 	CONSTRAINT "user_clientSettings_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-
+CREATE INDEX "idx_user_clientSettings_pk_reverse" ON "user_clientSettings"("userId", "meetingId");
 CREATE INDEX "idx_user_clientSettings_meetingId" ON "user_clientSettings"("meetingId");
-CREATE INDEX "idx_user_clientSettings_userId" ON "user_clientSettings"("meetingId", "userId");
 
 create view "v_user_clientSettings" as select * from "user_clientSettings";
 
@@ -853,6 +858,7 @@ CREATE TABLE "user_reaction" (
 	"expiresAt" timestamp with time zone,
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
+create index "idx_user_reaction_user_meeting" on "user_reaction" ("userId", "meetingId");
 
 --Set expiresAt on isert or update user_reaction
 CREATE OR REPLACE FUNCTION "update_user_reaction_trigger_func"() RETURNS TRIGGER AS $$
@@ -890,13 +896,10 @@ CREATE TABLE "user_transcriptionError"(
 	CONSTRAINT "user_transcriptionError_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-
+CREATE INDEX "idx_user_transcriptionError_pk_reverse" ON "user_transcriptionError"("userId", "meetingId");
 CREATE INDEX "idx_user_transcriptionError_meetingId" ON "user_transcriptionError"("meetingId");
-CREATE INDEX "idx_user_transcriptionError_userId" ON "user_transcriptionError"("meetingId", "userId");
 
 create view "v_user_transcriptionError" as select * from "user_transcriptionError";
-
-
 
 
 create view "v_meeting" as
@@ -914,12 +917,13 @@ from "v_meeting";
 
 
 CREATE TABLE "chat" (
-	"chatId"  varchar(100),
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"chatId"  varchar(100),
 	"access" varchar(20),
 	"createdBy" varchar(25),
-	CONSTRAINT "chat_pkey" PRIMARY KEY ("chatId","meetingId")
+	CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
 );
+CREATE INDEX "idx_chat_pk_reverse" ON "chat"("chatId","meetingId");
 CREATE INDEX "idx_chat_meetingId" ON "chat"("meetingId");
 
 CREATE TABLE "chat_user" (
@@ -930,11 +934,14 @@ CREATE TABLE "chat_user" (
 	"startedTypingAt" timestamp with time zone,
 	"lastTypingAt" timestamp with time zone,
 	"visible" boolean,
-	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
+	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("meetingId","chatId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 
-CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("meetingId", "userId", "chatId") WHERE "visible" is true;
+CREATE INDEX "idx_chat_user_pk_reverse" ON "chat_user"("userId", "meetingId", "chatId");
+CREATE INDEX "idx_chat_user_pk_reverse_b" ON "chat_user"("chatId", "meetingId", "userId");
+CREATE INDEX "idx_chat_user_chatId_visible" ON "chat_user"("chatId", "meetingId", "userId") WHERE "visible" is true;
+CREATE INDEX "idx_chat_user_meetingId_visible" ON "chat_user"("meetingId", "userId", "chatId") WHERE "visible" is true;
 
 
 --TRIGER startedTypingAt
@@ -1222,6 +1229,7 @@ CREATE TABLE "pres_annotation" (
 );
 CREATE INDEX "idx_pres_annotation_pageId" ON "pres_annotation"("pageId");
 CREATE INDEX "idx_pres_annotation_updatedAt" ON "pres_annotation"("pageId","lastUpdatedAt");
+create index "idx_pres_annotation_user_meeting" on "pres_annotation" ("userId", "meetingId");
 
 CREATE TABLE "pres_annotation_history" (
 	"sequence" serial PRIMARY KEY,
@@ -1233,6 +1241,7 @@ CREATE TABLE "pres_annotation_history" (
 --	"lastUpdatedAt" timestamp with time zone DEFAULT now()
 );
 CREATE INDEX "idx_pres_annotation_history_pageId" ON "pres_annotation"("pageId");
+create index "idx_pres_annotation_history_user_meeting" on "pres_annotation_history" ("userId", "meetingId");
 
 CREATE VIEW "v_pres_annotation_curr" AS
 SELECT p."meetingId", pp."presentationId", pa."annotationId", pa."pageId", pa."userId", pa."annotationInfo", pa."lastHistorySequence", pa."lastUpdatedAt"
@@ -1258,7 +1267,8 @@ CREATE TABLE "pres_page_writers" (
     CONSTRAINT "pres_page_writers_pkey" PRIMARY KEY ("pageId","meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_pres_page_writers_userID" on "pres_page_writers"("meetingId", "userId");
+create index "idx_pres_page_writers_userID" on "pres_page_writers"("meetingId", "userId", "pageId");
+create index "idx_pres_page_writers_userID_rev" on "pres_page_writers"("userId", "meetingId", "pageId");
 
 CREATE OR REPLACE VIEW "v_pres_page_writers" AS
 SELECT
@@ -1383,6 +1393,7 @@ CREATE TABLE "pres_page_cursor" (
 );
 create index "idx_pres_page_cursor_pageId" on "pres_page_cursor"("pageId");
 create index "idx_pres_page_cursor_userID" on "pres_page_cursor"("meetingId","userId");
+create index "idx_pres_page_cursor_userID_rev" on "pres_page_cursor"("userId", "meetingId");
 create index "idx_pres_page_cursor_lastUpdatedAt" on "pres_page_cursor"("pageId","lastUpdatedAt");
 
 CREATE VIEW "v_pres_page_cursor" AS
@@ -1433,6 +1444,7 @@ CREATE TABLE "poll_response" (
 );
 CREATE INDEX "idx_poll_response_pollId" ON "poll_response"("pollId");
 CREATE INDEX "idx_poll_response_userId" ON "poll_response"("meetingId", "userId");
+CREATE INDEX "idx_poll_response_userId_reverse" ON "poll_response"("userId", "meetingId");
 CREATE INDEX "idx_poll_response_pollId_userId" ON "poll_response"("pollId", "meetingId", "userId");
 
 CREATE OR REPLACE VIEW "v_poll_response" AS
@@ -1604,6 +1616,9 @@ CREATE TABLE "breakoutRoom_user" (
 	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "meetingId", "userId"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
+create index "idx_breakoutRoom_user_meeting_user" on "breakoutRoom_user" ("meetingId", "userId");
+create index "idx_breakoutRoom_user_user_meeting" on "breakoutRoom_user" ("userId", "meetingId");
+
 
 CREATE OR REPLACE VIEW "v_breakoutRoom" AS
 SELECT *,
@@ -1701,6 +1716,7 @@ create table "sharedNotes" (
     "pinned" boolean,
     constraint "pk_sharedNotes" primary key ("meetingId", "sharedNotesExtId")
 );
+create index "idx_sharedNotes_pk_reverse" on "sharedNotes"("sharedNotesExtId", "meetingId");
 
 create table "sharedNotes_rev" (
 	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -1715,6 +1731,8 @@ create table "sharedNotes_rev" (
 	constraint "pk_sharedNotes_rev" primary key ("meetingId", "sharedNotesExtId", "rev"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE SET NULL
 );
+create index "idx_sharedNotes_rev_pk_reverse" on "sharedNotes_rev"("sharedNotesExtId", "meetingId");
+create index "idx_sharedNotes_rev_user_meeting" on "sharedNotes_rev"("userId", "meetingId");
 --create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
 
 create view "v_sharedNotes_diff" as
@@ -1731,6 +1749,7 @@ create table "sharedNotes_session" (
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "sharedNotes_session_userId" on "sharedNotes_session"("meetingId", "userId");
+create index "sharedNotes_session_userId_rev" on "sharedNotes_session"("userId", "meetingId");
 
 create view "v_sharedNotes" as
 SELECT sn.*, max(snr.rev) "lastRev"
@@ -1763,6 +1782,8 @@ CREATE TABLE "caption_locale" (
     CONSTRAINT "caption_locale_pk" primary key ("meetingId","locale","captionType"),
     FOREIGN KEY ("meetingId", "ownerUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
+create index "idx_caption_locale_pk_reverse" on "caption_locale"("locale","meetingId","captionType");
+create index "idx_caption_locale_pk_reverse_b" on "caption_locale"("captionType","meetingId","locale");
 
 CREATE TABLE "caption" (
     "captionId" varchar(100) NOT NULL PRIMARY KEY,
@@ -1774,6 +1795,7 @@ CREATE TABLE "caption" (
     "createdAt" timestamp with time zone,
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
+create index "idx_caption_pk_reverse" on "caption"("userId","meetingId");
 
 CREATE OR REPLACE FUNCTION "update_caption_locale_owner_func"() RETURNS TRIGGER AS $$
 BEGIN
@@ -1806,7 +1828,7 @@ CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
 select distinct "meetingId", "locale", "ownerUserId", "captionType"
 from "caption_locale";
 
-create index "idx_caption_typed_activeLocales" on caption("meetingId","locale","userId") where "captionType" = 'TYPED';
+create index "idx_caption_typed_activeLocales" on "caption"("meetingId","locale","userId") where "captionType" = 'TYPED';
 
 ------------------------------------
 ----
@@ -1843,6 +1865,8 @@ CREATE TABLE "notification" (
 	"createdAt"             timestamp with time zone DEFAULT current_timestamp,
 	FOREIGN KEY ("userMeetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
+create index "idx_notification_user_meeting" on "notification" ("userId", "meetingId", "createdAt");
+create index "idx_notification_meeting_user" on "notification" ("meetingId", "userId", "createdAt");
 
 create or replace VIEW "v_notification" AS
 select 	u."meetingId",
@@ -1888,7 +1912,9 @@ CREATE TABLE "pluginDataChannelEntry" (
 	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","channelName","entryId", "subChannelName"),
 	FOREIGN KEY ("meetingId", "fromUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-
+create index "idx_pluginDataChannelEntry_pk_reverse" on "pluginDataChannelEntry"("pluginName", "meetingId", "channelName", "subChannelName");
+create index "idx_pluginDataChannelEntry_pk_reverse_b" on "pluginDataChannelEntry"("channelName", "pluginName", "meetingId", "subChannelName");
+create index "idx_pluginDataChannelEntry_pk_reverse_c" on "pluginDataChannelEntry"("subChannelName", "channelName", "pluginName", "meetingId");
 create index "idx_pluginDataChannelEntry_channelName" on "pluginDataChannelEntry"("meetingId", "pluginName", "channelName", "toRoles", "toUserIds", "subChannelName", "createdAt") where "deletedAt" is null;
 create index "idx_pluginDataChannelEntry_roles" on "pluginDataChannelEntry"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
