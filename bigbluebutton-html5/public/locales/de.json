@@ -734,7 +734,7 @@
     "app.audioModal.settingsTitle": "Audioeinstellungen ändern",
     "app.audioModal.helpTitle": "Es gab ein Problem mit Ihren Audiogeräten",
     "app.audioModal.helpSubtitleMic": "Wir konnten ihr Mikrofon nicht aktivieren",
-    "app.audioModal.helpSubtitleGeneric": "Wir haben Schwierigkeiten eine Audioverbindung herzustellen",
+    "app.audioModal.helpSubtitleGeneric": "Wir haben Schwierigkeiten, eine Audioverbindung herzustellen",
     "app.audioModal.helpPermissionStep1": "Erlauben Sie beim Beitritt einer Sitzung alle Anfragen für den Zugriff auf Ihr Mikrofon.",
     "app.audioModal.helpPermissionStep2": "Prüfen Sie Browser und Geräteeinstellungen um sicherzugehen, dass der Mikrofonzugriff erlaubt wird.",
     "app.audioModal.helpPermissionStep3": "Laden Sie die Seite neu und versuchen Sie es erneut.",
