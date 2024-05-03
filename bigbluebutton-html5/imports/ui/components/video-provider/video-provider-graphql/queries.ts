@@ -90,9 +90,6 @@ export const GRID_USERS_SUBSCRIPTION = gql`
         userId: {
           _nin: $userIds
         },
-        loggedOut: {
-          _eq: false,
-        },
       },
       limit: $limit
     ) {
