@@ -354,7 +354,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
   } = useSubscription<VideoStreamsUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
-      variables: { userIds, limit: Math.max(gridSize - streamCount, 0) },
+      variables: { exceptUserIds: userIds, limit: Math.max(gridSize - streamCount, 0) },
       skip: !isGridEnabled,
     },
   );
