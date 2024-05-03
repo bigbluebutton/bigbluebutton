@@ -46,7 +46,7 @@ class WhiteboardModel extends SystemConfiguration {
       k -> newValue
     }).toMap
 
-  def addAnnotations(wbId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean): Array[AnnotationVO] = {
+  def addAnnotations(wbId: String, meetingId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean): Array[AnnotationVO] = {
     val wb = getWhiteboard(wbId)
 
     var annotationsAdded = Array[AnnotationVO]()
@@ -83,7 +83,7 @@ class WhiteboardModel extends SystemConfiguration {
       }
     }
 
-    PresAnnotationDAO.insertOrUpdateMap(newAnnotationsMap)
+    PresAnnotationDAO.insertOrUpdateMap(meetingId, annotationsAdded)
 
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
@@ -106,7 +106,7 @@ class WhiteboardModel extends SystemConfiguration {
   private def cleanEndOrStartProps(props: Map[String, _]): Map[String, _] = {
     props.get("type") match {
       case Some("binding") => props - ("x", "y") // Remove 'x' and 'y' for 'binding' type
-      case Some("point")   => props - ("boundShapeId", "normalizedAnchor", "isExact") // Remove unwanted properties for 'point' type
+      case Some("point")   => props - ("boundShapeId", "normalizedAnchor", "isExact", "isPrecise") // Remove unwanted properties for 'point' type
       case _               => props
     }
   }
@@ -116,7 +116,7 @@ class WhiteboardModel extends SystemConfiguration {
     wb.annotationsMap.values.toArray
   }
 
-  def deleteAnnotations(wbId: String, userId: String, annotationsIds: Array[String], isPresenter: Boolean, isModerator: Boolean): Array[String] = {
+  def deleteAnnotations(wbId: String, meetingId: String, userId: String, annotationsIds: Array[String], isPresenter: Boolean, isModerator: Boolean): Array[String] = {
     val wb = getWhiteboard(wbId)
 
     var annotationsIdsRemoved = Array[String]()
@@ -143,15 +143,15 @@ class WhiteboardModel extends SystemConfiguration {
     val updatedWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(updatedWb)
 
-    PresAnnotationDAO.delete(annotationsIdsRemoved)
+    PresAnnotationDAO.delete(meetingId, userId, annotationsIdsRemoved)
 
     annotationsIdsRemoved
   }
 
-  def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) {
+  def modifyWhiteboardAccess(meetingId: String, wbId: String, multiUser: Array[String]) {
     val wb = getWhiteboard(wbId)
     val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
-    PresPageWritersDAO.updateMultiuser(newWb)
+    PresPageWritersDAO.updateMultiuser(meetingId, newWb)
     saveWhiteboard(newWb)
   }
 

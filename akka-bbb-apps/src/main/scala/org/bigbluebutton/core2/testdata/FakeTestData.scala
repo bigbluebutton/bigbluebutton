@@ -29,16 +29,18 @@ trait FakeTestData {
     val guestWait2 = GuestWaiting(guest2.intId, guest2.name, guest2.role, guest2.guest, "", "#ff6242", guest2.authed, System.currentTimeMillis())
     GuestsWaiting.add(liveMeeting.guestsWaiting, guestWait2)
 
-    val vu1 = FakeUserGenerator.createFakeVoiceOnlyUser(CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
+    val meetingId = liveMeeting.props.meetingProp.intId
+
+    val vu1 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu1)
 
-    val vu2 = FakeUserGenerator.createFakeVoiceOnlyUser(CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
+    val vu2 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu2)
-    val vu3 = FakeUserGenerator.createFakeVoiceOnlyUser(CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
+    val vu3 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu3)
-    val vu4 = FakeUserGenerator.createFakeVoiceOnlyUser(CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
+    val vu4 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu4)
-    val vu5 = FakeUserGenerator.createFakeVoiceOnlyUser(CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
+    val vu5 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu5)
 
     for (i <- 1 to 50) {
@@ -60,13 +62,14 @@ trait FakeTestData {
     val others = rusers.filterNot(u => u.intId == ruser1.id)
     val subscribers = others.map { o => o.intId }
     val wstream1 = FakeUserGenerator.createFakeWebcamStreamFor(ruser1.id, subscribers.toSet)
-    Webcams.addWebcamStream(liveMeeting.webcams, wstream1)
+    Webcams.addWebcamStream(liveMeeting.props.meetingProp.intId, liveMeeting.webcams, wstream1)
 
     createFakeUser(liveMeeting, ruser1)
   }
 
   def createFakeUser(liveMeeting: LiveMeeting, regUser: RegisteredUser): UserState = {
-    UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, role = regUser.role, pin = false,
+    UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId,
+      name = regUser.name, role = regUser.role, pin = false,
       mobile = false, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       emoji = "none", reactionEmoji = "none", raiseHand = false, away = false, locked = false, presenter = false,
       avatar = regUser.avatarURL, color = "#ff6242", clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))

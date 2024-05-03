@@ -57,7 +57,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
         )
 
         //Update database
-        BreakoutRoomUserDAO.updateRoomChanged(msg.body.userId, msg.body.fromBreakoutId, msg.body.toBreakoutId, redirectToHtml5JoinURL)
+        BreakoutRoomUserDAO.updateRoomChanged(meetingId, msg.body.userId, msg.body.fromBreakoutId, msg.body.toBreakoutId, redirectToHtml5JoinURL)
 
 
         //Send notification to moved User

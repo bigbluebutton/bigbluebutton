@@ -25,10 +25,6 @@ function shouldShowScreenshare() {
     && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
 }
 
-function shouldShowSharedNotes() {
-  return NotesService.isSharedNotesPinned();
-}
-
 function shouldShowOverlay() {
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
@@ -46,8 +42,11 @@ const isThereWebcamOn = (meetingID) => {
   }).count() > 0;
 }
 
-const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch, isSharingVideo) => {
-  const isSharedNotesPinned = NotesService.isSharedNotesPinned();
+const buildLayoutWhenPresentationAreaIsDisabled = (
+  layoutContextDispatch,
+  isSharingVideo,
+  isSharedNotesPinned,
+) => {
   const hasScreenshare = isScreenSharingEnabled();
   const isThereWebcam = isThereWebcamOn(Auth.meetingID);
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
@@ -69,5 +68,4 @@ export default {
   isScreenBroadcasting,
   isCameraAsContentBroadcasting,
   setPresentationIsOpen,
-  shouldShowSharedNotes,
 };

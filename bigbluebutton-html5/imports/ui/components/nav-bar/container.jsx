@@ -5,7 +5,6 @@ import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -13,6 +12,7 @@ import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useHasUnreadNotes from '../notes/notes-graphql/hooks/useHasUnreadNotes';
+import { useShortcut } from '../../core/hooks/useShortcut';
 
 const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
@@ -29,6 +29,8 @@ const NavBarContainer = ({ children, ...props }) => {
 
   const { sidebarContentPanel } = sidebarContent;
   const { sidebarNavPanel } = sidebarNavigation;
+
+  const toggleUserList = useShortcut('toggleUserList');
 
   const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
 
@@ -70,6 +72,7 @@ const NavBarContainer = ({ children, ...props }) => {
         isExpanded,
         currentUserId: Auth.userID,
         pluginNavBarItems,
+        shortcuts: toggleUserList,
         ...props,
       }}
       style={{ ...navBar }}
@@ -81,7 +84,6 @@ const NavBarContainer = ({ children, ...props }) => {
 
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
-  const unread = NotesService.hasUnreadNotes();
 
   let meetingTitle, breakoutNum, breakoutName, meetingName;
   const meetingId = Auth.meetingID;
@@ -114,14 +116,12 @@ export default withTracker(() => {
   );
 
   return {
-    isPinned: NotesService.isSharedNotesPinned(),
     currentUserId: Auth.userID,
     meetingId,
     presentationTitle: meetingTitle,
     breakoutNum,
     breakoutName,
     meetingName,
-    unread,
     isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
     isMeteorConnected: Meteor.status().connected,
   };

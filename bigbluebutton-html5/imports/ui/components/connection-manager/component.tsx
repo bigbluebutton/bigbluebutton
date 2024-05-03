@@ -6,6 +6,7 @@ import { SubscriptionClient } from 'subscriptions-transport-ws';
 import React, { useContext, useEffect } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
+import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -43,7 +44,7 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
     }
   }
 
-  logger.debug(`Valid ${operation.operationName} payload. Following with the query.`);
+  // logger.debug(`Valid ${operation.operationName} payload. Following with the query.`);
   return forward(operation);
 });
 
@@ -115,6 +116,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           connectToDevTools: true,
         });
         setApolloClient(client);
+        apolloContextHolder.setClient(client);
       } catch (error) {
         loadingContextInfo.setLoading(false, '');
         throw new Error('Error creating Apollo Client: '.concat(JSON.stringify(error) || ''));

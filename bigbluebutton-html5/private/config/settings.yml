@@ -63,7 +63,6 @@ public:
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
-    allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -88,7 +87,6 @@ public:
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
     # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
-    skipMeteorConnection: false
     audioCaptions:
       enabled: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
@@ -137,6 +135,7 @@ public:
       breakoutRoomLimit: 16
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
+    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -586,6 +585,8 @@ public:
       - locale: "el-GR"
         name: "Ελληνικά"
       - locale: "en"
+        name: "English"
+      - locale: "en-US"
         name: "English"
       - locale: "eo"
         name: "Esperanto"

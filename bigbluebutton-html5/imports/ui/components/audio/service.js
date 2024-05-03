@@ -45,7 +45,7 @@ const audioEventHandler = (toggleVoice) => (event) => {
   }
 };
 
-const init = (messages, intl, toggleVoice) => {
+const init = (messages, intl, toggleVoice, speechLocale) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
@@ -66,6 +66,7 @@ const init = (messages, intl, toggleVoice) => {
     username,
     voiceBridge,
     microphoneLockEnforced,
+    speechLocale,
   };
 
   return AudioManager.init(userData, audioEventHandler(toggleVoice));

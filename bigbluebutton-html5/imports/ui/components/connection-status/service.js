@@ -3,7 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
 
 const STATS = window.meetingClientSettings.public.stats;
@@ -204,8 +204,8 @@ const getAudioData = async () => {
  * @returns An Object containing video data for all video peers and screenshare
  *          peer
  */
-const getVideoData = async () => {
-  const camerasData = await VideoService.getStats() || {};
+const getVideoData = async (streams) => {
+  const camerasData = await VideoService.getStats(streams) || {};
 
   const screenshareData = await ScreenshareService.getStats() || {};
 
@@ -220,10 +220,10 @@ const getVideoData = async () => {
  * For audio, this will get information about the mic/listen-only stream.
  * @returns An Object containing all this data.
  */
-const getNetworkData = async () => {
+const getNetworkData = async (streams) => {
   const audio = await getAudioData();
 
-  const video = await getVideoData();
+  const video = await getVideoData(streams);
 
   const user = {
     time: new Date(),

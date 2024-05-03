@@ -7,7 +7,7 @@ import React, {
 // @ts-ignore - it's has no types
 import { diff } from '@mconf/bbb-diff';
 import { useReactiveVar, useMutation } from '@apollo/client';
-import { throttle } from 'radash';
+import { throttle } from '/imports/utils/throttle';
 import {
   SpeechRecognitionAPI,
   generateId,
@@ -16,7 +16,6 @@ import {
   isLocaleValid,
   localeAsDefaultSelected,
   setSpeechVoices,
-  updateFinalTranscript,
   useFixedLocale,
 } from './service';
 import logger from '/imports/startup/client/logger';
@@ -131,9 +130,16 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   };
 
   const throttledTranscriptUpdate = useMemo(() => throttle(
-    { interval: THROTTLE_TIMEOUT },
-    captionSubmitText,
+    captionSubmitText, THROTTLE_TIMEOUT, {
+      leading: false,
+      trailing: true,
+    },
   ), []);
+
+  const updateFinalTranscript = (id: string, transcript: string, locale: string) => {
+    throttledTranscriptUpdate.cancel();
+    captionSubmitText(id, transcript, locale, true);
+  };
 
   const onEnd = useCallback(() => {
     stop();

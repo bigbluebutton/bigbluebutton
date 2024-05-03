@@ -24,6 +24,33 @@ class ScreenShare extends Page {
   async testMobileDevice() {
     await this.wasRemoved(e.startScreenSharing);
   }
+
+  async screenshareStopsExternalVideo() {
+    const { screensharingEnabled } = getSettings();
+
+    await this.waitForSelector(e.whiteboard);
+
+    if(!screensharingEnabled) {
+      await this.hasElement(e.joinVideo);
+      return this.wasRemoved(e.startScreenSharing);
+    }
+
+    await this.waitAndClick(e.actions);
+    await this.waitAndClick(e.shareExternalVideoBtn);
+    await this.waitForSelector(e.closeModal);
+    await this.type(e.videoModalInput, e.youtubeLink);
+    await this.waitAndClick(e.startShareVideoBtn);
+
+    const modFrame = await this.getYoutubeFrame();
+    await modFrame.hasElement('video');
+
+    await startScreenshare(this);
+    await this.hasElement(e.isSharingScreen);
+
+    await this.hasElement(e.stopScreenSharing);
+    await this.waitAndClick(e.stopScreenSharing);
+    await this.hasElement(e.whiteboard);
+  }
 }
 
 class MultiUserScreenShare extends MultiUsers {
