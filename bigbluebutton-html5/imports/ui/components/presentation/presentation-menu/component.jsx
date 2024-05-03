@@ -90,14 +90,7 @@ const propTypes = {
   isRTL: PropTypes.bool,
   tldrawAPI: PropTypes.shape({
     getSvg: PropTypes.func.isRequired,
-    currentPageShapes: PropTypes.arrayOf(PropTypes.shape({
-      x: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
-      props: PropTypes.shape({
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-      }).isRequired,
-    })).isRequired,
+    getCurrentPageShapes: PropTypes.func.isRequired,
   }),
   presentationDropdownItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
