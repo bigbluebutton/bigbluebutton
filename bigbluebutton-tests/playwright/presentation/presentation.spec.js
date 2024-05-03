@@ -47,7 +47,7 @@ test.describe.parallel('Presentation', () => {
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot @ci @flaky', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot @ci', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
