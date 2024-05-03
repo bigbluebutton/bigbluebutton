@@ -30,7 +30,6 @@ location ~ ^/api/rest/(clientStartupSettings|clientSettings)/ {
         set $session_token $1;
     }
     auth_request /bigbluebutton/connection/checkAuthorization;
-    auth_request_set $auth_status $upstream_status;
     auth_request_set $meeting_id $sent_http_meeting_id;
 
     #Remove sessionToken from URL once Hasura doesn't expect to receive it
