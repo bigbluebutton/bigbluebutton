@@ -358,7 +358,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;
-      const user = users.find((u) => u.userId === userId);
+      const user = users.find((u) => u.userId === userId) || {};
 
       return (
         <Styled.VideoListItem

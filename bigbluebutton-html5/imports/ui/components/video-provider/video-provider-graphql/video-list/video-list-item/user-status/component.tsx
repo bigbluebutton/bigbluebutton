@@ -3,7 +3,7 @@ import Styled from './styles';
 import { StreamUser } from '../../../types';
 
 interface UserStatusProps {
-  user: StreamUser;
+  user: Partial<StreamUser>;
   voiceUser: {
     muted: boolean;
     listenOnly: boolean;

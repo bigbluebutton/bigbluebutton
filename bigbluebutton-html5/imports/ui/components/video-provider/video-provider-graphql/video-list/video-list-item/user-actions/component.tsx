@@ -76,7 +76,7 @@ const intlMessages = defineMessages({
 
 interface UserActionProps {
   name: string;
-  user: StreamUser;
+  user: Partial<StreamUser>;
   stream: VideoItem | undefined;
   cameraId: string;
   numOfStreams: number;

@@ -16,7 +16,7 @@ const intlMessages = defineMessages({
 });
 
 interface PinAreaProps {
-  user: StreamUser;
+  user: Partial<StreamUser>;
   stream: VideoItem | undefined;
   amIModerator: boolean;
 }

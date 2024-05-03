@@ -5,7 +5,7 @@ import UserListService from '/imports/ui/components/user-list/service';
 import { StreamUser } from '../../../types';
 
 interface UserAvatarVideoProps {
-  user: StreamUser;
+  user: Partial<StreamUser>;
   // eslint-disable-next-line react/require-default-props
   voiceUser?: {
     muted?: boolean;
@@ -22,7 +22,7 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
     user, unhealthyStream, squeezed, voiceUser = {},
   } = props;
   const {
-    name, color, avatar, role, emoji,
+    name = '', color, avatar, role, emoji,
   } = user;
   let {
     presenter, clientType,

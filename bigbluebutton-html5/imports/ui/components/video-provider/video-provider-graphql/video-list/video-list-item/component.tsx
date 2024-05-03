@@ -42,8 +42,8 @@ interface VideoListItemProps {
   onVideoItemUnmount: (stream: string) => void;
   settingsSelfViewDisable: boolean;
   stream: VideoItem | undefined;
-  user: StreamUser;
-  makeDragOperations: (userId: string) => {
+  user: Partial<StreamUser>;
+  makeDragOperations: (userId?: string) => {
     onDragOver: (e: DragEvent) => void,
     onDrop: (e: DragEvent) => void,
     onDragLeave: (e: DragEvent) => void,
@@ -268,7 +268,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     onDragLeave,
     onDragOver,
     onDrop,
-  } = makeDragOperations(user.userId);
+  } = makeDragOperations(user?.userId);
 
   return (
     // @ts-expect-error -> Until everything in Typescript.

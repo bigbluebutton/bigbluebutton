@@ -13,7 +13,7 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 type TrackerData = {
   disabledCams: string[];
   settingsSelfViewDisable: boolean;
-  user: StreamUser | undefined;
+  user: Partial<StreamUser>;
   stream: VideoItem | undefined;
   voiceUser: {
     muted: boolean;
@@ -24,7 +24,7 @@ type TrackerData = {
 }
 
 type TrackerProps = {
-  user: StreamUser | undefined;
+  user: Partial<StreamUser>;
   numOfStreams: number;
   cameraId: string | null;
   userId: string;
