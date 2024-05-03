@@ -7,7 +7,6 @@ import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
@@ -408,15 +407,6 @@ class AudioManager {
     this.logAudioJoinTime = false;
     this.isListenOnly = true;
     this.isEchoTest = false;
-
-    // Call polyfills for webrtc client if navigator is "iOS Webview"
-    const userAgent = window.navigator.userAgent.toLocaleLowerCase();
-    if (
-      (userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) &&
-      userAgent.indexOf('safari') === -1
-    ) {
-      iosWebviewAudioPolyfills();
-    }
 
     logger.info({
       logCode: 'audiomanager_join_listenonly',
