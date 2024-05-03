@@ -164,12 +164,14 @@ class LeaveMeetingButton extends PureComponent {
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
+              label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               description={intl.formatMessage(intlMessages.leaveMeetingBtnDesc)}
               data-test="leaveMeetingDropdown"
               icon="logout"
               color="danger"
               size="lg"
+              hideLabel
               // FIXME: Without onClick react proptypes keep warning
               // even after the DropdownTrigger inject an onClick handler
               onClick={() => null}
