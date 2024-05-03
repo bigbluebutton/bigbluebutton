@@ -83,9 +83,19 @@ export const VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION = gql`
   }
 `;
 
-export const VIDEO_STREAMS_USERS_SUBSCRIPTION = gql`
-  subscription VideoStreamsUsers {
-    user {
+export const GRID_USERS_SUBSCRIPTION = gql`
+  subscription GridUsers($userIds: [String]!, $limit: Int!) {
+    user(
+      where: {
+        userId: {
+          _nin: $userIds
+        },
+        loggedOut: {
+          _eq: false,
+        },
+      },
+      limit: $limit
+    ) {
       name
       userId
       nameSortable
@@ -144,5 +154,5 @@ export const VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION = gql`
 export default {
   VIDEO_STREAMS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
-  VIDEO_STREAMS_USERS_SUBSCRIPTION,
+  GRID_USERS_SUBSCRIPTION,
 };
