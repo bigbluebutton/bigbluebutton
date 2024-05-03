@@ -394,7 +394,6 @@ export const useVideoStreams = (
         (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
       )
       .map((user) => ({
-        isGridItem: true,
         type: 'grid' as const,
         ...user,
       }))
