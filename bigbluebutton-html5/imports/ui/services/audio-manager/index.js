@@ -492,6 +492,7 @@ class AudioManager {
   }
 
   forceExitAudio() {
+    this.notifyAudioExit();
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
@@ -601,7 +602,21 @@ class AudioManager {
     this.isConnecting = true;
   }
 
+  // Must be called before the call is actually torn down (this.isConnected = true)
+  notifyAudioExit() {
+    try {
+      if (!this.error && (this.isConnected && !this.isEchoTest)) {
+        this.notify(
+          this.intl.formatMessage(this.messages.info.LEFT_AUDIO),
+          false,
+          'no_audio',
+        );
+      }
+    } catch {}
+  }
+
   onAudioExit() {
+    this.notifyAudioExit();
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
@@ -613,9 +628,6 @@ class AudioManager {
       this.inputStream = null;
     }
 
-    if (!this.error && !this.isEchoTest) {
-      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO), false, 'no_audio');
-    }
     if (!this.isEchoTest) {
       this.playHangUpSound();
     }
