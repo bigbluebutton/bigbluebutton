@@ -14,7 +14,9 @@ const ScreenReaderAlert: React.FC<Props> = ({ olderAlert }) => {
     if (olderAlert) setTimeout(() => shiftAlert(), ARIA_ALERT_EXT_TIMEOUT);
   }, [olderAlert?.id]);
 
-  return olderAlert
+  const ariaAlertsElement = document.getElementById('aria-polite-alert');
+
+  return (olderAlert && olderAlert.text && ariaAlertsElement !== null)
     ? createPortal(olderAlert.text, document.getElementById('aria-polite-alert') as HTMLElement)
     : null;
 };
