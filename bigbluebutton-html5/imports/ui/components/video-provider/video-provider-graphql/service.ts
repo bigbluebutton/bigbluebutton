@@ -24,6 +24,7 @@ import {
   sortVideoStreams,
 } from '/imports/ui/components/video-provider/stream-sorting';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { setVideoState, setConnectingStream, getVideoState } from './state';
 
 const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles;
@@ -1040,6 +1041,19 @@ class VideoService {
   updatePeerDictionaryReference(newRef) {
     this.webRtcPeersRef = newRef;
   }
+
+  setTrackEnabled(value) {
+    const localPeers = Object.values(this.webRtcPeersRef).filter(
+      (peer) => peer.isPublisher,
+    );
+    localPeers.forEach((peer) => {
+      const stream = peer.getLocalStream();
+      MediaStreamUtils.getVideoTracks(stream).forEach((track) => {
+        // eslint-disable-next-line no-param-reassign
+        track.enabled = value;
+      });
+    });
+  }  
 }
 
 const videoService = new VideoService();
@@ -1105,5 +1119,6 @@ export default {
   isGridEnabled: videoService.isGridEnabled,
   setPageSize: videoService.setPageSize,
   filterLocalOnly: videoService.filterLocalOnly,
-  exitedVideo: () => videoService.exitedVideo()
+  exitedVideo: () => videoService.exitedVideo(),
+  setTrackEnabled: (value) => videoService.setTrackEnabled(value),
 };

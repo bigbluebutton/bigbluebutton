@@ -19,6 +19,8 @@ const ReactionsButtonContainer = ({ ...props }) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     emoji: user.emoji,
     raiseHand: user.raiseHand,
+    away: user.away,
+    voice: user.voice,
     reaction: user.reaction,
   }));
 
@@ -26,6 +28,8 @@ const ReactionsButtonContainer = ({ ...props }) => {
     userId: Auth.userID,
     emoji: currentUserData?.emoji,
     raiseHand: currentUserData?.raiseHand,
+    away: currentUserData?.away,
+    muted: currentUserData?.voice?.muted || false,
   };
 
   return (

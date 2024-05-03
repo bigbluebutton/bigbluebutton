@@ -80,9 +80,23 @@ const RaiseHandButtonWrapper = styled(ButtonWrapper)`
   `}
 `;
 
+const ToggleButtonWrapper = styled(ButtonWrapper)`
+  width: auto;
+  padding: 1rem 0.5rem;
+  cursor: inherit;
+  & > div {
+    margin-right: 0.5rem;
+    filter: grayscale(100%);
+  }
+  &:hover {
+    background-color: transparent !important;
+  }
+`;
+
 export default {
   RaiseHandButton,
   ReactionsDropdown,
   ButtonWrapper,
   RaiseHandButtonWrapper,
+  ToggleButtonWrapper,
 };

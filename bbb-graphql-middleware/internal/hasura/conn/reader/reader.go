@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hascli/retransmiter"
+	"github.com/iMDT/bbb-graphql-middleware/internal/hasura/retransmiter"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"hash/crc32"

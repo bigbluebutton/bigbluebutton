@@ -776,7 +776,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  redis: Redis
   serverLog: ServerLog
   minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
@@ -791,19 +790,6 @@ export interface App2 {
   localesUrl: string
   pencilChunkLength: number
   loadSlidesFromHttpAlways: boolean
-}
-
-export interface Redis {
-  host: string
-  port: string
-  timeout: number
-  password: string | null
-  debug: boolean
-  metrics: Metrics
-  channels: Channels
-  subscribeTo: string[]
-  async: string[]
-  ignored: string[]
 }
 
 export interface Metrics {
@@ -839,7 +825,6 @@ export interface Prometheus {
   enabled: boolean
   path: string
   collectDefaultMetrics: boolean
-  collectRedisMetrics: boolean
 }
 
 export default MeetingClientSettings;

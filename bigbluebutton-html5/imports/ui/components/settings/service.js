@@ -10,7 +10,7 @@ const getUserRoles = () => {
     userId: Auth.userID,
   });
 
-  return user.role;
+  return user?.role;
 };
 
 const isPresenter = () => {
@@ -18,7 +18,7 @@ const isPresenter = () => {
     userId: Auth.userID,
   });
 
-  return user.presenter;
+  return user?.presenter;
 };
 
 const showGuestNotification = () => {
