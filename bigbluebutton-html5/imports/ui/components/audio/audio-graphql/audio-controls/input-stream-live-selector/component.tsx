@@ -16,7 +16,7 @@ import { Meeting } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
-import Mutetoggle from './buttons/muteToggle';
+import MuteToggle from './buttons/muteToggle';
 import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
 
@@ -163,13 +163,13 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   }, [inputDeviceId]);
 
   useEffect(() => {
-    if (enableDynamicAudioDeviceSelection && !isMobile) {
+    if (enableDynamicAudioDeviceSelection) {
       updateDevices(inAudio);
     }
   }, [inAudio]);
 
   return (
-    <div>
+    <>
       {inAudio && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
         <MutedAlert
           {...{
@@ -180,7 +180,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
       ) : null}
       {
 
-        enableDynamicAudioDeviceSelection && !isMobile ? (
+        enableDynamicAudioDeviceSelection ? (
           <LiveSelection
             listenOnly={listenOnly}
             inputDevices={inputDevices}
@@ -198,7 +198,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         ) : (
           <>
             {(isConnected && !listenOnly) && (
-              <Mutetoggle
+              <MuteToggle
                 talking={talking}
                 muted={muted}
                 disabled={disabled || isAudioLocked}
@@ -211,11 +211,12 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
               listenOnly={listenOnly}
               handleLeaveAudio={handleLeaveAudio}
               meetingIsBreakout={meetingIsBreakout}
+              actAsDeviceSelector={enableDynamicAudioDeviceSelection && isMobile}
             />
           </>
         )
       }
-    </div>
+    </>
   );
 };
 
