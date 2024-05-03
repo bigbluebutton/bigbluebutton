@@ -7,7 +7,9 @@ import { landscape, mediumUp } from '/imports/ui/stylesheets/styled-components/b
 import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 
-const DropdownTrigger = styled(DivElipsis)`
+const DropdownTrigger = styled(DivElipsis)<{
+  $isRTL: boolean;
+}>`
   user-select: none;
   position: relative;
   // Keep the background with 0.5 opacity, but leave the text with 1
@@ -26,7 +28,7 @@ const DropdownTrigger = styled(DivElipsis)`
     content: "\\203a";
     position: absolute;
     transform: rotate(90deg);
-    ${({ isRTL }) => isRTL && `
+    ${({ $isRTL }) => $isRTL && `
       transform: rotate(-90deg);
     `}
     top: 45%;
@@ -36,19 +38,23 @@ const DropdownTrigger = styled(DivElipsis)`
   }
 `;
 
-const UserName = styled(TextElipsis)`
+const UserName = styled(TextElipsis)<{
+  $noMenu: boolean;
+}>`
   position: relative;
   // Keep the background with 0.5 opacity, but leave the text with 1
   color: ${colorOffWhite};
   padding: 0 1rem 0 .5rem !important;
   font-size: 80%;
 
-  ${({ noMenu }) => noMenu && `
+  ${({ $noMenu }) => $noMenu && `
     padding: 0 .5rem 0 .5rem !important;
   `}
 `;
 
-const Dropdown = styled.div`
+const Dropdown = styled.div<{
+  $isFirefox: boolean;
+}>`
   display: flex;
   outline: none !important;
   background-color: rgba(0, 0, 0, 0.5);
@@ -68,7 +74,7 @@ const Dropdown = styled.div`
     }
   }
 
-  ${({ isFirefox }) => isFirefox && `
+  ${({ $isFirefox }) => $isFirefox && `
     max-width: 100%;
   `}
 `;

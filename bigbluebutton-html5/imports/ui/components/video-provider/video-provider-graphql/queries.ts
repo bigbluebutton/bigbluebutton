@@ -33,10 +33,17 @@ export interface VideoStreamsUsersResponse {
     presenter: boolean;
     clientType: string;
     raiseHand: boolean;
-    isModerator: boolean
+    isModerator: boolean;
+    left: boolean;
     reaction: {
       reactionEmoji: string;
     };
+  }[];
+}
+
+export interface OwnVideoStreamsResponse {
+  user_camera: {
+    streamId: string;
   }[];
 }
 
@@ -142,6 +149,7 @@ export const VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION = gql`
 `;
 
 export default {
+  OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_USERS_SUBSCRIPTION,

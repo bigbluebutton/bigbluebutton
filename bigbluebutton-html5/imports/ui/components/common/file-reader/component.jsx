@@ -37,7 +37,7 @@ const STATUS = {
 
 /**
  * HOC for injecting a file reader utility.
- * @param {React.Component} Component 
+ * @param {(props: any) => JSX.Element} Component
  * @param {string[]} mimeTypesAllowed String array containing MIME types allowed.
  * @param {number} maxFileSize Max file size allowed in Mbytes.
  * @returns A new component which accepts the same props as the wrapped component plus

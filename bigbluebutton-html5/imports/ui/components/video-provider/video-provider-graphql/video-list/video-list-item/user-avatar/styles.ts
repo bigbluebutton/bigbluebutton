@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable */
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import {
   userIndicatorsOffset,
@@ -10,7 +8,11 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import styled from 'styled-components';
 
-const UserAvatarStyled = styled(UserAvatar)`
+const UserAvatarStyled = styled(UserAvatar)<{
+  unhealthyStream: boolean;
+  dialIn: boolean;
+  presenter: boolean;
+}>`
   height: 60%;
   width: 45%;
   max-width: 66px;

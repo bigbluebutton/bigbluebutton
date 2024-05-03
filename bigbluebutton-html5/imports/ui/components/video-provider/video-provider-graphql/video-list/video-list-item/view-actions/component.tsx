@@ -1,11 +1,18 @@
-// @ts-nocheck
-/* eslint-disable */import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { MutableRefObject, useEffect } from 'react';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import Styled from './styles';
 
-const ViewActions = (props) => {
+interface ViewActionsProps {
+  name: string;
+  cameraId: string;
+  videoContainer: MutableRefObject<HTMLDivElement | null>;
+  isFullscreenContext: boolean;
+  layoutContextDispatch: (...args: unknown[]) => void;
+  isStream: boolean;
+}
+
+const ViewActions: React.FC<ViewActionsProps> = (props) => {
   const {
     name, cameraId, videoContainer, isFullscreenContext, layoutContextDispatch, isStream,
   } = props;
@@ -13,7 +20,6 @@ const ViewActions = (props) => {
   const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
   useEffect(() => () => {
-    // exit fullscreen when component is unmounted
     if (isFullscreenContext) {
       layoutContextDispatch({
         type: ACTIONS.SET_FULLSCREEN_ELEMENT,
@@ -43,14 +49,3 @@ const ViewActions = (props) => {
 };
 
 export default ViewActions;
-
-ViewActions.propTypes = {
-  name: PropTypes.string.isRequired,
-  cameraId: PropTypes.string.isRequired,
-  videoContainer: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-  ]).isRequired,
-  isFullscreenContext: PropTypes.bool.isRequired,
-  layoutContextDispatch: PropTypes.func.isRequired,
-};
