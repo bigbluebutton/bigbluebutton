@@ -240,16 +240,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (playerRef.current && !isPresenter) {
-      playerRef.current.seekTo(currentTime, 'seconds');
-    }
-  }, [currentTime]);
-
-  useEffect(() => {
     if (playerRef.current) {
       playerRef.current.seekTo(currentTime, 'seconds');
     }
-  }, [playerRef.current]);
+  }, [playerRef.current, playing]);
 
   // --- Plugin related code ---;
   const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
@@ -507,8 +501,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
     + playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
-
-  console.log('currentTime', currentTime);
 
   return (
     <ExternalVideoPlayer
