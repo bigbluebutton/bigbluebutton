@@ -205,9 +205,7 @@ const getAudioData = async () => {
  *          peer
  */
 const getVideoData = async (getVideoStreamsStats) => {
-  console.log(getVideoStreamsStats);
   const camerasData = await getVideoStreamsStats() || {};
-  console.log(camerasData);
 
   const screenshareData = await ScreenshareService.getStats() || {};
 
