@@ -244,16 +244,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (playerRef.current && !isPresenter) {
-      playerRef.current.seekTo(currentTime, 'seconds');
-    }
-  }, [currentTime]);
-
-  useEffect(() => {
     if (playerRef.current) {
       playerRef.current.seekTo(currentTime, 'seconds');
     }
-  }, [playerRef.current]);
+  }, [playerRef.current, playing]);
 
   // --- Plugin related code ---;
   const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
@@ -537,7 +531,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       isResizing={isResizing}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
-      currentTime={isPresenter ? playerCurrentTime : currentTime}
+      currentTime={currentTime}
       key={key}
       setKey={setKey}
     />
