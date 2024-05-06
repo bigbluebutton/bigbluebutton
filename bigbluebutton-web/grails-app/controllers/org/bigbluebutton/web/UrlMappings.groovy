@@ -63,6 +63,10 @@ class UrlMappings {
       action = [GET: 'downloadFile']
     }
 
+    "/bigbluebutton/api/join"(controller: "api") {
+      action = [GET: 'join']
+    }
+
     "/bigbluebutton/api/getMeetings"(controller: "api") {
       action = [GET: 'getMeetingsHandler', POST: 'getMeetingsHandler']
     }

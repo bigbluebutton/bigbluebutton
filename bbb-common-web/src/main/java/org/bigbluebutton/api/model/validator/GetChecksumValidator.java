@@ -24,18 +24,6 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
         String securitySalt = ServiceUtils.getValidationService().getSecuritySalt();
         String supportedChecksumAlgorithms = ServiceUtils.getValidationService().getSupportedChecksumAlgorithms();
 
-        HttpServletRequest request = checksum.getRequest();
-        boolean queryStringPresent = request.getQueryString() != null && !request.getQueryString().isEmpty();
-        boolean requestBodyPresent = request.getContentLength() > 0;
-
-        String contentType = request.getContentType();
-        log.info("Request content type: {}", contentType);
-        if (contentType != null) {
-            if (contentType.equalsIgnoreCase(MediaType.APPLICATION_FORM_URLENCODED) || contentType.equalsIgnoreCase(MediaType.MULTIPART_FORM_DATA)) {
-                if (queryStringPresent && requestBodyPresent) return false;
-            }
-        }
-
         if (securitySalt.isEmpty()) {
             log.warn("Security is disabled in this service. Make sure this is intentional.");
             return true;

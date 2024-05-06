@@ -113,10 +113,6 @@ public class ValidationService {
             checksumValue = params.get("checksum")[0];
         }
 
-        if(queryString == null || queryString.isEmpty()) {
-            queryString = buildQueryStringFromParamsMap(params);
-        }
-
         switch(apiCall.requestType) {
             case GET:
                 checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString, servletRequest);
