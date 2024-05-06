@@ -44,6 +44,7 @@ import logger from '/imports/startup/client/logger';
 const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
 const {
+  paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
   desktopGridSizes: DESKTOP_GRID_SIZES,
@@ -553,4 +554,9 @@ export const useGetStats = (
 
     return stats;
   }, [peers]);
+};
+
+export const useShouldRenderPaginationToggle = () => {
+  const myPageSize = useMyPageSize();
+  return PAGINATION_TOGGLE_ENABLED && myPageSize > 0;
 };

@@ -3,7 +3,6 @@ import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
-import UserListService from '/imports/ui/components/user-list/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -22,7 +21,7 @@ import {
   Stream,
 } from './state';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
-import { Constraints2, DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
+import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles;
@@ -30,7 +29,6 @@ const MULTIPLE_CAMERAS = window.meetingClientSettings.public.app.enableMultipleC
 
 const SFU_URL = window.meetingClientSettings.public.kurento.wsUrl;
 const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
 const MIRROR_WEBCAM = window.meetingClientSettings.public.app.mirrorOwnWebcam;
 const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
 const {
@@ -39,14 +37,8 @@ const {
   debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
 } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
 const {
-  paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
-  desktopPageSizes: DESKTOP_PAGE_SIZES,
-  mobilePageSizes: MOBILE_PAGE_SIZES,
 } = window.meetingClientSettings.public.kurento.pagination;
-const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
-const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
-const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
 const DEFAULT_VIDEO_MEDIA_SERVER = window.meetingClientSettings.public.kurento.videoMediaServer;
 
 const TOKEN = '_';
@@ -172,10 +164,6 @@ class VideoService {
     return Auth.authenticateURL(SFU_URL);
   }
 
-  shouldRenderPaginationToggle() {
-    return PAGINATION_TOGGLE_ENABLED && (this.getMyPageSize() ?? 0) > 0;
-  }
-
   static isPaginationEnabled() {
     // @ts-expect-error -> Untyped object.
     return Settings.application.paginationEnabled;
@@ -222,55 +210,6 @@ class VideoService {
   static getPreviousVideoPage() {
     const previousPage = VideoService.calculatePreviousPage();
     VideoService.setCurrentVideoPageIndex(previousPage);
-  }
-
-  getPageSizeDictionary() {
-    if (!PAGINATION_THRESHOLDS_ENABLED || PAGINATION_THRESHOLDS.length <= 0) {
-      return !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
-    }
-
-    let targetThreshold;
-    const userCount = UserListService.getUserCount();
-    const processThreshold = (
-      threshold: {
-        desktopPageSizes?: DesktopPageSizes,
-        mobilePageSizes?: MobilePageSizes,
-      } = {
-        desktopPageSizes: DESKTOP_PAGE_SIZES,
-        mobilePageSizes: MOBILE_PAGE_SIZES,
-      },
-    ) => {
-      if (!this.isMobile) {
-        return threshold.desktopPageSizes || DESKTOP_PAGE_SIZES;
-      }
-      return threshold.mobilePageSizes || MOBILE_PAGE_SIZES;
-    };
-
-    if (userCount < PAGINATION_THRESHOLDS[0].users) return processThreshold();
-
-    for (let mapIndex = PAGINATION_THRESHOLDS.length - 1; mapIndex >= 0; mapIndex -= 1) {
-      targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
-      if (targetThreshold.users <= userCount) {
-        return processThreshold(targetThreshold);
-      }
-    }
-    return null;
-  }
-
-  getMyPageSize() {
-    let size;
-    const myRole = VideoService.getMyRole();
-    const pageSizes = this.getPageSizeDictionary();
-    switch (myRole) {
-      case ROLE_MODERATOR:
-        size = pageSizes?.moderator;
-        break;
-      case ROLE_VIEWER:
-      default:
-        size = pageSizes?.viewer;
-    }
-
-    return size;
   }
 
   static isGridEnabled() {
@@ -584,7 +523,6 @@ export default {
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   joinVideo: (deviceId: string) => videoService.joinVideo(deviceId),
   joinedVideo: () => videoService.joinedVideo(),
-  shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
   updateNumberOfDevices: (devices: MediaDeviceInfo[]) => videoService.updateNumberOfDevices(devices),
   stopConnectingStream: videoService.stopConnectingStream,
   updatePeerDictionaryReference: (

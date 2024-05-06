@@ -311,8 +311,9 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderPaginationToggle() {
-    // See VideoService's method for an explanation
-    if (!VideoService.shouldRenderPaginationToggle()) return false;
+    const { paginationToggleEnabled } = this.props;
+
+    if (!paginationToggleEnabled) return false;
 
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;

@@ -14,16 +14,19 @@ import {
   getAvailableLocales,
 } from './service';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
+import { useShouldRenderPaginationToggle } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 
 const SettingsContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const setLocalSettings = useUserChangedLocalSettings();
+  const paginationToggleEnabled = useShouldRenderPaginationToggle();
 
   return (
     <Settings
       {...props}
       layoutContextDispatch={layoutContextDispatch}
       setLocalSettings={setLocalSettings}
+      paginationToggleEnabled={paginationToggleEnabled}
     />
   );
 };
