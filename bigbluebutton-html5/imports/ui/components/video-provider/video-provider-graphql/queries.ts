@@ -91,7 +91,8 @@ export const GRID_USERS_SUBSCRIPTION = gql`
           _nin: $exceptUserIds
         },
       },
-      limit: $limit
+      limit: $limit,
+      order_by: {nameSortable: asc, userId: asc}
     ) {
       name
       userId
