@@ -116,7 +116,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
   const getAvailableActions = () => {
-    const pinned = stream?.type === 'stream' && stream?.pin;
+    const pinned = stream?.type === 'stream' && stream?.pinned;
     const userId = user?.userId;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';

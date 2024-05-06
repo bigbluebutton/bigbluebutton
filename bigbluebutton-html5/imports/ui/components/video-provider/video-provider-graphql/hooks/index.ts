@@ -37,7 +37,7 @@ import {
 } from '../queries';
 import videoService from '../service';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
-import { StreamItem } from '../types';
+import { GridItem, StreamItem, StreamUser } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 
@@ -240,18 +240,11 @@ export const useStreams = () => {
   return { streams: videoStreams };
 };
 
-type StreamUser = VideoStreamsUsersResponse['user'][number] & {
-  pin: boolean;
-  sortName: string;
-};
-
-type GridUser = StreamUser & { type: 'grid' };
-
 export const useStreamUsers = (isGridEnabled: boolean) => {
   const { streams } = useStreams();
   const gridSize = useGridSize();
   const [users, setUsers] = useState<StreamUser[]>([]);
-  const [gridUsers, setGridUsers] = useState<GridUser[]>([]);
+  const [gridUsers, setGridUsers] = useState<GridItem[]>([]);
   const userIds = useMemo(() => streams.map((s) => s.userId), [streams]);
   const streamCount = streams.length;
   const { data, loading, error } = useSubscription<VideoStreamsUsersResponse>(
@@ -278,12 +271,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
     }
 
     if (data) {
-      const newUsers = data.user.map((user) => ({
-        ...user,
-        pin: user.pinned,
-        sortName: user.nameSortable,
-      }));
-      setUsers(newUsers);
+      setUsers(data.user);
     } else {
       setUsers([]);
     }
@@ -299,8 +287,6 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
     if (gridData) {
       const newGridUsers = gridData.user.map((user) => ({
         ...user,
-        pin: user.pinned,
-        sortName: user.nameSortable,
         type: 'grid' as const,
       }));
       setGridUsers(newGridUsers);
@@ -378,11 +364,11 @@ export const useVideoStreams = (
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
-      (vs: StreamItem) => Auth.userID === vs.userId || (vs.type === 'stream' && vs.pin),
+      (vs: StreamItem) => Auth.userID === vs.userId || (vs.type === 'stream' && vs.pinned),
     );
     const [pin, mine] = partition(
       filtered,
-      (vs: StreamItem) => vs.type === 'stream' && vs.pin,
+      (vs: StreamItem) => vs.type === 'stream' && vs.pinned,
     );
 
     if (myPageSize !== 0) {

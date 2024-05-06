@@ -25,7 +25,7 @@ const PinArea: React.FC<PinAreaProps> = (props) => {
   const intl = useIntl();
 
   const { stream, user, amIModerator } = props;
-  const pinned = stream?.type === 'stream' && stream?.pin;
+  const pinned = stream?.type === 'stream' && stream?.pinned;
   const userId = user?.userId;
   const shouldRenderPinButton = pinned && userId;
   const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser(amIModerator);
