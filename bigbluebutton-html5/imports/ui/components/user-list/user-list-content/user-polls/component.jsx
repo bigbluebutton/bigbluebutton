@@ -71,7 +71,11 @@ UserPolls.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isPresenter: PropTypes.bool.isRequired,
+  isPresenter: PropTypes.bool,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
+};
+
+UserPolls.defaultProps = {
+  isPresenter: false,
 };
