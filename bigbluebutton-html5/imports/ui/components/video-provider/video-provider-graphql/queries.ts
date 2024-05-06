@@ -23,7 +23,6 @@ export interface VideoStreamsUsersResponse {
     pinned: boolean;
     nameSortable: string;
     name: string;
-    loggedOut: boolean;
     away: boolean;
     disconnected: boolean;
     emoji: string;
@@ -34,7 +33,6 @@ export interface VideoStreamsUsersResponse {
     clientType: string;
     raiseHand: boolean;
     isModerator: boolean;
-    left: boolean;
     reaction: {
       reactionEmoji: string;
     };
@@ -108,7 +106,6 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       userId
       nameSortable
       pinned
-      loggedOut
       away
       disconnected
       emoji
@@ -140,7 +137,6 @@ export const VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION = gql`
       userId
       nameSortable
       pinned
-      loggedOut
       away
       disconnected
       emoji
