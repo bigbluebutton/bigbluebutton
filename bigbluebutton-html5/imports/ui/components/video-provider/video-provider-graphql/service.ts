@@ -134,13 +134,12 @@ class VideoService {
     }
   }
 
-  joinedVideo() {
+  static joinedVideo() {
     setVideoState((curr) => ({
       ...curr,
       isConnected: true,
       isConnecting: false,
     }));
-    this.stopConnectingStream();
   }
 
   static storeDeviceIds(streams: Stream[]) {
@@ -515,6 +514,7 @@ export default {
   mirrorOwnWebcam: VideoService.mirrorOwnWebcam,
   processInboundIceQueue: VideoService.processInboundIceQueue,
   storeDeviceIds: VideoService.storeDeviceIds,
+  joinedVideo: () => VideoService.joinedVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
   getRecord: () => videoService.getRecord(),
@@ -522,7 +522,6 @@ export default {
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   joinVideo: (deviceId: string) => videoService.joinVideo(deviceId),
-  joinedVideo: () => videoService.joinedVideo(),
   updateNumberOfDevices: (devices: MediaDeviceInfo[]) => videoService.updateNumberOfDevices(devices),
   stopConnectingStream: videoService.stopConnectingStream,
   updatePeerDictionaryReference: (
