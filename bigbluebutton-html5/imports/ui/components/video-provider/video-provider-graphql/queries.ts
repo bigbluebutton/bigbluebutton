@@ -33,10 +33,17 @@ export interface VideoStreamsUsersResponse {
     presenter: boolean;
     clientType: string;
     raiseHand: boolean;
-    isModerator: boolean
+    isModerator: boolean;
+    left: boolean;
     reaction: {
       reactionEmoji: string;
     };
+  }[];
+}
+
+export interface OwnVideoStreamsResponse {
+  user_camera: {
+    streamId: string;
   }[];
 }
 
@@ -88,11 +95,14 @@ export const GRID_USERS_SUBSCRIPTION = gql`
     user(
       where: {
         userId: {
-          _nin: $exceptUserIds
+          _nin: $exceptUserIds,
         },
       },
       limit: $limit,
-      order_by: {nameSortable: asc, userId: asc}
+      order_by: {
+        nameSortable: asc,
+        userId: asc,
+      },
     ) {
       name
       userId
@@ -150,7 +160,9 @@ export const VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION = gql`
 `;
 
 export default {
+  OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   GRID_USERS_SUBSCRIPTION,
+  VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
 };

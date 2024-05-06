@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable */
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Meetings from '/imports/api/meetings';
@@ -9,8 +7,16 @@ import ManyUsersComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_WEBCAM_ONLY_FOR_MODERATOR } from '/imports/ui/components/lock-viewers/mutations';
 import { useViewersInWebcamCount } from '../hooks';
+import { LockSettings } from '/imports/ui/Types/meeting';
 
-const ManyUsersContainer = (props) => {
+interface ManyUsersContainerProps {
+  lockSettings: LockSettings,
+  webcamOnlyForModerator: boolean,
+  limitOfViewersInWebcam: number,
+  limitOfViewersInWebcamIsEnable: boolean,
+}
+
+const ManyUsersContainer: React.FC<ManyUsersContainerProps> = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
   }));
@@ -27,15 +33,24 @@ const ManyUsersContainer = (props) => {
 
   const viewersInWebcam = useViewersInWebcamCount();
 
-  const currentUserIsModerator = currentUserData?.isModerator;
+  const currentUserIsModerator = !!currentUserData?.isModerator;
+
+  const {
+    limitOfViewersInWebcam,
+    limitOfViewersInWebcamIsEnable,
+    lockSettings,
+    webcamOnlyForModerator,
+  } = props;
+
   return (
     <ManyUsersComponent
-      {...{
-        toggleWebcamsOnlyForModerator,
-        currentUserIsModerator,
-        viewersInWebcam,
-        ...props,
-      }}
+      toggleWebcamsOnlyForModerator={toggleWebcamsOnlyForModerator}
+      currentUserIsModerator={currentUserIsModerator}
+      viewersInWebcam={viewersInWebcam}
+      limitOfViewersInWebcam={limitOfViewersInWebcam}
+      limitOfViewersInWebcamIsEnable={limitOfViewersInWebcamIsEnable}
+      lockSettings={lockSettings}
+      webcamOnlyForModerator={webcamOnlyForModerator}
     />
   );
 };

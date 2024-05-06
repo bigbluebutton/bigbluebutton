@@ -40,12 +40,16 @@ class ConnectionStatusButton extends PureComponent {
   setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
 
   renderModal(isModalOpen) {
+    const { isGridLayout, paginationEnabled, viewParticipantsWebcams } = this.props;
     return (
       isModalOpen ?
       <ConnectionStatusModalComponent
         {...{
           isModalOpen,
           setModalIsOpen: this.setModalIsOpen,
+          isGridLayout,
+          paginationEnabled,
+          viewParticipantsWebcams,
         }}
       /> : null
     )

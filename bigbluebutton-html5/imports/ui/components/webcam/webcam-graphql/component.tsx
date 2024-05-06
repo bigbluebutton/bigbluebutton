@@ -1,8 +1,6 @@
-/* eslint-disable */
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import Resizable from 're-resizable';
-import Draggable from 'react-draggable';
+import Draggable, { DraggableEvent } from 'react-draggable';
 import { Session } from 'meteor/session';
 import { withTracker } from 'meteor/react-meteor-data';
 import { useSubscription } from '@apollo/client';
@@ -15,17 +13,29 @@ import {
 } from '/imports/ui/components/layout/context';
 import Settings from '/imports/ui/services/settings';
 import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
-import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/video-provider-graphql/container';
 import Storage from '/imports/ui/services/storage/session';
-import Styled from '../styles';
+import Styled from './styles';
+import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
+import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
 
-const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+interface WebcamComponentGraphqlProps {
+  cameraDock: Output['cameraDock'];
+  swapLayout: boolean;
+  focusedId: string;
+  layoutContextDispatch: (...args: unknown[]) => void;
+  fullscreen: Layout['fullscreen'];
+  isPresenter: boolean;
+  displayPresentation: boolean;
+  cameraOptimalGridSize: Input['cameraDock']['cameraOptimalGridSize'];
+  isRTL: boolean;
+  isGridEnabled: boolean;
+}
 
-const WebcamComponentGraphql = ({
+const WebcamComponentGraphql: React.FC<WebcamComponentGraphqlProps> = ({
   cameraDock,
   swapLayout,
   focusedId,
@@ -45,7 +55,7 @@ const WebcamComponentGraphql = ({
   const [draggedAtLeastOneTime, setDraggedAtLeastOneTime] = useState(false);
 
   const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
-  const { width: lastWidth, height: lastHeight } = lastSize;
+  const { height: lastHeight } = lastSize as { width: number, height: number };
 
   const isCameraTopOrBottom = cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP
     || cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
@@ -72,7 +82,9 @@ const WebcamComponentGraphql = ({
   }, [fullscreen]);
 
   useEffect(() => {
-    const newCameraMaxWidth = (isPresenter && cameraDock.presenterMaxWidth) ? cameraDock.presenterMaxWidth : cameraDock.maxWidth;
+    const newCameraMaxWidth = (isPresenter && cameraDock.presenterMaxWidth)
+      ? cameraDock.presenterMaxWidth
+      : cameraDock.maxWidth;
     setCameraMaxWidth(newCameraMaxWidth);
 
     if (isCameraLeftOrRight && cameraDock.width > newCameraMaxWidth) {
@@ -91,18 +103,18 @@ const WebcamComponentGraphql = ({
     }
 
     const cams = document.getElementById('cameraDock');
-    cams?.setAttribute("data-position", cameraDock.position);
+    cams?.setAttribute('data-position', cameraDock.position);
   }, [cameraDock.position, cameraDock.maxWidth, isPresenter, displayPresentation]);
 
-  const handleVideoFocus = (id) => {
+  const handleVideoFocus = (id: string) => {
     layoutContextDispatch({
       type: ACTIONS.SET_FOCUSED_CAMERA_ID,
       value: focusedId !== id ? id : false,
     });
-  }
+  };
 
-  const onResizeHandle = (deltaWidth, deltaHeight) => {
-    if (cameraDock.resizableEdge.top || cameraDock.resizableEdge.bottom) {
+  const onResizeHandle = (deltaWidth: number, deltaHeight: number) => {
+    if (cameraDock.resizableEdge?.top || cameraDock.resizableEdge?.bottom) {
       layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
@@ -115,7 +127,7 @@ const WebcamComponentGraphql = ({
         },
       );
     }
-    if (cameraDock.resizableEdge.left || cameraDock.resizableEdge.right) {
+    if (cameraDock.resizableEdge?.left || cameraDock.resizableEdge?.right) {
       layoutContextDispatch(
         {
           type: ACTIONS.SET_CAMERA_DOCK_SIZE,
@@ -139,18 +151,19 @@ const WebcamComponentGraphql = ({
     });
   };
 
-  const handleWebcamDragStop = (e) => {
+  const handleWebcamDragStop = (e: DraggableEvent) => {
     setIsDragging(false);
     setDraggedAtLeastOneTime(false);
     document.body.style.overflow = 'auto';
+    const dropAreaId = (e.target as HTMLDivElement).id;
 
-    if (Object.values(CAMERADOCK_POSITION).includes(e.target.id) && draggedAtLeastOneTime) {
+    if (Object.values(CAMERADOCK_POSITION).includes(dropAreaId) && draggedAtLeastOneTime) {
       const layout = document.getElementById('layout');
-      layout?.setAttribute("data-cam-position", e?.target?.id);
+      layout?.setAttribute('data-cam-position', dropAreaId);
 
       layoutContextDispatch({
         type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-        value: e.target.id,
+        value: dropAreaId,
       });
     }
 
@@ -160,32 +173,33 @@ const WebcamComponentGraphql = ({
     });
   };
 
-  let draggableOffset = {
+  const draggableOffset = {
     left: isDragging && (isCameraTopOrBottom || isCameraSidebar)
-      ? ((cameraDock.width - cameraSize.width) / 2)
+      ? ((cameraDock.width - (cameraSize?.width ?? 0)) / 2)
       : 0,
     top: isDragging && isCameraLeftOrRight
-      ? ((cameraDock.height - cameraSize.height) / 2)
+      ? ((cameraDock.height - (cameraSize?.height ?? 0)) / 2)
       : 0,
   };
 
   if (isRTL) {
-    draggableOffset.left = draggableOffset.left * -1;
+    draggableOffset.left *= -1;
   }
-  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
-  const mobileWidth = `${isDragging ? cameraSize.width : cameraDock.width}pt`;
-  const mobileHeight = `${isDragging ? cameraSize.height : cameraDock.height}pt`;
-  const isDesktopWidth = isDragging ? cameraSize.width : cameraDock.width;
-  const isDesktopHeight = isDragging ? cameraSize.height : cameraDock.height;
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
+  const mobileWidth = `${isDragging ? cameraSize?.width : cameraDock.width}pt`;
+  const mobileHeight = `${isDragging ? cameraSize?.height : cameraDock.height}pt`;
+  const isDesktopWidth = isDragging ? cameraSize?.width : cameraDock.width;
+  const isDesktopHeight = isDragging ? cameraSize?.height : cameraDock.height;
   const camOpacity = isDragging ? 0.5 : undefined;
+
   return (
     <>
       {isDragging ? <DropAreaContainer /> : null}
       <Styled.ResizableWrapper
-        horizontal={cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP
+        $horizontal={cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP
           || cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM}
-        vertical={cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT
+        $vertical={cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT
           || cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT}
       >
         <Draggable
@@ -210,13 +224,13 @@ const WebcamComponentGraphql = ({
           }
         >
           <Resizable
-            minWidth={isDragging ? cameraSize.width : cameraDock.minWidth}
-            minHeight={isDragging ? cameraSize.height : cameraDock.minHeight}
-            maxWidth={isDragging ? cameraSize.width : cameraMaxWidth}
-            maxHeight={isDragging ? cameraSize.height : cameraDock.maxHeight}
+            minWidth={isDragging ? cameraSize?.width : cameraDock.minWidth}
+            minHeight={isDragging ? cameraSize?.height : cameraDock.minHeight}
+            maxWidth={isDragging ? cameraSize?.width : cameraMaxWidth}
+            maxHeight={isDragging ? cameraSize?.height : cameraDock.maxHeight}
             size={{
-              width: isDragging ? cameraSize.width : cameraDock.width,
-              height: isDragging ? cameraSize.height : cameraDock.height,
+              width: isDragging ? cameraSize?.width : cameraDock.width,
+              height: isDragging ? cameraSize?.height : cameraDock.height,
             }}
             onResizeStart={() => {
               setIsResizing(true);
@@ -227,7 +241,7 @@ const WebcamComponentGraphql = ({
                 value: true,
               });
             }}
-            onResize={(e, direction, ref, d) => {
+            onResize={(_, __, ___, d) => {
               onResizeHandle(d.width, d.height);
             }}
             onResizeStop={() => {
@@ -239,11 +253,11 @@ const WebcamComponentGraphql = ({
               });
             }}
             enable={{
-              top: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.top,
+              top: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.top,
               bottom: !isFullscreen && !isDragging && !swapLayout
-              && cameraDock.resizableEdge.bottom,
-              left: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.left,
-              right: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.right,
+              && cameraDock?.resizableEdge?.bottom,
+              left: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.left,
+              right: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.right,
               topLeft: false,
               topRight: false,
               bottomLeft: false,
@@ -251,12 +265,12 @@ const WebcamComponentGraphql = ({
             }}
             style={{
               position: 'absolute',
-              zIndex: isCameraSidebar && !isDragging ? 0 : cameraDock.zIndex,
+              zIndex: isCameraSidebar && !isDragging ? 0 : cameraDock?.zIndex,
             }}
           >
             <Styled.Draggable
-              isDraggable={cameraDock.isDraggable && !isFullscreen && !isDragging}
-              isDragging={isDragging}
+              $isDraggable={!!cameraDock.isDraggable && !isFullscreen && !isDragging}
+              $isDragging={isDragging}
               id="cameraDock"
               role="region"
               draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
@@ -264,7 +278,7 @@ const WebcamComponentGraphql = ({
                 width: isIphone ? mobileWidth : isDesktopWidth,
                 height: isIphone ? mobileHeight : isDesktopHeight,
                 opacity: camOpacity,
-                background: null,
+                background: 'none',
               }}
             >
               <VideoProviderContainer
@@ -299,11 +313,11 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
   paginationEnabled,
   viewParticipantsWebcams,
 }) => {
-  const fullscreen = layoutSelect((i) => i.fullscreen);
-  const isRTL = layoutSelect((i) => i.isRTL);
-  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
-  const presentation = layoutSelectOutput((i) => i.presentation);
-  const cameraDock = layoutSelectOutput((i) => i.cameraDock);
+  const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
+  const presentation = layoutSelectOutput((i: Output) => i.presentation);
+  const cameraDock = layoutSelectOutput((i: Output) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
@@ -330,9 +344,12 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
 
   const { streams: videoUsers, gridUsers } = useVideoStreams(isGridEnabled, paginationEnabled, viewParticipantsWebcams);
 
-  let usersVideo;
+  let usersVideo: VideoItem[];
   if (gridUsers.length > 0) {
-    usersVideo = videoUsers.concat(gridUsers);
+    usersVideo = [
+      ...videoUsers,
+      ...gridUsers,
+    ];
   } else {
     usersVideo = videoUsers;
   }
@@ -348,7 +365,7 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
           cameraOptimalGridSize,
           layoutContextDispatch,
           fullscreen,
-          isPresenter: currentUserData?.presenter,
+          isPresenter: currentUserData?.presenter ?? false,
           displayPresentation,
           isRTL,
           isGridEnabled,
@@ -360,14 +377,26 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
     : null;
 };
 
-export default withTracker<{
-  audioModalIsOpen: boolean,
-}, WebcamContainerGraphqlProps>(() => {
-  const data = {
-    audioModalIsOpen: Session.get('audioModalIsOpen'),
-    paginationEnabled: Settings.application.paginationEnabled,
-    viewParticipantsWebcams: Settings.dataSaving.viewParticipantsWebcams,
-  };
+type TrackerData = {
+  audioModalIsOpen: boolean;
+  paginationEnabled: boolean;
+  viewParticipantsWebcams: boolean;
+};
 
-  return data;
+type TrackerProps = {
+  isLayoutSwapped: boolean;
+  layoutType: string;
+};
+
+export default withTracker<TrackerData, TrackerProps>(() => {
+  const audioModalIsOpen = Session.get('audioModalIsOpen');
+  // @ts-expect-error -> Untyped object.
+  const { paginationEnabled } = Settings.application;
+  // @ts-expect-error -> Untyped object.
+  const { viewParticipantsWebcams } = Settings.dataSaving;
+  return {
+    audioModalIsOpen,
+    paginationEnabled,
+    viewParticipantsWebcams,
+  };
 })(WebcamContainerGraphql);

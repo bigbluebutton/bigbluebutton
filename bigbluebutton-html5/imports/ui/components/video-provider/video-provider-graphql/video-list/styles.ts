@@ -1,12 +1,10 @@
-// @ts-nocheck
-/* eslint-disable */
 import styled from 'styled-components';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { actionsBarHeight, navbarHeight } from '/imports/ui/stylesheets/styled-components/general';
+import { actionsBarHeight, navbarHeight, mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/common/button/component';
 
+// @ts-expect-error -> Untyped component.
 const NextPageButton = styled(Button)`
   color: ${colorWhite};
   width: ${mdPaddingX};
@@ -33,6 +31,7 @@ const NextPageButton = styled(Button)`
   `}
 `;
 
+// @ts-expect-error -> Untyped component.
 const PreviousPageButton = styled(Button)`
   color: ${colorWhite};
   width: ${mdPaddingX};
@@ -59,19 +58,23 @@ const PreviousPageButton = styled(Button)`
   `}
 `;
 
-const VideoListItem = styled.div`
+const VideoListItem = styled.div<{
+  $focused: boolean;
+}>`
   display: flex;
   overflow: hidden;
   width: 100%;
   max-height: 100%;
 
-  ${({ focused }) => focused && `
+  ${({ $focused }) => $focused && `
     grid-column: 1 / span 2;
     grid-row: 1 / span 2;
   `}
 `;
 
-const VideoCanvas = styled.div`
+const VideoCanvas = styled.div<{
+  $position: string;
+}>`
   position: absolute;
   width: 100%;
   min-height: calc((100vh - calc(${navbarHeight} + ${actionsBarHeight})) * 0.2);
@@ -84,7 +87,7 @@ const VideoCanvas = styled.div`
   align-items: center;
   justify-content: center;
 
-  ${({ position }) => (position === 'contentRight' || position === 'contentLeft') && `
+  ${({ $position }) => ($position === 'contentRight' || $position === 'contentLeft') && `
     flex-wrap: wrap;
     align-content: center;
     order: 0;

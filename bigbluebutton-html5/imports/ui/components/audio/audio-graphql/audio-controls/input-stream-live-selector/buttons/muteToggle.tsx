@@ -39,7 +39,7 @@ interface MuteToggleProps {
   away: boolean;
 }
 
-export const Mutetoggle: React.FC<MuteToggleProps> = ({
+export const MuteToggle: React.FC<MuteToggleProps> = ({
   talking,
   muted,
   disabled,
@@ -90,4 +90,4 @@ export const Mutetoggle: React.FC<MuteToggleProps> = ({
   );
 };
 
-export default Mutetoggle;
+export default MuteToggle;

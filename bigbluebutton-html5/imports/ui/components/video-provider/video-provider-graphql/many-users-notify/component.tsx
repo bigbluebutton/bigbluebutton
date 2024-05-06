@@ -1,10 +1,9 @@
-// @ts-nocheck
-/* eslint-disable */
 import React, { Component } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import Styled from './styles';
+import { LockSettings } from '/imports/ui/Types/meeting';
 
 const intlMessages = defineMessages({
   suggestLockTitle: {
@@ -27,8 +26,21 @@ const intlMessages = defineMessages({
 
 const REPEAT_INTERVAL = 120000;
 
-class LockViewersNotifyComponent extends Component {
-  constructor(props) {
+interface LockViewersNotifyComponentProps {
+  toggleWebcamsOnlyForModerator: () => void;
+  currentUserIsModerator: boolean;
+  viewersInWebcam: number;
+  limitOfViewersInWebcam: number;
+  limitOfViewersInWebcamIsEnable: boolean;
+  lockSettings: LockSettings;
+  webcamOnlyForModerator: boolean;
+  intl: IntlShape;
+}
+
+class LockViewersNotifyComponent extends Component<LockViewersNotifyComponentProps, object> {
+  private interval: NodeJS.Timeout | null;
+
+  constructor(props: LockViewersNotifyComponentProps) {
     super(props);
     this.interval = null;
     this.intervalCallback = this.intervalCallback.bind(this);
@@ -55,7 +67,7 @@ class LockViewersNotifyComponent extends Component {
       this.intervalCallback();
     }
     if (webcamForViewersIsLocked || (!viwerersInWebcamGreaterThatLimit && this.interval)) {
-      clearInterval(this.interval);
+      if (this.interval) clearInterval(this.interval);
       this.interval = null;
     }
   }
