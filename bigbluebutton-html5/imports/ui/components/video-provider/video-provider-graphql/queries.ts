@@ -23,7 +23,6 @@ export interface VideoStreamsUsersResponse {
     pinned: boolean;
     nameSortable: string;
     name: string;
-    loggedOut: boolean;
     away: boolean;
     disconnected: boolean;
     emoji: string;
@@ -34,7 +33,6 @@ export interface VideoStreamsUsersResponse {
     clientType: string;
     raiseHand: boolean;
     isModerator: boolean;
-    left: boolean;
     reaction: {
       reactionEmoji: string;
     };
@@ -90,14 +88,24 @@ export const VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION = gql`
   }
 `;
 
-export const VIDEO_STREAMS_USERS_SUBSCRIPTION = gql`
-  subscription VideoStreamsUsers {
-    user {
+export const GRID_USERS_SUBSCRIPTION = gql`
+  subscription GridUsers($exceptUserIds: [String]!, $limit: Int!) {
+    user(
+      where: {
+        userId: {
+          _nin: $exceptUserIds,
+        },
+      },
+      limit: $limit,
+      order_by: {
+        nameSortable: asc,
+        userId: asc,
+      },
+    ) {
       name
       userId
       nameSortable
       pinned
-      loggedOut
       away
       disconnected
       emoji
@@ -129,7 +137,6 @@ export const VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION = gql`
       userId
       nameSortable
       pinned
-      loggedOut
       away
       disconnected
       emoji
@@ -152,5 +159,6 @@ export default {
   OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
-  VIDEO_STREAMS_USERS_SUBSCRIPTION,
+  GRID_USERS_SUBSCRIPTION,
+  VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
 };

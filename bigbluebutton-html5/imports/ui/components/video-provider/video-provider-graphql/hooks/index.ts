@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   useSubscription,
   useReactiveVar,
@@ -25,14 +30,14 @@ import {
 import {
   OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
-  VIDEO_STREAMS_USERS_SUBSCRIPTION,
+  GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VideoStreamsUsersResponse,
   OwnVideoStreamsResponse,
 } from '../queries';
 import videoService from '../service';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
-import { GridItem, StreamItem } from '../types';
+import { StreamItem } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 
@@ -240,43 +245,76 @@ type StreamUser = VideoStreamsUsersResponse['user'][number] & {
   sortName: string;
 };
 
+type GridUser = StreamUser & { type: 'grid' };
+
 export const useStreamUsers = (isGridEnabled: boolean) => {
   const { streams } = useStreams();
-  const subscription = isGridEnabled
-    ? VIDEO_STREAMS_USERS_SUBSCRIPTION
-    : VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION;
-  const variables = isGridEnabled
-    ? {}
-    : { userIds: streams.map((s) => s.userId) };
-  const { data, loading, error } = useSubscription<VideoStreamsUsersResponse>(
-    subscription,
-    { variables },
-  );
+  const gridSize = useGridSize();
   const [users, setUsers] = useState<StreamUser[]>([]);
+  const [gridUsers, setGridUsers] = useState<GridUser[]>([]);
+  const userIds = useMemo(() => streams.map((s) => s.userId), [streams]);
+  const streamCount = streams.length;
+  const { data, loading, error } = useSubscription<VideoStreamsUsersResponse>(
+    VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
+    { variables: { userIds } },
+  );
+  const {
+    data: gridData,
+    loading: gridLoading,
+    error: gridError,
+  } = useSubscription<VideoStreamsUsersResponse>(
+    GRID_USERS_SUBSCRIPTION,
+    {
+      variables: { exceptUserIds: userIds, limit: Math.max(gridSize - streamCount, 0) },
+      skip: !isGridEnabled,
+    },
+  );
 
   useEffect(() => {
     if (loading) return;
 
     if (error) {
-      logger.error(`Error on load stream users. name=${error.name}`, error);
+      logger.error(`Stream users subscription failed. name=${error.name}`, error);
     }
 
     if (data) {
-      const newData = data.user.map((user) => ({
+      const newUsers = data.user.map((user) => ({
         ...user,
         pin: user.pinned,
         sortName: user.nameSortable,
       }));
-      setUsers(newData);
+      setUsers(newUsers);
     } else {
       setUsers([]);
     }
   }, [data]);
 
+  useEffect(() => {
+    if (gridLoading) return;
+
+    if (gridError) {
+      logger.error(`Grid users subscription failed. name=${gridError.name}`, gridError);
+    }
+
+    if (gridData) {
+      const newGridUsers = gridData.user.map((user) => ({
+        ...user,
+        pin: user.pinned,
+        sortName: user.nameSortable,
+        type: 'grid' as const,
+      }));
+      setGridUsers(newGridUsers);
+    } else {
+      setGridUsers([]);
+    }
+  }, [gridData]);
+
   return {
+    streams,
     users,
-    loading,
-    error,
+    gridUsers,
+    loading: loading || gridLoading,
+    error: error || gridError,
   };
 };
 
@@ -325,14 +363,11 @@ export const useVideoStreams = (
 ) => {
   const [state] = useVideoState();
   const { currentVideoPageIndex, numberOfPages } = state;
-  const { users } = useStreamUsers(isGridEnabled);
-  const { streams: videoStreams } = useStreams();
+  const { users, gridUsers, streams: videoStreams } = useStreamUsers(isGridEnabled);
   const connectingStream = useConnectingStream(videoStreams);
-  const gridSize = useGridSize();
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled(paginationEnabled);
   let streams: StreamItem[] = [...videoStreams];
-  let gridUsers: GridItem[] = [];
 
   if (connectingStream) streams.push(connectingStream);
 
@@ -384,20 +419,6 @@ export const useVideoStreams = (
     }
   } else {
     streams = sortVideoStreams(streams, DEFAULT_SORTING);
-  }
-
-  if (isGridEnabled) {
-    const streamUsers = streams.map((stream) => stream.userId);
-
-    gridUsers = users
-      .filter(
-        (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
-      )
-      .map((user) => ({
-        type: 'grid' as const,
-        ...user,
-      }))
-      .slice(0, gridSize - streams.length);
   }
 
   return {
