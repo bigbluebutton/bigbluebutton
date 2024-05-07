@@ -6,7 +6,7 @@ export interface WelcomeMsgsResponse {
 }
 
 export const GET_WELCOME_MESSAGE = gql`
-  query {
+  query getWelcomeMessage{
     user_welcomeMsgs {
       welcomeMsg
       welcomeMsgForModerators
