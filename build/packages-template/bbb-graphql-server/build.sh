@@ -30,7 +30,7 @@ cp -r hasura-graphql staging/usr/local/bin/hasura-graphql-engine
 
 HASURA_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
 sed -i "s/HASURA_GRAPHQL_ADMIN_SECRET=bigbluebutton/HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_ADM_PASSWORD/g" hasura-config.env
-yq e -i ".admin_secret = \"$HASURA_ADM_PASSWORD\"" config.yaml
+sed -i "s/admin_secret: bigbluebutton/admin_secret: $HASURA_ADM_PASSWORD/g" hasura-config.env
 
 cp -r hasura-config.env staging/etc/default/bbb-graphql-server
 cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
