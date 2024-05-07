@@ -271,11 +271,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
       logger.error(`Stream users subscription failed. name=${error.name}`, error);
     }
 
-    if (data) {
-      setUsers(data.user);
-    } else {
-      setUsers([]);
-    }
+    setUsers(data ? data.user : []);
   }, [data]);
 
   useEffect(() => {
