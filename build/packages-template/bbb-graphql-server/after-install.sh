@@ -39,7 +39,7 @@ case "$1" in
 
   echo "Postgresql configured"
 
-  echo "Set a random password to Hasura in case its using the default `bigbluebutton`"
+  echo "Set a random password to Hasura in case its using the default 'bigbluebutton'"
   HASURA_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
   sed -i "s/HASURA_GRAPHQL_ADMIN_SECRET=bigbluebutton/HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_ADM_PASSWORD/g" /etc/default/bbb-graphql-server
   sed -i "s/admin_secret: bigbluebutton/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
