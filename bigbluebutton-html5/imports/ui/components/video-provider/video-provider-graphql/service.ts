@@ -1,4 +1,5 @@
 import { Session } from 'meteor/session';
+import { v4 as uuid } from 'uuid';
 import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
@@ -60,6 +61,8 @@ class VideoService {
 
   private deviceId: string | null = null;
 
+  private readonly tabId: string;
+
   constructor() {
     this.userParameterProfile = null;
     this.isMobile = deviceInfo.isMobile;
@@ -67,6 +70,7 @@ class VideoService {
     this.numberOfDevices = 0;
     this.record = null;
     this.hackRecordViewer = null;
+    this.tabId = uuid();
 
     if (navigator.mediaDevices) {
       this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
@@ -119,7 +123,7 @@ class VideoService {
     this.deviceId = deviceId;
     Storage.setItem('isFirstJoin', false);
     if (!VideoService.isUserLocked()) {
-      const streamName = VideoService.buildStreamName(Auth.userID ?? '', deviceId);
+      const streamName = this.buildStreamName(deviceId);
       const stream = {
         stream: streamName,
         userId: Auth.userID ?? '',
@@ -142,11 +146,13 @@ class VideoService {
     }));
   }
 
-  static storeDeviceIds(streams: Stream[]) {
+  storeDeviceIds(streams: Stream[]) {
     const deviceIds: string[] = [];
-    streams.filter((s) => s.userId === Auth.userID).forEach((s) => {
-      deviceIds.push(s.deviceId);
-    });
+    streams
+      .filter((s) => this.isLocalStream(s.stream))
+      .forEach((s) => {
+        deviceIds.push(s.deviceId);
+      });
     Session.set('deviceIds', deviceIds.join());
   }
 
@@ -220,8 +226,8 @@ class VideoService {
     setConnectingStream(null);
   }
 
-  static buildStreamName(userId: string, deviceId: string) {
-    return `${userId}${TOKEN}${deviceId}`;
+  buildStreamName(deviceId: string) {
+    return `${this.getPrefix()}${TOKEN}${deviceId}`;
   }
 
   static getMediaServerAdapter() {
@@ -280,13 +286,16 @@ class VideoService {
       && !isBreakout);
   }
 
-  static getMyStreamId(deviceId: string, streams: Stream[]) {
-    const videoStream = streams.find((vs) => vs.userId === Auth.userID && vs.deviceId === deviceId);
+  getMyStreamId(deviceId: string, streams: Stream[]) {
+    const videoStream = streams.find(
+      (vs) => this.isLocalStream(vs.stream)
+        && vs.deviceId === deviceId,
+    );
     return videoStream ? videoStream.stream : null;
   }
 
-  static isLocalStream(cameraId: string) {
-    return !!Auth.userID && cameraId?.startsWith(Auth.userID);
+  isLocalStream(cameraId = '') {
+    return cameraId.startsWith(this.getPrefix());
   }
 
   static getCameraProfile() {
@@ -492,6 +501,14 @@ class VideoService {
       });
     });
   }
+
+  getTabId() {
+    return this.tabId;
+  }
+
+  getPrefix() {
+    return `${Auth.userID}${TOKEN}${this.tabId}`;
+  }
 }
 
 const videoService = new VideoService();
@@ -499,7 +516,7 @@ const videoService = new VideoService();
 export default {
   addCandidateToPeer: VideoService.addCandidateToPeer,
   getInfo: VideoService.getInfo,
-  getMyStreamId: VideoService.getMyStreamId,
+  getMyStreamId: videoService.getMyStreamId.bind(videoService),
   getAuthenticatedURL: VideoService.getAuthenticatedURL,
   getRole: VideoService.getRole,
   getMediaServerAdapter: VideoService.getMediaServerAdapter,
@@ -509,11 +526,11 @@ export default {
   getNextVideoPage: VideoService.getNextVideoPage,
   getCurrentVideoPageIndex: VideoService.getCurrentVideoPageIndex,
   isVideoPinEnabledForCurrentUser: VideoService.isVideoPinEnabledForCurrentUser,
-  isLocalStream: VideoService.isLocalStream,
+  isLocalStream: videoService.isLocalStream.bind(videoService),
   isPaginationEnabled: VideoService.isPaginationEnabled,
   mirrorOwnWebcam: VideoService.mirrorOwnWebcam,
   processInboundIceQueue: VideoService.processInboundIceQueue,
-  storeDeviceIds: VideoService.storeDeviceIds,
+  storeDeviceIds: videoService.storeDeviceIds.bind(videoService),
   joinedVideo: () => VideoService.joinedVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
@@ -536,4 +553,6 @@ export default {
     { leading: false, trailing: true },
   ),
   setTrackEnabled: (value: boolean) => videoService.setTrackEnabled(value),
+  getTabId: videoService.getTabId.bind(videoService),
+  getPrefix: videoService.getPrefix.bind(videoService),
 };

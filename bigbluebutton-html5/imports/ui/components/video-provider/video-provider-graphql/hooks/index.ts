@@ -66,7 +66,7 @@ const FILTER_VIDEO_STATS = [
 ];
 
 export const useStatus = () => {
-  const videoState = useVideoState()[0];
+  const [videoState] = useVideoState();
   if (videoState.isConnecting) return 'videoConnecting';
   if (videoState.isConnected) return 'connected';
   return 'disconnected';
@@ -105,7 +105,7 @@ export const useVideoStreamsCount = () => {
 
 export const useLocalVideoStreamsCount = () => {
   const { streams } = useStreams();
-  const localStreams = streams.filter((vs) => vs.userId === Auth.userID);
+  const localStreams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
 
   return localStreams.length;
 };
@@ -308,7 +308,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
 export const useSharedDevices = () => {
   const { streams } = useStreams();
   const devices = streams
-    .filter((s) => s.userId === Auth.userID)
+    .filter((s) => videoService.isLocalStream(s.stream))
     .map((vs) => vs.deviceId);
 
   return devices;
@@ -359,13 +359,13 @@ export const useVideoStreams = (
   if (connectingStream) streams.push(connectingStream);
 
   if (!viewParticipantsWebcams) {
-    streams = streams.filter((stream) => stream.userId === Auth.userID);
+    streams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
   }
 
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
-      (vs: StreamItem) => Auth.userID === vs.userId || (vs.type === 'stream' && vs.pinned),
+      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === 'stream' && vs.pinned),
     );
     const [pin, mine] = partition(
       filtered,
@@ -418,12 +418,17 @@ export const useVideoStreams = (
 
 export const useHasVideoStream = () => {
   const { streams } = useStreams();
-  return streams.some((s) => s.userId === Auth.userID);
+  return streams.some((s) => videoService.isLocalStream(s.stream));
 };
 
 const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
   OWN_VIDEO_STREAMS_QUERY,
-  { variables: { userId: Auth.userID } },
+  {
+    variables: {
+      userId: Auth.userID,
+      streamIdPrefix: `${videoService.getPrefix()}%`,
+    },
+  },
 );
 
 export const useExitVideo = (forceExit = false) => {

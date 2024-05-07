@@ -29,7 +29,7 @@ const VideoStreamAdapter: React.FC<AdapterProps> = ({
 
     const streams = data.user_camera.map(({ streamId, user, voice }) => ({
       stream: streamId,
-      deviceId: streamId.split('_')[2],
+      deviceId: streamId.split('_')[3],
       userId: user.userId,
       name: user.name,
       nameSortable: user.nameSortable,

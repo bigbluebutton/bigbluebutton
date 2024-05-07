@@ -1,6 +1,7 @@
 import { StreamItem } from './types';
 import UserListService from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
+import VideoService from './service';
 
 const DEFAULT_SORTING_MODE = 'LOCAL_ALPHABETICAL';
 
@@ -52,15 +53,25 @@ export const sortVoiceActivityLocal = (s1: StreamItem, s2: StreamItem) => {
     || UserListService.sortUsersByName(s1, s2);
 };
 
+export const sortByLocal = (s1: StreamItem, s2: StreamItem) => {
+  if (VideoService.isLocalStream(s1.stream)) {
+    return -1;
+  } if (VideoService.isLocalStream(s2.stream)) {
+    return 1;
+  }
+
+  return 0;
+};
+
 // pin -> local -> lastFloorTime (descending) -> alphabetical
 export const sortLocalVoiceActivity = (s1: StreamItem, s2: StreamItem) => mandatorySorting(s1, s2)
-    || UserListService.sortUsersByCurrent(s1, s2)
+    || sortByLocal(s1, s2)
     || sortVoiceActivity(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
 
 // pin -> local -> alphabetic
 export const sortLocalAlphabetical = (s1: StreamItem, s2: StreamItem) => mandatorySorting(s1, s2)
-    || UserListService.sortUsersByCurrent(s1, s2)
+    || sortByLocal(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
 
 export const sortPresenter = (s1: StreamItem, s2: StreamItem) => {
@@ -75,7 +86,7 @@ export const sortPresenter = (s1: StreamItem, s2: StreamItem) => {
 
 // pin -> local -> presenter -> alphabetical
 export const sortLocalPresenterAlphabetical = (s1: StreamItem, s2: StreamItem) => mandatorySorting(s1, s2)
-    || UserListService.sortUsersByCurrent(s1, s2)
+    || sortByLocal(s1, s2)
     || sortPresenter(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
 
