@@ -11,7 +11,7 @@ location /v1/graphql {
 	proxy_set_header Upgrade $http_upgrade;
 	proxy_set_header Connection "Upgrade";
 	proxy_set_header Host $host;
-	#proxy_pass         http://127.0.0.1:8080; #Hasura
+	#proxy_pass         http://127.0.0.1:8085; #Hasura
 	proxy_pass         http://127.0.0.1:8378; #Graphql Middleware
 }
 
@@ -20,7 +20,7 @@ location /api/rest {
 	proxy_set_header Upgrade $http_upgrade;
 	proxy_set_header Connection "Upgrade";
 	proxy_set_header Host $host;
-	proxy_pass http://127.0.0.1:8080; #Hasura
+	proxy_pass http://127.0.0.1:8085; #Hasura
 }
 
 #Set cache system for client settings
@@ -40,7 +40,7 @@ location ~ ^/api/rest/(clientStartupSettings|clientSettings)/ {
 
     proxy_set_header x-session-token $session_token;
     proxy_cache client_settings_cache;
-    proxy_cache_key "$request_uri|$meeting_id";
+    proxy_cache_key "$uri|$meeting_id";
     proxy_cache_use_stale updating;
     proxy_cache_valid 24h;
     proxy_cache_lock on;
@@ -50,5 +50,5 @@ location ~ ^/api/rest/(clientStartupSettings|clientSettings)/ {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "Upgrade";
     proxy_set_header Host $host;
-    proxy_pass http://127.0.0.1:8080; #Hasura
+    proxy_pass http://127.0.0.1:8085; #Hasura
 }
