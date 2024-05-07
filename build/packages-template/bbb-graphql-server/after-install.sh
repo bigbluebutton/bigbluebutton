@@ -39,6 +39,11 @@ case "$1" in
 
   echo "Postgresql configured"
 
+  echo "Creating a random password for Hasura Admin"
+  HASURA_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
+  sed -i "s/HASURA_GRAPHQL_ADMIN_SECRET=bigbluebutton/HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_ADM_PASSWORD/g" /etc/default/bbb-graphql-server
+  yq e -i ".admin_secret = \"$HASURA_ADM_PASSWORD\"" /usr/share/bbb-graphql-server/config.yaml
+
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-graphql-server.service
     systemctl daemon-reload
