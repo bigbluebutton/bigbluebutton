@@ -1153,6 +1153,16 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   const customTools = [NoopTool];
 
+  React.useEffect(() => {
+    const chatInput = document.querySelector("#message-input");
+    const wasChatInputFocused = chatInput?.contains(document.activeElement);
+    if (!isPresenter && wasChatInputFocused) {
+      setTimeout(() => {
+      chatInput.focus();
+      }, 1500);
+    }
+  }, [isMounting]);
+
   return (
     <div
       ref={whiteboardRef}
