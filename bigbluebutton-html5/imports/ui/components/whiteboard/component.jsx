@@ -224,7 +224,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     if (!isPresenterRef.current) {
       if (
         !hasWBAccessRef.current ||
-        (hasWBAccessRef.current && !tlEditorRef.current.editingShape)
+        (hasWBAccessRef.current && !tlEditorRef.current?.getEditingShape())
       ) {
         event.preventDefault();
         event.stopPropagation();
