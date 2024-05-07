@@ -67,8 +67,15 @@ RangeLoop:
 										},
 									},
 								}
-
 								fromHasuraToBrowserChannel.Send(browserResponseData)
+
+								//Return complete msg to client
+								browserResponseComplete := map[string]interface{}{
+									"id":   queryId,
+									"type": "complete",
+								}
+								fromHasuraToBrowserChannel.Send(browserResponseComplete)
+
 								continue
 							} else {
 								log.Error("It was not able to send the request to Graphql Actions", err)
