@@ -5,7 +5,7 @@ After=redis-server.service mongod.service disable-transparent-huge-pages.service
 PartOf=bigbluebutton.target
 
 [Service]
-Type=oneshot
+Type=idle
 ExecStart=/usr/share/meteor/bundle/workers-start.sh
 # WorkingDirectory=/usr/share/meteor
 WorkingDirectory=/usr/share/meteor/bundle

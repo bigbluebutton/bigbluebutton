@@ -380,8 +380,6 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         units="$units mongod bbb-html5"
-
-        units="$units bbb-html5-frontend"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
