@@ -45,7 +45,7 @@ case "$1" in
     startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
 
     #Check if Hasura is ready before applying metadata
-    HASURA_PORT=8080
+    HASURA_PORT=8085
     while ! netstat -tuln | grep ":$HASURA_PORT " > /dev/null; do
         echo "Waiting for Hasura's port ($HASURA_PORT) to be ready..."
         sleep 1
