@@ -599,7 +599,8 @@ class ApiController {
       return
     }
 
-    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    String meetingId = params.list("meetingID")[0]
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
 
     withFormat {
       xml {
