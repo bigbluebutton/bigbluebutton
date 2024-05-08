@@ -1173,6 +1173,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           isRTL,
           isMultiUserActive,
           isToolbarVisible,
+          presentationHeight,
         }}
       />
     </div>

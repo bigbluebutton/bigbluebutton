@@ -96,13 +96,6 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     width: auto !important;
   }
 
-  .tlui-layout__bottom {
-    grid-row: auto / auto !important;
-    position: absolute !important;
-    right: 10px !important;
-    top: 6.5rem !important;
-  }
-
   .tlui-layout__mobile .tlui-button__tool {
     height: 30px !important;
     width: 20px !important;
@@ -119,6 +112,63 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   .tlui-toolbar {
     align-items: end !important;
   }
+
+  .tlui-layout__bottom {
+    grid-row: auto / auto !important;
+    position: absolute !important;
+    right: 10px !important;
+  }
+
+  [data-side="bottom"][data-align="end"][data-state="open"][role="dialog"] {
+    right: 3.5rem !important;
+    bottom: 9.5rem !important;
+  }
+
+  ${({ presentationHeight }) => {
+    const minRange = { height: 345, top: 14 };
+    const maxRange = { height: 1200, top: 384 };
+
+    const interpolateTop = (height) => {
+      if (height <= minRange.height) return `${minRange.top}px`;
+      if (height >= maxRange.height) return `${maxRange.top}px`;
+
+      const slope = (maxRange.top - minRange.top) / (maxRange.height - minRange.height);
+      const interpolatedTop = minRange.top + slope * (height - minRange.height);
+      return `${interpolatedTop}px`;
+    };
+
+    const topValue = interpolateTop(presentationHeight);
+
+    let additionalStyles = '';
+    if (presentationHeight <= 332) {
+      additionalStyles += `
+        .tlui-layout__mobile .tlui-button__tool > .tlui-icon {
+          height: 11px !important;
+          width: 11px !important;
+        }
+
+        .tlui-toolbar__tools {
+          flex-direction: row !important;
+        }
+
+        .tlui-toolbar__inner {
+          flex-direction: row-reverse !important;
+        }
+
+        .tlui-layout__bottom {
+          grid-row: auto / auto !important;
+          position: relative !important;
+          top: 2px !important;
+        }
+
+        [data-side="top"][role="dialog"] {
+          left: 10rem !important;
+        }
+      `;
+    }
+
+    return `.tlui-layout__bottom { top: ${topValue} !important; }${additionalStyles}`;
+  }}
 `;
 
 const EditableWBWrapper = styled.div`
