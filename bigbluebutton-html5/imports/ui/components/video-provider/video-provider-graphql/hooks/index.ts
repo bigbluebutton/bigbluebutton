@@ -233,7 +233,7 @@ export const useMyPageSize = () => {
   return size ?? 0;
 };
 
-export const useIsPaginationEnabled = (paginationEnabled: boolean) => paginationEnabled && useMyPageSize() > 0;
+export const useIsPaginationEnabled = (paginationEnabled: boolean) => useMyPageSize() > 0 && paginationEnabled;
 
 export const useStreams = () => {
   const videoStreams = useReactiveVar(streams);
