@@ -7,7 +7,6 @@ PartOf=bigbluebutton.target
 [Service]
 Type=idle
 ExecStart=/usr/share/meteor/bundle/workers-start.sh
-# WorkingDirectory=/usr/share/meteor
 WorkingDirectory=/usr/share/meteor/bundle
 StandardOutput=syslog
 StandardError=syslog
