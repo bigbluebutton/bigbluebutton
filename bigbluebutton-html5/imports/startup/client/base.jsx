@@ -20,6 +20,7 @@ import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/use
 
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
+const CAPTIONS_ALWAYS_VISIBLE = window.meetingClientSettings.public.app.audioCaptions.alwaysVisible;
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -82,6 +83,7 @@ class Base extends Component {
       document.addEventListener(event, this.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
+    Session.set('audioCaptions', CAPTIONS_ALWAYS_VISIBLE);
   }
 
   componentDidUpdate(prevProps) {

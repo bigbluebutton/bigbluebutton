@@ -22,6 +22,7 @@ import {
 } from '../layout/context';
 import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
+import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 
 import {
   getFontSize,
@@ -64,6 +65,7 @@ const AppContainer = (props) => {
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
     viewScreenshare,
+    transcriptionSavedSettings,
     ...otherProps
   } = props;
 
@@ -84,6 +86,7 @@ const AppContainer = (props) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
   const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
+  const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
@@ -190,6 +193,13 @@ const AppContainer = (props) => {
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
+  useEffect(() => {
+    setSpeechOptions(
+      transcriptionSavedSettings.partialUtterances,
+      transcriptionSavedSettings.minUtteranceLength,
+    );
+  }, [transcriptionSavedSettings.partialUtterances, transcriptionSavedSettings.minUtteranceLength]);
+
   if (!currentUserData) return null;
 
   return currentUserId
@@ -241,6 +251,7 @@ const AppContainer = (props) => {
           audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
+          setSpeechOptions,
         }}
         {...otherProps}
       />
@@ -300,6 +311,12 @@ export default withTracker(() => {
 
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
+  const transcriptionSettings = {
+    partialUtterances: getFromUserSettings('bbb_transcription_partial_utterances'),
+    minUtteranceLength: getFromUserSettings('bbb_transcription_min_utterance_length'),
+  };
+  const transcriptionSavedSettings = Settings.transcription;
+
   return {
     audioCaptions: <AudioCaptionsLiveContainer />,
     fontSize: getFontSize(),
@@ -338,5 +355,7 @@ export default withTracker(() => {
     hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
     User: currentUser,
+    transcriptionSettings,
+    transcriptionSavedSettings,
   };
 })(AppContainer);

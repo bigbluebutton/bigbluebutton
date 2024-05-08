@@ -1,14 +1,53 @@
 import { unique } from 'radash';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import { Caption } from './live/queries';
 
 const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
-const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
+const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
+const CHARACTERS_PER_LINE = CAPTIONS_CONFIG.lineLimit;
+const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
+
+export const splitTranscript = (obj: Caption) => {
+  const transcripts = [];
+  const words = obj.captionText.split(' ');
+
+  let currentLine = '';
+  let result = '';
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const word of words) {
+    if ((currentLine + word).length <= CHARACTERS_PER_LINE) {
+      currentLine += `${word} `;
+    } else {
+      result += `${currentLine.trim()}\n`;
+      currentLine = `${word} `;
+    }
+
+    if (result.split('\n').length > LINES_PER_MESSAGE) {
+      transcripts.push(result);
+      result = '';
+    }
+  }
+
+  if (result.length) {
+    transcripts.push(result);
+  }
+  transcripts.push(currentLine.trim());
+
+  return transcripts.map((t) => { return { ...obj, captionText: t }; });
+};
 
 export const isAudioTranscriptionEnabled = () => isLiveTranscriptionEnabled();
 
-export const isWebSpeechApi = () => PROVIDER === 'webspeech';
+const getSpeechProvider = () => {
+  return getFromUserSettings('bbb_transcription_provider', CONFIG.provider);
+};
+
+export const isWebSpeechApi = () => getSpeechProvider() === 'webspeech';
+export const isGladia = () => getSpeechProvider() === 'gladia';
 
 export const getSpeechVoices = () => {
   if (!isWebSpeechApi()) return LANGUAGES;
@@ -29,7 +68,7 @@ export const setAudioCaptions = (value: boolean) => {
 };
 
 export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
-  setUserSpeechLocale(value, CONFIG.provider);
+  setUserSpeechLocale(value, getSpeechProvider());
 };
 
 export const useFixedLocale = () => isAudioTranscriptionEnabled() && CONFIG.language.forceLocale;
@@ -41,4 +80,6 @@ export default {
   setAudioCaptions,
   isWebSpeechApi,
   useFixedLocale,
+  isGladia,
+  splitTranscript,
 };

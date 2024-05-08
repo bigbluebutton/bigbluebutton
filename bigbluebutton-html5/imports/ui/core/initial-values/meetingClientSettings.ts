@@ -59,6 +59,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       preloadNextSlides: 2,
       warnAboutUnsavedContentOnMeetingEnd: false,
       audioCaptions: {
+        alwaysVisible: false,
         enabled: false,
         mobile: false,
         provider: 'webspeech',
@@ -141,6 +142,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         dataSaving: {
           viewParticipantsWebcams: true,
           viewScreenshare: true,
+        },
+        transcription: {
+          partialUtterances: true,
+          minUtteranceLength: 1,
         },
       },
       shortcuts: {
@@ -489,6 +494,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       ],
       lines: 2,
       time: 5000,
+      showButton: false,
+      defaultPad: 'en',
+      captionLimit: 3,
+      lineLimit: 60,
     },
     timer: {
       enabled: true,
