@@ -3,10 +3,11 @@ import {
 } from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -52,6 +53,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
+  const numberOfAttempts = useRef(20);
+  const [errorCounts, setErrorCounts] = React.useState(0);
   useEffect(() => {
     fetch(`https://${window.location.hostname}/bigbluebutton/api`, {
       headers: {
@@ -67,6 +70,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
     logger.info('Fetching GraphQL URL');
     loadingContextInfo.setLoading(true, '1/4');
   }, []);
+
+  useEffect(() => {
+    if (errorCounts === numberOfAttempts.current) {
+      throw new Error('Error connecting to server, retrying attempts exceeded');
+    }
+  }, [errorCounts]);
 
   useEffect(() => {
     logger.info('Connecting to GraphQL server');
@@ -86,15 +95,29 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           reconnect: true,
           timeout: 30000,
           minTimeout: 30000,
+          reconnectionAttempts: numberOfAttempts.current,
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,
             },
           },
         });
+        subscription.onConnected(() => {
+          connectionStatus.setConnectedStatus(true);
+        });
+        subscription.onDisconnected(() => {
+          connectionStatus.setConnectedStatus(false);
+        });
+        subscription.onReconnecting(() => {
+          connectionStatus.setConnectedStatus(false);
+        });
+        subscription.onReconnected(() => {
+          connectionStatus.setConnectedStatus(true);
+        });
         subscription.onError(() => {
           loadingContextInfo.setLoading(false, '');
-          throw new Error('Error: on subscription to server');
+          // count failed reconnection based on faileds attempts
+          setErrorCounts((prev: number) => prev + 1);
         });
         wsLink = new WebSocketLink(
           subscription,

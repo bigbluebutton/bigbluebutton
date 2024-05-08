@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -6,21 +5,12 @@ import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import { isEmpty } from 'radash';
 import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
-import Styled from './styles';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
 import NotificationsBar from './component';
 
 // disconnected and trying to open a new connection
-const STATUS_CONNECTING = 'connecting';
-
-// permanently failed to connect; e.g., the client and server support different versions of DDP
-const STATUS_FAILED = 'failed';
-
-// failed to connect and waiting to try to reconnect
-const STATUS_WAITING = 'waiting';
-
 const intlMessages = defineMessages({
   failedMessage: {
     id: 'app.failedMessage',
@@ -34,9 +24,9 @@ const intlMessages = defineMessages({
     id: 'app.waitingMessage',
     description: 'Notification message for disconnection with reconnection counter',
   },
-  retryNow: {
-    id: 'app.retryNow',
-    description: 'Retry now text for reconnection counter',
+  reconnectingMessage: {
+    id: 'app.reconnectingMessage',
+    description: 'Notification message for disconnection',
   },
   calculatingBreakoutTimeRemaining: {
     id: 'app.calculatingBreakoutTimeRemaining',
@@ -82,67 +72,16 @@ const NotificationsBarContainer = (props) => {
   );
 };
 
-let retrySeconds = 0;
-const retrySecondsDep = new Tracker.Dependency();
-let retryInterval = null;
-
-const getRetrySeconds = () => {
-  retrySecondsDep.depend();
-  return retrySeconds;
-};
-
-const setRetrySeconds = (sec = 0) => {
-  if (sec !== retrySeconds) {
-    retrySeconds = sec;
-    retrySecondsDep.changed();
-  }
-};
-
-const startCounter = (sec, set, get, interval) => {
-  clearInterval(interval);
-  set(sec);
-  return setInterval(() => {
-    set(get() - 1);
-  }, 1000);
-};
-
-const reconnect = () => {
-  Meteor.reconnect();
-};
-
-export default injectIntl(withTracker(({ intl }) => {
-  const { status, connected, retryTime } = Meteor.status();
+export default injectIntl(withTracker(({ intl, connected }) => {
   const data = {};
-
+  // if connection failed x attempts a error will be thrown
   if (!connected) {
     data.color = 'primary';
-    switch (status) {
-      case STATUS_FAILED: {
-        data.color = 'danger';
-        data.message = intl.formatMessage(intlMessages.failedMessage);
-        break;
-      }
-      case STATUS_CONNECTING: {
-        data.message = intl.formatMessage(intlMessages.connectingMessage);
-        break;
-      }
-      case STATUS_WAITING: {
-        const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
-        retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
-        data.message = (
-          <>
-            {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
-            <Styled.RetryButton type="button" onClick={reconnect}>
-              {intl.formatMessage(intlMessages.retryNow)}
-            </Styled.RetryButton>
-          </>
-        );
-        break;
-      }
-      default:
-        break;
-    }
-
+    data.message = (
+      <>
+        {intl.formatMessage(intlMessages.reconnectingMessage)}
+      </>
+    );
     return data;
   }
 

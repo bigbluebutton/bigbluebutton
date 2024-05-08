@@ -13,7 +13,7 @@ import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/servi
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation, useReactiveVar, useSubscription } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -32,6 +32,7 @@ import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -118,6 +119,8 @@ const AppContainer = (props) => {
 
   const { focusedId } = cameraDock;
 
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+
   useEffect(() => {
     if (
       layoutContextDispatch
@@ -196,6 +199,7 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
+          connected,
           actionsBarStyle,
           captionsStyle,
           currentUserId,
