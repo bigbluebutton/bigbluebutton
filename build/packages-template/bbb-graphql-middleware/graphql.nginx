@@ -6,7 +6,7 @@ location /graphql-test {
 }
 
 # Websocket connection
-location /v1/graphql {
+location /graphql {
 	proxy_http_version 1.1;
 	proxy_set_header Upgrade $http_upgrade;
 	proxy_set_header Connection "Upgrade";
