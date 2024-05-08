@@ -4,7 +4,6 @@ import org.bigbluebutton.api.model.request.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.ChecksumValidationGroup;
 import org.bigbluebutton.api.model.shared.GetChecksum;
-import org.bigbluebutton.api.model.shared.PostChecksum;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,51 +112,23 @@ public class ValidationService {
             checksumValue = params.get("checksum")[0];
         }
 
-        switch(apiCall.requestType) {
-            case GET:
-                checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString, servletRequest);
-                switch(apiCall) {
-                    case CREATE:
-                        request = new CreateMeeting(checksum, servletRequest);
-                        break;
-                    case JOIN:
-                        request = new JoinMeeting(checksum, servletRequest);
-                        break;
-                    case MEETING_RUNNING:
-                        request = new MeetingRunning(checksum, servletRequest);
-                        break;
-                    case END:
-                        request = new EndMeeting(checksum, servletRequest);
-                        break;
-                    case GET_MEETING_INFO:
-                        request = new MeetingInfo(checksum, servletRequest);
-                        break;
-                    case GET_MEETINGS:
-                    case GET_SESSIONS:
-                        request = new SimpleRequest(checksum, servletRequest);
-                        break;
-                    case INSERT_DOCUMENT:
-                        request = new InsertDocument(checksum, servletRequest);
-                        break;
-                    case GUEST_WAIT:
-                        request = new GuestWait(servletRequest);
-                        break;
-                    case ENTER:
-                        request = new Enter(servletRequest);
-                        break;
-                    case STUNS:
-                        request = new Stuns(servletRequest);
-                        break;
-                    case SIGN_OUT:
-                        request = new SignOut(servletRequest);
-                        break;
-                    case LEARNING_DASHBOARD:
-                        request = new LearningDashboard(servletRequest);
-                        break;
-                    case GET_JOIN_URL:
-                        request = new GetJoinUrl(servletRequest);
-                        break;
-                }
+        if (Objects.requireNonNull(apiCall.requestType) == RequestType.GET) {
+            checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString, servletRequest);
+            request = switch (apiCall) {
+                case CREATE -> new CreateMeeting(checksum, servletRequest);
+                case JOIN -> new JoinMeeting(checksum, servletRequest);
+                case MEETING_RUNNING -> new MeetingRunning(checksum, servletRequest);
+                case END -> new EndMeeting(checksum, servletRequest);
+                case GET_MEETING_INFO -> new MeetingInfo(checksum, servletRequest);
+                case GET_MEETINGS, GET_SESSIONS -> new SimpleRequest(checksum, servletRequest);
+                case INSERT_DOCUMENT -> new InsertDocument(checksum, servletRequest);
+                case GUEST_WAIT -> new GuestWait(servletRequest);
+                case ENTER -> new Enter(servletRequest);
+                case STUNS -> new Stuns(servletRequest);
+                case SIGN_OUT -> new SignOut(servletRequest);
+                case LEARNING_DASHBOARD -> new LearningDashboard(servletRequest);
+                case GET_JOIN_URL -> new GetJoinUrl(servletRequest);
+            };
         }
 
         return request;
