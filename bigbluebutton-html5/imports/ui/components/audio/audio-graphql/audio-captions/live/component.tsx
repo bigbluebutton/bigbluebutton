@@ -6,6 +6,7 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { splitTranscript } from '../service';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
@@ -90,7 +91,10 @@ const AudioCaptionsLiveContainer: React.FC = () => {
 
   return (
     <AudioCaptionsLive
-      captions={AudioCaptionsLiveData.caption}
+      captions={AudioCaptionsLiveData.caption.map((c) => {
+        const splits = splitTranscript(c);
+        return splits;
+      }).flat().filter((c) => c.captionText)}
     />
   );
 };
