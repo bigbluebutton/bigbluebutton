@@ -1129,14 +1129,14 @@ class ApiController {
       if (uploadDocuments(meeting, true)) {
         withFormat {
           xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+            render(text: responseBuilder.buildInsertDocumentResponse("documentInserted", "Presentation is being uploaded", RESP_CODE_SUCCESS)
                     , contentType: "text/xml")
           }
         }
-      } else if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
         withFormat {
           xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
+            render(text: responseBuilder.buildInsertDocumentResponse("presentationDisabled", "Presentation feature is disabled, ignoring.",
                     RESP_CODE_FAILED), contentType: "text/xml")
           }
         }
@@ -1145,7 +1145,7 @@ class ApiController {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
       withFormat {
         xml {
-          render(text: responseBuilder.buildInsertDocumentResponse(
+          render(text: responseBuilder.buildInsertDocumentResponse("notFound",
                   "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
                   contentType: "text/xml")
         }

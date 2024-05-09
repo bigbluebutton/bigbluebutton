@@ -218,12 +218,13 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
-    public String buildInsertDocumentResponse(String message, String returnCode) {
+    public String buildInsertDocumentResponse(String messageKey, String message, String returnCode) {
 
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("returnCode", returnCode);
+        data.put("messageKey", messageKey);
         data.put("message", message);
 
         processData(getTemplate("insert-document.ftlx"), data, xmlText);
