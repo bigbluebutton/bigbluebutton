@@ -6,11 +6,19 @@ const propTypes = {
   children: PropTypes.element.isRequired,
   Fallback: PropTypes.element,
   errorMessage: PropTypes.string,
+  logMetadata: PropTypes.shape({
+    logCode: PropTypes.string,
+    logMessage: PropTypes.string,
+  }),
 };
 
 const defaultProps = {
   Fallback: null,
   errorMessage: 'Something went wrong',
+  logMetadata: {
+    logCode: 'Error_Boundary_wrapper',
+    logMessage: 'generic error boundary logger',
+  },
 };
 
 class ErrorBoundary extends Component {
@@ -30,13 +38,17 @@ class ErrorBoundary extends Component {
   }
 
   componentDidUpdate() {
-    const { code, error, errorInfo } = this.state;
-    const log = code === '403' ? 'warn' : 'error';
+    const { error, errorInfo } = this.state;
+    const { logMetadata: { logCode, logMessage } } = this.props;
     if (error || errorInfo) {
-      logger[log]({
-        logCode: 'Error_Boundary_wrapper',
-        extraInfo: { error, errorInfo },
-      }, 'generic error boundary logger');
+      logger.error({
+        logCode,
+        extraInfo: {
+          errorMessage: error?.message,
+          errorStack: error?.stack,
+          errorInfo,
+        },
+      }, logMessage);
     }
   }
 

@@ -117,8 +117,6 @@ public class Meeting {
 
 	private String meetingEndedCallbackURL = "";
 
-	private Integer html5InstanceId;
-
 	private String overrideClientSettings = "";
 
     public Meeting(Meeting.Builder builder) {
@@ -174,7 +172,6 @@ public class Meeting {
 		maxUserConcurrentAccesses = builder.maxUserConcurrentAccesses;
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
-        html5InstanceId = builder.html5InstanceId;
 		groups = builder.groups;
 		guestUsersWithPositionInWaitingLine = new HashMap<>();
         userCustomData = new HashMap<>();
@@ -285,10 +282,6 @@ public class Meeting {
 
 		return GuestPolicy.DENY;
 	}
-
-	public int getHtml5InstanceId() { return html5InstanceId; }
-
-    public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
 
 	public ArrayList<Group> getGroups() { return groups; }
 
@@ -925,7 +918,6 @@ public class Meeting {
 		private Integer maxUserConcurrentAccesses;
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
-		private int html5InstanceId;
 		private ArrayList<Group> groups;
 
     	public Builder(String externalId, String internalId, long createTime) {
@@ -1136,11 +1128,6 @@ public class Meeting {
 
 		public Builder withEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
     		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
-    		return this;
-		}
-
-		public Builder withHTML5InstanceId(int instanceId) {
-    		html5InstanceId = instanceId;
     		return this;
 		}
 

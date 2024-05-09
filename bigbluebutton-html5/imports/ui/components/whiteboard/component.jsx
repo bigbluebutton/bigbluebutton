@@ -224,7 +224,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     if (!isPresenterRef.current) {
       if (
         !hasWBAccessRef.current ||
-        (hasWBAccessRef.current && !tlEditorRef.current.editingShape)
+        (hasWBAccessRef.current && !tlEditorRef.current?.getEditingShape())
       ) {
         event.preventDefault();
         event.stopPropagation();
@@ -867,41 +867,39 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           );
           let adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
           if (isPresenter) {
-            setTimeout(() => {
-              const container = document.querySelector(
-                '[data-test="presentationContainer"]'
+            const container = document.querySelector(
+              '[data-test="presentationContainer"]'
+            );
+            const innerWrapper = document.getElementById(
+              "presentationInnerWrapper"
+            );
+            const containerWidth = container ? container.offsetWidth : 0;
+            const innerWrapperWidth = innerWrapper
+              ? innerWrapper.offsetWidth
+              : 0;
+            const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
+            const camera = tlEditorRef.current.getCamera();
+
+            let adjustedZoom;
+            if (widthGap > 0) {
+              adjustedZoom = calculateZoomWithGapValue(
+                currentPresentationPage.scaledWidth,
+                currentPresentationPage.scaledHeight,
+                false,
+                widthGap
               );
-              const innerWrapper = document.getElementById(
-                "presentationInnerWrapper"
-              );
-              const containerWidth = container ? container.offsetWidth : 0;
-              const innerWrapperWidth = innerWrapper
-                ? innerWrapper.offsetWidth
-                : 0;
-              const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
-              const camera = tlEditorRef.current.getCamera();
 
-              let adjustedZoom;
-              if (widthGap > 0) {
-                adjustedZoom = calculateZoomWithGapValue(
-                  currentPresentationPage.scaledWidth,
-                  currentPresentationPage.scaledHeight,
-                  false,
-                  widthGap
-                );
+              adjustedZoom *= currentZoom / HUNDRED_PERCENT;
+            } else {
+              adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
+            }
 
-                adjustedZoom *= currentZoom / HUNDRED_PERCENT;
-              } else {
-                adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
-              }
+            const zoomToApply =
+              widthGap > 0
+                ? adjustedZoom
+                : baseZoom * (currentZoom / HUNDRED_PERCENT);
 
-              const zoomToApply =
-                widthGap > 0
-                  ? adjustedZoom
-                  : baseZoom * (currentZoom / HUNDRED_PERCENT);
-
-              setCamera(zoomToApply, camera.x, camera.y);
-            }, 50);
+            setCamera(zoomToApply, camera.x, camera.y);
           } else {
             // Viewer logic
             const effectiveZoom = calculateEffectiveZoom(
@@ -1090,6 +1088,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             ? presentationAreaHeight - 40
             : presentationAreaHeight;
 
+          let effectiveZoom;
           let baseZoom;
           if (isPresenter) {
             // For presenters, use the full area minus any UI components like toolbars
@@ -1101,7 +1100,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
                 );
           } else {
             // For viewers
-            const effectiveZoom = calculateEffectiveZoom(
+            effectiveZoom = calculateEffectiveZoom(
               initialViewBoxWidthRef.current,
               currentPresentationPageRef.current.scaledViewBoxWidth
             );
