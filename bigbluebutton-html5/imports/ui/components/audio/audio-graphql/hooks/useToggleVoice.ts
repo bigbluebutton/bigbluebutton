@@ -14,9 +14,10 @@ const useToggleVoice = () => {
 
   const toggleVoice = async (userId?: string | null, muted?: boolean | null) => {
     let shouldMute = muted;
-    const userToMute = userId ?? Auth.userID;
+    let userToMute = userId ?? Auth.userID;
 
     if (muted === undefined || muted === null) {
+      userToMute = Auth.userID;
       const muted = currentUserData?.voice?.muted;
       shouldMute = !muted;
     }
