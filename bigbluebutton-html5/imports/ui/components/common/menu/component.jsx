@@ -5,7 +5,7 @@ import { Divider } from "@mui/material";
 import Icon from "/imports/ui/components/common/icon/component";
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 import KEY_CODES from '/imports/utils/keyCodes';
-
+import MenuSkeleton from './skeleton';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -102,7 +102,7 @@ class BBBMenu extends React.Component {
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled,
-        description, selected, textColor, isToggle } = a;
+        description, selected, textColor, isToggle, loading } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -117,6 +117,13 @@ class BBBMenu extends React.Component {
       if (a.customStyles) {
         customStyles = { ...customStyles, ...a.customStyles };
       }
+
+      if (loading) {
+        return (
+          <MenuSkeleton />
+        );
+      }
+
       return [
         (!a.isSeparator && onClick) && (
           <Styled.BBBMenuItem

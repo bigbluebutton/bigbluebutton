@@ -78,6 +78,7 @@ const ChatActions: React.FC = () => {
     {
       error: errorPermissions,
       data: dataPermissions,
+      loading: dataLoading,
     }] = useLazyQuery<getPermissions>(GET_PERMISSIONS, { fetchPolicy: 'cache-and-network' });
 
   useEffect(() => {
@@ -143,15 +144,18 @@ const ChatActions: React.FC = () => {
       },
       {
         key: uniqueIdsRef.current[2],
-        enable: userIsModerator && !meetingIsBreakout,
+        enable: true,
+        disabled: !userIsModerator || meetingIsBreakout,
         icon: 'delete',
         dataTest: 'chatClear',
         label: intl.formatMessage(intlMessages.clear),
         onClick: () => chatPublicClearHistory(),
+        loading: dataLoading,
       },
       {
         key: uniqueIdsRef.current[3],
-        enable: showShowWelcomeMessages,
+        enable: true,
+        disabled: !showShowWelcomeMessages,
         icon: 'about',
         dataTest: 'restoreWelcomeMessages',
         label: intl.formatMessage(intlMessages.showWelcomeMessage),
@@ -159,10 +163,11 @@ const ChatActions: React.FC = () => {
           const restoreWelcomeMessagesEvent = new CustomEvent(ChatCommands.RESTORE_WELCOME_MESSAGES);
           window.dispatchEvent(restoreWelcomeMessagesEvent);
         },
+        loading: dataLoading,
       },
     ];
     return dropdownActions.filter((action) => action.enable);
-  }, [userIsModerator, meetingIsBreakout, showShowWelcomeMessages]);
+  }, [userIsModerator, meetingIsBreakout, showShowWelcomeMessages, dataLoading]);
   if (errorHistory) {
     return (
       <p>
