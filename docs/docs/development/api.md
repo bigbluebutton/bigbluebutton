@@ -654,53 +654,50 @@ Resource URL:
 
 ```xml
 <response>
-  <returncode>SUCCESS</returncode>
-  <meetingName>Demo Meeting</meetingName>
-  <meetingID>Demo Meeting</meetingID>
-  <internalMeetingID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1531240585189</internalMeetingID>
-  <createTime>1531240585189</createTime>
-  <createDate>Tue Jul 10 16:36:25 UTC 2018</createDate>
-  <`voiceBridge`>70066</`voiceBridge`>
-  <dialNumber>613-555-1234</dialNumber>
-  <attendeePW>ap</attendeePW>
-  <moderatorPW>mp</moderatorPW>
-  <running>true</running>
-  <duration>0</duration>
-  <hasUserJoined>true</hasUserJoined>
-  <recording>false</recording>
-  <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
-  <startTime>1531240585239</startTime>
-  <endTime>0</endTime>
-  <participantCount>2</participantCount>
-  <listenerCount>1</listenerCount>
-  <voiceParticipantCount>1</voiceParticipantCount>
-  <videoCount>1</videoCount>
-  <maxUsers>20</maxUsers>
-  <moderatorCount>1</moderatorCount>
-  <attendees>
-    <attendee>
-      <userID>w_2wzzszfaptsp</userID>
-      <fullName>stu</fullName>
-      <role>VIEWER</role>
-      <isPresenter>false</isPresenter>
-      <isListeningOnly>true</isListeningOnly>
-      <hasJoinedVoice>false</hasJoinedVoice>
-      <hasVideo>false</hasVideo>
-      <clientType>FLASH</clientType>
-    </attendee>
-    <attendee>
-      <userID>w_eo7lxnx3vwuj</userID>
-      <fullName>mod</fullName>
-      <role>MODERATOR</role>
-      <isPresenter>true</isPresenter>
-      <isListeningOnly>false</isListeningOnly>
-      <hasJoinedVoice>true</hasJoinedVoice>
-      <hasVideo>true</hasVideo>
-      <clientType>HTML5</clientType>
-    </attendee>
-  </attendees>
-  <metadata />
-  <isBreakout>false</isBreakout>
+	<returncode>SUCCESS</returncode>
+	<meetingName>Anton G's Room</meetingName>
+	<meetingID>gbesu6dht08uobpislzqxsizjzihn87cmewqyacs</meetingID>
+	<internalMeetingID>a0715c95000a2bcb90604ecc7097dbc94592c690-1715261728123</internalMeetingID>
+	<createTime>1715261728123</createTime>
+	<createDate>Thu May 09 13:35:28 UTC 2024</createDate>
+	<voiceBridge>66052</voiceBridge>
+	<dialNumber>613-555-1234</dialNumber>
+	<attendeePW>1umEM3ic</attendeePW>
+	<moderatorPW>V91JirCa</moderatorPW>
+	<running>true</running>
+	<duration>0</duration>
+	<hasUserJoined>true</hasUserJoined>
+	<recording>true</recording>
+	<hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+	<startTime>1715261728142</startTime>
+	<endTime>0</endTime>
+	<participantCount>1</participantCount>
+	<listenerCount>0</listenerCount>
+	<voiceParticipantCount>1</voiceParticipantCount>
+	<videoCount>1</videoCount>
+	<maxUsers>0</maxUsers>
+	<moderatorCount>1</moderatorCount>
+	<attendees>
+		<attendee>
+			<userID>w_ftcrsyuh44oj</userID>
+			<fullName>Anton G</fullName>
+			<role>MODERATOR</role>
+			<isPresenter>true</isPresenter>
+			<isListeningOnly>false</isListeningOnly>
+			<hasJoinedVoice>true</hasJoinedVoice>
+			<hasVideo>true</hasVideo>
+			<clientType>HTML5</clientType>
+			<customdata></customdata>
+		</attendee>
+	</attendees>
+	<metadata>
+		<bbb-origin-version>summit2024-6d8120x</bbb-origin-version>
+		<bbb-origin-server-name>test30.bigbluebutton.org</bbb-origin-server-name>
+		<bbb-recording-ready-url>https://test30.bigbluebutton.org/recording_ready</bbb-recording-ready-url>
+		<bbb-origin>greenlight</bbb-origin>
+		<endcallbackurl>https://test30.bigbluebutton.org/meeting_ended</endcallbackurl>
+	</metadata>
+	<isBreakout>false</isBreakout>
 </response>
 ```
 

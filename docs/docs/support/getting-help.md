@@ -66,9 +66,9 @@ Include the following information in your post:
 
 1. What version of BigBlueButton are you installing/running?
 2. Did you get any errors during the install?
-3. What [installation method](/administration/install#installation-choices) did you follow?
+3. What installation method did you follow - bbb-install or an alternative?
 4. Did the problem appear after initial install, after an upgrade, or after running BigBlueButton for a while?
-5. Did you make any changes to BigBlueButton outside of using [bbb-conf](/administration/bbb-conf) or the [bbb-install.sh](/administration/install#bbb-installsh) script?
+5. Did you make any changes to BigBlueButton outside of using [bbb-conf](/administration/bbb-conf) or the [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) script?
 6. Are you running BigBlueButton within a development environment?
 7. Post the output of `sudo bbb-conf --check`
 
