@@ -16,8 +16,11 @@ select_permissions:
         - joinURL
         - joinedAt
       filter:
-        userId:
-          _eq: X-Hasura-UserId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
     comment: ""
 update_permissions:
   - role: bbb_client
@@ -25,7 +28,10 @@ update_permissions:
       columns:
         - inviteDismissedAt
       filter:
-        userId:
-          _eq: X-Hasura-UserId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
       check: null
     comment: ""

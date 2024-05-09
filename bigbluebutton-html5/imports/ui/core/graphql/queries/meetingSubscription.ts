@@ -9,6 +9,7 @@ const MEETING_SUBSCRIPTION = gql`
         extId
         endWhenNoModerator
         endWhenNoModeratorDelayInMinutes
+        loginUrl
         lockSettings {
           disableCam
           disableMic
@@ -96,7 +97,6 @@ const MEETING_SUBSCRIPTION = gql`
           record
           sequence
         }
-        html5InstanceId
         voiceSettings {
           dialNumber
           muteOnStart
@@ -120,6 +120,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasPoll
           hasScreenshare
           hasTimer
+          showRemainingTime
         }
       }
   }

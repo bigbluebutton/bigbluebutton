@@ -1,0 +1,54 @@
+location /graphql-test {
+  proxy_pass http://127.0.0.1:3000;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}
+
+# Websocket connection
+location /graphql {
+	proxy_http_version 1.1;
+	proxy_set_header Upgrade $http_upgrade;
+	proxy_set_header Connection "Upgrade";
+	proxy_set_header Host $host;
+	#proxy_pass         http://127.0.0.1:8085; #Hasura
+	proxy_pass         http://127.0.0.1:8378; #Graphql Middleware
+}
+
+location /api/rest {
+	proxy_http_version 1.1;
+	proxy_set_header Upgrade $http_upgrade;
+	proxy_set_header Connection "Upgrade";
+	proxy_set_header Host $host;
+	proxy_pass http://127.0.0.1:8085; #Hasura
+}
+
+#Set cache system for client settings
+location ~ ^/api/rest/(clientStartupSettings|clientSettings)/ {
+    #Store URL sessionToken once it will be injected as a header X-Session-Token
+    set $session_token "";
+    if ($args ~* "(?:^|&)sessionToken=([^&]+)") {
+        set $session_token $1;
+    }
+    auth_request /bigbluebutton/connection/checkAuthorization;
+    auth_request_set $meeting_id $sent_http_meeting_id;
+
+    #Remove sessionToken from URL once Hasura doesn't expect to receive it
+    if ($args ~* "^(.*&)?sessionToken=[^&]*(.*)$") {
+        set $args $1$2;
+    }
+
+    proxy_set_header x-session-token $session_token;
+    proxy_cache client_settings_cache;
+    proxy_cache_key "$uri|$meeting_id";
+    proxy_cache_use_stale updating;
+    proxy_cache_valid 24h;
+    proxy_cache_lock on;
+    add_header X-Cached $upstream_cache_status;
+
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_set_header Host $host;
+    proxy_pass http://127.0.0.1:8085; #Hasura
+}

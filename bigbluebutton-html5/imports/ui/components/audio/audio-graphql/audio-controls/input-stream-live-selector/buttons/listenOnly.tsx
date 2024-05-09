@@ -8,18 +8,24 @@ const intlMessages = defineMessages({
     id: 'app.audio.leaveAudio',
     description: 'Leave audio dropdown item label',
   },
+  changeAudioDevice: {
+    id: 'app.audio.changeAudioDevice',
+    description: 'Change audio device button label',
+  },
 });
 
 interface ListenOnlyProps {
   listenOnly: boolean;
   handleLeaveAudio: (meetingIsBreakout: boolean) => void;
   meetingIsBreakout: boolean;
+  actAsDeviceSelector: boolean;
 }
 
 export const ListenOnly: React.FC<ListenOnlyProps> = ({
   listenOnly,
   handleLeaveAudio,
   meetingIsBreakout,
+  actAsDeviceSelector,
 }) => {
   const intl = useIntl();
   const leaveAudioShourtcut = useShortcut('leaveAudio');
@@ -27,7 +33,9 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
     // eslint-disable-next-line jsx-a11y/no-access-key
     <Button
       aria-label={intl.formatMessage(intlMessages.leaveAudio)}
-      label={intl.formatMessage(intlMessages.leaveAudio)}
+      label={actAsDeviceSelector
+        ? intl.formatMessage(intlMessages.changeAudioDevice)
+        : intl.formatMessage(intlMessages.leaveAudio)}
       accessKey={leaveAudioShourtcut}
       data-test="leaveListenOnly"
       hideLabel
@@ -35,10 +43,12 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
       icon={listenOnly ? 'listen' : 'volume_level_2'}
       size="lg"
       circle
-      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-        handleLeaveAudio(meetingIsBreakout);
-      }}
+      onClick={actAsDeviceSelector
+        ? () => null
+        : (e: React.MouseEvent<HTMLButtonElement>) => {
+          e.stopPropagation();
+          handleLeaveAudio(meetingIsBreakout);
+        }}
     />
   );
 };

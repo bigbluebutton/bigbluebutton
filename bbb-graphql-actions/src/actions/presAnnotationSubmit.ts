@@ -22,7 +22,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const body = {
     whiteboardId: input.pageId,
     annotations: input.annotations,
-    html5InstanceId: '', //TODO remove this prop from bbb-common-msg
   };
 
   return { eventName, routing, header, body };

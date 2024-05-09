@@ -1,20 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import Meetings, { LayoutMeetings } from '/imports/api/meetings';
+import Meetings from '/imports/api/meetings';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
-import AudioCaptionsService from '/imports/ui/components/audio/captions/service';
 import { notify } from '/imports/ui/services/notification';
-import CaptionsContainer from '/imports/ui/components/captions/live/container';
-import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
-import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
-import { isEqual } from 'radash';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
@@ -36,7 +31,7 @@ import {
 import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/notes-graphql/queries';
+import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 
 const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -68,7 +63,6 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
-    isSharedNotesPinned,
     viewScreenshare,
     ...otherProps
   } = props;
@@ -81,6 +75,7 @@ const AppContainer = (props) => {
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
+  const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
@@ -90,8 +85,9 @@ const AppContainer = (props) => {
   const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
   const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
-  const shouldShowSharedNotes = !!pinnedPadData
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
 
   const setMobileUser = (mobile) => {
     setMobileFlag({
@@ -105,10 +101,15 @@ const AppContainer = (props) => {
     enforceLayout: user.enforceLayout,
     isModerator: user.isModerator,
     presenter: user.presenter,
+    speechLocale: user.speechLocale,
+    inactivityWarningDisplay: user.inactivityWarningDisplay,
+    inactivityWarningTimeoutSecs: user.inactivityWarningTimeoutSecs,
   }));
 
   const isModerator = currentUserData?.isModerator;
   const isPresenter = currentUserData?.presenter;
+  const inactivityWarningDisplay = currentUserData?.inactivityWarningDisplay;
+  const inactivityWarningTimeoutSecs = currentUserData?.inactivityWarningTimeoutSecs;
 
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
@@ -122,7 +123,7 @@ const AppContainer = (props) => {
       layoutContextDispatch
       && (typeof meetingLayout !== 'undefined')
       && (layoutType.current !== meetingLayout)
-      && isSharedNotesPinned
+      && sharedNotesInput?.isPinned
     ) {
       layoutType.current = meetingLayout;
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
@@ -170,7 +171,7 @@ const AppContainer = (props) => {
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo);
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo, sharedNotesInput?.isPinned);
   });
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
@@ -185,9 +186,12 @@ const AppContainer = (props) => {
 
   const shouldShowScreenshare = propsShouldShowScreenshare
     && (viewScreenshare || isPresenter);
-  const shouldShowPresentation = (!shouldShowScreenshare && !shouldShowSharedNotes
+  const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
+
+  if (!currentUserData) return null;
+
   return currentUserId
     ? (
       <App
@@ -225,14 +229,18 @@ const AppContainer = (props) => {
           isPresenter,
           numCameras: cameraDockInput.numCameras,
           enforceLayout: validateEnforceLayout(currentUserData),
+          speechLocale: currentUserData?.speechLocale,
           isModerator,
           shouldShowScreenshare,
-          shouldShowSharedNotes,
+          isSharedNotesPinned,
           shouldShowPresentation,
           setMobileUser,
           toggleVoice,
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,
+          audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
+          inactivityWarningDisplay,
+          inactivityWarningTimeoutSecs,
         }}
         {...otherProps}
       />
@@ -279,10 +287,6 @@ export default withTracker(() => {
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
 
-  const UserInfo = UserInfos.find({
-    meetingId: Auth.meetingID,
-    requesterUserId: Auth.userID,
-  }).fetch();
 
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
@@ -297,13 +301,11 @@ export default withTracker(() => {
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
   return {
-    captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
-    audioCaptions: AudioCaptionsService.getAudioCaptions() ? <AudioCaptionsLiveContainer /> : null,
+    audioCaptions: <AudioCaptionsLiveContainer />,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
     customStyleUrl,
-    UserInfo,
     notify,
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
@@ -335,7 +337,6 @@ export default withTracker(() => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
-    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
     User: currentUser,
   };
 })(AppContainer);

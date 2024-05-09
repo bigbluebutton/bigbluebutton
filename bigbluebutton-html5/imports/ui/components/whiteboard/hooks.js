@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
 const useCursor = (publishCursorUpdate, whiteboardId) => {
-    const [cursorPosition, setCursorPosition] = useState({ x: -1, y: -1 });
+    const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
 
     const updateCursorPosition = (newX, newY) => {
         setCursorPosition({ x: newX, y: newY });
     };
 
     useEffect(() => {
+        if (!cursorPosition || cursorPosition.x === '' || cursorPosition.y === '') {
+            return;
+        }
         publishCursorUpdate({
             whiteboardId,
             xPercent: cursorPosition?.x,
@@ -105,9 +108,9 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         const ZOOM_IN_FACTOR = 0.1;
         const ZOOM_OUT_FACTOR = 0.1;
 
-        const { x: cx, y: cy, z: cz } = tlEditorRef.current.camera;
+        const { x: cx, y: cy, z: cz } = tlEditorRef.current.getCamera();
 
-        let currentZoomLevel = tlEditorRef.current.camera.z / initialZoomRef.current;
+        let currentZoomLevel = tlEditorRef.current.getCamera().z / initialZoomRef.current;
         if (event.deltaY < 0) {
             currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);
         } else {
@@ -138,7 +141,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         };
 
         // Apply the bounds restriction logic after the camera has been updated
-        const { maxX, maxY, minX, minY } = tlEditorRef.current.viewportPageBounds;
+        const { maxX, maxY, minX, minY } = tlEditorRef.current.getViewportPageBounds();
         const { scaledWidth, scaledHeight } = currentPresentationPage;
 
         if (maxX > scaledWidth) {

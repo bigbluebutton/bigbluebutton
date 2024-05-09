@@ -1,7 +1,7 @@
 version: 3
-endpoint: http://localhost:8080
+endpoint: http://127.0.0.1:8085
 admin_secret: bigbluebutton
 metadata_directory: metadata
 actions:
   kind: synchronous
-  handler_webhook_baseurl: http://localhost:3000
+  handler_webhook_baseurl: http://127.0.0.1:3000

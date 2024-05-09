@@ -194,7 +194,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 
 const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
-  const [limit, setLimit] = React.useState(0);
+  const [limit, setLimit] = React.useState(50);
 
   const {
     data: meetingData,

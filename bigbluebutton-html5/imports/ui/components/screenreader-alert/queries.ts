@@ -11,7 +11,7 @@ export interface UnreadChatsSubscriptionResponse {
 }
 
 export const UNREAD_CHATS_SUBSCRIPTION = gql`
-  subscription {
+  subscription unreadChatsSubscription {
     chat(
       where: {
         totalUnread: { _gt: 0 },

@@ -8,6 +8,7 @@ export interface GetUserCurrentResponse {
     joinErrorCode: string;
     joinErrorMessage: string;
     ejectReasonCode: string;
+    loggedOut: boolean;
     meeting: {
       ended: boolean;
       endedReasonCode: string;
@@ -23,6 +24,7 @@ export interface GetUserInfoResponse {
     logoutUrl: string;
     bannerColor: string;
     bannerText: string;
+    customLogoUrl: string;
   }>;
   user_current: Array<{
     extId: string;
@@ -39,6 +41,7 @@ query getUserInfo {
     logoutUrl
     bannerColor
     bannerText
+    customLogoUrl
   }
   user_current {
     extId
@@ -57,6 +60,7 @@ subscription getUserCurrent {
       joinErrorMessage
       joined
       ejectReasonCode
+      loggedOut
       meeting {
         ended
         endedReasonCode

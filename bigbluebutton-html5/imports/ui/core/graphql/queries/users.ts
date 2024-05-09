@@ -6,7 +6,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                 order_by: [
                   {role: asc},
                   {raiseHandTime: asc_nulls_last},
-                  {awayTime: asc_nulls_last},
                   {emojiTime: asc_nulls_last},
                   {isDialIn: desc},
                   {hasDrawPermissionOnCurrentPage: desc},
@@ -75,6 +74,14 @@ export const GET_USER_IDS = gql`
   query Users {
     user {
       userId
+    }
+  }
+`;
+
+export const GET_USER_NAMES = gql`
+  query Users {
+    user {
+      name
     }
   }
 `;

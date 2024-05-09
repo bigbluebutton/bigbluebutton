@@ -12,7 +12,7 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
   def handle(msg: SendCursorPositionPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: SendCursorPositionPubMsg): Unit = {
-      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SendCursorPositionEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendCursorPositionEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
@@ -30,7 +30,7 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
       //PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       broadcastEvent(msg)
-      PresPageCursorDAO.insertOrUpdate(msg.body.whiteboardId, msg.header.userId, msg.body.xPercent, msg.body.yPercent)
+      PresPageCursorDAO.insertOrUpdate(msg.body.whiteboardId, liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.xPercent, msg.body.yPercent)
     }
   }
 }

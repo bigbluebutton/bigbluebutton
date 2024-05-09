@@ -12,7 +12,7 @@ import AppService from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
-import VideoService from '/imports/ui/components/video-provider/service';
+import { useVideoStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
@@ -26,13 +26,11 @@ const HTML = document.getElementsByTagName('html')[0];
 let checkedUserSettings = false;
 
 const propTypes = {
-  subscriptionsReady: PropTypes.bool,
   approved: PropTypes.bool,
 };
 
 const defaultProps = {
   approved: false,
-  subscriptionsReady: false,
 };
 
 const fullscreenChangedEvents = [
@@ -89,7 +87,6 @@ class Base extends Component {
   componentDidUpdate(prevProps) {
     const {
       animations,
-      subscriptionsReady,
       layoutContextDispatch,
       sidebarContentPanel,
       usersVideo,
@@ -103,10 +100,6 @@ class Base extends Component {
       });
     }
 
-    if (!prevProps.subscriptionsReady && subscriptionsReady) {
-      logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
-    }
-
     const enabled = HTML.classList.contains('animationsEnabled');
     const disabled = HTML.classList.contains('animationsDisabled');
 
@@ -118,7 +111,7 @@ class Base extends Component {
       HTML.classList.add('animationsDisabled');
     }
 
-    if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true))) {
+    if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE)) {
       if (!checkedUserSettings) {
         const showAnimationsDefault = getFromUserSettings(
           'bbb_show_animations_default',
@@ -167,9 +160,7 @@ class Base extends Component {
           });
         }
 
-        if (Session.equals('subscriptionsReady', true)) {
-          checkedUserSettings = true;
-        }
+        checkedUserSettings = true;
       }
     }
   }
@@ -181,13 +172,6 @@ class Base extends Component {
   }
 
   render() {
-    const {
-      subscriptionsReady,
-    } = this.props;
-    if (!subscriptionsReady) {
-      return (<LoadingScreen />);
-    }
-
     return (
       <>
         <DebugWindow />
@@ -204,8 +188,12 @@ const BaseContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
-
   const setLocalSettings = useUserChangedLocalSettings();
+  const { streams: usersVideo } = useVideoStreams(
+    props.isGridLayout,
+    props.paginationEnabled,
+    props.viewParticipantsWebcams,
+  );
 
   return (
     <Base
@@ -213,6 +201,7 @@ const BaseContainer = (props) => {
         sidebarContentPanel,
         layoutContextDispatch,
         setLocalSettings,
+        usersVideo,
         ...props,
       }}
     />
@@ -220,7 +209,6 @@ const BaseContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')
   const {
     animations,
   } = Settings.application;
@@ -232,15 +220,16 @@ export default withTracker(() => {
   let userSubscriptionHandler;
 
   const codeError = Session.get('codeError');
-  const { streams: usersVideo } = VideoService.getVideoStreams();
+  const isGridLayout = Session.get('isGridEnabled');
   return {
     userSubscriptionHandler,
     animations,
     isMeteorConnected: Meteor.status().connected,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    subscriptionsReady: Session.get('subscriptionsReady') || clientSettings.skipMeteorConnection,
     loggedIn,
     codeError,
-    usersVideo,
+    paginationEnabled: Settings.application.paginationEnabled,
+    viewParticipantsWebcams: Settings.dataSaving.viewParticipantsWebcams,
+    isGridLayout,
   };
 })(BaseContainer);

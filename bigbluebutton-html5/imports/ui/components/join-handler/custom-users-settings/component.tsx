@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
-import React, { useCallback, useEffect } from 'react';
-import { Meteor } from 'meteor/meteor';
+import React, { useEffect } from 'react';
 import { UserCustomParameterResponse, getCustomParameter } from './queries';
+import { setUserSettings } from '/imports/ui/core/local-states/useUserSettings';
 
 interface CustomUsersSettingsProps {
   children: React.ReactNode;
@@ -16,32 +16,20 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
     error: customParameterError,
   } = useQuery<UserCustomParameterResponse>(getCustomParameter);
   const [allowToRender, setAllowToRender] = React.useState(false);
-  const sendToServer = useCallback((data: Array<{[x: string]: string}>, count = 0) => {
-    Meteor.callAsync('addUserSettings', data).then(() => {
-      setAllowToRender(true);
-    })
-      .catch(() => {
-        if (count < 3) {
-          setTimeout(() => {
-            sendToServer(data, count + 1);
-          }, 500);
-        } else {
-          throw new Error('Error on sending user settings to server');
-        }
-      });
-  }, []);
   useEffect(() => {
     if (customParameterData && !customParameterLoading) {
       const filteredData = customParameterData.user_customParameter.map((uc) => {
         const { parameter, value } = uc;
-        return { [parameter]: value };
+        let parsedValue: string | boolean | string[] = '';
+        try {
+          parsedValue = JSON.parse(uc.value);
+        } catch {
+          parsedValue = value;
+        }
+        return { [parameter]: parsedValue };
       });
-      const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
-      if (clientSettings.skipMeteorConnection) {
-        setAllowToRender(true);
-        return;
-      }
-      sendToServer(filteredData);
+      setUserSettings(filteredData.reduce((acc, item) => ({ ...acc, ...item }), {}));
+      setAllowToRender(true);
     }
   }, [
     customParameterData,

@@ -41,7 +41,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: true,
       },
       allowDefaultLogoutUrl: true,
-      allowUserLookup: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       guestPolicyExtraAllowOptions: false,
@@ -482,6 +481,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         family: 'Calibri',
         size: '24px',
       },
+      locales: [
+        {
+          locale: 'en-US',
+          name: 'English',
+        },
+      ],
       lines: 2,
       time: 5000,
     },
@@ -987,35 +992,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
     },
-    redis: {
-      host: '127.0.0.1',
-      port: '6379',
-      timeout: 5000,
-      password: null,
-      debug: false,
-      metrics: {
-        queueMetrics: false,
-        metricsDumpIntervalMs: 60000,
-        metricsFolderPath: 'METRICS_FOLDER',
-        removeMeetingOnEnd: true,
-      },
-      channels: {
-        toAkkaApps: 'to-akka-apps-redis-channel',
-        toThirdParty: 'to-third-party-redis-channel',
-      },
-      subscribeTo: [
-        'to-html5-redis-channel',
-        'from-akka-apps-[^f]*',
-        'from-third-party-redis-channel',
-      ],
-      async: [
-        'from-akka-apps-wb-redis-channel',
-      ],
-      ignored: [
-        'CheckAlivePongSysMsg',
-        'DoLatencyTracerMsg',
-      ],
-    },
     serverLog: {
       level: 'info',
       streamerLog: false,
@@ -1088,7 +1064,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enabled: false,
       path: '/metrics',
       collectDefaultMetrics: false,
-      collectRedisMetrics: false,
     },
   },
 };

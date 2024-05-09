@@ -4,6 +4,7 @@ import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
+import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
@@ -12,8 +13,14 @@ import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
-import CaptionsSelectContainer from '/imports/ui/components/audio/captions/select/container';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
+import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import {
+  muteAway,
+} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -31,6 +38,7 @@ const propTypes = {
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
   isUsingAudio: PropTypes.bool.isRequired,
+  isListenOnly: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
@@ -57,6 +65,7 @@ const propTypes = {
     MIC_ERROR: PropTypes.number.isRequired,
     NO_SSL: PropTypes.number.isRequired,
   }).isRequired,
+  getTroubleshootingLink: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -137,8 +146,10 @@ const AudioModal = (props) => {
   const [content, setContent] = useState(null);
   const [hasError, setHasError] = useState(false);
   const [disableActions, setDisableActions] = useState(false);
-  const [errCode, setErrCode] = useState(null);
+  const [errorInfo, setErrorInfo] = useState(null);
   const [autoplayChecked, setAutoplayChecked] = useState(false);
+  const [setAway] = useMutation(SET_AWAY);
+  const voiceToggle = useToggleVoice();
 
   const {
     forceListenOnlyAttendee,
@@ -146,6 +157,7 @@ const AudioModal = (props) => {
     listenOnlyMode,
     audioLocked,
     isUsingAudio,
+    isListenOnly,
     autoplayBlocked,
     closeModal,
     isEchoTest,
@@ -177,6 +189,7 @@ const AudioModal = (props) => {
     isOpen,
     priority,
     setIsOpen,
+    getTroubleshootingLink,
   } = props;
 
   const prevAutoplayBlocked = usePreviousValue(autoplayBlocked);
@@ -187,17 +200,24 @@ const AudioModal = (props) => {
     }
   }, [autoplayBlocked]);
 
-  const handleJoinMicrophoneError = (err) => {
-    const { type } = err;
+  const handleJoinAudioError = (err) => {
+    const { type, errCode, errMessage } = err;
+
     switch (type) {
       case 'MEDIA_ERROR':
         setContent('help');
-        setErrCode(0);
+        setErrorInfo({
+          errCode,
+          errMessage,
+        });
         setDisableActions(false);
         break;
       case 'CONNECTION_ERROR':
       default:
-        setErrCode(0);
+        setErrorInfo({
+          errCode,
+          errMessage: type,
+        });
         setDisableActions(false);
         break;
     }
@@ -217,7 +237,10 @@ const AudioModal = (props) => {
 
     if (noSSL) {
       setContent('help');
-      setErrCode(MIC_ERROR.NO_SSL);
+      setErrorInfo({
+        errCode: MIC_ERROR.NO_SSL,
+        errMessage: 'NoSSL',
+      });
       return null;
     }
 
@@ -232,7 +255,7 @@ const AudioModal = (props) => {
       setContent('echoTest');
       setDisableActions(true);
     }).catch((err) => {
-      handleJoinMicrophoneError(err);
+      handleJoinAudioError(err);
     });
   };
 
@@ -251,21 +274,33 @@ const AudioModal = (props) => {
   const handleRetryGoToEchoTest = () => {
     setHasError(false);
     setContent(null);
+    setErrorInfo(null);
 
     return handleGoToEchoTest();
+  };
+
+  const disableAwayMode = () => {
+    muteAway(false, true, voiceToggle);
+    setAway({
+      variables: {
+        away: false,
+      },
+    });
+    VideoService.setTrackEnabled(true);
   };
 
   const handleJoinListenOnly = () => {
     if (disableActions && isConnecting) return null;
 
     setDisableActions(true);
+    setHasError(false);
+    setErrorInfo(null);
 
     return joinListenOnly().then(() => {
       setDisableActions(false);
+      disableAwayMode();
     }).catch((err) => {
-      if (err.type === 'MEDIA_ERROR') {
-        setContent('help');
-      }
+      handleJoinAudioError(err);
     });
   };
 
@@ -274,11 +309,12 @@ const AudioModal = (props) => {
 
     setHasError(false);
     setDisableActions(true);
+    setErrorInfo(null);
 
     joinMicrophone().then(() => {
       setDisableActions(false);
     }).catch((err) => {
-      handleJoinMicrophoneError(err);
+      handleJoinAudioError(err);
     });
   };
 
@@ -288,6 +324,7 @@ const AudioModal = (props) => {
     setContent(null);
     if (inputStream) changeInputStream(inputStream);
     handleJoinMicrophone();
+    disableAwayMode();
   };
 
   const skipAudioOptions = () => (isConnecting || (forceListenOnlyAttendee && !autoplayChecked))
@@ -351,7 +388,7 @@ const AudioModal = (props) => {
             }}
           />
         ) : null}
-        <CaptionsSelectContainer />
+        <AudioCaptionsSelectContainer />
       </div>
     );
   };
@@ -368,9 +405,15 @@ const AudioModal = (props) => {
       ? handleRetryGoToEchoTest
       : handleJoinLocalEcho;
 
-    const handleGUMFailure = () => {
+    const handleGUMFailure = (error) => {
+      const code = error?.name === 'NotAllowedError'
+        ? AudioError.MIC_ERROR.NO_PERMISSION
+        : 0;
       setContent('help');
-      setErrCode(0);
+      setErrorInfo({
+        errCode: code,
+        errMessage: error?.name || 'NotAllowedError',
+      });
       setDisableActions(false);
     };
 
@@ -398,13 +441,16 @@ const AudioModal = (props) => {
   const renderHelp = () => {
     const audioErr = {
       ...AudioError,
-      code: errCode,
+      code: errorInfo?.errCode,
+      message: errorInfo?.errMessage,
     };
 
     return (
       <Help
         handleBack={handleGoToAudioOptions}
         audioErr={audioErr}
+        isListenOnly={isListenOnly}
+        troubleshootingLink={getTroubleshootingLink(errorInfo?.errCode)}
       />
     );
   };

@@ -116,7 +116,7 @@ const BBBMenuItem = styled(MenuItem)`
       }
     }
   `}
-  ${({ $roundButtons }) => $roundButtons && `
+  ${({ $roundButtons, $isToggle }) => $roundButtons && !$isToggle && `
     &:focus,
     &:hover {
       background-color: ${colorWhite} !important;
@@ -124,6 +124,12 @@ const BBBMenuItem = styled(MenuItem)`
         background-color: ${colorPrimary} !important;
         border: 1px solid ${colorPrimary} !important;
       }
+    }
+  `}
+  ${({ $isToggle }) => $isToggle && `
+    &:focus,
+    &:hover {
+        color: inherit !important;
     }
   `}
 `;

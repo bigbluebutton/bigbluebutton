@@ -126,23 +126,14 @@ public:
 
 Create (or edit if it already exists) these unit file overrides:
 
-* `/usr/lib/systemd/system/bbb-html5-frontend@.service`
-* `/usr/lib/systemd/system/bbb-html5-backend@.service`
+* `/usr/lib/systemd/system/bbb-html5.service`
 
-Each should have the following content:
+It should have the following content:
 
 ```
 [Service]
 Environment=ROOT_URL=https://127.0.0.1/bbb-01/html5client
 Environment=DDP_DEFAULT_CONNECTION_URL=https://bbb-01.example.com/bbb-01/html5client
-```
-
-Change the nginx `$bbb_loadbalancer_node` variable to the name of the load
-balancer node in `/usr/share/bigbluebutton/nginx/loadbalancer.nginx` to allow CORS
-requests:
-
-```
-set $bbb_loadbalancer_node https://bbb-proxy.example.com;
 ```
 
 Prepend the mount point of bbb-html5 in all location sections except for the

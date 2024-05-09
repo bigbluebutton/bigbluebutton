@@ -3,6 +3,7 @@ import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import { defineMessages, IntlShape } from 'react-intl';
+import { User } from '/imports/ui/Types/user';
 
 const intlMessages = defineMessages({
   savedNamesListTitle: {
@@ -19,7 +20,7 @@ const intlMessages = defineMessages({
   },
 });
 
-export const onSaveUserNames = (intl: IntlShape, meetingName: string) => {
+export const onSaveUserNames = (intl: IntlShape, meetingName: string, users: [User]) => {
   // @ts-ignore - temporary while settings are still in .js
   const lang = Settings.application.locale;
   const date = new Date();
@@ -34,6 +35,7 @@ export const onSaveUserNames = (intl: IntlShape, meetingName: string) => {
     }),
     intl.formatMessage(intlMessages.sortedFirstNameHeading),
     intl.formatMessage(intlMessages.sortedLastNameHeading),
+    users,
   ).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
 };
 

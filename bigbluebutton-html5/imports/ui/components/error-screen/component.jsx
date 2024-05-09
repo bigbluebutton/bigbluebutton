@@ -99,6 +99,7 @@ class ErrorScreen extends PureComponent {
       .mediaDevices
       .getUserMedia({ audio: true, video: true })
       .then((m) => m.getTracks().forEach((t) => t.stop()));
+    window.dispatchEvent(new Event('StopAudioTracks'));
     callback(endedReason, () => Meteor.disconnect());
     console.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
   }

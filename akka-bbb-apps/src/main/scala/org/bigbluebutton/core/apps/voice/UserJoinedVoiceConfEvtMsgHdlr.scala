@@ -32,7 +32,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
     }
 
     def registerUserInRegisteredUsers() = {
-      val regUser = RegisteredUsers.create(msg.body.intId, msg.body.voiceUserId,
+      val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intId, msg.body.voiceUserId,
         msg.body.callerIdName, Roles.VIEWER_ROLE, msg.body.intId, "", "", userColor,
         true, true, GuestStatus.WAIT, true, "", Map(), false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
@@ -42,6 +42,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       val newUser = UserState(
         intId = msg.body.intId,
         extId = msg.body.voiceUserId,
+        meetingId = liveMeeting.props.meetingProp.intId,
         name = msg.body.callerIdName,
         role = Roles.VIEWER_ROLE,
         guest = true,
