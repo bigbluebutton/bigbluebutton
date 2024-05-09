@@ -63,16 +63,13 @@ const reducer = (state, action) => {
 
       const { user } = action.value;
       if (state[user.meetingId] && state[user.meetingId][user.userId]) {
-        if (state[user.meetingId][user.userId].loggedOut) {
-          const newState = { ...state };
-          newState[user.meetingId][user.userId] = {
-            ...state[user.meetingId][user.userId],
-            loggedOut: false,
-          };
-  
-          return newState;  
-        }
-        return state;
+        const newState = { ...state };
+        newState[user.meetingId][user.userId] = {
+          ...state[user.meetingId][user.userId],
+          ...user,
+        };
+
+        return newState;
       }
 
       const newState = { ...state };
