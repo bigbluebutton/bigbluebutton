@@ -1160,7 +1160,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       chatInput.focus();
       }, 1500);
     }
-  }, [isMounting]);
+  }, [isMounting, presentationId]);
 
   return (
     <div
