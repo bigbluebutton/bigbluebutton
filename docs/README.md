@@ -62,8 +62,9 @@ updates when using `npx docusaurus start`).
 If you only want to build the docs you can run:
 
 ```
-$ npm clear # ensure cached content is not interfering with your changes
+$ npx docusaurus clear # ensure cached content is not interfering with your changes
 $ npx docusaurus build
+$ npm run serve
 ```
 
 This command generates static content into the `build` directory
