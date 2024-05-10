@@ -107,6 +107,7 @@ const isReactionsButtonEnabled = () => {
 
 export default withTracker(() => ({
   enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
+  multiUserTools: getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
