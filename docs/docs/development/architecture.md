@@ -16,7 +16,7 @@ This page describes the overall architecture of BigBlueButton and how these comp
 
 The following diagram provides a high-level view of how BigBlueButton's components work together.
 
-![Architecture Overview](/img/bbb-arch-overview.png)
+![Architecture Overview](/img/diagrams/BBB30arch.drawio.png)
 
 We'll break down each component in more detail below.
 
@@ -26,12 +26,13 @@ The HTML5 client is a single page, responsive web application that is built upon
 
 - [React.js](https://facebook.github.io/react/) for rendering the user interface in an efficient manner
 - [WebRTC](https://webrtc.org/) for sending/receiving audio and video
+- [tl;draw](https://www.tldraw.com/) for the whiteboard
+
+<!-- TODO add apollo, typescript? --->
 
 The HTML5 client connects directly with the BigBlueButton server over port 443 (SSL), from loading the BigBlueButton client to making a web socket connection. These connections are all handled by nginx.
 
-The HTML5 server sits behind nginx.
-
-The HTML5 server is built upon
+In BigBlueButton 3.0 we are part way through a major architecture restructuring and we still have a HTML5 server component based on Meteor.js. We are almost done removing our dependency on Meteor.js and MongoDB.
 
 - [Meteor.js](https://meteor.com) in [ECMA2015](https://www.ecma-international.org/ecma-262/6.0/)
   for communication between client and server.
@@ -39,9 +40,15 @@ The HTML5 server is built upon
 
 ### bbb-graphql-server
 
+<!-- TODO add info --->
+
 ### bbb-graphql-middleware
 
+<!-- TODO add info --->
+
 ### bbb-graphql-actions
+
+<!-- TODO add info --->
 
 ### BBB web
 
@@ -49,9 +56,9 @@ BigBlueButton web application is a Java-based application written in Scala. It i
 
 The BigBlueButton API provides a third-party integration (such as the [BigBlueButtonBN plugin](https://moodle.org/plugins/mod_bigbluebuttonbn) for Moodle) with an endpoint to control the BigBlueButton server.
 
-Every access to BigBlueButton comes through a front-end portal (we refer to as a third-party application). BigBlueButton integrates Moodle, Wordpress, Canvas, Sakai, MatterMost, and others (see [third-party integrations](https://bigbluebutton.org/integrations/)). BigBlueButton comes with its own front-end called [Greenlight](/greenlight/v3/install). When using a learning management system (LMS) such as Moodle, teachers can setup BigBlueButton rooms within their course and students can access the rooms and their recordings.
+Every access to BigBlueButton comes through a front-end portal (we refer to as a third-party application). BigBlueButton integrates Moodle, Wordpress, Canvas, Sakai, MatterMost, and others (see [third-party integrations](https://bigbluebutton.org/integrations/)). BigBlueButton comes with its own front-end called [Greenlight](/greenlight/v3/install). When using a learning management system (LMS) such as Moodle, teachers can set up BigBlueButton rooms within their course and students can access the rooms and their recordings.
 
-The BigBlueButton comes with some simple [API demos](/administration/install#install). Regardless of which front-end you use, they all use the [API](/development/api) under the hood.
+Regardless of which front-end you use, they all use the [API](/development/api) under the hood.
 
 ### Redis PubSub
 
@@ -69,12 +76,18 @@ Below is a diagram of the different components of Apps Akka.
 
 ![Apps Akka architecture](/img/akka-apps-arch.png)
 
-The meeting business logic is in the MeetingActor. This is where information about the meeting is stored and where all messages for a meeting is processed.
+<!-- TODO add info
+
+- let's write about Akka apps writing to Postgres
+- should we update the architecture pic?
+ --->
+
+The meeting business logic is in the MeetingActor. This is where information about the meeting is stored and where all messages for a meeting are processed.
 
 ### FSESL akka
 
 We have extracted out the component that integrates with FreeSWITCH into it's own application. This allows others who are using voice conference systems other than
-FreeSWITCH to easily create their own integration. Communication between apps and FreeSWITCH Event Socket Layer (fsels) uses messages through redis pubsub.
+FreeSWITCH to easily create their own integration. Communication between Akka Apps and FreeSWITCH Event Socket Layer (fsels) uses messages through redis pubsub.
 
 ![FsESL Akka architecture](/img/fsesl-akka-arch.png)
 
@@ -82,11 +95,11 @@ FreeSWITCH to easily create their own integration. Communication between apps an
 
 We think FreeSWITCH is an amazing piece of software for handling audio.
 
-FreeSWITCH provides the voice conferencing capability in BigBlueButton. Users are able to join the voice conference through the headset. Users joining through Google Chrome or Mozilla Firefox are able to take advantage of higher quality audio by connecting using WebRTC. FreeSWITCH can also be [integrated with VOIP providers](/administration/customize#add-a-phone-number-to-the-conference-bridge) so that users who are not able to join using the headset will be able to call in using their phone.
+FreeSWITCH provides the voice conferencing capability in BigBlueButton. Users are able to join the voice conference through the headset. Users joining through Google Chrome, Mozilla Firefox, (or other WebRTC compatible browsers) are able to take advantage of higher quality audio by connecting using WebRTC. FreeSWITCH can also be [integrated with VOIP providers](/administration/customize#add-a-phone-number-to-the-conference-bridge) so that users who are not able to join using the headset will be able to call in using their phone.
 
-### Kurento and WebRTC-SFU
+### Mediasoup and WebRTC-SFU
 
-Kurento Media Server KMS is a media server that implements both SFU and MCU models. KMS is responsible for streaming of webcams, listen-only audio, and screensharing. The WebRTC-SFU acts as the media controller handling negotiations and to manage the media streams.
+Mediasoup is a media server that implements an SFU model. It is responsible for streaming of webcams, listen-only audio, and screensharing. The WebRTC-SFU acts as the media controller handling negotiations and to manage the media streams.
 
 ### Joining a voice conference
 
@@ -117,3 +130,5 @@ Then below the SVG conversion flow. It covers the conversion fallback. Sometimes
 The following diagram shows how the various components of BigBlueButton connect to each other via sockets.
 
 ![Network Connections](/img/22-connections.png)
+
+<!-- TODO update the network connections diagram --->

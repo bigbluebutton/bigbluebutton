@@ -95,19 +95,27 @@ Like many open source projects, at the core of the project are a team of develop
 
 Committers:
 
+- Guilherme Pereira Leme, plugins
+- Kert Browne, whiteboard
+- Tainan Felipe Pauli De Almeida, client
+- Anton Barboza De Sa, testing
+- Ramón Souza, client
+- Gustavo Trott, core
 - Richard Alam, lead architect
 - Felipe Cecagno, core
-- Fred Dixon, project manager
+- Fred Dixon, product manager
 - Jesus Federico, integrations
-- Anton Georgiev, HTML5 client
+- Anton Georgiev, project manager
 - Tiago Jacobs, core
 - Paulo Lanzarin, audio/video
-- Pedro Marin, client
 - Ghazi Triki, core
 - Calvin Walton, record and playback
 
 Past Committers (fondly remembered):
 
+- Mario Gasparoni, media
+- Pedro Marin, client
+- Maxim Khlobystov, testing
 - Oswaldo Acauan, HTML5 client
 - Marco Calderon, server
 - Chad Pilkey, HTML5 client
