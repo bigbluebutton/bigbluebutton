@@ -307,6 +307,9 @@ const WhiteboardContainer = (props) => {
         whiteboardWriters,
         zoomChanger,
         skipToSlide,
+        locale: SettingsService?.application?.locale,
+        darkTheme: SettingsService?.application?.darkTheme,
+        selectedLayout: SettingsService?.application?.selectedLayout,
       }}
       {...props}
       meetingId={Auth.meetingID}

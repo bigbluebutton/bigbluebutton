@@ -17,7 +17,6 @@ import "@tldraw/tldraw/tldraw.css";
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
 import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import Settings from "/imports/ui/services/settings";
 import KEY_CODES from "/imports/utils/keyCodes";
 import Styled from "./styles";
 import {
@@ -105,6 +104,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     intl,
     maxNumberOfAnnotations,
     notifyNotAllowedChange,
+    locale,
+    darkTheme,
+    selectedLayout,
   } = props;
 
   clearTldrawCache();
@@ -135,6 +137,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const initialViewBoxWidthRef = React.useRef(null);
 
   const THRESHOLD = 0.1;
+  const CAMERA_UPDATE_DELAY = 1000;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
@@ -212,8 +215,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   }, [whiteboardRef.current]);
 
   const language = React.useMemo(() => {
-    return mapLanguage(Settings?.application?.locale?.toLowerCase() || "en");
-  }, [Settings?.application?.locale]);
+    return mapLanguage(locale?.toLowerCase() || "en");
+  }, [locale]);
 
   const [cursorPosition, updateCursorPosition] = useCursor(
     publishCursorUpdate,
@@ -781,7 +784,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
             zoomSlide(viewedRegionW, viewedRegionH, nextCamera.x, nextCamera.y);
           }
-        }, 300);
+        }, 500);
       }
     }
 
@@ -823,7 +826,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         setInitialZoomSet(true);
         prevZoomValueRef.current = zoomValue;
       }
-    }, 1000);
+    }, CAMERA_UPDATE_DELAY);
 
     return () => clearTimeout(timeoutId);
   }, [
@@ -915,7 +918,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       }
     };
 
-    const timeoutId = setTimeout(handleResize, 300);
+    const timeoutId = setTimeout(handleResize, CAMERA_UPDATE_DELAY);
 
     return () => clearTimeout(timeoutId);
   }, [presentationAreaHeight, presentationAreaWidth, curPageIdRef.current]);
@@ -1062,65 +1065,70 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     }
   }, [curPageIdRef.current]);
 
-  React.useEffect(() => {
-    if (isMountedRef.current) {
-      const storedWidth = localStorage.getItem('initialViewBoxWidth');
-      if (storedWidth) {
-        initialViewBoxWidthRef.current = parseFloat(storedWidth);
-      } else {
-        const currentZoomLevel = currentPresentationPageRef.current.scaledWidth / currentPresentationPageRef.current.scaledViewBoxWidth;
-        const calculatedWidth = currentZoomLevel !== 1
-          ? currentPresentationPageRef.current.scaledWidth / currentZoomLevel
-          : currentPresentationPageRef.current.scaledWidth;
-        initialViewBoxWidthRef.current = calculatedWidth;
-        localStorage.setItem('initialViewBoxWidth', calculatedWidth.toString());
-      }
+  const adjustCameraOnMount = (includeViewerLogic = true) => {
+    const storedWidth = localStorage.getItem('initialViewBoxWidth');
+    if (storedWidth) {
+      initialViewBoxWidthRef.current = parseFloat(storedWidth);
+    } else {
+      const currentZoomLevel = currentPresentationPageRef.current.scaledWidth / currentPresentationPageRef.current.scaledViewBoxWidth;
+      const calculatedWidth = currentZoomLevel !== 1
+        ? currentPresentationPageRef.current.scaledWidth / currentZoomLevel
+        : currentPresentationPageRef.current.scaledWidth;
+      initialViewBoxWidthRef.current = calculatedWidth;
+      localStorage.setItem('initialViewBoxWidth', calculatedWidth.toString());
+    }
 
-      setTimeout(() => {
-        if (
-          presentationAreaHeight > 0 &&
-          presentationAreaWidth > 0 &&
-          currentPresentationPageRef.current &&
-          currentPresentationPageRef.current.scaledWidth > 0 &&
-          currentPresentationPageRef.current.scaledHeight > 0
-        ) {
-          const adjustedPresentationAreaHeight = isPresenter
-            ? presentationAreaHeight - 40
-            : presentationAreaHeight;
+    setTimeout(() => {
+      if (
+        presentationAreaHeight > 0 &&
+        presentationAreaWidth > 0 &&
+        currentPresentationPageRef.current &&
+        currentPresentationPageRef.current.scaledWidth > 0 &&
+        currentPresentationPageRef.current.scaledHeight > 0
+      ) {
+        const adjustedPresentationAreaHeight = isPresenter
+          ? presentationAreaHeight - 40
+          : presentationAreaHeight;
 
-          let effectiveZoom;
-          let baseZoom;
-          if (isPresenter) {
-            // For presenters, use the full area minus any UI components like toolbars
-            baseZoom = fitToWidth
-              ? presentationAreaWidth / currentPresentationPageRef.current.scaledWidth
-              : Math.min(
-                  presentationAreaWidth / currentPresentationPageRef.current.scaledWidth,
-                  adjustedPresentationAreaHeight / currentPresentationPageRef.current.scaledHeight
-                );
-          } else {
-            // For viewers
-            effectiveZoom = calculateEffectiveZoom(
-              initialViewBoxWidthRef.current,
-              currentPresentationPageRef.current.scaledViewBoxWidth
-            );
-            baseZoom = calculateZoomValue(
-              currentPresentationPageRef.current.scaledWidth,
-              currentPresentationPageRef.current.scaledHeight
-            ) * effectiveZoom / HUNDRED_PERCENT;
-          }
+        let effectiveZoom = 1;
+        let baseZoom;
+        if (isPresenter) {
+          baseZoom = fitToWidth
+            ? presentationAreaWidth / currentPresentationPageRef.current.scaledWidth
+            : Math.min(
+                presentationAreaWidth / currentPresentationPageRef.current.scaledWidth,
+                adjustedPresentationAreaHeight / currentPresentationPageRef.current.scaledHeight
+              );
 
           const zoomAdjustmentFactor = currentPresentationPageRef.current.scaledWidth / currentPresentationPageRef.current.scaledViewBoxWidth;
           baseZoom *= zoomAdjustmentFactor;
 
-          const adjustedXPos = isPresenter
-            ? currentPresentationPageRef.current.xOffset : currentPresentationPageRef.current.xOffset * effectiveZoom;
-          const adjustedYPos = isPresenter
-            ? currentPresentationPageRef.current.yOffset : currentPresentationPageRef.current.yOffset * effectiveZoom;
+          const adjustedXPos = currentPresentationPageRef.current.xOffset;
+          const adjustedYPos = currentPresentationPageRef.current.yOffset;
+
+          setCamera(baseZoom, adjustedXPos, adjustedYPos);
+
+        } else if (includeViewerLogic) {
+          baseZoom = Math.min(
+            presentationAreaWidth / currentPresentationPageRef.current.scaledWidth,
+            adjustedPresentationAreaHeight / currentPresentationPageRef.current.scaledHeight
+          );
+
+          const zoomAdjustmentFactor = currentPresentationPageRef.current.scaledWidth / currentPresentationPageRef.current.scaledViewBoxWidth;
+          baseZoom *= zoomAdjustmentFactor;
+
+          const adjustedXPos = currentPresentationPageRef.current.xOffset * effectiveZoom;
+          const adjustedYPos = currentPresentationPageRef.current.yOffset * effectiveZoom;
 
           setCamera(baseZoom, adjustedXPos, adjustedYPos);
         }
-      }, 300);
+      }
+    }, CAMERA_UPDATE_DELAY);
+  };
+
+  React.useEffect(() => {
+    if (isMountedRef.current) {
+      adjustCameraOnMount(true);
     }
   }, [
     isMountedRef.current,
@@ -1129,6 +1137,18 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     isMultiUserActive,
     isPresenter,
     animations,
+    locale,
+    whiteboardToolbarAutoHide,
+    darkTheme,
+  ]);
+
+  React.useEffect(() => {
+    if (isMountedRef.current) {
+      adjustCameraOnMount(false);
+    }
+  }, [
+    isMountedRef.current,
+    selectedLayout,
   ]);
 
   React.useEffect(() => {
