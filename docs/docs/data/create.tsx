@@ -271,7 +271,7 @@ const createEndpointTableData = [
     "name": "meetingLayout",
     "type": "Enum",
     "default": "SMART_LAYOUT",
-    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4)</>)
+    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY</>)
   },
   {
     "name": "learningDashboardEnabled",
@@ -409,6 +409,12 @@ const createEndpointTableData = [
     "default": "false",
     "type": "String",
     "description": (<> (added in BBB 3.0.0-alpha.1)</>)
+  },
+  {
+    "name": "clientSettingsOverride",
+    "required": false,
+    "type": "String",
+    "description": (<> The included structure will override settings.yml needed for the HTML5 client. For an example for the HTTPS POST request check <a href='/development/api#clientsettingsoverride'>clientSettingsOverride section in API</a>(added in BBB 3.0.0-alpha.5)</>)
   }
 ]
 
