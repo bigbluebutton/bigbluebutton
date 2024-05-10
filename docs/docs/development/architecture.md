@@ -27,8 +27,8 @@ The HTML5 client is a single page, responsive web application that is built upon
 - [React.js](https://facebook.github.io/react/) for rendering the user interface in an efficient manner
 - [WebRTC](https://webrtc.org/) for sending/receiving audio and video
 - [tl;draw](https://www.tldraw.com/) for the whiteboard
-
-<!-- TODO add apollo, typescript? --->
+- [Apollo](https://www.apollographql.com/) graphql client
+- [TypeScript](https://www.typescriptlang.org/) most of the client is written in TypeScript
 
 The HTML5 client connects directly with the BigBlueButton server over port 443 (SSL), from loading the BigBlueButton client to making a web socket connection. These connections are all handled by nginx.
 
@@ -40,13 +40,25 @@ In BigBlueButton 3.0 we are part way through a major architecture restructuring 
 
 ### bbb-graphql-server
 
-<!-- TODO add info --->
+The `bbb-graphql-server` leverages the Hasura platform and listens on port `8085`. It handles GraphQL queries and subscriptions from clients, checks user permissions, and verifies if a user has access to requested content before returning the information. If it's a subscription, it will continue to update whenever new data is available.
 
 ### bbb-graphql-middleware
 
-<!-- TODO add info --->
+The `bbb-graphql-middleware` sits between the browser and the `bbb-graphql-server` service, forwarding messages back and forth. It's a Go application that listens for WebSocket connections on port `8378`. Apart from message forwarding, it reconnects to `the bbb-graphql-server` service whenever the client needs to refresh permissions and creates JSON patches to minimize data transfer by sending only the differences.
 
 ### bbb-graphql-actions
+
+The `bbb-graphql-actions` application is written in Node.js. Whenever `bbb-graphql-middleware` receives a GraphQL mutation, it forwards it to `bbb-graphql-actions` via HTTP request on port 8093. The actions service validates the received parameters and sends a message via Redis to the Akka-apps.
+
+### PostgreSQL
+
+The PostgreSQL stores all GraphQL information in the database `bbb_graphql`. The `bbb-graphql-server` retrieves data from this database, while Akka-apps inserts information into it.
+
+### HAproxy
+
+<!-- TODO add info --->
+
+### TURN server (coturn)
 
 <!-- TODO add info --->
 
@@ -68,19 +80,14 @@ Redis PubSub provides a communication channel between different applications run
 
 When a meeting is recorded, all events are stored in Redis DB. When the meeting ends, the Recording Processor will take all the recorded events as well as the different raw (PDF, WAV, FLV) files for processing.
 
+
 ### Apps akka
 
 BigBlueButton Apps is the main application that pulls together the different applications to provide real-time collaboration in the meeting. It provides the list of users, chat, whiteboard, presentations in a meeting.
 
 Below is a diagram of the different components of Apps Akka.
 
-![Apps Akka architecture](/img/akka-apps-arch.png)
-
-<!-- TODO add info
-
-- let's write about Akka apps writing to Postgres
-- should we update the architecture pic?
- --->
+![Apps Akka architecture](/img/diagrams/30-akka-apps.drawio.png)
 
 The meeting business logic is in the MeetingActor. This is where information about the meeting is stored and where all messages for a meeting are processed.
 

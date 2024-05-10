@@ -109,8 +109,8 @@ Updated in 2.7:
 
 Updated in 3.0:
 
-- **create** - **Added:** `loginURL`.
-- **join** - **Added:** `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`).
+- **create** - **Added:** `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY
+- **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`).
 
 ## API Data Types
 
