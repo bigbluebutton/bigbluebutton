@@ -72,8 +72,9 @@ class PushLayoutEngine extends React.Component {
 
     const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
     const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
+    const enforcedLayout = LAYOUT_TYPE[enforceLayout] || null;
 
-    Settings.application.selectedLayout = enforceLayout
+    Settings.application.selectedLayout = enforcedLayout
       || changeLayout
       || defaultLayout
       || meetingLayout;

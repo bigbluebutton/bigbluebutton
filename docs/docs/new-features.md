@@ -141,11 +141,17 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 
 ### Changes to events.xml
 
-Retired events 
+Retired events
 - `DeskShareNotifyViewersRTMPRecordEvent`
 - `DeskshareStartRtmpRecordEvent`
 - `DeskshareStopRtmpRecordEvent`
 - `TranscriptUpdatedRecordEvent`
+
+#### bbb-web properties changes
+
+- `allowOverrideClientSettingsOnCreateCall=false` added
+- `sessionsCleanupDelayInMinutes=60` added
+- `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
 
 ### Development
 
