@@ -284,6 +284,9 @@ const customAssetUrls = {
     'redo': `${TL_ICON_PATHS}/redo.svg`,
     'trash': `${TL_ICON_PATHS}/trash.svg`,
     'duplicate': `${TL_ICON_PATHS}/duplicate.svg`,
+    'tool-media': `${TL_ICON_PATHS}/tool-media.svg`,
+    'dots-horizontal': `${TL_ICON_PATHS}/dots-horizontal.svg`,
+    'chevron-down': `${TL_ICON_PATHS}/chevron-down.svg`,
     'dots-vertical': `${TL_ICON_PATHS}/dots-vertical.svg`,
     'tool-pointer': `${TL_ICON_PATHS}/tool-pointer.svg`,
     'tool-hand': `${TL_ICON_PATHS}/tool-hand.svg`,
@@ -369,5 +372,5 @@ export {
   toggleToolsAnimations,
   formatAnnotations,
   customEditorAssetUrls,
-  customAssetUrls
+  customAssetUrls,
 };
