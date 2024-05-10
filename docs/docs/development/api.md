@@ -109,7 +109,7 @@ Updated in 2.7:
 
 Updated in 3.0:
 
-- **create** - **Added:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY
+- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`.
 - **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`).
 
 ## API Data Types
@@ -402,7 +402,44 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 
 In the case more than a single document is provided, the first one will be loaded in the client, the processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
-For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79). For a complete example of the pre-upload slides check the following demos: [demo7](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo7.jsp) and [demo8](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo8.jsp)
+For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
+
+#### clientSettingsOverride
+
+You can modify the `settings.yml` configuration for the HTML5 client as part of the create call (in addition to modifying `/etc/bigbluebutton/bbb-html5.yml`).
+You can construct the HTTPS POST request as follows:
+
+```
+curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-Type: application/xml" --data '
+<modules>
+   <module name="clientSettingsOverride">
+         <![CDATA[
+         {
+            "public": {
+               "kurento": {
+                  "wsUrl": "wss://test.bigbluebutton.org//bbb-webrtc-sfu"
+               },
+               "media": {
+                  "sipjsHackViaWs": false
+               },
+               "app": {
+                    "appName": "Test",
+                    "helpLink": "https://www.bigbluebutton.org",
+                    "autoJoin": false,
+                    "askForConfirmationOnLeave": false,
+                    "userSettingsStorage": "localStorage",
+                    "defaultSettings": {
+                     "application": {
+                        "overrideLocale": "en"
+                     }
+                    }
+                }
+            }
+         }
+         ]]>
+   </module>
+</modules>'
+```
 
 #### Upload slides from external application to a live BigBlueButton session
 
