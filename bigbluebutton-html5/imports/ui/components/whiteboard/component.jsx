@@ -468,15 +468,14 @@ export default function Whiteboard(props) {
 
   // change tldraw camera when slidePosition changes
   React.useEffect(() => {
+    const camera = tldrawAPI?.getPageState()?.camera;
     if (tldrawAPI && !isPresenter && curPageId && slidePosition) {
       const newZoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
       tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newZoom, 'zoomed');
     }
 
-    const camera = tldrawAPI?.getPageState()?.camera;
     if (isPresenter && slidePosition && camera) {
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
-      const zoomCamera = (zoomFitSlide * zoomValue) / HUNDRED_PERCENT;
       let zoomToolbar = Math.round(
         ((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100,
       ) / 100;
@@ -486,6 +485,28 @@ export default function Whiteboard(props) {
       }
     }
   }, [curPageId, slidePosition]);
+
+  React.useEffect(() => {
+    if (isPresenter && slidePosition && !isMounting) {
+      const zoomFitSlide = calculateZoom(slidePosition?.width, slidePosition?.height);
+      const zoomCamera = (zoomFitSlide * zoomValue) / HUNDRED_PERCENT;
+      let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
+        tldrawAPI?.viewport?.width, slidePosition?.width,
+      );
+      let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
+        tldrawAPI?.viewport?.height, slidePosition?.height,
+      );
+
+      zoomSlide(
+        parseInt(curPageId, 10),
+        podId,
+        viewedRegionW,
+        viewedRegionH,
+        slidePosition?.x,
+        slidePosition?.y,
+      );
+    }
+  }, [curPageId]);
 
   // update zoom according to toolbar
   React.useEffect(() => {
