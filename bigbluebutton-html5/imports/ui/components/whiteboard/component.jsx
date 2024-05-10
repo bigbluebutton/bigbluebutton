@@ -1152,16 +1152,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   const customTools = [NoopTool];
 
-  React.useEffect(() => {
-    const chatInput = document.querySelector("#message-input");
-    const wasChatInputFocused = chatInput?.contains(document.activeElement);
-    if (!isPresenter && wasChatInputFocused) {
-      setTimeout(() => {
-      chatInput.focus();
-      }, 1500);
-    }
-  }, [isMounting, presentationId]);
-
   return (
     <div
       ref={whiteboardRef}
@@ -1169,6 +1159,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       key={`animations=-${animations}-${whiteboardToolbarAutoHide}-${language}`}
     >
       <Tldraw
+        autoFocus={false}
         key={`tldrawv2-${presentationId}-${animations}`}
         forceMobile={true}
         hideUi={hasWBAccessRef.current || isPresenter ? false : true}
