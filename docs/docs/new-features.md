@@ -91,6 +91,13 @@ In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` wi
 
 In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event TranscriptUpdatedRecordEvent due to some issues with providing too much and too repetitive data.
 
+#### bbb-web properties changes
+
+`allowOverrideClientSettingsOnCreateCall=false` added
+
+`sessionsCleanupDelayInMinutes=60` added
+
+`graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
 
 ### Development
 
