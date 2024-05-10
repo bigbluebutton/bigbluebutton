@@ -1,11 +1,16 @@
 import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
+import { useSubscription } from '@apollo/client';
 import { equals } from 'ramda';
-import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
+import { PINNED_PAD_SUBSCRIPTION } from '/imports/ui/components/notes/queries';
+import {
+  ACTIONS, PRESENTATION_AREA, PANELS, LAYOUT_TYPE,
+} from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 // variable to debug in console log
 const debug = false;
@@ -37,6 +42,9 @@ const initPresentationAreaContentActions = [{
   },
 }];
 
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+
 const initState = {
   presentationAreaContentActions: initPresentationAreaContentActions,
   deviceType: null,
@@ -55,7 +63,6 @@ const initState = {
 const reducer = (state, action) => {
   debugActions(action.type, action.value);
   switch (action.type) {
-
     case ACTIONS.SET_FOCUSED_CAMERA_ID: {
       const { cameraDock } = state.input;
       const { focusedId } = cameraDock;
@@ -1331,6 +1338,8 @@ const updatePresentationAreaContent = (
   previousPresentationAreaContentActions,
   layoutContextDispatch,
 ) => {
+  const { layoutType } = layoutContextState;
+  const { sidebarContent } = layoutContextState.input;
   const {
     presentationAreaContentActions: currentPresentationAreaContentActions,
   } = layoutContextState;
@@ -1355,6 +1364,32 @@ const updatePresentationAreaContent = (
         break;
       }
       case PRESENTATION_AREA.PINNED_NOTES: {
+        if (
+          (sidebarContent.isOpen || !isPresentationEnabled())
+          && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
+            || !isPresentationEnabled())
+        ) {
+          if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.CHAT,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: PUBLIC_CHAT_ID,
+            });
+          } else {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+          }
+        }
+
         layoutContextDispatch({
           type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
           value: undefined,
@@ -1371,6 +1406,10 @@ const updatePresentationAreaContent = (
           value: undefined,
         });
         layoutContextDispatch({
+          type: ACTIONS.SET_NOTES_IS_PINNED,
+          value: !lastPresentationContentInPile.value.open,
+        });
+        layoutContextDispatch({
           type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
           value: lastPresentationContentInPile.value.open,
         });
@@ -1380,6 +1419,10 @@ const updatePresentationAreaContent = (
         layoutContextDispatch({
           type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
           value: undefined,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_NOTES_IS_PINNED,
+          value: !lastPresentationContentInPile.value.open,
         });
         layoutContextDispatch({
           type: ACTIONS.SET_HAS_SCREEN_SHARE,
@@ -1399,6 +1442,10 @@ const updatePresentationAreaContent = (
         layoutContextDispatch({
           type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
           value: undefined,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.PINNED_NOTES,
+          value: !lastPresentationContentInPile.value.open,
         });
         break;
       }
@@ -1422,6 +1469,8 @@ const LayoutContextProvider = (props) => {
       },
     }],
   );
+  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
   useEffect(() => {
@@ -1431,6 +1480,27 @@ const LayoutContextProvider = (props) => {
       layoutContextDispatch,
     );
   }, [layoutContextState]);
+  useEffect(() => {
+    const isSharedNotesPinned = !!pinnedPadData
+      && pinnedPadData.sharedNotes[0]?.pinned;
+    if (isSharedNotesPinned) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.PINNED_NOTES,
+          open: true,
+        },
+      });
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.PINNED_NOTES,
+          open: false,
+        },
+      });
+    }
+  }, [pinnedPadData]);
   useUpdatePresentationAreaContentForPlugin(layoutContextState);
   return (
     <LayoutContextSelector.Provider value={
@@ -1446,18 +1516,16 @@ const LayoutContextProvider = (props) => {
 };
 LayoutContextProvider.propTypes = providerPropTypes;
 
-const layoutSelect = (selector) => {
-  return useContextSelector(LayoutContextSelector, layout => selector(layout[0]));
-};
-const layoutSelectInput = (selector) => {
-  return useContextSelector(LayoutContextSelector, layout => selector(layout[0].input));
-};
-const layoutSelectOutput = (selector) => {
-  return useContextSelector(LayoutContextSelector, layout => selector(layout[0].output));
-};
-const layoutDispatch = () => {
-  return useContextSelector(LayoutContextSelector, layout => layout[1]);
-};
+const layoutSelect = (
+  selector,
+) => useContextSelector(LayoutContextSelector, (layout) => selector(layout[0]));
+const layoutSelectInput = (
+  selector,
+) => useContextSelector(LayoutContextSelector, (layout) => selector(layout[0].input));
+const layoutSelectOutput = (
+  selector,
+) => useContextSelector(LayoutContextSelector, (layout) => selector(layout[0].output));
+const layoutDispatch = () => useContextSelector(LayoutContextSelector, (layout) => layout[1]);
 
 export {
   LayoutContextProvider,
@@ -1465,4 +1533,4 @@ export {
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
-}
+};

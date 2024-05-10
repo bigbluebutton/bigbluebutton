@@ -19,7 +19,7 @@ const UserPollsContainer = (props) => {
   );
 };
 
-export default withTracker(({ isPresenter }) => ({
+export default withTracker(() => ({
   pollIsOpen: Session.equals('isPollOpen', true),
   forcePollOpen: Session.equals('forcePollOpen', true),
 }))(UserPollsContainer);

@@ -60,7 +60,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.startPoll);
 
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.numberVotes, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'True');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //ABCD
@@ -69,7 +69,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.pollLetterAlternatives);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.numberVotes, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'A');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //Yes/No/Abstention
@@ -78,7 +78,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.pollYesNoAbstentionBtn);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.numberVotes, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'Yes');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //User Response
@@ -89,7 +89,7 @@ class LearningDashboard extends MultiUsers {
     await this.userPage.waitForSelector(e.pollingContainer);
     await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
-    await this.modPage.hasText(e.numberVotes, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, e.answerMessage);
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //Checks

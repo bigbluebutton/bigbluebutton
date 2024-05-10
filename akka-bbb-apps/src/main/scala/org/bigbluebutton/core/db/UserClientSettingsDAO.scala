@@ -14,7 +14,7 @@ case class UserClientSettingsDbModel(
 
 class UserClientSettingsDbTableDef(tag: Tag) extends Table[UserClientSettingsDbModel](tag, "user_clientSettings") {
   val userId = column[String]("userId", O.PrimaryKey)
-  val meetingId = column[String]("meetingId")
+  val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userClientSettingsJson = column[JsValue]("userClientSettingsJson")
 
   override def * : ProvenShape[UserClientSettingsDbModel] = (userId, meetingId, userClientSettingsJson) <> (UserClientSettingsDbModel.tupled, UserClientSettingsDbModel.unapply)

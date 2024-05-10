@@ -5,8 +5,8 @@ import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.LayoutDAO
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core.db.{ LayoutDAO, NotificationDAO }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>
@@ -73,6 +73,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         Vector()
       )
       outGW.send(notifyEvent)
+      NotificationDAO.insert(notifyEvent)
     }
   }
 }

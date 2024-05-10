@@ -121,13 +121,6 @@ case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: St
 case class SetPresenterInDefaultPodInternalMsg(presenterId: String) extends InMessage
 
 /**
- * Sent by breakout room to parent meeting to obtain padId
- * @param breakoutId
- * @param filename
- */
-case class CaptureSharedNotesReqInternalMsg(breakoutId: String, filename: String) extends InMessage
-
-/**
  * Sent by GraphqlActionsActor to inform MeetingActor that user disconnected
  * @param userId
  */
@@ -138,10 +131,3 @@ case class UserClosedAllGraphqlConnectionsInternalMsg(userId: String) extends In
  * @param userId
  */
 case class UserEstablishedGraphqlConnectionInternalMsg(userId: String) extends InMessage
-
-// DeskShare
-case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
-case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
-case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
-case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
-case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage

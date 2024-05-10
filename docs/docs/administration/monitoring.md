@@ -46,7 +46,7 @@ various metrics that are available via the API that BigBlueButton exposes.
 
 Metrics that are exposed:
 * Number of participants by type (listeners, voice, video)
-* Number of participants by client (HTML5, dial-in, flash)
+* Number of participants by client (HTML5, dial-in)
 * Number of recordings (processing, published, unpublished, deleted, unprocessed)
 * Number of participants in rooms by bucket
 

@@ -4,8 +4,9 @@ import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.{ CaptionLocaleDAO, CaptionTypes }
 
 class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementTrait {
   val log = Logging(context.system, getClass)
@@ -84,6 +85,7 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       val event = UpdateCaptionOwnerEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
+      CaptionLocaleDAO.insertOrUpdateCaptionLocale(liveMeeting.props.meetingProp.intId, locale, CaptionTypes.TYPED, newOwnerId)
     }
 
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {

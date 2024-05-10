@@ -54,7 +54,7 @@ case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, 
 
 object SendWhiteboardAnnotationsPubMsg { val NAME = "SendWhiteboardAnnotationsPubMsg" }
 case class SendWhiteboardAnnotationsPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsPubMsgBody) extends StandardMsg
-case class SendWhiteboardAnnotationsPubMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], html5InstanceId: String)
+case class SendWhiteboardAnnotationsPubMsgBody(whiteboardId: String, annotations: Array[AnnotationVO])
 
 object DeleteWhiteboardAnnotationsPubMsg { val NAME = "DeleteWhiteboardAnnotationsPubMsg" }
 case class DeleteWhiteboardAnnotationsPubMsg(header: BbbClientMsgHeader, body: DeleteWhiteboardAnnotationsPubMsgBody) extends StandardMsg

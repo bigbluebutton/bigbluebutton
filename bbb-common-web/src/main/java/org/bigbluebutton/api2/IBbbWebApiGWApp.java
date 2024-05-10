@@ -41,7 +41,7 @@ public interface IBbbWebApiGWApp {
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,
-                     Integer html5InstanceId,
+                     String loginUrl,
                      String logoutUrl,
                      String customLogoURL,
                      String bannerText,

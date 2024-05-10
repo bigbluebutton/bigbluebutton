@@ -231,13 +231,6 @@ test.describe.parallel('User', () => {
       await multiusers.saveUserNames(testInfo);
     });
 
-    // following test is not expected to work, the feature will be fully implemented as a plugin only
-    test.skip('Select random user', async ({ browser, context, page }) => {
-      const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page);
-      await multiusers.selectRandomUser();
-    });
-
     test('Mute all users', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, false);
@@ -252,13 +245,6 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage2(false);
       await multiusers.initUserPage(false);
       await multiusers.muteAllUsersExceptPresenter();
-    });
-
-    test('Write closed captions', async ({ browser, context, page }) => {
-      const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, true);
-      await multiusers.initModPage2(true);
-      await multiusers.writeClosedCaptions();
     });
   });
 

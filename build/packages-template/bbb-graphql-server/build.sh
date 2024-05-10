@@ -31,7 +31,7 @@ cp -r hasura-graphql staging/usr/local/bin/hasura-graphql-engine
 cp -r hasura-config.env staging/etc/default/bbb-graphql-server
 cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
 
-cp ./bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
+cp bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
 
 mkdir -p hasura-cli
 cd hasura-cli

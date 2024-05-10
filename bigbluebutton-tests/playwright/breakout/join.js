@@ -61,6 +61,7 @@ class Join extends Create {
     await breakoutUserPage.hasElement(e.presentationTitle);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.hasElement(e.breakoutRemainingTime);
     await this.modPage.type(e.chatBox, "test");
     await this.modPage.waitAndClick(e.sendButton);
 
@@ -234,6 +235,8 @@ class Join extends Create {
   async userCanChooseRoom() {
     await this.userPage.bringToFront();
 
+    await this.userPage.hasElementEnabled(e.selectBreakoutRoomBtn);
+    await this.userPage.hasElementEnabled(e.modalConfirmButton);
     await this.userPage.checkElementCount(e.roomOption, 2);
 
     await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});

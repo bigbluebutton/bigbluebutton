@@ -13,24 +13,9 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
-  ${({ isRTL }) => (!isRTL) && `
-    .tlui-menu-zone {
-      right: auto;
-      left: 3.5rem;
-    }
-  `}
-
-  ${({ isRTL }) => (isRTL) && `
-    .tlui-menu-zone {
-      right: 3.5rem;
-      left: auto;
-    }
-  `}
-
   ${({ isToolbarVisible }) => (!isToolbarVisible) && `
     .tlui-toolbar,
-    .tlui-style-panel__wrapper,
-    .tlui-menu-zone {
+    .tlui-style-panel__wrapper {
       visibility: hidden;
     }
     #WhiteboardOptionButton {
@@ -38,17 +23,17 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
-  #presentationInnerWrapper > div:last-child {
+  #whiteboard-element {
     position: relative;
     height: 100%;
   }
 
-  #presentationInnerWrapper > div:last-child > * {
+  #whiteboard-element > * {
     position: relative; 
     height: 100%;
   }
 
-  #presentationInnerWrapper > div:last-child .tl-overlays {
+  #whiteboard-element .tl-overlays {
     left: 0px;
     bottom: 0px;
   }
@@ -83,12 +68,26 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  .tlui-toolbar__extras {
+    position: fixed !important;
+    top: -2px !important;
+    left: 40px !important;
+  }
+
+  ${({ isRTL }) => (!isRTL) && `
+    .tlui-toolbar__extras {
+      position: fixed !important;
+      top: -2px !important;
+      right: 50px !important;
+    }
+  `}
+
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
   [data-testid="tools.asset"],
-  .tlui-buttons__horizontal > :nth-child(1),
-  .tlui-buttons__horizontal > :nth-child(2) {
+  [data-testid="page-menu.button"],
+  tlui-menu-zone {
     display: none !important;
   }
 

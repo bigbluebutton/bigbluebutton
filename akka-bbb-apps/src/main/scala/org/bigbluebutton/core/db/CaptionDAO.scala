@@ -9,7 +9,7 @@ case class CaptionDbModel(
     meetingId:   String,
     captionType: String,
     userId:      String,
-    lang:        String,
+    locale:      String,
     captionText: String,
     createdAt:   java.sql.Timestamp
 )
@@ -19,10 +19,10 @@ class CaptionTableDef(tag: Tag) extends Table[CaptionDbModel](tag, None, "captio
   val meetingId = column[String]("meetingId")
   val captionType = column[String]("captionType")
   val userId = column[String]("userId")
-  val lang = column[String]("lang")
+  val locale = column[String]("locale")
   val captionText = column[String]("captionText")
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  def * = (captionId, meetingId, captionType, userId, lang, captionText, createdAt) <> (CaptionDbModel.tupled, CaptionDbModel.unapply)
+  def * = (captionId, meetingId, captionType, userId, locale, captionText, createdAt) <> (CaptionDbModel.tupled, CaptionDbModel.unapply)
 }
 
 object CaptionTypes {
@@ -32,7 +32,7 @@ object CaptionTypes {
 
 object CaptionDAO {
 
-  def insertOrUpdateAudioCaption(captionId: String, meetingId: String, userId: String, transcript: String, lang: String) = {
+  def insertOrUpdateAudioCaption(captionId: String, meetingId: String, userId: String, transcript: String, locale: String) = {
     DatabaseConnection.db.run(
       TableQuery[CaptionTableDef].insertOrUpdate(
         CaptionDbModel(
@@ -40,7 +40,7 @@ object CaptionDAO {
           meetingId = meetingId,
           captionType = CaptionTypes.AUDIO_TRANSCRIPTION,
           userId = userId,
-          lang = lang,
+          locale = locale,
           captionText = transcript,
           createdAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
@@ -68,7 +68,7 @@ object CaptionDAO {
                     SELECT "captionId", "captionText", "createdAt"
                     FROM caption
                     WHERE "meetingId" = ${meetingId}
-                    AND lang = ${locale}
+                    AND locale = ${locale}
                     AND "captionType" = ${CaptionTypes.TYPED}
                     order by "createdAt" desc
                     limit 2
@@ -80,13 +80,13 @@ object CaptionDAO {
                   LIMIT 1
                 )
           RETURNING *)
-        INSERT INTO caption ("captionId", "meetingId", "captionType", "userId", "lang", "captionText", "createdAt")
+        INSERT INTO caption ("captionId", "meetingId", "captionType", "userId", "locale", "captionText", "createdAt")
         SELECT md5(random()::text || clock_timestamp()::text), ${meetingId}, 'TYPED', ${userId}, ${locale}, ${line}, current_timestamp
         WHERE NOT EXISTS (SELECT * FROM upsert)
         AND ${line} NOT IN (SELECT "captionText"
                     FROM caption
                     WHERE "meetingId" = ${meetingId}
-                    AND lang = ${locale}
+                    AND locale = ${locale}
                     AND "captionType" = ${CaptionTypes.TYPED}
                     order by "createdAt" desc
                     limit 2
