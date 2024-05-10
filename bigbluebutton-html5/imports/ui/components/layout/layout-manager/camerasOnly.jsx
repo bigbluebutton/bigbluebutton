@@ -366,7 +366,7 @@ const CamerasOnlyLayout = (props) => {
             hasExternalVideo: false,
           },
           genericComponent: {
-            hasGenericComponent: false,
+            genericComponentId: undefined,
           },
           screenShare: {
             hasScreenShare: false,

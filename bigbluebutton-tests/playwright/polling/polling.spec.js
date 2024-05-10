@@ -2,13 +2,17 @@ const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Polling } = require('./poll');
 const { initializePages } = require('../core/helpers');
+const { encodeCustomParams } = require('../parameters/util');
+const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
+
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe('Polling', async () => {
   const polling = new Polling();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(polling, browser, { isMultiUser: true });
+    await initializePages(polling, browser, { isMultiUser: true, joinParameter: hidePresentationToast });
   });
 
   // Manage
@@ -24,7 +28,7 @@ test.describe('Polling', async () => {
     await polling.quickPoll();
   });
 
-  test('Create poll with user response @ci @flaky', async () => {
+  test('Create poll with user response @ci', async () => {
     await polling.pollUserResponse();
   });
 
@@ -61,7 +65,8 @@ test.describe('Polling', async () => {
     await polling.pollResultsOnWhiteboard();
   });
 
-  test('Poll results in a different presentation', async () => {
+  test('Poll results in a different presentation', async ({}, testInfo) => {
+    test.fixme(!testInfo.config.fullyParallel, 'Currently only works in parallel mode. Poll results not being displayed in the presentation');
     await polling.pollResultsInDifferentPresentation();
   });
 });

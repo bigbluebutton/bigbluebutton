@@ -1,14 +1,17 @@
 import React, { useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Settings from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import Intl from '/imports/ui/services/locale';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
+const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
 
 interface IntlAdapterProps {
   children: React.ReactNode;
@@ -17,9 +20,17 @@ interface IntlAdapterProps {
 const IntlAdapter: React.FC<IntlAdapterProps> = ({
   children,
 }) => {
-  const [currentLocale] = useCurrentLocale();
+  const [currentLocale, setCurrentLocale] = useCurrentLocale();
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
+  const sendUiDataToPlugins = () => {
+    window.dispatchEvent(new CustomEvent(PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE, {
+      detail: {
+        locale: currentLocale,
+        fallbackLocale: DEFAULT_LANGUAGE,
+      },
+    }));
+  };
   const setUp = () => {
     if (currentLocale) {
       const { language, formattedLocale } = formatLocaleCode(currentLocale);
@@ -43,9 +54,36 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
       Settings.save();
     }
   };
+  const runOnMountAndUnmount = () => {
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
+      sendUiDataToPlugins,
+    );
+    // @ts-ignore - JS code
+    const { locale } = Settings.application;
+    if (
+      typeof locale === 'string'
+      && locale !== currentLocale
+    ) {
+      setCurrentLocale(locale);
+    } else {
+      setUp();
+    }
+    return () => {
+      window.removeEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
+        sendUiDataToPlugins,
+      );
+    };
+  };
 
-  useEffect(setUp, []);
-  useEffect(setUp, [currentLocale]);
+  const runOnCurrentLocaleUpdate = () => {
+    setUp();
+    sendUiDataToPlugins();
+  };
+
+  useEffect(runOnMountAndUnmount, []);
+  useEffect(runOnCurrentLocaleUpdate, [currentLocale]);
   return !loadingContextInfo.isLoading ? children : null;
 };
 

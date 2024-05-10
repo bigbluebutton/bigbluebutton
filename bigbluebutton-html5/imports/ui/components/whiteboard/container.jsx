@@ -42,6 +42,7 @@ import {
   PRESENTATION_SET_PAGE,
   PRESENTATION_PUBLISH_CURSOR,
 } from '../presentation/mutations';
+import { useMergedCursorData } from './hooks.ts';
 
 const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
 
@@ -141,6 +142,8 @@ const WhiteboardContainer = (props) => {
   const publishCursorUpdate = (payload) => {
     const { whiteboardId, xPercent, yPercent } = payload;
 
+    if (!whiteboardId || !xPercent || !yPercent) return;
+
     presentationPublishCursor({
       variables: {
         whiteboardId,
@@ -163,8 +166,7 @@ const WhiteboardContainer = (props) => {
     userId: user.userId,
   }));
 
-  const { data: cursorData } = useSubscription(CURSOR_SUBSCRIPTION);
-  const { pres_page_cursor: cursorArray } = (cursorData || []);
+  const cursorArray = useMergedCursorData();
 
   const { data: annotationStreamData } = useSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
@@ -260,6 +262,8 @@ const WhiteboardContainer = (props) => {
     index: 'a0',
     typeName: 'shape',
   });
+
+  if (!currentPresentationPage) return;
 
   return (
     <Whiteboard

@@ -1,14 +1,14 @@
-import createUseSubscription from './createUseSubscription';
-import CURRENT_USER_SUBSCRIPTION from '../graphql/queries/currentUserSubscription';
 import { User } from '../../Types/user';
+import { useCreateUseSubscription } from './createUseSubscription';
+import CURRENT_USER_SUBSCRIPTION from '../graphql/queries/currentUserSubscription';
 
-const useCurrentUserSubscription = createUseSubscription<User>(CURRENT_USER_SUBSCRIPTION, {}, true);
-
-const useCurrentUser = (fn: (c: Partial<User>) => Partial<User>) => {
-  const response = useCurrentUserSubscription(fn);
+const useCurrentUser = (fn: (c: Partial<User>) => Partial<User> = (u) => u) => {
+  const currenUserSubscription = useCreateUseSubscription<User>(CURRENT_USER_SUBSCRIPTION, {}, true);
+  const response = currenUserSubscription(fn);
   const returnObject = {
     ...response,
-    data: response.data?.[0],
+    data: response.data ? response.data[0] : null,
+    rawData: response.data ?? null,
   };
   return returnObject;
 };

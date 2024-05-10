@@ -75,7 +75,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   }
 
   private def sendFailedValidateAuthTokenRespMsg(msg: ValidateAuthTokenReqMsg, failReason: String, failReasonCode: String) = {
-    UserDAO.updateJoinError(msg.body.userId, failReasonCode, failReason)
+    UserDAO.updateJoinError(msg.header.meetingId, msg.body.userId, failReasonCode, failReason)
 
     val event = MsgBuilder.buildValidateAuthTokenRespMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.authToken, false, false, 0,
       0, failReasonCode, failReason)

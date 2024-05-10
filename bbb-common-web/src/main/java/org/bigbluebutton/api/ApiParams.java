@@ -37,6 +37,7 @@ public class ApiParams {
     public static final String IS_BREAKOUT = "isBreakout";
     public static final String LOGO = "logo";
     public static final String LOGOUT_TIMER = "logoutTimer";
+    public static final String LOGIN_URL = "loginURL";
     public static final String LOGOUT_URL = "logoutURL";
     public static final String MAX_PARTICIPANTS = "maxParticipants";
     public static final String MEETING_ID = "meetingID";
@@ -67,7 +68,6 @@ public class ApiParams {
     public static final String MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES = "meetingExpireIfNoUserJoinedInMinutes";
     public static final String MEETING_EXPIRE_WHEN_LAST_USER_LEFT_IN_MINUTES = "meetingExpireWhenLastUserLeftInMinutes";
     public static final String WELCOME = "welcome";
-    public static final String HTML5_INSTANCE_ID = "html5InstanceId";
     public static final String ROLE = "role";
     public static final String GROUPS = "groups";
     public static final String DISABLED_FEATURES = "disabledFeatures";

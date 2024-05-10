@@ -50,6 +50,12 @@ const createEndpointTableData = [
     "description": (<>Set the maximum number of users allowed to joined the conference at the same time.</>)
   },
   {
+    "name": "loginURL",
+    "required": false,
+    "type": "String",
+    "description": (<>Enables third-party applications to provide a URL that users can access during a meeting to join the session directly.</>)
+  },
+  {
     "name": "logoutURL",
     "required": false,
     "type": "String",

@@ -7,7 +7,6 @@ import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import UserListService from '/imports/ui/components/user-list/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
@@ -227,14 +226,6 @@ class VideoService {
     ).fetch().map(vs => vs.deviceId);
 
     return devices;
-  }
-
-  sendUserShareWebcam(cameraId) {
-    makeCall('userShareWebcam', cameraId);
-  }
-
-  sendUserUnshareWebcam(cameraId) {
-    makeCall('userUnshareWebcam', cameraId);
   }
 
   getAuthenticatedURL() {
@@ -517,50 +508,33 @@ class VideoService {
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
-    if (!isPaginationDisabled) {
-      return this.getVideoPage(streams, pageSize);
-    }
-
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) {
       streams.push(connectingStream);
+    }
+
+    if (!isPaginationDisabled) {
+      return this.getVideoPage(streams, pageSize);
     }
 
     return streams;
   }
 
   getGridUsers(users, streams) {
-    const pageSize = this.getMyPageSize();
-    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
-
     const isGridEnabled = this.isGridEnabled();
+    const gridSize = this.getGridSize();
+
     let gridUsers = [];
 
-    if (isPaginationDisabled) {
-      if (isGridEnabled) {
-        const streamUsers = streams.map((stream) => stream.userId);
-
-        gridUsers = users.filter(
-          (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
-        ).map((user) => ({
-          isGridItem: true,
-          ...user,
-        }));
-      }
-
-      return gridUsers;
-    }
-    const paginatedStreams = this.getVideoPage(streams, pageSize);
-
     if (isGridEnabled) {
-      const streamUsers = paginatedStreams.map((stream) => stream.userId);
+      const streamUsers = streams.map((stream) => stream.userId);
 
       gridUsers = users.filter(
         (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
       ).map((user) => ({
         isGridItem: true,
         ...user,
-      }));
+      })).slice(0, gridSize - streams.length);
     }
     return gridUsers;
   }
@@ -670,17 +644,17 @@ class VideoService {
 
   disableCam() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.disableCam': 1 } });
-    return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
+      { fields: { 'lockSettings.disableCam': 1 } });
+    return m.lockSettings ? m.lockSettings.disableCam : false;
   }
 
   webcamsOnlyForModerator() {
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
+      { fields: { 'usersPolicies.webcamsOnlyForModerator': 1 } });
     const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
 
-    if (meeting?.usersProp && user?.role !== ROLE_MODERATOR && user?.locked) {
-      return meeting.usersProp.webcamsOnlyForModerator;
+    if (meeting?.usersPolicies && user?.role !== ROLE_MODERATOR && user?.locked) {
+      return meeting.usersPolicies.webcamsOnlyForModerator;
     }
     return false;
   }
@@ -690,17 +664,19 @@ class VideoService {
       { meetingId: Auth.meetingID },
       {
         fields: {
-          'meetingProp.meetingCameraCap': 1,
-          'usersProp.userCameraCap': 1,
+          meetingCameraCap: 1,
+          'usersPolicies.userCameraCap': 1,
         },
       },
     );
 
     // If the meeting prop data is unreachable, force a safe return
-    if (!meeting?.usersProp || !meeting?.meetingProp) return true;
-
-    const { meetingCameraCap } = meeting.meetingProp;
-    const { userCameraCap } = meeting.usersProp;
+    if (
+      meeting?.usersPolicies === undefined
+      || !meeting?.meetingCameraCap === undefined
+    ) return true;
+    const { meetingCameraCap } = meeting;
+    const { userCameraCap } = meeting.usersPolicies;
 
     const meetingCap = meetingCameraCap !== 0 && this.getVideoStreamsCount() >= meetingCameraCap;
     const userCap = userCameraCap !== 0 && this.getLocalVideoStreamsCount() >= userCameraCap;
@@ -724,8 +700,8 @@ class VideoService {
 
   getInfo() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'voiceProp.voiceConf': 1 } });
-    const voiceBridge = m.voiceProp ? m.voiceProp.voiceConf : null;
+      { fields: { 'voiceSettings.voiceConf': 1 } });
+    const voiceBridge = m.voiceSettings ? m.voiceSettings.voiceConf : null;
     return {
       userId: Auth.userID,
       userName: Auth.fullname,

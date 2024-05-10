@@ -21,6 +21,9 @@ import TalkingIndicatorHookContainer from './domain/user-voice/talking-indicator
 import { GeneralHookManagerProps } from './types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { Meeting } from '/imports/ui/Types/meeting';
+import MeetingHookContainer from './domain/meeting/from-core/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent<GeneralHookManagerProps>
@@ -30,6 +33,7 @@ const hooksMap:{
   [DataConsumptionHooks.LOADED_USER_LIST]: LoadedUserListHookContainer,
   [DataConsumptionHooks.CURRENT_USER]: CurrentUserHookContainer,
   [DataConsumptionHooks.CURRENT_PRESENTATION]: CurrentPresentationHookContainer,
+  [DataConsumptionHooks.MEETING]: MeetingHookContainer,
 };
 
 const HooksMapWithArguments:{
@@ -129,6 +133,11 @@ const PluginDataConsumptionManager: React.FC = () => {
       presenter: currentUser.presenter,
     }),
   );
+  const meetingInformation = useMeeting((meeting: Partial<Meeting>) => ({
+    name: meeting?.name,
+    loginUrl: meeting?.loginUrl,
+    meetingId: meeting?.meetingId,
+  }));
   return (
     <>
       {
@@ -139,6 +148,7 @@ const PluginDataConsumptionManager: React.FC = () => {
             let data;
             const HookComponent = hooksMap[hookName];
             if (hookName === DataConsumptionHooks.CURRENT_USER) data = currentUser;
+            if (hookName === DataConsumptionHooks.MEETING) data = meetingInformation;
             return (
               <HookComponent
                 key={hookName}

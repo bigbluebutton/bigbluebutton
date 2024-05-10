@@ -46,7 +46,8 @@ const FloatingWindowPluginStateContainer = ((
 
   pluginApi.setFloatingWindows = (items: PluginSdk.FloatingWindowInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.FloatingWindowInterface[];
-    return setFloatingWindows(itemsWithId);
+    setFloatingWindows(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

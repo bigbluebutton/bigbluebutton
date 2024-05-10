@@ -16,6 +16,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   const body = {
     userId: routing.userId,
+    networkRttInMs: input.networkRttInMs
   };
 
   return { eventName, routing, header, body };

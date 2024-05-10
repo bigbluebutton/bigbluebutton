@@ -102,7 +102,7 @@ class BBBMenu extends React.Component {
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled,
-        description, selected, textColor } = a;
+        description, selected, textColor, isToggle } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -129,6 +129,7 @@ class BBBMenu extends React.Component {
             disabled={disabled}
             style={customStyles}
             $roundButtons={roundButtons}
+            $isToggle={isToggle}
             onClick={(event) => {
               onClick();
               const close = !keepOpen && !key?.includes('setstatus') && !key?.includes('back');

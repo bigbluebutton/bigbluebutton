@@ -46,7 +46,8 @@ const UserListDropdownPluginStateContainer = ((
 
   pluginApi.setUserListDropdownItems = (items: PluginSdk.UserListDropdownInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.UserListDropdownInterface[];
-    return setUserListDropdownItems(itemsWithId);
+    setUserListDropdownItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

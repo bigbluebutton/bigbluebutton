@@ -22,12 +22,7 @@ import { Meteor } from 'meteor/meteor';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
-import JoinHandler from '../imports/ui/components/join-handler/component';
-import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
-import Subscriptions from '/imports/ui/components/subscriptions/component';
-import IntlStartup from '/imports/startup/client/intl';
 import ContextProviders from '/imports/ui/components/context-providers/component';
-import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
 import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 // The adapter import is "unused" as far as static code is concerned, but it
@@ -37,7 +32,7 @@ import adapter from 'webrtc-adapter';
 import collectionMirrorInitializer from './collection-mirror-initializer';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import IntlAdapter from '/imports/startup/client/intlAdapter';
-import PresenceAdapter from '/imports/ui/components/authenticated-handler/presence-adapter/component';
+import PresenceAdapter from '../imports/ui/components/presence-adapter/component';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
@@ -56,8 +51,8 @@ const Startup = () => {
     if (disableWebsocketFallback) {
       Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
 
-      Meteor.disconnect();
-      Meteor.reconnect();
+      // Meteor.disconnect();
+      // Meteor.reconnect();
     }
   }, []);
   // Logs all uncaught exceptions to the client logger
@@ -84,16 +79,11 @@ const Startup = () => {
 
   return (
     <ContextProviders>
-      <>
-        <PresenceAdapter>
-          <Subscriptions>
-            <IntlAdapter>
-              <Base />
-            </IntlAdapter>
-          </Subscriptions>
-        </PresenceAdapter>
-        <UsersAdapter />
-      </>
+      <PresenceAdapter>
+        <IntlAdapter>
+          <Base />
+        </IntlAdapter>
+      </PresenceAdapter>
     </ContextProviders>
   );
 };

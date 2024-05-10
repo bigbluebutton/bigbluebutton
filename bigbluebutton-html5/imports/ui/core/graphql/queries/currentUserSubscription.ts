@@ -22,6 +22,8 @@ subscription userCurrentSubscription {
     guest
     guestStatus
     hasDrawPermissionOnCurrentPage
+    inactivityWarningDisplay
+    inactivityWarningTimeoutSecs
     isDialIn
     isModerator
     isOnline
@@ -45,6 +47,32 @@ subscription userCurrentSubscription {
     customParameters {
       parameter
       value
+    }
+    reaction {
+      reactionEmoji
+    }
+    breakoutRooms {
+      currentRoomJoined
+      assignedAt
+      breakoutRoomId
+      currentRoomPriority
+      currentRoomRegisteredAt
+      durationInSeconds
+      endedAt
+      freeJoin
+      inviteDismissedAt
+      isDefaultName
+      joinURL
+      lastRoomIsOnline
+      lastRoomJoinedAt
+      lastRoomJoinedId
+      name
+      sendInvitationToModerators
+      sequence
+      shortName
+      showInvitation
+      startedAt
+      currentRoomIsOnline
     }
     lastBreakoutRoom {
       breakoutRoomId

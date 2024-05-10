@@ -46,7 +46,8 @@ const NavBarPluginStateContainer = ((
 
   pluginApi.setNavBarItems = (items: PluginSdk.NavBarInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.NavBarInterface[];
-    return setNavBarItems(itemsWithId);
+    setNavBarItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

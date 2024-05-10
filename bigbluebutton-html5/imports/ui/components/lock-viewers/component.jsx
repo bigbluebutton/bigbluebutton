@@ -2,9 +2,8 @@ import React, { Fragment, Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Toggle from '/imports/ui/components/common/switch/component';
-import NotesService from '/imports/ui/components/notes/service';
 import Styled from './styles';
-import { isChatEnabled } from '/imports/ui/services/features';
+import { isChatEnabled, isSharedNotesEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   lockViewersTitle: {
@@ -100,11 +99,11 @@ class LockViewersComponent extends Component {
   constructor(props) {
     super(props);
 
-    const { meeting: { lockSettingsProps, usersProp } } = this.props;
+    const { meeting: { lockSettings, usersPolicies } } = this.props;
 
     this.state = {
-      lockSettingsProps,
-      usersProp,
+      lockSettingsProps: lockSettings,
+      usersProp: usersPolicies,
     };
   }
 
@@ -311,7 +310,7 @@ class LockViewersComponent extends Component {
               </Fragment>
             ) : null
             }
-            {NotesService.isEnabled()
+            {isSharedNotesEnabled()
               ? (
                 <Styled.Row data-test="lockEditSharedNotesItem">
                   <Styled.Col aria-hidden="true">

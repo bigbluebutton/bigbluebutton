@@ -50,7 +50,6 @@ class Options extends MultiUsers {
       const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
       await this.modPage.waitAndClick(e.modalConfirmButton);
-      await this.modPage.waitForSelector(e.toastContainer);
 
       for (const selector in currentValuesBySelector) {
         await this.modPage.hasText(selector, currentValuesBySelector[selector]);

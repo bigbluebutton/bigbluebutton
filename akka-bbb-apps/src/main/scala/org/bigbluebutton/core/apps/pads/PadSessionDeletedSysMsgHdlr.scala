@@ -24,7 +24,7 @@ trait PadSessionDeletedSysMsgHdlr {
 
     Pads.getGroupById(liveMeeting.pads, msg.body.groupId) match {
       case Some(group) => {
-        SharedNotesSessionDAO.delete(msg.body.userId, msg.body.sessionId)
+        SharedNotesSessionDAO.delete(liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.sessionId)
         broadcastEvent(group.externalId, msg.body.userId, msg.body.sessionId)
       }
       case _ =>

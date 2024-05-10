@@ -45,7 +45,7 @@ const audioEventHandler = (toggleVoice) => (event) => {
   }
 };
 
-const init = (messages, intl, toggleVoice) => {
+const init = (messages, intl, toggleVoice, speechLocale) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
@@ -53,8 +53,8 @@ const init = (messages, intl, toggleVoice) => {
   const { sessionToken } = Auth;
   const User = Users.findOne({ userId }, { fields: { name: 1 } });
   const username = User.name;
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceProp.voiceConf': 1 } });
-  const voiceBridge = Meeting.voiceProp.voiceConf;
+  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceSettings.voiceConf': 1 } });
+  const voiceBridge = Meeting.voiceSettings.voiceConf;
 
   // FIX ME
   const microphoneLockEnforced = false;
@@ -66,6 +66,7 @@ const init = (messages, intl, toggleVoice) => {
     username,
     voiceBridge,
     microphoneLockEnforced,
+    speechLocale,
   };
 
   return AudioManager.init(userData, audioEventHandler(toggleVoice));

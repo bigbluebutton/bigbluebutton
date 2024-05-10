@@ -4,6 +4,9 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
+const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
+
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Create Parameters', () => {
   test('Record Meeting', async ({ browser, context, page }) => {
@@ -131,6 +134,9 @@ test.describe.parallel('Create Parameters', () => {
     });
   
     test.describe.serial(() => {
+      // current testing code is checking the old (write) captions
+      // this parameter should works the same way with the automatic captions
+      test.fixme();
       test('Captions', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.captionsDisabled });
@@ -451,7 +457,7 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Skip audio check on first join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, false, { joinParameter: c.skipCheckOnFirstJoin });
+      await customParam.initModPage(page, false, { joinParameter: `${c.skipCheckOnFirstJoin}&${hidePresentationToast}` });
       await customParam.skipCheckOnFirstJoin();
     });
   });
@@ -474,7 +480,7 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Force Restore Presentation On New Poll Result', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      const joinParameter = c.forceRestorePresentationOnNewEvents;
+      const joinParameter = `${c.forceRestorePresentationOnNewEvents}&${hidePresentationToast}`;
       await customParam.initModPage(page, true, { joinParameter });
       await customParam.forceRestorePresentationOnNewPollResult(joinParameter);
     });

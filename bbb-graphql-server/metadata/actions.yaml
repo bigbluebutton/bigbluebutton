@@ -59,6 +59,12 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: captionSetOwner
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: captionSubmitText
     definition:
       kind: synchronous
@@ -179,13 +185,13 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: pluginDataChannelDeleteMessage
+  - name: pluginDataChannelDeleteEntry
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: pluginDataChannelDispatchMessage
+  - name: pluginDataChannelPushEntry
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
@@ -306,12 +312,6 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: randomViewerPick
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
   - name: sharedNotesCreateSession
     definition:
       kind: synchronous
@@ -403,6 +403,12 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: userSendActivitySign
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: userSetAway
     definition:
       kind: synchronous
@@ -416,12 +422,6 @@ actions:
     permissions:
       - role: bbb_client
   - name: userSetConnectionAlive
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
-  - name: userSetConnectionRtt
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
@@ -504,4 +504,5 @@ custom_types:
   input_objects:
     - name: BreakoutRoom
     - name: GuestUserApprovalStatus
+  objects: []
   scalars: []

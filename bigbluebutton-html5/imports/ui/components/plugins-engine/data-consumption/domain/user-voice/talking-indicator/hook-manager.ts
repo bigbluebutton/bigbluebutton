@@ -4,7 +4,7 @@ import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
-import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import formatTalkingIndicatorDataFromGraphql from './utils';
 import { UserVoice } from '/imports/ui/Types/userVoice';
 import { useTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
@@ -36,9 +36,9 @@ const TalkingIndicatorHookContainer = () => {
   }, [userVoice, sendSignal]);
 
   useEffect(() => {
-    const updateHookUseTalkingIndicator = () => {
-      setSendSignal(!sendSignal);
-    };
+    const updateHookUseTalkingIndicator = ((event: CustomEvent<SubscribedEventDetails>) => {
+      if (event.detail.hook === DataConsumptionHooks.TALKING_INDICATOR) setSendSignal((signal) => !signal);
+    }) as EventListener;
     window.addEventListener(
       HookEvents.SUBSCRIBED, updateHookUseTalkingIndicator,
     );

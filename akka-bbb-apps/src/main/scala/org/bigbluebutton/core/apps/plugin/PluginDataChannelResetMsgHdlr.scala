@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.plugin
 
 import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.common2.msgs.PluginDataChannelResetMsg
-import org.bigbluebutton.core.db.PluginDataChannelMessageDAO
+import org.bigbluebutton.core.db.PluginDataChannelEntryDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
@@ -21,11 +21,11 @@ trait PluginDataChannelResetMsgHdlr extends HandlerHelpers {
 
       if (!pluginsConfig.contains(msg.body.pluginName)) {
         println(s"Plugin '${msg.body.pluginName}' not found.")
-      } else if (!pluginsConfig(msg.body.pluginName).dataChannels.contains(msg.body.dataChannel)) {
-        println(s"Data channel '${msg.body.dataChannel}' not found in plugin '${msg.body.pluginName}'.")
+      } else if (!pluginsConfig(msg.body.pluginName).dataChannels.contains(msg.body.channelName)) {
+        println(s"Data channel '${msg.body.channelName}' not found in plugin '${msg.body.pluginName}'.")
       } else {
         val hasPermission = for {
-          deletePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.dataChannel).deletePermission
+          deletePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.channelName).deletePermission
         } yield {
           deletePermission.toLowerCase match {
             case "all"       => true
@@ -36,12 +36,13 @@ trait PluginDataChannelResetMsgHdlr extends HandlerHelpers {
         }
 
         if (!hasPermission.contains(true)) {
-          println(s"No permission to delete (reset) in plugin: '${msg.body.pluginName}', data channel: '${msg.body.dataChannel}'.")
+          println(s"No permission to delete (reset) in plugin: '${msg.body.pluginName}', data channel: '${msg.body.channelName}'.")
         } else {
-          PluginDataChannelMessageDAO.reset(
+          PluginDataChannelEntryDAO.reset(
             meetingId,
             msg.body.pluginName,
-            msg.body.dataChannel
+            msg.body.channelName,
+            msg.body.subChannelName
           )
         }
       }

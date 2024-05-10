@@ -216,9 +216,10 @@ class ConnectionStatusComponent extends PureComponent {
    * @return {Promise} A Promise that resolves when process started.
    */
   async startMonitoringNetwork() {
-    let previousData = await Service.getNetworkData();
+    const { getVideoStreamsStats } = this.props;
+    let previousData = await Service.getNetworkData(getVideoStreamsStats);
     this.rateInterval = Meteor.setInterval(async () => {
-      const data = await Service.getNetworkData();
+      const data = await Service.getNetworkData(getVideoStreamsStats);
 
       const {
         outbound: audioCurrentUploadRate,
@@ -525,6 +526,7 @@ class ConnectionStatusComponent extends PureComponent {
       setModalIsOpen,
       intl,
       isModalOpen,
+      amIModerator,
     } = this.props;
 
     const { selectedTab } = this.state;
@@ -557,7 +559,7 @@ class ConnectionStatusComponent extends PureComponent {
               <Styled.ConnectionTabSelector selectedClassName="is-selected">
                 <span id="my-logs-tab">{intl.formatMessage(intlMessages.myLogs)}</span>
               </Styled.ConnectionTabSelector>
-              {Service.isModerator()
+              {amIModerator
                 && (
                   <Styled.ConnectionTabSelector selectedClassName="is-selected">
                     <span id="session-logs-tab">{intl.formatMessage(intlMessages.sessionLogs)}</span>
@@ -574,7 +576,7 @@ class ConnectionStatusComponent extends PureComponent {
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
               <ul>{this.renderConnections()}</ul>
             </Styled.ConnectionTabPanel>
-            {Service.isModerator()
+            {amIModerator
               && (
                 <Styled.ConnectionTabPanel selectedClassName="is-selected">
                   <ul>{this.renderConnections()}</ul>

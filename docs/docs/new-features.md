@@ -48,7 +48,9 @@ Administrators will appreciate that we now allow passing of custom client settin
 #### Major strides in replacing Meteor
 
 For years we have discussed internally the topic of replacing MeteorJS with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components which are to replace Meteor. The work is underway, it will span into BigBlueButton 3.0, 3.1, possibly 3.2 too.
-These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura. During the transition period, `bbb-html5-backend` and `bbb-html5-frontend` are still present, however, lots of what they used to do is now being carried out by the new components.
+These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura.
+
+Note: The services `bbb-html5-backend` and `bbb-html5-frontend` have been removed and `bbb-html5` modified heavily as a result of the change in architecture.
 
 ### Experimental
 

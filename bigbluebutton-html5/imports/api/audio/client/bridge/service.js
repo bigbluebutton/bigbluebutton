@@ -11,6 +11,10 @@ const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
   .application.microphoneConstraints;
 const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
 
+const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
+const PROVIDER = CONFIG.provider;
+const audioCaptionsEnabled = window.meetingClientSettings.public.app.audioCaptions.enabled;
+
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
   if (!currItem) {
@@ -115,6 +119,21 @@ const doGUM = async (constraints, retryOnFailure = false) => {
   }
 };
 
+const isEnabled = () => audioCaptionsEnabled;
+
+const isWebSpeechApi = () => PROVIDER === 'webspeech';
+
+const isVosk = () => PROVIDER === 'vosk';
+
+const isWhispering = () => PROVIDER === 'whisper';
+
+const isDeepSpeech = () => PROVIDER === 'deepSpeech';
+
+const isActive = () => isEnabled()
+  && ((isWebSpeechApi()) || isVosk() || isWhispering() || isDeepSpeech());
+
+const stereoUnsupported = () => isActive() && isVosk();
+
 export {
   DEFAULT_INPUT_DEVICE_ID,
   DEFAULT_OUTPUT_DEVICE_ID,
@@ -131,4 +150,5 @@ export {
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
   doGUM,
+  stereoUnsupported,
 };

@@ -11,6 +11,7 @@ import {
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const JoinVideoOptionsContainer = (props) => {
   const {
@@ -38,6 +39,13 @@ const JoinVideoOptionsContainer = (props) => {
       ...pluginsExtensibleAreasAggregatedState.cameraSettingsDropdownItems,
     ];
   }
+
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    away: user.away,
+  }));
+
+  const away = currentUserData?.away;
+
   return (
     <JoinVideoButton {...{
       cameraSettingsDropdownItems,
@@ -47,6 +55,7 @@ const JoinVideoOptionsContainer = (props) => {
       status,
       sendUserUnshareWebcam,
       setLocalSettings,
+      away,
       ...restProps,
     }}
     />

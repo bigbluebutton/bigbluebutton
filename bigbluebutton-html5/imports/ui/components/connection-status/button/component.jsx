@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
-import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/component';
+import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
@@ -40,17 +40,16 @@ class ConnectionStatusButton extends PureComponent {
   setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
 
   renderModal(isModalOpen) {
-    const {
-      connectionData,
-    } = this.props;
-
+    const { isGridLayout, paginationEnabled, viewParticipantsWebcams } = this.props;
     return (
       isModalOpen ?
       <ConnectionStatusModalComponent
         {...{
           isModalOpen,
           setModalIsOpen: this.setModalIsOpen,
-          connectionData,
+          isGridLayout,
+          paginationEnabled,
+          viewParticipantsWebcams,
         }}
       /> : null
     )
@@ -85,17 +84,11 @@ class ConnectionStatusButton extends PureComponent {
     }
 
     const {
-      connectionData,
+      myCurrentStatus,
     } = this.props;
 
-    const ownConnectionData = connectionData.filter((curr) => curr.user.userId === Auth.userID);
-
-    const currentStatus = ownConnectionData && ownConnectionData.length > 0
-      ? ownConnectionData[0].currentStatus
-      : 'normal';
-
     let color;
-    switch (currentStatus) {
+    switch (myCurrentStatus) {
       case 'warning':
         color = 'success';
         break;
@@ -114,7 +107,7 @@ class ConnectionStatusButton extends PureComponent {
     return (
       <Styled.ButtonWrapper>
         <Button
-          customIcon={this.renderIcon(currentStatus)}
+          customIcon={this.renderIcon(myCurrentStatus)}
           label={intl.formatMessage(intlMessages.label)}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.description)}

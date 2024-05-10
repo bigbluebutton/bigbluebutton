@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.NotificationDAO
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.util.ColorPicker
@@ -58,7 +59,7 @@ trait RegisterUserReqMsgHdlr {
 
     val guestStatus = msg.body.guestStatus
 
-    val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
+    val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intUserId, msg.body.extUserId,
       msg.body.name, msg.body.role, msg.body.authToken, msg.body.sessionToken,
       msg.body.avatarURL, ColorPicker.nextColor(liveMeeting.props.meetingProp.intId), msg.body.guest, msg.body.authed,
       guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.customParameters, false)
@@ -107,6 +108,7 @@ trait RegisterUserReqMsgHdlr {
           Vector(s"${regUser.name}")
         )
         outGW.send(notifyEvent)
+        NotificationDAO.insert(notifyEvent)
       case GuestStatus.DENY =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
