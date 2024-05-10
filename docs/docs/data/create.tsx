@@ -402,7 +402,7 @@ const createEndpointTableData = [
     "required": false,
     "default": "false",
     "type": "String",
-    "description": (<>**Note: this can be used only via POST create call** (added in BBB 3.0.0-alpha.1)</>)
+    "description": (<> (added in BBB 3.0.0-alpha.1)</>)
   }
 ]
 
