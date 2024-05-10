@@ -95,7 +95,7 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 
 `sessionsCleanupDelayInMinutes=60` added
 
-`graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/v1/graphql` added
+`graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
 
 ### Development
 
