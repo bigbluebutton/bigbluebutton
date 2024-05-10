@@ -20,7 +20,7 @@ interface IntlAdapterProps {
 const IntlAdapter: React.FC<IntlAdapterProps> = ({
   children,
 }) => {
-  const [currentLocale] = useCurrentLocale();
+  const [currentLocale, setCurrentLocale] = useCurrentLocale();
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
   const sendUiDataToPlugins = () => {
@@ -59,7 +59,16 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
       `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
       sendUiDataToPlugins,
     );
-    setUp();
+    // @ts-ignore - JS code
+    const { locale } = Settings.application;
+    if (
+      typeof locale === 'string'
+      && locale !== currentLocale
+    ) {
+      setCurrentLocale(locale);
+    } else {
+      setUp();
+    }
     return () => {
       window.removeEventListener(
         `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,

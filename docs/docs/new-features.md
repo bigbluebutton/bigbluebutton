@@ -147,6 +147,14 @@ Retired events
 - `DeskshareStopRtmpRecordEvent`
 - `TranscriptUpdatedRecordEvent`
 
+#### bbb-web properties changes
+
+- `allowOverrideClientSettingsOnCreateCall=false` added
+
+- `sessionsCleanupDelayInMinutes=60` added
+
+- `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 3.0](/development/guide).

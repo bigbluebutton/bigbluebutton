@@ -402,6 +402,13 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If passed it will use this string as the name of the presentation uploaded via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> (added 2.7.2)</>)
+  },
+  {
+    "name": "allowOverrideClientSettingsOnCreateCall",
+    "required": false,
+    "default": "false",
+    "type": "String",
+    "description": (<> (added in BBB 3.0.0-alpha.1)</>)
   }
 ]
 
