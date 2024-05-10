@@ -23,7 +23,7 @@ A BigBlueButton server is built from a number of components that correspond to U
 
 - bbb-web -- Implements the BigBlueButton API and conversion of documents for presentation
 - bbb-akka-apps -- Server side application that handles the state of meetings on the server
-- bbb-akka-fsesl
+- bbb-akka-fsesl -- server component handling the communication with FreeSWITCH
 - bbb-html5 -- HTML5 client that loads in the browser
 - bbb-learning-dashboard -- a live dashboard available to moderators, which displays user activity information that can be useful for instructors
 - bbb-fsesl-akka -- Component to send commands to FreeSWITCH
@@ -33,15 +33,15 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-webrtc-sfu -- Server that bridges incoming requests from client to Kurento
 - mediasoup -- WebRTC media server for sending/receiving/recording video (webcam and screenshare)
 - bbb-freeswitch-core -- WebRTC media server for sending/receiving/recording audio
-- bbb-graphql-server
-- bbb-graphql-middleware
-- bbb-graphql-actions
-- bbb-webrtc-sfu
-- bbb-webrtc-recorder
-- bbb-pads
+- bbb-graphql-server -- Handles GraphQL queries and subscriptions from clients, checks user permissions
+- bbb-graphql-middleware -- forwards messages between the clients and bbb-graphql-server, json-patch minimizes the info needed to be sent
+- bbb-graphql-actions -- handles requests from the clients on their way to the core
+- bbb-webrtc-sfu -- manages media connections
+- bbb-webrtc-recorder -- handles recording of the media
+- bbb-pads -- manages the control to Etherpad
 - bbb-transcription-controller -- an optional component managing captions for third party services like VOSK or Gladia
-- bbb-etherpad
-- bbb-webhooks
+- bbb-etherpad -- used for shared notes and captions, live edit of text by multiple parties
+- bbb-webhooks -- an optional componen, listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API
 
 This document describes how to set up a development environment using an existing BigBlueButton 3.0 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
 
