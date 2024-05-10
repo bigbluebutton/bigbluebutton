@@ -7,6 +7,7 @@ import NotesContainer from '/imports/ui/components/notes/component';
 import PollContainer from '/imports/ui/components/poll/container';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
 import TimerContainer from '/imports/ui/components/timer/panel/component';
+import GenericComponentSidekickContentContainer from '/imports/ui/components/generic-component-sidekick-content/panel/component';
 import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/waiting-users-graphql/component';
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
@@ -24,6 +25,7 @@ const propTypes = {
   isResizable: PropTypes.bool.isRequired,
   resizableEdge: PropTypes.objectOf(PropTypes.bool).isRequired,
   contextDispatch: PropTypes.func.isRequired,
+  genericComponentSidekickContentId: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
@@ -51,6 +53,7 @@ const SidebarContent = (props) => {
     isSharedNotesPinned,
     currentSlideId,
     amIModerator,
+    genericComponentSidekickContentId,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -86,7 +89,6 @@ const SidebarContent = (props) => {
 
   const smallSidebar = width < (maxWidth / 2);
   const pollDisplay = sidebarContentPanel === PANELS.POLL ? 'inherit' : 'none';
-
   return (
     <Resizable
       minWidth={minWidth}
@@ -144,6 +146,12 @@ const SidebarContent = (props) => {
       )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.TIMER && <TimerContainer isModerator={amIModerator} />}
+      {sidebarContentPanel === PANELS.GENERIC_COMPONENT_SIDEKICK_CONTENT
+      && (
+        <GenericComponentSidekickContentContainer
+          sidekickContentId={genericComponentSidekickContentId}
+        />
+      )}
       {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}
       {sidebarContentPanel === PANELS.POLL && (
         <Styled.Poll

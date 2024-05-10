@@ -17,7 +17,7 @@ const GenericComponentPluginStateContainer = ((
     pluginApi,
   } = props;
   const [
-    genericComponentMainContents,
+    genericComponent,
     setGenericComponents,
   ] = useState<PluginSdk.GenericComponentInterface[]>([]);
 
@@ -28,7 +28,7 @@ const GenericComponentPluginStateContainer = ((
 
   useEffect(() => {
     // Change this plugin provided toolbar items
-    extensibleAreaMap[uuid].genericComponents = genericComponentMainContents;
+    extensibleAreaMap[uuid].genericComponents = genericComponent;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedGenericComponents = (
@@ -42,7 +42,7 @@ const GenericComponentPluginStateContainer = ((
         genericComponents: aggregatedGenericComponents,
       },
     );
-  }, [genericComponentMainContents]);
+  }, [genericComponent]);
 
   pluginApi.setGenericComponents = (items: PluginSdk.GenericComponentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericComponentInterface[];

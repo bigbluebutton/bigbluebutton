@@ -125,7 +125,7 @@ export const PRESENTATION_AREA = {
 };
 
 export const PANELS = {
-  GENERIC_COMPONENT_MAIN_CONTENT: 'genericComponentSidekickContent',
+  GENERIC_COMPONENT_SIDEKICK_CONTENT: 'genericComponentSidekickContent',
   USERLIST: 'userlist',
   CHAT: 'chat',
   POLL: 'poll',

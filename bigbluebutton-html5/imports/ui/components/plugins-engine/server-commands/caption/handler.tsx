@@ -8,11 +8,10 @@ import {
 import SUBMIT_TRANSCRIPT from './mutation';
 
 const PluginCaptionServerCommandsHandler = () => {
-  const [submitTranscript, a] = useMutation(SUBMIT_TRANSCRIPT);
+  const [submitTranscript] = useMutation(SUBMIT_TRANSCRIPT);
   const handleFillChatFormThroughPlugin = ((
     event: CustomEvent<SaveCaptionCommandArguments>,
   ) => {
-    console.log('teste qui  -----> ', event.detail.text, submitTranscript);
     submitTranscript({
       variables: {
         transcriptId: uuidLib.v4(),
@@ -22,7 +21,6 @@ const PluginCaptionServerCommandsHandler = () => {
     });
   }) as EventListener;
 
-  console.log('teste aqui depoiss do handler ---> ', a);
   useEffect(() => {
     window.addEventListener(CaptionCommandsEnum.SAVE, handleFillChatFormThroughPlugin);
 

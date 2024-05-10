@@ -31,7 +31,6 @@ const CustomLayout = (props) => {
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
 
-  console.log('teste aqui pra saber o currenyPanelType', currentPanelType)
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
   const genericComponentMainContentInput = layoutSelectInput((i) => i.genericComponentMainContent);

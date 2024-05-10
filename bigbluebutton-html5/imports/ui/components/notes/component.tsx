@@ -133,7 +133,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
       isChrome={isChrome}
       style={style}
     >
-      Teste doidão aqui --(1)-
       {!isOnMediaArea ? (
         // @ts-ignore Until everything in Typescript
         <Header

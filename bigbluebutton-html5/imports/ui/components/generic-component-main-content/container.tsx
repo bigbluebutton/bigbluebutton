@@ -22,16 +22,16 @@ import { GenericComponentContainerProps } from './types';
 const GenericComponentContainer: React.FC<GenericComponentContainerProps> = (props: GenericComponentContainerProps) => {
   const { genericComponentMainContentId } = props;
 
-  const previousPluginGenericComponents = useRef<PluginSdk.GenericComponent[]>([]);
+  const previousPluginGenericComponents = useRef<PluginSdk.GenericComponentMainContent[]>([]);
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   const layoutContextDispatch: DispatcherFunction = layoutDispatch();
-  let genericComponentMainContentExtensibleArea = [] as PluginSdk.GenericComponent[];
+  let genericComponentMainContentExtensibleArea = [] as PluginSdk.GenericComponentMainContent[];
 
   if (pluginsExtensibleAreasAggregatedState.genericComponents) {
     genericComponentMainContentExtensibleArea = [
-      ...pluginsExtensibleAreasAggregatedState.genericComponents as PluginSdk.GenericComponent[],
+      ...pluginsExtensibleAreasAggregatedState.genericComponents as PluginSdk.GenericComponentMainContent[],
     ].filter((p) => p.type === GenericComponentType.MAIN_CONTENT);
     const [
       genericComponentMainContentsAdded,

@@ -7,6 +7,7 @@ import UserNotesContainer from '../user-list-graphql/user-list-content/user-note
 import TimerContainer from './timer/container';
 import GuestPanelOpenerContainer from '../user-list-graphql/user-participants-title/guest-panel-opener/component';
 import UserPollsContainer from './user-polls/container';
+import GenericComponentSidekickMenuContainer from './generic-component-sidekick-menu/container';
 import BreakoutRoomContainer from './breakout-room/container';
 import { isChatEnabled } from '/imports/ui/services/features';
 import UserTitleContainer from '../user-list-graphql/user-participants-title/component';
@@ -45,6 +46,7 @@ class UserContent extends PureComponent {
         {currentUser?.role === ROLE_MODERATOR ? (
           <GuestPanelOpenerContainer />
         ) : null}
+        <GenericComponentSidekickMenuContainer />
         <UserPollsContainer isPresenter={currentUser?.presenter} />
         <BreakoutRoomContainer />
         <UserTitleContainer />

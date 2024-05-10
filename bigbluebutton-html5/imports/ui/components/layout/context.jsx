@@ -493,7 +493,10 @@ const reducer = (state, action) => {
     }
     case ACTIONS.SET_SIDEBAR_CONTENT_PANEL: {
       const { sidebarContent } = state.input;
-      if (sidebarContent.sidebarContentPanel === action.value) {
+      if (sidebarContent.sidebarContentPanel === action.value
+        && action.genericComponentSidekickContentId
+        === sidebarContent.genericComponentSidekickContentId
+      ) {
         return state;
       }
       return {
@@ -503,6 +506,7 @@ const reducer = (state, action) => {
           sidebarContent: {
             ...sidebarContent,
             sidebarContentPanel: action.value,
+            genericComponentSidekickContentId: action.genericComponentSidekickContentId,
           },
         },
       };
@@ -1341,7 +1345,6 @@ const updatePresentationAreaContent = (
 ) => {
   const { layoutType } = layoutContextState;
   const { sidebarContent } = layoutContextState.input;
-  console.log('teste aqui pra saber o que vem  ---> ', layoutContextState);
   const {
     presentationAreaContentActions: currentPresentationAreaContentActions,
   } = layoutContextState;

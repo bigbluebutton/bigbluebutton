@@ -36,7 +36,7 @@ const hooksMap:{
   [DataConsumptionHooks.MEETING]: MeetingHookContainer,
 };
 
-const HooksMapWithArguments:{
+const HooksMapWithArguments: {
   [key: string]: React.FunctionComponent<HookWithArgumentsContainerProps>
 } = {
   [DataConsumptionHooks.CUSTOM_SUBSCRIPTION]: CustomSubscriptionHookContainer,

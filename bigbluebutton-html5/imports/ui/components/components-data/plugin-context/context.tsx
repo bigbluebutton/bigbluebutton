@@ -9,6 +9,7 @@ export const PluginsContextProvider = ({ children, ...props }: any) => {
   const [pluginsExtensibleAreasAggregatedState, setPluginsExtensibleAreasAggregatedState] = useState<ExtensibleArea>(
     {} as ExtensibleArea,
   );
+  const [sidekickContentAlreadyOpened, setSidekickContentAlreadyOpened] = useState(false);
   const [domElementManipulationMessageIds, setDomElementManipulationMessageIds] = useState<string[]>([]);
 
   return (

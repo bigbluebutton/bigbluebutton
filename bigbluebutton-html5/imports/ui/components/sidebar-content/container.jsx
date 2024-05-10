@@ -11,11 +11,12 @@ const SidebarContentContainer = () => {
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
-  const { sidebarContentPanel } = sidebarContentInput;
+  const { sidebarContentPanel, genericComponentSidekickContentId } = sidebarContentInput;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
     isModerator: user.isModerator,
   }));
+
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
 
@@ -29,6 +30,7 @@ const SidebarContentContainer = () => {
       {...sidebarContentOutput}
       contextDispatch={layoutContextDispatch}
       sidebarContentPanel={sidebarContentPanel}
+      genericComponentSidekickContentId={genericComponentSidekickContentId}
       amIPresenter={amIPresenter}
       amIModerator={amIModerator}
       currentSlideId={currentSlideId}
