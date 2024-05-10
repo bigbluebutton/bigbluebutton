@@ -101,6 +101,7 @@ Committers:
 - Anton Barboza De Sa, testing
 - Ramón Souza, client
 - Gustavo Trott, core
+- Lucas Zawacki, core
 - Richard Alam, lead architect
 - Felipe Cecagno, core
 - Fred Dixon, product manager
