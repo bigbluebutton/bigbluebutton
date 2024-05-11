@@ -6,12 +6,12 @@ set -eu
 # We build the docs for historical reasons. The branch no longer exists
 # since the release is no longer supported/maintained.
 TAGS=(
-  v2.5.19
+  # v2.5.19
 )
 
 # Build the docs only for these release branches
 BRANCHES=(
-  v2.6.x-release
+  # v2.6.x-release
   v2.7.x-release
   v3.0.x-release
 )
