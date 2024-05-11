@@ -118,8 +118,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="learningDashboardFilesDir" value="${learningDashboardFilesDir}"/>
     </bean>
 
-    <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
-
     <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
         <property name="securitySalt" value="${securitySalt}"/>
         <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>

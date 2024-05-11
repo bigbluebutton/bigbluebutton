@@ -40,7 +40,7 @@ trait VoiceConfCallStateEvtMsgHdlr {
     outGW.send(msgEvent)
 
     if (msg.body.userId.nonEmpty) {
-      UserVoiceConfStateDAO.insertOrUpdate(msg.body.userId, msg.body.voiceConf, msg.body.callSession, msg.body.clientSession, msg.body.callState)
+      UserVoiceConfStateDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.voiceConf, msg.body.callSession, msg.body.clientSession, msg.body.callState)
     }
   }
 }

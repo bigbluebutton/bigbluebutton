@@ -1,6 +1,4 @@
-import Auth from '/imports/ui/services/auth';
 
-import { getStreamer } from '/imports/api/external-videos';
 import ReactPlayer from 'react-player';
 
 import Panopto from './custom-players/panopto';
@@ -17,16 +15,6 @@ const isUrlValid = (url) => {
   return /^https.*$/.test(url) && (ReactPlayer.canPlay(url) || Panopto.canPlay(url));
 };
 
-const onMessage = (message, func) => {
-  const streamer = getStreamer(Auth.meetingID);
-  streamer.on(message, func);
-};
-
-const removeAllListeners = (eventType) => {
-  const streamer = getStreamer(Auth.meetingID);
-  streamer.removeAllListeners(eventType);
-};
-
 // Convert state (Number) to playing (Boolean)
 const getPlayingState = (state) => {
   if (state === 1) return true;
@@ -35,8 +23,6 @@ const getPlayingState = (state) => {
 };
 
 export {
-  onMessage,
-  removeAllListeners,
   isUrlValid,
   getPlayingState,
 };

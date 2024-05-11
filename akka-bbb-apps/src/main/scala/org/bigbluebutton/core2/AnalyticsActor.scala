@@ -79,7 +79,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ChangeUserPinStateReqMsg                       => logMessage(msg)
       case m: ChangeUserMobileFlagReqMsg                     => logMessage(msg)
       case m: UserConnectionAliveReqMsg                      => logMessage(msg)
-      case m: UserConnectionUpdateRttReqMsg                  => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStartedEvtMsg          => logMessage(msg)
@@ -207,7 +206,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: PadUpdatedEvtMsg => logMessage(msg)
       case m: PadUpdatePubMsg => logMessage(msg)
       case m: PadUpdateCmdMsg => logMessage(msg)
-      case m: PadCapturePubMsg => logMessage(msg)
 
       case _ => // ignore message
     }

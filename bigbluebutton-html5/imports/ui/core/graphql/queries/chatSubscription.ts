@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const CHATS_SUBSCRIPTION = gql`
-  subscription {
+  subscription ChatSubscription {
     chat(
       order_by: [
         { public: desc }

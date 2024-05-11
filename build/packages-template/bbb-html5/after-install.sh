@@ -77,5 +77,11 @@ chown root:root /usr/lib/systemd/system/disable-transparent-huge-pages.service
 # Ensure settings is readable
 chmod go+r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
+# Clear nginx cache for meteor-assets
+if [ -d /tmp/meteor-assets-nginx-cache/ ] && [ "$(ls -A /tmp/meteor-assets-nginx-cache/)" ] ; then
+  echo "Clearing Nginx cache to refresh Meteor assets"
+  rm -rf /tmp/meteor-assets-nginx-cache/*
+fi
+
 startService bbb-html5 || echo "bbb-html5 service could not be registered or started"
 

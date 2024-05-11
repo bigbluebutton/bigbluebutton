@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.models.{ Users2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
@@ -29,10 +30,10 @@ trait UserConnectedToGlobalAudioMsgHdlr {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
-
       val vu = VoiceUserState(
         intId = user.intId,
         voiceUserId = user.intId,
+        meetingId = props.meetingProp.intId,
         callingWith = "flash",
         callerName = user.name,
         callerNum = user.name,

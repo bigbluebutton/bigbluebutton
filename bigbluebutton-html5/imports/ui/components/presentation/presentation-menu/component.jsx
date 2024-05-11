@@ -90,14 +90,7 @@ const propTypes = {
   isRTL: PropTypes.bool,
   tldrawAPI: PropTypes.shape({
     getSvg: PropTypes.func.isRequired,
-    currentPageShapes: PropTypes.arrayOf(PropTypes.shape({
-      x: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
-      props: PropTypes.shape({
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-      }).isRequired,
-    })).isRequired,
+    getCurrentPageShapes: PropTypes.func.isRequired,
   }),
   presentationDropdownItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
@@ -316,8 +309,8 @@ const PresentationMenu = (props) => {
 
             try {
               // filter shapes that are inside the slide
-              const backgroundShape = tldrawAPI.currentPageShapes.find((s) => s.id === `shape:BG-${slideNum}`);
-              const shapes = tldrawAPI.currentPageShapes.filter(
+              const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
+              const shapes = tldrawAPI.getCurrentPageShapes().filter(
                 (shape) => shape.x <= backgroundShape.props.w
                   && shape.y <= backgroundShape.props.h
                   && shape.x >= 0

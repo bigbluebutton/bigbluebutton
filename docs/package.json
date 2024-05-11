@@ -10,10 +10,10 @@
     "serve": "npx docusaurus serve"
   },
   "dependencies": {
-    "@cmfcmf/docusaurus-search-local": "^1.1.0",
-    "@docusaurus/core": "3.0.1",
-    "@docusaurus/plugin-client-redirects": "^3.0.1",
-    "@docusaurus/preset-classic": "3.0.1",
+    "@docusaurus/core": "^3.3.2",
+    "@docusaurus/plugin-client-redirects": "^3.3.2",
+    "@docusaurus/preset-classic": "^3.3.2",
+    "@easyops-cn/docusaurus-search-local": "^0.40.1",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
     "prism-react-renderer": "^2.3.0",
@@ -21,8 +21,8 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.0.1",
-    "@docusaurus/types": "3.0.1"
+    "@docusaurus/module-type-aliases": "^3.3.2",
+    "@docusaurus/types": "^3.3.2"
   },
   "browserslist": {
     "production": [
@@ -40,8 +40,5 @@
     "node": ">=18.0"
   },
   "overrides": {
-    "@cmfcmf/docusaurus-search-local": {
-      "@docusaurus/core": "^3.0.0-rc.0"
-    }
   }
 }

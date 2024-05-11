@@ -10,25 +10,26 @@ import LoadingScreenHOC from '/imports/ui/components/common/loading-screen/loadi
 import IntlLoaderContainer from '/imports/startup/client/intlLoader';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import StartupDataFetch from '/imports/ui/components/connection-manager/startup-data-fetch/component';
-import UserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/userGrapQlMiniMongoAdapter/component';
-import VoiceUserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/voiceUserGraphQlMiniMongoAdapter/component';
-import MeetingGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/meetingGrapQlMiniMongoAdapter/component';
+
+import GraphqlToMiniMongoAdapterManager from '/imports/ui/components/components-data/graphqlToMiniMongoAdapterManager/component';
+
+const STARTUP_CRASH_METADATA = { logCode: 'app_startup_crash', logMessage: 'Possible startup crash' };
+const APP_CRASH_METADATA = { logCode: 'app_crash', logMessage: 'Possible app crash' };
 
 const Main: React.FC = () => {
   // Meteor.disconnect();
   return (
     <StartupDataFetch>
-      <ErrorBoundary Fallback={ErrorScreen}>
+      <ErrorBoundary Fallback={ErrorScreen} logMetadata={STARTUP_CRASH_METADATA}>
         <LoadingScreenHOC>
           <IntlLoaderContainer>
             {/* from there the error messages are located */}
-            <LocatedErrorBoundary Fallback={ErrorScreen}>
+            <LocatedErrorBoundary Fallback={ErrorScreen} logMetadata={APP_CRASH_METADATA}>
               <ConnectionManager>
                 <PresenceManager>
-                  <SettingsLoader />
-                  <UserGrapQlMiniMongoAdapter />
-                  <VoiceUserGrapQlMiniMongoAdapter />
-                  <MeetingGrapQlMiniMongoAdapter />
+                  <GraphqlToMiniMongoAdapterManager>
+                    <SettingsLoader />
+                  </GraphqlToMiniMongoAdapterManager>
                 </PresenceManager>
               </ConnectionManager>
             </LocatedErrorBoundary>

@@ -7,7 +7,6 @@ import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import UserListService from '/imports/ui/components/user-list/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
@@ -227,14 +226,6 @@ class VideoService {
     ).fetch().map(vs => vs.deviceId);
 
     return devices;
-  }
-
-  sendUserShareWebcam(cameraId) {
-    makeCall('userShareWebcam', cameraId);
-  }
-
-  sendUserUnshareWebcam(cameraId) {
-    makeCall('userUnshareWebcam', cameraId);
   }
 
   getAuthenticatedURL() {
@@ -517,50 +508,33 @@ class VideoService {
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
-    if (!isPaginationDisabled) {
-      return this.getVideoPage(streams, pageSize);
-    }
-
     const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) {
       streams.push(connectingStream);
+    }
+
+    if (!isPaginationDisabled) {
+      return this.getVideoPage(streams, pageSize);
     }
 
     return streams;
   }
 
   getGridUsers(users, streams) {
-    const pageSize = this.getMyPageSize();
-    const isPaginationDisabled = !this.isPaginationEnabled() || pageSize === 0;
-
     const isGridEnabled = this.isGridEnabled();
+    const gridSize = this.getGridSize();
+
     let gridUsers = [];
 
-    if (isPaginationDisabled) {
-      if (isGridEnabled) {
-        const streamUsers = streams.map((stream) => stream.userId);
-
-        gridUsers = users.filter(
-          (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
-        ).map((user) => ({
-          isGridItem: true,
-          ...user,
-        }));
-      }
-
-      return gridUsers;
-    }
-    const paginatedStreams = this.getVideoPage(streams, pageSize);
-
     if (isGridEnabled) {
-      const streamUsers = paginatedStreams.map((stream) => stream.userId);
+      const streamUsers = streams.map((stream) => stream.userId);
 
       gridUsers = users.filter(
         (user) => !user.loggedOut && !user.left && !streamUsers.includes(user.userId),
       ).map((user) => ({
         isGridItem: true,
         ...user,
-      }));
+      })).slice(0, gridSize - streams.length);
     }
     return gridUsers;
   }

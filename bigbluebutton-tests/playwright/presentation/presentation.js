@@ -72,8 +72,8 @@ class Presentation extends MultiUsers {
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
-    const modFrame = await this.getFrame(this.modPage, e.youtubeFrame);
-    const userFrame = await this.getFrame(this.userPage, e.youtubeFrame);
+    const modFrame = await this.modPage.getYoutubeFrame();
+    const userFrame = await this.userPage.getYoutubeFrame();
 
     await modFrame.hasElement('video');
     await userFrame.hasElement('video');
@@ -308,15 +308,6 @@ class Presentation extends MultiUsers {
     await this.userPage.waitAndClick(e.actions);
     await this.userPage.waitAndClick(e.managePresentations);
     await this.userPage.wasRemoved(e.presentationsList);
-  }
-
-  async getFrame(page, frameSelector) {
-    await page.waitForSelector(frameSelector);
-    const iframeElement = await page.getLocator('iframe').elementHandle();
-    const frame = await iframeElement.contentFrame();
-    await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    const ytFrame = new Page(page.browser, frame);
-    return ytFrame;
   }
 
   async presentationFullscreen() {

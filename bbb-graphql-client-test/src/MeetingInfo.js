@@ -9,7 +9,6 @@ export default function MeetingInfo() {
         disabledFeatures
         durationInSeconds
         extId
-        html5InstanceId
         isBreakout
         maxPinnedCameras
         meetingCameraCap

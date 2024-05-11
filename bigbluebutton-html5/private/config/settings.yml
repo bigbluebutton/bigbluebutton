@@ -63,7 +63,6 @@ public:
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
-    allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -88,7 +87,6 @@ public:
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
     # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
-    skipMeteorConnection: false
     audioCaptions:
       enabled: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
@@ -137,6 +135,7 @@ public:
       breakoutRoomLimit: 16
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
+    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -204,6 +203,8 @@ public:
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
+        # set a custom color for talking highlight in webcam
+        webcamBorderHighlightColor: []
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -287,6 +288,9 @@ public:
     # string will be returned.
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
+    # Maximum number of bytes allowed in each mutation message payload.
+    # Defaults to 10485760 (10MB)
+    maxMutationPayloadSize: 10485760
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
@@ -557,6 +561,129 @@ public:
       size: 24px
     lines: 2
     time: 5000
+    locales:
+      - locale: "af"
+        name: "Afrikaans"
+      - locale: "ar"
+        name: "العربية"
+      - locale: "az"
+        name: "Azərbaycan dili"
+      - locale: "bg-BG"
+        name: "Български"
+      - locale: "bn"
+        name: "বাংলা"
+      - locale: "ca"
+        name: "Català"
+      - locale: "cs-CZ"
+        name: "Čeština"
+      - locale: "da"
+        name: "Dansk"
+      - locale: "de"
+        name: "Deutsch"
+      - locale: "dv"
+        name: "ދިވެހި"
+      - locale: "el-GR"
+        name: "Ελληνικά"
+      - locale: "en"
+        name: "English"
+      - locale: "en-US"
+        name: "English"
+      - locale: "eo"
+        name: "Esperanto"
+      - locale: "es"
+        name: "Español"
+      - locale: "es-419"
+        name: "Español (Latinoamérica)"
+      - locale: "es-ES"
+        name: "Español (España)"
+      - locale: "es-MX"
+        name: "Español (México)"
+      - locale: "et"
+        name: "eesti keel"
+      - locale: "eu"
+        name: "Euskara"
+      - locale: "fa-IR"
+        name: "فارسی"
+      - locale: "fi"
+        name: "Suomi"
+      - locale: "fr"
+        name: "Français"
+      - locale: "gl"
+        name: "Galego"
+      - locale: "he"
+        name: "עברית‏"
+      - locale: "hi-IN"
+        name: "हिन्दी"
+      - locale: "hr"
+        name: "Hrvatski"
+      - locale: "hu-HU"
+        name: "Magyar"
+      - locale: "hy"
+        name: "Հայերեն"
+      - locale: "id"
+        name: "Bahasa Indonesia"
+      - locale: "it-IT"
+        name: "Italiano"
+      - locale: "ja"
+        name: "日本語"
+      - locale: "ka"
+        name: "ქართული"
+      - locale: "km"
+        name: "ភាសាខ្មែរ"
+      - locale: "kn"
+        name: "ಕನ್ನಡ"
+      - locale: "ko-KR"
+        name: "한국어 (韩国)"
+      - locale: "lo-LA"
+        name: "ລາວ"
+      - locale: "lt-LT"
+        name: "Lietuvių"
+      - locale: "lv"
+        name: "Latviešu"
+      - locale: "ml"
+        name: "മലയാളം"
+      - locale: "mn-MN"
+        name: "Монгол"
+      - locale: "nb-NO"
+        name: "Norsk (bokmål)"
+      - locale: "nl"
+        name: "Nederlands"
+      - locale: "oc"
+        name: "Occitan"
+      - locale: "pl-PL"
+        name: "Polski"
+      - locale: "pt"
+        name: "Português"
+      - locale: "pt-BR"
+        name: "Português (Brasil)"
+      - locale: "ro-RO"
+        name: "Română"
+      - locale: "ru"
+        name: "Русский"
+      - locale: "sk-SK"
+        name: "Slovenčina (Slovakia)"
+      - locale: "sl"
+        name: "Slovenščina"
+      - locale: "sr"
+        name: "Српски"
+      - locale: "sv-SE"
+        name: "Svenska"
+      - locale: "ta"
+        name: "தமிழ்"
+      - locale: "te"
+        name: "తెలుగు"
+      - locale: "th"
+        name: "ภาษาไทย"
+      - locale: "tr-TR"
+        name: "Türkçe"
+      - locale: "uk-UA"
+        name: "Українська"
+      - locale: "vi-VN"
+        name: "Tiếng Việt"
+      - locale: "zh-CN"
+        name: "中文（中国"
+      - locale: "zh-TW"
+        name: "中文（台灣"
   timer:
     enabled: true
     alarm: true
@@ -760,6 +887,15 @@ public:
     #  audio: high
     #  webcam: medium
     #  screenshare: medium
+    #
+    # audioTroubleshootingLinks: links to help users troubleshoot audio issues
+    # If no link is provided, the audio troubleshooting button will not be shown.
+    # Index is the error code:
+    #   - 7: permission denied error code
+    #   - 0: unknown error
+    #audioTroubleshootingLinks:
+    #  7: 'https://link.bigbluebutton.org/perm'
+    #  0: 'https://link.bigbluebutton.org/unk'
   stats:
     enabled: true
     interval: 10000
@@ -987,29 +1123,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  redis:
-    host: 127.0.0.1
-    port: '6379'
-    timeout: 5000
-    password: null
-    debug: false
-    metrics:
-      queueMetrics: false
-      metricsDumpIntervalMs: 60000
-      metricsFolderPath: METRICS_FOLDER
-      removeMeetingOnEnd: true
-    channels:
-      toAkkaApps: to-akka-apps-redis-channel
-      toThirdParty: to-third-party-redis-channel
-    subscribeTo:
-      - to-html5-redis-channel
-      - from-akka-apps-[^f]*
-      - from-third-party-redis-channel
-    async:
-      - from-akka-apps-wb-redis-channel
-    ignored:
-      - CheckAlivePongSysMsg
-      - DoLatencyTracerMsg
   serverLog:
     level: info
     streamerLog: false
@@ -1050,5 +1163,3 @@ private:
     path: '/metrics'
     # Whether default metrics for Node.js processes should be exported
     collectDefaultMetrics: false
-    # Whether redis metrics should be exported
-    collectRedisMetrics: false

@@ -109,8 +109,8 @@ class ServerLoggerStream extends ServerStream {
     if (fullInfo.meetingId != null) {
       this.rec.userInfo = fullInfo;
     }
-    this.rec.clientBuild = window.meetingClientSettings.public.app.html5ClientBuild;
-    this.rec.connectionId = Meteor.connection._lastSessionId;
+    this.rec.clientBuild = window.meetingClientSettings?.public?.app?.html5ClientBuild;
+    this.rec.connectionId = Meteor?.connection?._lastSessionId;
     if (this.logTagString) {
       this.rec.logTag = this.logTagString;
     }
