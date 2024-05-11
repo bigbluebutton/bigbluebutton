@@ -61,7 +61,6 @@ const config = {
     ],
 
     plugins: [
-        require.resolve("@cmfcmf/docusaurus-search-local"),
         [
             "@docusaurus/plugin-client-redirects",
             {
