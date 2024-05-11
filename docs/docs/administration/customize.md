@@ -908,7 +908,7 @@ Alternatively, you can change the global default by adding an overwriting rule i
 beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/default.pdf
 ```
 
-Please use the file name "default.pdf" if you would not like BigBlueButton to generate thumbnails from this file. The thumbnails will be used in some frontend apps, such as Greenlight v2.
+Please use the file name "default.pdf" if you would not like BigBlueButton to generate thumbnails from this file. The thumbnails will be used in some frontend apps, such as Greenlight.
 
 You'll need to restart BigBlueButton after the change with `sudo bbb-conf --restart`. 
 
