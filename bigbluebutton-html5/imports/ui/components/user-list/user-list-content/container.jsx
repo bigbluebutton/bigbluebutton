@@ -1,11 +1,9 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Auth from '/imports/ui/services/auth';
 import UserContent from './component';
-import GuestUsers from '/imports/api/guest-users';
-import TimerService from '/imports/ui/components/timer/service';
 import WaitingUsersService from '/imports/ui/components/waiting-users/service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const UserContentContainer = (props) => {
   const { data: currentUser } = useCurrentUser((user) => ({
@@ -13,6 +11,13 @@ const UserContentContainer = (props) => {
     presenter: user.presenter,
     locked: user.locked,
     role: user.role,
+    isModerator: user.isModerator,
+  }));
+
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
   }));
   const { isGuestLobbyMessageEnabled } = WaitingUsersService;
 
@@ -21,6 +26,7 @@ const UserContentContainer = (props) => {
       {...{
         isGuestLobbyMessageEnabled,
         currentUser,
+        isTimerActive: currentMeeting?.componentsFlags?.hasTimer && currentUser.isModerator,
         ...props,
       }}
     />
@@ -28,11 +34,5 @@ const UserContentContainer = (props) => {
 };
 
 export default withTracker(() => ({
-  isTimerActive: TimerService.isActive(),
-  pendingUsers: GuestUsers.find({
-    meetingId: Auth.meetingID,
-    approved: false,
-    denied: false,
-  }).fetch(),
   isWaitingRoomEnabled: WaitingUsersService.isWaitingRoomEnabled(),
 }))(UserContentContainer);

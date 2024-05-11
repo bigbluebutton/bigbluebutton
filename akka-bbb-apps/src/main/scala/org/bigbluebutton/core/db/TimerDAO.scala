@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.db
 
+import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse}
 import org.bigbluebutton.core.apps.TimerModel
 import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getEndedAt, getIsActive, getRunning, getStartedAt, getStopwatch, getTime, getTrack}
 import slick.jdbc.PostgresProfile.api._
@@ -14,8 +15,8 @@ case class TimerDbModel(
     active:           Boolean,
     time:             Long,
     accumulated:      Long,
-    startedAt:        Long,
-    endedAt:          Long,
+    startedOn:        Long,
+    endedOn:          Long,
     songTrack:        String,
 )
 
@@ -26,39 +27,45 @@ class TimerDbTableDef(tag: Tag) extends Table[TimerDbModel](tag, None, "timer") 
   val active = column[Boolean]("active")
   val time = column[Long]("time")
   val accumulated = column[Long]("accumulated")
-  val startedAt = column[Long]("startedAt")
-  val endedAt = column[Long]("endedAt")
+  val startedOn = column[Long]("startedOn")
+  val endedOn = column[Long]("endedOn")
   val songTrack = column[String]("songTrack")
-  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedAt, endedAt, songTrack) <> (TimerDbModel.tupled, TimerDbModel.unapply)
+  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedOn, endedOn, songTrack) <> (TimerDbModel.tupled, TimerDbModel.unapply)
 }
 
 object TimerDAO {
-  def insert(meetingId: String) = {
-    DatabaseConnection.db.run(
-      TableQuery[TimerDbTableDef].insertOrUpdate(
-        TimerDbModel(
-          meetingId = meetingId,
-          stopwatch = true,
-          running = false,
-          active = false,
-          time = 300000,
-          accumulated = 0,
-          startedAt = 0,
-          endedAt = 0,
-          songTrack = "noTrack",
+  def insert(meetingId: String, clientSettings: Map[String, Object]) = {
+    val timerEnabled = getConfigPropertyValueByPathAsBooleanOrElse(clientSettings, "public.timer.enabled", alternativeValue = true)
+    if(timerEnabled) {
+      val timerDefaultTimeInMinutes = getConfigPropertyValueByPathAsIntOrElse(clientSettings, "public.timer.time", 5)
+      val timerDefaultTimeInMilli = timerDefaultTimeInMinutes * 60000
+      
+      DatabaseConnection.db.run(
+        TableQuery[TimerDbTableDef].insertOrUpdate(
+          TimerDbModel(
+            meetingId = meetingId,
+            stopwatch = true,
+            running = false,
+            active = false,
+            time = timerDefaultTimeInMilli,
+            accumulated = 0,
+            startedOn = 0,
+            endedOn = 0,
+            songTrack = "noTrack",
+          )
         )
-      )
-    ).onComplete {
+      ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Timer table!")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting Timer: $e")
       }
+    }
   }
 
   def update(meetingId: String, timerModel: TimerModel) = {
     DatabaseConnection.db.run(
       TableQuery[TimerDbTableDef]
         .filter(_.meetingId === meetingId)
-        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.endedAt, t.songTrack))
+        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedOn, t.endedOn, t.songTrack))
         .update((getStopwatch(timerModel), getRunning(timerModel), getIsActive(timerModel), getTime(timerModel), getAccumulated(timerModel), getStartedAt(timerModel), getEndedAt(timerModel), getTrack(timerModel))
         )
     ).onComplete {

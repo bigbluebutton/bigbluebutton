@@ -15,10 +15,10 @@ object Webcams {
 
   def findAll(webcams: Webcams): Vector[WebcamStream] = webcams.toVector
 
-  def addWebcamStream(webcams: Webcams, webcam: WebcamStream): Option[WebcamStream] = {
+  def addWebcamStream(meetingId: String, webcams: Webcams, webcam: WebcamStream): Option[WebcamStream] = {
     findWithStreamId(webcams, webcam.streamId) match {
       case None => {
-        UserCameraDAO.insert(webcam)
+        UserCameraDAO.insert(meetingId, webcam)
         Some(webcams.save(webcam))
       }
       case _ => None

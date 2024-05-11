@@ -14,8 +14,9 @@ import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-s
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
-const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
+const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import WebcamContainerGraphql from './webcam-graphql/component';
 
 const WebcamContainer = ({
   audioModalIsOpen,
@@ -77,7 +78,7 @@ const WebcamContainer = ({
     : null;
 };
 
-export default withTracker(() => {
+withTracker(() => {
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
     isMeteorConnected: Meteor.status().connected,
@@ -94,3 +95,5 @@ export default withTracker(() => {
 
   return data;
 })(WebcamContainer);
+
+export default WebcamContainerGraphql;

@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
-import org.bigbluebutton.core.db.{ UserDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ NotificationDAO, UserDAO, UserStateDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running._
@@ -51,14 +51,14 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)
     clearExpiredUserState(regUser)
-    invalidateUserGraphqlConnection(regUser)
+    ForceUserGraphqlReconnection(regUser)
 
     newState
   }
 
   private def handleFailedUserJoin(msg: UserJoinMeetingReqMsg, failReason: String, failReasonCode: String) = {
     log.info("Ignoring user {} attempt to join in meeting {}. Reason Code: {}, Reason Message: {}", msg.body.userId, msg.header.meetingId, failReasonCode, failReason)
-    UserDAO.updateJoinError(msg.body.userId, failReasonCode, failReason)
+    UserDAO.updateJoinError(msg.header.meetingId, msg.body.userId, failReasonCode, failReason)
     state
   }
 
@@ -71,7 +71,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
   private def resetUserLeftFlag(msg: UserJoinMeetingReqMsg) = {
     log.info("Resetting flag that user left meeting. user {}", msg.body.userId)
-    sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, false)
+    sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, leftFlag = false)
     Users2x.resetUserLeftFlag(liveMeeting.users2x, msg.body.userId)
   }
 
@@ -137,6 +137,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
       Vector(newUser.name)
     )
     outGW.send(notifyUserEvent)
+    NotificationDAO.insert(notifyUserEvent)
   }
 
   private def clearCachedVoiceUser(regUser: RegisteredUser) =
@@ -144,9 +145,9 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, regUser.id)
 
   private def clearExpiredUserState(regUser: RegisteredUser) =
-    UserStateDAO.updateExpired(regUser.id, false)
+    UserStateDAO.updateExpired(regUser.meetingId, regUser.id, false)
 
-  private def invalidateUserGraphqlConnection(regUser: RegisteredUser) =
-    Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "user_joined", outGW)
+  private def ForceUserGraphqlReconnection(regUser: RegisteredUser) =
+    Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "user_joined", outGW)
 
 }

@@ -14,6 +14,7 @@ import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.db.{ DatabaseConnection, MeetingDAO }
+import org.bigbluebutton.core.domain.MeetingEndReason
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
@@ -57,6 +58,9 @@ class BigBlueButtonActor(
   override def preStart() {
     bbbMsgBus.subscribe(self, meetingManagerChannel)
     DatabaseConnection.initialize()
+
+    //Terminate all previous meetings, as they will not function following the akka-apps restart
+    MeetingDAO.setAllMeetingsEnded(MeetingEndReason.ENDED_DUE_TO_SERVICE_INTERRUPTION, "system")
   }
 
   override def postStop() {
@@ -75,15 +79,16 @@ class BigBlueButtonActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
 
-      case m: CreateMeetingReqMsg                   => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg                    => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg                  => handleGetAllMeetingsReqMsg(m)
-      case m: GetRunningMeetingsReqMsg              => handleGetRunningMeetingsReqMsg(m)
-      case m: CheckAlivePingSysMsg                  => handleCheckAlivePingSysMsg(m)
-      case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
-      case _: UserGraphqlConnectionStablishedSysMsg => //Ignore
-      case _: UserGraphqlConnectionClosedSysMsg     => //Ignore
-      case _                                        => log.warning("Cannot handle " + msg.envelope.name)
+      case m: CreateMeetingReqMsg                    => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg                     => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg                   => handleGetAllMeetingsReqMsg(m)
+      case m: GetRunningMeetingsReqMsg               => handleGetRunningMeetingsReqMsg(m)
+      case m: CheckAlivePingSysMsg                   => handleCheckAlivePingSysMsg(m)
+      case m: ValidateConnAuthTokenSysMsg            => handleValidateConnAuthTokenSysMsg(m)
+      case _: UserGraphqlConnectionEstablishedSysMsg => //Ignore
+      case _: UserGraphqlConnectionClosedSysMsg      => //Ignore
+      case _: CheckGraphqlMiddlewareAlivePongSysMsg  => //Ignore
+      case _                                         => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -149,7 +154,7 @@ class BigBlueButtonActor(
   }
 
   private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    RunningMeetings.meetings(meetings).filter(_.props.systemProps.html5InstanceId == msg.body.html5InstanceId).foreach(m => {
+    RunningMeetings.meetings(meetings).foreach(m => {
       m.actorRef ! msg
     })
   }
@@ -189,9 +194,10 @@ class BigBlueButtonActor(
         context.stop(m.actorRef)
       }
 
-      MeetingDAO.delete(msg.meetingId)
+      //      MeetingDAO.delete(msg.meetingId)
+      //      MeetingDAO.setMeetingEnded(msg.meetingId)
       //      Removing the meeting is enough, all other tables has "ON DELETE CASCADE"
-      //      UserDAO.deleteAllFromMeeting(msg.meetingId)
+      //      UserDAO.softDeleteAllFromMeeting(msg.meetingId)
       //      MeetingRecordingDAO.updateStopped(msg.meetingId, "")
 
       //Remove ColorPicker idx of the meeting

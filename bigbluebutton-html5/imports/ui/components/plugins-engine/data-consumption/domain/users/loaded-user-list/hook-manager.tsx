@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
-import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
+import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import formatLoadedUserListDataFromGraphql from './utils';
-import useLoadedUserList from '/imports/ui/core/hooks/useLoadedUserList';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { useLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
 
 const LoadedUserListHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);
-  const usersData: GraphqlDataHookSubscriptionResponse<Partial<User>[]> = useLoadedUserList((user: Partial<User>) => ({
+  const [usersData] = useLocalUserList((user: Partial<User>) => ({
     userId: user.userId,
     name: user.name,
     role: user.role,
@@ -23,7 +23,7 @@ const LoadedUserListHookContainer = () => {
     >(HookEvents.UPDATED, {
       detail: {
         data: formatLoadedUserListDataFromGraphql(usersData),
-        hook: Hooks.LOADED_USER_LIST,
+        hook: DataConsumptionHooks.LOADED_USER_LIST,
       },
     }));
   };
@@ -33,9 +33,9 @@ const LoadedUserListHookContainer = () => {
   }, [usersData, sendSignal]);
 
   useEffect(() => {
-    const updateHookUseLoadedUserList = () => {
-      setSendSignal(!sendSignal);
-    };
+    const updateHookUseLoadedUserList = ((event: CustomEvent<SubscribedEventDetails>) => {
+      if (event.detail.hook === DataConsumptionHooks.LOADED_USER_LIST) setSendSignal((signal) => !signal);
+    }) as EventListener;
     window.addEventListener(
       HookEvents.SUBSCRIBED, updateHookUseLoadedUserList,
     );

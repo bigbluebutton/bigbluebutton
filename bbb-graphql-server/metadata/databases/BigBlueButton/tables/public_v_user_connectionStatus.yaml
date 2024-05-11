@@ -22,10 +22,9 @@ select_permissions:
       columns:
         - connectionAliveAt
         - meetingId
-        - rttInMs
+        - networkRttInMs
         - status
         - statusUpdatedAt
-        - userClientResponseAt
         - userId
       filter:
         _and:
@@ -33,19 +32,3 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
-update_permissions:
-  - role: bbb_client
-    permission:
-      columns:
-        - connectionAliveAt
-        - userClientResponseAt
-      filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
-      check: null
-      set:
-        meetingId: x-hasura-MeetingId
-        userId: x-hasura-UserId

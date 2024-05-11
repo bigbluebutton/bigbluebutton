@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
 case class UserReactionDbModel(
+    meetingId:         String,
     userId:            String,
     reactionEmoji:     String,
     durationInSeconds: Int,
@@ -14,22 +15,24 @@ case class UserReactionDbModel(
 )
 
 class UserReactionDbTableDef(tag: Tag) extends Table[UserReactionDbModel](tag, "user_reaction") {
+  val meetingId = column[String]("meetingId")
   val userId = column[String]("userId")
   val reactionEmoji = column[String]("reactionEmoji")
   val durationInSeconds = column[Int]("durationInSeconds")
   val createdAt = column[java.sql.Timestamp]("createdAt")
 
-  override def * : ProvenShape[UserReactionDbModel] = (userId, reactionEmoji, durationInSeconds, createdAt) <> (UserReactionDbModel.tupled, UserReactionDbModel.unapply)
+  override def * : ProvenShape[UserReactionDbModel] = (meetingId, userId, reactionEmoji, durationInSeconds, createdAt) <> (UserReactionDbModel.tupled, UserReactionDbModel.unapply)
 }
 
 object UserReactionDAO {
-  def insert(userId: String, reactionEmoji: String) = {
+  def insert(meetingId: String, userId: String, reactionEmoji: String, durationInSeconds: Int) = {
     DatabaseConnection.db.run(
       TableQuery[UserReactionDbTableDef].forceInsert(
         UserReactionDbModel(
+          meetingId = meetingId,
           userId = userId,
           reactionEmoji = reactionEmoji,
-          durationInSeconds = 60,
+          durationInSeconds = durationInSeconds,
           createdAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )

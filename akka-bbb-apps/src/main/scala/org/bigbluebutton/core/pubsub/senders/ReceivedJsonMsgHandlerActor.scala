@@ -3,9 +3,10 @@ package org.bigbluebutton.core.pubsub.senders
 import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.common2.msgs.{ PluginDataChannelDeleteEntryMsgBody, _ }
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
+
 import scala.reflect.runtime.universe._
 import org.bigbluebutton.common2.bus.ReceivedJsonMessage
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
@@ -111,10 +112,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserPinStateReqMsg](envelope, jsonNode)
       case ChangeUserMobileFlagReqMsg.NAME =>
         routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
+      case UserConnectionAliveReqMsg.NAME =>
+        routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
-      case SelectRandomViewerReqMsg.NAME =>
-        routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
+      case SetUserSpeechOptionsReqMsg.NAME =>
+        routeGenericMsg[SetUserSpeechOptionsReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -177,8 +180,6 @@ class ReceivedJsonMsgHandlerActor(
         routePadMsg[PadPatchSysMsg](envelope, jsonNode)
       case PadUpdatePubMsg.NAME =>
         routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
-      case PadCapturePubMsg.NAME =>
-        routePadMsg[PadCapturePubMsg](envelope, jsonNode)
       case PadPinnedReqMsg.NAME =>
         routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
@@ -404,6 +405,8 @@ class ReceivedJsonMsgHandlerActor(
       // AudioCaptions
       case UpdateTranscriptPubMsg.NAME =>
         routeGenericMsg[UpdateTranscriptPubMsg](envelope, jsonNode)
+      case TranscriptionProviderErrorMsg.NAME =>
+        routeGenericMsg[TranscriptionProviderErrorMsg](envelope, jsonNode)
 
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>
@@ -416,8 +419,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
       //Plugin
-      case DispatchPluginDataChannelMessageMsg.NAME =>
-        routeGenericMsg[DispatchPluginDataChannelMessageMsg](envelope, jsonNode)
+      case PluginDataChannelPushEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelPushEntryMsg](envelope, jsonNode)
+
+      case PluginDataChannelDeleteEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelDeleteEntryMsg](envelope, jsonNode)
+
+      case PluginDataChannelResetMsg.NAME =>
+        routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
 
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>
@@ -450,14 +459,17 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
 
       // Messages from Graphql Middleware
-      case UserGraphqlConnectionStablishedSysMsg.NAME =>
-        route[UserGraphqlConnectionStablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
+      case UserGraphqlConnectionEstablishedSysMsg.NAME =>
+        route[UserGraphqlConnectionEstablishedSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case UserGraphqlConnectionClosedSysMsg.NAME =>
         route[UserGraphqlConnectionClosedSysMsg](meetingManagerChannel, envelope, jsonNode)
 
+      case CheckGraphqlMiddlewareAlivePongSysMsg.NAME =>
+        route[CheckGraphqlMiddlewareAlivePongSysMsg](meetingManagerChannel, envelope, jsonNode)
+
       case _ =>
-        log.error("Cannot route envelope name " + envelope.name)
+        log.debug("Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }

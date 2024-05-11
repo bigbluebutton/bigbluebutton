@@ -7,6 +7,9 @@ const MEETING_SUBSCRIPTION = gql`
         disabledFeatures
         durationInSeconds
         extId
+        endWhenNoModerator
+        endWhenNoModeratorDelayInMinutes
+        loginUrl
         lockSettings {
           disableCam
           disableMic
@@ -18,6 +21,12 @@ const MEETING_SUBSCRIPTION = gql`
           hideViewersCursor
           hideViewersAnnotation
           webcamsOnlyForModerator
+          lockOnJoin
+          lockOnJoinConfigurable
+        }
+        metadata {
+          name
+          value
         }
         maxPinnedCameras
         meetingCameraCap
@@ -32,14 +41,24 @@ const MEETING_SUBSCRIPTION = gql`
           record
           keepEvents
         }
+        groups {
+          groupId
+          name
+        }
+        learningDashboard {
+          learningDashboardAccessToken
+        }
         screenshare {
+          contentType
           hasAudio
+          screenshareConf
           screenshareId
+          startedAt
+          stoppedAt
           stream
           vidHeight
           vidWidth
           voiceConf
-          screenshareConf
         }
         usersPolicies {
           allowModsToEjectCameras
@@ -55,6 +74,16 @@ const MEETING_SUBSCRIPTION = gql`
           webcamsOnlyForModerator
           guestLobbyMessage
         }
+        layout {
+          cameraDockAspectRatio
+          cameraDockIsResizing
+          cameraDockPlacement
+          cameraWithFocus
+          currentLayoutType
+          presentationMinimized
+          propagateLayout
+          updatedAt
+        }
         isBreakout
         breakoutPolicies {
           breakoutRooms
@@ -68,7 +97,6 @@ const MEETING_SUBSCRIPTION = gql`
           record
           sequence
         }
-        html5InstanceId
         voiceSettings {
           dialNumber
           muteOnStart
@@ -84,6 +112,15 @@ const MEETING_SUBSCRIPTION = gql`
           startedSharingAt
           stoppedSharingAt
           updatedAt
+        }
+        componentsFlags {
+          hasCaption
+          hasBreakoutRoom
+          hasExternalVideo
+          hasPoll
+          hasScreenshare
+          hasTimer
+          showRemainingTime
         }
       }
   }

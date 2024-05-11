@@ -6,10 +6,12 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
 import { UserCameraDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-camera-dropdown-item/enums';
+import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
+import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -87,8 +89,10 @@ const UserActions = (props) => {
   }
 
   const intl = useIntl();
-  const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
+  const enableVideoMenu = window.meetingClientSettings.public.kurento.enableVideoMenu || false;
   const { isFirefox } = browserInfo;
+
+  const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
   const getAvailableActions = () => {
     const pinned = user?.pin;
@@ -166,7 +170,14 @@ const UserActions = (props) => {
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Desc`]),
-        onClick: () => VideoService.toggleVideoPin(userId, pinned),
+        onClick: () => {
+          setCameraPinned({
+            variables: {
+              userId,
+              pinned: !pinned,
+            },
+          });
+        },
         dataTest: 'pinWebcamBtn',
       });
     }

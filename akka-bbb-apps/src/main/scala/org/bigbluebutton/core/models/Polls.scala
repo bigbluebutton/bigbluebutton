@@ -104,7 +104,7 @@ object Polls {
       } yield {
         val pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
         val updatedShape = shape + ("whiteboardId" -> pageId)
-        val annotation = new AnnotationVO(poll.id, updatedShape, pageId, requesterId)
+        val annotation = new AnnotationVO(s"shape:poll-result-${poll.id}", updatedShape, pageId, requesterId)
         annotation
       }
     }
@@ -114,7 +114,7 @@ object Polls {
       shape = pollResultToWhiteboardShape(result)
       annot <- send(result, shape)
     } yield {
-      lm.wbModel.addAnnotations(annot.wbId, requesterId, Array[AnnotationVO](annot), false, false)
+      lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
       showPollResult(pollId, lm.polls)
       (result, annot)
     }
@@ -150,7 +150,7 @@ object Polls {
       simplePoll <- getSimplePollResult(pollId, lm.polls)
       pvo <- handleRespondToPoll(simplePoll, requesterId, pollId, questionId, answerIds, lm)
     } yield {
-      PollResponseDAO.insert(poll, requesterId, answerIds)
+      PollResponseDAO.insert(poll, lm.props.meetingProp.intId, requesterId, answerIds)
       (pollId, pvo)
     }
 
@@ -243,7 +243,6 @@ object Polls {
 
   private def handleRespondToTypedPoll(poll: SimplePollResultOutVO, requesterId: String, pollId: String, questionId: Int,
                                        answer: String, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
-
     addQuestionResponse(poll.id, questionId, answer, requesterId, lm.polls)
     for {
       updatedPoll <- getSimplePollResult(poll.id, lm.polls)
@@ -254,12 +253,13 @@ object Polls {
 
   private def pollResultToWhiteboardShape(result: SimplePollResultOutVO): scala.collection.immutable.Map[String, Object] = {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
-    shape += "numRespondents" -> new Integer(result.numRespondents)
-    shape += "numResponders" -> new Integer(result.numResponders)
+    shape += "numRespondents" -> Integer.valueOf(result.numRespondents)
+    shape += "numResponders" -> Integer.valueOf(result.numResponders)
     shape += "questionType" -> result.questionType
-    shape += "questionText" -> result.questionText
-    shape += "id" -> result.id
+    shape += "questionText" -> result.questionText.getOrElse("")
+    shape += "id" -> s"shape:poll-result-${result.id}"
     shape += "answers" -> result.answers
+    shape += "type" -> "geo"
     shape.toMap
   }
 
@@ -362,10 +362,10 @@ object Polls {
     pvo
   }
 
-  def checkUserResponded(pollId: String, userId: String, polls: Polls): Boolean = {
+  def hasUserAlreadyResponded(pollId: String, userId: String, polls: Polls): Boolean = {
     polls.polls.get(pollId) match {
       case Some(p) => {
-        if (p.getResponders().filter(p => p.userId == userId).length > 0) {
+        if (p.getResponders().exists(p => p.userId == userId)) {
           true
         } else {
           false
@@ -375,10 +375,10 @@ object Polls {
     }
   }
 
-  def checkUserAddedQuestion(pollId: String, userId: String, polls: Polls): Boolean = {
+  def hasUserAlreadyAddedTypedAnswer(pollId: String, userId: String, polls: Polls): Boolean = {
     polls.polls.get(pollId) match {
       case Some(p) => {
-        if (p.getTypedPollResponders().filter(responderId => responderId == userId).length > 0) {
+        if (p.getTypedPollResponders().contains(userId)) {
           true
         } else {
           false
@@ -398,6 +398,17 @@ object Polls {
         }
       }
       case None => false
+    }
+  }
+
+  def findAnswerWithText(pollId: String, questionId: Int, answerText: String, polls: Polls): Option[Int] = {
+    for {
+      poll <- Polls.getPoll(pollId, polls)
+      question <- poll.questions.find(q => q.id == questionId)
+      answers <- question.answers
+      equalAnswer <- answers.find(ans => ans.text.getOrElse("") == answerText)
+    } yield {
+      equalAnswer.id
     }
   }
 

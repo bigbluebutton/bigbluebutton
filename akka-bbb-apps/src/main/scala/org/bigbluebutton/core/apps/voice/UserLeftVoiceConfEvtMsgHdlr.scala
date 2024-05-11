@@ -40,14 +40,14 @@ trait UserLeftVoiceConfEvtMsgHdlr {
         UsersApp.guestWaitingLeft(liveMeeting, user.intId, outGW)
       }
       Users2x.remove(liveMeeting.users2x, user.intId)
-      UserDAO.delete(user.intId)
+      UserDAO.softDelete(user.meetingId, user.intId)
       VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
     }
 
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, msg.body.voiceUserId)
     } yield {
-      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.intId)
+      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, liveMeeting.props.meetingProp.intId, user.intId)
       broadcastEvent(user)
     }
 

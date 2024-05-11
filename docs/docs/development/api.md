@@ -104,11 +104,13 @@ Updated in 2.6:
 
 Updated in 2.7:
 
-- **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`.
+- **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
 - **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
 
 Updated in 3.0:
 
+- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`.
+- **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`).
 
 ## API Data Types
 
@@ -141,7 +143,7 @@ Here's a sample return
     Secret: ECCJZNJWLPEA3YB6Y2LTQGQD3GJZ3F93
 ```
 
-You should _not_ embed the shared secret within a web page and make BigBlueButton API calls within JavaScript running within a browser. The built-in debugging tools for modern browser would make this secret easily accessibile to any user. Once someone has the shared secret for your BigBlueButton server, they could create their own API calls. The shared secret should only be accessibile to the server-side components of your application (and thus not visible to end users).
+You should _not_ embed the shared secret within a web page and make BigBlueButton API calls within JavaScript running within a browser. The built-in debugging tools for modern browser would make this secret easily accessible to any user. Once someone has the shared secret for your BigBlueButton server, they could create their own API calls. The shared secret should only be accessible to the server-side components of your application (and thus not visible to end users).
 
 ### Configuration
 
@@ -169,7 +171,26 @@ $ sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+
 
 There are other configuration values in bbb-web's configuration `bigbluebutton.properties` (overwritten by `/etc/bigbluebutton/bbb-web.properties` ) related to the lifecycle of a meeting. You don't need to understand all of these to start using the BigBlueButton API. For most BigBlueButton servers, you can leave the [default values](https://github.com/bigbluebutton/bigbluebutton/blob/main/bigbluebutton-web/grails-app/conf/bigbluebutton.properties).
 
-In 2.5 support for additional hashing algorithms, besides sha1 and sha256, were added. These include sha384 and sha512. The `supportedChecksumAlgorithms` property in `bigbluebutton.properties` defines which algorithms are supported. By default checksums can be validated with any of the supported algorithms. To remove support for one or more of these algorithms simply delete it from the configuration file.
+In BigBlueButton 2.5 support for additional hashing algorithms, besides sha1 and sha256, were added. These include sha384 and sha512. The `supportedChecksumAlgorithms` property in bbb-web defines which algorithms are supported. By default checksums can be validated with any of the supported algorithms. To remove support for one or more of these algorithms simply delete it from the configuration file.
+If you drop support for sha256, (for example if you want to force only sha512 to be used) you will also need to update the `checkSumAlgorithmForBreakouts` property in akka-apps.
+
+In `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+supportedChecksumAlgorithms=sha512
+```
+
+In `/etc/bigbluebutton/bbb-apps-akka.conf`:
+
+```properties
+services {
+  checkSumAlgorithmForBreakouts = "sha512"
+  #...
+}
+```
+
+And make sure to restart BigBlueButton.
+
 
 ### Usage
 
@@ -310,7 +331,7 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
 ```
 
 #### POST request
-You can also include a payload in the request, it may be usefull in cases where some of the query parameters are big enough to exceed the maximum number of characters in URLs. BigBlueButton supports a POST request where the parameters that usually would be passed in the URL, can be sent through the body, see example below:
+You can also include a payload in the request, it may be useful in cases where some of the query parameters are big enough to exceed the maximum number of characters in URLs. BigBlueButton supports a POST request where the parameters that usually would be passed in the URL, can be sent through the body, see example below:
 
 ```bash
 curl --request POST \
@@ -381,7 +402,44 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 
 In the case more than a single document is provided, the first one will be loaded in the client, the processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
-For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79). For a complete example of the pre-upload slides check the following demos: [demo7](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo7.jsp) and [demo8](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo8.jsp)
+For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
+
+#### clientSettingsOverride
+
+You can modify the `settings.yml` configuration for the HTML5 client as part of the create call (in addition to modifying `/etc/bigbluebutton/bbb-html5.yml`).
+You can construct the HTTPS POST request as follows:
+
+```
+curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-Type: application/xml" --data '
+<modules>
+   <module name="clientSettingsOverride">
+         <![CDATA[
+         {
+            "public": {
+               "kurento": {
+                  "wsUrl": "wss://test.bigbluebutton.org//bbb-webrtc-sfu"
+               },
+               "media": {
+                  "sipjsHackViaWs": false
+               },
+               "app": {
+                    "appName": "Test",
+                    "helpLink": "https://www.bigbluebutton.org",
+                    "autoJoin": false,
+                    "askForConfirmationOnLeave": false,
+                    "userSettingsStorage": "localStorage",
+                    "defaultSettings": {
+                     "application": {
+                        "overrideLocale": "en"
+                     }
+                    }
+                }
+            }
+         }
+         ]]>
+   </module>
+</modules>'
+```
 
 #### Upload slides from external application to a live BigBlueButton session
 
@@ -633,53 +691,50 @@ Resource URL:
 
 ```xml
 <response>
-  <returncode>SUCCESS</returncode>
-  <meetingName>Demo Meeting</meetingName>
-  <meetingID>Demo Meeting</meetingID>
-  <internalMeetingID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1531240585189</internalMeetingID>
-  <createTime>1531240585189</createTime>
-  <createDate>Tue Jul 10 16:36:25 UTC 2018</createDate>
-  <`voiceBridge`>70066</`voiceBridge`>
-  <dialNumber>613-555-1234</dialNumber>
-  <attendeePW>ap</attendeePW>
-  <moderatorPW>mp</moderatorPW>
-  <running>true</running>
-  <duration>0</duration>
-  <hasUserJoined>true</hasUserJoined>
-  <recording>false</recording>
-  <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
-  <startTime>1531240585239</startTime>
-  <endTime>0</endTime>
-  <participantCount>2</participantCount>
-  <listenerCount>1</listenerCount>
-  <voiceParticipantCount>1</voiceParticipantCount>
-  <videoCount>1</videoCount>
-  <maxUsers>20</maxUsers>
-  <moderatorCount>1</moderatorCount>
-  <attendees>
-    <attendee>
-      <userID>w_2wzzszfaptsp</userID>
-      <fullName>stu</fullName>
-      <role>VIEWER</role>
-      <isPresenter>false</isPresenter>
-      <isListeningOnly>true</isListeningOnly>
-      <hasJoinedVoice>false</hasJoinedVoice>
-      <hasVideo>false</hasVideo>
-      <clientType>FLASH</clientType>
-    </attendee>
-    <attendee>
-      <userID>w_eo7lxnx3vwuj</userID>
-      <fullName>mod</fullName>
-      <role>MODERATOR</role>
-      <isPresenter>true</isPresenter>
-      <isListeningOnly>false</isListeningOnly>
-      <hasJoinedVoice>true</hasJoinedVoice>
-      <hasVideo>true</hasVideo>
-      <clientType>HTML5</clientType>
-    </attendee>
-  </attendees>
-  <metadata />
-  <isBreakout>false</isBreakout>
+	<returncode>SUCCESS</returncode>
+	<meetingName>Anton G's Room</meetingName>
+	<meetingID>gbesu6dht08uobpislzqxsizjzihn87cmewqyacs</meetingID>
+	<internalMeetingID>a0715c95000a2bcb90604ecc7097dbc94592c690-1715261728123</internalMeetingID>
+	<createTime>1715261728123</createTime>
+	<createDate>Thu May 09 13:35:28 UTC 2024</createDate>
+	<voiceBridge>66052</voiceBridge>
+	<dialNumber>613-555-1234</dialNumber>
+	<attendeePW>1umEM3ic</attendeePW>
+	<moderatorPW>V91JirCa</moderatorPW>
+	<running>true</running>
+	<duration>0</duration>
+	<hasUserJoined>true</hasUserJoined>
+	<recording>true</recording>
+	<hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+	<startTime>1715261728142</startTime>
+	<endTime>0</endTime>
+	<participantCount>1</participantCount>
+	<listenerCount>0</listenerCount>
+	<voiceParticipantCount>1</voiceParticipantCount>
+	<videoCount>1</videoCount>
+	<maxUsers>0</maxUsers>
+	<moderatorCount>1</moderatorCount>
+	<attendees>
+		<attendee>
+			<userID>w_ftcrsyuh44oj</userID>
+			<fullName>Anton G</fullName>
+			<role>MODERATOR</role>
+			<isPresenter>true</isPresenter>
+			<isListeningOnly>false</isListeningOnly>
+			<hasJoinedVoice>true</hasJoinedVoice>
+			<hasVideo>true</hasVideo>
+			<clientType>HTML5</clientType>
+			<customdata></customdata>
+		</attendee>
+	</attendees>
+	<metadata>
+		<bbb-origin-version>summit2024-6d8120x</bbb-origin-version>
+		<bbb-origin-server-name>test30.bigbluebutton.org</bbb-origin-server-name>
+		<bbb-recording-ready-url>https://test30.bigbluebutton.org/recording_ready</bbb-recording-ready-url>
+		<bbb-origin>greenlight</bbb-origin>
+		<endcallbackurl>https://test30.bigbluebutton.org/meeting_ended</endcallbackurl>
+	</metadata>
+	<isBreakout>false</isBreakout>
 </response>
 ```
 

@@ -5,6 +5,7 @@ import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, UserState, Users2
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.LockSettingsUtil
+import org.bigbluebutton.core.db.NotificationDAO
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
@@ -43,6 +44,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
             Vector()
           )
           outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
 
           Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
           val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
@@ -59,6 +61,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
             Vector()
           )
           outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
 
           val newUvo: UserState = Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
           val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
@@ -73,7 +76,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
         for {
           u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "role_changed", outGW)
+          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "role_changed", outGW)
         }
       }
     }

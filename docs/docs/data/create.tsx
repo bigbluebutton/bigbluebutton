@@ -50,6 +50,12 @@ const createEndpointTableData = [
     "description": (<>Set the maximum number of users allowed to joined the conference at the same time.</>)
   },
   {
+    "name": "loginURL",
+    "required": false,
+    "type": "String",
+    "description": (<>Enables third-party applications to provide a URL that users can access during a meeting to join the session directly.</>)
+  },
+  {
     "name": "logoutURL",
     "required": false,
     "type": "String",
@@ -59,7 +65,7 @@ const createEndpointTableData = [
     "name": "record",
     "required": false,
     "type": "Boolean",
-    "description": (<>Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false.<br /><br /> In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the sesssion; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the <code className="language-plaintext highlighter-rouge">autoStartRecording</code> and <code className="language-plaintext highlighter-rouge">allowStartStopRecording</code> parameters in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+    "description": (<>Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false.<br /><br /> In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the session; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the <code className="language-plaintext highlighter-rouge">autoStartRecording</code> and <code className="language-plaintext highlighter-rouge">allowStartStopRecording</code> parameters in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
   },
   {
     "name": "duration",
@@ -265,7 +271,7 @@ const createEndpointTableData = [
     "name": "meetingLayout",
     "type": "Enum",
     "default": "SMART_LAYOUT",
-    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4)</>)
+    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY</>)
   },
   {
     "name": "learningDashboardEnabled",
@@ -344,7 +350,7 @@ const createEndpointTableData = [
     "name": "disabledFeatures",
     "required": false,
     "type": "String",
-    "description": (<>List (comma-separated) of features to disable in a particular meeting. (added 2.5)<br /><br />Available options to disable:<br /><ul><li><code className="language-plaintext highlighter-rouge">breakoutRooms</code>- <b>Breakout Rooms</b> </li><li><code className="language-plaintext highlighter-rouge">captions</code>- <b>Closed Caption</b> </li><li><code className="language-plaintext highlighter-rouge">chat</code>- <b>Chat</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code>- <b>Annotated presentation download</b></li><li><code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code>- <b>Allow snapshot of the current slide</b></li><li><code className="language-plaintext highlighter-rouge">externalVideos</code>- <b>Share an external video</b> </li><li><code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code>- <b>Capture breakout presentation</b></li><li><code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code>- <b>Capture breakout shared notes</b></li><li><code className="language-plaintext highlighter-rouge">layouts</code>- <b>Layouts</b> (allow only default layout)</li><li><code className="language-plaintext highlighter-rouge">learningDashboard</code>- <b>Learning Analytics Dashboard</b></li><li><code className="language-plaintext highlighter-rouge">polls</code>- <b>Polls</b> </li><li><code className="language-plaintext highlighter-rouge">screenshare</code>- <b>Screen Sharing</b></li><li><code className="language-plaintext highlighter-rouge">sharedNotes</code>- <b>Shared Notes</b></li><li><code className="language-plaintext highlighter-rouge">virtualBackgrounds</code>- <b>Virtual Backgrounds</b></li><li><code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code>- <b>Virtual Backgrounds Upload</b></li><li><code className="language-plaintext highlighter-rouge">liveTranscription</code>- <b>Live Transcription</b></li><li><code className="language-plaintext highlighter-rouge">presentation</code>- <b>Presentation</b></li><li><code className="language-plaintext highlighter-rouge">cameraAsContent</code>-<b>Enables/Disables camera as a content</b></li><li><code className="language-plaintext highlighter-rouge">timer</code>- <b>disables timer</b></li></ul></>)
+    "description": (<>List (comma-separated) of features to disable in a particular meeting. (added 2.5)<br /><br />Available options to disable:<br /><ul><li><code className="language-plaintext highlighter-rouge">breakoutRooms</code>- <b>Breakout Rooms</b> </li><li><code className="language-plaintext highlighter-rouge">captions</code>- <b>Closed Caption</b> </li><li><code className="language-plaintext highlighter-rouge">chat</code>- <b>Chat</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code>- <b>Annotated presentation download</b></li><li><code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code>- <b>Allow snapshot of the current slide</b></li><li><code className="language-plaintext highlighter-rouge">externalVideos</code>- <b>Share an external video</b> </li><li><code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code>- <b>Capture breakout presentation</b></li><li><code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code>- <b>Capture breakout shared notes</b></li><li><code className="language-plaintext highlighter-rouge">layouts</code>- <b>Layouts</b> (allow only default layout)</li><li><code className="language-plaintext highlighter-rouge">learningDashboard</code>- <b>Learning Analytics Dashboard</b></li><li><code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code>- <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b></li><li><code className="language-plaintext highlighter-rouge">polls</code>- <b>Polls</b> </li><li><code className="language-plaintext highlighter-rouge">screenshare</code>- <b>Screen Sharing</b></li><li><code className="language-plaintext highlighter-rouge">sharedNotes</code>- <b>Shared Notes</b></li><li><code className="language-plaintext highlighter-rouge">virtualBackgrounds</code>- <b>Virtual Backgrounds</b></li><li><code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code>- <b>Virtual Backgrounds Upload</b></li><li><code className="language-plaintext highlighter-rouge">liveTranscription</code>- <b>Live Transcription</b></li><li><code className="language-plaintext highlighter-rouge">presentation</code>- <b>Presentation</b></li><li><code className="language-plaintext highlighter-rouge">cameraAsContent</code>-<b>Enables/Disables camera as a content</b></li><li><code className="language-plaintext highlighter-rouge">timer</code>- <b>disables timer</b></li></ul></>)
   },
   {
     "name": "disabledFeaturesExclude",
@@ -396,6 +402,19 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If passed it will use this string as the name of the presentation uploaded via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> (added 2.7.2)</>)
+  },
+  {
+    "name": "allowOverrideClientSettingsOnCreateCall",
+    "required": false,
+    "default": "false",
+    "type": "String",
+    "description": (<> (added in BBB 3.0.0-alpha.1)</>)
+  },
+  {
+    "name": "clientSettingsOverride",
+    "required": false,
+    "type": "String",
+    "description": (<> The included structure will override settings.yml needed for the HTML5 client. For an example for the HTTPS POST request check <a href='/development/api#clientsettingsoverride'>clientSettingsOverride section in API</a>(added in BBB 3.0.0-alpha.5)</>)
   }
 ]
 

@@ -1,3 +1,12 @@
+---
+id: install
+slug: /administration/install
+title: Install BigBlueButton
+sidebar_position: 1
+description: Install BigBlueButton
+keywords:
+- install
+---
 
 We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
 
@@ -148,11 +157,9 @@ At the moment, the requirement for docker may preclude running 3.0 within some v
 
 ## Install
 
-To install BigBlueButton, use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install/blob/v3.0.x-release/bbb-install.sh) script. Notice that this command is slightly different than what we recommended in previous versions of BigBlueButton. The script now resides on a branch specifying the version of BigBlueButton, but otherwise the name of the script is identical accross different branches. This makes it more maintainable as patches done to the script in one branch can be easily applied to other branches.
+To install BigBlueButton, use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install/blob/v3.0.x-release/bbb-install.sh) script. Notice that this command is slightly different than what we recommended in previous versions of BigBlueButton. The script now resides on a branch specifying the version of BigBlueButton, but otherwise the name of the script is identical across different branches. This makes it more maintainable as patches done to the script in one branch can be easily applied to other branches.
 
 The above link gives detailed information on using the script. As an example, passing several arguments to the script you can easily have both BigBlueButton and Greenlight or LTI installed on the same server. You could specify if you would like a new certificate to be generated. A firewall could be enabled. For the most up-to-date information, please refer to the instructions in the script. Notice that as of BigBlueButton 2.6 we have retired the API demos. We recommend using Greenlight or [API MATE](https://mconf.github.io/api-mate/) instead.
-
-Note: You can [uninstall Greenlight](/greenlight/v3/install#uninstall) if you do not intend on using it on production.
 
 After the `bbb-install.sh` script finishes, you can check the status of your server with `bbb-conf --check`. When you run this command, you should see output similar to the following:
 
@@ -244,11 +251,7 @@ bbb-apps-akka ——————————————————————
 bbb-fsesl-akka ———————————————————————► [✔ - active]
 mongod ———————————————————————————————► [✔ - active]
 bbb-html5 ————————————————————————————► [✔ - active]
-bbb-html5-backend@1 ——————————————————► [✔ - active]
-bbb-html5-backend@2 ——————————————————► [✔ - active]
-bbb-html5-frontend@1 —————————————————► [✔ - active]
-bbb-html5-frontend@2 —————————————————► [✔ - active]
-bbb-graphql-actions-adapter-server ———► [✔ - active]
+bbb-graphql-actions ——————————————————► [✔ - active]
 bbb-graphql-middleware ———————————————► [✔ - active]
 bbb-graphql-server ———————————————————► [✔ - active]
 bbb-webrtc-sfu ———————————————————————► [✔ - active]
@@ -275,7 +278,7 @@ ii  bbb-export-annotations             1:3.0-2         amd64        BigBlueButto
 ii  bbb-freeswitch-core                2:3.0-1         amd64        BigBlueButton build of FreeSWITCH
 ii  bbb-freeswitch-sounds              1:3.0-1         amd64        FreeSWITCH Sounds
 ii  bbb-fsesl-akka                     1:3.0-5         all          BigBlueButton FS-ESL (Akka)
-ii  bbb-graphql-actions-adapter-server 1:3.0-4         amd64        BigBlueButton GraphQL Actions Adapter Server
+ii  bbb-graphql-actions                1:3.0-5         amd64        BigBlueButton GraphQL Actions
 ii  bbb-graphql-middleware             1:3.0-6         amd64        GraphQL middleware component for BigBlueButton
 ii  bbb-graphql-server                 1:3.0-5         amd64        GraphQL server component for BigBlueButton
 ii  bbb-html5                          1:3.0-10        amd64        The HTML5 components for BigBlueButton
@@ -325,7 +328,7 @@ You can upgrade by re-running the `bbb-install.sh` script again -- it will downl
 
 If you are upgrading BigBlueButton 2.6 or 2.7 we recommend you set up a new Ubuntu 22.04 server with BigBlueButton 3.0 and then [copy over your existing recordings from the old server](/administration/customize#transfer-published-recordings-from-another-server).
 
-Make sure you read through the "what's new in 3.0" document https://docs.bigbluebutton.org/3.0/new and especifically https://docs.bigbluebutton.org/3.0/new#other-notable-changes
+Make sure you read through the ["what's new in 3.0" document](https://docs.bigbluebutton.org/3.0/new) and specifically [the section covering notable changes](https://docs.bigbluebutton.org/3.0/new#other-notable-changes)
 
 ### Restart your server
 
@@ -344,13 +347,12 @@ If you see other warning messages check out the [troubleshooting installation](/
 
 If this server is intended for production, you should also
 
-- [Secure your system -- restrict access to specific ports](/administration/customize#secure-your-system--restrict-access-to-specific-ports)
+- [Secure your system -- restrict access to specific ports](/administration/customize#preserving-customizations-using-apply-confsh)
 - [Configure the server to work behind a firewall](/administration/firewall-configuration) (if you have installed behind a firewall or on a server that has a public/private IP address)
-- [remove Greenlight](/greenlight/v3/install#uninstall) (if you had it installed and is no longer needed)
 - [Set up a TURN server](/administration/turn-server) (if your server is on the Internet and you have users accessing it from behind restrictive firewalls)
 - Test your HTTPS configuration. A well-respected site that can do a series of automated tests is [https://www.ssllabs.com/ssltest/](https://www.ssllabs.com/ssltest/) - simply enter your server's hostname, optionally check the "Do not show results" check box if you would like to keep it private, then Submit. At time of writing, the configuration shown on this page should achieve an "A" ranking in the SSL Labs test page.
 
-We provide publically accessible servers that you can use for testing:
+We provide publicly accessible servers that you can use for testing:
 
 - [https://demo.bigbluebutton.org](https://demo.bigbluebutton.org/) - a pool of BigBlueButton servers with the Greenlight front-end (sometimes the pool is a mix of different BigBlueButton releases)
 - [https://test30.bigbluebutton.org](https://test30.bigbluebutton.org) - Runs the general build of BigBlueButton 3.0 - usually a few days behind the repository branch `v3.0.x-release`
@@ -375,16 +377,12 @@ Choose this method if you are already comfortable with a lot of the technical kn
 
 Note: These examples are _not_ maintained or developed by the official BigBlueButton developers. These are entirely community-sourced, use at your own discretion.
 
-These first two install BigBlueButton on your server in a consistent fashion. You can specify variables, such as whether to install Greenlight too, what ports to use for TURN, and others. Functionally quite similar to bbb-install.sh but highly automated.
+The first install BigBlueButton on your server in a consistent fashion. You can specify variables, such as what ports to use for TURN, and others. Functionally quite similar to bbb-install.sh but highly automated.
 
-- [General Ansible role for BigBlueButton](https://github.com/n0emis/ansible-role-bigbluebutton)
-- [Alternative Ansible role for BigBlueButton](https://github.com/juanluisbaptiste/ansible-bigbluebutton)
+- [General Ansible role for BigBlueButton](https://github.com/ebbba-org/ansible-role-bigbluebutton)
 
 Large scale deployments must include several other components in addition to the core BigBlueButton packages. These include Scalelite, Greenlight, a database, backups, nginx configurations, and more.
 
-- [Full out-of-the-box setup with wiki, chat, backups](https://github.com/stadtulm/a13-ansible)
-- [Full out-of-the-box setup with frontend on one machine](https://github.com/srcf/timeout)
-- [Full setup for a university](https://github.com/unistra/bigbluebutton/)
 - [Full HA setup with PeerTube, Conferences Streaming, EFK, Prometheus, backups](https://github.com/Worteks/bbb-ansible)
 
 ## Customizations

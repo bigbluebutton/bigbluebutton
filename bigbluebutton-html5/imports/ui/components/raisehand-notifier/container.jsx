@@ -1,26 +1,51 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
-import { makeCall } from '/imports/ui/services/api';
+import { useMutation, useSubscription } from '@apollo/client';
 import RaiseHandNotifier from './component';
+import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+import { RAISED_HAND_USERS } from './queries';
+import logger from '/imports/startup/client/logger';
 
 const StatusNotifierContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
-    role: user.role,
+    isModerator: user.isModerator,
   }));
-  const isViewer = currentUserData?.role === ROLE_VIEWER;
+  const isViewer = !currentUserData?.isModerator;
   const isPresenter = currentUserData?.presenter;
+
+  const {
+    data: usersData,
+    error: usersError,
+  } = useSubscription(RAISED_HAND_USERS);
+  const raiseHandUsers = usersData?.user || [];
+
+  if (usersError) {
+    logger.error({
+      logCode: 'raisehand_notifier_container_subscription_error',
+      extraInfo: { usersError },
+    }, 'Error on requesting raise hand data');
+  }
+
+  const [setRaiseHand] = useMutation(SET_RAISE_HAND);
+
+  const lowerUserHands = (userId) => {
+    setRaiseHand({
+      variables: {
+        userId,
+        raiseHand: false,
+      },
+    });
+  };
   return (
     <RaiseHandNotifier {...{
       ...props,
       isViewer,
       isPresenter,
+      lowerUserHands,
+      raiseHandUsers,
     }}
     />
   );
@@ -28,20 +53,8 @@ const StatusNotifierContainer = (props) => {
 
 export default withTracker(() => {
   const AppSettings = Settings.application;
-  const raiseHandUsers = Users.find({
-    meetingId: Auth.meetingID,
-    raiseHand: true,
-  }, {
-    fields: {
-      raiseHandTime: 1, raiseHand: 1, userId: 1, name: 1, color: 1, role: 1, avatar: 1,
-    },
-    sort: { raiseHandTime: 1 },
-  }).fetch();
-  const lowerUserHands = (userId) => makeCall('changeRaiseHand', false, userId);
 
   return {
-    lowerUserHands,
-    raiseHandUsers,
     raiseHandAudioAlert: AppSettings.raiseHandAudioAlerts,
     raiseHandPushAlert: AppSettings.raiseHandPushAlerts,
   };

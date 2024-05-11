@@ -9,9 +9,10 @@ trait SyncGetScreenshareInfoRespMsgHdlr {
   this: ScreenshareApp2x =>
 
   def handleSyncGetScreenshareInfoRespMsg(liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    val routing = Routing.addMsgToHtml5InstanceIdRouting(
+    val routing = Routing.addMsgToClientRouting(
+      MessageTypes.BROADCAST_TO_MEETING,
       liveMeeting.props.meetingProp.intId,
-      liveMeeting.props.systemProps.html5InstanceId.toString
+      "nodeJSapp"
     )
     val envelope = BbbCoreEnvelope(SyncGetScreenshareInfoRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(

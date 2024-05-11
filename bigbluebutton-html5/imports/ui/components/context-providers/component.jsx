@@ -1,23 +1,20 @@
 import React from 'react';
-import { ChatContextProvider } from '/imports/ui/components/components-data/chat-context/context';
-import { UsersContextProvider } from '/imports/ui/components/components-data/users-context/context';
-import { GroupChatContextProvider } from '/imports/ui/components/components-data/group-chat-context/context';
 import { LayoutContextProvider } from '/imports/ui/components/layout/context';
 import { CustomBackgroundsProvider } from '/imports/ui/components/video-preview/virtual-background/context';
-import { PluginsContextProvider } from '../components-data/plugin-context/context';
+import { PluginsContextProvider } from '/imports/ui/components/components-data/plugin-context/context';
+import CurrentUserProvider from '../../core/providers/current-user';
 
 const providersList = [
-  ChatContextProvider,
-  GroupChatContextProvider,
-  UsersContextProvider,
   LayoutContextProvider,
   CustomBackgroundsProvider,
   PluginsContextProvider,
+  CurrentUserProvider,
 ];
 
-const ContextProvidersComponent = props => providersList.reduce((acc, Component) => (
+const ContextProvidersComponent = (props) => providersList.reduce((acc, Component) => (
   <Component>
     {acc}
-  </Component>), props.children);
+  </Component>
+), props.children);
 
 export default ContextProvidersComponent;

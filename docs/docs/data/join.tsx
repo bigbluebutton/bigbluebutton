@@ -44,12 +44,6 @@ const joinEndpointTableData = [
     "description": (<>If you want to pass in a custom voice-extension when a user joins the voice conference using voip. This is useful if you want to collect more info in you Call Detail Records about the user joining the conference. You need to modify your /etc/asterisk/bbb-extensions.conf to handle this new extensions.</>)
   },
   {
-    "name": "defaultLayout",
-    "required": false,
-    "type": "String",
-    "description": (<>The layout name to be loaded first when the application is loaded.</>)
-  },
-  {
     "name": "avatarURL",
     "required": false,
     "type": "String",
@@ -71,7 +65,7 @@ const joinEndpointTableData = [
     "name": "joinViaHtml5",
     "required": false,
     "type": "String",
-    "description": (<>Set to “true” to force the HTML5 client to load for the user. (removed in 2.3 since HTML5 is the only client)</>),
+    "description": (<><b>[DEPRECATED]</b>Set to “true” to force the HTML5 client to load for the user. (removed in 2.3 since HTML5 is the only client)</>),
     "deprecated": true
   },
   {
@@ -85,6 +79,11 @@ const joinEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If the parameter is passed on JOIN with value `true`, the user will be omitted from being displayed in the Learning Dashboard. The use case is for support agents who drop by to support the meeting / resolve tech difficulties. Added in BBB 2.4</>)
+  },{
+    "name": "enforceLayout",
+    "required": false,
+    "type": "String",
+    "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY. Added in BBB 3.0</>)
   }
 ];
 

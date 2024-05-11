@@ -12,6 +12,7 @@ object_relationships:
       manual_configuration:
         column_mapping:
           userId: userId
+          userMeetingId: meetingId
         insertion_order: null
         remote_table:
           name: v_user_ref
@@ -25,8 +26,11 @@ select_permissions:
         _or:
           - parentMeetingId:
               _eq: X-Hasura-ModeratorInMeeting
-          - userId:
-              _eq: X-Hasura-UserId
+          - _and:
+              - userMeetingId:
+                  _eq: X-Hasura-MeetingId
+              - userId:
+                  _eq: X-Hasura-UserId
       allow_aggregations: true
       query_root_fields: []
       subscription_root_fields: []

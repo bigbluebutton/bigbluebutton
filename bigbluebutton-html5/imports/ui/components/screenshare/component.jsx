@@ -29,12 +29,12 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { uniqueId } from '/imports/utils/string-utils';
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 const MOBILE_HOVER_TIMEOUT = 5000;
 const MEDIA_FLOW_PROBE_INTERVAL = 500;
 const SCREEN_SIZE_DISPATCH_INTERVAL = 500;
@@ -110,8 +110,11 @@ class ScreenshareComponent extends React.Component {
     notify(intl.formatMessage(this.locales.started), 'info', this.icon);
 
     layoutContextDispatch({
-      type: ACTIONS.SET_HAS_SCREEN_SHARE,
-      value: true,
+      type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+      value: {
+        content: PRESENTATION_AREA.SCREEN_SHARE,
+        open: true,
+      },
     });
 
     if (isLayoutSwapped) {
@@ -139,8 +142,6 @@ class ScreenshareComponent extends React.Component {
       intl,
       fullscreenContext,
       layoutContextDispatch,
-      toggleSwapLayout,
-      pinSharedNotes,
     } = this.props;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
@@ -153,8 +154,11 @@ class ScreenshareComponent extends React.Component {
     }
 
     layoutContextDispatch({
-      type: ACTIONS.SET_HAS_SCREEN_SHARE,
-      value: false,
+      type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+      value: {
+        content: PRESENTATION_AREA.SCREEN_SHARE,
+        open: false,
+      },
     });
 
     if (fullscreenContext) {
@@ -172,8 +176,6 @@ class ScreenshareComponent extends React.Component {
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: Session.get('presentationLastState'),
     });
-
-    pinSharedNotes(Session.get('pinnedNotesLastState'));
   }
 
   clearMediaFlowingMonitor() {

@@ -222,7 +222,7 @@ $ systemctl unmask kurento-media-server.service
 
 ### Unable to share webcam
 
-The default installation of BigBlueButton should work in most netowrk configurations; however, if your users ae behind a restrictive network that blocks outgoing UDP connections, they may encounter 1020 errors (media unable to reach server).
+The default installation of BigBlueButton should work in most network configurations; however, if your users ae behind a restrictive network that blocks outgoing UDP connections, they may encounter 1020 errors (media unable to reach server).
 
 If you get reports of these errors, setup TURN server to help their browsers send WebRTC audio and video streams via TCP over port 443 to the TURN server. The TURN server will then relay the media to your BigBlueButton server.
 
@@ -501,14 +501,6 @@ We also added `/usr/local/bin/fs_clibbb` with the contents
 
 that will let you type `fs_clibbb` at the command prompt to get into FreeSWITCH console.
 
-### Echo test hangs upgrading BigBlueButton 2.2
-
-The install scripts now change the default CLI password for FreeSWITCH and the other parts of BigBlueButton need to use this new password. For a new installation, the install scripts will automatically set this new password.
-
-If you upgrade using [bbb-install.sh](https://github.com/bigbluebutton/bbb-install), the script will update the FreeSWITCH password using `sudo bbb-conf --setip <hostname>`.
-
-If you upgraded using [manual steps](/administration/install#upgrading-from-bigbluebutton-22), be sure to do ao `sudo bbb-conf --setip <hostname>` to sync all the FreeSWITCH passwords.
-
 ### FreeSWITCH using default stun server
 
 For many years, in BigBlueButton's FreeSWITCH configuration file `/opt/freeswitch/etc/freeswitch/vars.xml`, the default value for `external_rtp_ip` was `stun.freeswitch.org`
@@ -529,7 +521,7 @@ You can add a line in `/etc/bigbluebutton/bbb-conf/apply-conf.sh` to always appl
 xmlstarlet edit --inplace --update '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]/@data' --value "external_rtp_ip=234.32.3.3" /opt/freeswitch/conf/vars.xml
 ```
 
-Note: If your server has an internal/exteral IP address, such as on AWS EC2 server, be sure to set it to the external IP address configure a dummy network interface card (see [Update FreeSWITCH](/administration/firewall-configuration#update-freeswitch)).
+Note: If your server has an internal/external IP address, such as on AWS EC2 server, be sure to set it to the external IP address configure a dummy network interface card (see [Update FreeSWITCH](/administration/firewall-configuration#update-freeswitch)).
 
 ## HTML5 Server
 
@@ -673,16 +665,6 @@ Here are the following lists the possible WebRTC error messages that a user may 
 ### Server running behind NAT
 
 The [following issue](https://github.com/bigbluebutton/bigbluebutton/issues/8792) might be helpful in debugging if you run into errors and your server is behind NAT.
-
-### Could not get your microphone for a WebRTC call
-
-Chrome requires (As of Chrome 47) that to access the user's microphone for WebRTC your site must be serving pages via HTTPS (that is, nginx is configured with a SSL certificate).
-
-If the user attempts to share their microphone and your BigBlueButton sever is not configured for SSL, Chrome will block access and BigBlueButton will report the following error
-
-_WebRTC Audio Failure: Detected the following WebRTC issue: Could not get your microphone for a WebRTC call. Do you want to try flash instead?_
-
-To enable Chrome to access the user's microphone, see [Configure HTTPS on BigBlueButton](/administration/install#configure-ssl-on-your-bigbluebutton-server).
 
 ### The browser is not supported
 
@@ -973,7 +955,7 @@ The script `bbb-install` now creates these overrides by default.
 
 It is most likely an error on GreenLight. Check the log file according to [Troubleshooting Greenlight](/greenlight/v3/install).
 
-If this error occurrs on just a small number of PCs accessing a BigBlueButton server within a LAN through a proxy server and you find the description "Error::Unsafe Host Error (x.x.x.x is not a safe host)" (where x.x.x.x is an IP address) in the log file, check if the "Don't use the proxy server for local (intranet) addresses" (in the Windows proxy setting) is ticked.
+If this error occurs on just a small number of PCs accessing a BigBlueButton server within a LAN through a proxy server and you find the description "Error::Unsafe Host Error (x.x.x.x is not a safe host)" (where x.x.x.x is an IP address) in the log file, check if the "Don't use the proxy server for local (intranet) addresses" (in the Windows proxy setting) is ticked.
 
 ## Legacy errors
 

@@ -15,7 +15,7 @@ const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];
 const DEFAULT_ANIMATION = 'shift-away';
 const ANIMATION_NONE = 'none';
-const TIP_OFFSET = '0, 10';
+const TIP_OFFSET = [0, 10];
 
 const propTypes = {
   title: PropTypes.string,
@@ -77,7 +77,17 @@ class Tooltip extends Component {
       animation: animations ? DEFAULT_ANIMATION : ANIMATION_NONE,
       appendTo: document.body,
       arrow: roundArrow,
-      boundary: 'window',
+      popperOptions: {
+        modifiers: [
+          {
+            name: 'preventOverflow',
+            options: {
+              altAxis: true,
+              boundary: document.documentElement,
+            },
+          },
+        ],
+      },
       content: title,
       delay: overrideDelay,
       duration: animations ? ANIMATION_DURATION : 0,
@@ -87,9 +97,8 @@ class Tooltip extends Component {
       onHide: this.onHide,
       offset: TIP_OFFSET,
       placement: overridePlacement,
-      touch: 'hold',
+      touch: ['hold', 1000],
       theme: 'bbbtip',
-      multiple: false,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }

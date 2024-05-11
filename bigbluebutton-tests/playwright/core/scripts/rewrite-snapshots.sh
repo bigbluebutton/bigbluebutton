@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Save string of folders containg reference snapshots files
+# Save string of folders containing reference snapshots files
 folders_string=$(find . -type d -name "*js-snapshots" -printf "%h\n" | sort | uniq | tr -d './' | tr '\n' ' ')
 
 # Find folders

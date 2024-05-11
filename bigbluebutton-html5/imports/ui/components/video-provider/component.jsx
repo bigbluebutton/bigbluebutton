@@ -34,20 +34,20 @@ const {
     delay: 3000,
     reconnectOnFailure: true,
   },
-} = Meteor.settings.public.kurento.cameraWsOptions;
+} = window.meetingClientSettings.public.kurento.cameraWsOptions;
 
-const { webcam: NETWORK_PRIORITY } = Meteor.settings.public.media.networkPriorities || {};
+const { webcam: NETWORK_PRIORITY } = window.meetingClientSettings.public.media.networkPriorities || {};
 const {
   baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
   maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
-} = Meteor.settings.public.kurento.cameraTimeouts || {};
+} = window.meetingClientSettings.public.kurento.cameraTimeouts || {};
 const {
   enabled: CAMERA_QUALITY_THRESHOLDS_ENABLED = true,
   privilegedStreams: CAMERA_QUALITY_THR_PRIVILEGED = true,
-} = Meteor.settings.public.kurento.cameraQualityThresholds;
-const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
-const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
-const GATHERING_TIMEOUT = Meteor.settings.public.kurento.gatheringTimeout;
+} = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
+const SIGNAL_CANDIDATES = window.meetingClientSettings.public.kurento.signalCandidates;
+const TRACE_LOGS = window.meetingClientSettings.public.kurento.traceLogs;
+const GATHERING_TIMEOUT = window.meetingClientSettings.public.kurento.gatheringTimeout;
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -123,11 +123,14 @@ const propTypes = {
   currentVideoPageIndex: PropTypes.number.isRequired,
   totalNumberOfStreams: PropTypes.number.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
+  playStart: PropTypes.func.isRequired,
+  sendUserUnshareWebcam: PropTypes.func.isRequired,
 };
 
 class VideoProvider extends Component {
-  static onBeforeUnload() {
-    VideoService.onBeforeUnload();
+  onBeforeUnload() {
+    const { sendUserUnshareWebcam } = this.props;
+    VideoService.onBeforeUnload(sendUserUnshareWebcam);
   }
 
   static shouldAttachVideoStream(peer, videoElement) {
@@ -182,13 +185,14 @@ class VideoProvider extends Component {
       { leading: false, trailing: true },
     );
     this.startVirtualBackgroundByDrop = this.startVirtualBackgroundByDrop.bind(this);
+    this.onBeforeUnload = this.onBeforeUnload.bind(this);
   }
 
   componentDidMount() {
     this._isMounted = true;
     VideoService.updatePeerDictionaryReference(this.webRtcPeers);
     this.ws = this.openWs();
-    window.addEventListener('beforeunload', VideoProvider.onBeforeUnload);
+    window.addEventListener('beforeunload', this.onBeforeUnload);
   }
 
   componentDidUpdate(prevProps) {
@@ -196,16 +200,17 @@ class VideoProvider extends Component {
       isUserLocked,
       streams,
       currentVideoPageIndex,
-      isMeteorConnected
+      isMeteorConnected,
+      sendUserUnshareWebcam,
     } = this.props;
     const { socketOpen } = this.state;
 
-    // Only debounce when page changes to avoid unecessary debouncing
+    // Only debounce when page changes to avoid unnecessary debouncing
     const shouldDebounce = VideoService.isPaginationEnabled()
       && prevProps.currentVideoPageIndex !== currentVideoPageIndex;
 
     if (isMeteorConnected && socketOpen) this.updateStreams(streams, shouldDebounce);
-    if (!prevProps.isUserLocked && isUserLocked) VideoService.lockUser();
+    if (!prevProps.isUserLocked && isUserLocked) VideoService.lockUser(sendUserUnshareWebcam);
 
     // Signaling socket expired its retries and meteor is connected - create
     // a new signaling socket instance from scratch
@@ -217,15 +222,18 @@ class VideoProvider extends Component {
   }
 
   componentWillUnmount() {
+    const { sendUserUnshareWebcam } = this.props;
     this._isMounted = false;
     VideoService.updatePeerDictionaryReference({});
 
-    this.ws.onmessage = null;
-    this.ws.onopen = null;
-    this.ws.onclose = null;
+    if (this.ws) {
+      this.ws.onmessage = null;
+      this.ws.onopen = null;
+      this.ws.onclose = null;
+    }
 
-    window.removeEventListener('beforeunload', VideoProvider.onBeforeUnload);
-    VideoService.exitVideo();
+    window.removeEventListener('beforeunload', this.onBeforeUnload);
+    VideoService.exitVideo(sendUserUnshareWebcam);
     Object.keys(this.webRtcPeers).forEach((stream) => {
       this.stopWebRTCPeer(stream, false);
     });
@@ -333,12 +341,13 @@ class VideoProvider extends Component {
   }
 
   onWsClose() {
+    const { sendUserUnshareWebcam } = this.props;
     logger.info({
       logCode: 'video_provider_onwsclose',
     }, 'Multiple video provider websocket connection closed.');
 
     this.clearWSHeartbeat();
-    VideoService.exitVideo();
+    VideoService.exitVideo(sendUserUnshareWebcam);
     // Media is currently tied to signaling state  - so if signaling shuts down,
     // media will shut down server-side. This cleans up our local state faster
     // and notify the state change as failed so the UI rolls back to the placeholder
@@ -576,6 +585,7 @@ class VideoProvider extends Component {
 
   stopWebRTCPeer(stream, restarting = false) {
     const isLocal = VideoService.isLocalStream(stream);
+    const { sendUserUnshareWebcam } = this.props;
 
     // in this case, 'closed' state is not caused by an error;
     // we stop listening to prevent this from being treated as an error
@@ -586,7 +596,7 @@ class VideoProvider extends Component {
     }
 
     if (isLocal) {
-      VideoService.stopVideo(stream);
+      VideoService.stopVideo(stream, sendUserUnshareWebcam);
     }
 
     const role = VideoService.getRole(isLocal);
@@ -1153,6 +1163,7 @@ class VideoProvider extends Component {
   handlePlayStart(message) {
     const { cameraId: stream, role } = message;
     const peer = this.webRtcPeers[stream];
+    const { playStart } = this.props;
 
     if (peer) {
       logger.info({
@@ -1165,11 +1176,11 @@ class VideoProvider extends Component {
 
       peer.started = true;
 
-      // Clear camera shared timeout when camera succesfully starts
+      // Clear camera shared timeout when camera successfully starts
       this.clearRestartTimers(stream);
       this.attachVideoStream(stream);
 
-      VideoService.playStart(stream);
+      playStart(stream);
     } else {
       logger.warn({
         logCode: 'video_provider_playstart_no_peer',
@@ -1179,7 +1190,7 @@ class VideoProvider extends Component {
   }
 
   handleSFUError(message) {
-    const { intl, streams } = this.props;
+    const { intl, streams, sendUserUnshareWebcam } = this.props;
     const { code, reason, streamId } = message;
     const isLocal = VideoService.isLocalStream(streamId);
     const role = VideoService.getRole(isLocal);
@@ -1198,7 +1209,7 @@ class VideoProvider extends Component {
       // The publisher instance received an error from the server. There's no reconnect,
       // stop it.
       VideoService.notify(intl.formatMessage(intlSFUErrors[code] || intlSFUErrors[2200]));
-      VideoService.stopVideo(streamId);
+      VideoService.stopVideo(streamId, sendUserUnshareWebcam);
     } else {
       const peer = this.webRtcPeers[streamId];
       const stillExists = streams.some(({ stream }) => streamId === stream);
@@ -1252,6 +1263,7 @@ class VideoProvider extends Component {
       focusedId,
       handleVideoFocus,
       isGridEnabled,
+      users,
     } = this.props;
 
     return (
@@ -1264,6 +1276,7 @@ class VideoProvider extends Component {
           focusedId,
           handleVideoFocus,
           isGridEnabled,
+          users,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

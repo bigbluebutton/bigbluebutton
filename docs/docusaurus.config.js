@@ -13,6 +13,7 @@ const config = {
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
+    trailingSlash: true,
 
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
@@ -60,30 +61,29 @@ const config = {
     ],
 
     plugins: [
-        require.resolve("@cmfcmf/docusaurus-search-local"),
         [
             "@docusaurus/plugin-client-redirects",
             {
                 fromExtensions: ['html', 'htm'],
                 redirects: [
                     {
-                        to: "/2.6/new-features",
-                        from: "/2.6/new"
+                        to: "/2.6/new-features/",
+                        from: "/2.6/new/"
                     },
                     {
-                        to: "/2.6/new-features",
+                        to: "/2.6/new-features/",
                         from: "/2.6/new.html"
                     },
                     {
-                        to: "/new-features",
-                        from: "/2.7/new-features"
+                        to: "/new-features/",
+                        from: "/2.7/new-features/"
                     },
                     {
-                        to: "/development/api",
+                        to: "/development/api/",
                         from: "/dev/api.html"
                     },
                     {
-                        to: "/greenlight/v3/migration",
+                        to: "/greenlight/v3/migration/",
                         from: "/greenlight_v3/gl3-migration.html"
                     }
                 ],
@@ -138,37 +138,18 @@ const config = {
                 },
                 items: [
                     {to: 'https://bigbluebutton.org/teachers/tutorials/', label: 'Teaching', position: 'left'},
-                    {
-                        type: 'doc',
-                        position: 'left',
-                        docId: 'development/guide',
-                        label: 'Development',
-                    },
-                    {
-                        type: 'doc',
-                        position: 'left',
-                        docId: 'administration/install',
-                        label: 'Administration',
-                    },
-                    {
-                        type: 'doc',
-                        position: 'left',
-                        docId: 'greenlight/v3/install',
-                        label: 'Greenlight',
-                    },
-                    {
-                        type: 'doc',
-                        position: 'left',
-                        docId: 'new-features',
-                        label: 'New Features',
-                    },
+                    {to: '/development/guide', label: 'Development', position: 'left'},
+                    {to: '/administration/install', label: 'Administration', position: 'left'},
+                    {to: '/greenlight/v3/install', label: 'Greenlight', position: 'left'},
+                    {to: '/new-features', label: 'New Features', position: 'left'},
+                    {to: '/support/getting-help', label: 'Support', position: 'left'},
                     {
                         type: 'docsVersionDropdown',
                         position: 'right',
                         dropdownActiveClassDisabled: true,
                     },
                     {
-                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v2.7.x-release/docs',
+                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v3.0.x-release/docs',
                         label: 'GitHub',
                         position: 'right',
                     },
@@ -180,10 +161,6 @@ const config = {
                     {
                         title: 'BigBlueButton',
                         items: [
-                            {
-                                label: 'Release notes',
-                                href: '/release-notes',
-                            },
                             {
                                 label: 'Github',
                                 href: 'https://github.com/bigbluebutton',
@@ -266,6 +243,23 @@ const config = {
                 darkTheme: darkCodeTheme,
             },
         }),
+        themes: [
+            // ... Your other themes.
+            [
+              require.resolve("@easyops-cn/docusaurus-search-local"),
+              /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
+              ({
+                // ... Your options.
+                // `hashed` is recommended as long-term-cache of index file is possible.
+                hashed: true,
+                docsRouteBasePath: "/",
+                // For Docs using Chinese, The `language` is recommended to set to:
+                // ```
+                // language: ["en", "zh"],
+                // ```
+              }),
+            ],
+          ],
 };
 
 module.exports = config;

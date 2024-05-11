@@ -34,11 +34,9 @@ fi
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
 	echo "Install folder doesn't exists, installing"
-	mkdir -m 755 /usr/share/bbb-libreoffice-conversion/
-	cp assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
-	chmod 755 /usr/share/bbb-libreoffice-conversion/convert.sh
-	cp assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
-	chmod 755 /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
+	install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+	install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
+	install -Dm755 assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 	chown -R root /usr/share/bbb-libreoffice-conversion/
 else
 	echo "Install folder already exists"

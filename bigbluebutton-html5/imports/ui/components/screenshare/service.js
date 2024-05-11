@@ -3,17 +3,13 @@ import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import { stopWatching } from '/imports/ui/components/external-video-player/service';
-import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import AudioService from '/imports/ui/components/audio/service';
-import { Meteor } from "meteor/meteor";
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
-import NotesService from '/imports/ui/components/notes/service';
 
-const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
+const VOLUME_CONTROL_ENABLED = window.meetingClientSettings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
 const DEFAULT_SCREENSHARE_STATS_TYPES = [
@@ -281,15 +277,9 @@ const screenshareHasStarted = (isPresenter, options = {}) => {
   }
 };
 
-const shareScreen = async (isPresenter, onFail, options = {}) => {
+const shareScreen = async (stopWatching, isPresenter, onFail, options = {}) => {
   if (isCameraAsContentBroadcasting()) {
     screenshareHasEnded();
-  }
-  // stop external video share if running
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-
-  if (meeting && meeting.externalVideoUrl) {
-    stopWatching();
   }
 
   try {
@@ -317,8 +307,8 @@ const shareScreen = async (isPresenter, onFail, options = {}) => {
       return;
     }
 
-    // Close Shared Notes if open.
-    NotesService.pinSharedNotes(false);
+    // stop external video share if running
+    stopWatching();
 
     setSharingContentType(contentType);
     setIsSharing(true);
@@ -342,9 +332,9 @@ const viewScreenshare = (options = {}) => {
 };
 
 const screenShareEndAlert = () => AudioService
-  .playAlertSound(`${Meteor.settings.public.app.cdn
-    + Meteor.settings.public.app.basename
-    + Meteor.settings.public.app.instanceId}`
+  .playAlertSound(`${window.meetingClientSettings.public.app.cdn
+    + window.meetingClientSettings.public.app.basename
+    + window.meetingClientSettings.public.app.instanceId}`
     + '/resources/sounds/ScreenshareOff.mp3');
 
 const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;

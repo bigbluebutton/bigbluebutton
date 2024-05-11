@@ -4,7 +4,7 @@ const { openPublicChat } = require('../chat/util');
 const { expect } = require("@playwright/test");
 const Page = require("../core/page");
 const { sleep } = require("../core/helpers");
-const { ELEMENT_WAIT_EXTRA_LONG_TIME } = require("../core/constants");
+const { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } = require("../core/constants");
 const { openPoll, timeInSeconds, rowFilter } = require("./util");
 const { checkTextContent } = require('../core/util');
 
@@ -13,16 +13,16 @@ class LearningDashboard extends MultiUsers {
     super(browser, context);
   }
 
-  async getDashboardPage(context) {
+  async getDashboardPage() {
     await this.modPage.waitAndClick(e.manageUsers);
 
     const [dashboardPage] = await Promise.all([
-      context.waitForEvent('page'),
+      this.modPage.context.waitForEvent('page'),
       this.modPage.waitAndClick(e.learningDashboard),
     ]);
 
     await expect(dashboardPage).toHaveTitle(/Dashboard/);
-    this.dashboardPage = new Page(context, dashboardPage);
+    this.dashboardPage = new Page(this.modPage.context, dashboardPage);
   }
 
   async writeOnPublicChat() {
@@ -60,7 +60,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.startPoll);
 
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.numberVotes, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'True');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //ABCD
@@ -69,7 +69,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.pollLetterAlternatives);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.numberVotes, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'A');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //Yes/No/Abstention
@@ -78,7 +78,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.pollYesNoAbstentionBtn);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.numberVotes, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, 'Yes');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //User Response
@@ -89,7 +89,7 @@ class LearningDashboard extends MultiUsers {
     await this.userPage.waitForSelector(e.pollingContainer);
     await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
-    await this.modPage.hasText(e.numberVotes, '1');
+    await this.modPage.hasText(e.userVoteLiveResult, e.answerMessage);
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //Checks
@@ -118,7 +118,7 @@ class LearningDashboard extends MultiUsers {
 
   async basicInfos() {
     // Meeting Status check
-    await this.dashboardPage.hasText(e.meetingStatusActiveDashboard, 'Active');
+    await this.dashboardPage.hasText(e.meetingStatusActiveDashboard, 'Active', ELEMENT_WAIT_LONGER_TIME);
     await this.dashboardPage.reloadPage();
 
     // Meeting Time Duration check
@@ -131,7 +131,7 @@ class LearningDashboard extends MultiUsers {
     const timeContentGreater = await (timeLocator).textContent();
     const arrayGreater = timeContentGreater.split(':').map(Number);
     const secondTime = arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
-    
+
     await expect(secondTime).toBeGreaterThan(firstTime);
   }
 
@@ -157,8 +157,7 @@ class LearningDashboard extends MultiUsers {
   }
 
   async downloadSessionLearningDashboard(testInfo) {
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.waitAndClick(e.logout);
+    await this.modPage.logoutFromMeeting();
     await this.modPage.waitAndClick('button');
 
     const downloadSessionLocator = this.dashboardPage.getLocator(e.downloadSessionLearningDashboard);

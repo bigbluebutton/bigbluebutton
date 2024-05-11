@@ -11,7 +11,7 @@ trait SyncGetGroupChatsInfoMsgHdlr {
   def handleSyncGetGroupChatsInfo(state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
     def buildSyncGetGroupChatsRespMsg(allChats: Vector[GroupChatInfo]): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(SyncGetGroupChatsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SyncGetGroupChatsRespMsg.NAME, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val body = SyncGetGroupChatsRespMsgBody(allChats)
@@ -21,7 +21,7 @@ trait SyncGetGroupChatsInfoMsgHdlr {
     }
 
     def buildSyncGetGroupChatMsgsRespMsg(msgs: Vector[GroupChatMsgToUser], chatId: String): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(SyncGetGroupChatMsgsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SyncGetGroupChatMsgsRespMsg.NAME, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val body = SyncGetGroupChatMsgsRespMsgBody(chatId, msgs)

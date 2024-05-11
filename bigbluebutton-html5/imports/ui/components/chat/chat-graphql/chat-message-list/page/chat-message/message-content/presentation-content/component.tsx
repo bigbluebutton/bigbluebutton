@@ -4,7 +4,7 @@ import Styled from './styles';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 
 interface ChatMessagePresentationContentProps {
   metadata: string;
@@ -31,9 +31,9 @@ const intlMessages = defineMessages({
     id: 'app.presentation.downloadLabel',
     description: 'used as label for presentation download link',
   },
-  notAccessibleWarning: {
-    id: 'app.presentationUploader.export.notAccessibleWarning',
-    description: 'used for indicating that a link may be not accessible',
+  withWhiteboardAnnotations: {
+    id: 'app.presentationUploader.export.withWhiteboardAnnotations',
+    description: 'used for indicating that presentation has annotations',
   },
 });
 
@@ -45,19 +45,30 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   assertAsMetadata(presentationData);
 
   const downloadUrl = `${APP_CONFIG.bbbWebBase}/${presentationData.fileURI}`;
+  const parseFilename = (filename = '') => {
+    const substrings = filename.split('.');
+    substrings.pop();
+    const filenameWithoutExtension = substrings.join('');
+    return filenameWithoutExtension;
+  };
+  const parsedFileName = parseFilename(presentationData.filename);
 
   return (
     <Styled.ChatDowloadContainer data-test="downloadPresentationContainer">
-      <span>{presentationData.filename}</span>
+      <span>
+        {presentationData.filename}
+        &nbsp;
+        (
+        {intl.formatMessage(intlMessages.withWhiteboardAnnotations)}
+        )
+      </span>
       <Styled.ChatLink
         href={downloadUrl}
-        aria-label={intl.formatMessage(intlMessages.notAccessibleWarning)}
         type="application/pdf"
         rel="noopener, noreferrer"
-        download
+        download={`${parsedFileName}.pdf`}
       >
         {intl.formatMessage(intlMessages.download)}
-        <i className="icon-bbb-warning" />
       </Styled.ChatLink>
     </Styled.ChatDowloadContainer>
   );

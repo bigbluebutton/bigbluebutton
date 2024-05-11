@@ -16,11 +16,15 @@ exports.raiseHandBtn = 'div[data-test="raiseHandBtn"]';
 exports.lowerHandBtn = 'div[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
-exports.logout = 'li[data-test="logout"]';
+exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
+exports.directLogoutButton = 'li[data-test="directLogoutButton"]';
+exports.optionsLogoutButton = 'li[data-test="optionsLogoutButton"]';
 exports.rating = 'div[data-test="rating"]';
 exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 exports.errorMessageLabel = 'span[id="error-message"]';
 exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
+exports.closePopup = 'button[data-test="closePopup"]';
+exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
 
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';
@@ -90,6 +94,7 @@ exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 exports.timeRemaining = 'span[data-test="timeRemaining"]';
 exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
 exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
+exports.selectBreakoutRoomBtn = 'select[data-test="selectBreakoutRoomBtn"]';
 exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
@@ -260,9 +265,7 @@ const pollAnswerOptionDesc = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerDescOption = `${pollAnswerOptionDesc} input:nth-child(1)`;
 exports.secondPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=1`;
 exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
-exports.numberVotes = 'div[data-test="numberOfVotes"]';
-exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
-exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
+exports.userVoteLiveResult = 'td[data-test="userVoteLiveResult"]';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
@@ -274,9 +277,9 @@ exports.closePollingBtn = 'button[data-test="closePolling"]';
 exports.yesNoOption = 'button[data-test="yesNoQuickPoll"]';
 exports.yesNoAbstentionOption = 'li[role="menuitem"]>>nth=1';
 exports.pollAnswerOptionE = 'button[data-test="pollAnswerOption"]>>nth=4';
-exports.answerE = 'div[data-test="numberOfVotes"]>>nth=4';
+
 // Presentation
-exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
+exports.currentSlideImg = '[id="whiteboard-element"] [class="tl-image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
 exports.presentationPPTX = 'BBB.pptx';
 exports.presentationTXT = 'helloWorld.txt';
@@ -285,7 +288,7 @@ exports.noPresentationLabel = 'There is no currently active presentation';
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
 exports.stopScreenSharing = 'button[data-test="stopScreenShare"]';
 exports.managePresentations = 'li[data-test="managePresentations"]';
-exports.fileUpload = 'input[type="file"]';
+exports.presentationFileUpload = 'div#upload-modal input[type="file"]';
 exports.presentationToolbarWrapper = 'div[id="presentationToolbarWrapper"]';
 exports.nextSlide = 'button[data-test="nextSlide"]';
 exports.prevSlide = 'button[data-test="prevSlide"]';
@@ -371,10 +374,6 @@ exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 exports.deniedMessageElement = 'p[class="error-message"]';
-exports.selectRandomUser = 'li[data-test="selectRandomUser"]';
-exports.noViewersSelectedMessage = 'div[data-test="noViewersSelectedMessage"]';
-exports.selectedUserName = 'div[data-test="selectedUserName"]';
-exports.selectAgainRadomUser = 'button[data-test="selectAgainRadomUser"]';
 exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';
@@ -387,7 +386,7 @@ exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]'
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
 exports.userBannedMessage1 = 'div[id="app"] >> div >> div:nth-child(1)';
 exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
-exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
+exports.meetingEndedModalTitle = 'div[data-test="meetingEndedModal"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
 
@@ -405,13 +404,6 @@ exports.lockUserList = 'input[data-test="lockUserList"]';
 exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
 exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
-
-// Closed Captions
-exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
-exports.startWritingClosedCaptions = 'button[data-test="startWritingClosedCaptions"]';
-exports.startViewingClosedCaptionsBtn = 'button[data-test="startViewingClosedCaptionsBtn"]';
-exports.startViewingClosedCaptions = 'button[data-test="startViewingClosedCaptions"]';
-exports.liveCaptions = 'div[data-test="liveCaptions"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
@@ -459,16 +451,16 @@ exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
 exports.wbToolbar = 'div[class="tlui-toolbar__tools"]';
 exports.wbShapesButton = 'button[data-testid="tools.more"]';
-exports.wbRectangleShape = 'span[data-testid="tools.more.rectangle"]';
-exports.wbEllipseShape = 'span[data-testid="tools.more.ellipse"]';
-exports.wbTriangleShape = 'span[data-testid="tools.more.triangle"]';
-exports.wbLineShape = 'span[data-testid="tools.more.line"]';
+exports.wbRectangleShape = 'button[data-testid="tools.rectangle"]';
+exports.wbEllipseShape = 'button[data-testid="tools.more.ellipse"]';
+exports.wbTriangleShape = 'button[data-testid="tools.more.triangle"]';
+exports.wbLineShape = 'button[data-testid="tools.more.line"]';
 exports.wbPencilShape = 'button[data-testid="tools.draw"]';
 exports.wbStickyNoteShape = 'button[data-testid="tools.note"]';
 exports.wbTextShape = 'button[data-testid="tools.text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
-exports.wbTypedStickyNote = 'div[data-shape="sticky"]';
-exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
+exports.wbTypedStickyNote = 'div[data-shape-type="note"]';
+exports.wbDrawnRectangle = 'div[data-shape-type="geo"]';
 exports.wbDrawnLine = 'div[data-shape="draw"]';
 exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
 exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';
@@ -479,23 +471,23 @@ exports.resetZoomButton = 'button[data-test="resetZoomButton"]';
 exports.zoomInButton = 'button[data-test="zoomInBtn"]';
 exports.zoomOutButton = 'button[data-test="zoomOutBtn"]';
 exports.wbPan = 'button[data-test="panButton"]';
-exports.wbEraser = 'button[id="TD-PrimaryTools-Eraser"]';
-exports.wbArrowShape = 'button[id="TD-PrimaryTools-ArrowTopRight"]';
+exports.wbEraser = 'button[data-testid="tools.eraser"]';
+exports.wbArrowShape = 'button[data-testid="tools.arrow"]';
 exports.wbDelete = 'span[id="TD-Delete"]';
-exports.wbUndo = 'button[id="TD-TopPanel-Undo"]';
-exports.wbRedo = 'button[id="TD-TopPanel-Redo"]';
+exports.wbUndo = 'button[data-testid="main.undo"]';
+exports.wbRedo = 'button[data-testid="main.redo"]';
 exports.wbStyles = 'button[id="TD-Styles"]';
-exports.wbColorRed = 'button[id="TD-Styles-Color-Swatch-red"]';
-exports.wbFillDrawing = 'button[id="TD-Styles-Fill"]';
-exports.wbDashDotted = 'div[id="TD-Styles-Dash-dotted"]';
-exports.wbSizeLarge = 'div[id="TD-Styles-Dash-large"]';
-exports.wbOptions = 'button[id="TD-Tools-Dots"]';
+exports.wbColorRed = 'button[data-testid="style.color.red"]';
+exports.wbFillDrawing = 'button[data-testid="style.fill.solid"]';
+exports.wbDashDotted = 'button[data-testid="style.dash.dotted"]';
+exports.wbSizeLarge = 'button[data-testid="style.size.l"]';
+exports.wbOptions = 'button[data-testid="main.action-menu"]';
 exports.wbDuplicate = 'span[id="TD-Tools-Copy"]';
-exports.wbRotate = 'span[id="TD-Tools-Rotate"]';
-exports.wbMoveBackward = 'span[id="TD-Tools-ArrowDown"]';
+exports.wbRotate = 'button[data-testid="menu-item.rotate-cw"]';
+exports.wbMoveBackward = 'button[data-testid="menu-item.send-backward"]';
 exports.wbMoveForward = 'span[id="TD-Tools-ArrowUp"]';
 exports.wbMoveToFront = 'span[id="TD-Tools-PinTop"]';
-exports.wbPaste = 'button[id="TD-ContextMenu-Paste"]';
+exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';

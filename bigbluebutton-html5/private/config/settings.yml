@@ -12,6 +12,7 @@ public:
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
     skipCheck: false
+    instanceId: ''
     # Skips the echo test when connecting with microphone right after user
     # joins the room the first time. Subsequent joins to microphone won't
     # have echo test skipped, for example if user leaves and joins the mic
@@ -30,7 +31,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2023 BigBlueButton Inc.'
+    copyright: '©2024 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -62,7 +63,6 @@ public:
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
-    allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -135,6 +135,7 @@ public:
       breakoutRoomLimit: 16
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
+    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -161,11 +162,11 @@ public:
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
     # If enabled, before joining microphone the client will perform a trickle
-    # ICE against Kurento and use the information about successfull
+    # ICE against Kurento and use the information about successful
     # candidate-pairs to filter out local candidates in SIP.js's SDP.
     # Try enabling this setting in scenarios where the listenonly mode works,
     # but microphone doesn't (for example, when using VPN).
-    # For compatibility check "Browser compatbility" section in:
+    # For compatibility check "Browser compatibility" section in:
     # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
     # This is an EXPERIMENTAL setting and the default value is false
     # experimentalUseKmsTrickleIceForMicrophone: false
@@ -200,7 +201,10 @@ public:
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
         autoCloseReactionsBar: true
+        directLeaveButton: true
         darkTheme: false
+        # set a custom color for talking highlight in webcam
+        webcamBorderHighlightColor: []
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -214,7 +218,7 @@ public:
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's
         #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
-        #Noise Supression, etc.
+        #Noise Suppression, etc.
         #For more deails, see:
         # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
         #Currently, google chrome sets {ideal: true} for autoGainControl,
@@ -284,6 +288,9 @@ public:
     # string will be returned.
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
+    # Maximum number of bytes allowed in each mutation message payload.
+    # Defaults to 10485760 (10MB)
+    maxMutationPayloadSize: 10485760
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
@@ -554,6 +561,129 @@ public:
       size: 24px
     lines: 2
     time: 5000
+    locales:
+      - locale: "af"
+        name: "Afrikaans"
+      - locale: "ar"
+        name: "العربية"
+      - locale: "az"
+        name: "Azərbaycan dili"
+      - locale: "bg-BG"
+        name: "Български"
+      - locale: "bn"
+        name: "বাংলা"
+      - locale: "ca"
+        name: "Català"
+      - locale: "cs-CZ"
+        name: "Čeština"
+      - locale: "da"
+        name: "Dansk"
+      - locale: "de"
+        name: "Deutsch"
+      - locale: "dv"
+        name: "ދިވެހި"
+      - locale: "el-GR"
+        name: "Ελληνικά"
+      - locale: "en"
+        name: "English"
+      - locale: "en-US"
+        name: "English"
+      - locale: "eo"
+        name: "Esperanto"
+      - locale: "es"
+        name: "Español"
+      - locale: "es-419"
+        name: "Español (Latinoamérica)"
+      - locale: "es-ES"
+        name: "Español (España)"
+      - locale: "es-MX"
+        name: "Español (México)"
+      - locale: "et"
+        name: "eesti keel"
+      - locale: "eu"
+        name: "Euskara"
+      - locale: "fa-IR"
+        name: "فارسی"
+      - locale: "fi"
+        name: "Suomi"
+      - locale: "fr"
+        name: "Français"
+      - locale: "gl"
+        name: "Galego"
+      - locale: "he"
+        name: "עברית‏"
+      - locale: "hi-IN"
+        name: "हिन्दी"
+      - locale: "hr"
+        name: "Hrvatski"
+      - locale: "hu-HU"
+        name: "Magyar"
+      - locale: "hy"
+        name: "Հայերեն"
+      - locale: "id"
+        name: "Bahasa Indonesia"
+      - locale: "it-IT"
+        name: "Italiano"
+      - locale: "ja"
+        name: "日本語"
+      - locale: "ka"
+        name: "ქართული"
+      - locale: "km"
+        name: "ភាសាខ្មែរ"
+      - locale: "kn"
+        name: "ಕನ್ನಡ"
+      - locale: "ko-KR"
+        name: "한국어 (韩国)"
+      - locale: "lo-LA"
+        name: "ລາວ"
+      - locale: "lt-LT"
+        name: "Lietuvių"
+      - locale: "lv"
+        name: "Latviešu"
+      - locale: "ml"
+        name: "മലയാളം"
+      - locale: "mn-MN"
+        name: "Монгол"
+      - locale: "nb-NO"
+        name: "Norsk (bokmål)"
+      - locale: "nl"
+        name: "Nederlands"
+      - locale: "oc"
+        name: "Occitan"
+      - locale: "pl-PL"
+        name: "Polski"
+      - locale: "pt"
+        name: "Português"
+      - locale: "pt-BR"
+        name: "Português (Brasil)"
+      - locale: "ro-RO"
+        name: "Română"
+      - locale: "ru"
+        name: "Русский"
+      - locale: "sk-SK"
+        name: "Slovenčina (Slovakia)"
+      - locale: "sl"
+        name: "Slovenščina"
+      - locale: "sr"
+        name: "Српски"
+      - locale: "sv-SE"
+        name: "Svenska"
+      - locale: "ta"
+        name: "தமிழ்"
+      - locale: "te"
+        name: "తెలుగు"
+      - locale: "th"
+        name: "ภาษาไทย"
+      - locale: "tr-TR"
+        name: "Türkçe"
+      - locale: "uk-UA"
+        name: "Українська"
+      - locale: "vi-VN"
+        name: "Tiếng Việt"
+      - locale: "zh-CN"
+        name: "中文（中国"
+      - locale: "zh-TW"
+        name: "中文（台灣"
   timer:
     enabled: true
     alarm: true
@@ -605,7 +735,7 @@ public:
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
   userReaction:
     enabled: true
-    expire: 60
+    expire: 30
     reactions:
       - id: 'smiley'
         native: '😃'
@@ -757,6 +887,15 @@ public:
     #  audio: high
     #  webcam: medium
     #  screenshare: medium
+    #
+    # audioTroubleshootingLinks: links to help users troubleshoot audio issues
+    # If no link is provided, the audio troubleshooting button will not be shown.
+    # Index is the error code:
+    #   - 7: permission denied error code
+    #   - 0: unknown error
+    #audioTroubleshootingLinks:
+    #  7: 'https://link.bigbluebutton.org/perm'
+    #  0: 'https://link.bigbluebutton.org/unk'
   stats:
     enabled: true
     interval: 10000
@@ -833,9 +972,6 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
-  selectRandomUser:
-    enabled: true
-    countdown: false
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -857,6 +993,18 @@ public:
         update: DRAW_UPDATE
         end: DRAW_END
     styles:
+      # color is one of 'black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'
+      colorStyle: 'black'
+      # dash is one of 'dashed', 'dotted', 'draw', 'solid'
+      dashStyle: 'draw'
+      # fill is one of 'none', 'pattern', 'semi', 'solid'
+      fillStyle: 'none'
+      # font is one of 'draw','mono','sans', 'serif'
+      fontStyle: 'draw'
+      # size is one of 'l', 'm', 's', 'xl'
+      sizeStyle: 'm'
+
+      # this one is obsoleted now
       text:
         # Initial font family.
         # family: mono|sans|script|serif
@@ -961,6 +1109,13 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
+  postgresql:
+    host: localhost
+    port: 5432
+    database: bbb_graphql
+    user: bbb_frontend
+    password: bbb_frontend
+    timeout: 30000
   analytics:
     includeChat: true
   app:
@@ -968,29 +1123,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  redis:
-    host: 127.0.0.1
-    port: '6379'
-    timeout: 5000
-    password: null
-    debug: false
-    metrics:
-      queueMetrics: false
-      metricsDumpIntervalMs: 60000
-      metricsFolderPath: METRICS_FOLDER
-      removeMeetingOnEnd: true
-    channels:
-      toAkkaApps: to-akka-apps-redis-channel
-      toThirdParty: to-third-party-redis-channel
-    subscribeTo:
-      - to-html5-redis-channel
-      - from-akka-apps-[^f]*
-      - from-third-party-redis-channel
-    async:
-      - from-akka-apps-wb-redis-channel
-    ignored:
-      - CheckAlivePongSysMsg
-      - DoLatencyTracerMsg
   serverLog:
     level: info
     streamerLog: false
@@ -1031,5 +1163,3 @@ private:
     path: '/metrics'
     # Whether default metrics for Node.js processes should be exported
     collectDefaultMetrics: false
-    # Whether redis metrics should be exported
-    collectRedisMetrics: false

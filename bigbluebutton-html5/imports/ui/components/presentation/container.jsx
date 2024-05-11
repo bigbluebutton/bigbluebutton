@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
-import PresentationToolbarService from './presentation-toolbar/service';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
@@ -11,10 +10,9 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 import MediaService from '../media/service';
-import { useSubscription } from '@apollo/client';
+import { useSubscription, useMutation, useLazyQuery } from '@apollo/client';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
@@ -22,8 +20,10 @@ import {
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
+import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 
-const APP_CONFIG = Meteor.settings.public.app;
+const APP_CONFIG = window.meetingClientSettings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
@@ -33,8 +33,64 @@ const PresentationContainer = (props) => {
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
+    variables: { pageId: currentPresentationPage?.pageId },
+    skip: !currentPresentationPage?.pageId,
+  });
+
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
+
+  const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
+  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
+
+  const [getUsers, { data: usersData }] = useLazyQuery(GET_USER_IDS, { fetchPolicy: 'no-cache' });
+  const users = usersData?.user || [];
+
+  const addWhiteboardGlobalAccess = () => {
+    const usersIds = users.map((user) => user.userId);
+    const { pageId } = currentPresentationPage;
+
+    presentationSetWriters({
+      variables: {
+        pageId,
+        usersIds,
+      },
+    });
+  };
+
+  // users will only be fetched when getUsers is called
+  useEffect(() => {
+    if (users.length > 0) {
+      addWhiteboardGlobalAccess();
+    }
+  }, [users]);
+
+  const removeWhiteboardGlobalAccess = () => {
+    const { pageId } = currentPresentationPage;
+
+    presentationSetWriters({
+      variables: {
+        pageId,
+        usersIds: [],
+      },
+    });
+  };
+
+  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
+    const { presentationId, pageId, num } = currentPresentationPage;
+
+    presentationSetZoom({
+      variables: {
+        presentationId,
+        pageId,
+        pageNum: num,
+        xOffset,
+        yOffset,
+        widthRatio,
+        heightRatio,
+      },
+    });
+  };
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -156,14 +212,14 @@ const PresentationContainer = (props) => {
         currentPresentationId: currentPresentationPage?.presentationId,
         totalPages: currentPresentationPage?.totalPages || 0,
         notify,
-        zoomSlide: PresentationToolbarService.zoomSlide,
+        zoomSlide,
         publishedPoll: poll?.published || false,
         restoreOnUpdate: getFromUserSettings(
           'bbb_force_restore_presentation_on_new_events',
-          Meteor.settings.public.presentation.restoreOnUpdate,
+          window.meetingClientSettings.public.presentation.restoreOnUpdate,
         ),
-        addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
-        removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
+        addWhiteboardGlobalAccess: getUsers,
+        removeWhiteboardGlobalAccess,
         multiUserSize: multiUserData.size,
         isViewersAnnotationsLocked,
         setPresentationIsOpen: MediaService.setPresentationIsOpen,

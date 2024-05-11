@@ -38,8 +38,8 @@ object VoiceUsers {
     UserVoiceDAO.insert(user)
   }
 
-  def removeWithIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
-    UserVoiceDAO.deleteUserVoice(intId)
+  def removeWithIntId(users: VoiceUsers, meetingId: String, intId: String): Option[VoiceUserState] = {
+    UserVoiceDAO.deleteUserVoice(meetingId, intId)
     users.remove(intId)
   }
 
@@ -197,6 +197,7 @@ case class VoiceUserVO2x(
 case class VoiceUserState(
     intId:              String,
     voiceUserId:        String,
+    meetingId:          String,
     callingWith:        String,
     callerName:         String,
     callerNum:          String,

@@ -29,8 +29,24 @@ select_permissions:
         - userId
       filter:
         _or:
-          - userId:
-              _eq: X-Hasura-UserId
+          - _and:
+              - meetingId:
+                  _eq: X-Hasura-MeetingId
+              - userId:
+                  _eq: X-Hasura-UserId
           - meetingId:
               _eq: X-Hasura-ModeratorInMeeting
       allow_aggregations: true
+  - role: not_joined_bbb_client
+    permission:
+      columns:
+        - guestLobbyMessage
+        - guestStatus
+        - positionInWaitingQueue
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+    comment: ""

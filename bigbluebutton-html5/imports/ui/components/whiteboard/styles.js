@@ -1,10 +1,4 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
-import { toolbarButtonColor, colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  fontSizeLarger,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/common/button/component';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
@@ -19,31 +13,27 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
-  ${({ isRTL }) => (!isRTL) && `
-    .tlui-menu-zone {
-      right: auto;
-      left: 3.5rem;
+  ${({ isToolbarVisible }) => (!isToolbarVisible) && `
+    .tlui-toolbar,
+    .tlui-style-panel__wrapper {
+      visibility: hidden;
+    }
+    #WhiteboardOptionButton {
+      opacity: 0.2;
     }
   `}
 
-  ${({ isRTL }) => (isRTL) && `
-    .tlui-menu-zone {
-      right: 3.5rem;
-      left: auto;
-    }
-  `}
-
-  #presentationInnerWrapper > div:last-child {
+  #whiteboard-element {
     position: relative;
     height: 100%;
   }
 
-  #presentationInnerWrapper > div:last-child > * {
+  #whiteboard-element > * {
     position: relative; 
     height: 100%;
   }
 
-  #presentationInnerWrapper > div:last-child .tl-overlays {
+  #whiteboard-element .tl-overlays {
     left: 0px;
     bottom: 0px;
   }
@@ -51,7 +41,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   .tlui-navigation-zone,
   .tlui-help-menu,
   .tlui-debug-panel {
-    display: none;
+    display: none !important;
   }
 
   .tlui-style-panel__wrapper {
@@ -78,19 +68,32 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  .tlui-toolbar__extras {
+    position: fixed !important;
+    top: -2px !important;
+    left: 40px !important;
+  }
+
+  ${({ isRTL }) => (!isRTL) && `
+    .tlui-toolbar__extras {
+      position: fixed !important;
+      top: -2px !important;
+      right: 50px !important;
+    }
+  `}
+
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
-  [data-testid="tools.laser"],
+  [data-testid="tools.more.laser"],
   [data-testid="tools.asset"],
-  .tlui-menu-zone__controls > :nth-child(1),
-  .tlui-menu-zone__controls > :nth-child(2) {
-    display: none;
+  [data-testid="page-menu.button"],
+  tlui-menu-zone {
+    display: none !important;
   }
 
   .tl-collaborator__cursor {
     height: auto !important;
     width: auto !important;
-    transition: transform 0.25s ease-out !important;
   }
 `;
 

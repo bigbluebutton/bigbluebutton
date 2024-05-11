@@ -283,7 +283,9 @@ class BaseBroker {
       }
 
       if (connectionState === 'failed' || connectionState === 'closed') {
-        this.webRtcPeer.peerConnection.onconnectionstatechange = null;
+        if (this.webRtcPeer?.peerConnection) {
+          this.webRtcPeer.peerConnection.onconnectionstatechange = null;
+        }
         // 1307: "ICE_STATE_FAILED",
         const error = BaseBroker.assembleError(1307);
         this.onerror(error);
@@ -343,7 +345,7 @@ class BaseBroker {
     this.onerror = function(){};
     window.removeEventListener('beforeunload', this.onbeforeunload);
 
-    if (this.webRtcPeer) {
+    if (this.webRtcPeer?.peerConnection) {
       this.webRtcPeer.peerConnection.onconnectionstatechange = null;
     }
 

@@ -1,8 +1,3 @@
-import Auth from '/imports/ui/services/auth';
-
-import { getStreamer } from '/imports/api/external-videos';
-import { makeCall } from '/imports/ui/services/api';
-import NotesService from '/imports/ui/components/notes/service';
 
 import ReactPlayer from 'react-player';
 
@@ -20,61 +15,6 @@ const isUrlValid = (url) => {
   return /^https.*$/.test(url) && (ReactPlayer.canPlay(url) || Panopto.canPlay(url));
 };
 
-const startWatching = (url) => {
-  let externalVideoUrl = url;
-
-  if (YOUTUBE_SHORTS_REGEX.test(url)) {
-    const shortsUrl = url.replace('shorts/', 'watch?v=');
-    externalVideoUrl = shortsUrl;
-  } else if (Panopto.canPlay(url)) {
-    externalVideoUrl = Panopto.getSocialUrl(url);
-  }
-
-  // Close Shared Notes if open.
-  NotesService.pinSharedNotes(false);
-
-  makeCall('startWatchingExternalVideo', externalVideoUrl);
-};
-
-const stopWatching = () => {
-  makeCall('stopWatchingExternalVideo');
-};
-
-let lastMessage = null;
-
-const sendMessage = (event, data) => {
-
-  // don't re-send repeated update messages
-  if (lastMessage && lastMessage.event === event
-    && event === 'playerUpdate' && lastMessage.time === data.time) {
-    return;
-  }
-
-  // don't register to redis a viewer joined message
-  if (event === 'viewerJoined') {
-    return;
-  }
-
-  lastMessage = { ...data, event };
-
-  // Use an integer for playing state
-  // 0: stopped 1: playing
-  // We might use more states in the future
-  data.state =  data.state ? 1 : 0;
-
-  makeCall('emitExternalVideoEvent', { status: event, playerStatus: data });
-};
-
-const onMessage = (message, func) => {
-  const streamer = getStreamer(Auth.meetingID);
-  streamer.on(message, func);
-};
-
-const removeAllListeners = (eventType) => {
-  const streamer = getStreamer(Auth.meetingID);
-  streamer.removeAllListeners(eventType);
-};
-
 // Convert state (Number) to playing (Boolean)
 const getPlayingState = (state) => {
   if (state === 1) return true;
@@ -83,11 +23,6 @@ const getPlayingState = (state) => {
 };
 
 export {
-  sendMessage,
-  onMessage,
-  removeAllListeners,
   isUrlValid,
-  startWatching,
-  stopWatching,
   getPlayingState,
 };

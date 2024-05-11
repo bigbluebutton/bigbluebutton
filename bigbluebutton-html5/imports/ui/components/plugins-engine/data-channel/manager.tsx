@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/hooks';
+import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/utils';
 import { DataChannelArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import {
   HookEventWrapper, UnsubscribedEventDetails, SubscribedEventDetails,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataChannelHooks, DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 
-import { PluginDataChannelManagerContainerProps } from './types';
+import { MapInformation, PluginDataChannelManagerProps } from './types';
 import { DataChannelItemManager } from './channel-manager/manager';
 
-const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelManagerContainerProps> = ((
-  props: PluginDataChannelManagerContainerProps,
+const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps> = ((
+  props: PluginDataChannelManagerProps,
 ) => {
   const {
     pluginApi,
@@ -23,40 +24,62 @@ const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelMana
   const [
     mapOfDataChannelInformation,
     setMapOfDataChannelInformation,
-  ] = useState(new Map<string, number>());
+  ] = useState(new Map<string, MapInformation>());
 
-  const updateHookUsage = (channelName: string, pluginName: string, deltaSubscribe: number) => {
+  const updateHookUsage = (channelName: string,
+    pluginName: string, deltaSubscribe: number,
+    dataChannelType: DataChannelTypes, subChannelName: string) => {
     setMapOfDataChannelInformation((
-      previousMap: Map<string, number>,
+      previousMap,
     ) => {
       if (pluginName === pluginNameInUse) {
-        const newMap = new Map<string, number>(previousMap.entries());
-        newMap.set(channelName, (previousMap.get(channelName) || 0) + deltaSubscribe);
+        const uniqueId = createChannelIdentifier(channelName, subChannelName, pluginName);
+        const newMap = new Map<string, MapInformation>(previousMap.entries());
+        let newArrayTypes: DataChannelTypes[] = previousMap.get(uniqueId)?.types || [];
+        if (deltaSubscribe < 0) {
+          const index = newArrayTypes.indexOf(dataChannelType);
+          if (index > -1) {
+            newArrayTypes.splice(index, 1);
+          }
+        } else {
+          newArrayTypes = newArrayTypes.concat([dataChannelType]);
+        }
+        newMap.set(uniqueId, {
+          totalUses: (previousMap.get(uniqueId)?.totalUses || 0) + deltaSubscribe,
+          subChannelName,
+          channelName,
+          types: newArrayTypes,
+        });
         return newMap;
       }
       return previousMap;
     });
   };
 
-  // Alterar aqui
   useEffect(() => {
     const subscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
-        if (event.detail.hook === Hooks.DATA_CHANNEL) {
+        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_BUILDER) {
           const eventDetails = event.detail as SubscribedEventDetails;
-          const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
+          const hookArguments = eventDetails?.hookArguments as DataChannelArguments;
+          const dataChannelTypeFromEvent = hookArguments.dataChannelType!;
+          const { subChannelName } = hookArguments;
           if (hookArguments?.channelName && hookArguments?.pluginName) {
-            updateHookUsage(hookArguments.channelName, hookArguments.pluginName, 1);
+            updateHookUsage(hookArguments.channelName,
+              hookArguments.pluginName, 1, dataChannelTypeFromEvent, subChannelName);
           }
         }
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
-        if (event.detail.hook === Hooks.DATA_CHANNEL) {
+        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_BUILDER) {
           const eventDetails = event.detail as UnsubscribedEventDetails;
-          const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
+          const hookArguments = eventDetails?.hookArguments as DataChannelArguments;
+          const dataChannelTypeFromEvent = hookArguments.dataChannelType!;
+          const { subChannelName } = hookArguments;
           if (hookArguments?.channelName && hookArguments?.pluginName) {
-            updateHookUsage(hookArguments.channelName, hookArguments.pluginName, 1);
+            updateHookUsage(hookArguments.channelName,
+              hookArguments.pluginName, -1, dataChannelTypeFromEvent, subChannelName);
           }
         }
       }) as EventListener;
@@ -72,22 +95,31 @@ const PluginDataChannelManagerContainer: React.ElementType<PluginDataChannelMana
   return (
     <>
       {
-          Array.from(mapOfDataChannelInformation.keys()).filter(
-            (keyChannelName: string) => mapOfDataChannelInformation.get(keyChannelName) !== undefined
-          && mapOfDataChannelInformation.get(keyChannelName)! > 0,
-          ).map((keyChannelName: string) => (
+        Array.from(mapOfDataChannelInformation.keys()).filter(
+          (keyIdentifier: string) => mapOfDataChannelInformation.get(keyIdentifier) !== undefined
+        && mapOfDataChannelInformation.get(keyIdentifier)!.totalUses > 0,
+        ).map((keyIdentifier: string) => {
+          const { subChannelName, channelName } = mapOfDataChannelInformation.get(keyIdentifier)!;
+          const identifier = createChannelIdentifier(
+            channelName, subChannelName, pluginNameInUse,
+          );
+          return (
             <DataChannelItemManager
               {...{
-                key: createChannelIdentifier(keyChannelName, pluginNameInUse),
+                key: identifier,
+                identifier,
                 pluginName: pluginNameInUse,
-                channelName: keyChannelName,
+                channelName,
+                subChannelName,
+                dataChannelTypes: mapOfDataChannelInformation.get(keyIdentifier)!.types,
                 pluginApi,
               }}
             />
-          ))
+          );
+        })
       }
     </>
   );
-}) as React.ElementType<PluginDataChannelManagerContainerProps>;
+}) as React.ElementType<PluginDataChannelManagerProps>;
 
-export default PluginDataChannelManagerContainer;
+export default PluginDataChannelManager;

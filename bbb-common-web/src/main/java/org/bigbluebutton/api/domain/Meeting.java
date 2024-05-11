@@ -60,6 +60,7 @@ public class Meeting {
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
+	private String loginUrl;
 	private String logoutUrl;
 	private int logoutTimer = 0;
 	private int maxUsers;
@@ -110,13 +111,11 @@ public class Meeting {
     private Integer endWhenNoModeratorDelayInMinutes = 1;
 
 	public final BreakoutRoomsParams breakoutRoomsParams;
-	public final LockSettingsParams lockSettingsParams;
+	public LockSettingsParams lockSettingsParams;
 
 	public final Integer maxUserConcurrentAccesses;
 
 	private String meetingEndedCallbackURL = "";
-
-	private Integer html5InstanceId;
 
 	private String overrideClientSettings = "";
 
@@ -143,6 +142,7 @@ public class Meeting {
         maxUsers = builder.maxUsers;
         bannerColor = builder.bannerColor;
         bannerText = builder.bannerText;
+        loginUrl = builder.loginUrl;
         logoutUrl = builder.logoutUrl;
         logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
@@ -172,7 +172,6 @@ public class Meeting {
 		maxUserConcurrentAccesses = builder.maxUserConcurrentAccesses;
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
-        html5InstanceId = builder.html5InstanceId;
 		groups = builder.groups;
 		guestUsersWithPositionInWaitingLine = new HashMap<>();
         userCustomData = new HashMap<>();
@@ -283,10 +282,6 @@ public class Meeting {
 
 		return GuestPolicy.DENY;
 	}
-
-	public int getHtml5InstanceId() { return html5InstanceId; }
-
-    public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
 
 	public ArrayList<Group> getGroups() { return groups; }
 
@@ -472,7 +467,15 @@ public class Meeting {
 	}
 
 	public String getGuestPolicy() {
-    	return guestPolicy;
+		return guestPolicy;
+	}
+
+	public void setLockSettings(LockSettingsParams lockSettingsParams) {
+		this.lockSettingsParams = lockSettingsParams;
+	}
+
+	public void setWebcamsOnlyForModerator(Boolean webcamsOnlyForModerator) {
+		this.webcamsOnlyForModerator = webcamsOnlyForModerator;
 	}
 
 	public void setGuestLobbyMessage(String message) {
@@ -551,6 +554,10 @@ public class Meeting {
 		return GuestPolicy.DENY ;
 	}
 
+
+	public String getLoginUrl() {
+		return loginUrl;
+	}
 
 	public String getLogoutUrl() {
 		return logoutUrl;
@@ -891,6 +898,7 @@ public class Meeting {
     	private String telVoice;
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
+    	private String loginUrl;
     	private String logoutUrl;
     	private String bannerColor;
     	private String bannerText;
@@ -910,7 +918,6 @@ public class Meeting {
 		private Integer maxUserConcurrentAccesses;
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
-		private int html5InstanceId;
 		private ArrayList<Group> groups;
 
     	public Builder(String externalId, String internalId, long createTime) {
@@ -1049,9 +1056,14 @@ public class Meeting {
     	  return this;
     	}
 
+    	public Builder withLoginUrl(String l) {
+    	  loginUrl = l;
+    	  return this;
+    	}
+
     	public Builder withLogoutUrl(String l) {
-    		logoutUrl = l;
-    		return this;
+    	  logoutUrl = l;
+    	  return this;
     	}
 
     	public Builder withLogoutTimer(int l) {
@@ -1116,11 +1128,6 @@ public class Meeting {
 
 		public Builder withEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
     		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
-    		return this;
-		}
-
-		public Builder withHTML5InstanceId(int instanceId) {
-    		html5InstanceId = instanceId;
     		return this;
 		}
 

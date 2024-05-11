@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import useCurrentPresentation from '/imports/ui/core/hooks/useCurrentPresentation';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
-  Hooks, HookEvents,
+  HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { SubscribedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
 import { CurrentPresentation } from '/imports/ui/Types/presentation';
 import formatCurrentPresentation from './utils';
@@ -27,7 +29,7 @@ const CurrentPresentationHookContainer = () => {
         {
           detail: {
             data: formattedCurrentPresentation,
-            hook: Hooks.CURRENT_PRESENTATION,
+            hook: DataConsumptionHooks.CURRENT_PRESENTATION,
           },
         },
       ),
@@ -39,9 +41,9 @@ const CurrentPresentationHookContainer = () => {
   }, [currentPresentation, sendSignal]);
 
   useEffect(() => {
-    const updateHookUseCurrentPresentation = () => {
-      setSendSignal(!sendSignal);
-    };
+    const updateHookUseCurrentPresentation = ((event: CustomEvent<SubscribedEventDetails>) => {
+      if (event.detail.hook === DataConsumptionHooks.CURRENT_PRESENTATION) setSendSignal((signal) => !signal);
+    }) as EventListener;
     window.addEventListener(
       HookEvents.SUBSCRIBED, updateHookUseCurrentPresentation,
     );

@@ -1,16 +1,17 @@
-const Logger = require('../lib/utils/logger');
-const config = require('../config');
-const fs = require('fs');
-const FormData = require('form-data');
-const redis = require('redis');
-const axios = require('axios').default;
-const path = require('path');
-const {NewPresFileAvailableMsg} = require('../lib/utils/message-builder');
-
-const {workerData} = require('worker_threads');
-const [jobType, jobId, filename] = [workerData.jobType, workerData.jobId, workerData.filename];
+import Logger from '../lib/utils/logger.js';
+import fs from 'fs';
+import FormData from 'form-data';
+import redis from 'redis';
+import axios from 'axios';
+import path from 'path';
+import {NewPresFileAvailableMsg} from '../lib/utils/message-builder.js';
+import {workerData} from 'worker_threads';
+const [jobType, jobId, serverSideFilename] = [workerData.jobType,
+  workerData.jobId,
+  workerData.serverSideFilename];
 
 const logger = new Logger('presAnn Notifier Worker');
+const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 
 const dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`;
 const job = fs.readFileSync(path.join(dropbox, 'job'));
@@ -20,17 +21,20 @@ const exportJob = JSON.parse(job);
  * sending a message through Redis PubSub */
 async function notifyMeetingActor() {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   await client.connect();
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  const link = path.join('presentation',
+  const link = path.join(
+      'presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
-      exportJob.presId, 'pdf', jobId, filename);
+      exportJob.presId, 'pdf', jobId, serverSideFilename);
 
   const notification = new NewPresFileAvailableMsg(exportJob, link);
 
@@ -43,7 +47,11 @@ async function notifyMeetingActor() {
  * @param {String} filePath - Absolute path to the file, including the extension
 */
 async function upload(filePath) {
-  const callbackUrl = `${config.bbbWebAPI}/bigbluebutton/presentation/${exportJob.presentationUploadToken}/upload`;
+  const apiPath = '/bigbluebutton/presentation/';
+  const uploadToken = exportJob.presentationUploadToken;
+  const uploadAction = '/upload';
+  const callbackUrl = config.bbbWebAPI + apiPath + uploadToken + uploadAction;
+
   const formData = new FormData();
   formData.append('conference', exportJob.parentMeetingId);
   formData.append('pod_id', config.notifier.pod_id);
@@ -63,10 +71,13 @@ async function upload(filePath) {
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
   notifyMeetingActor();
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
-  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${filename}`;
+  const baseDirectory = exportJob.presLocation;
+  const subDirectory = 'pdfs';
+  const filePath = path.join(baseDirectory, subDirectory,
+      jobId, serverSideFilename);
   upload(filePath);
 } else if (jobType == 'PadCaptureJob') {
-  const filePath = `${dropbox}/${filename}`;
+  const filePath = `${dropbox}/${serverSideFilename}`;
   upload(filePath);
 } else {
   logger.error(`Notifier received unknown job type ${jobType}`);

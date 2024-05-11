@@ -1,15 +1,13 @@
 import { defineMessages } from 'react-intl';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
 
-const STATS = Meteor.settings.public.stats;
+const STATS = window.meetingClientSettings.public.stats;
 const NOTIFICATION = STATS.notification;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   saved: {
@@ -88,22 +86,6 @@ const sortOnline = (a, b) => {
 };
 
 const isEnabled = () => STATS.enabled;
-
-const isModerator = () => {
-  const user = Users.findOne(
-    {
-      meetingId: Auth.meetingID,
-      userId: Auth.userID,
-    },
-    { fields: { role: 1 } },
-  );
-
-  if (user && user.role === ROLE_MODERATOR) {
-    return true;
-  }
-
-  return false;
-};
 
 if (STATS.enabled) {
   window.addEventListener('audiostats', handleAudioStatsEvent);
@@ -222,8 +204,8 @@ const getAudioData = async () => {
  * @returns An Object containing video data for all video peers and screenshare
  *          peer
  */
-const getVideoData = async () => {
-  const camerasData = await VideoService.getStats() || {};
+const getVideoData = async (getVideoStreamsStats) => {
+  const camerasData = await getVideoStreamsStats() || {};
 
   const screenshareData = await ScreenshareService.getStats() || {};
 
@@ -238,10 +220,10 @@ const getVideoData = async () => {
  * For audio, this will get information about the mic/listen-only stream.
  * @returns An Object containing all this data.
  */
-const getNetworkData = async () => {
+const getNetworkData = async (getVideoStreamsStats) => {
   const audio = await getAudioData();
 
-  const video = await getVideoData();
+  const video = await getVideoData(getVideoStreamsStats);
 
   const user = {
     time: new Date(),
@@ -263,7 +245,7 @@ const getNetworkData = async () => {
 };
 
 /**
- * Calculates both upload and download rates using data retreived from getStats
+ * Calculates both upload and download rates using data retrieved from getStats
  * API. For upload (outbound-rtp) we use both bytesSent and timestamp fields.
  * byteSent field contains the number of octets sent at the given timestamp,
  * more information can be found in:
@@ -393,7 +375,6 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
 
 export default {
-  isModerator,
   getStats,
   getHelp,
   isEnabled,

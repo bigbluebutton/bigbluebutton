@@ -66,7 +66,7 @@ class Chat extends MultiUsers {
     await this.modPage.hasText(e.chatUserMessageText, 'The public chat history was cleared by a moderator');
   }
 
-  async copyChat(context) {
+  async copyChat() {
     const { publicChatOptionsEnabled } = getSettings();
 
     await openPublicChat(this.modPage);
@@ -85,7 +85,7 @@ class Chat extends MultiUsers {
     await this.modPage.waitForSelector(e.chatUserMessageText);
     await this.modPage.waitAndClick(e.chatCopy);
     // enable access to browser context clipboard
-    const copiedText = await this.modPage.getCopiedText(context);
+    const copiedText = await this.modPage.getCopiedText(this.modPage.context);
     const check = copiedText.includes(`${p.fullName}: ${e.message}`);
     await expect(check).toBeTruthy();
   }
@@ -363,6 +363,7 @@ class Chat extends MultiUsers {
       return this.modPage.hasText(`${e.chatUserMessageText}>>nth=2`, ":)");
     }
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
+    await this.userPage.waitAndClickElement(e.chatButton, 1);
     await this.userPage.waitForSelector(e.hidePrivateChat);
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage)
@@ -380,8 +381,7 @@ class Chat extends MultiUsers {
   async chatDisabledUserLeaves() {
     await openPrivateChat(this.modPage);
     await this.modPage.waitForSelector(e.sendButton);
-    await this.userPage.waitAndClick(e.optionsButton);
-    await this.userPage.waitAndClick(e.logout);
+    await this.userPage.logoutFromMeeting();
     await this.modPage.hasElement(e.partnerDisconnectedMessage, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.sendButton);
   }  

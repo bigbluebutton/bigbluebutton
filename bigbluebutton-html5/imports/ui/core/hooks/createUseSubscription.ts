@@ -2,10 +2,31 @@ import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
-import { gql, useApolloClient } from '@apollo/client';
+import { FetchResult, gql, useApolloClient } from '@apollo/client';
 import R from 'ramda';
-import { applyPatch } from 'fast-json-patch';
+import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
+import useDeepComparison from '../../hooks/useDeepComparison';
+
+const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
+  if (!query) {
+    throw new Error('Error: query is not defined');
+  }
+
+  if (!query.loc) {
+    throw new Error('Error: query.loc is not defined');
+  }
+
+  // Prepend `Patched_` to the query operationName to inform the middleware that this subscription support jsonPatch
+  // It will also set {fetchPolicy: 'no-cache'} because the cache would not work properly when using json-patch
+  const regexSubscriptionOperationName = /subscription\s+([^{]*)\{/g;
+  if (!regexSubscriptionOperationName.exec(query.loc.source.body)) {
+    throw new Error('Error prepending Patched_ to subscription name - check the provided gql');
+  }
+
+  const newQueryString = query.loc.source.body.replace(regexSubscriptionOperationName, 'subscription Patched_$1 {');
+  return gql`${newQueryString}`;
+};
 
 function createUseSubscription<T>(
   query: DocumentNode | TypedQueryDocumentNode,
@@ -13,7 +34,7 @@ function createUseSubscription<T>(
   usePatchedSubscription = false,
 ) {
   return function useGeneratedUseSubscription(
-    projectionFunction: (element: Partial<T>) => Partial<T>,
+    projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
     const client = useApolloClient();
     const [
@@ -24,23 +45,7 @@ function createUseSubscription<T>(
     const dataRef = useRef<Array<T>>([]);
     let newSubscriptionGQL = query;
     if (usePatchedSubscription) {
-      if (!query) {
-        throw new Error('Error: query is not defined');
-      }
-
-      if (!query.loc) {
-        throw new Error('Error: query.loc is not defined');
-      }
-
-      // Prepend `Patched_` to the query operationName to inform the middleware that this subscription support jsonPatch
-      // It will also set {fetchPolicy: 'no-cache'} because the cache would not work properly when using json-patch
-      const regexSubscriptionOperationName = /subscription\s+([^{]*)\{/g;
-      if (!regexSubscriptionOperationName.exec(query.loc.source.body)) {
-        throw new Error('Error prepending Patched_ to subscription name - check the provided gql');
-      }
-
-      const newQueryString = query.loc.source.body.replace(regexSubscriptionOperationName, 'subscription Patched_$1 {');
-      newSubscriptionGQL = gql`${newQueryString}`;
+      newSubscriptionGQL = makePatchedQuery(query);
     }
 
     useEffect(() => {
@@ -55,7 +60,7 @@ function createUseSubscription<T>(
             const { data } = response;
             let currentData: T[] = [];
             if (usePatchedSubscription && data.patch) {
-              const patchedData = applyPatch(dataRef.current, data.patch).newDocument;
+              const patchedData = applyPatch(deepClone(dataRef.current), data.patch).newDocument;
               currentData = [...patchedData];
             } else {
               const resultSetKey = Object.keys(data)[0];
@@ -88,6 +93,91 @@ function createUseSubscription<T>(
     return projectedData;
   };
 }
+
+export const useSubscription = <T>(
+  query: DocumentNode | TypedQueryDocumentNode,
+  variables: Record<string, unknown> = {},
+  patched = false,
+  projection?: (element: Partial<T>) => Partial<T>,
+) => {
+  const client = useApolloClient();
+  const subscriptionRef = useRef<{ unsubscribe(): void, closed: boolean }>();
+  const oldDataToRetunRef = useRef<GraphqlDataHookSubscriptionResponse<Partial<T>[]>>();
+  const dataRef = useRef<T[]>([]);
+  const paramsDidChange = useDeepComparison(query, variables, patched);
+  const [response, setResponse] = useState<FetchResult<unknown>>();
+  let newSubscriptionGql = query;
+
+  if (patched) {
+    newSubscriptionGql = makePatchedQuery(query);
+  }
+
+  useEffect(() => {
+    if (paramsDidChange) {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+      }
+      const observable = client.subscribe({
+        query: newSubscriptionGql,
+        variables,
+        fetchPolicy: patched ? 'no-cache' : undefined,
+      });
+      const subscription = observable.subscribe({
+        next(response) {
+          setResponse(response);
+        },
+      });
+      subscriptionRef.current = subscription;
+    }
+  });
+
+  useEffect(() => () => {
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+    }
+  }, []);
+
+  if (!response) {
+    return { loading: true };
+  }
+
+  const { data } = response;
+  let currentData: T[] = [];
+
+  if (
+    patched
+    && data
+    && typeof data === 'object'
+    && 'patch' in data
+    && Array.isArray(data.patch)
+  ) {
+    currentData = applyPatch(deepClone(dataRef.current), data.patch).newDocument;
+  } else if (
+    data
+    && typeof data === 'object'
+  ) {
+    const resultSetKey = Object.keys(data)[0];
+    currentData = data[resultSetKey as keyof typeof data];
+  }
+  if (patched) {
+    dataRef.current = currentData;
+  }
+
+  const newProjectionOfData = projection ? currentData.map(projection) : currentData;
+
+  if (!oldDataToRetunRef.current || !R.equals(oldDataToRetunRef.current.data, newProjectionOfData)) {
+    const loading = response.data === undefined && response.errors === undefined;
+    const dataToReturn: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
+      ...response,
+      loading,
+      data: newProjectionOfData,
+    };
+    oldDataToRetunRef.current = dataToReturn;
+    return dataToReturn;
+  }
+
+  return oldDataToRetunRef.current;
+};
 
 export const useCreateUseSubscription = <T>(
   query: DocumentNode | TypedQueryDocumentNode,

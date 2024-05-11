@@ -85,6 +85,9 @@ class RedisRecorderActor(
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
       case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserAwayChangedEvtMsg                 => handleUserAwayChangedEvtMsg(m)
+      case m: UserRaiseHandChangedEvtMsg            => handleUserRaiseHandChangedEvtMsg(m)
+      case m: UserReactionEmojiChangedEvtMsg        => handleUserReactionEmojiChangedEvtMsg(m)
       case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
@@ -106,13 +109,8 @@ class RedisRecorderActor(
       // Pads
       case m: PadCreatedRespMsg                     => handlePadCreatedRespMsg(m)
 
-      // Screenshare
-      case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
-      case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
-      //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
-
       // AudioCaptions
-      case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m)
+      //case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m) // temporarily disabling due to issue https://github.com/bigbluebutton/bigbluebutton/issues/19701
 
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
@@ -281,7 +279,7 @@ class RedisRecorderActor(
   }
 
   private def getPresentationId(whiteboardId: String): String = {
-    // Need to split the whiteboard id into presenation id and page num as the old
+    // Need to split the whiteboard id into presentation id and page num as the old
     // recording expects them
     val strId = new StringOps(whiteboardId)
     val ids = strId.split('/')
@@ -377,6 +375,18 @@ class RedisRecorderActor(
   }
   private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
+  }
+
+  private def handleUserAwayChangedEvtMsg(msg: UserAwayChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "away", if (msg.body.away) "true" else "false")
+  }
+
+  private def handleUserRaiseHandChangedEvtMsg(msg: UserRaiseHandChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "raiseHand", if (msg.body.raiseHand) "true" else "false")
+  }
+
+  private def handleUserReactionEmojiChangedEvtMsg(msg: UserReactionEmojiChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "reactionEmoji", msg.body.reactionEmoji)
   }
 
   private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {
@@ -494,33 +504,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
-    val ev = new DeskshareStartRtmpRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setStreamPath(msg.body.stream)
-
-    record(msg.header.meetingId, ev.toMap.asJava)
-  }
-
-  private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg) {
-    val ev = new DeskshareStopRtmpRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setStreamPath(msg.body.stream)
-
-    record(msg.header.meetingId, ev.toMap.asJava)
-  }
-
-  /*
-  private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
-    val ev = new DeskShareNotifyViewersRTMPRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setStreamPath(msg.streamPath)
-    ev.setBroadcasting(msg.broadcasting)
-
-    record(msg.header.meetingId, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
-  }
-  */
-
+  /* temporarily disabling due to issue https://github.com/bigbluebutton/bigbluebutton/issues/19701
   private def handleTranscriptUpdatedEvtMsg(msg: TranscriptUpdatedEvtMsg) {
     val ev = new TranscriptUpdatedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -529,6 +513,7 @@ class RedisRecorderActor(
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
+  */
 
   private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
     val ev = new StartExternalVideoRecordEvent()

@@ -8,17 +8,19 @@ export interface ExtensibleAreaStateManagerProps {
 }
 
 export interface ExtensibleArea {
-  presentationToolbarItems: PluginSdk.PresentationToolbarItem[];
-  userListDropdownItems: PluginSdk.UserListDropdownItem[];
-  actionButtonDropdownItems: PluginSdk.ActionButtonDropdownItem[];
-  audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownItem[];
-  actionsBarItems: PluginSdk.ActionsBarItem[];
-  presentationDropdownItems: PluginSdk.PresentationDropdownItem[];
-  navBarItems: PluginSdk.NavBarItem[];
-  optionsDropdownItems: PluginSdk.OptionsDropdownItem[];
-  cameraSettingsDropdownItems: PluginSdk.CameraSettingsDropdownItem[];
-  userCameraDropdownItems: PluginSdk.UserCameraDropdownItem[];
-  userListItemAdditionalInformation: PluginSdk.UserListItemAdditionalInformation[];
+  presentationToolbarItems: PluginSdk.PresentationToolbarInterface[];
+  userListDropdownItems: PluginSdk.UserListDropdownInterface[];
+  actionButtonDropdownItems: PluginSdk.ActionButtonDropdownInterface[];
+  audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownInterface[];
+  actionsBarItems: PluginSdk.ActionsBarInterface[];
+  presentationDropdownItems: PluginSdk.PresentationDropdownInterface[];
+  navBarItems: PluginSdk.NavBarInterface[];
+  optionsDropdownItems: PluginSdk.OptionsDropdownInterface[];
+  cameraSettingsDropdownItems: PluginSdk.CameraSettingsDropdownInterface[];
+  userCameraDropdownItems: PluginSdk.UserCameraDropdownInterface[];
+  userListItemAdditionalInformation: PluginSdk.UserListItemAdditionalInformationInterface[];
+  floatingWindows: PluginSdk.FloatingWindowInterface[]
+  genericComponents: PluginSdk.GenericComponentInterface[]
 }
 
 /**
@@ -36,7 +38,7 @@ export type ExtensibleAreaMap = {
 export interface ExtensibleAreaComponentManagerProps {
   uuid: string;
   generateItemWithId<T extends PluginProvidedUiItemDescriptor>(
-      item: T, index: number): T;
+      item: T): T;
   extensibleAreaMap: ExtensibleAreaMap;
   pluginApi: PluginSdk.PluginApi;
 }

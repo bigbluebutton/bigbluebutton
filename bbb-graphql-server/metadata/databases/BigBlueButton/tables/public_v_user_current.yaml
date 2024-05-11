@@ -7,15 +7,6 @@ configuration:
   custom_name: user_current
   custom_root_fields: {}
 object_relationships:
-  - name: breakoutRooms
-    using:
-      manual_configuration:
-        column_mapping:
-          meetingId: parentMeetingId
-        insertion_order: null
-        remote_table:
-          name: v_breakoutRoom
-          schema: public
   - name: connectionStatus
     using:
       manual_configuration:
@@ -34,7 +25,7 @@ object_relationships:
         remote_table:
           name: v_user_customParameter
           schema: public
-  - name: guestStatus
+  - name: guestStatusDetails
     using:
       manual_configuration:
         column_mapping:
@@ -68,7 +59,7 @@ object_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_reaction
+          name: v_user_reaction_current
           schema: public
   - name: sharedNotesSession
     using:
@@ -78,6 +69,15 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_sharedNotes_session
+          schema: public
+  - name: transcriptionError
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_transcriptionError
           schema: public
   - name: userClientSettings
     using:
@@ -98,6 +98,15 @@ object_relationships:
           name: v_user_voice
           schema: public
 array_relationships:
+  - name: breakoutRooms
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: parentMeetingId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom
+          schema: public
   - name: cameras
     using:
       manual_configuration:
@@ -130,6 +139,7 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - authToken
         - authed
         - avatar
         - away
@@ -146,9 +156,11 @@ select_permissions:
         - expired
         - extId
         - guest
+        - guestStatus
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
+        - isOnline
         - isRunningEchoTest
         - joinErrorCode
         - joinErrorMessage
@@ -165,13 +177,19 @@ select_permissions:
         - registeredOn
         - role
         - speechLocale
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
         - userId
       filter:
-        userId:
-          _eq: X-Hasura-UserId
-  - role: pre_join_bbb_client
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+  - role: not_joined_bbb_client
     permission:
       columns:
+        - authToken
         - authed
         - banned
         - color
@@ -180,8 +198,11 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - expired
+        - isOnline
+        - isModerator
         - extId
         - guest
+        - guestStatus
         - joinErrorCode
         - joinErrorMessage
         - joined
@@ -191,8 +212,11 @@ select_permissions:
         - registeredOn
         - userId
       filter:
-        userId:
-          _eq: X-Hasura-UserId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
     comment: ""
 update_permissions:
   - role: bbb_client

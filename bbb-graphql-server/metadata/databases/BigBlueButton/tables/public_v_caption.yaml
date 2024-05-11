@@ -11,6 +11,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -25,7 +26,8 @@ select_permissions:
         - captionId
         - userId
         - captionType
-        - lang
+        - locale
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+      allow_aggregations: true

@@ -8,6 +8,7 @@ import { clone } from 'radash';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
+import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -133,7 +134,7 @@ class Settings extends Component {
     const { availableLocales } = this.props;
 
     availableLocales.then((locales) => {
-      this.setState({ allLocales: locales });
+      this.setState({ allLocales: locales.filter((locale) => locale?.name !== 'index') });
     });
   }
 
@@ -264,6 +265,7 @@ class Settings extends Component {
       setIsOpen,
       isOpen,
       priority,
+      setLocalSettings,
     } = this.props;
     const {
       current,
@@ -274,10 +276,12 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current, intlMessages.savedAlertLabel);
+            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
 
             if (saved.application.locale !== current.application.locale) {
               const { language } = formatLocaleCode(saved.application.locale);
+              const newLanguage = current.application.locale;
+              setUseCurrentLocale(newLanguage);
               document.body.classList.remove(`lang-${language}`);
             }
 

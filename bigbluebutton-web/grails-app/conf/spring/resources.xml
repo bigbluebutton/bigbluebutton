@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="waitingGuestCleanupTimerTask" ref="waitingGuestCleanupTimerTask"/>
         <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
+        <property name="sessionsCleanupDelayInMinutes" value="${sessionsCleanupDelayInMinutes}"/>
         <property name="enteredUserCleanupTimerTask" ref="enteredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
@@ -117,8 +118,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="learningDashboardFilesDir" value="${learningDashboardFilesDir}"/>
     </bean>
 
-    <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
-
     <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
         <property name="securitySalt" value="${securitySalt}"/>
         <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>
@@ -145,6 +144,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
         <property name="defaultHTML5ClientUrl" value="${defaultHTML5ClientUrl}"/>
+        <property name="graphqlWebsocketUrl" value="${graphqlWebsocketUrl}"/>
         <property name="useDefaultLogo" value="${useDefaultLogo}"/>
         <property name="defaultLogoURL" value="${defaultLogoURL}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>

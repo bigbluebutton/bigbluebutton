@@ -6,12 +6,14 @@ import Users from '/imports/api/users';
 import './settings';
 import { check } from 'meteor/check';
 import Logger from './logger';
-import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
 import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
 let guestWaitHtml = '';
+
+const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
+const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
 
 const env = Meteor.isDevelopment ? 'development' : 'production';
 
@@ -66,40 +68,51 @@ Meteor.startup(() => {
     }, healthCheckInterval);
   }
 
-  const { customHeartbeat } = APP_CONFIG;
+  const { customHeartbeat, customHeartbeatUseDataFrames } = APP_CONFIG;
 
   if (customHeartbeat) {
     Logger.warn('Custom heartbeat functions are enabled');
     // https://github.com/sockjs/sockjs-node/blob/1ef08901f045aae7b4df0f91ef598d7a11e82897/lib/transport/websocket.js#L74-L82
-    const newHeartbeat = function heartbeat() {
-      const currentTime = new Date().getTime();
+    const heartbeatFactory = function ({ heartbeatTimeoutCallback }) {
+      return function () {
+        const currentTime = new Date().getTime();
 
-      // Skipping heartbeat, because websocket is sending data
-      if (currentTime - this.ws.lastSentFrameTimestamp < 10000) {
-        try {
-          Logger.info('Skipping heartbeat, because websocket is sending data', {
-            currentTime,
-            lastSentFrameTimestamp: this.ws.lastSentFrameTimestamp,
-            userId: this.session.connection._meteorSession.userId,
-          });
-          return;
-        } catch (err) {
-          Logger.error(`Skipping heartbeat error: ${err}`);
-        }
-      }
-
-      const supportsHeartbeats = this.ws.ping(null, () => clearTimeout(this.hto_ref));
-      if (supportsHeartbeats) {
-        this.hto_ref = setTimeout(() => {
-          try {
-            Logger.info('Heartbeat timeout', { userId: this.session.connection._meteorSession.userId, sentAt: currentTime, now: new Date().getTime() });
-          } catch (err) {
-            Logger.error(`Heartbeat timeout error: ${err}`);
+        if (customHeartbeatUseDataFrames) {
+          // Skipping heartbeat, because websocket is sending data
+          if (currentTime - this.ws.lastSentFrameTimestamp < 10000) {
+            try {
+              Logger.debug('Skipping heartbeat, because websocket is sending data', {
+                currentTime,
+                lastSentFrameTimestamp: this.ws.lastSentFrameTimestamp,
+                userId: this.session?.connection?._meteorSession?.userId,
+              });
+              return;
+            } catch (err) {
+              Logger.error(`Skipping heartbeat error: ${err}`);
+            }
           }
-        }, Meteor.server.options.heartbeatTimeout);
-      } else {
-        Logger.error('Unexpected error supportsHeartbeats=false');
-      }
+        }
+
+        const supportsHeartbeats = this.ws.ping(null, () => {
+          clearTimeout(this.hto_ref);
+        });
+
+        if (supportsHeartbeats) {
+          this.hto_ref = setTimeout(() => {
+            try {
+              Logger.warn('Heartbeat timeout', { userId: this.session?.connection?._meteorSession?.userId, sentAt: currentTime, now: new Date().getTime() });
+            } catch (err) {
+              Logger.error(`Heartbeat timeout error: ${err}`);
+            } finally {
+              if (typeof heartbeatTimeoutCallback === 'function') {
+                heartbeatTimeoutCallback();
+              }
+            }
+          }, Meteor.server.options.heartbeatTimeout);
+        } else {
+          Logger.error('Unexpected error supportsHeartbeats=false');
+        }
+      };
     };
 
     // https://github.com/davhani/hagty/blob/6a5c78e9ae5a5e4ade03e747fb4cc8ea2df4be0c/faye-websocket/lib/faye/websocket/api.js#L84-L88
@@ -134,8 +147,10 @@ Meteor.startup(() => {
         }
 
         recv.ws.meteorHeartbeat = session.heartbeat;
-        recv.__proto__.heartbeat = newHeartbeat;
-        recv.ws.__proto__.send = newSend;
+        recv.heartbeat = heartbeatFactory({
+          heartbeatTimeoutCallback: recv.heartbeat_cb
+        });
+        recv.ws.send = newSend;
         session.bbbFixApplied = true;
       }
     }, 5000);
@@ -182,11 +197,9 @@ Meteor.startup(() => {
   CDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
-
 const generateLocaleOptions = () => {
   try {
     Logger.warn('Calculating aggregateLocales (heavy)');
-
 
     // remove duplicated locales (always remove more generic if same name)
     const tempAggregateLocales = AVAILABLE_LOCALES
@@ -207,6 +220,18 @@ const generateLocaleOptions = () => {
       .reverse();
 
     Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+
+    const filePath = `${applicationRoot}/index.json`;
+    const jsContent = JSON.stringify(AVAILABLE_LOCALES, null, 2);
+
+    // Write JSON data to a file
+    fs.writeFile(filePath, jsContent, (err) => {
+      if (err) {
+        Logger.error('Error writing file:', err);
+      } else {
+        Logger.info(`JSON data has been written to ${filePath}`);
+      }
+    });
 
     return tempAggregateLocales;
   } catch (e) {
@@ -273,6 +298,8 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   res.end(JSON.stringify({
     normalizedLocale: localeFile,
     regionDefaultLocale: (regionDefault && regionDefault !== localeFile) ? regionDefault : '',
+    defaultLocale: DEFAULT_LANGUAGE,
+    fallbackOnEmptyLocaleString: FALLBACK_ON_EMPTY_STRING,
   }));
 });
 
@@ -341,7 +368,3 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
   res.writeHead(200);
   res.end(guestWaitHtml);
 });
-
-export const eventEmitter = Redis.emitter;
-
-export const redisPubSub = Redis;

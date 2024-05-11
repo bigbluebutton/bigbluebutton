@@ -8,7 +8,7 @@ import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-back
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
 import PreviewService from './service';
-import VideoService from '../video-provider/service';
+import VideoService from '../video-provider/video-provider-graphql/service';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
@@ -30,7 +30,7 @@ const VIEW_STATES = {
   error: 'error',
 };
 
-const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
+const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
 const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
 const propTypes = {
@@ -309,7 +309,7 @@ class VideoPreview extends Component {
                   const newDevices = await navigator.mediaDevices.enumerateDevices();
                   webcams = PreviewService.digestVideoDevices(newDevices, webcamDeviceId).webcams;
                 } catch (error) {
-                  // Not a critical error beucase it should only affect UI; log it
+                  // Not a critical error because it should only affect UI; log it
                   // and go ahead
                   logger.error({
                     logCode: 'video_preview_enumerate_relabel_failure',
@@ -1059,7 +1059,7 @@ class VideoPreview extends Component {
           <Styled.BrowserWarning>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"
-              description="Warning when someone joins with a browser that isnt supported"
+              description="Warning when someone joins with a browser that isn't supported"
               values={{
                 0: <a href="https://www.google.com/chrome/">Chrome</a>,
                 1: <a href="https://getfirefox.com">Firefox</a>,

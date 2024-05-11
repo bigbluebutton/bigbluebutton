@@ -1,10 +1,17 @@
+/* eslint-disable no-param-reassign */
 import React, { useEffect, useMemo, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
 import audioManager from '/imports/ui/services/audio-manager';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar, useMutation } from '@apollo/client';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
+import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
 import { OnProgressProps } from 'react-player/base';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { ExternalVideoVolumeUiDataNames } from 'bigbluebutton-html-plugin-sdk';
+import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/external-video/volume/types';
 
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
@@ -24,8 +31,8 @@ import { uniqueId } from '/imports/utils/string-utils';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import ExternalVideoPlayerToolbar from './toolbar/component';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { sendMessage } from './service';
-import { ACTIONS } from '../../layout/enums';
+import { ACTIONS, PRESENTATION_AREA } from '../../layout/enums';
+import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
@@ -52,7 +59,10 @@ const intlMessages = defineMessages({
 });
 
 interface ExternalVideoPlayerProps {
+  currentVolume: React.MutableRefObject<number>;
+  isMuted: React.MutableRefObject<boolean>;
   isEchoTest: boolean;
+  isGridLayout: boolean;
   isPresenter: boolean;
   videoUrl: string;
   isResizing: boolean;
@@ -61,8 +71,8 @@ interface ExternalVideoPlayerProps {
   playing: boolean;
   playerPlaybackRate: number;
   currentTime: number;
-  layoutContextDispatch: ReturnType<typeof layoutDispatch>;
   key: string;
+  isSidebarContentOpen: boolean;
   setKey: (key: string) => void;
 }
 
@@ -72,6 +82,10 @@ Styled.VideoPlayer.addCustomPlayer(PeerTube);
 Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 
 const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
+  isGridLayout,
+  isSidebarContentOpen,
+  currentVolume,
+  isMuted,
   isResizing,
   externalVideo,
   fullscreenContext,
@@ -81,7 +95,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   playerPlaybackRate,
   currentTime,
   isEchoTest,
-  layoutContextDispatch,
   key,
   setKey,
 }) => {
@@ -150,7 +163,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     };
   }, [isPresenter]);
 
-  const [autoPlayBlocked, setAutoPlayBlocked] = React.useState(false);
+  const [showUnsynchedMsg, setShowUnsynchedMsg] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
   const [mute, setMute] = React.useState(false);
   const [volume, setVolume] = React.useState(1);
@@ -160,43 +173,118 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const playerRef = useRef<ReactPlayer>();
   const playerParentRef = useRef<HTMLDivElement| null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
-      setAutoPlayBlocked(true);
-    }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
+  const presenterRef = useRef(isPresenter);
+  const [duration, setDuration] = React.useState(0);
+  const [reactPlayerState, setReactPlayerState] = React.useState(false);
 
-    layoutContextDispatch({
-      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
-      value: true,
-    });
+  const [updateExternalVideo] = useMutation(EXTERNAL_VIDEO_UPDATE);
 
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: true,
-    });
-  }, []);
+  let lastMessage: {
+    event: string;
+    rate: number;
+    time: number;
+    state?: string;
+  } = { event: '', rate: 0, time: 0 };
 
-  useEffect(() => {
-    if (playerRef.current && !isPresenter) {
-      playerRef.current.seekTo(currentTime, 'seconds');
+  const handleDuration = (duration: number) => {
+    setDuration(duration);
+  };
+
+  const sendMessage = (event: string, data: { rate: number; time: number; state?: string}) => {
+    // don't re-send repeated update messages
+    if (
+      lastMessage.event === event
+      && lastMessage.time === data.time
+    ) {
+      return;
     }
-  }, [currentTime]);
+
+    // don't register to redis a viewer joined message
+    if (event === 'viewerJoined') {
+      return;
+    }
+
+    lastMessage = { ...data, event };
+
+    // Use an integer for playing state
+    // 0: stopped 1: playing
+    // We might use more states in the future
+    const state = data.state ? 1 : 0;
+
+    updateExternalVideo({
+      variables: {
+        status: event,
+        rate: data?.rate,
+        time: data?.time,
+        state,
+      },
+    });
+  };
+
+  useEffect(() => {
+    const unsynchedPlayer = reactPlayerState !== playing;
+    if (unsynchedPlayer && !!videoUrl) {
+      timeoutRef.current = setTimeout(() => {
+        setShowUnsynchedMsg(true);
+      }, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
+    } else {
+      setShowUnsynchedMsg(false);
+      clearTimeout(timeoutRef.current);
+    }
+  }, [reactPlayerState, playing]);
+
+  useEffect(() => {
+    const handleExternalVideoVolumeSet = ((
+      event: CustomEvent<SetExternalVideoVolumeCommandArguments>,
+    ) => setVolume(event.detail.volume)) as EventListener;
+    window.addEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
+    return () => {
+      window.addEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
+    };
+  }, []);
 
   useEffect(() => {
     if (playerRef.current) {
       playerRef.current.seekTo(currentTime, 'seconds');
     }
-  }, [playerRef.current]);
+  }, [playerRef.current, playing]);
+
+  // --- Plugin related code ---;
+  const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
+  if (internalPlayer && internalPlayer?.isMuted
+    && typeof internalPlayer?.isMuted === 'function'
+    && internalPlayer?.isMuted() !== isMuted.current) {
+    isMuted.current = internalPlayer?.isMuted();
+    window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED, {
+      detail: {
+        value: internalPlayer?.isMuted(),
+      } as ExternalVideoVolumeUiDataPayloads[ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED],
+    }));
+  }
+  if (internalPlayer && internalPlayer?.getVolume
+    && typeof internalPlayer?.getVolume === 'function'
+    && internalPlayer?.getVolume() !== currentVolume.current) {
+    currentVolume.current = internalPlayer?.getVolume();
+    window.dispatchEvent(new CustomEvent(ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE, {
+      detail: {
+        value: internalPlayer?.getVolume() / 100,
+      } as ExternalVideoVolumeUiDataPayloads[ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE],
+    }));
+  }
+  // --- End of plugin related code ---
+
+  useEffect(() => {
+    if (isPresenter !== presenterRef.current) {
+      setKey(uniqueId('react-player'));
+      presenterRef.current = isPresenter;
+    }
+  }, [isPresenter]);
 
   const handleOnPlay = () => {
-    setAutoPlayBlocked(false);
-    clearTimeout(timeoutRef.current);
+    setReactPlayerState(true);
     if (isPresenter) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
-      const currentTime = playerRef.current?.getCurrentTime() ?? 0;
+      const currentTime = played * duration;
       sendMessage('play', {
         rate,
         time: currentTime,
@@ -206,7 +294,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const handleOnPause = () => {
+  const handleOnStop = () => {
+    setReactPlayerState(false);
     if (isPresenter) {
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
@@ -225,8 +314,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   // @ts-ignore accessing lib private property
   const playerName = playerRef.current && playerRef.current.player
-  // @ts-ignore accessing lib private property
-  && playerRef.current.player.player && playerRef.current.player.player.constructor.name as string;
+    // @ts-ignore accessing lib private property
+    && playerRef.current.player.player && playerRef.current.player.player.constructor.name as string;
   let toolbarStyle = 'hoverToolbar';
 
   if (deviceInfo.isMobile && !showHoverToolBar) {
@@ -236,6 +325,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   if (deviceInfo.isMobile && showHoverToolBar) {
     toolbarStyle = 'showMobileHoverToolbar';
   }
+
+  const shouldShowTools = () => {
+    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen)) {
+      return false;
+    }
+    return true;
+  };
 
   return (
     <Styled.Container
@@ -256,7 +352,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       >
 
         {
-          autoPlayBlocked
+          showUnsynchedMsg && shouldShowTools()
             ? (
               <Styled.AutoPlayWarning>
                 {intl.formatMessage(intlMessages.autoPlayWarning)}
@@ -277,15 +373,17 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           ref={playerRef}
           volume={volume}
           onPlay={handleOnPlay}
+          onDuration={handleDuration}
           onProgress={(state: OnProgressProps) => {
             setPlayed(state.played);
             setLoaded(state.loaded);
           }}
-          onPause={handleOnPause}
-          mute={mute}
+          onPause={handleOnStop}
+          onEnded={handleOnStop}
+          muted={mute || isEchoTest}
         />
         {
-          !isPresenter ? (
+          shouldShowTools() ? (
             <ExternalVideoPlayerToolbar
               handleOnMuted={(m: boolean) => { setMute(m); }}
               handleReload={() => setKey(uniqueId('react-player'))}
@@ -305,7 +403,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               hideVolume={hideVolume[playerName as keyof typeof hideVolume]}
             />
           ) : null
-      }
+        }
       </Styled.VideoPlayerWrapper>
     </Styled.Container>
   );
@@ -315,20 +413,91 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   /* eslint no-underscore-dangle: "off" */
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isEchoTest = useReactiveVar(audioManager._isEchoTest.value) as boolean;
-
+  const theresNoExternalVideo = useRef(true);
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+  const currentVolume = React.useRef(0);
+  const isMuted = React.useRef(false);
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
+    layout: m.layout,
   }));
+
+  useEffect(() => {
+    if (!currentMeeting?.externalVideo?.externalVideoUrl && !theresNoExternalVideo.current) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
+          open: false,
+        },
+      });
+      theresNoExternalVideo.current = true;
+    } else if (currentMeeting?.externalVideo?.externalVideoUrl && theresNoExternalVideo.current) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
+          open: true,
+        },
+      });
+      theresNoExternalVideo.current = false;
+    }
+  }, [currentMeeting]);
+
+  // --- Plugin related code ---
+  useEffect(() => {
+    // Define functions to first inform ui data hooks that subscribe to these events
+    const updateUiDataHookCurrentVolumeForPlugin = () => {
+      window.dispatchEvent(new CustomEvent(PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE, {
+        detail: {
+          value: currentVolume.current,
+        } as ExternalVideoVolumeUiDataPayloads[PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE],
+      }));
+    };
+    const updateUiDataHookIsMutedPlugin = () => {
+      window.dispatchEvent(new CustomEvent(PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED, {
+        detail: {
+          value: isMuted.current,
+        } as ExternalVideoVolumeUiDataPayloads[PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED],
+      }));
+    };
+
+    // When component mount, add event listener to send first information
+    // about these ui data hooks to plugin
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE}`,
+      updateUiDataHookCurrentVolumeForPlugin,
+    );
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
+      updateUiDataHookIsMutedPlugin,
+    );
+
+    // Before component unmount, remove event listeners for plugin ui data hooks
+    return () => {
+      window.removeEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE}`,
+        updateUiDataHookCurrentVolumeForPlugin,
+      );
+      window.removeEventListener(
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
+        updateUiDataHookIsMutedPlugin,
+      );
+    };
+  }, []);
+  // --- End of plugin related code ---
 
   const [timeSync] = useTimeSync();
 
   const fullscreenElementId = 'ExternalVideo';
   const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
+  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const { isOpen: isSidebarContentOpen } = sidebarContent;
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -336,24 +505,30 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const fullscreenContext = (element === fullscreenElementId);
   const [key, setKey] = React.useState(uniqueId('react-player'));
   if (!currentUser || !currentMeeting) return null;
-
+  if (!hasExternalVideoOnLayout) return null;
   const playerCurrentTime = currentMeeting.externalVideo?.playerCurrentTime ?? 0;
   const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const playerUpdatedAt = currentMeeting.externalVideo?.updatedAt ?? Date.now();
   const playerUpdatedAtDate = new Date(playerUpdatedAt);
   const currentDate = new Date(Date.now() + timeSync);
-  const currentTime = (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
-  + playerCurrentTime) * playerPlaybackRate;
+  const isPaused = !currentMeeting.externalVideo?.playerPlaying ?? false;
+  const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
+    + playerCurrentTime) * playerPlaybackRate;
+  const isPresenter = currentUser.presenter ?? false;
+  const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
 
   return (
     <ExternalVideoPlayer
+      isSidebarContentOpen={isSidebarContentOpen}
+      isGridLayout={isGridLayout}
+      currentVolume={currentVolume}
+      isMuted={isMuted}
       isEchoTest={isEchoTest}
-      isPresenter={currentUser.presenter ?? false}
+      isPresenter={isPresenter ?? false}
       videoUrl={currentMeeting.externalVideo?.externalVideoUrl ?? ''}
       playing={currentMeeting.externalVideo?.playerPlaying ?? false}
       playerPlaybackRate={currentMeeting.externalVideo?.playerPlaybackRate ?? 1}
       isResizing={isResizing}
-      layoutContextDispatch={layoutContextDispatch}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
       currentTime={currentTime}

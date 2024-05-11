@@ -942,7 +942,7 @@ def BBB_server_standalone(hostname, x=100, y=300):
             install_options.append('-g')
 
         install_options_str = ' '.join(install_options)
-        user_data['runcmd'].append(f'sudo -u ubuntu RELEASE="{args.release}" INSTALL_OPTIONS="{install_options_str}" /testserver.sh')
+        user_data['runcmd'].append(f'runuser -u ubuntu RELEASE="{args.release}" INSTALL_OPTIONS="{install_options_str}" /testserver.sh')
 
     if notification_url:
         user_data['phone_home'] = {'url': notification_url, 'tries': 1}

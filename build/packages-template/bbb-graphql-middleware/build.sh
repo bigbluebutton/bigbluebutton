@@ -28,12 +28,15 @@ echo "Build of bbb-graphql-middleware finished"
 
 cp bbb-graphql-middleware staging/usr/local/bin/bbb-graphql-middleware
 
+mkdir -p staging/etc/nginx/conf.d
+cp bbb-graphql-client-settings-cache.conf staging/etc/nginx/conf.d
+
 # Create service bbb-graphql-middleware
-cp ./bbb-graphql-middleware-config.env staging/etc/default/bbb-graphql-middleware
-cp ./bbb-graphql-middleware.service staging/lib/systemd/system/bbb-graphql-middleware.service
+cp bbb-graphql-middleware-config.env staging/etc/default/bbb-graphql-middleware
+cp bbb-graphql-middleware.service staging/lib/systemd/system/bbb-graphql-middleware.service
 
 # Set nginx location
-cp ./graphql.nginx staging/usr/share/bigbluebutton/nginx
+cp graphql.nginx staging/usr/share/bigbluebutton/nginx
 
 . ./opts-$DISTRO.sh
 

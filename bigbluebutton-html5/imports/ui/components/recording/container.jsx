@@ -1,24 +1,42 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { makeCall } from '/imports/ui/services/api';
-import { RecordMeetings } from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
+import { useMutation, useSubscription } from '@apollo/client';
 import RecordingComponent from './component';
+import { SET_RECORDING_STATUS } from './mutations';
+import { GET_RECORDINGS } from './queries';
 
-const RecordingContainer = props => <RecordingComponent {...props} />;
+const RecordingContainer = (props) => {
+  const { setIsOpen } = props;
+  const [setRecordingStatus] = useMutation(SET_RECORDING_STATUS);
+  const {
+    data: recordingData,
+  } = useSubscription(GET_RECORDINGS);
 
-export default withTracker(({ setIsOpen }) => {
-  const { recording, time } = RecordMeetings.findOne({ meetingId: Auth.meetingID });
+  const recording = recordingData?.meeting_recording[0]?.isRecording ?? false;
+  const time = recordingData?.meeting_recording[0]?.previousRecordedTimeInSeconds ?? 0;
 
-  return ({
-    toggleRecording: () => {
-      makeCall('toggleRecording');
-      setIsOpen(false);
-    },
+  const toggleRecording = () => {
+    setRecordingStatus({
+      variables: {
+        recording: !recording,
+      },
+    });
+    setIsOpen(false);
+  };
+  return (
+    <RecordingComponent {
+      ...{
+        recordingStatus: recording,
+        recordingTime: time,
+        toggleRecording,
+        ...props,
+      }
+    }
+    />
+  );
+};
 
-    recordingStatus: recording,
-    recordingTime: time,
+export default withTracker(({ setIsOpen }) => ({
     isMeteorConnected: Meteor.status().connected,
-
-  });
-})(RecordingContainer);
+    setIsOpen,
+  }))(RecordingContainer);

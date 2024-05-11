@@ -29,7 +29,14 @@ select_permissions:
         - userId
       filter:
         _or:
-          - pollOwnerId:
-              _eq: X-Hasura-UserId
-          - userId:
-              _eq: X-Hasura-UserId
+          - _and:
+              - meetingId:
+                  _eq: X-Hasura-MeetingId
+              - userId:
+                  _eq: X-Hasura-UserId
+          - _and:
+              - pollOwnerMeetingId:
+                  _eq: X-Hasura-MeetingId
+              - pollOwnerId:
+                  _eq: X-Hasura-UserId
+      allow_aggregations: true

@@ -7,9 +7,8 @@ export default function MeetingInfo() {
         meetingId
         createdTime
         disabledFeatures
-        duration
+        durationInSeconds
         extId
-        html5InstanceId
         isBreakout
         maxPinnedCameras
         meetingCameraCap
@@ -31,7 +30,7 @@ export default function MeetingInfo() {
             {/*<th>Id</th>*/}
             <th>Name</th>
             <th>extId</th>
-            <th>duration</th>
+            <th>durationInSeconds</th>
         </tr>
       </thead>
       <tbody>
@@ -42,7 +41,7 @@ export default function MeetingInfo() {
                   {/*<td>{user.userId}</td>*/}
                   <td>{curr.name}</td>
                   <td>{curr.extId}</td>
-                  <td>{curr.duration}</td>
+                  <td>{curr.durationInSeconds}</td>
               </tr>
           );
         })}

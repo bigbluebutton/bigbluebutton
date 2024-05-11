@@ -5,16 +5,16 @@ import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/comp
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 
 const MIN_FONTSIZE = 0;
-const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
+const SHOW_AUDIO_FILTERS = (window.meetingClientSettings.public.app
   .showAudioFilters === undefined)
   ? true
-  : Meteor.settings.public.app.showAudioFilters;
+  : window.meetingClientSettings.public.app.showAudioFilters;
 const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
@@ -347,7 +347,7 @@ class ApplicationMenu extends BaseMenu {
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
 
-    const isDarkThemeEnabled = Meteor.settings.public.app.darkTheme.enabled;
+    const isDarkThemeEnabled = window.meetingClientSettings.public.app.darkTheme.enabled;
     if (!isDarkThemeEnabled) return null;
 
     return (

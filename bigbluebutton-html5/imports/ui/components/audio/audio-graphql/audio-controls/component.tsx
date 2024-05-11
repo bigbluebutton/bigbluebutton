@@ -21,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.joinAudio',
     description: 'Join audio button label',
   },
+  joinAudioAndSetActive: {
+    id: 'app.audio.joinAudioAndSetActive',
+    description: 'Join audio button label when user is away',
+  },
   leaveAudio: {
     id: 'app.audio.leaveAudio',
     description: 'Leave audio button label',
@@ -41,6 +45,7 @@ interface AudioControlsProps {
   disabled: boolean;
   isEchoTest: boolean;
   updateEchoTestRunning: () => void,
+  away: boolean;
 }
 
 const AudioControls: React.FC<AudioControlsProps> = ({
@@ -49,9 +54,10 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   inAudio,
   isEchoTest,
   updateEchoTestRunning,
+  away,
 }) => {
   const intl = useIntl();
-  const joinAudioShourtcut = useShortcut('joinaudio');
+  const joinAudioShortcut = useShortcut('joinAudio');
   const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
@@ -65,24 +71,26 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   }, []);
 
   const joinButton = useMemo(() => {
+    const joinAudioLabel = away ? intlMessages.joinAudioAndSetActive : intlMessages.joinAudio;
+
     return (
       // eslint-disable-next-line jsx-a11y/no-access-key
       <Button
         onClick={() => handleJoinAudio(isConnected)}
         disabled={disabled}
         hideLabel
-        aria-label={intl.formatMessage(intlMessages.joinAudio)}
-        label={intl.formatMessage(intlMessages.joinAudio)}
+        aria-label={intl.formatMessage(joinAudioLabel)}
+        label={intl.formatMessage(joinAudioLabel)}
         data-test="joinAudio"
         color="default"
         ghost
         icon="no_audio"
         size="lg"
         circle
-        accessKey={joinAudioShourtcut}
+        accessKey={joinAudioShortcut}
       />
     );
-  }, [isConnected, disabled]);
+  }, [isConnected, disabled, joinAudioShortcut, away]);
 
   useEffect(() => {
     if (isEchoTest) {
@@ -119,6 +127,7 @@ export const AudioControlsContainer: React.FC = () => {
       isModerator: u.isModerator,
       locked: u?.locked ?? false,
       voice: u.voice,
+      away: u.away,
     };
   });
 
@@ -150,6 +159,7 @@ export const AudioControlsContainer: React.FC = () => {
       disabled={isConnecting || isHangingUp}
       isEchoTest={isEchoTest}
       updateEchoTestRunning={updateEchoTestRunning}
+      away={currentUser.away || false}
     />
   );
 };

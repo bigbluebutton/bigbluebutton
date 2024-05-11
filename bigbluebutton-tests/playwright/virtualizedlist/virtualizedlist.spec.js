@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test } = require('../fixtures');
 const { VirtualizeList } = require('./virtualize');
 
 test.describe.parallel('Virtualize list', () => {

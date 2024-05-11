@@ -6,7 +6,6 @@ const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultip
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification, waitAndClearNotification } = require('../notifications/util');
 
 const defaultZoomLevel = '100%';
 
@@ -73,8 +72,8 @@ class Presentation extends MultiUsers {
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
-    const modFrame = await this.getFrame(this.modPage, e.youtubeFrame);
-    const userFrame = await this.getFrame(this.userPage, e.youtubeFrame);
+    const modFrame = await this.modPage.getYoutubeFrame();
+    const userFrame = await this.userPage.getYoutubeFrame();
 
     await modFrame.hasElement('video');
     await userFrame.hasElement('video');
@@ -92,11 +91,17 @@ class Presentation extends MultiUsers {
     await this.userPage.wasRemoved(e.presentationStatusInfo);
     await this.userPage.wasRemoved(e.smallToastMsg);
     
+    await this.modPage.reloadPage();
+    await this.modPage.closeAudioModal();
+    await this.modPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
     
+    await this.userPage.reloadPage();
+    await this.userPage.closeAudioModal();
+    await this.userPage.closeAllToastNotifications();
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
@@ -303,15 +308,6 @@ class Presentation extends MultiUsers {
     await this.userPage.waitAndClick(e.actions);
     await this.userPage.waitAndClick(e.managePresentations);
     await this.userPage.wasRemoved(e.presentationsList);
-  }
-
-  async getFrame(page, frameSelector) {
-    await page.waitForSelector(frameSelector);
-    const iframeElement = await page.getLocator('iframe').elementHandle();
-    const frame = await iframeElement.contentFrame();
-    await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    const ytFrame = new Page(page.browser, frame);
-    return ytFrame;
   }
 
   async presentationFullscreen() {

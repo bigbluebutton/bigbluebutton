@@ -10,8 +10,8 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: SendWhiteboardAnnotationsPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: SendWhiteboardAnnotationsPubMsg, whiteboardId: String, annotations: Array[AnnotationVO], html5InstanceId: String): Unit = {
-      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, html5InstanceId)
+    def broadcastEvent(msg: SendWhiteboardAnnotationsPubMsg, whiteboardId: String, annotations: Array[AnnotationVO]): Unit = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
@@ -52,13 +52,13 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
     )
 
     if (isUserOneOfPermited || isUserAmongPresenters) {
-      println("============= Printing Sanitized annotations ============")
-      for (annotation <- msg.body.annotations) {
-        printAnnotationInfo(annotation)
-      }
-      println("============= Printed Sanitized annotations  ============")
+      // println("============= Printing Sanitized annotations ============")
+      // for (annotation <- msg.body.annotations) {
+      //   printAnnotationInfo(annotation)
+      // }
+      // println("============= Printed Sanitized annotations  ============")
       val annotations = sendWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotations, liveMeeting, isUserAmongPresenters, isUserModerator)
-      broadcastEvent(msg, msg.body.whiteboardId, annotations, msg.body.html5InstanceId)
+      broadcastEvent(msg, msg.body.whiteboardId, annotations)
     } else {
       //val meetingId = liveMeeting.props.meetingProp.intId
       //val reason = "No permission to send a whiteboard annotation."

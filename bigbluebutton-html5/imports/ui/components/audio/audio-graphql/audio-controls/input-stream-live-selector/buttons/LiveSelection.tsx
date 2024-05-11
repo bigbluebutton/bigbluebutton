@@ -15,7 +15,7 @@ import {
   notify,
   truncateDeviceName,
 } from '../service';
-import Mutetoggle from './muteToggle';
+import MuteToggle from './muteToggle';
 import ListenOnly from './listenOnly';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
@@ -63,7 +63,8 @@ interface MuteToggleProps {
   muted: boolean;
   disabled: boolean;
   isAudioLocked: boolean;
-  toggleMuteMicrophone: (muted: boolean) => void;
+  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId?: string | null, muted?: boolean | null) => void) => void;
+  away: boolean;
 }
 
 interface LiveSelectionProps extends MuteToggleProps {
@@ -73,6 +74,7 @@ interface LiveSelectionProps extends MuteToggleProps {
   inputDeviceId: string;
   outputDeviceId: string;
   meetingIsBreakout: boolean;
+  away: boolean;
 }
 
 export const LiveSelection: React.FC<LiveSelectionProps> = ({
@@ -87,6 +89,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   disabled,
   isAudioLocked,
   toggleMuteMicrophone,
+  away,
 }) => {
   const intl = useIntl();
 
@@ -95,7 +98,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
-  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownItem[];
+  let audioSettingsDropdownItems = [] as PluginSdk.AudioSettingsDropdownInterface[];
   if (pluginsExtensibleAreasAggregatedState.audioSettingsDropdownItems) {
     audioSettingsDropdownItems = [
       ...pluginsExtensibleAreasAggregatedState.audioSettingsDropdownItems,
@@ -209,7 +212,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     .concat(leaveAudioOption);
 
   audioSettingsDropdownItems.forEach((audioSettingsDropdownItem:
-    PluginSdk.AudioSettingsDropdownItem) => {
+    PluginSdk.AudioSettingsDropdownInterface) => {
     switch (audioSettingsDropdownItem.type) {
       case AudioSettingsDropdownItemType.OPTION: {
         const audioSettingsDropdownOption = audioSettingsDropdownItem as PluginSdk.AudioSettingsDropdownOption;
@@ -247,25 +250,37 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           aria-hidden="true"
         />
       ) : null}
+      {(!listenOnly && isMobile) && (
+        <MuteToggle
+          talking={talking}
+          muted={muted}
+          disabled={disabled || isAudioLocked}
+          isAudioLocked={isAudioLocked}
+          toggleMuteMicrophone={toggleMuteMicrophone}
+          away={away}
+        />
+      )}
       <BBBMenu
         customStyles={!isMobile ? customStyles : null}
         trigger={(
           <>
-            {listenOnly
+            {!listenOnly && !isMobile
               ? (
-                <ListenOnly
-                  listenOnly={listenOnly}
-                  handleLeaveAudio={handleLeaveAudio}
-                  meetingIsBreakout={meetingIsBreakout}
-                />
-              )
-              : (
-                <Mutetoggle
+                <MuteToggle
                   talking={talking}
                   muted={muted}
                   disabled={disabled || isAudioLocked}
                   isAudioLocked={isAudioLocked}
                   toggleMuteMicrophone={toggleMuteMicrophone}
+                  away={away}
+                />
+              )
+              : (
+                <ListenOnly
+                  listenOnly={listenOnly}
+                  handleLeaveAudio={handleLeaveAudio}
+                  meetingIsBreakout={meetingIsBreakout}
+                  actAsDeviceSelector={isMobile}
                 />
               )}
             <Styled.AudioDropdown

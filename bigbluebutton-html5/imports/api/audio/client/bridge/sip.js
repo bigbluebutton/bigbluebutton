@@ -14,19 +14,14 @@ import {
   logSelectedCandidate,
   forceDisableStereo,
 } from '/imports/utils/sdpUtils';
-import { Tracker } from 'meteor/tracker';
-import VoiceCallStates from '/imports/api/voice-call-states';
-import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
-import Auth from '/imports/ui/services/auth';
 import browserInfo from '/imports/utils/browserInfo';
 import {
-  getCurrentAudioSessionNumber,
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
   doGUM,
+  stereoUnsupported,
 } from '/imports/api/audio/client/bridge/service';
-import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -272,7 +267,7 @@ class SIPSession {
     *
     * sessionSupportRTPPayloadDtmf
     * tells if browser support RFC4733 DTMF.
-    * Safari 13 doens't support it yet
+    * Safari 13 doesn't support it yet
     */
   sessionSupportRTPPayloadDtmf(session) {
     try {
@@ -383,7 +378,7 @@ class SIPSession {
     if (this.preloadedInputStream && this.preloadedInputStream.active) {
       return Promise.resolve(this.preloadedInputStream);
     }
-    // The rest of this mimicks the default factory behavior.
+    // The rest of this mimics the default factory behavior.
     if (!constraints.audio && !constraints.video) {
       return Promise.resolve(new MediaStream());
     }
@@ -498,7 +493,7 @@ class SIPSession {
                 extraInfo: {
                   callerIdName: this.user.callerIdName,
                 },
-              }, 'User agent succesfully reconnected');
+              }, 'User agent successfully reconnected');
             }).catch(() => {
               if (userAgentConnected) {
                 error = 1001;
@@ -531,7 +526,7 @@ class SIPSession {
           extraInfo: {
             callerIdName: this.user.callerIdName,
           },
-        }, 'User agent succesfully connected');
+        }, 'User agent successfully connected');
 
         window.addEventListener('beforeunload', this.onBeforeUnload.bind(this));
 
@@ -567,7 +562,7 @@ class SIPSession {
             extraInfo: {
               callerIdName: this.user.callerIdName,
             },
-          }, 'User agent succesfully reconnected');
+          }, 'User agent successfully reconnected');
 
           resolve();
         }).catch(() => {
@@ -579,7 +574,7 @@ class SIPSession {
               callerIdName: this.user.callerIdName,
             },
           }, 'User agent failed to reconnect after'
-          + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attemps`);
+          + ` ${USER_AGENT_RECONNECTION_ATTEMPTS} attempts`);
 
           this.callback({
             status: this.baseCallStates.failed,
@@ -722,7 +717,7 @@ class SIPSession {
       // via SDP munging. Having it disabled on server side FS _does not suffice_
       // because the stereo parameter is client-mandated (ie replicated in the
       // answer)
-      if (SpeechService.stereoUnsupported()) {
+      if (stereoUnsupported()) {
         logger.debug({
           logCode: 'sipjs_transcription_disable_stereo',
         }, 'Transcription provider does not support stereo, forcing stereo=0');
@@ -1013,7 +1008,7 @@ class SIPSession {
         }
 
         // if session hasn't even started, we let audio-modal to handle
-        // any possile errors
+        // any possible errors
         if (!this._currentSessionState) return false;
 
 
@@ -1078,34 +1073,6 @@ class SIPSession {
             break;
         }
         this._currentSessionState = state;
-      });
-
-      Tracker.autorun((c) => {
-        const selector = {
-          meetingId: Auth.meetingID,
-          userId: Auth.userID,
-          clientSession: getCurrentAudioSessionNumber(),
-        };
-
-        const query = VoiceCallStates.find(selector);
-        const callback = (id, fields) => {
-          if (!fsReady && ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
-            || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE))) {
-            fsReady = true;
-            checkIfCallReady();
-          }
-
-          if (fields.callState === CallStateOptions.CALL_ENDED) {
-            fsReady = false;
-            c.stop();
-            checkIfCallStopped();
-          }
-        };
-
-        query.observeChanges({
-          added: (id, fields) => callback(id, fields),
-          changed: (id, fields) => callback(id, fields),
-        });
       });
 
       resolve();

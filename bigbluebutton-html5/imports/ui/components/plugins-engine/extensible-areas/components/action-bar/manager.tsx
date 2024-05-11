@@ -16,7 +16,7 @@ const ActionBarPluginStateContainer = ((
   const [
     actionBarItems,
     setActionBarItems,
-  ] = useState<PluginSdk.ActionsBarItem[]>([]);
+  ] = useState<PluginSdk.ActionsBarInterface[]>([]);
 
   const {
     pluginsExtensibleAreasAggregatedState,
@@ -29,7 +29,7 @@ const ActionBarPluginStateContainer = ((
 
     // Update context with computed aggregated list of all plugin provided toolbar items
     const aggregatedActionBarItems = (
-      [] as PluginSdk.ActionsBarItem[]).concat(
+      [] as PluginSdk.ActionsBarInterface[]).concat(
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.actionsBarItems),
     );
@@ -41,9 +41,10 @@ const ActionBarPluginStateContainer = ((
     );
   }, [actionBarItems]);
 
-  pluginApi.setActionsBarItems = (items: PluginSdk.ActionsBarItem[]) => {
-    const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionsBarItem[];
-    return setActionBarItems(itemsWithId);
+  pluginApi.setActionsBarItems = (items: PluginSdk.ActionsBarInterface[]) => {
+    const itemsWithId = items.map(generateItemWithId) as PluginSdk.ActionsBarInterface[];
+    setActionBarItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

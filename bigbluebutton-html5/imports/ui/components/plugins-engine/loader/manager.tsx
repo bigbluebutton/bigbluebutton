@@ -1,8 +1,8 @@
-import { PluginLoaderContainerProps } from './types';
+import { PluginLoaderManagerProps } from './types';
 import { useEffect } from 'react';
 import logger from '/imports/startup/client/logger';
 
-const PluginLoaderContainer = (props: PluginLoaderContainerProps) => {
+const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
   const {
     uuid,
     containerRef,
@@ -37,4 +37,4 @@ const PluginLoaderContainer = (props: PluginLoaderContainerProps) => {
   return null;
 };
 
-export default PluginLoaderContainer;
+export default PluginLoaderManager;

@@ -34,6 +34,7 @@ trait SwitchTimerReqMsgHdlr extends RightsManagementTrait {
     } else {
       if (TimerModel.getStopwatch(liveMeeting.timerModel) != msg.body.stopwatch) {
         TimerModel.setStopwatch(liveMeeting.timerModel, msg.body.stopwatch)
+        TimerModel.setRunning(liveMeeting.timerModel, running = false)
         TimerModel.reset(liveMeeting.timerModel) //Reset on switch Stopwatch/Timer
         if (msg.body.stopwatch) {
           TimerModel.setTrack(liveMeeting.timerModel, "noTrack")

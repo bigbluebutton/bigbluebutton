@@ -24,5 +24,9 @@ select_permissions:
           - _or:
               - published:
                   _eq: true
-              - pollOwnerId:
-                  _eq: X-Hasura-UserId
+              - _and:
+                  - pollOwnerMeetingId:
+                      _eq: X-Hasura-MeetingId
+                  - pollOwnerId:
+                      _eq: X-Hasura-UserId
+      allow_aggregations: true

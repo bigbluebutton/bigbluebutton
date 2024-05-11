@@ -44,7 +44,7 @@ trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
         for {
           u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "lock_user_changed", outGW)
+          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "lock_user_changed", outGW)
         }
 
         log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked)

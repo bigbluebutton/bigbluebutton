@@ -6,13 +6,12 @@ import {
 } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
-import NotesService from '/imports/ui/components/notes/service';
 import VideoStreams from '/imports/api/video-streams';
 import Auth from '/imports/ui/services/auth/index';
 
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
-const KURENTO_CONFIG = Meteor.settings.public.kurento;
-const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
+const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
 function shouldShowWhiteboard() {
   return true;
@@ -23,10 +22,6 @@ function shouldShowScreenshare() {
   return (isScreenSharingEnabled() || isCameraAsContentEnabled())
     && (viewScreenshare || UserService.isUserPresenter())
     && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
-}
-
-function shouldShowSharedNotes() {
-  return NotesService.isSharedNotesPinned();
 }
 
 function shouldShowOverlay() {
@@ -46,8 +41,11 @@ const isThereWebcamOn = (meetingID) => {
   }).count() > 0;
 }
 
-const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch, isSharingVideo) => {
-  const isSharedNotesPinned = NotesService.isSharedNotesPinned();
+const buildLayoutWhenPresentationAreaIsDisabled = (
+  layoutContextDispatch,
+  isSharingVideo,
+  isSharedNotesPinned,
+) => {
   const hasScreenshare = isScreenSharingEnabled();
   const isThereWebcam = isThereWebcamOn(Auth.meetingID);
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
@@ -69,5 +67,4 @@ export default {
   isScreenBroadcasting,
   isCameraAsContentBroadcasting,
   setPresentationIsOpen,
-  shouldShowSharedNotes,
 };

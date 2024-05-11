@@ -25,6 +25,15 @@ object_relationships:
         remote_table:
           name: v_meeting_clientSettings
           schema: public
+  - name: componentsFlags
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_componentsFlags
+          schema: public
   - name: externalVideo
     using:
       manual_configuration:
@@ -42,6 +51,15 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_layout
+          schema: public
+  - name: learningDashboard
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_learningDashboard
           schema: public
   - name: lockSettings
     using:
@@ -116,6 +134,15 @@ array_relationships:
         remote_table:
           name: v_meeting_group
           schema: public
+  - name: metadata
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_metadata
+          schema: public
   - name: polls
     using:
       manual_configuration:
@@ -129,12 +156,24 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - bannerColor
+        - bannerText
+        - createdAt
         - createdTime
+        - customLogoUrl
         - disabledFeatures
         - durationInSeconds
+        - endWhenNoModerator
+        - endWhenNoModeratorDelayInMinutes
+        - ended
+        - endedAt
+        - endedBy
+        - endedByUserName
+        - endedReasonCode
         - extId
-        - html5InstanceId
         - isBreakout
+        - loginUrl
+        - logoutUrl
         - maxPinnedCameras
         - meetingCameraCap
         - meetingId
@@ -145,3 +184,22 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: not_joined_bbb_client
+    permission:
+      columns:
+        - bannerColor
+        - bannerText
+        - customLogoUrl
+        - ended
+        - endedAt
+        - endedBy
+        - endedByUserName
+        - endedReasonCode
+        - isBreakout
+        - logoutUrl
+        - meetingId
+        - name
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""
