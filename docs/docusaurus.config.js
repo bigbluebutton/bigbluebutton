@@ -28,8 +28,8 @@ const config = {
         locales: ['en'],
     },
 
-    // Cookie consent control required for GDPR
     scripts: [
+        // Cookie consent control required for GDPR. Token is not required to be renewed. Update hN querystring to match domain.
         'https://cdn.baycloud.com/cl.js?cid=9be233bfe3004dc49e742fd0fa98642c&hN=docs.bigbluebutton.org'
     ],
     
