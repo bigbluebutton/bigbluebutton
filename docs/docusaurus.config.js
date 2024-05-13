@@ -28,6 +28,11 @@ const config = {
         locales: ['en'],
     },
 
+    // Cookie consent control required for GDPR
+    scripts: [
+        'https://cdn.baycloud.com/cl.js?cid=9be233bfe3004dc49e742fd0fa98642c&hN=docs.bigbluebutton.org'
+    ],
+    
     presets: [
         [
             'classic',
