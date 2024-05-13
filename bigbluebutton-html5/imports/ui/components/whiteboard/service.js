@@ -271,11 +271,11 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
 const customEditorAssetUrls = {
   fonts: {
     draw: `${TL_TEXT_PATHS}/Shantell_Sans-Tldrawish.woff2`,
-		serif: `${TL_TEXT_PATHS}/IBMPlexSerif-Medium.woff2`,
-		sansSerif: `${TL_TEXT_PATHS}/IBMPlexSans-Medium.woff2`,
-		monospace: `${TL_TEXT_PATHS}/IBMPlexMono-Medium.woff2`,
-	},
-}
+    serif: `${TL_TEXT_PATHS}/IBMPlexSerif-Medium.woff2`,
+    sansSerif: `${TL_TEXT_PATHS}/IBMPlexSans-Medium.woff2`,
+    monospace: `${TL_TEXT_PATHS}/IBMPlexMono-Medium.woff2`,
+  },
+};
 
 const customAssetUrls = {
   icons: {
@@ -284,21 +284,26 @@ const customAssetUrls = {
     'redo': `${TL_ICON_PATHS}/redo.svg`,
     'trash': `${TL_ICON_PATHS}/trash.svg`,
     'duplicate': `${TL_ICON_PATHS}/duplicate.svg`,
-    'tool-media': `${TL_ICON_PATHS}/tool-media.svg`,
+    'unlock': `${TL_ICON_PATHS}/unlock.svg`,
+    'arrowhead-none': `${TL_ICON_PATHS}/arrowhead-none.svg`,
+    'arrowhead-arrow': `${TL_ICON_PATHS}/arrowhead-arrow.svg`,
     'dots-horizontal': `${TL_ICON_PATHS}/dots-horizontal.svg`,
-    'chevron-down': `${TL_ICON_PATHS}/chevron-down.svg`,
     'dots-vertical': `${TL_ICON_PATHS}/dots-vertical.svg`,
     'tool-pointer': `${TL_ICON_PATHS}/tool-pointer.svg`,
+    'tool-media': `${TL_ICON_PATHS}/tool-media.svg`,
     'tool-hand': `${TL_ICON_PATHS}/tool-hand.svg`,
     'tool-pencil': `${TL_ICON_PATHS}/tool-pencil.svg`,
     'tool-eraser': `${TL_ICON_PATHS}/tool-eraser.svg`,
     'tool-arrow': `${TL_ICON_PATHS}/tool-arrow.svg`,
     'tool-text': `${TL_ICON_PATHS}/tool-text.svg`,
+    'tool-laser': `${TL_ICON_PATHS}/tool-laser.svg`,
     'tool-note': `${TL_ICON_PATHS}/tool-note.svg`,
     'tool-line': `${TL_ICON_PATHS}/tool-line.svg`,
     'tool-highlight': `${TL_ICON_PATHS}/tool-highlight.svg`,
     'tool-frame': `${TL_ICON_PATHS}/tool-frame.svg`,
     'chevron-up': `${TL_ICON_PATHS}/chevron-up.svg`,
+    'chevron-down': `${TL_ICON_PATHS}/chevron-down.svg`,
+    'chevron-right': `${TL_ICON_PATHS}/chevron-right.svg`,
     'blob': `${TL_ICON_PATHS}/blob.svg`,
     'geo-rectangle': `${TL_ICON_PATHS}/geo-rectangle.svg`,
     'geo-ellipse': `${TL_ICON_PATHS}/geo-ellipse.svg`,
