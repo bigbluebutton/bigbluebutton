@@ -374,6 +374,8 @@ const customAssetUrls = {
     'text-align-center': `${TL_ICON_PATHS}/text-align-center.svg`,
     'text-align-right': `${TL_ICON_PATHS}/text-align-right.svg`,
     'vertical-align-center': `${TL_ICON_PATHS}/vertical-align-center.svg`,
+    'vertical-align-start': `${TL_ICON_PATHS}/vertical-align-start.svg`,
+    'vertical-align-end': `${TL_ICON_PATHS}/vertical-align-end.svg`,
   },
 };
 
