@@ -1159,6 +1159,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       key={`animations=-${animations}-${whiteboardToolbarAutoHide}-${language}`}
     >
       <Tldraw
+        autoFocus={false}
         key={`tldrawv2-${presentationId}-${animations}`}
         forceMobile={true}
         hideUi={hasWBAccessRef.current || isPresenter ? false : true}
