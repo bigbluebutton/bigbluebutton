@@ -17,7 +17,7 @@ import "@tldraw/tldraw/tldraw.css";
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
 import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import Settings from "/imports/ui/services/settings";
+import Settings from '/imports/ui/services/settings';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import KEY_CODES from "/imports/utils/keyCodes";
