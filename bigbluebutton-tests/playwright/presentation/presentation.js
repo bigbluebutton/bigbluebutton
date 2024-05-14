@@ -6,6 +6,7 @@ const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultip
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
+const { waitAndClearNotification } = require('../notifications/util.js');
 
 const defaultZoomLevel = '100%';
 
@@ -39,9 +40,22 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.shareCameraAsContent);
     await this.modPage.waitForSelector(e.videoPreview);
     await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.hasElement(e.screenshareConnecting);
 
+    await this.modPage.wasRemoved(e.screenshareConnecting);
+    await this.modPage.hasElement(e.screenShareVideo);
+    await waitAndClearNotification(this.modPage);
     const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-share-camera-as-content.png', {
+      maxDiffPixels: 1000,
+    });
+
+    await this.userPage.wasRemoved(e.screenshareConnecting);
+    await this.userPage.hasElement(e.screenShareVideo);
+    await waitAndClearNotification(this.userPage);
+
+    const viewerWhiteboardLocator = this.userPage.getLocator(e.screenShareVideo);
+    await expect(viewerWhiteboardLocator).toHaveScreenshot('viewer-share-camera-as-content.png', {
       maxDiffPixels: 1000,
     });
   }

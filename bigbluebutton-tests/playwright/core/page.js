@@ -105,7 +105,8 @@ class Page {
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
-    const { webcamSharingEnabled } = this.settings;
+    const { webcamSharingEnabled } = this.settings || await generateSettingsData(this.page);
+
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
     if(!webcamSharingEnabled) {

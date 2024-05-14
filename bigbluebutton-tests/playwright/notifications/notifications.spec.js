@@ -61,7 +61,7 @@ test.describe.parallel('Notifications', () => {
       await recordingNotifications.init(true, true, { createParameter: c.recordMeeting });
       await recordingNotifications.noNotificationInAudio();
     });
-    test('Modal appearing when user wants to start recording', async ({ browser, page }) => {
+    test('Modal appearing when user wants to start recording @ci', async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, true, { createParameter: c.recordMeeting });
       await recordingNotifications.modalStartRecording();
