@@ -212,8 +212,8 @@ func (app *Config) processMeetingProps(params *url.Values, createTime int64, isB
 		Name:                validation.StripCtrlChars(params.Get("name")),
 		MeetingExtId:        meetingExtId,
 		MeetingIntId:        meetingIntId,
-		MeetingCameraCap:    util.GetInt32OrDefaultValue(params.Get("meetingCameraCap"), app.Meeting.Camera.Cap),
-		MaxPinnedCameras:    util.GetInt32OrDefaultValue(params.Get("maxPinnedCamera"), app.Meeting.Camera.MaxPinned),
+		MeetingCameraCap:    util.GetInt32OrDefaultValue(params.Get("meetingCameraCap"), app.Meeting.Cameras.Cap),
+		MaxPinnedCameras:    util.GetInt32OrDefaultValue(params.Get("maxPinnedCamera"), app.Meeting.Cameras.MaxPinned),
 		IsBreakout:          isBreakout,
 		DisabledFeatures:    disabledFeatures,
 		NotifyRecordingIsOn: util.GetBoolOrDefaultValue(params.Get("notfiyRecordingIsOn"), app.Recording.NotifyRecordingIsOn),
@@ -319,6 +319,20 @@ func (app *Config) processWelcomeProps(params *url.Values, isBreakout bool, dial
 		WelcomeMsgTemplate: welcomeMessageTemplate,
 		WelcomeMsg:         welcomeMessage,
 		ModOnlyMsg:         modOnlyMsg,
+	}
+}
+
+func (app *Config) processUsersProps(params *url.Values) *common.UsersProps {
+	maxUserConcurentAccess := app.Meeting.Users.MaxConcurrentAccess
+	if !app.Meeting.Users.AllowDuplicateExtUserId {
+		maxUserConcurentAccess = 1
+	}
+	return &common.UsersProps{
+		MaxUsers:                  util.GetInt32OrDefaultValue(params.Get("maxParticipants"), app.Meeting.Users.Max),
+		MaxUserConcurrentAccesses: maxUserConcurentAccess,
+		WebcamsOnlyForMod:         util.GetBoolOrDefaultValue(params.Get("webcamsOnlyForModerator"), app.Meeting.Cameras.ModOnly),
+		UserCameraCap:             util.GetInt32OrDefaultValue(params.Get("userCameraCap"), app.User.Camera.Cap),
+		GuestPolicy:               util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("guestPolicy")), app.Meeting.Users.GuestPolicy),
 	}
 }
 

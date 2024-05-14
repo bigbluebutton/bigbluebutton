@@ -32,10 +32,11 @@ type Config struct {
 		} `yaml:"checksum"`
 	} `yaml:"security"`
 	Meeting struct {
-		Camera struct {
+		Cameras struct {
 			Cap       int32 `yaml:"cap"`
 			MaxPinned int32 `yaml:"max_pinned"`
-		} `yaml:"camera"`
+			ModOnly   bool  `yaml:"mod_only"`
+		} `yaml:"cameras"`
 		Features struct {
 			Disabled []string `yaml:"disabled"`
 		} `yaml:"features"`
@@ -57,10 +58,16 @@ type Config struct {
 			DialAccessNumber  string `yaml:"dial_access_number"`
 			MuteOnStart       bool   `yaml:"mute_on_start"`
 		} `yaml:"voice"`
+		Users struct {
+			Max                     int32  `yaml:"max"`
+			MaxConcurrentAccess     int32  `yaml:"max_concurrent_access"`
+			AllowDuplicateExtUserId bool   `yaml:"allow_duplicate_ext_user_id"`
+			GuestPolicy             string `yaml:"guest_policy"`
+		} `yaml:"users"`
 	} `yaml:"meeting"`
 	User struct {
 		Camera struct {
-			Cap uint8 `yaml:"cap"`
+			Cap int32 `yaml:"cap"`
 		} `yaml:"camera"`
 		Inactivity struct {
 			InspectInterval int32 `yaml:"inspect_interval"`

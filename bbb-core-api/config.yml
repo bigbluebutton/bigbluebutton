@@ -20,9 +20,10 @@ security:
 
 # Default meeting settings
 meeting:
-  camera:
+  cameras:
     cap: 0 # Per meeting camera share limit (0 means no limit)
     max_pinned: 3 # Maximum number of cameras that can be pinned simultaneously
+    mod_only: false # Allow webcam streaming reception only to and from moderators
   features:
     # List of features to disable (comma-separated)
     # https://docs.bigbluebutton.org/3.0/development/api/#create
@@ -57,6 +58,11 @@ meeting:
     voice_bridge_length: 5 # Default number of digits for voice conference users
     dial_access_number: 613-555-1234 # Default dial access number
     mute_on_start: false # Mute the meeting on start
+  users:
+    max: 0 # Maximum number of users a meeting can have (0 means no limit)
+    max_conurrent_access: 3 # Maximum number of sessions for each external user ID in the same meeting (0 means no limit)
+    allow_duplicate_ext_user_id: true # Deprecated use max_concurrent_access instead to control user concurrent access to meetings
+    guest_policy: ALWAYS_ACCEPT # Default guest policy. Valid values are ALWAYS_ACCEPT, ALWAYS_DENY, and ASK_MODERATOR
 
 # Default user settings
 user:
