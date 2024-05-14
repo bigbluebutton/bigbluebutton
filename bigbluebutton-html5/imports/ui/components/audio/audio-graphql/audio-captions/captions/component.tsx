@@ -5,7 +5,7 @@ import { useMutation } from '@apollo/client';
 import {
   getSpeechVoices,
   isAudioTranscriptionEnabled,
-  setSpeechLocale,
+  setUserLocaleProperty,
   useFixedLocale,
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -108,7 +108,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
-    setSpeechLocale(value, setUserSpeechLocale);
+    setUserLocaleProperty(value, setUserSpeechLocale);
   };
 
   return (

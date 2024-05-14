@@ -106,6 +106,15 @@ export const SET_SPEECH_LOCALE = gql`
   }
 `;
 
+export const SET_CAPTION_LOCALE = gql`
+  mutation SetCaptionLocale($locale: String!, $provider: String!) {
+    userSetCaptionLocale(
+      locale: $locale,
+      provider: $provider,
+    )
+  }
+`;
+
 export const USER_LEAVE_MEETING = gql`
   mutation UserLeaveMeeting {
     userLeaveMeeting

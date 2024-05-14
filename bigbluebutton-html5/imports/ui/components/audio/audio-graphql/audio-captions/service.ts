@@ -28,8 +28,9 @@ export const setAudioCaptions = (value: boolean) => {
   Session.set('audioCaptions', value);
 };
 
-export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
-  setUserSpeechLocale(value, CONFIG.provider);
+// SpeechLocale or CaptionLocale
+export const setUserLocaleProperty = (value: string, setUserLocaleCallback: (a: string, b: string) => void) => {
+  setUserLocaleCallback(value, CONFIG.provider);
 };
 
 export const useFixedLocale = () => isAudioTranscriptionEnabled() && CONFIG.language.forceLocale;
@@ -37,7 +38,7 @@ export const useFixedLocale = () => isAudioTranscriptionEnabled() && CONFIG.lang
 export default {
   getSpeechVoices,
   isAudioTranscriptionEnabled,
-  setSpeechLocale,
+  setUserLocaleProperty,
   setAudioCaptions,
   isWebSpeechApi,
   useFixedLocale,

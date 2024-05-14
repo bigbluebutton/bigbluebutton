@@ -177,6 +177,7 @@ select_permissions:
         - registeredOn
         - role
         - speechLocale
+        - captionLocale
         - inactivityWarningDisplay
         - inactivityWarningTimeoutSecs
         - userId
