@@ -22,17 +22,28 @@ You first need to set up a BigBlueButton 3.0 server. See the instructions at [In
 A BigBlueButton server is built from a number of components that correspond to Ubuntu packages. Some of these components are
 
 - bbb-web -- Implements the BigBlueButton API and conversion of documents for presentation
-- akka-bbb-apps -- Server side application that handles the state of meetings on the server
-- bbb-html5 -- HTML5 client that loads in the browser. The client server-side Meteor application that leverages MongoDB and React.js
+- bbb-akka-apps -- Server side application that handles the state of meetings on the server
+- bbb-akka-fsesl -- server component handling the communication with FreeSWITCH
+- bbb-html5 -- HTML5 client that loads in the browser
 - bbb-learning-dashboard -- a live dashboard available to moderators, which displays user activity information that can be useful for instructors
 - bbb-fsesl-akka -- Component to send commands to FreeSWITCH
 - bbb-playback-presentation -- Record and playback script to create presentation layout
+- bbb-playback-video -- Record and playback script to create video layout
 - bbb-export-annotations -- Handles capture of breakout content and annotated presentation download
 - bbb-webrtc-sfu -- Server that bridges incoming requests from client to Kurento
-- kurento-media-server -- WebRTC media server for sending/receiving/recording video (webcam and screen share)
+- mediasoup -- WebRTC media server for sending/receiving/recording video (webcam and screenshare)
 - bbb-freeswitch-core -- WebRTC media server for sending/receiving/recording audio
+- bbb-graphql-server -- Handles GraphQL queries and subscriptions from clients, checks user permissions
+- bbb-graphql-middleware -- forwards messages between the clients and bbb-graphql-server, json-patch minimizes the info needed to be sent
+- bbb-graphql-actions -- handles requests from the clients on their way to the core
+- bbb-webrtc-sfu -- manages media connections
+- bbb-webrtc-recorder -- handles recording of the media
+- bbb-pads -- manages the control to Etherpad
+- bbb-transcription-controller -- an optional component managing captions for third party services like VOSK or Gladia
+- bbb-etherpad -- used for shared notes and captions, live edit of text by multiple parties
+- bbb-webhooks -- an optional componen, listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API
 
-This document describes how to set up a development environment using an existing BigBlueButton 2.7 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source, compile the source, and replace the corresponding components on the server (such as updating the BigBlueButton client).
+This document describes how to set up a development environment using an existing BigBlueButton 3.0 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
 
 The instructions in this guide are step-by-step so you can understand each step needed to modify a component. If you encounter problems or errors at any section, don't ignore the errors. Stop and double-check that you have done the step correctly. If you are unable to determine the cause of the error, do the following
 
@@ -44,13 +55,13 @@ The instructions in this guide are step-by-step so you can understand each step 
 
 Before you can start developing on BigBlueButton, you must install BigBlueButton (see [installation steps](/administration/install)) and ensure it's working correctly. Make sure there were no errors during the installation and that you can join a session successfully.
 
-We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/v3/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url.
+We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/v3/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url (just run the command `bbb-conf --salt` to obtain a link for API MATE).
 
 By starting with a working BigBlueButton server, you have the ability to switch back-and-forth between the default-packaged components and any modifications you make.
 
 For example, suppose you modify the BigBlueButton client and something isn't working (such as the client is not fully loading), you can easily switch back to the default-packaged client and check that it's working correctly (thus ruling out any environment issues that may also be preventing your modified client from loading).
 
-**Another Note:** These instructions assume you have Greenlight installed so you can create and join meetings to test your setup.
+**Another Note:** These instructions assume you have Greenlight installed so you can create and join meetings to test your setup. Alternatively you can use API MATE (just run the command `bbb-conf --salt` to obtain a link for API MATE).
 
 #### Developing on Windows
 
@@ -59,13 +70,13 @@ To develop BigBlueButton from within Windows, you have two options:
 - use Windows Subsystem for Linux
 - use VMWare Player or VirtualBox to create a virtual machine (VM).
 
-Choose the OS to be Ubuntu 20.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 20.04 64-bit VM.
+Choose the OS to be Ubuntu 22.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 22.04 64-bit VM.
 
-**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 20.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
+**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 22.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
 
 #### Developing on Linux host via container
 
-Consider using a Docker setup for a development environment - [https://github.com/bigbluebutton/docker-dev](https://github.com/bigbluebutton/docker-dev).
+Consider using a Docker setup for a development environment - [https://github.com/bigbluebutton/docker-dev](https://github.com/bigbluebutton/docker-dev). This is the way most of the core developers follow.
 
 #### Root Privileges
 
@@ -107,7 +118,7 @@ Using GitHub makes it easy for you to work on your own copy of the BigBlueButton
 
 #### Subscribe to bigbluebutton-dev
 
-We recommend you subscribe to the [bigbluebutton-dev](https://groups.google.com/group/bigbluebutton-dev/topics?gvc=2) mailing list to follow updates to the development of BigBlueButton and to collaborate with other developers.
+We recommend you subscribe to the [bigbluebutton-dev](https://groups.google.com/group/bigbluebutton-dev/topics?gvc=2) mailing list to follow updates to the development of BigBlueButton and to collaborate with other developers. Make sure to include a brief note when you request access so we can distinguish you from spam bots.
 
 ## Set up a Development Environment
 
@@ -180,20 +191,20 @@ After cloning, you'll have the following directory (make sure the `bigbluebutton
 /home/bigbluebutton/dev/bigbluebutton
 ```
 
-Confirm that you are working on the `v2.7.x-release` branch.
+Confirm that you are working on the `v3.0.x-release` branch.
 
 ```bash
 cd /home/bigbluebutton/dev/bigbluebutton
 git status
 ```
 
-BigBlueButton 2.7 source code lives on branch `v2.7.x-release`. This is where any patches to 2.7 will be merged. If you are looking to customize your BigBlueButton 2.7 clone to fit your needs, this is the branch to use.
+BigBlueButton 3.0 source code lives on branch `v3.0.x-release`. This is where any patches to 3.0 will be merged. If you are looking to customize your BigBlueButton 3.0 clone to fit your needs, this is the branch to use.
 
-For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v2.7.x-release`.
+For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v3.0.x-release`.
 
 ```
-On branch v2.7.x-release
-Your branch is up-to-date with 'origin/v2.7.x-release'.
+On branch v3.0.x-release
+Your branch is up-to-date with 'origin/v3.0.x-release'.
 nothing to commit, working directory clean
 ```
 
@@ -215,10 +226,10 @@ After, we need to fetch the most up to date version of the remote repository.
 git fetch upstream
 ```
 
-You are now ready to create a new branch to start your work and base the `v2.7.x-release` release branch
+You are now ready to create a new branch to start your work and base the `v3.0.x-release` release branch
 
 ```bash
-git checkout -b my-changes-branch upstream/v2.7.x-release
+git checkout -b my-changes-branch upstream/v3.0.x-release
 ```
 
 "checkout" switches branches
@@ -227,7 +238,7 @@ git checkout -b my-changes-branch upstream/v2.7.x-release
 
 "my-changes-branch" will be the name of the new branch
 
-"upstream/v2.7.x-release" is where you want to start your new branch
+"upstream/v3.0.x-release" is where you want to start your new branch
 
 You should now confirm that you are in the correct branch.
 
@@ -272,10 +283,6 @@ A bit of context is needed to fully explain what the HTML5 client is, why it has
 
 The HTML5 client in BigBlueButton is build using the framework [Meteor](https://meteor.com). Meteor wraps around a NodeJS server component, MongoDB server database, React frontend user interface library and MiniMongo frontend instance of MongoDB storing a subset of MongoDB's data. When deployed, these same components are split into independently running pieces - NodeJS instance, MongoDB database and a browser optimized client files served by NGINX. There is no "Meteor" in a production deployment, but rather separate components.
 
-<!--
-TODO: add diagram
--->
-
 Make sure to check the HTML5 portion of the [Architecture page](/development/architecture#html5-client).
 
 Install Meteor.js.
@@ -316,100 +323,11 @@ Finally, run the HTML5 code.
 $ npm start
 ```
 
-By default, the client will run in `development` mode with only one instance of `NodeJS` handling both "backend" and "frontend" roles.
-
-```bash
-$ NODE_ENV=production npm start
-```
-
-In certain cases when making changes that span multiple BigBlueButton components you would want to ensure that the changes work well with the multiple different `NodeJS` processes.
-
-You can deploy locally your modified version of the HTML5 client source using the script [bigbluebutton-html5/deploy_to_usr_share.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-html5/deploy_to_usr_share.sh) - which deploys your [customized] bigbluebutton-html5/\* code as locally running `bbb-html5` package (production mode, requiring the `poolhtml5servers` NGINX rule). Make sure to read through the script to understand what it does prior to using it.
-
-### Switch NGINX to redirect requests to Meteor
-
-When you are running bbb-html5 from package (i.e. in production mode) NGINX needs to be able to point client sessions to a bbb-html5-frontend instance from the pool. However, in development mode (i.e. running Meteor via `npm start`), we only have one process, rather than a pool. We need to tweak the NGINX configuration so that client sessions are only pointed to port `4100` where Meteor is running.
-
-You would want to make a change in `/usr/share/bigbluebutton/nginx/bbb-html5.nginx` to use 4100 port rather than the pool.
-
-The default - used for production mode:
-
-```
-location ~ ^/html5client/ {
-  # proxy_pass http://127.0.0.1:4100; # use for development
-  proxy_pass http://poolhtml5servers; # use for production
-  ...
-```
-
-Development mode, only port 4100 is used.
-
-```
-location ~ ^/html5client/ {
-  proxy_pass http://127.0.0.1:4100; # use for development
-  # proxy_pass http://poolhtml5servers; # use for production
-  ...
-```
-
-After this change, reload NGINX's configuration with `sudo systemctl reload nginx`
-
-A symptom of running `npm start` with the incompatible `poolhtml5servers` NGINX configuration is seeing `It looks like you are trying to access MongoDB over HTTP on the native driver port.` and `Uncaught SyntaxError: Unexpected Identifier`
-
-When you switch back to running the `bbb-html5` packaged version you would want to revert your change so the `poolhtml5servers` are used for spreading the load of the client sessions.
-
-#### Switch NGINX static resource requests to Meteor
-
-Locales requests are served by NGINX by default, but you may want to disable that feature in development mode (if you want to be able to edit the files located in `/public/locales` and see the changes being applied).
-
-You would want to make a change in `/usr/share/bigbluebutton/nginx/bbb-html5.nginx` in the lines related to locales.
-
-The default - used for production mode (locales files will be served by NGINX):
-
-```
-  location /html5client/locales {
-    alias /usr/share/meteor/bundle/programs/web.browser/app/locales;
-  }
-```
-
-Development mode (locales files will be served by Meteor):
-
-```
-  #location /html5client/locales {
-  #  alias /usr/share/meteor/bundle/programs/web.browser/app/locales;
-  #}
-```
-
-After this change, reload NGINX's configuration with `sudo systemctl reload nginx`
+You can deploy locally your modified version of the HTML5 client source using the script [bigbluebutton-html5/deploy_to_usr_share.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-html5/deploy_to_usr_share.sh) - which deploys your [customized] bigbluebutton-html5/\* code as locally running `bbb-html5` package (production mode). Make sure to read through the script to understand what it does prior to using it.
 
 ### Audio configuration for development environment
 
 You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try changing "sipjsHackViaWs" true in bigbluebutton-html5/private/config/settings.yml.
-
-### Production
-
-Using NODE_ENV=production is not meant to be actually used in production, see [here](https://guide.meteor.com/deployment.html#never-use-production-flag) for more information. Instead, you should build the meteor app so that the `bbb-html5` service can work with it.
-
-First, ensure that you're in the `bigbluebutton-html5` directory. If you follow the instructions above and have `bigbluebutton` as your user, you can run the following:
-
-```bash
-meteor build --server-only /home/bigbluebutton/dev/bigbluebutton/bigbluebutton-html5/meteorbundle
-```
-
-Meteor will build your customized version into a `.tar.gz` so we need to unpack it and place it in the right directory for `bbb-html5` to use it. Run:
-
-```bash
-sudo tar -xzvf /home/bigbluebutton/dev/bigbluebutton/bigbluebutton-html5/meteorbundle/*.tar.gz -C /usr/share/meteor
-```
-
-Finally, start the HTML5 client with `sudo systemctl start bbb-html5`.
-
-There we go! Remember that this will be overwritten every time you upgrade, so you may want to have some mechanism put in place to replace it, or if your changes add new functionality/solve a bug, consider upstreaming them. To avoid having to uninstall and reinstall the `bbb-html5` package to restore a working version, you may want to make a copy of the original `bundle` folder.
-
-<!--
-TODO
-## HTML5 Coding Practices
-
-For coding conventions related to the HTML5 code refer to [this document](/html5-best-practices.html).
--->
 
 ### `/private/config`
 
