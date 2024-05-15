@@ -252,13 +252,6 @@ case class UserReactionEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: User
 case class UserReactionEmojiChangedEvtMsgBody(userId: String, reactionEmoji: String)
 
 /**
- * Sent from meteor about a user reaction's expiration.
- */
-object UserReactionTimeExpiredCmdMsg { val NAME = "UserReactionTimeExpiredCmdMsg" }
-case class UserReactionTimeExpiredCmdMsg(header: BbbClientMsgHeader, body: UserReactionTimeExpiredCmdMsgBody) extends StandardMsg
-case class UserReactionTimeExpiredCmdMsgBody(userId: String)
-
-/**
  * Sent from client about a mod clearing all users' emoji.
  */
 object ClearAllUsersEmojiCmdMsg { val NAME = "ClearAllUsersEmojiCmdMsg" }
