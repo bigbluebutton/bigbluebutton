@@ -4,11 +4,11 @@ import org.bigbluebutton.api.model.request.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.ChecksumValidationGroup;
 import org.bigbluebutton.api.model.shared.GetChecksum;
-import org.bigbluebutton.api.model.shared.PostChecksum;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -70,11 +70,13 @@ public class ValidationService {
         validator = validatorFactory.getValidator();
     }
 
-    public Map<String, String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
+    public Map<String, String> validate(ApiCall apiCall, HttpServletRequest servletRequest) {
+        String queryString = servletRequest.getQueryString();
+        Map<String, String[]> params = servletRequest.getParameterMap();
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
         params = sanitizeParams(params);
 
-        Request request = initializeRequest(apiCall, params, queryString);
+        Request request = initializeRequest(apiCall, params, queryString, servletRequest);
         Map<String,String> violations = new HashMap<>();
 
         if(request == null) {
@@ -101,7 +103,7 @@ public class ValidationService {
         }
     }
 
-    private Request initializeRequest(ApiCall apiCall, Map<String, String[]> params, String queryString) {
+    private Request initializeRequest(ApiCall apiCall, Map<String, String[]> params, String queryString, HttpServletRequest servletRequest) {
         Request request = null;
         Checksum checksum;
 
@@ -110,55 +112,23 @@ public class ValidationService {
             checksumValue = params.get("checksum")[0];
         }
 
-        if(queryString == null || queryString.isEmpty()) {
-            queryString = buildQueryStringFromParamsMap(params);
-        }
-
-        switch(apiCall.requestType) {
-            case GET:
-                checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString);
-                switch(apiCall) {
-                    case CREATE:
-                        request = new CreateMeeting(checksum);
-                        break;
-                    case JOIN:
-                        request = new JoinMeeting(checksum);
-                        break;
-                    case MEETING_RUNNING:
-                        request = new MeetingRunning(checksum);
-                        break;
-                    case END:
-                        request = new EndMeeting(checksum);
-                        break;
-                    case GET_MEETING_INFO:
-                        request = new MeetingInfo(checksum);
-                        break;
-                    case GET_MEETINGS:
-                    case GET_SESSIONS:
-                        request = new SimpleRequest(checksum);
-                        break;
-                    case INSERT_DOCUMENT:
-                        request = new InsertDocument(checksum);
-                        break;
-                    case GUEST_WAIT:
-                        request = new GuestWait();
-                        break;
-                    case ENTER:
-                        request = new Enter();
-                        break;
-                    case STUNS:
-                        request = new Stuns();
-                        break;
-                    case SIGN_OUT:
-                        request = new SignOut();
-                        break;
-                    case LEARNING_DASHBOARD:
-                        request = new LearningDashboard();
-                        break;
-                    case GET_JOIN_URL:
-                        request = new GetJoinUrl();
-                        break;
-                }
+        if (Objects.requireNonNull(apiCall.requestType) == RequestType.GET) {
+            checksum = new GetChecksum(apiCall.getName(), checksumValue, queryString, servletRequest);
+            request = switch (apiCall) {
+                case CREATE -> new CreateMeeting(checksum, servletRequest);
+                case JOIN -> new JoinMeeting(checksum, servletRequest);
+                case MEETING_RUNNING -> new MeetingRunning(checksum, servletRequest);
+                case END -> new EndMeeting(checksum, servletRequest);
+                case GET_MEETING_INFO -> new MeetingInfo(checksum, servletRequest);
+                case GET_MEETINGS, GET_SESSIONS -> new SimpleRequest(checksum, servletRequest);
+                case INSERT_DOCUMENT -> new InsertDocument(checksum, servletRequest);
+                case GUEST_WAIT -> new GuestWait(servletRequest);
+                case ENTER -> new Enter(servletRequest);
+                case STUNS -> new Stuns(servletRequest);
+                case SIGN_OUT -> new SignOut(servletRequest);
+                case LEARNING_DASHBOARD -> new LearningDashboard(servletRequest);
+                case GET_JOIN_URL -> new GetJoinUrl(servletRequest);
+            };
         }
 
         return request;
