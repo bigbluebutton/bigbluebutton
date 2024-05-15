@@ -35,7 +35,7 @@ interface MuteToggleProps {
   muted: boolean;
   disabled: boolean;
   isAudioLocked: boolean;
-  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId?: string | null, muted?: boolean | null) => void) => void;
+  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => void;
   away: boolean;
 }
 
