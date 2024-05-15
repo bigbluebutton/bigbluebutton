@@ -44,7 +44,10 @@ class Presentation extends MultiUsers {
 
     await this.modPage.wasRemoved(e.screenshareConnecting);
     await this.modPage.hasElement(e.screenShareVideo);
-    await waitAndClearNotification(this.modPage);
+    // close all notifications displayed before comparing screenshots
+    for (const closeButton of await this.modPage.getLocator(e.closeToastBtn).all()) {
+      await closeButton.click();
+    }
     const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-share-camera-as-content.png', {
       maxDiffPixels: 1000,
@@ -52,8 +55,10 @@ class Presentation extends MultiUsers {
 
     await this.userPage.wasRemoved(e.screenshareConnecting);
     await this.userPage.hasElement(e.screenShareVideo);
-    await waitAndClearNotification(this.userPage);
-
+    // close all notifications displayed before comparing screenshots
+    for (const closeButton of await this.userPage.getLocator(e.closeToastBtn).all()) {
+      await closeButton.click();
+    }
     const viewerWhiteboardLocator = this.userPage.getLocator(e.screenShareVideo);
     await expect(viewerWhiteboardLocator).toHaveScreenshot('viewer-share-camera-as-content.png', {
       maxDiffPixels: 1000,
