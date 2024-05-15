@@ -36,6 +36,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     ejectReasonCode: string;
     bannerColor: string;
     bannerText: string;
+    customLogoUrl: string;
     loggedOut: boolean;
 }
 
@@ -57,6 +58,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   ejectReasonCode,
   bannerColor,
   bannerText,
+  customLogoUrl,
   loggedOut,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
@@ -91,6 +93,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       userName,
       extId,
       meetingName,
+      customLogoUrl,
     });
   }, []);
 
@@ -181,6 +184,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     name: meetingName,
     bannerColor,
     bannerText,
+    customLogoUrl,
   } = userInfoData.meeting[0];
   const { extId, name: userName, userId } = userInfoData.user_current[0];
 
@@ -203,6 +207,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       bannerColor={bannerColor}
       bannerText={bannerText}
       loggedOut={loggedOut}
+      customLogoUrl={customLogoUrl}
     >
       {children}
     </PresenceManager>

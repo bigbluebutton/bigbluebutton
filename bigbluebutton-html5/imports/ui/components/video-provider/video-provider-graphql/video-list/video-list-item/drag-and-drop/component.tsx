@@ -1,7 +1,7 @@
-// @ts-nocheck
-/* eslint-disable */
-import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { injectIntl, defineMessages } from 'react-intl';
+import React, {
+  useContext, useEffect, useState, useCallback,
+} from 'react';
+import { injectIntl, defineMessages, IntlShape } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
@@ -9,6 +9,7 @@ import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
+import { Session } from 'meteor/session';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -23,33 +24,51 @@ const intlMessages = defineMessages({
   },
 });
 
-const ENABLE_WEBCAM_BACKGROUND_UPLOAD = window.meetingClientSettings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
+const PUBLIC_CONFIG = window.meetingClientSettings.public;
+const ENABLE_WEBCAM_BACKGROUND_UPLOAD = PUBLIC_CONFIG.virtualBackgrounds.enableVirtualBackgroundUpload;
 
-const DragAndDrop = (props) => {
-  const { children, intl, readFile, onVirtualBgDrop: onAction, isStream } = props;
+interface DragAndDropProps {
+  readFile: (
+    file: File,
+    onSuccess: (data: {
+      filename: string,
+      data: string,
+      uniqueId: string,
+    }) => void,
+    onError: (error: Error) => void
+  ) => void;
+  children: React.ReactElement;
+  intl: IntlShape;
+  isStream: boolean;
+  onVirtualBgDrop: (type: string, name: string, data: string) => Promise<void>;
+}
+
+const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
+  const {
+    children, intl, readFile, onVirtualBgDrop: onAction, isStream,
+  } = props;
 
   const [dragging, setDragging] = useState(false);
   const [draggingOver, setDraggingOver] = useState(false);
   const [isConfirmModalOpen, setConfirmModalIsOpen] = useState(false);
-  const [file, setFile] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const { dispatch: dispatchCustomBackground } = useContext(CustomVirtualBackgroundsContext);
 
-  let callback;
-  const resetEvent = (e) => {
+  const resetEvent = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-  }
+  };
 
   useEffect(() => {
-    const onDragOver = (e) => {
+    const onDragOver = (e: DragEvent) => {
       resetEvent(e);
       setDragging(true);
     };
-    const onDragLeave = (e) => {
+    const onDragLeave = (e: DragEvent) => {
       resetEvent(e);
       setDragging(false);
     };
-    const onDrop = (e) => {
+    const onDrop = (e: DragEvent) => {
       resetEvent(e);
       setDragging(false);
     };
@@ -65,8 +84,12 @@ const DragAndDrop = (props) => {
     };
   }, []);
 
-  const handleStartAndSaveVirtualBackground = (file) => {
-    const onSuccess = (background) => {
+  const handleStartAndSaveVirtualBackground = (file: File) => {
+    const onSuccess = (background: {
+      filename: string,
+      data: string,
+      uniqueId: string,
+    }) => {
       const { filename, data } = background;
       if (onAction) {
         onAction(EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
@@ -79,17 +102,19 @@ const DragAndDrop = (props) => {
             },
           });
         });
-      } else dispatchCustomBackground({
-        type: 'new',
-        background: {
-          ...background,
-          custom: true,
-          lastActivityDate: Date.now(),
-        },
-      });
+      } else {
+        dispatchCustomBackground({
+          type: 'new',
+          background: {
+            ...background,
+            custom: true,
+            lastActivityDate: Date.now(),
+          },
+        });
+      }
     };
 
-    const onError = (error) => {
+    const onError = (error: Error) => {
       logger.warn({
         logCode: 'read_file_error',
         extraInfo: {
@@ -102,39 +127,43 @@ const DragAndDrop = (props) => {
     readFile(file, onSuccess, onError);
   };
 
-  callback = (checked) => {
+  const callback = (checked: boolean) => {
+    if (!file) return;
     handleStartAndSaveVirtualBackground(file);
     Session.set('skipBackgroundDropConfirmation', checked);
   };
 
-  const makeDragOperations = useCallback((userId) => {
+  const makeDragOperations = useCallback((userId: string) => {
     if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD || !isStream) return {};
 
-    const startAndSaveVirtualBackground = (file) => handleStartAndSaveVirtualBackground(file);
+    const startAndSaveVirtualBackground = (file: File) => handleStartAndSaveVirtualBackground(file);
 
-    const onDragOverHandler = (e) => {
+    const onDragOverHandler = (e: DragEvent) => {
       resetEvent(e);
       setDraggingOver(true);
       setDragging(false);
     };
 
-    const onDropHandler = (e) => {
+    const onDropHandler = (e: DragEvent) => {
       resetEvent(e);
       setDraggingOver(false);
       setDragging(false);
 
-      const { files } = e.dataTransfer;
-      const file = files[0];
+      if (e.dataTransfer) {
+        const { files } = e.dataTransfer;
+        const file = files[0];
 
-      if (Session.get('skipBackgroundDropConfirmation')) {
-        return startAndSaveVirtualBackground(file);
+        if (Session.get('skipBackgroundDropConfirmation')) {
+          return startAndSaveVirtualBackground(file);
+        }
+
+        setFile(file);
+        setConfirmModalIsOpen(true);
       }
-
-      setFile(file);
-      setConfirmModalIsOpen(true);
+      return null;
     };
 
-    const onDragLeaveHandler = (e) => {
+    const onDragLeaveHandler = (e: DragEvent) => {
       resetEvent(e);
       setDragging(false);
       setDraggingOver(false);
@@ -147,29 +176,47 @@ const DragAndDrop = (props) => {
     };
   }, [Auth.userID]);
 
-  return <>
-    {React.cloneElement(children, { ...props, dragging, draggingOver, makeDragOperations })}
-    {isConfirmModalOpen ? <ConfirmationModal
-        intl={intl}
-        onConfirm={callback}
-        title={intl.formatMessage(intlMessages.confirmationTitle)}
-        description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file.name })}
-        checkboxMessageId="app.confirmation.skipConfirm" 
-        {...{
-          onRequestClose: () => setConfirmModalIsOpen(false),
-          priority: "low",
-          setIsOpen: setConfirmModalIsOpen,
-          isOpen: isConfirmModalOpen
-        }}
-      /> : null}
-  </>;
+  return (
+    <>
+      {React.cloneElement(
+        children,
+        {
+          ...props, dragging, draggingOver, makeDragOperations,
+        },
+      )}
+      {isConfirmModalOpen ? (
+        <ConfirmationModal
+          intl={intl}
+          onConfirm={callback}
+          title={intl.formatMessage(intlMessages.confirmationTitle)}
+          description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file?.name })}
+          checkboxMessageId="app.confirmation.skipConfirm"
+          {...{
+            onRequestClose: () => setConfirmModalIsOpen(false),
+            priority: 'low',
+            setIsOpen: setConfirmModalIsOpen,
+            isOpen: isConfirmModalOpen,
+          }}
+        />
+      ) : null}
+    </>
+  );
 };
 
-const Wrapper = (Component) => (props) => (
-  <DragAndDrop {...props} >
+const Wrapper = (Component: (props: object) => JSX.Element) => (props: DragAndDropProps) => (
+  <DragAndDrop
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  >
     <Component />
   </DragAndDrop>
 );
 
-export const withDragAndDrop = (Component) =>
-  injectIntl(withFileReader(Wrapper(Component), MIME_TYPES_ALLOWED, MAX_FILE_SIZE));
+const withDragAndDrop = (Component: (props: object) => JSX.Element) => injectIntl(
+  withFileReader(
+    Wrapper(Component),
+    MIME_TYPES_ALLOWED, MAX_FILE_SIZE,
+  ),
+);
+
+export default withDragAndDrop;

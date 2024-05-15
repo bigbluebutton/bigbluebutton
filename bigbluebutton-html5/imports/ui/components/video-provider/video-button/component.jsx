@@ -78,6 +78,7 @@ const JoinVideoButton = ({
   cameraSettingsDropdownItems,
   sendUserUnshareWebcam,
   setLocalSettings,
+  away,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -170,7 +171,7 @@ const JoinVideoButton = ({
       );
     }
 
-    if (actions.length === 0) return null;
+    if (actions.length === 0 || away) return null;
     const customStyles = { top: '-3.6rem' };
 
     cameraSettingsDropdownItems.forEach((plugin) => {

@@ -18,7 +18,7 @@ const propTypes = {
     presenter: PropTypes.bool.isRequired,
   }),
   compact: PropTypes.bool,
-  isTimerActive: PropTypes.bool.isRequired,
+  isTimerActive: PropTypes.bool,
 };
 
 const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
@@ -28,6 +28,7 @@ const defaultProps = {
     presenter: false,
   },
   compact: false,
+  isTimerActive: false,
 };
 
 class UserContent extends PureComponent {

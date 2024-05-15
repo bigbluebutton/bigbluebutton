@@ -1,7 +1,5 @@
-// @ts-nocheck
-/* eslint-disable */
 import React from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -11,31 +9,42 @@ const intlMessages = defineMessages({
   },
 });
 
-const DropArea = ({
-  id, dataTest, style, intl,
-}) => (
-  <>
-    <Styled.DropZoneArea
-      id={id}
-      data-test={dataTest}
-      style={
-        {
-          ...style,
-          zIndex: style.zIndex + 1,
-        }
-      }
-    />
-    <Styled.DropZoneBg
-      style={
-        {
-          ...style,
-          zIndex: style.zIndex,
-        }
-      }
-    >
-      {intl.formatMessage(intlMessages.dropZoneLabel)}
-    </Styled.DropZoneBg>
-  </>
-);
+interface DropAreaProps {
+  id: string;
+  dataTest: string;
+  style: Record<string, unknown>;
+}
 
-export default injectIntl(DropArea);
+const DropArea: React.FC<DropAreaProps> = ({
+  id,
+  dataTest,
+  style,
+}) => {
+  const intl = useIntl();
+  return (
+    <>
+      <Styled.DropZoneArea
+        id={id}
+        data-test={dataTest}
+        style={
+          {
+            ...style,
+            zIndex: (style.zIndex as number) + 1,
+          }
+        }
+      />
+      <Styled.DropZoneBg
+        style={
+          {
+            ...style,
+            zIndex: (style.zIndex as number),
+          }
+        }
+      >
+        {intl.formatMessage(intlMessages.dropZoneLabel)}
+      </Styled.DropZoneBg>
+    </>
+  );
+};
+
+export default DropArea;

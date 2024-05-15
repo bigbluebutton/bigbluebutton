@@ -119,7 +119,7 @@ class Page {
     }
     await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-    await this.wasRemoved(e.webcamConnecting);
+    await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
 
   getLocator(selector) {

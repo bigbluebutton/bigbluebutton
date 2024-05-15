@@ -148,7 +148,6 @@ class BbbWebApiGWApp(
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
-                    html5InstanceId:                        java.lang.Integer,
                     loginUrl:                               String,
                     logoutUrl:                              String,
                     customLogoURL:                          String,
@@ -235,7 +234,6 @@ class BbbWebApiGWApp(
     )
 
     val systemProps = SystemProps(
-      html5InstanceId,
       loginUrl match {
         case url: String => url
         case _ => ""

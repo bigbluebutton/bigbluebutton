@@ -62,6 +62,7 @@ interface ExternalVideoPlayerProps {
   currentVolume: React.MutableRefObject<number>;
   isMuted: React.MutableRefObject<boolean>;
   isEchoTest: boolean;
+  isGridLayout: boolean;
   isPresenter: boolean;
   videoUrl: string;
   isResizing: boolean;
@@ -71,6 +72,7 @@ interface ExternalVideoPlayerProps {
   playerPlaybackRate: number;
   currentTime: number;
   key: string;
+  isSidebarContentOpen: boolean;
   setKey: (key: string) => void;
 }
 
@@ -80,6 +82,8 @@ Styled.VideoPlayer.addCustomPlayer(PeerTube);
 Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 
 const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
+  isGridLayout,
+  isSidebarContentOpen,
   currentVolume,
   isMuted,
   isResizing,
@@ -240,16 +244,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (playerRef.current && !isPresenter) {
-      playerRef.current.seekTo(currentTime, 'seconds');
-    }
-  }, [currentTime]);
-
-  useEffect(() => {
     if (playerRef.current) {
       playerRef.current.seekTo(currentTime, 'seconds');
     }
-  }, [playerRef.current]);
+  }, [playerRef.current, playing]);
 
   // --- Plugin related code ---;
   const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
@@ -328,6 +326,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     toolbarStyle = 'showMobileHoverToolbar';
   }
 
+  const shouldShowTools = () => {
+    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen)) {
+      return false;
+    }
+    return true;
+  };
+
   return (
     <Styled.Container
       style={{
@@ -347,7 +352,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       >
 
         {
-          showUnsynchedMsg
+          showUnsynchedMsg && shouldShowTools()
             ? (
               <Styled.AutoPlayWarning>
                 {intl.formatMessage(intlMessages.autoPlayWarning)}
@@ -378,7 +383,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           muted={mute || isEchoTest}
         />
         {
-          !isPresenter ? (
+          shouldShowTools() ? (
             <ExternalVideoPlayerToolbar
               handleOnMuted={(m: boolean) => { setMute(m); }}
               handleReload={() => setKey(uniqueId('react-player'))}
@@ -417,6 +422,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
+    layout: m.layout,
   }));
 
   useEffect(() => {
@@ -490,6 +496,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
   const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const { isOpen: isSidebarContentOpen } = sidebarContent;
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -507,9 +515,12 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
     + playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
+  const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
 
   return (
     <ExternalVideoPlayer
+      isSidebarContentOpen={isSidebarContentOpen}
+      isGridLayout={isGridLayout}
       currentVolume={currentVolume}
       isMuted={isMuted}
       isEchoTest={isEchoTest}
@@ -520,7 +531,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       isResizing={isResizing}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
-      currentTime={isPresenter ? playerCurrentTime : currentTime}
+      currentTime={currentTime}
       key={key}
       setKey={setKey}
     />

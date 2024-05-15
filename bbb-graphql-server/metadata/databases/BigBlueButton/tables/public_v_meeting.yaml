@@ -171,7 +171,6 @@ select_permissions:
         - endedByUserName
         - endedReasonCode
         - extId
-        - html5InstanceId
         - isBreakout
         - loginUrl
         - logoutUrl

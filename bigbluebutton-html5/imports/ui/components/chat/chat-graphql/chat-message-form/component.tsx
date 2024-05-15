@@ -312,6 +312,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       setMessage('');
       updateUnreadMessages(chatId, '');
+      setError(null);
       setHasErrors(false);
       setShowEmojiPicker(false);
       const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);

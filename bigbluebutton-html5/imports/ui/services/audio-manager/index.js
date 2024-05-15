@@ -7,7 +7,6 @@ import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
@@ -23,13 +22,12 @@ import {
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
+import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 
 const STATS = window.meetingClientSettings.public.stats;
 const MEDIA = window.meetingClientSettings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-const MAX_LISTEN_ONLY_RETRIES = 1;
-const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
   window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
@@ -351,127 +349,79 @@ class AudioManager {
   }
 
   joinAudio(callOptions, callStateCallback) {
-    return this.bridge.joinAudio(callOptions, callStateCallback.bind(this)).catch((error) => {
-      const { name } = error;
+    return this.bridge
+      .joinAudio(callOptions, callStateCallback.bind(this))
+      .catch((error) => {
+        const { name, message } = error;
+        const errorPayload = {
+          type: 'MEDIA_ERROR',
+          errMessage: message || 'MEDIA_ERROR',
+          errCode: AudioErrors.MIC_ERROR.UNKNOWN,
+        };
 
-      if (!name) {
-        throw error;
-      }
-
-      switch (name) {
-        case 'NotAllowedError':
-          logger.error(
-            {
-              logCode: 'audiomanager_error_getting_device',
+        switch (name) {
+          case 'NotAllowedError':
+            errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
+            logger.error({
+                logCode: 'audiomanager_error_getting_device',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                },
+              },
+              `Error getting microphone - {${error.name}: ${error.message}}`,
+            );
+            break;
+          case 'NotFoundError':
+            errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
+            logger.error({
+                logCode: 'audiomanager_error_device_not_found',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                },
+              },
+              `Error getting microphone - {${error.name}: ${error.message}}`,
+            );
+            break;
+          default:
+            logger.error({
+              logCode: 'audiomanager_error_unknown',
               extraInfo: {
                 errorName: error.name,
                 errorMessage: error.message,
               },
-            },
-            `Error getting microphone - {${error.name}: ${error.message}}`
-          );
-          break;
-        case 'NotFoundError':
-          logger.error(
-            {
-              logCode: 'audiomanager_error_device_not_found',
-              extraInfo: {
-                errorName: error.name,
-                errorMessage: error.message,
-              },
-            },
-            `Error getting microphone - {${error.name}: ${error.message}}`
-          );
-          break;
+            }, `Error enabling audio - {${name}: ${message}}`);
+            break;
+        }
 
-        default:
-          break;
-      }
+        this.isConnecting = false;
+        this.isWaitingPermissions = false;
 
-      this.isConnecting = false;
-      this.isWaitingPermissions = false;
-
-      throw {
-        type: 'MEDIA_ERROR',
-      };
-    });
+        throw errorPayload;
+      });
   }
 
-  async joinListenOnly(r = 0) {
+  async joinListenOnly() {
     this.audioJoinStartTime = new Date();
     this.logAudioJoinTime = false;
-    let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
 
-    const callOptions = {
-      isListenOnly: true,
-      extension: null,
-    };
-
-    // Call polyfills for webrtc client if navigator is "iOS Webview"
-    const userAgent = window.navigator.userAgent.toLocaleLowerCase();
-    if (
-      (userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) &&
-      userAgent.indexOf('safari') === -1
-    ) {
-      iosWebviewAudioPolyfills();
-    }
-
-    // We need this until we upgrade to SIP 9x. See #4690
-    const listenOnlyCallTimeoutErr = 'SIP_CALL_TIMEOUT';
-
-    const iceGatheringTimeout = new Promise((resolve, reject) => {
-      setTimeout(reject, LISTEN_ONLY_CALL_TIMEOUT_MS, listenOnlyCallTimeoutErr);
-    });
-
-    const handleListenOnlyError = (err) => {
-      if (iceGatheringTimeout) {
-        clearTimeout(iceGatheringTimeout);
-      }
-
-      const errorReason =
-        (typeof err === 'string' ? err : undefined) || err.errorReason || err.errorMessage;
-
-      logger.error(
-        {
-          logCode: 'audiomanager_listenonly_error',
-          extraInfo: {
-            errorReason,
-            audioBridge: this.bridge?.bridgeName,
-            retries,
-          },
-        },
-        `Listen only error - ${errorReason} - bridge: ${this.bridge?.bridgeName}`
-      );
-    };
-
-    logger.info(
-      {
-        logCode: 'audiomanager_join_listenonly',
-        extraInfo: { logType: 'user_action' },
-      },
-      'user requested to connect to audio conference as listen only'
-    );
+    logger.info({
+      logCode: 'audiomanager_join_listenonly',
+      extraInfo: { logType: 'user_action' },
+    }, 'user requested to connect to audio conference as listen only');
 
     window.addEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    return this.onAudioJoining()
-      .then(() =>
-        Promise.race([
-          this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
-          iceGatheringTimeout,
-        ])
-      )
-      .catch(async (err) => {
-        handleListenOnlyError(err);
-
-        if (retries < MAX_LISTEN_ONLY_RETRIES) {
-          retries += 1;
-          this.joinListenOnly(retries);
-        }
-
-        return null;
+    return this.onAudioJoining.bind(this)()
+      .then(() => {
+        const callOptions = {
+          isListenOnly: true,
+          extension: null,
+        };
+        return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
@@ -492,6 +442,7 @@ class AudioManager {
   }
 
   forceExitAudio() {
+    this.notifyAudioExit();
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
@@ -601,7 +552,21 @@ class AudioManager {
     this.isConnecting = true;
   }
 
+  // Must be called before the call is actually torn down (this.isConnected = true)
+  notifyAudioExit() {
+    try {
+      if (!this.error && (this.isConnected && !this.isEchoTest)) {
+        this.notify(
+          this.intl.formatMessage(this.messages.info.LEFT_AUDIO),
+          false,
+          'no_audio',
+        );
+      }
+    } catch {}
+  }
+
   onAudioExit() {
+    this.notifyAudioExit();
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
@@ -613,9 +578,6 @@ class AudioManager {
       this.inputStream = null;
     }
 
-    if (!this.error && !this.isEchoTest) {
-      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO), false, 'no_audio');
-    }
     if (!this.isEchoTest) {
       this.playHangUpSound();
     }
@@ -1072,7 +1034,7 @@ class AudioManager {
       receivers[0] &&
       receivers[0].transport &&
       receivers[0].transport.iceTransport &&
-      receivers[0].transport.iceTransport
+      typeof receivers[0].transport.iceTransport.getSelectedCandidatePair === 'function'
     ) {
       selectedPair = receivers[0].transport.iceTransport.getSelectedCandidatePair();
     }

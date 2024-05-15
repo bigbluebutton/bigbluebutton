@@ -179,7 +179,7 @@ const AppContainer = (props) => {
   const shouldShowGenericComponent = !!genericComponentMainContent.genericComponentMainContentId;
 
   const validateEnforceLayout = (currentUser) => {
-    const layoutTypes = Object.values(LAYOUT_TYPE);
+    const layoutTypes = Object.keys(LAYOUT_TYPE);
     const enforceLayout = currentUser?.enforceLayout;
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };

@@ -28,7 +28,7 @@ const recoverMicState = (toggleVoice) => {
   logger.debug({
     logCode: 'audio_recover_mic_state',
   }, `Audio recover previous mic state: muted = ${muted}`);
-  toggleVoice(null, muted);
+  toggleVoice(Auth.userID, muted);
 };
 
 const audioEventHandler = (toggleVoice) => (event) => {
@@ -83,7 +83,7 @@ const muteMicrophone = (toggleVoice) => {
       extraInfo: { logType: 'user_action' },
     }, 'User wants to leave conference. Microphone muted');
     AudioManager.setSenderTrackEnabled(false);
-    toggleVoice();
+    toggleVoice(Auth.userID, true);
   }
 };
 
@@ -105,13 +105,13 @@ const toggleMuteMicrophone = throttle((toggleVoice) => {
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
-    toggleVoice();
+    toggleVoice(Auth.userID, false);
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
-    toggleVoice();
+    toggleVoice(Auth.userID, true);
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 

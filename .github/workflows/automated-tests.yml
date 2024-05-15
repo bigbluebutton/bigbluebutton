@@ -256,6 +256,9 @@ jobs:
           '
       - name: Install BBB
         uses: nick-fields/retry@v3
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
         with:
           timeout_minutes: 25
           max_attempts: 2
@@ -265,7 +268,6 @@ jobs:
             cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
-            echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
             bbb-conf --restart
             EOF

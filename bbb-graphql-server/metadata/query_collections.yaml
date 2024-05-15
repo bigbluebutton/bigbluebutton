@@ -32,3 +32,10 @@
               clientLog: clientSettingsJson(path: "$.public.clientLog")
             }
           }
+      - name: clientSettings
+        query: |
+          query clientStartupSettings {
+            meeting_clientSettings {
+              clientSettingsJson
+            }
+          }

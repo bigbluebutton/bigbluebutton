@@ -29,7 +29,15 @@ const fade = keyframes`
   }
 `;
 
-const Content = styled.div`
+const Content = styled.div<{
+  isStream: boolean;
+  talking: boolean;
+  customHighlight: boolean;
+  animations: boolean;
+  dragging: boolean;
+  draggingOver: boolean;
+  fullscreen: boolean;
+}>`
   position: relative;
   display: flex;
   min-width: 100%;
@@ -88,7 +96,9 @@ const Content = styled.div`
   `}
 `;
 
-const WebcamConnecting = styled.div`
+const WebcamConnecting = styled.div<{
+  animations: boolean;
+}>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -120,7 +130,9 @@ const LoadingText = styled(TextElipsis)`
   font-size: 100%;
 `;
 
-const VideoContainer = styled.div`
+const VideoContainer = styled.div<{
+  $selfViewDisabled: boolean;
+}>`
   display: flex;
   justify-content: center;
   width: 100%;
@@ -129,7 +141,10 @@ const VideoContainer = styled.div`
   ${({ $selfViewDisabled }) => $selfViewDisabled && 'display: none'}
 `;
 
-const Video = styled.video`
+const Video = styled.video<{
+  mirrored: boolean;
+  unhealthyStream: boolean;
+}>`
   position: relative;
   height: 100%;
   width: calc(100% - 1px);
@@ -147,7 +162,7 @@ const Video = styled.video`
 `;
 
 const VideoDisabled = styled.div`
-color: white;
+  color: white;
   width: 100%;
   height: 20%;
   background-color: rgba(0, 0, 0, 0.7);
@@ -164,7 +179,7 @@ color: white;
   padding: 20px;
   backdrop-filter: blur(10px); 
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}`;
+`;
 
 const TopBar = styled.div`
   position: absolute;

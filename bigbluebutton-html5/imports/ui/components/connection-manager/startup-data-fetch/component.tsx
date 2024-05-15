@@ -60,10 +60,9 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       setLoading(false);
       return;
     }
-    const clientStartupSettings = '/api/rest/clientStartupSettings/';
+    const clientStartupSettings = `/api/rest/clientStartupSettings/?sessionToken=${sessionToken}`;
     const url = new URL(`${window.location.origin}${clientStartupSettings}`);
-    const headers = new Headers({ 'X-Session-Token': sessionToken, 'Content-Type': 'application/json' });
-    fetch(url, { method: 'get', headers })
+    fetch(url, { method: 'get' })
       .then((resp) => resp.json())
       .then((data: Response) => {
         const settings = data.meeting_clientSettings[0];

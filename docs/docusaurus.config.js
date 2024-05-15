@@ -43,8 +43,6 @@ const config = {
         ],
     ],
 
-    plugins: [require.resolve("@cmfcmf/docusaurus-search-local")],
-
     themeConfig:
 
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -72,7 +70,7 @@ const config = {
                         dropdownActiveClassDisabled: true,
                     },
                     {
-                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v2.7.x-release/docs',
+                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v3.0.x-release/docs',
                         label: 'GitHub',
                         position: 'right',
                     },
@@ -84,10 +82,6 @@ const config = {
                     {
                         title: 'BigBlueButton',
                         items: [
-                            {
-                                label: 'Release notes',
-                                href: '/release-notes',
-                            },
                             {
                                 label: 'Github',
                                 href: 'https://github.com/bigbluebutton',
@@ -170,6 +164,23 @@ const config = {
                 darkTheme: darkCodeTheme,
             },
         }),
+        themes: [
+            // ... Your other themes.
+            [
+              require.resolve("@easyops-cn/docusaurus-search-local"),
+              /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
+              ({
+                // ... Your options.
+                // `hashed` is recommended as long-term-cache of index file is possible.
+                hashed: true,
+                docsRouteBasePath: "/",
+                // For Docs using Chinese, The `language` is recommended to set to:
+                // ```
+                // language: ["en", "zh"],
+                // ```
+              }),
+            ],
+          ],
 };
 
 module.exports = config;

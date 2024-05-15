@@ -16,6 +16,7 @@ import {
 } from './service';
 import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
+import AudioModalService from '/imports/ui/components/audio/audio-modal/service';
 
 const AudioModalContainer = (props) => <AudioModal {...props} />;
 
@@ -98,5 +99,7 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
     notify: Service.notify,
     isRTL,
     AudioError,
+    getTroubleshootingLink: AudioModalService.getTroubleshootingLink,
+    isListenOnly: Service.isListenOnly(),
   });
 })(AudioModalContainer));

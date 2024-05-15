@@ -100,12 +100,14 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
         && mapOfDataChannelInformation.get(keyIdentifier)!.totalUses > 0,
         ).map((keyIdentifier: string) => {
           const { subChannelName, channelName } = mapOfDataChannelInformation.get(keyIdentifier)!;
+          const identifier = createChannelIdentifier(
+            channelName, subChannelName, pluginNameInUse,
+          );
           return (
             <DataChannelItemManager
               {...{
-                key: createChannelIdentifier(
-                  channelName, subChannelName, pluginNameInUse,
-                ),
+                key: identifier,
+                identifier,
                 pluginName: pluginNameInUse,
                 channelName,
                 subChannelName,

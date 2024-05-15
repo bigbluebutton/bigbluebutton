@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
 const useCursor = (publishCursorUpdate, whiteboardId) => {
-    const [cursorPosition, setCursorPosition] = useState({ x: -1, y: -1 });
+    const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
 
     const updateCursorPosition = (newX, newY) => {
         setCursorPosition({ x: newX, y: newY });
     };
 
     useEffect(() => {
+        if (!cursorPosition || cursorPosition.x === '' || cursorPosition.y === '') {
+            return;
+        }
         publishCursorUpdate({
             whiteboardId,
             xPercent: cursorPosition?.x,

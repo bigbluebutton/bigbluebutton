@@ -887,6 +887,15 @@ public:
     #  audio: high
     #  webcam: medium
     #  screenshare: medium
+    #
+    # audioTroubleshootingLinks: links to help users troubleshoot audio issues
+    # If no link is provided, the audio troubleshooting button will not be shown.
+    # Index is the error code:
+    #   - 7: permission denied error code
+    #   - 0: unknown error
+    #audioTroubleshootingLinks:
+    #  7: 'https://link.bigbluebutton.org/perm'
+    #  0: 'https://link.bigbluebutton.org/unk'
   stats:
     enabled: true
     interval: 10000
@@ -1114,29 +1123,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  redis:
-    host: 127.0.0.1
-    port: '6379'
-    timeout: 5000
-    password: null
-    debug: false
-    metrics:
-      queueMetrics: false
-      metricsDumpIntervalMs: 60000
-      metricsFolderPath: METRICS_FOLDER
-      removeMeetingOnEnd: true
-    channels:
-      toAkkaApps: to-akka-apps-redis-channel
-      toThirdParty: to-third-party-redis-channel
-    subscribeTo:
-      - to-html5-redis-channel
-      - from-akka-apps-[^f]*
-      - from-third-party-redis-channel
-    async:
-      - from-akka-apps-wb-redis-channel
-    ignored:
-      - CheckAlivePongSysMsg
-      - DoLatencyTracerMsg
   serverLog:
     level: info
     streamerLog: false
@@ -1177,5 +1163,3 @@ private:
     path: '/metrics'
     # Whether default metrics for Node.js processes should be exported
     collectDefaultMetrics: false
-    # Whether redis metrics should be exported
-    collectRedisMetrics: false

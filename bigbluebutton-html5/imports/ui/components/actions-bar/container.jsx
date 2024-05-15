@@ -54,7 +54,11 @@ const ActionsBarContainer = (props) => {
 
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const currentUser = { userId: Auth.userID, emoji: currentUserData?.emoji };
+
+  const currentUser = {
+    userId: Auth.userID,
+    emoji: currentUserData?.emoji,
+  };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
 

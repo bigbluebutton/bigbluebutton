@@ -1,9 +1,13 @@
-const getInteractionsButtonCoordenates = () => {
+const getInteractionsButtonCoordinates = () => {
   const el = document.getElementById('interactionsButton');
-  const coordenada = el.getBoundingClientRect();
-  return coordenada;
+
+  if (!el) return null;
+
+  const coordinate = el.getBoundingClientRect();
+
+  return coordinate;
 };
 
 export default {
-  getInteractionsButtonCoordenates,
+  getInteractionsButtonCoordinates,
 };

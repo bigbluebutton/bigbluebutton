@@ -24,6 +24,7 @@ export interface GetUserInfoResponse {
     logoutUrl: string;
     bannerColor: string;
     bannerText: string;
+    customLogoUrl: string;
   }>;
   user_current: Array<{
     extId: string;
@@ -40,6 +41,7 @@ query getUserInfo {
     logoutUrl
     bannerColor
     bannerText
+    customLogoUrl
   }
   user_current {
     extId

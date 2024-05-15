@@ -6,7 +6,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                 order_by: [
                   {role: asc},
                   {raiseHandTime: asc_nulls_last},
-                  {awayTime: asc_nulls_last},
                   {emojiTime: asc_nulls_last},
                   {isDialIn: desc},
                   {hasDrawPermissionOnCurrentPage: desc},

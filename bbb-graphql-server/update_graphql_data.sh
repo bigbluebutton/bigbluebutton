@@ -49,7 +49,7 @@ echo "Starting Hasura"
 sudo systemctl start bbb-graphql-server
 
 #Check if Hasura is ready before applying metadata
-HASURA_PORT=8080
+HASURA_PORT=8085
 while ! netstat -tuln | grep ":$HASURA_PORT " > /dev/null; do
     echo "Waiting for Hasura's port ($HASURA_PORT) to be ready..."
     sleep 1

@@ -8,10 +8,10 @@ import ScreenShareService from '/imports/ui/components/screenshare/service';
 import logger from '/imports/startup/client/logger';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { CAMERA_BROADCAST_STOP } from '../video-provider/mutations';
 import {
   useSharedDevices, useHasVideoStream, useHasCapReached, useIsUserLocked, useStreams,
   useExitVideo,
+  useStopVideo,
 } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 
 const VideoPreviewContainer = (props) => {
@@ -22,21 +22,16 @@ const VideoPreviewContainer = (props) => {
     ...rest
   } = props;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
-
-  const sendUserUnshareWebcam = (cameraId) => {
-    cameraBroadcastStop({ variables: { cameraId } });
-  };
 
   const { streams } = useStreams();
-  const exitVideo = useExitVideo()
+  const exitVideo = useExitVideo();
+  const stopVideo = useStopVideo();
   const startSharingCameraAsContent = buildStartSharingCameraAsContent(stopExternalVideoShare);
-  const stopSharing = buildStopSharing(sendUserUnshareWebcam, streams, exitVideo);
+  const stopSharing = buildStopSharing(streams, exitVideo, stopVideo);
   const sharedDevices = useSharedDevices();
   const hasVideoStream = useHasVideoStream();
   const camCapReached = useHasCapReached();
   const isCamLocked = useIsUserLocked();
-  
 
   return (
     <VideoPreview
@@ -81,14 +76,14 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
     );
     ScreenShareService.setCameraAsContentDeviceId(deviceId);
   },
-  buildStopSharing: (sendUserUnshareWebcam, streams, exitVideo) => (deviceId) => {
+  buildStopSharing: (streams, exitVideo, stopVideo) => (deviceId) => {
     callbackToClose();
     setIsOpen(false);
     if (deviceId) {
       const streamId = VideoService.getMyStreamId(deviceId, streams);
-      if (streamId) VideoService.stopVideo(streamId, sendUserUnshareWebcam, streams);
+      if (streamId) stopVideo(streamId);
     } else {
-      exitVideo(sendUserUnshareWebcam, streams);
+      exitVideo();
     }
   },
   stopSharingCameraAsContent: () => {

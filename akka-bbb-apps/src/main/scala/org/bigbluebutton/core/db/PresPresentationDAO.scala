@@ -135,7 +135,9 @@ object PresPresentationDAO {
             p.removable,
             p.uploadInProgress,
             p.uploadCompleted,
-            p.totalPages))
+            p.totalPages,
+            p.uploadErrorMsgKey,
+            p.uploadErrorDetailsJson))
           .update(
             (presentation.name,
               presentation.filenameConverted,
@@ -148,7 +150,15 @@ object PresPresentationDAO {
               presentation.removable,
               !presentation.uploadCompleted,
               presentation.uploadCompleted,
-              presentation.numPages
+              presentation.numPages,
+              presentation.errorMsgKey match {
+                case "" => None
+                case error => Some(error)
+              },
+              presentation.errorDetails match {
+                case m if m.isEmpty => None
+                case m => Some(m.toJson)
+              },
             ))
       )
     }.onComplete {

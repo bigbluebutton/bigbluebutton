@@ -60,6 +60,13 @@ type Mutation {
 }
 
 type Mutation {
+  captionSetOwner(
+    locale: String!
+    ownerUserId: String!
+  ): Boolean
+}
+
+type Mutation {
   captionSubmitText(
     transcriptId: String!
     start: Int!
@@ -569,14 +576,6 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
-
-type Mutation {
-  captionSetOwner(
-    locale: String!
-    ownerUserId: String!
-  ): Boolean
-}
-
 input SampleInput {
   username: String!
   password: String!

@@ -91,6 +91,10 @@ export interface ExternalVideo {
   updatedAt: Date;
 }
 
+export interface Layout {
+  currentLayoutType: string;
+}
+
 export interface ComponentsFlags {
   hasCaption: boolean;
   hasBreakoutRoom: boolean;
@@ -111,7 +115,6 @@ export interface Meeting {
   disabledFeatures: Array<string>;
   durationInSeconds: number;
   extId: string;
-  html5InstanceId: string | null;
   isBreakout: boolean;
   learningDashboardAccessToken: string;
   maxPinnedCameras: number;
@@ -126,6 +129,7 @@ export interface Meeting {
   voiceSettings: VoiceSettings;
   breakoutPolicies: BreakoutPolicies;
   externalVideo: ExternalVideo;
+  layout: Layout;
   componentsFlags: ComponentsFlags;
   endWhenNoModerator: boolean;
   endWhenNoModeratorDelayInMinutes: number;
