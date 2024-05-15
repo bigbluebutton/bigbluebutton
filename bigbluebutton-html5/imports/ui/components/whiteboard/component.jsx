@@ -94,6 +94,7 @@ export default function Whiteboard(props) {
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [tldrawZoom, setTldrawZoom] = React.useState(1);
   const zoomValueRef = React.useRef(zoomValue);
+  const isMouseDownRef = React.useRef(false);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
@@ -221,6 +222,7 @@ export default function Whiteboard(props) {
         tldrawAPI?.completeSession?.();
       }
     }
+    isMouseDownRef.current = false;
   };
 
   const checkVisibility = () => {
@@ -259,12 +261,18 @@ export default function Whiteboard(props) {
     window.dispatchEvent(new Event('resize'));
   }
 
+  const setIsMouseDown = () => {
+    isMouseDownRef.current = true;
+  }
+
   React.useEffect(() => {
     document.addEventListener('mouseup', checkClientBounds);
     document.addEventListener('visibilitychange', checkVisibility);
+    document.addEventListener('mousedown', setIsMouseDown);
 
     return () => {
       document.removeEventListener('mouseup', checkClientBounds);
+      document.removeEventListener('mousedown', setIsMouseDown);
       document.removeEventListener('visibilitychange', checkVisibility);
       const canvas = document.getElementById('canvas');
       if (canvas) {
@@ -637,6 +645,12 @@ export default function Whiteboard(props) {
 
   const handleOnKeyDown = (event) => {
     const { which, ctrlKey } = event;
+
+    if (isMouseDownRef.current) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
 
     switch (which) {
       case KEY_CODES.ARROW_LEFT:
