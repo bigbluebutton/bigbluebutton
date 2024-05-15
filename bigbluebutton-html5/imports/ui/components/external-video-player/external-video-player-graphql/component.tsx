@@ -333,6 +333,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     return true;
   };
 
+  const handleOnReady= () => {
+    currentTime = 0;
+    console.log('IM REEEEAAAAADY');
+  };
+
   return (
     <Styled.Container
       style={{
@@ -372,6 +377,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           width="100%"
           ref={playerRef}
           volume={volume}
+          onReady={handleOnReady}
           onPlay={handleOnPlay}
           onDuration={handleDuration}
           onProgress={(state: OnProgressProps) => {
