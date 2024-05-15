@@ -878,11 +878,13 @@ CREATE INDEX "idx_user_reaction_userId_createdAt" ON "user_reaction"("meetingId"
 
 CREATE VIEW v_user_reaction AS
 SELECT ur."meetingId", ur."userId", ur."reactionEmoji", ur."createdAt", ur."expiresAt"
-FROM "user_reaction" ur;
+FROM "user_reaction" ur
+WHERE "expiresAt" >= current_timestamp;
 
 CREATE VIEW v_user_reaction_current AS
 SELECT ur."meetingId", ur."userId", (array_agg(ur."reactionEmoji" ORDER BY ur."expiresAt" DESC))[1] as "reactionEmoji"
 FROM "user_reaction" ur
+WHERE "expiresAt" >= current_timestamp
 GROUP BY ur."meetingId", ur."userId";
 
 CREATE TABLE "user_transcriptionError"(
