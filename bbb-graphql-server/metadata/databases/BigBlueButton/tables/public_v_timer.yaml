@@ -12,8 +12,6 @@ select_permissions:
       columns:
         - accumulated
         - active
-        - endedAt
-        - endedOn
         - running
         - songTrack
         - startedAt

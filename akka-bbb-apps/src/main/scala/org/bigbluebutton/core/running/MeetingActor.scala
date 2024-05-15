@@ -28,13 +28,13 @@ import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
-import org.bigbluebutton.common2.msgs.{ PluginDataChannelDeleteEntryMsgBody, _ }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
 import org.apache.pekko.actor.Props
 import org.apache.pekko.actor.OneForOneStrategy
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsStringOrElse }
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsStringOrElse }
 import org.bigbluebutton.common2.msgs
 
 import scala.concurrent.duration._
@@ -42,7 +42,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, TimerDAO, UserStateDAO }
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
@@ -209,6 +209,7 @@ class MeetingActor(
   initLockSettings(liveMeeting, liveMeeting.props.lockSettingsProps)
 
   initSharedNotes(liveMeeting)
+  initTimer(liveMeeting)
 
   /** *****************************************************************/
   // Helper to create fake users for testing (ralam jan 5, 2018)
@@ -345,6 +346,21 @@ class MeetingActor(
     }
   }
 
+  private def initTimer(liveMeeting: LiveMeeting): Unit = {
+    val timerEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
+      liveMeeting.clientSettings,
+      "public.timer.enabled",
+      alternativeValue = true
+    )
+
+    if (timerEnabled) {
+      val timerDefaultTimeInMinutes = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.timer.time", 5)
+      val timerDefaultTimeInMilli = timerDefaultTimeInMinutes * 60000
+      TimerModel.createTimer(liveMeeting.timerModel, time = timerDefaultTimeInMilli)
+      TimerDAO.insert(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
+    }
+  }
+
   private def updateVoiceUserLastActivity(userId: String) {
     for {
       vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, userId)
@@ -425,7 +441,6 @@ class MeetingActor(
       case m: ChangeUserReactionEmojiReqMsg => usersApp.handleChangeUserReactionEmojiReqMsg(m)
       case m: ChangeUserRaiseHandReqMsg     => usersApp.handleChangeUserRaiseHandReqMsg(m)
       case m: ChangeUserAwayReqMsg          => usersApp.handleChangeUserAwayReqMsg(m)
-      case m: UserReactionTimeExpiredCmdMsg => handleUserReactionTimeExpiredCmdMsg(m)
       case m: ClearAllUsersEmojiCmdMsg      => handleClearAllUsersEmojiCmdMsg(m)
       case m: ClearAllUsersReactionCmdMsg   => handleClearAllUsersReactionCmdMsg(m)
       case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
@@ -529,7 +544,6 @@ class MeetingActor(
       case m: BroadcastPushLayoutMsg  => handleBroadcastPushLayoutMsg(m)
 
       // Pads
-      case m: PadCreateGroupReqMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadGroupCreatedEvtMsg   => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreateReqMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreatedEvtMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
@@ -650,7 +664,6 @@ class MeetingActor(
       case m: StopExternalVideoPubMsg             => externalVideoApp2x.handle(m, liveMeeting, msgBus)
 
       //Timer
-      case m: CreateTimerPubMsg                   => timerApp2x.handle(m, liveMeeting, msgBus)
       case m: ActivateTimerReqMsg                 => timerApp2x.handle(m, liveMeeting, msgBus)
       case m: DeactivateTimerReqMsg               => timerApp2x.handle(m, liveMeeting, msgBus)
       case m: StartTimerReqMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
@@ -659,7 +672,6 @@ class MeetingActor(
       case m: SetTimerReqMsg                      => timerApp2x.handle(m, liveMeeting, msgBus)
       case m: ResetTimerReqMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
       case m: SetTrackReqMsg                      => timerApp2x.handle(m, liveMeeting, msgBus)
-      case m: TimerEndedPubMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
 
       case m: ValidateConnAuthTokenSysMsg         => handleValidateConnAuthTokenSysMsg(m)
 
