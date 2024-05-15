@@ -1051,7 +1051,7 @@ public class Meeting {
     		return this;
     	}
 
-    	public Builder isBreakout(Boolean b) {
+    	public Builder withIsBreakout(Boolean b) {
     	  isBreakout = b;
     	  return this;
     	}

@@ -764,6 +764,7 @@ public class ParamsProcessorUtil {
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage)
+                .withIsBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
                 .withAllowRequestsWithoutSession(allowRequestsWithoutSession)
