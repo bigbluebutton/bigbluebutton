@@ -58,7 +58,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    if (muted) {
+    if (muted && away) {
       muteAway(muted, true, toggleVoice);
       VideoService.setTrackEnabled(true);
       setAway({
