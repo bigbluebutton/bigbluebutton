@@ -18,7 +18,7 @@ const config = {
     headless: true,
     trace: 'on',
     screenshot: 'on',
-    video: 'on',
+    video: CI ? 'retain-on-failure' : 'on',
   },
   projects: [
     chromiumConfig,
