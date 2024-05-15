@@ -2,10 +2,11 @@ package org.bigbluebutton.api.model.request;
 
 import org.bigbluebutton.api.model.constraint.UserSessionConstraint;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
-public class LearningDashboard implements Request<LearningDashboard.Params> {
+public class LearningDashboard extends RequestWithSession<LearningDashboard.Params> {
 
     public enum Params implements RequestParameters {
         SESSION_TOKEN("sessionToken");
@@ -19,6 +20,10 @@ public class LearningDashboard implements Request<LearningDashboard.Params> {
 
     @UserSessionConstraint
     private String sessionToken;
+
+    public LearningDashboard(HttpServletRequest servletRequest) {
+        super(servletRequest);
+    }
 
     public String getSessionToken() {
         return sessionToken;
