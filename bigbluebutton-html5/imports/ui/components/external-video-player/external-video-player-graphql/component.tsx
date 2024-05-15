@@ -333,7 +333,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     return true;
   };
 
-  const handleOnReady= () => {
+  const handleOnReady = () => {
     currentTime = -1;
   };
 
