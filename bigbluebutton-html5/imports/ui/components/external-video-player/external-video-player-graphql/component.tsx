@@ -334,8 +334,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   };
 
   const handleOnReady= () => {
-    currentTime = 0;
-    console.log('IM REEEEAAAAADY');
+    currentTime = -1;
   };
 
   return (
