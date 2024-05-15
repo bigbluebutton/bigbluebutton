@@ -1556,12 +1556,10 @@ CREATE TABLE "timer" (
 	"time" bigint,
 	"accumulated" bigint,
 	"startedOn" bigint,
-	"endedOn" bigint,
 	"songTrack" varchar(50)
 );
 
 ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "startedOn" = 0 THEN NULL ELSE to_timestamp("startedOn"::double precision / 1000) END) STORED;
-ALTER TABLE "timer" ADD COLUMN "endedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "endedOn" = 0 THEN NULL ELSE  to_timestamp("endedOn"::double precision / 1000) END) STORED;
 
 CREATE OR REPLACE VIEW "v_timer" AS
 SELECT
@@ -1576,8 +1574,6 @@ SELECT
      "accumulated",
      "startedAt",
      "startedOn",
-     "endedAt",
-     "endedOn",
      "songTrack"
  FROM "timer";
 

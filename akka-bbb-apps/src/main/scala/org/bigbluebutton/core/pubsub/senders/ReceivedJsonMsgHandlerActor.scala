@@ -449,8 +449,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ResetTimerReqMsg](envelope, jsonNode)
       case SetTrackReqMsg.NAME =>
         routeGenericMsg[SetTrackReqMsg](envelope, jsonNode)
-      case TimerEndedPubMsg.NAME =>
-        routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
 
       // Messages from Graphql Middleware
       case UserGraphqlConnectionEstablishedSysMsg.NAME =>

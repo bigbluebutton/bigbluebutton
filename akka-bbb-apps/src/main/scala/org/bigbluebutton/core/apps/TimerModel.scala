@@ -17,7 +17,6 @@ object TimerModel {
   def reset(model: TimerModel) : Unit = {
     model.accumulated = 0
     model.startedAt = if (model.running) System.currentTimeMillis() else 0
-    model.endedAt = 0
   }
 
   def setIsActive(model: TimerModel, active: Boolean): Unit = {
@@ -83,19 +82,10 @@ object TimerModel {
   def getTime(model: TimerModel): Int = {
     model.time
   }
-
-  def setEndedAt(model: TimerModel, timestamp: Long): Unit = {
-    model.endedAt = timestamp
-  }
-
-  def getEndedAt(model: TimerModel): Long = {
-    model.endedAt
-  }
 }
 
 class TimerModel {
   private var startedAt: Long = 0
-  private var endedAt: Long = 0
   private var accumulated: Int = 0
   private var running: Boolean = false
   private var time: Int = 0

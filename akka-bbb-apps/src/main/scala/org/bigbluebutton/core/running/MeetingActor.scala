@@ -34,7 +34,7 @@ import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
 import org.apache.pekko.actor.Props
 import org.apache.pekko.actor.OneForOneStrategy
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsStringOrElse }
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsStringOrElse }
 import org.bigbluebutton.common2.msgs
 
 import scala.concurrent.duration._
@@ -347,8 +347,18 @@ class MeetingActor(
   }
 
   private def initTimer(liveMeeting: LiveMeeting): Unit = {
-    TimerModel.createTimer(liveMeeting.timerModel)
-    TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
+    val timerEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
+      liveMeeting.clientSettings,
+      "public.timer.enabled",
+      alternativeValue = true
+    )
+
+    if (timerEnabled) {
+      val timerDefaultTimeInMinutes = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.timer.time", 5)
+      val timerDefaultTimeInMilli = timerDefaultTimeInMinutes * 60000
+      TimerModel.createTimer(liveMeeting.timerModel, time = timerDefaultTimeInMilli)
+      TimerDAO.insert(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
+    }
   }
 
   private def updateVoiceUserLastActivity(userId: String) {
@@ -662,7 +672,6 @@ class MeetingActor(
       case m: SetTimerReqMsg                      => timerApp2x.handle(m, liveMeeting, msgBus)
       case m: ResetTimerReqMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
       case m: SetTrackReqMsg                      => timerApp2x.handle(m, liveMeeting, msgBus)
-      case m: TimerEndedPubMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
 
       case m: ValidateConnAuthTokenSysMsg         => handleValidateConnAuthTokenSysMsg(m)
 

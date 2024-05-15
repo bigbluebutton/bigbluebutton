@@ -11,8 +11,7 @@ class TimerApp2x(implicit val context: ActorContext)
   with SwitchTimerReqMsgHdlr
   with SetTimerReqMsgHdlr
   with ResetTimerReqMsgHdlr
-  with SetTrackReqMsgHdlr
-  with TimerEndedPubMsgHdlr {
+  with SetTrackReqMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }
