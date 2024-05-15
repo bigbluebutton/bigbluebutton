@@ -345,7 +345,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
                 {
                   guestLobbyMessage && guestLobbyMessage !== ''
                     ? <span dangerouslySetInnerHTML={{ __html: guestLobbyMessage }} />
-                  : intl.formatMessage(intlMessages.emptyMessage)
+                    : intl.formatMessage(intlMessages.emptyMessage)
                 }
                 &quot;
               </i>
