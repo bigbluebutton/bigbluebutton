@@ -110,7 +110,6 @@ FROM (
 
 create table "meeting_welcome" (
 	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-	"welcomeMsgTemplate" text,
 	"welcomeMsg" text,
 	"welcomeMsgForModerators" text
 );
