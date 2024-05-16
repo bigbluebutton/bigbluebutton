@@ -37,7 +37,7 @@ For developers, this API enables you to
 
 To make an API call to your BigBlueButton server, your application makes HTTPS requests to the BigBlueButton server API endpoint (usually the server's hostname followed by `/bigbluebutton/api`). All API calls must include checksum computed with a secret shared with the BigBlueButton server.
 
-The BigBlueButton server returns an XML response to all API calls.
+The BigBlueButton server returns an XML response to all API calls.  BigBlueButton is case-sensitive in parsing parameters for the API calls.  For example, sending `record=false` is accepted, but `REcord=false` is not.
 
 ### Updates to API in BigBlueButton
 
