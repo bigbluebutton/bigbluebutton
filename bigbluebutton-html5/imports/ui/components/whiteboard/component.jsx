@@ -632,7 +632,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
     const handleArrowPress = (event) => {
       const currPageNum = parseInt(curPageIdRef.current);
-      const shapeSelected = tlEditorRef.current.selectedShapes.length > 0;
+      const shapeSelected = tlEditorRef.current.getSelectedShapes()?.length > 0;
       const changeSlide = (direction) => {
         if (!currentPresentationPage) return;
         let newSlideNum = currPageNum + direction;
@@ -671,7 +671,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
       if (
         (undoCondition || redoCondition) &&
-        (isPresenter || hasWBAccessRef.current)
+        (isPresenterRef.current || hasWBAccessRef.current)
       ) {
         event.preventDefault();
         event.stopPropagation();
@@ -687,7 +687,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       if (
         (event.keyCode === KEY_CODES.ARROW_RIGHT ||
           event.keyCode === KEY_CODES.ARROW_LEFT) &&
-        isPresenter
+        isPresenterRef.current
       ) {
         handleArrowPress(event);
       }
