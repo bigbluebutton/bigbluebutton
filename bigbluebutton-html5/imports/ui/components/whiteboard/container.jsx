@@ -14,7 +14,6 @@ import {
   CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
-  CURSOR_SUBSCRIPTION,
 } from './queries';
 import {
   initDefaultPages,
@@ -180,7 +179,7 @@ const WhiteboardContainer = (props) => {
     CURRENT_PAGE_ANNOTATIONS_QUERY,
     {
       skip: !curPageId,
-    }
+    },
   );
 
   React.useEffect(() => {
@@ -192,7 +191,7 @@ const WhiteboardContainer = (props) => {
   const processAnnotations = (data) => {
     const newAnnotations = [];
     const annotationsToBeRemoved = [];
-  
+
     data.forEach((item) => {
       if (item.annotationInfo === '') {
         annotationsToBeRemoved.push(item.annotationId);
@@ -200,13 +199,13 @@ const WhiteboardContainer = (props) => {
         newAnnotations.push(item);
       }
     });
-  
+
     const currentAnnotations = annotations.filter(
       (annotation) => !annotationsToBeRemoved.includes(annotation.annotationId),
     );
-  
+
     setAnnotations([...currentAnnotations, ...newAnnotations]);
-  }
+  };
 
   React.useEffect(() => {
     if (initialPageAnnotations && initialPageAnnotations.pres_annotation_curr) {
@@ -289,7 +288,7 @@ const WhiteboardContainer = (props) => {
     typeName: 'shape',
   });
 
-  if (!currentPresentationPage) return;
+  if (!currentPresentationPage) return null;
 
   return (
     <Whiteboard
