@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import PresentationToolbar from './component';
+import { useSubscription, useMutation } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useSubscription, useMutation } from '@apollo/client';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
 import { PRESENTATION_SET_PAGE } from '../mutations';
+import PresentationToolbar from './component';
 
 const PresentationToolbarContainer = (props) => {
   const pluginsContext = useContext(PluginsContext);
@@ -50,7 +50,7 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const previousSlide = () => {
-    let prevSlideNum = currentSlideNum - 1;
+    const prevSlideNum = currentSlideNum - 1;
     if (prevSlideNum < 1) {
       return;
     }
@@ -58,7 +58,7 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const nextSlide = () => {
-    let nextSlideNum = currentSlideNum + 1;
+    const nextSlideNum = currentSlideNum + 1;
     if (nextSlideNum > numberOfSlides) {
       return;
     }
@@ -107,18 +107,14 @@ const PresentationToolbarContainer = (props) => {
   return null;
 };
 
-export default withTracker(() => {
-  return {
-    isMeteorConnected: Meteor.status().connected,
-    isPollingEnabled: isPollingEnabled(),
-  };
-})(PresentationToolbarContainer);
+export default withTracker(() => ({
+  isMeteorConnected: Meteor.status().connected,
+  isPollingEnabled: isPollingEnabled(),
+}))(PresentationToolbarContainer);
 
 PresentationToolbarContainer.propTypes = {
   // Number of current slide being displayed
   currentSlideNum: PropTypes.number.isRequired,
-  zoom: PropTypes.number.isRequired,
-  zoomChanger: PropTypes.func.isRequired,
 
   // Total number of slides in this presentation
   numberOfSlides: PropTypes.number.isRequired,
