@@ -456,7 +456,6 @@ const TimerPanelContaier: React.FC = () => {
       accumulated={timer.accumulated}
       active={timer.active ?? false}
       time={timer.time}
-      endedOn={timer.endedOn}
       startedOn={timer.startedOn}
       startedAt={timer.startedAt}
     />
