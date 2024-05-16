@@ -6,7 +6,7 @@ object TimerModel {
       stopwatch:      Boolean = true,
       time:           Int = 0,
       accumulated:    Int = 0,
-      track:          String = "track",
+      track:          String = "noTrack",
   ): Unit = {
     model.stopwatch = stopwatch
     model.time = time
