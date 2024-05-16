@@ -1,3 +1,4 @@
+import { makeVar } from '@apollo/client';
 import LocalStorage from '/imports/ui/services/storage/local';
 import SessionStorage from '/imports/ui/services/storage/session';
 
@@ -25,8 +26,14 @@ class Settings {
       const privateProp = `_${p}`;
       this[privateProp] = {
         tracker: new Tracker.Dependency(),
+        var: makeVar(undefined),
         value: undefined,
       };
+
+      const varProp = `${privateProp}Var`;
+      Object.defineProperty(this, varProp, {
+        get: () => this[privateProp].var,
+      });
 
       Object.defineProperty(this, p, {
         get: () => {
@@ -36,6 +43,7 @@ class Settings {
 
         set: (v) => {
           this[privateProp].value = v;
+          this[privateProp].var(v);
           this[privateProp].tracker.changed();
         },
       });
