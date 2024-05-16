@@ -114,6 +114,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   running,
   timePassed,
   startedOn,
+  active,
 }) => {
   const [timerReset] = useMutation(TIMER_RESET);
   const [timerStart] = useMutation(TIMER_START);
@@ -240,6 +241,12 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
       return prev;
     });
   }, [timePassed, stopwatch, startedOn]);
+
+  useEffect(() => {
+    if (!active) {
+      closePanel();
+    }
+  }, [active]);
 
   const timerControls = useMemo(() => {
     const timeFormatedString = humanizeSeconds(Math.floor(time / 1000));
