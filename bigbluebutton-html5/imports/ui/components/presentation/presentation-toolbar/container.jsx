@@ -19,6 +19,7 @@ const PresentationToolbarContainer = (props) => {
     layoutSwapped,
     currentSlideNum,
     presentationId,
+    numberOfSlides,
   } = props;
 
   const { data: pollData } = useSubscription(POLL_SUBSCRIPTION);
@@ -49,12 +50,18 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const previousSlide = () => {
-    const prevSlideNum = currentSlideNum - 1;
+    let prevSlideNum = currentSlideNum - 1;
+    if (prevSlideNum < 1) {
+      return;
+    }
     skipToSlide(prevSlideNum);
   };
 
   const nextSlide = () => {
-    const nextSlideNum = currentSlideNum + 1;
+    let nextSlideNum = currentSlideNum + 1;
+    if (nextSlideNum > numberOfSlides) {
+      return;
+    }
     skipToSlide(nextSlideNum);
   };
 
