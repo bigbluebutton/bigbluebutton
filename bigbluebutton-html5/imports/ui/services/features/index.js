@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
+import useMeeting from '../../core/hooks/useMeeting';
 
 export function getDisabledFeatures() {
   const selector = {
@@ -9,6 +10,14 @@ export function getDisabledFeatures() {
   const meetingData = Meetings.findOne(selector, { fields: { disabledFeatures: 1 } });
   const disabledFeatures = (meetingData || {}).disabledFeatures || [];
 
+  return disabledFeatures;
+}
+
+export function useDisabledFeatures() {
+  const { data: meetingData } = useMeeting((m) => ({
+    disabledFeatures: m.disabledFeatures,
+  }));
+  const disabledFeatures = meetingData?.disabledFeatures || [];
   return disabledFeatures;
 }
 
@@ -22,6 +31,10 @@ export function isLearningDashboardEnabled() {
 
 export function isPollingEnabled() {
   return getDisabledFeatures().indexOf('polls') === -1 && window.meetingClientSettings.public.poll.enabled;
+}
+
+export function useIsPollingEnabled() {
+  return useDisabledFeatures().indexOf('polls') === -1 && window.meetingClientSettings.public.poll.enabled;
 }
 
 export function isExternalVideoEnabled() {
