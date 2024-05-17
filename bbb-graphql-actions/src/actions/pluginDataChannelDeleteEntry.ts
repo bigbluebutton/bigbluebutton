@@ -1,7 +1,7 @@
 import { RedisMessage } from '../types';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  const eventName = `PluginDataChannelDeleteMessageMsg`;
+  const eventName = `PluginDataChannelDeleteEntryMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,

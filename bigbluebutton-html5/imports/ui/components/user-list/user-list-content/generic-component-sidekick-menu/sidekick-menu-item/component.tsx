@@ -1,4 +1,7 @@
 import React, { useEffect, useRef } from 'react';
+import {
+  SidekickContentCommandsEnum,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-content/enums';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../../layout/enums';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
@@ -13,18 +16,30 @@ const SidekickContentMenuItem = (props: SidekickContentMenuItemProps) => {
     sidekickContentId,
     open,
     currentSidekickContent,
-    sidebarContentPanelIsOpen,
   } = props;
   const unmountVariables = useRef<{ currentSidekickContent: string, sidebarContentPanel: string }>({
     currentSidekickContent: '',
     sidebarContentPanel: '',
   });
+
+  const handleMinimizeContent = () => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
+  };
+
   unmountVariables.current = { currentSidekickContent, sidebarContentPanel };
   const unmountFunction = () => {
     const {
       currentSidekickContent: refCurrentSidekickContent,
       sidebarContentPanel: refSidebarContentPanel,
     } = unmountVariables.current;
+    window.removeEventListener(SidekickContentCommandsEnum.MINIMIZE_CURRENT_PANEL, handleMinimizeContent);
     const closeGenericComponentSidekickContent = refCurrentSidekickContent === sidekickContentId
       && refSidebarContentPanel === PANELS.GENERIC_COMPONENT_SIDEKICK_CONTENT;
     if (closeGenericComponentSidekickContent) {
@@ -40,16 +55,15 @@ const SidekickContentMenuItem = (props: SidekickContentMenuItemProps) => {
   };
 
   useEffect(() => {
-    if (open && sidebarContentPanelIsOpen) {
+    window.addEventListener(SidekickContentCommandsEnum.MINIMIZE_CURRENT_PANEL, handleMinimizeContent);
+    if (open) {
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-        value: sidebarContentPanel !== PANELS.GENERIC_COMPONENT_SIDEKICK_CONTENT,
+        value: true,
       });
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-        value: sidebarContentPanel === PANELS.GENERIC_COMPONENT_SIDEKICK_CONTENT
-          ? PANELS.NONE
-          : PANELS.GENERIC_COMPONENT_SIDEKICK_CONTENT,
+        value: PANELS.GENERIC_COMPONENT_SIDEKICK_CONTENT,
         genericComponentSidekickContentId: sidekickContentId,
       });
     }
@@ -57,7 +71,7 @@ const SidekickContentMenuItem = (props: SidekickContentMenuItemProps) => {
   }, []);
 
   return (
-    <Styled.Messages>
+    <Styled.MenuItemsWrapper>
       <Styled.ScrollableList>
         <Styled.List>
           <Styled.ListItem
@@ -91,7 +105,7 @@ const SidekickContentMenuItem = (props: SidekickContentMenuItemProps) => {
           </Styled.ListItem>
         </Styled.List>
       </Styled.ScrollableList>
-    </Styled.Messages>
+    </Styled.MenuItemsWrapper>
   );
 };
 

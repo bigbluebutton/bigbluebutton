@@ -6,5 +6,4 @@ export interface SidekickContentMenuItemProps {
   open: boolean;
   sidekickContentId: string;
   currentSidekickContent: string;
-  sidebarContentPanelIsOpen: boolean;
 }

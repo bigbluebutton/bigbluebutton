@@ -16,7 +16,7 @@ const PluginCaptionServerCommandsHandler = () => {
       variables: {
         transcriptId: uuidLib.v4(),
         transcript: event.detail.text,
-        locale: 'en',
+        locale: event.detail.locale,
       },
     });
   }) as EventListener;

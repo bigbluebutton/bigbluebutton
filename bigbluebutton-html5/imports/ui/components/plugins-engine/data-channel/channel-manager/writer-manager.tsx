@@ -97,7 +97,7 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
           variables: {
             pluginName: hookArguments?.pluginName,
             channelName: hookArguments?.channelName,
-            messageId: eventDetails.data,
+            entryId: eventDetails?.data,
             subChannelName,
           },
         });

@@ -550,6 +550,7 @@ const PollCreationPanelContainer: React.FC = () => {
   if (getHasCurrentPresentationLoading || !getHasCurrentPresentationData) return null;
 
   if (!currentUser.presenter && sidebarContentPanel === PANELS.POLL) {
+    console.log('teste aqui pra ver o setIsOpen --(13)-false');
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: false,

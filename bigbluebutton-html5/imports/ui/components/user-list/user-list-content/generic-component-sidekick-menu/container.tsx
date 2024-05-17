@@ -12,7 +12,6 @@ interface GenericComponentSidekickMenuProps {
   genericComponentSidekickContents: PluginSdk.GenericComponentSidekickContent[]
   sidebarContentPanel: string;
   layoutContextDispatch: (...args: unknown[]) => void;
-  sidebarContentPanelIsOpen: boolean;
   currentSidekickContent: string;
 }
 
@@ -25,7 +24,6 @@ const GenericComponentSidekickMenu: React.FC<GenericComponentSidekickMenuProps> 
   sidebarContentPanel,
   layoutContextDispatch,
   currentSidekickContent,
-  sidebarContentPanelIsOpen,
 }) => {
   const groupBySidekickMenuTitle: MappedMenuItems = {};
 
@@ -41,7 +39,9 @@ const GenericComponentSidekickMenu: React.FC<GenericComponentSidekickMenuProps> 
   });
   if (Object.keys(groupBySidekickMenuTitle).length !== 0) {
     return Object.keys(groupBySidekickMenuTitle).map((itemMenuTitle) => (
-      <Styled.SidekickMenuComponentWrapper>
+      <Styled.SidekickMenuComponentWrapper
+        key={itemMenuTitle}
+      >
         <SidekickContentMenuTitle
           key={itemMenuTitle}
           menuItemTitle={itemMenuTitle}
@@ -50,9 +50,8 @@ const GenericComponentSidekickMenu: React.FC<GenericComponentSidekickMenuProps> 
           groupBySidekickMenuTitle[itemMenuTitle]?.map((itemToBeRendered) => (
             <SidekickContentMenuItem
               currentSidekickContent={currentSidekickContent}
-              key={`${itemMenuTitle}-${itemToBeRendered.menuItemContentMessage}`}
+              key={`${itemToBeRendered.id}-${itemMenuTitle}-${itemToBeRendered.menuItemContentMessage}`}
               sidekickContentId={itemToBeRendered.id}
-              sidebarContentPanelIsOpen={sidebarContentPanelIsOpen}
               sidebarContentPanel={sidebarContentPanel}
               layoutContextDispatch={layoutContextDispatch}
               contentMessage={itemToBeRendered.menuItemContentMessage}
@@ -76,7 +75,7 @@ const GenericComponentSidekickMenuContainer: React.FC = () => {
   const layoutContextDispatch = layoutDispatch();
 
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const { sidebarContentPanel, genericComponentSidekickContentId: currentSidekickContent, isOpen } = sidebarContent;
+  const { sidebarContentPanel, genericComponentSidekickContentId: currentSidekickContent } = sidebarContent;
 
   if (pluginsExtensibleAreasAggregatedState.genericComponents) {
     genericComponentSidekickContentExtensibleArea = [
@@ -86,7 +85,6 @@ const GenericComponentSidekickMenuContainer: React.FC = () => {
   return (
     <>
       <GenericComponentSidekickMenu
-        sidebarContentPanelIsOpen={isOpen}
         currentSidekickContent={currentSidekickContent}
         genericComponentSidekickContents={genericComponentSidekickContentExtensibleArea}
         layoutContextDispatch={layoutContextDispatch}

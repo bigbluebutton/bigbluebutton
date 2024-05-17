@@ -30,9 +30,7 @@ const GenericComponentSidekickContent: React.FC<GenericComponentSidekickContentP
   return (
     <Styled.GenericComponentSidebarContent
       ref={genericComponentSidekickContentRef}
-    >
-      teste
-    </Styled.GenericComponentSidebarContent>
+    />
   );
 };
 

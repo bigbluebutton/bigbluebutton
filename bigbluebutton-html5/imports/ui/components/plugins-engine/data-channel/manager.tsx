@@ -41,9 +41,7 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
           if (index > -1) {
             newArrayTypes.splice(index, 1);
           }
-        } else {
-          newArrayTypes = newArrayTypes.concat([dataChannelType]);
-        }
+        } else if (!newArrayTypes.includes(dataChannelType)) newArrayTypes = newArrayTypes.concat([dataChannelType]);
         newMap.set(uniqueId, {
           totalUses: (previousMap.get(uniqueId)?.totalUses || 0) + deltaSubscribe,
           subChannelName,

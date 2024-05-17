@@ -1,8 +1,12 @@
 import styled from 'styled-components';
 
-import Styled from '/imports/ui/components/user-list/styles';
-
-const SidekickMenuComponentWrapper = styled(Styled.Messages)``;
+const SidekickMenuComponentWrapper = styled.div`
+  flex-grow: 0;
+  display: flex;
+  flex-flow: column;
+  flex-shrink: 0;
+  max-height: 30vh;
+`;
 
 export default {
   SidekickMenuComponentWrapper,
