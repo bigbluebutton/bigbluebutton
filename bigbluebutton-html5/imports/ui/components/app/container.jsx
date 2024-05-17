@@ -198,7 +198,7 @@ const AppContainer = (props) => {
       transcriptionSavedSettings.partialUtterances,
       transcriptionSavedSettings.minUtteranceLength,
     );
-  }, [transcriptionSavedSettings.partialUtterances, transcriptionSavedSettings.minUtteranceLength]);
+  }, [transcriptionSavedSettings, transcriptionSavedSettings.partialUtterances, transcriptionSavedSettings.minUtteranceLength]);
 
   if (!currentUserData) return null;
 

@@ -160,6 +160,9 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
         if (availableVoice === availableVoices[0]) {
           indexToInsertSeparator = index;
         }
+        if (availableVoice == 'auto') {
+          return null;
+        }
         return (
           {
             icon: '',
