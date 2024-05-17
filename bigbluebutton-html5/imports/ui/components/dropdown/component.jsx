@@ -92,6 +92,7 @@ class Dropdown extends Component {
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
     this.updateOrientation = this.updateOrientation.bind(this);
+    this.updateZIndex = this.updateZIndex.bind(this);
   }
 
   componentDidMount() {
@@ -127,18 +128,9 @@ class Dropdown extends Component {
     window.removeEventListener('resize', this.updateOrientation);
   }
 
-  handleHide() {
-    Session.set('dropdownOpen', false);
-    const { onHide } = this.props;
-    this.setState({ isOpen: false }, () => {
-      const { removeEventListener } = window;
-      onHide();
-      removeEventListener('click', this.handleWindowClick, true);
-    });
-  }
-
   handleShow() {
     Session.set('dropdownOpen', true);
+    this.updateZIndex(0);
     const {
       onShow,
     } = this.props;
@@ -146,6 +138,17 @@ class Dropdown extends Component {
       const { addEventListener } = window;
       onShow();
       addEventListener('click', this.handleWindowClick, true);
+    });
+  }
+
+  handleHide() {
+    Session.set('dropdownOpen', false);
+    this.updateZIndex(1);
+    const { onHide } = this.props;
+    this.setState({ isOpen: false }, () => {
+      const { removeEventListener } = window;
+      onHide();
+      removeEventListener('click', this.handleWindowClick, true);
     });
   }
 
@@ -192,6 +195,15 @@ class Dropdown extends Component {
 
   updateOrientation() {
     this.setState({ isPortrait: deviceInfo.isPortrait() });
+  }
+
+  updateZIndex(zIndex) {
+    if (this) {
+      const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
+      if (presentationInnerWrapper) {
+        presentationInnerWrapper.style.zIndex = zIndex;
+      }
+    }
   }
 
   render() {
