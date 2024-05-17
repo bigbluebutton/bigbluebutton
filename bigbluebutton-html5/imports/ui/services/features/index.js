@@ -25,6 +25,10 @@ export function isScreenSharingEnabled() {
   return getDisabledFeatures().indexOf('screenshare') === -1 && window.meetingClientSettings.public.kurento.enableScreensharing;
 }
 
+export function useIsScreenSharingEnabled() {
+  return useDisabledFeatures().indexOf('screenshare') === -1 && window.meetingClientSettings.public.kurento.enableScreensharing;
+}
+
 export function isLearningDashboardEnabled() {
   return getDisabledFeatures().indexOf('learningDashboard') === -1;
 }
@@ -106,6 +110,13 @@ export function isReactionsEnabled() {
   const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
 
   return getDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+}
+
+export function useIsReactionsEnabled() {
+  const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
+  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
+
+  return useDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
 }
 
 export function isTimerFeatureEnabled() {
