@@ -31,8 +31,7 @@ trait SetUserCaptionLocaleMsgHdlr extends RightsManagementTrait {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
     } yield {
-      var changeLocale: Option[UserState] = None;
-      changeLocale = Users2x.setUserCaptionLocale(liveMeeting.users2x, msg.header.userId, msg.body.locale)
+      Users2x.setUserCaptionLocale(liveMeeting.users2x, msg.header.userId, msg.body.locale)
       broadcastUserCaptionLocaleChanged(user, msg.body.locale, msg.body.provider)
     }
 

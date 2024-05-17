@@ -1976,6 +1976,5 @@ select "meeting"."meetingId",
             select 1
             from "v_caption_activeLocales"
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
-            and NULLIF("locale",'') is not null
         ) as "hasCaption"
 from "meeting";

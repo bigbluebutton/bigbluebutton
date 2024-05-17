@@ -19,16 +19,5 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     provider: input.provider,
   };
 
-  //TODO move validations to Akka-apps
-  // const payload = {
-  //   locale,
-  //   provider: provider !== 'webspeech' ? provider : '',
-  // };
-  //
-  // const LANGUAGES = Meteor.settings.public.app.audioCaptions.language.available;
-  // if (LANGUAGES.includes(locale) || locale === '') {
-  //   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
-  // }
-
   return { eventName, routing, header, body };
 }
