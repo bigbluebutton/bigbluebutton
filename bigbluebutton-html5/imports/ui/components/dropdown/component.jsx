@@ -91,12 +91,14 @@ class Dropdown extends Component {
     this.handleHide = this.handleHide.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
+    this.handleContextMenu = this.handleContextMenu.bind(this);
     this.updateOrientation = this.updateOrientation.bind(this);
     this.updateZIndex = this.updateZIndex.bind(this);
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.updateOrientation);
+    window.addEventListener('contextmenu', this.handleContextMenu);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -126,6 +128,12 @@ class Dropdown extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateOrientation);
+    window.removeEventListener('contextmenu', this.handleContextMenu);
+  }
+
+  handleContextMenu(event) {
+    event.preventDefault();
+    this.handleHide();
   }
 
   handleShow() {
