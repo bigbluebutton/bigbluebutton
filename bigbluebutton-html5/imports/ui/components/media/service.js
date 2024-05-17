@@ -1,5 +1,4 @@
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
-import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   isScreenSharingEnabled, isCameraAsContentEnabled, isPresentationEnabled,
@@ -17,8 +16,7 @@ function shouldShowWhiteboard() {
   return true;
 }
 
-function shouldShowScreenshare() {
-  const { viewScreenshare } = Settings.dataSaving;
+function shouldShowScreenshare(viewScreenshare) {
   return (isScreenSharingEnabled() || isCameraAsContentEnabled())
     && (viewScreenshare || UserService.isUserPresenter())
     && (isScreenBroadcasting() || isCameraAsContentBroadcasting());

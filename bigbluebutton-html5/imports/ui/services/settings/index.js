@@ -12,26 +12,19 @@ class Settings {
     Object.values(SETTINGS).forEach((p) => {
       const privateProp = `_${p}`;
       this[privateProp] = {
-        tracker: new Tracker.Dependency(),
-        var: makeVar(undefined),
-        value: undefined,
+        reactiveVar: makeVar(undefined),
       };
 
       const varProp = `${p}Var`;
       Object.defineProperty(this, varProp, {
-        get: () => this[privateProp].var,
+        get: () => this[privateProp].reactiveVar,
       });
 
       Object.defineProperty(this, p, {
-        get: () => {
-          this[privateProp].tracker.depend();
-          return this[privateProp].value;
-        },
+        get: () => this[privateProp].reactiveVar(),
 
         set: (v) => {
-          this[privateProp].value = v;
-          this[privateProp].var(v);
-          this[privateProp].tracker.changed();
+          this[privateProp].reactiveVar(v);
         },
       });
     });
@@ -76,7 +69,7 @@ class Settings {
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
-        const values = this[k].value;
+        const values = this[k].reactiveVar && this[k].reactiveVar();
         const defaultValues = this.defaultSettings[k];
 
         if (!values) return;
