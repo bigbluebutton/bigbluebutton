@@ -27,7 +27,7 @@ After the session finishes, the BigBlueButton server will run an archive script 
 
 After the recording is archived, BigBlueButton will run one (or more) ingest and processing scripts, named workflows, that will _process_ and _publish_ the captured data into a format for _playback_.
 
-![Record and Playback - Overview](/img/diagrams/Record and Playback Service Diagram-RAP - Overview.png)
+![Record and Playback - Overview](/img/diagrams/record-and-playback-service-diagram-rap-overview.png)
 
 ## Record and Playback Phases
 
@@ -50,26 +50,26 @@ Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.f
 
 The Archive phase involves placing the captured media and events into a **raw** directory. That directory contains ALL the necessary media and files to work with.
 
-![Record and Playback - Archive](/img/diagrams/Record and Playback Service Diagram-RAP - Archive.png)
+![Record and Playback - Archive](/img/diagrams/record-and-playback-service-diagram-rap-archive.png)
 
 ### Sanity
 
 The Sanity phase involves checking that all the archived files are _valid_ for processing. For example
 that media files have not zero length and events were archived.
 
-![Record and Playback - Sanity](/img/diagrams/Record and Playback Service Diagram-RAP - Sanity.png)
+![Record and Playback - Sanity](/img/diagrams/record-and-playback-service-diagram-rap-sanity.png)
 
 ### Process
 
 The Process phase involves processing the valid archived files of the recording according to the workflow (e.g., presentation). Usually, it involves parsing the archived events, converting media files to other formats or concatenating them, etc.
 
-![Record and Playback - Process](/img/diagrams/Record and Playback Service Diagram-RAP - Process.png)
+![Record and Playback - Process](/img/diagrams/record-and-playback-service-diagram-rap-process.png)
 
 ### Publish
 
 The Publish phase involves generating metadata and taking many or all the processed files and placing them in a directory exposed publicly for later playback.
 
-![Record and Playback - Publish](/img/diagrams/Record and Playback Service Diagram-RAP - Publish.png)
+![Record and Playback - Publish](/img/diagrams/record-and-playback-service-diagram-rap-publish.png)
 
 ### Post-Scripts
 

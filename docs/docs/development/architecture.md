@@ -132,11 +132,11 @@ The conversion process sends progress messages to the client through the Redis p
 
 The diagram below describes the flow of the presentation conversion. We take in consideration the configuration for enabling and disabling SWF, SVG and PNG conversion.
 
-![General Conversion Flow](/img/diagrams/Presentation Conversion Diagram-General Conversion Flow.png)
+![General Conversion Flow](/img/diagrams/presentation-conversion-diagram-general-conversion-flow.png)
 
 Then below the SVG conversion flow. It covers the conversion fallback. Sometimes we detect that the generated SVG file is heavy to load by the browser, we use the fallback to put a rasterized image inside the SVG file and make its loading light for the browser.
 
-![SVG Conversion Flow](/img/diagrams/Presentation Conversion Diagram-SVG Conversion Flow.png)
+![SVG Conversion Flow](/img/diagrams/presentation-conversion-diagram-svg-conversion-flow.png)
 
 ### Internal network connections
 
