@@ -87,7 +87,15 @@ Some examples of things you might use the post-scripts to do:
 
 The Playback phase involves taking the published files (audio, webcam, deskshare, chat, events, notes, captions, polls, metadata) and playing them in the browser.
 
-Using the workflow **presentation**, playback is handled by HTML, CSS, and Javascript libraries; it is fully available in Mozilla Firefox and Google Chrome (also in Android devices). In other browsers like Opera or Safari the playback will work without all its functionality, e.g., thumbnails won't be shown. There is not a unique video file for playback, there is not an available button or link to download the recording. We have opened an [issue](https://github.com/bigbluebutton/bigbluebutton/issues/1969) for this enhancement.
+Using the workflow **presentation**, playback is handled by HTML, CSS, and Javascript libraries;
+it is fully available in Mozilla Firefox and Google Chrome (also on Android devices). In other
+browsers like Opera or Safari the playback will work without all its functionality, e.g.,
+thumbnails won't be shown.
+
+There is not a unique video file for playback in the **presentation** workflow.
+However, the **video** workflow can be used to generate that unique video file.
+This workflow is not enabled by default. [See section below](#deploying-other-formats) to
+learn how to enable it.
 
 ## Media storage
 
