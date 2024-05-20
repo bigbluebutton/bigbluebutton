@@ -4,7 +4,6 @@ import '/imports/startup/server';
 
 // Commons
 import '/imports/api/log-client/server';
-import '/imports/api/common/server/helpers';
 import '/imports/startup/server/logger';
 
 // Needed for Atmosphere package RocketChat/meteor-streamer

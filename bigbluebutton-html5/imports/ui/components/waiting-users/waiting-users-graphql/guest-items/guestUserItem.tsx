@@ -114,7 +114,7 @@ const renderGuestUserItem = (
             <i>
               &quot;
               {privateGuestLobbyMessage && privateGuestLobbyMessage !== ''
-                ? privateGuestLobbyMessage
+                ? <span dangerouslySetInnerHTML={{ __html: privateGuestLobbyMessage }} />
                 : intl.formatMessage(intlMessages.emptyMessage)}
               &quot;
             </i>
