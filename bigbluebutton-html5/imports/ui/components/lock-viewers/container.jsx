@@ -46,7 +46,7 @@ const LockViewersContainer = (props) => {
     usersPolicies: m.usersPolicies,
   }));
 
-  return amIModerator && (
+  return amIModerator && meeting && (
     <LockViewersComponent
       updateWebcamsOnlyForModerator={updateWebcamsOnlyForModerator}
       updateLockSettings={updateLockSettings}
