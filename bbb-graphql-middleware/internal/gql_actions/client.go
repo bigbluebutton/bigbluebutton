@@ -7,6 +7,7 @@ import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/bbb_web"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
@@ -52,42 +53,64 @@ RangeLoop:
 					queryId := fromBrowserMessageAsMap["id"].(string)
 					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
 
+					var errorMessage string
+					var mutationFuncName string
+
 					query, okQuery := payload["query"].(string)
 					variables, okVariables := payload["variables"].(map[string]interface{})
 					if okQuery && okVariables && strings.HasPrefix(query, "mutation") {
 						if funcName, inputs, err := parseGraphQLMutation(query, variables); err == nil {
+							mutationFuncName = funcName
 							if err = SendGqlActionsRequest(funcName, inputs, sessionVariables); err == nil {
-								//Action sent successfully, return data msg to client
-								browserResponseData := map[string]interface{}{
-									"id":   queryId,
-									"type": "data",
-									"payload": map[string]interface{}{
-										"data": map[string]interface{}{
-											funcName: true,
-										},
-									},
-								}
-								fromHasuraToBrowserChannel.Send(browserResponseData)
-
-								//Return complete msg to client
-								browserResponseComplete := map[string]interface{}{
-									"id":   queryId,
-									"type": "complete",
-								}
-								fromHasuraToBrowserChannel.Send(browserResponseComplete)
-
-								continue
 							} else {
+								errorMessage = err.Error()
 								log.Error("It was not able to send the request to Graphql Actions", err)
 							}
 						} else {
+							errorMessage = "It was not able to parse graphQL query"
 							log.Error("It was not able to parse graphQL query", err)
 						}
 					}
+
+					if errorMessage != "" {
+						//Error on sending action, return error msg to client
+						browserResponseData := map[string]interface{}{
+							"id":   queryId,
+							"type": "error",
+							"payload": map[string]interface{}{
+								"data": nil,
+								"errors": []interface{}{
+									map[string]interface{}{
+										"message": errorMessage,
+									},
+								},
+							},
+						}
+						fromHasuraToBrowserChannel.Send(browserResponseData)
+					} else {
+						//Action sent successfully, return data msg to client
+						browserResponseData := map[string]interface{}{
+							"id":   queryId,
+							"type": "data",
+							"payload": map[string]interface{}{
+								"data": map[string]interface{}{
+									mutationFuncName: true,
+								},
+							},
+						}
+						fromHasuraToBrowserChannel.Send(browserResponseData)
+					}
+
+					//Return complete msg to client
+					browserResponseComplete := map[string]interface{}{
+						"id":   queryId,
+						"type": "complete",
+					}
+					fromHasuraToBrowserChannel.Send(browserResponseComplete)
 				}
-				//Something went wrong, forward message to Hasura (maybe it will be able to handle)
-				log.Error("It was not able to parse a Mutation, forwarding it to Hasura", fromBrowserMessage)
-				fromBrowserToHasuraChannel.Send(fromBrowserMessage)
+
+				//Fallback to Hasura was disabled (keeping the code temporarily)
+				//fromBrowserToHasuraChannel.Send(fromBrowserMessage)
 			}
 		}
 	}
@@ -120,7 +143,25 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
+
+		// Lendo o corpo da resposta
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			fmt.Println("Erro ao ler o corpo da resposta:", err)
+		}
+
+		var result map[string]interface{}
+		err = json.Unmarshal(body, &result)
+		if err == nil {
+			// Verificando se a resposta contém a propriedade `message` e imprimindo-a, se existir
+			if message, ok := result["message"].(string); ok {
+				fmt.Println(message, err)
+				return fmt.Errorf("graphql actions request failed: %s", message)
+			}
+		}
+
 		return fmt.Errorf("graphql actions request failed: %s", response.Status)
+		//return fmt.Errorf("graphql actions request failed: %s", response.Body)
 	}
 
 	return nil
