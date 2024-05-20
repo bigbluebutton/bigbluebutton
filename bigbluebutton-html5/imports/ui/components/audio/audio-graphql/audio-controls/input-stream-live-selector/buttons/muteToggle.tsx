@@ -35,7 +35,7 @@ interface MuteToggleProps {
   muted: boolean;
   disabled: boolean;
   isAudioLocked: boolean;
-  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId?: string | null, muted?: boolean | null) => void) => void;
+  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => void;
   away: boolean;
 }
 
@@ -58,7 +58,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    if (muted) {
+    if (muted && away) {
       muteAway(muted, true, toggleVoice);
       VideoService.setTrackEnabled(true);
       setAway({

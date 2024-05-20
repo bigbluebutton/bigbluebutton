@@ -77,7 +77,6 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     }
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
       if (music.current) music.current.pause();
     };
   }, [songTrack]);
@@ -110,6 +109,10 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     } else if (!running) {
       clearInterval(intervalRef.current);
     }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [running]);
 
   useEffect(() => {

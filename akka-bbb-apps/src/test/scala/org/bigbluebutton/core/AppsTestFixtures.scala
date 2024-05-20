@@ -37,7 +37,7 @@ trait AppsTestFixtures {
   val isBreakout = false
   val welcomeMsgTemplate = "Welcome message template"
   val welcomeMsg = "Welcome message"
-  val modOnlyMessage = "Moderator only message"
+  val welcomeMsgForModerators = "Moderator only message"
   val dialNumber = "613-555-1234"
   val maxUsers = 25
   val guestPolicy = "ALWAYS_ASK"
@@ -64,8 +64,7 @@ trait AppsTestFixtures {
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword, learningDashboardAccessToken = learningDashboardAccessToken)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
     allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents )
-  val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
-    modOnlyMessage = modOnlyMessage)
+  val welcomeProp = WelcomeProp(welcomeMsg = welcomeMsg, welcomeMsgForModerators = welcomeMsgForModerators)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     userCameraCap = userCameraCap,

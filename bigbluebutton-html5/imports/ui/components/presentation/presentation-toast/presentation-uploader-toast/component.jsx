@@ -176,7 +176,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if (('uploadErrorMsgKey' in item) && (item.uploadInProgress && item.uploadErrorMsgKey)) {
+  if (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey) {
     const errorMessage = intlMessages[item.uploadErrorMsgKey]
       || intlMessages.genericConversionStatus;
 

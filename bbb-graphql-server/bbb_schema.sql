@@ -110,7 +110,6 @@ FROM (
 
 create table "meeting_welcome" (
 	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-	"welcomeMsgTemplate" text,
 	"welcomeMsg" text,
 	"welcomeMsgForModerators" text
 );
@@ -879,11 +878,13 @@ CREATE INDEX "idx_user_reaction_userId_createdAt" ON "user_reaction"("meetingId"
 
 CREATE VIEW v_user_reaction AS
 SELECT ur."meetingId", ur."userId", ur."reactionEmoji", ur."createdAt", ur."expiresAt"
-FROM "user_reaction" ur;
+FROM "user_reaction" ur
+WHERE "expiresAt" >= current_timestamp;
 
 CREATE VIEW v_user_reaction_current AS
 SELECT ur."meetingId", ur."userId", (array_agg(ur."reactionEmoji" ORDER BY ur."expiresAt" DESC))[1] as "reactionEmoji"
 FROM "user_reaction" ur
+WHERE "expiresAt" >= current_timestamp
 GROUP BY ur."meetingId", ur."userId";
 
 CREATE TABLE "user_transcriptionError"(
@@ -1556,12 +1557,10 @@ CREATE TABLE "timer" (
 	"time" bigint,
 	"accumulated" bigint,
 	"startedOn" bigint,
-	"endedOn" bigint,
 	"songTrack" varchar(50)
 );
 
 ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "startedOn" = 0 THEN NULL ELSE to_timestamp("startedOn"::double precision / 1000) END) STORED;
-ALTER TABLE "timer" ADD COLUMN "endedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "endedOn" = 0 THEN NULL ELSE  to_timestamp("endedOn"::double precision / 1000) END) STORED;
 
 CREATE OR REPLACE VIEW "v_timer" AS
 SELECT
@@ -1576,8 +1575,6 @@ SELECT
      "accumulated",
      "startedAt",
      "startedOn",
-     "endedAt",
-     "endedOn",
      "songTrack"
  FROM "timer";
 

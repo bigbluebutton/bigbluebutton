@@ -59,7 +59,7 @@ public class Meeting {
 	private Boolean notifyRecordingIsOn;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
-	private String modOnlyMessage = "";
+	private String welcomeMsgForModerators = "";
 	private String loginUrl;
 	private String logoutUrl;
 	private int logoutTimer = 0;
@@ -347,12 +347,12 @@ public class Meeting {
 		return endTime;
 	}
 
-	public void setModeratorOnlyMessage(String msg) {
-		modOnlyMessage = msg;
+	public void setWelcomeMsgForModerators(String msg) {
+		welcomeMsgForModerators = msg;
 	}
 
-	public String getModeratorOnlyMessage() {
-		return modOnlyMessage;
+	public String getWelcomeMsgForModerators() {
+		return welcomeMsgForModerators;
 	}
 
 	public void setEndTime(long t) {
@@ -1051,7 +1051,7 @@ public class Meeting {
     		return this;
     	}
 
-    	public Builder isBreakout(Boolean b) {
+    	public Builder withIsBreakout(Boolean b) {
     	  isBreakout = b;
     	  return this;
     	}

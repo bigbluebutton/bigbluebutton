@@ -66,6 +66,7 @@ const propTypes = {
     NO_SSL: PropTypes.number.isRequired,
   }).isRequired,
   getTroubleshootingLink: PropTypes.func.isRequired,
+  away: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -73,6 +74,7 @@ const defaultProps = {
   outputDeviceId: null,
   resolve: null,
   joinFullAudioImmediately: false,
+  away: false,
 };
 
 const intlMessages = defineMessages({
@@ -190,6 +192,7 @@ const AudioModal = (props) => {
     priority,
     setIsOpen,
     getTroubleshootingLink,
+    away,
   } = props;
 
   const prevAutoplayBlocked = usePreviousValue(autoplayBlocked);
@@ -280,6 +283,8 @@ const AudioModal = (props) => {
   };
 
   const disableAwayMode = () => {
+    if (!away) return;
+
     muteAway(false, true, voiceToggle);
     setAway({
       variables: {
