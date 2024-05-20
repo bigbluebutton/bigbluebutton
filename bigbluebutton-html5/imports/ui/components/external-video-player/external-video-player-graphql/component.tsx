@@ -515,10 +515,10 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const playerUpdatedAt = currentMeeting.externalVideo?.updatedAt ?? Date.now();
   const playerUpdatedAtDate = new Date(playerUpdatedAt);
-  const currentDate = new Date(Date.now() + timeSync);
+  const currentDate = new Date(Date.now() + (timeSync ?? 0));
   const isPaused = !currentMeeting.externalVideo?.playerPlaying ?? false;
-  const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
-    + playerCurrentTime) * playerPlaybackRate;
+  const currentTime = isPaused ? playerCurrentTime : ((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
+   + (playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
   const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
 
