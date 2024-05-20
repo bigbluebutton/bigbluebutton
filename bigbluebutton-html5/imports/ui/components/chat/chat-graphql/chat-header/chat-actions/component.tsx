@@ -192,6 +192,7 @@ const ChatActions: React.FC = () => {
           hideLabel
           icon="more"
           data-test="chatOptionsMenu"
+          onClick={() => {}}
         />
       )}
       opts={{

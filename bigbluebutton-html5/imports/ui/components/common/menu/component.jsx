@@ -120,7 +120,7 @@ class BBBMenu extends React.Component {
 
       if (loading) {
         return (
-          <MenuSkeleton />
+          <MenuSkeleton key={label} />
         );
       }
 
