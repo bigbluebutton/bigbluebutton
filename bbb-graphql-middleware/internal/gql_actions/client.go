@@ -145,7 +145,7 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 	if response.StatusCode != 200 {
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			fmt.Println("Erro ao ler o corpo da resposta:", err)
+			fmt.Println("Error reading response body:", err)
 		}
 
 		var result map[string]interface{}
