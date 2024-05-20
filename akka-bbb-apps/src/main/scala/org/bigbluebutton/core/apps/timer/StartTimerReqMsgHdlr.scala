@@ -31,11 +31,6 @@ trait StartTimerReqMsgHdlr extends RightsManagementTrait {
       val reason = "You need to be the presenter or moderator to start timer"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      //check if it is a resume or a new timer
-      //      if (isStopwatch(liveMeeting.timerModel)) {
-      //        if(isRunning(liveMeeting.timerModel))
-      //      }
-
       TimerModel.setRunning(liveMeeting.timerModel, running = true)
       TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
       broadcastEvent()
