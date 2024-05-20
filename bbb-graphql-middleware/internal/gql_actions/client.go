@@ -143,8 +143,6 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-
-		// Lendo o corpo da resposta
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			fmt.Println("Erro ao ler o corpo da resposta:", err)
@@ -153,7 +151,6 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 		var result map[string]interface{}
 		err = json.Unmarshal(body, &result)
 		if err == nil {
-			// Verificando se a resposta contém a propriedade `message` e imprimindo-a, se existir
 			if message, ok := result["message"].(string); ok {
 				fmt.Println(message, err)
 				return fmt.Errorf("graphql actions request failed: %s", message)
@@ -161,7 +158,6 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 		}
 
 		return fmt.Errorf("graphql actions request failed: %s", response.Status)
-		//return fmt.Errorf("graphql actions request failed: %s", response.Body)
 	}
 
 	return nil
