@@ -63,7 +63,7 @@ const intlMessages = defineMessages({
     description: 'Close button label',
   },
   cancelLabel: {
-    id: 'app.leaveModal.cancel',
+    id: 'app.mobileAppModal.dismissLabel',
     description: 'Close button label',
   },
   webcamPreviewLabel: {
@@ -962,9 +962,9 @@ class VideoPreview extends Component {
           </Styled.Col>
         )}
         {tabNumber === 1 && shouldShowVirtualBackgrounds && (
-          <Styled.Col>
+          <Styled.BgnCol>
             {this.renderVirtualBgSelector()}
-          </Styled.Col>
+          </Styled.BgnCol>
         )}
       </Styled.ContentCol>
     );

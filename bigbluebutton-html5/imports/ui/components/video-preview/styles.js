@@ -23,7 +23,7 @@ import {
   fontSizeLarger,
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly, mediumOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
 import Button from '/imports/ui/components/common/button/component';
@@ -56,10 +56,24 @@ const Col = styled.div`
   justify-content: center;
   margin: 0 0.5rem 0 0.5rem;
 
-  @media ${smallOnly} {
+  @media ${smallOnly}, ${mediumOnly} {
     justify-content: space-between;
     align-items: center;
     overflow: auto;
+    margin: 0;
+  }
+`;
+
+const BgnCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  margin: 0 0.5rem 0 0.5rem;
+
+  @media ${smallOnly} {
+    justify-content: space-between;
+    align-items: center;
     margin: 0;
   }
 `;
@@ -133,7 +147,7 @@ const Content = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: auto;
+  
   color: ${colorText};
   font-weight: normal;
 
@@ -423,6 +437,7 @@ export default {
   Main,
   Text,
   Col,
+  BgnCol,
   ContentCol,
   InternCol,
   Container,
