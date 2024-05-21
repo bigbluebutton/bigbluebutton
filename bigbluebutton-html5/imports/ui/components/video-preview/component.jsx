@@ -8,7 +8,7 @@ import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-back
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
 import PreviewService from './service';
-import VideoService from '../video-provider/service';
+import VideoService from '../video-provider/video-provider-graphql/service';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';

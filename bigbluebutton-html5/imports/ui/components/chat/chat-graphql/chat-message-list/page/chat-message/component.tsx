@@ -232,7 +232,9 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           </ChatAvatar>
       )}
       <ChatContent
+        ref={messageContentRef}
         sameSender={message?.user ? sameSender : false}
+        data-chat-message-id={message?.messageId}
       >
         {message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
           && message.messageType !== ChatMessageType.CHAT_CLEAR && (

@@ -1,8 +1,5 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import React, { useContext, useEffect, useRef } from 'react';
-import { Meteor } from 'meteor/meteor';
-// @ts-ignore - type avaible only to server package
-import { DDP } from 'meteor/ddp-client';
+import React, { useContext, useEffect } from 'react';
 import { Session } from 'meteor/session';
 import {
   getUserCurrent,
@@ -12,7 +9,7 @@ import {
   userJoinMutation,
 } from './queries';
 import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
-import MeetingEndedContainer from '../../meeting-ended/meeting-ended-ts/component';
+import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
 
@@ -39,6 +36,8 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     ejectReasonCode: string;
     bannerColor: string;
     bannerText: string;
+    customLogoUrl: string;
+    loggedOut: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -59,24 +58,19 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   ejectReasonCode,
   bannerColor,
   bannerText,
+  customLogoUrl,
+  loggedOut,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   const loadingContextInfo = useContext(LoadingContext);
-  const clientSettingsRef = useRef(JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}'));
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       loadingContextInfo.setLoading(false, '');
       throw new Error('Authentication timeout');
     }, connectionTimeout);
-
-    if (!clientSettingsRef.current.skipMeteorConnection) {
-      DDP.onReconnect(() => {
-        Meteor.callAsync('validateConnection', authToken, meetingId, userId);
-      });
-    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken') as string;
@@ -99,6 +93,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       userName,
       extId,
       meetingName,
+      customLogoUrl,
     });
   }, []);
 
@@ -123,13 +118,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   useEffect(() => {
     if (joined) {
       clearTimeout(timeoutRef.current);
-      if (clientSettingsRef.current.skipMeteorConnection) {
-        setAllowToRender(true);
-      } else {
-        Meteor.callAsync('validateConnection', authToken, meetingId, userId).then(() => {
-          setAllowToRender(true);
-        });
-      }
+      setAllowToRender(true);
     }
   }, [joined]);
 
@@ -140,16 +129,18 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   },
   [joinErrorCode, joinErrorMessage]);
 
+  const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
+
   return (
     <>
-      {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode) ? children : null}
+      {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut) ? children : null}
       {
-        meetingEnded || joinErrorCode || ejectReasonCode
+        meetingEnded || joinErrorCode || ejectReasonCode || loggedOut
           ? (
             <MeetingEndedContainer
               meetingEndedCode={endedReasonCode}
               endedBy={endedBy}
-              joinErrorCode={joinErrorCode || ejectReasonCode}
+              joinErrorCode={errorCode}
             />
           )
           : null
@@ -185,6 +176,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     joined,
     ejectReasonCode,
     meeting,
+    loggedOut,
   } = data.user_current[0];
   const {
     logoutUrl,
@@ -192,6 +184,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     name: meetingName,
     bannerColor,
     bannerText,
+    customLogoUrl,
   } = userInfoData.meeting[0];
   const { extId, name: userName, userId } = userInfoData.user_current[0];
 
@@ -213,6 +206,8 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       ejectReasonCode={ejectReasonCode}
       bannerColor={bannerColor}
       bannerText={bannerText}
+      loggedOut={loggedOut}
+      customLogoUrl={customLogoUrl}
     >
       {children}
     </PresenceManager>

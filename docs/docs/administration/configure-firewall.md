@@ -315,7 +315,7 @@ If you see the words '[ WebRTC Audio ]' in the lower right-hand corner, it worke
 
 If it didn't work, there are two likely error messages when you try to connect with audio.
 
-Detected the following WebRTC issue: Error 1002: Could not make a WebSocket connection. Do you want to try Flash instead?
+Detected the following WebRTC issue: Error 1002: Could not make a WebSocket connection.
 
 | ErrorDetected the following WebRTC issue    | Probable Cause |
 | ------------------------------------------- | -------------- |

@@ -238,7 +238,7 @@ object VoiceApp extends SystemConfiguration {
   ): Unit = {
     for {
       u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, userid)
-      oldU <- VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, userid)
+      oldU <- VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, u.meetingId, u.intId)
     } yield {
       val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, oldU.voiceUserId)
       outGW.send(event)
@@ -302,7 +302,6 @@ object VoiceApp extends SystemConfiguration {
       )
       outGW.send(msgEvent)
     }
-
     checkAndEjectOldDuplicateVoiceConfUser(intId, liveMeeting, outGW)
 
     val isListenOnly = if (callerIdName.startsWith("LISTENONLY")) true else false
@@ -310,6 +309,7 @@ object VoiceApp extends SystemConfiguration {
     val voiceUserState = VoiceUserState(
       intId,
       voiceUserId,
+      meetingId = liveMeeting.props.meetingProp.intId,
       callingWith,
       callerIdName,
       callerIdNum,
@@ -393,7 +393,7 @@ object VoiceApp extends SystemConfiguration {
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId)
     } yield {
-      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.intId)
+      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.meetingId, user.intId)
       broadcastEvent(user)
     }
 

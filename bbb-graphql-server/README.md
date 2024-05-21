@@ -42,7 +42,7 @@ cd ~/src/bigbluebutton-html5/;
 
 
 ### Hasura Console
-http://bbb27.bbbvm.imdt.com.br:8080/console
+http://bbb30.bbbvm.imdt.com.br:8085/console
 
 password: bigbluebutton
 
@@ -53,6 +53,6 @@ npm install
 npm start
 ```
 
-https://bbb27.bbbvm.imdt.com.br/graphql-test
+https://bbb30.bbbvm.imdt.com.br/graphql-test
 
 - Join in a meeting, copy the param `?sessionToken=xxx` and append it to the URL above

@@ -114,7 +114,7 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
-        shard: ${{ matrix.shard }}/8
+      shard: ${{ matrix.shard }}/8
     steps:
       - uses: actions/checkout@v4
       - name: Merge branches
@@ -255,17 +255,22 @@ jobs:
           apt --purge -y remove apache2-bin
           '
       - name: Install BBB
-        timeout-minutes: 25
-        run: |
-          sudo -i <<EOF
-          set -e
-          cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
-          cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
-          bbb-conf --salt bbbci
-          echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
-          sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
-          bbb-conf --restart
-          EOF
+        uses: nick-fields/retry@v3
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+        with:
+          timeout_minutes: 25
+          max_attempts: 2
+          command: |
+            sudo -i <<EOF
+            set -e
+            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
+            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
+            bbb-conf --salt bbbci
+            sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
+            bbb-conf --restart
+            EOF
       - name: List systemctl services
         timeout-minutes: 1
         run: |
@@ -284,7 +289,7 @@ jobs:
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 25
-          max_attempts: 3
+          max_attempts: 2
           command: |
             cd ./bigbluebutton-tests/playwright
             npm run test-chromium-ci -- --shard ${{ env.shard }}
@@ -313,7 +318,7 @@ jobs:
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: all-blob-reports-${{ matrix.shard }}
+          name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
       - if: failure()
         name: Prepare artifacts (configs and logs)
@@ -352,30 +357,43 @@ jobs:
           name: bbb-logs-${{ env.MATRIX_SHARD }}
           path: ./bbb-logs.tar.gz
   upload-report:
-    if: always()
+    if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs: install-and-run-tests
     runs-on: ubuntu-latest
+    env:
+      hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 18
       - name: Install dependencies
+        if: ${{ env.hasReportData }}
         working-directory: ./bigbluebutton-tests/playwright
         run: npm ci
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: all-blob-reports
+          pattern: blob-report-*
+          delete-merged: true
       - name: Download all blob reports from GitHub Actions Artifacts
+        if: ${{ env.hasReportData }}
         uses: actions/download-artifact@v4
         with:
           pattern: all-blob-reports-*
           path: bigbluebutton-tests/playwright/all-blob-reports
           merge-multiple: true
       - name: Merge into HTML Report
+        if: ${{ env.hasReportData }}
         working-directory: ./bigbluebutton-tests/playwright
         run: npx playwright merge-reports --reporter html ./all-blob-reports
       - name: Upload HTML tests report
+        if: ${{ env.hasReportData }}
         uses: actions/upload-artifact@v4
         with:
           name: tests-report
+          overwrite: true
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results

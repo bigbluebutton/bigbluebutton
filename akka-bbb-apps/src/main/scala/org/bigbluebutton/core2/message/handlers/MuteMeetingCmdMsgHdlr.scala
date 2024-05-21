@@ -2,10 +2,11 @@ package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.NotificationDAO
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -54,6 +55,7 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
             Vector()
           )
           outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
 
           MeetingStatus2x.muteMeeting(liveMeeting.status)
         } else {
@@ -66,6 +68,7 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
             Vector()
           )
           outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
 
           MeetingStatus2x.unmuteMeeting(liveMeeting.status)
         }

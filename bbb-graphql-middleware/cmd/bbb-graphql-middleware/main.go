@@ -25,6 +25,11 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 
+	if activitiesOverviewEnabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ACTIVITIES_OVERVIEW_ENABLED"); activitiesOverviewEnabled == "true" {
+		go common.ActivitiesOverviewLogRoutine()
+		//go common.JsonPatchBenchmarkingLogRoutine()
+	}
+
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
 
@@ -35,6 +40,10 @@ func main() {
 
 	// Listen msgs from akka (for example to invalidate connection)
 	go websrv.StartRedisListener()
+
+	if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
+		log.Infof("Json Patch Disabled!")
+	}
 
 	// Websocket listener
 
@@ -64,6 +73,9 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
 		defer cancel()
+
+		common.ActivitiesOverviewStarted("__WebsocketConnection")
+		defer common.ActivitiesOverviewCompleted("__WebsocketConnection")
 
 		if err := rateLimiter.Wait(ctx); err != nil {
 			if !errors.Is(err, context.Canceled) {

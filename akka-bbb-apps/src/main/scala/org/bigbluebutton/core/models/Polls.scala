@@ -114,7 +114,7 @@ object Polls {
       shape = pollResultToWhiteboardShape(result)
       annot <- send(result, shape)
     } yield {
-      lm.wbModel.addAnnotations(annot.wbId, requesterId, Array[AnnotationVO](annot), false, false)
+      lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
       showPollResult(pollId, lm.polls)
       (result, annot)
     }
@@ -150,7 +150,7 @@ object Polls {
       simplePoll <- getSimplePollResult(pollId, lm.polls)
       pvo <- handleRespondToPoll(simplePoll, requesterId, pollId, questionId, answerIds, lm)
     } yield {
-      PollResponseDAO.insert(poll, requesterId, answerIds)
+      PollResponseDAO.insert(poll, lm.props.meetingProp.intId, requesterId, answerIds)
       (pollId, pvo)
     }
 

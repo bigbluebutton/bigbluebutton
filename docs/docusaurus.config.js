@@ -28,6 +28,11 @@ const config = {
         locales: ['en'],
     },
 
+    scripts: [
+        // Cookie consent control required for GDPR. Token is not required to be renewed. Update hN querystring to match domain.
+        'https://cdn.baycloud.com/cl.js?cid=9be233bfe3004dc49e742fd0fa98642c&hN=docs.bigbluebutton.org'
+    ],
+    
     presets: [
         [
             'classic',
@@ -61,7 +66,6 @@ const config = {
     ],
 
     plugins: [
-        require.resolve("@cmfcmf/docusaurus-search-local"),
         [
             "@docusaurus/plugin-client-redirects",
             {
@@ -150,7 +154,7 @@ const config = {
                         dropdownActiveClassDisabled: true,
                     },
                     {
-                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v2.7.x-release/docs',
+                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v3.0.x-release/docs',
                         label: 'GitHub',
                         position: 'right',
                     },
@@ -162,10 +166,6 @@ const config = {
                     {
                         title: 'BigBlueButton',
                         items: [
-                            {
-                                label: 'Release notes',
-                                href: '/release-notes',
-                            },
                             {
                                 label: 'Github',
                                 href: 'https://github.com/bigbluebutton',
@@ -248,6 +248,23 @@ const config = {
                 darkTheme: darkCodeTheme,
             },
         }),
+        themes: [
+            // ... Your other themes.
+            [
+              require.resolve("@easyops-cn/docusaurus-search-local"),
+              /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
+              ({
+                // ... Your options.
+                // `hashed` is recommended as long-term-cache of index file is possible.
+                hashed: true,
+                docsRouteBasePath: "/",
+                // For Docs using Chinese, The `language` is recommended to set to:
+                // ```
+                // language: ["en", "zh"],
+                // ```
+              }),
+            ],
+          ],
 };
 
 module.exports = config;

@@ -57,6 +57,15 @@ interface CameraDock {
     isResizable?: boolean;
     resizableEdge?: ResizableEdge;
     tabOrder?: number;
+    presenterMaxWidth: number;
+    maxWidth: number;
+    maxHeight: number;
+    minHeight: number;
+    minWidth: number;
+    left: number;
+    top: number;
+    right: number;
+    zIndex: number;
 }
 
 export interface ExternalVideo {

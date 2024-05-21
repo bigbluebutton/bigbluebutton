@@ -487,4 +487,4 @@ class ActionsDropdown extends PureComponent {
 ActionsDropdown.propTypes = propTypes;
 ActionsDropdown.defaultProps = defaultProps;
 
-export default withShortcutHelper(ActionsDropdown, 'openActions');
+export default ActionsDropdown;

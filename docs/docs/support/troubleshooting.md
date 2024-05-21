@@ -501,14 +501,6 @@ We also added `/usr/local/bin/fs_clibbb` with the contents
 
 that will let you type `fs_clibbb` at the command prompt to get into FreeSWITCH console.
 
-### Echo test hangs upgrading BigBlueButton 2.2
-
-The install scripts now change the default CLI password for FreeSWITCH and the other parts of BigBlueButton need to use this new password. For a new installation, the install scripts will automatically set this new password.
-
-If you upgrade using [bbb-install.sh](https://github.com/bigbluebutton/bbb-install), the script will update the FreeSWITCH password using `sudo bbb-conf --setip <hostname>`.
-
-If you upgraded using [manual steps](/administration/install#upgrading-from-bigbluebutton-22), be sure to do ao `sudo bbb-conf --setip <hostname>` to sync all the FreeSWITCH passwords.
-
 ### FreeSWITCH using default stun server
 
 For many years, in BigBlueButton's FreeSWITCH configuration file `/opt/freeswitch/etc/freeswitch/vars.xml`, the default value for `external_rtp_ip` was `stun.freeswitch.org`
@@ -673,16 +665,6 @@ Here are the following lists the possible WebRTC error messages that a user may 
 ### Server running behind NAT
 
 The [following issue](https://github.com/bigbluebutton/bigbluebutton/issues/8792) might be helpful in debugging if you run into errors and your server is behind NAT.
-
-### Could not get your microphone for a WebRTC call
-
-Chrome requires (As of Chrome 47) that to access the user's microphone for WebRTC your site must be serving pages via HTTPS (that is, nginx is configured with a SSL certificate).
-
-If the user attempts to share their microphone and your BigBlueButton sever is not configured for SSL, Chrome will block access and BigBlueButton will report the following error
-
-_WebRTC Audio Failure: Detected the following WebRTC issue: Could not get your microphone for a WebRTC call. Do you want to try flash instead?_
-
-To enable Chrome to access the user's microphone, see [Configure HTTPS on BigBlueButton](/administration/install#configure-ssl-on-your-bigbluebutton-server).
 
 ### The browser is not supported
 

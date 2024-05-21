@@ -3,6 +3,7 @@ package org.bigbluebutton.core.db
 import com.github.tminglei.slickpg._
 import org.apache.pekko.http.scaladsl.model.ParsingException
 import org.bigbluebutton.common2.domain.SimpleVoteOutVO
+import spray.json.DefaultJsonProtocol.{ StringJsonFormat, vectorFormat }
 import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter, _ }
 
 import scala.util.{ Failure, Success, Try }
@@ -53,6 +54,10 @@ object JsonUtils {
 
   def mapToJson(genericMap: Map[String, Any]) = {
     genericMap.toJson
+  }
+
+  def vectorToJson(genericVector: Vector[String]) = {
+    genericVector.toJson
   }
 
   def stringToJson(jsonString: String): JsValue = {

@@ -60,6 +60,13 @@ type Mutation {
 }
 
 type Mutation {
+  captionSetOwner(
+    locale: String!
+    ownerUserId: String!
+  ): Boolean
+}
+
+type Mutation {
   captionSubmitText(
     transcriptId: String!
     start: Int!
@@ -201,17 +208,19 @@ type Mutation {
 }
 
 type Mutation {
-  pluginDataChannelDeleteMessage(
+  pluginDataChannelDeleteEntry(
     pluginName: String!
-    dataChannel: String!
-    messageId: String!
+    channelName: String!
+    subChannelName: String!
+    entryId: String!
   ): Boolean
 }
 
 type Mutation {
-  pluginDataChannelDispatchMessage(
+  pluginDataChannelPushEntry(
     pluginName: String!
-    dataChannel: String!
+    subChannelName: String!
+    channelName: String!
     payloadJson: String!
     toRoles: [String]!
     toUserIds: [String]!
@@ -221,7 +230,8 @@ type Mutation {
 type Mutation {
   pluginDataChannelReset(
     pluginName: String!
-    dataChannel: String!
+    channelName: String!
+    subChannelName: String!
   ): Boolean
 }
 
@@ -460,11 +470,7 @@ type Mutation {
 }
 
 type Mutation {
-  userSetConnectionAlive: Boolean
-}
-
-type Mutation {
-  userSetConnectionRtt(
+  userSetConnectionAlive(
     networkRttInMs: Float!
   ): Boolean
 }
