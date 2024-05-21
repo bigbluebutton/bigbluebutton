@@ -48,7 +48,7 @@ RangeLoop:
 
 				var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
-				if fromBrowserMessageAsMap["type"] == "start" {
+				if fromBrowserMessageAsMap["type"] == "subscribe" {
 					queryId := fromBrowserMessageAsMap["id"].(string)
 					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
 
@@ -60,7 +60,7 @@ RangeLoop:
 								//Action sent successfully, return data msg to client
 								browserResponseData := map[string]interface{}{
 									"id":   queryId,
-									"type": "data",
+									"type": "next",
 									"payload": map[string]interface{}{
 										"data": map[string]interface{}{
 											funcName: true,
