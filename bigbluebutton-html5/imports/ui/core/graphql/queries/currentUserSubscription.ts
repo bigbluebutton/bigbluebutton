@@ -100,6 +100,10 @@ subscription userCurrentSubscription {
       pageId
       presentationId
     }
+    welcomeMsgs {
+      welcomeMsg
+      welcomeMsgForModerators
+    }
   }
 }
 `;
