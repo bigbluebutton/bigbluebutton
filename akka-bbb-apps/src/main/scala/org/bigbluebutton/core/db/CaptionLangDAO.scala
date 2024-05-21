@@ -22,14 +22,14 @@ class CaptionLocaleTableDef(tag: Tag) extends Table[CaptionLocaleDbModel](tag, N
 }
 
 object CaptionLocaleDAO {
-  def insertOrUpdateCaptionLocale(meetingId: String, locale: String, captionType: String, ownerUserId: String) = {
+  def insertOrUpdateCaptionLocale(meetingId: String, locale: String, captionType: String, userId: String) = {
     DatabaseConnection.db.run(
       TableQuery[CaptionLocaleTableDef].insertOrUpdate(
         CaptionLocaleDbModel(
           meetingId = meetingId,
           locale = locale,
           captionType = captionType,
-          ownerUserId = ownerUserId,
+          ownerUserId = userId,
           updatedAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )

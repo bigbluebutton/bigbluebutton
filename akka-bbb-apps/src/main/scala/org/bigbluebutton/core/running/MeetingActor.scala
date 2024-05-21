@@ -583,7 +583,7 @@ class MeetingActor(
 
       // Caption
       case m: EditCaptionHistoryPubMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateCaptionOwnerPubMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: AddCaptionLocalePubMsg                         => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: SendCaptionHistoryReqMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
@@ -934,8 +934,6 @@ class MeetingActor(
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
         RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
-
-        captionApp2x.handleUserLeavingMsg(leftUser.intId, liveMeeting, msgBus)
 
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)

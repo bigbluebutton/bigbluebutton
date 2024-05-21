@@ -20,32 +20,6 @@ class CaptionModel {
     return None
   }
 
-  def updateTranscriptOwner(name: String, locale: String, ownerId: String): Map[String, TranscriptVO] = {
-    var updatedTranscripts = new HashMap[String, TranscriptVO]
-
-    // clear owner from previous locale
-    if (ownerId.length > 0) {
-      findTranscriptByOwnerId(ownerId).foreach(t => {
-        val oldTranscript = t._2.copy(ownerId = "")
-
-        transcripts += t._1 -> oldTranscript
-        updatedTranscripts += t._1 -> oldTranscript
-      })
-    }
-    // change the owner if it does exist
-    if (transcripts contains name) {
-      val newTranscript = transcripts(name).copy(ownerId = ownerId)
-
-      transcripts += name -> newTranscript
-      updatedTranscripts += name -> newTranscript
-    } else { // create the locale if it doesn't exist
-      val addedTranscript = createTranscript(name, locale, ownerId)
-      updatedTranscripts += name -> addedTranscript
-    }
-
-    updatedTranscripts
-  }
-
   def getHistory(): Map[String, TranscriptVO] = {
     transcripts
   }
