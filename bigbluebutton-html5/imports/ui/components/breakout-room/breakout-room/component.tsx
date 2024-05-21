@@ -4,9 +4,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import {
   BreakoutRoom,
   GetBreakoutDataResponse,
-  GetIfUserJoinedBreakoutRoomResponse,
   getBreakoutData,
-  getIfUserJoinedBreakoutRoom,
 } from './queries';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -23,7 +21,6 @@ import BreakoutMessageForm from './components/messageForm';
 import {
   finishScreenShare,
   forceExitAudio,
-  rejoinAudio,
   stopVideo,
 } from './service';
 import { useExitVideo, useStreams } from '../../video-provider/video-provider-graphql/hooks';
@@ -33,7 +30,6 @@ interface BreakoutRoomProps {
   isModerator: boolean;
   presenter: boolean;
   durationInSeconds: number;
-  userJoinedRooms: number;
   userJoinedAudio: boolean;
   userId: string;
   meetingId: string;
@@ -111,7 +107,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   isModerator,
   durationInSeconds,
   presenter,
-  userJoinedRooms,
   userJoinedAudio,
   userId,
   meetingId,
@@ -127,7 +122,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   const panelRef = React.useRef<HTMLDivElement>(null);
   const [showChangeTimeForm, setShowChangeTimeForm] = React.useState(false);
   const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = React.useState<string>('');
-  const [joinedRooms, setJoinedRooms] = React.useState<number>(0);
 
   const transferUserToMeeting = (fromMeeting: string, toMeeting: string) => {
     breakoutRoomTransfer(
@@ -154,17 +148,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
       value: PANELS.NONE,
     });
   }, []);
-
-  useEffect(() => {
-    if (userJoinedRooms !== joinedRooms) {
-      setJoinedRooms((prev) => {
-        if (userJoinedRooms === 0 && prev > 0) {
-          rejoinAudio();
-        }
-        return userJoinedRooms;
-      });
-    }
-  }, [userJoinedRooms]);
 
   useEffect(() => {
     if (requestedBreakoutRoomId) {
@@ -338,11 +321,6 @@ const BreakoutRoomContainer: React.FC = () => {
   }));
 
   const {
-    data: getIfUserJoinedBreakoutRoomData,
-    loading: getIfUserJoinedBreakoutRoomLoading,
-  } = useSubscription<GetIfUserJoinedBreakoutRoomResponse>(getIfUserJoinedBreakoutRoom);
-
-  const {
     data: breakoutData,
     loading: breakoutLoading,
     error: breakoutError,
@@ -351,7 +329,6 @@ const BreakoutRoomContainer: React.FC = () => {
   if (
     breakoutLoading
     || currentUserLoading
-    || getIfUserJoinedBreakoutRoomLoading
   ) return null;
 
   if (breakoutError) {
@@ -370,7 +347,6 @@ const BreakoutRoomContainer: React.FC = () => {
       isModerator={currentUserData.isModerator ?? false}
       presenter={currentUserData.presenter ?? false}
       durationInSeconds={meetingData.durationInSeconds ?? 0}
-      userJoinedRooms={getIfUserJoinedBreakoutRoomData?.breakoutRoom_aggregate.aggregate.count ?? 0}
       userJoinedAudio={currentUserData?.voice?.joined ?? false}
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}

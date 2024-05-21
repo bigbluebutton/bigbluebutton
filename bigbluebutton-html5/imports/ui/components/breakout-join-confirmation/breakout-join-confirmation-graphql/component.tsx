@@ -65,7 +65,6 @@ interface BreakoutJoinConfirmationProps {
   exitVideo: () => Promise<boolean>;
   exitAudio: () => Promise<unknown>;
   storeVideoDevices: () => void;
-  breakoutExitObserver: ReturnType<typeof useBreakoutExitObserver>;
 }
 
 const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
@@ -77,7 +76,6 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   exitAudio,
   exitVideo,
   storeVideoDevices,
-  breakoutExitObserver,
 }) => {
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [callHandleinviteDismissedAt] = useMutation(handleinviteDismissedAt);
@@ -123,7 +121,6 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
     }
     storeVideoDevices();
     exitVideo();
-    breakoutExitObserver.addOneTimeCallback(rejoinAudio);
     if (breakouts.length === 1) {
       const breakout = breakouts[0];
 
@@ -228,6 +225,12 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   const { exitAudio } = AudioService;
   const { isUsingAudio } = AudioManager;
   const breakoutExitObserver = useBreakoutExitObserver();
+  useEffect(() => {
+    breakoutExitObserver.setCallback('rejoinAudio', rejoinAudio);
+    return () => {
+      breakoutExitObserver.removeCallback('rejoinAudio');
+    };
+  }, []);
   const {
     data: breakoutCountData,
   } = useSubscription<GetBreakoutCountResponse>(getBreakoutCount);
@@ -250,7 +253,6 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
       exitVideo={exitVideo}
       exitAudio={exitAudio}
       storeVideoDevices={storeVideoDevices}
-      breakoutExitObserver={breakoutExitObserver}
     />
   );
 };

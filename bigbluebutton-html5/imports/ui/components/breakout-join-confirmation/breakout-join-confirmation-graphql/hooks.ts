@@ -40,7 +40,7 @@ const useBreakoutExitObserver = () => {
       oneTimeCallbacks.current = [];
       setObserving(false);
     },
-    addCallback: (key: string, callback: Callback) => {
+    setCallback: (key: string, callback: Callback) => {
       callbacks.current.set(key, callback);
       setObserving(true);
     },
