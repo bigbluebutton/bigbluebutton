@@ -4,7 +4,7 @@ import React, {
   useState,
   useMemo,
 } from 'react';
-import { useSubscription, useMutation } from '@apollo/client';
+import { useSubscription, useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
 } from '@tldraw/tldraw';
@@ -12,8 +12,8 @@ import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
+  CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
-  CURSOR_SUBSCRIPTION,
 } from './queries';
 import {
   initDefaultPages,
@@ -175,23 +175,48 @@ const WhiteboardContainer = (props) => {
     },
   );
 
+  const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
+    CURRENT_PAGE_ANNOTATIONS_QUERY,
+    {
+      skip: !curPageId,
+    },
+  );
+
+  React.useEffect(() => {
+    if (curPageIdRef.current) {
+      refetchInitialPageAnnotations();
+    }
+  }, [curPageIdRef.current]);
+
+  const processAnnotations = (data) => {
+    const newAnnotations = [];
+    const annotationsToBeRemoved = [];
+
+    data.forEach((item) => {
+      if (item.annotationInfo === '') {
+        annotationsToBeRemoved.push(item.annotationId);
+      } else {
+        newAnnotations.push(item);
+      }
+    });
+
+    const currentAnnotations = annotations.filter(
+      (annotation) => !annotationsToBeRemoved.includes(annotation.annotationId),
+    );
+
+    setAnnotations([...currentAnnotations, ...newAnnotations]);
+  };
+
+  React.useEffect(() => {
+    if (initialPageAnnotations && initialPageAnnotations.pres_annotation_curr) {
+      processAnnotations(initialPageAnnotations.pres_annotation_curr);
+    }
+  }, [initialPageAnnotations]);
+
   useEffect(() => {
     const { pres_annotation_curr_stream: annotationStream } = annotationStreamData || {};
-
     if (annotationStream) {
-      const newAnnotations = [];
-      const annotationsToBeRemoved = [];
-      annotationStream.forEach((item) => {
-        if (item.annotationInfo === '') {
-          annotationsToBeRemoved.push(item.annotationId);
-        } else {
-          newAnnotations.push(item);
-        }
-      });
-      const currentAnnotations = annotations.filter(
-        (annotation) => !annotationsToBeRemoved.includes(annotation.annotationId),
-      );
-      setAnnotations([...currentAnnotations, ...newAnnotations]);
+      processAnnotations(annotationStream);
     }
   }, [annotationStreamData]);
 
@@ -263,7 +288,7 @@ const WhiteboardContainer = (props) => {
     typeName: 'shape',
   });
 
-  if (!currentPresentationPage) return;
+  if (!currentPresentationPage) return null;
 
   return (
     <Whiteboard

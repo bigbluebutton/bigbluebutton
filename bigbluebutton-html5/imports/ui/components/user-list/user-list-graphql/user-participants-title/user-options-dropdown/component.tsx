@@ -320,7 +320,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'learningDashboard',
       },
     ].filter(({ allow }) => allow);
-  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale]);
+  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale, intl]);
 
   const newLocal = 'true';
   return (

@@ -6,7 +6,7 @@ object TimerModel {
       stopwatch:      Boolean = true,
       time:           Int = 0,
       accumulated:    Int = 0,
-      track:          String = "track",
+      track:          String = "noTrack",
   ): Unit = {
     model.stopwatch = stopwatch
     model.time = time
@@ -44,18 +44,36 @@ object TimerModel {
   }
 
   def setRunning(model: TimerModel, running: Boolean): Unit = {
+    val now = System.currentTimeMillis()
 
-    //If it is running and will stop, calculate new Accumulated
-    if(getRunning(model) && !running) {
-      val now = System.currentTimeMillis()
+    // If the timer is running and will stop, update accumulated time
+    if (isRunning(model) && !running) {
       val accumulated = getAccumulated(model) + Math.abs(now - getStartedAt(model)).toInt
-      this.setAccumulated(model, accumulated)
+      setAccumulated(model, accumulated)
     }
 
+    // If the timer is not running and will start, set the start time
+    if (!isRunning(model) && running) {
+      setStartedAt(model, now)
+    }
+
+    // Determine if the timer is finished
+    val isTimerFinished = running && !isStopwatch(model) && {
+      val currentTimerTime = model.startedAt + (model.time - model.accumulated)
+      currentTimerTime < now
+    }
+
+    // If the timer is finished, reset the accumulated time and start time if running
+    if (isTimerFinished) {
+      setAccumulated(model, 0)
+      if (running) setStartedAt(model, now)
+    }
+
+    // Update the running status of the model
     model.running = running
   }
 
-  def getRunning(model: TimerModel): Boolean = {
+  def isRunning(model: TimerModel): Boolean = {
     model.running
   }
 
@@ -63,7 +81,7 @@ object TimerModel {
     model.stopwatch = stopwatch
   }
 
-  def getStopwatch(model: TimerModel): Boolean = {
+  def isStopwatch(model: TimerModel): Boolean = {
     model.stopwatch
   }
 
