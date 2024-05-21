@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.TimerModel
-import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getIsActive, getRunning, getStartedAt, getStopwatch, getTime, getTrack}
+import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getIsActive, isRunning, getStartedAt, isStopwatch, getTime, getTrack}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.util.{Failure, Success}
@@ -36,8 +36,8 @@ object TimerDAO {
       TableQuery[TimerDbTableDef].insertOrUpdate(
         TimerDbModel(
           meetingId = meetingId,
-          stopwatch = getStopwatch(model),
-          running = getRunning(model),
+          stopwatch = isStopwatch(model),
+          running = isRunning(model),
           active = getIsActive(model),
           time = getTime(model),
           accumulated = getAccumulated(model),
@@ -57,7 +57,7 @@ object TimerDAO {
         .filter(_.meetingId === meetingId)
         .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedOn, t.songTrack))
         .update(
-          (getStopwatch(timerModel), getRunning(timerModel), getIsActive(timerModel), getTime(timerModel),
+          (isStopwatch(timerModel), isRunning(timerModel), getIsActive(timerModel), getTime(timerModel),
           getAccumulated(timerModel), getStartedAt(timerModel), getTrack(timerModel))
         )
     ).onComplete {
