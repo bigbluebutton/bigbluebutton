@@ -121,13 +121,6 @@ case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: St
 case class SetPresenterInDefaultPodInternalMsg(presenterId: String) extends InMessage
 
 /**
- * Sent by breakout room to parent meeting to obtain padId
- * @param breakoutId
- * @param filename
- */
-case class CaptureSharedNotesReqInternalMsg(breakoutId: String, filename: String) extends InMessage
-
-/**
  * Sent by GraphqlActionsActor to inform MeetingActor that user disconnected
  * @param userId
  */

@@ -3,9 +3,10 @@ package org.bigbluebutton.core.pubsub.senders
 import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.common2.msgs.{ PluginDataChannelDeleteEntryMsgBody, _ }
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
+
 import scala.reflect.runtime.universe._
 import org.bigbluebutton.common2.bus.ReceivedJsonMessage
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
@@ -113,8 +114,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
       case UserConnectionAliveReqMsg.NAME =>
         routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
-      case UserConnectionUpdateRttReqMsg.NAME =>
-        routeGenericMsg[UserConnectionUpdateRttReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
       case SetUserSpeechOptionsReqMsg.NAME =>
@@ -181,8 +180,6 @@ class ReceivedJsonMsgHandlerActor(
         routePadMsg[PadPatchSysMsg](envelope, jsonNode)
       case PadUpdatePubMsg.NAME =>
         routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
-      case PadCapturePubMsg.NAME =>
-        routePadMsg[PadCapturePubMsg](envelope, jsonNode)
       case PadPinnedReqMsg.NAME =>
         routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
@@ -422,11 +419,11 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
       //Plugin
-      case PluginDataChannelDispatchMessageMsg.NAME =>
-        routeGenericMsg[PluginDataChannelDispatchMessageMsg](envelope, jsonNode)
+      case PluginDataChannelPushEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelPushEntryMsg](envelope, jsonNode)
 
-      case PluginDataChannelDeleteMessageMsg.NAME =>
-        routeGenericMsg[PluginDataChannelDeleteMessageMsg](envelope, jsonNode)
+      case PluginDataChannelDeleteEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelDeleteEntryMsg](envelope, jsonNode)
 
       case PluginDataChannelResetMsg.NAME =>
         routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
@@ -472,7 +469,7 @@ class ReceivedJsonMsgHandlerActor(
         route[CheckGraphqlMiddlewareAlivePongSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case _ =>
-        log.error("Cannot route envelope name " + envelope.name)
+        log.debug("Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }

@@ -5,6 +5,7 @@ import logger from '/imports/startup/client/logger';
 
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
@@ -55,10 +56,18 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
 
 const AudioCaptionsLiveContainer: React.FC = () => {
   const {
+    data: currentUser,
+  } = useCurrentUser((u) => ({
+    speechLocale: u.speechLocale,
+  }));
+
+  const {
     data: AudioCaptionsLiveData,
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
-  } = useSubscription<getCaptions>(GET_CAPTIONS);
+  } = useSubscription<getCaptions>(GET_CAPTIONS, {
+    variables: { locale: currentUser?.speechLocale ?? 'en-US' },
+  });
 
   const [audioCaptionsEnable] = useAudioCaptionEnable();
 

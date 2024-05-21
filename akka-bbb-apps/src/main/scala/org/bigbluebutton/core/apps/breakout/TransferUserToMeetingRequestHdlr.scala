@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
@@ -17,13 +18,13 @@ trait TransferUserToMeetingRequestHdlr extends RightsManagementTrait {
       val reason = "No permission to transfer user to voice breakout."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      processRequest(msg)
+      processTransferUserToMeetingRequest(msg)
     }
 
     state
   }
 
-  def processRequest(msg: TransferUserToMeetingRequestMsg) {
+  def processTransferUserToMeetingRequest(msg: TransferUserToMeetingRequestMsg) {
     if (msg.body.fromMeetingId == liveMeeting.props.meetingProp.intId) {
       // want to transfer from parent meeting to breakout
       for {
@@ -32,6 +33,7 @@ trait TransferUserToMeetingRequestHdlr extends RightsManagementTrait {
         from <- getVoiceConf(msg.body.fromMeetingId, model)
         voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
       } yield {
+        UserDAO.transferUserToBreakoutRoomAsAudioOnly(msg.body.userId, msg.body.fromMeetingId, msg.body.toMeetingId)
         val event = buildTransferUserToVoiceConfSysMsg(from, to, voiceUser.voiceUserId)
         outGW.send(event)
       }
@@ -53,6 +55,7 @@ trait TransferUserToMeetingRequestHdlr extends RightsManagementTrait {
         room <- model.find(msg.body.fromMeetingId)
         voiceUser <- room.voiceUsers.find(p => p.id == msg.body.userId)
       } yield {
+        UserDAO.transferUserToBreakoutRoomAsAudioOnly(msg.body.userId, msg.body.fromMeetingId, msg.body.toMeetingId)
         val event = buildTransferUserToVoiceConfSysMsg(from, to, voiceUser.voiceUserId)
         outGW.send(event)
       }

@@ -94,6 +94,7 @@ exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 exports.timeRemaining = 'span[data-test="timeRemaining"]';
 exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
 exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
+exports.selectBreakoutRoomBtn = 'select[data-test="selectBreakoutRoomBtn"]';
 exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
@@ -264,9 +265,7 @@ const pollAnswerOptionDesc = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerDescOption = `${pollAnswerOptionDesc} input:nth-child(1)`;
 exports.secondPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=1`;
 exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
-exports.numberVotes = 'div[data-test="numberOfVotes"]';
-exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
-exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
+exports.userVoteLiveResult = 'td[data-test="userVoteLiveResult"]';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
@@ -278,7 +277,7 @@ exports.closePollingBtn = 'button[data-test="closePolling"]';
 exports.yesNoOption = 'button[data-test="yesNoQuickPoll"]';
 exports.yesNoAbstentionOption = 'li[role="menuitem"]>>nth=1';
 exports.pollAnswerOptionE = 'button[data-test="pollAnswerOption"]>>nth=4';
-exports.answerE = 'div[data-test="numberOfVotes"]>>nth=4';
+
 // Presentation
 exports.currentSlideImg = '[id="whiteboard-element"] [class="tl-image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -375,10 +374,6 @@ exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 exports.deniedMessageElement = 'p[class="error-message"]';
-exports.selectRandomUser = 'li[data-test="selectRandomUser"]';
-exports.noViewersSelectedMessage = 'div[data-test="noViewersSelectedMessage"]';
-exports.selectedUserName = 'div[data-test="selectedUserName"]';
-exports.selectAgainRadomUser = 'button[data-test="selectAgainRadomUser"]';
 exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';
@@ -409,13 +404,6 @@ exports.lockUserList = 'input[data-test="lockUserList"]';
 exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
 exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
-
-// Closed Captions
-exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
-exports.startWritingClosedCaptions = 'button[data-test="startWritingClosedCaptions"]';
-exports.startViewingClosedCaptionsBtn = 'button[data-test="startViewingClosedCaptionsBtn"]';
-exports.startViewingClosedCaptions = 'button[data-test="startViewingClosedCaptions"]';
-exports.liveCaptions = 'div[data-test="liveCaptions"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',

@@ -24,6 +24,7 @@ trait PadUpdatedSysMsgHdlr {
 
     Pads.getGroupById(liveMeeting.pads, msg.body.groupId) match {
       case Some(group) => {
+        Pads.setRev(liveMeeting.pads, group.externalId, msg.body.rev)
         SharedNotesRevDAO.insert(liveMeeting.props.meetingProp.intId, group.externalId, msg.body.rev, msg.body.userId, msg.body.changeset)
         broadcastEvent(group.externalId, msg.body.padId, msg.body.userId, msg.body.rev, msg.body.changeset)
       }

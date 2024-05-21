@@ -142,6 +142,8 @@ const WhiteboardContainer = (props) => {
   const publishCursorUpdate = (payload) => {
     const { whiteboardId, xPercent, yPercent } = payload;
 
+    if (!whiteboardId || !xPercent || !yPercent) return;
+
     presentationPublishCursor({
       variables: {
         whiteboardId,
@@ -260,6 +262,8 @@ const WhiteboardContainer = (props) => {
     index: 'a0',
     typeName: 'shape',
   });
+
+  if (!currentPresentationPage) return;
 
   return (
     <Whiteboard

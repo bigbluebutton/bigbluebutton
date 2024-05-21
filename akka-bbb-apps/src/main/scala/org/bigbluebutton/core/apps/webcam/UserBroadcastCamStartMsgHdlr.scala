@@ -47,7 +47,7 @@ trait UserBroadcastCamStartMsgHdlr {
       val webcam = new WebcamStream(msg.body.stream, msg.header.userId, Set.empty)
 
       for {
-        _ <- Webcams.addWebcamStream(liveMeeting.webcams, webcam)
+        _ <- Webcams.addWebcamStream(liveMeeting.props.meetingProp.intId, liveMeeting.webcams, webcam)
       } yield broadcastEvent(meetingId, msg.header.userId, msg.body.stream)
     }
   }

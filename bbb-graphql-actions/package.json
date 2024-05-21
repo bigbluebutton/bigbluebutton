@@ -28,7 +28,7 @@
     "@types/node": "^20.7.0",
     "@types/redis": "^4.0.11",
     "axios": "^1.6.0",
-    "express": "^4.17.1",
+    "express": "^4.19.2",
     "redis": "^4.6.10"
   },
   "devDependencies": {

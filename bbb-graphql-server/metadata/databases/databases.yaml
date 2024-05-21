@@ -19,7 +19,7 @@
       database_url:
         connection_parameters:
           database: bbb_graphql
-          host: localhost
+          host: 127.0.0.1
           password: bbb_graphql
           port: 5432
           username: postgres

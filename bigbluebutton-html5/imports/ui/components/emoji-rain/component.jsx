@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Settings from '/imports/ui/services/settings';
 import Service from './service';
+import logger from '/imports/startup/client/logger';
 
 const EmojiRain = ({ reactions }) => {
   const containerRef = useRef(null);
@@ -12,8 +13,15 @@ const EmojiRain = ({ reactions }) => {
   const { animations } = Settings.application;
 
   function createEmojiRain(emoji) {
-    const coord = Service.getInteractionsButtonCoordenates();
+    const coord = Service.getInteractionsButtonCoordinates();
     const flyingEmojis = [];
+
+    if (coord == null) {
+      logger.warn({
+        logCode: 'interactions_emoji_rain_no_coord',
+      }, 'No coordinates for interactions button, skipping emoji rain');
+      return;
+    }
 
     for (i = 0; i < NUMBER_OF_EMOJIS; i++) {
       const initialPosition = {
