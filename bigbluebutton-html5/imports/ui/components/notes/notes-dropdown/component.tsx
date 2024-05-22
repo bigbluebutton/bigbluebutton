@@ -12,8 +12,6 @@ import Service from './service';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 
 const DEBOUNCE_TIMEOUT = 15000;
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-const NOTES_IS_PINNABLE = NOTES_CONFIG.pinnable;
 
 const intlMessages = defineMessages({
   convertAndUploadLabel: {
@@ -48,6 +46,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
+  const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
 
   const getAvailableActions = () => {
     const uploadIcon = 'upload';

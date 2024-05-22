@@ -29,12 +29,11 @@ const AudioModalContainer = (props) => {
   return <AudioModal away={away} {...props} />;
 };
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
-
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 
 export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
   const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);

@@ -2,13 +2,13 @@ import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 
-const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
-
 const ConnectionStatus = () => {
   const networkRttInMs = useRef(0); // Ref to store the last rtt
   const timeoutRef = useRef(null);
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
+
+  const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
 
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();

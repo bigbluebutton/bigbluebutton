@@ -19,11 +19,6 @@ interface TalkingIndicatorSubscriptionData {
   user_voice: Array<Partial<UserVoice>>;
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const { enableTalkingIndicator } = APP_CONFIG;
-
 const TALKING_INDICATORS_MAX = 8;
 
 const intlMessages = defineMessages({
@@ -181,6 +176,11 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 };
 
 const TalkingIndicatorContainer: React.FC = (() => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - temporary, while meteor exists in the project
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const { enableTalkingIndicator } = APP_CONFIG;
+
   if (!enableTalkingIndicator) return () => null;
   return () => {
     const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({

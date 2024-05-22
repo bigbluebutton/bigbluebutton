@@ -7,13 +7,6 @@ const DEFAULT_INPUT_DEVICE_ID = '';
 const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
-const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
-  .application.microphoneConstraints;
-const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
-
-const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
-const PROVIDER = CONFIG.provider;
-const audioCaptionsEnabled = window.meetingClientSettings.public.app.audioCaptions.enabled;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -38,6 +31,7 @@ const reloadAudioElement = (audioElement) => {
 };
 
 const getCurrentAudioSinkId = () => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
   const audioElement = document.querySelector(MEDIA_TAG);
   return audioElement?.sinkId || DEFAULT_OUTPUT_DEVICE_ID;
 };
@@ -83,7 +77,8 @@ const getAudioConstraints = (constraintFields = {}) => {
   const { deviceId = '' } = constraintFields;
   const userSettingsConstraints = Settings.application.microphoneConstraints;
   const audioDeviceConstraints = userSettingsConstraints
-    || AUDIO_MICROPHONE_CONSTRAINTS || {};
+    || window.meetingClientSettings.public.app.defaultSettings.application.microphoneConstraints
+    || {};
 
   const matchConstraints = filterSupportedConstraints(
     audioDeviceConstraints,
@@ -119,15 +114,17 @@ const doGUM = async (constraints, retryOnFailure = false) => {
   }
 };
 
-const isEnabled = () => audioCaptionsEnabled;
+const isEnabled = () => window.meetingClientSettings.public.app.audioCaptions.enabled;
 
-const isWebSpeechApi = () => PROVIDER === 'webspeech';
+const getProvider = () => window.meetingClientSettings.public.app.audioCaptions.provider;
 
-const isVosk = () => PROVIDER === 'vosk';
+const isWebSpeechApi = () => getProvider() === 'webspeech';
 
-const isWhispering = () => PROVIDER === 'whisper';
+const isVosk = () => getProvider() === 'vosk';
 
-const isDeepSpeech = () => PROVIDER === 'deepSpeech';
+const isWhispering = () => getProvider() === 'whisper';
+
+const isDeepSpeech = () => getProvider() === 'deepSpeech';
 
 const isActive = () => isEnabled()
   && ((isWebSpeechApi()) || isVosk() || isWhispering() || isDeepSpeech());

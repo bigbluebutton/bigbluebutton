@@ -33,18 +33,7 @@ import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 
-const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
 const AppContainer = (props) => {
-  function usePrevious(value) {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
-
   const layoutType = useRef(null);
 
   const {
@@ -66,6 +55,8 @@ const AppContainer = (props) => {
     viewScreenshare,
     ...otherProps
   } = props;
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const genericComponent = layoutSelectInput((i) => i.genericComponent);
@@ -287,12 +278,13 @@ export default withTracker(() => {
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
 
-
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowScreenshare = MediaService.shouldShowScreenshare();
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
+
+  const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
     customStyleUrl = CUSTOM_STYLE_URL;

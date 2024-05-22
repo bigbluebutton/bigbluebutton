@@ -22,9 +22,6 @@ import Settings from '/imports/ui/services/settings';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
-
 const intlMessages = defineMessages({
   joinedAudio: {
     id: 'app.audioManager.joinedAudio',
@@ -185,6 +182,9 @@ export default lockContextContainer(injectIntl(withTracker(({
   speechLocale,
 }) => {
   const { microphoneConstraints } = Settings.application;
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
   const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);

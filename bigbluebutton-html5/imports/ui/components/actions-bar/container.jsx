@@ -19,9 +19,9 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
 const ActionsBarContainer = (props) => {
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
 
@@ -51,7 +51,6 @@ const ActionsBarContainer = (props) => {
     emoji: user.emoji,
     isModerator: user.isModerator,
   }));
-
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
