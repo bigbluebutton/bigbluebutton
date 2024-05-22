@@ -433,20 +433,15 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           if (isPresenter || isModeratorRef.current) return next;
 
           // Filter selectedShapeIds based on shape owner
-          if (
-            next.selectedShapeIds.length > 0 &&
-            !isEqual(prev.selectedShapeIds, next.selectedShapeIds)
-          ) {
+          if (next.selectedShapeIds.length > 0 && !isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
             next.selectedShapeIds = next.selectedShapeIds.filter((shapeId) => {
-              const shapeOwner =
-                prevShapesRef.current[shapeId]?.meta?.createdBy;
+              const shapeOwner = prevShapesRef.current[shapeId]?.meta?.createdBy;
               return !shapeOwner || shapeOwner === currentUser?.userId;
             });
           }
 
           if (!isEqual(prev.hoveredShapeId, next.hoveredShapeId)) {
-            const hoveredShapeOwner =
-              prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
+            const hoveredShapeOwner = prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
             if (hoveredShapeOwner !== currentUser?.userId) {
               next.hoveredShapeId = null;
             }
@@ -455,27 +450,31 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           return next;
         }
 
-        const camera = editor?.getCamera();
-        const { maxX, maxY, minX, minY } = editor.getViewportPageBounds();
-        const panned =
-          next?.id?.includes("camera") &&
-          (prev.x !== next.x || prev.y !== next.y);
-        const zoomed = next?.id?.includes("camera") && prev.z !== next.z;
+        // Get viewport dimensions and bounds
+        const viewportPageBounds = editor.getViewportPageBounds();
+        const { w: viewportWidth, h: viewportHeight } = viewportPageBounds;
+
+        const presentationWidth = currentPresentationPage?.scaledWidth || 0;
+        const presentationHeight = currentPresentationPage?.scaledHeight || 0;
+
+        // Adjust camera position to ensure it stays within bounds
+        const panned = next?.id?.includes("camera") && (prev.x !== next.x || prev.y !== next.y);
         if (panned) {
-          // // limit bounds
-          if (maxX > currentPresentationPage?.scaledWidth) {
-            next.x += maxX - currentPresentationPage?.scaledWidth;
-          }
-          if (maxY > currentPresentationPage?.scaledHeight) {
-            next.y += maxY - currentPresentationPage?.scaledHeight;
-          }
-          if (next.x > 0 || minX < 0) {
+          // Horizontal bounds check
+          if (next.x > 0) {
             next.x = 0;
+          } else if (next.x < -(presentationWidth - viewportWidth)) {
+            next.x = -(presentationWidth - viewportWidth);
           }
-          if (next.y > 0 || minY < 0) {
+
+          // Vertical bounds check
+          if (next.y > 0) {
             next.y = 0;
+          } else if (next.y < -(presentationHeight - viewportHeight)) {
+            next.y = -(presentationHeight - viewportHeight);
           }
         }
+
         return next;
       };
     }
