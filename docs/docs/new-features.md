@@ -29,7 +29,7 @@ We have made changes so that when you set yourself as being Away, your microphon
 
 ![set yourself away](/img/30/30-set-away.png)
 
- When you return and unmute youself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
+ When you return and unmute yourself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
 
 ![set yourself active](/img/30/30-set-active.png)
 
