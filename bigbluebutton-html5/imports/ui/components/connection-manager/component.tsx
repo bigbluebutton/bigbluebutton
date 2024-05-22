@@ -1,12 +1,12 @@
 import {
   ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject, ApolloLink,
 } from '@apollo/client';
-import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
 import React, { useContext, useEffect } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
-import { createClient } from 'graphql-ws';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
