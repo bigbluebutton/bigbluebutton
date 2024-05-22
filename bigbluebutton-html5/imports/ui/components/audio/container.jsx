@@ -21,6 +21,7 @@ import AudioModalContainer from './audio-modal/container';
 import Settings from '/imports/ui/services/settings';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { useStorageKey } from '../../services/storage/hooks';
 
 const APP_CONFIG = window.meetingClientSettings.public.app;
 const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
@@ -79,8 +80,6 @@ const AudioContainer = (props) => {
     setVideoPreviewModalIsOpen,
     isVideoPreviewModalOpen,
     hasBreakoutRooms,
-    userSelectedMicrophone,
-    userSelectedListenOnly,
     meetingIsBreakout,
     init,
     intl,
@@ -90,6 +89,8 @@ const AudioContainer = (props) => {
 
   const prevProps = usePreviousValue(props);
   const toggleVoice = useToggleVoice();
+  const userSelectedMicrophone = !!useStorageKey('clientUserSelectedMicrophone', 'session');
+  const userSelectedListenOnly = useStorageKey('clientUserSelectedListenOnly', 'session');
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
@@ -204,8 +205,6 @@ export default lockContextContainer(injectIntl(withTracker(({
   return {
     hasBreakoutRooms,
     meetingIsBreakout,
-    userSelectedMicrophone,
-    userSelectedListenOnly,
     isAudioModalOpen,
     setAudioModalIsOpen,
     microphoneConstraints,
@@ -241,8 +240,6 @@ AudioContainer.defaultProps = {
 AudioContainer.propTypes = {
   hasBreakoutRooms: PropTypes.bool.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
-  userSelectedListenOnly: PropTypes.bool.isRequired,
-  userSelectedMicrophone: PropTypes.bool.isRequired,
   isAudioModalOpen: PropTypes.bool.isRequired,
   setAudioModalIsOpen: PropTypes.func.isRequired,
   setVideoPreviewModalIsOpen: PropTypes.func.isRequired,

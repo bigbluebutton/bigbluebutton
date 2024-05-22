@@ -127,11 +127,11 @@ class VideoService {
     this.deviceId = deviceId;
     Storage.setItem('isFirstJoin', false);
     if (!VideoService.isUserLocked()) {
-      const streamName = VideoService.buildStreamName(Auth.userID ?? '', deviceId);
+      const streamName = VideoService.buildStreamName(Auth.userID as string, deviceId);
       const stream = {
         stream: streamName,
-        userId: Auth.userID ?? '',
-        name: Auth.fullname ?? '',
+        userId: Auth.userID as string,
+        name: Auth.fullname as string,
         type: 'connecting' as const,
       };
       setConnectingStream(stream);
@@ -348,7 +348,7 @@ class VideoService {
   }
 
   static isLocalStream(cameraId: string) {
-    return !!Auth.userID && cameraId?.startsWith(Auth.userID);
+    return !!Auth.userID && cameraId?.startsWith(Auth.userID as string);
   }
 
   static getCameraProfile() {

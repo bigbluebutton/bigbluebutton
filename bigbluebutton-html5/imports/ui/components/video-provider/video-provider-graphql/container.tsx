@@ -141,7 +141,7 @@ type TrackerProps = {
 };
 
 export default withTracker<TrackerData, TrackerProps>(() => {
-  const currentUserId = Auth.userID ?? '';
+  const currentUserId = Auth.userID as string;
   const isMeteorConnected = Meteor.status().connected;
   // @ts-expect-error -> Untyped object.
   const { paginationEnabled } = Settings.application;

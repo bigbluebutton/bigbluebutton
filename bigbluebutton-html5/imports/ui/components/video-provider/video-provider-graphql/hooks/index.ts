@@ -118,10 +118,10 @@ export const useInfo = () => {
   }));
   const voiceBridge = data?.voiceSettings ? data.voiceSettings.voiceConf : null;
   return {
-    userId: Auth.userID,
-    userName: Auth.fullname,
-    meetingId: Auth.meetingID,
-    sessionToken: Auth.sessionToken,
+    userId: Auth.userID as string,
+    userName: Auth.fullname as string,
+    meetingId: Auth.meetingID as string,
+    sessionToken: Auth.sessionToken as string,
     voiceBridge,
   };
 };
