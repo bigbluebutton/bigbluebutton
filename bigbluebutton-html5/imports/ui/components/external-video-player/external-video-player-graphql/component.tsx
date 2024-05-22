@@ -318,7 +318,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setPlayed(state.played);
     setLoaded(state.loaded);
 
-    if (playing) {
+    if (playing && isPresenter) {
       currentTime = playerRef.current?.getCurrentTime() || 0;
     }
   };
