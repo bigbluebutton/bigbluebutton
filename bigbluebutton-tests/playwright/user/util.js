@@ -46,9 +46,9 @@ async function drawArrow(test) {
 
 async function timeInSeconds(locator) {
   const text = await locator.innerText();
-  const [hours, minutes, seconds] = text.split(':').map(Number);
-    const timeInSeconds = hours * 3600 + minutes * 60 + seconds;
-    return timeInSeconds;
+  const [minutes, seconds] = text.split(':').map(Number);
+  const timeInSeconds = minutes * 60 + seconds;
+  return timeInSeconds;
 }
 
 exports.setStatus = setStatus;

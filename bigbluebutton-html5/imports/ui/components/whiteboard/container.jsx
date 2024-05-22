@@ -3,6 +3,7 @@ import React, {
   useRef,
   useState,
   useMemo,
+  useCallback,
 } from 'react';
 import { useSubscription, useMutation, useQuery } from '@apollo/client';
 import {
@@ -58,6 +59,13 @@ const WhiteboardContainer = (props) => {
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
   }));
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    isModerator: user.isModerator,
+    userId: user.userId,
+  }));
+  const isPresenter = currentUser?.presenter;
+  const isModerator = currentUser?.isModerator;
 
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
@@ -135,14 +143,14 @@ const WhiteboardContainer = (props) => {
     return isAnnotationSent?.data?.presAnnotationSubmit;
   };
 
-  const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
-    persistShape(shape, whiteboardId, isModerator, submitAnnotations);
+  const persistShapeWrapper = (shape, whiteboardId, amIModerator) => {
+    persistShape(shape, whiteboardId, amIModerator, submitAnnotations);
   };
 
-  const publishCursorUpdate = (payload) => {
+  const publishCursorUpdate = useCallback((payload) => {
     const { whiteboardId, xPercent, yPercent } = payload;
 
-    if (!whiteboardId || !xPercent || !yPercent) return;
+    if (!whiteboardId || !xPercent || !yPercent || !(hasWBAccess || isPresenter)) return;
 
     presentationPublishCursor({
       variables: {
@@ -151,20 +159,14 @@ const WhiteboardContainer = (props) => {
         yPercent,
       },
     });
-  };
+  }, [hasWBAccess, isPresenter]);
 
   const throttledPublishCursorUpdate = useMemo(() => throttle(
     { interval: WHITEBOARD_CONFIG.cursorInterval },
     publishCursorUpdate,
-  ), []);
+  ), [publishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
-
-  const { data: currentUser } = useCurrentUser((user) => ({
-    presenter: user.presenter,
-    isModerator: user.isModerator,
-    userId: user.userId,
-  }));
 
   const cursorArray = useMergedCursorData();
 
@@ -256,8 +258,6 @@ const WhiteboardContainer = (props) => {
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
-  const isPresenter = currentUser?.presenter;
-  const isModerator = currentUser?.isModerator;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {
