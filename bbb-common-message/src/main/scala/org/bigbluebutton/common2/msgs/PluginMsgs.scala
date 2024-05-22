@@ -11,7 +11,7 @@ case class PluginDataChannelPushEntryMsgBody(
                                               pluginName: String,
                                               channelName: String,
                                               subChannelName: String,
-                                              payloadJson: String,
+                                              payloadJson: Map[String, Object],
                                               toRoles: List[String],
                                               toUserIds: List[String],
                                             )
