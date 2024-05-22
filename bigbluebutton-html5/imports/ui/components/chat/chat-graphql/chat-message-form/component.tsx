@@ -4,6 +4,7 @@ import React, {
   RefObject,
   useEffect,
   useRef,
+  useMemo,
 } from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
@@ -18,7 +19,7 @@ import ClickOutside from '/imports/ui/components/click-outside/component';
 import { checkText } from 'smile2emoji';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
@@ -36,6 +37,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
+import logger from '/imports/startup/client/logger';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -80,6 +82,9 @@ const messages = defineMessages({
   },
   errorMaxMessageLength: {
     id: 'app.chat.errorMaxMessageLength',
+  },
+  errorOnSendMessage: {
+    id: 'app.chat.errorOnSendMessage',
   },
   errorServerDisconnected: {
     id: 'app.chat.disconnected',
@@ -156,19 +161,22 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     loading: chatSendMessageLoading, error: chatSendMessageError,
   }] = useMutation(CHAT_SEND_MESSAGE);
 
-  const handleUserTyping = throttle(
-    (hasError?: boolean) => {
-      if (hasError || !ENABLE_TYPING_INDICATOR) return;
+  const handleUserTyping = (hasError?: boolean) => {
+    if (hasError || !ENABLE_TYPING_INDICATOR) return;
 
-      chatSetTyping({
-        variables: {
-          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
-        },
-      });
+    chatSetTyping({
+      variables: {
+        chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+      },
+    });
+  };
+
+  const throttleHandleUserTyping = useMemo(() => throttle(
+    handleUserTyping, START_TYPING_THROTTLE_INTERVAL, {
+      leading: true,
+      trailing: false,
     },
-    START_TYPING_THROTTLE_INTERVAL,
-    { leading: true, trailing: false },
-  );
+  ), [chatId]);
 
   useEffect(() => {
     setMessageHint();
@@ -265,7 +273,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     }
     setMessage(newMessage);
     setError(newError);
-    handleUserTyping(newError != null);
+    throttleHandleUserTyping(newError != null);
   };
 
   useEffect(() => {
@@ -308,6 +316,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       setMessage('');
       updateUnreadMessages(chatId, '');
+      setError(null);
       setHasErrors(false);
       setShowEmojiPicker(false);
       const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
@@ -383,7 +392,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     });
 
-    if (chatSendMessageError) { return <div>something went wrong</div>; }
+    useEffect(() => {
+      if (chatSendMessageError && error == null) {
+        logger.debug('Error on sending chat message: ', chatSendMessageError?.message);
+        setError(intl.formatMessage(messages.errorOnSendMessage));
+      }
+    }, [chatSendMessageError]);
 
     return (
       <Styled.Form

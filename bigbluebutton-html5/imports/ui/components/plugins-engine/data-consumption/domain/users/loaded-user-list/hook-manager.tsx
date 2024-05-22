@@ -5,7 +5,7 @@ import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
-import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import formatLoadedUserListDataFromGraphql from './utils';
 import { useLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
 
@@ -33,9 +33,9 @@ const LoadedUserListHookContainer = () => {
   }, [usersData, sendSignal]);
 
   useEffect(() => {
-    const updateHookUseLoadedUserList = () => {
-      setSendSignal(!sendSignal);
-    };
+    const updateHookUseLoadedUserList = ((event: CustomEvent<SubscribedEventDetails>) => {
+      if (event.detail.hook === DataConsumptionHooks.LOADED_USER_LIST) setSendSignal((signal) => !signal);
+    }) as EventListener;
     window.addEventListener(
       HookEvents.SUBSCRIBED, updateHookUseLoadedUserList,
     );

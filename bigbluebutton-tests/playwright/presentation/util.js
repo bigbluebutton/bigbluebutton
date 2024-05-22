@@ -24,7 +24,7 @@ async function getCurrentPresentationHeight(locator) {
 
 async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
   const firstSlideSrc = await test.page.evaluate(selector => document.querySelector(selector)
-    .style
+    ?.style
     .backgroundImage
     .split('"')[1],
   [e.currentSlideImg]);

@@ -1,0 +1,22 @@
+table:
+  name: v_user_transcriptionError
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_transcriptionError
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - errorCode
+        - errorMessage
+        - lastUpdatedAt
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+    comment: ""

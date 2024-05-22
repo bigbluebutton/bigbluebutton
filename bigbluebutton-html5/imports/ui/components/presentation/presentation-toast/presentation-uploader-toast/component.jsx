@@ -3,7 +3,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import Styled from '/imports/ui/components/presentation/presentation-uploader/styles';
 import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
-import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 
 const TIMEOUT_CLOSE_TOAST = 1; // second
@@ -176,7 +176,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if (('uploadErrorMsgKey' in item) && (item.uploadInProgress && item.uploadErrorMsgKey)) {
+  if (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey) {
     const errorMessage = intlMessages[item.uploadErrorMsgKey]
       || intlMessages.genericConversionStatus;
 

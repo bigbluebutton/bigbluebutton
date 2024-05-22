@@ -44,7 +44,7 @@ export const generateActionsPermissions = (
     && subjectUserVoice?.joined
     && !subjectUserVoice.listenOnly
     && subjectUserVoice.muted
-    && (amISubjectUser || usersPolicies.allowModsToUnmuteUsers);
+    && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers);
 
   const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
@@ -60,35 +60,33 @@ export const generateActionsPermissions = (
     && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
-    && !(isSubjectUserGuest && usersPolicies.authenticatedGuest);
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
-    && !(isSubjectUserGuest && usersPolicies.authenticatedGuest);
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest);
 
   const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
-    && lockSettings.hasActiveLockSetting;
+    && lockSettings?.hasActiveLockSetting;
 
   const allowedToChangeWhiteboardAccess = currentUser.presenter
     && !amISubjectUser;
 
   const allowedToEjectCameras = amIModerator
     && !amISubjectUser
-    && usersPolicies.allowModsToEjectCameras;
+    && usersPolicies?.allowModsToEjectCameras;
 
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary, while meteor exists in the project
-  const { allowUserLookup } = window.meetingClientSettings.public.app;
-
   const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
 
   return {
@@ -104,7 +102,6 @@ export const generateActionsPermissions = (
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
     allowedToEjectCameras,
-    allowUserLookup,
     allowedToSetAway,
   };
 };
@@ -127,11 +124,11 @@ export const isVideoPinEnabledForCurrentUser = (
 // so this code is duplicated from the old userlist service
 // session for chats the current user started
 
-export const toggleVoice = (userId: string, voiceToggle: (userId?: string | null, muted?: boolean | null) => void) => {
+export const toggleVoice = (userId: string, muted: boolean, voiceToggle: (userId: string, muted: boolean) => void) => {
   if (userId === Auth.userID) {
     AudioService.toggleMuteMicrophone(voiceToggle);
   } else {
-    voiceToggle(userId);
+    voiceToggle(userId, muted);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },

@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-    HUNDRED_PERCENT,
-    MAX_PERCENT,
-} from "/imports/utils/slideCalcUtils";
+import React, { useState, useEffect } from 'react';
 
 const useCursor = (publishCursorUpdate, whiteboardId) => {
-    const [cursorPosition, setCursorPosition] = useState({ x: -1, y: -1 });
+    const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
 
     const updateCursorPosition = (newX, newY) => {
         setCursorPosition({ x: newX, y: newY });
     };
 
     useEffect(() => {
+        if (!cursorPosition || cursorPosition.x === '' || cursorPosition.y === '') {
+            return;
+        }
         publishCursorUpdate({
+            whiteboardId,
             xPercent: cursorPosition?.x,
             yPercent: cursorPosition?.y,
-            whiteboardId,
         });
     }, [cursorPosition, publishCursorUpdate, whiteboardId]);
 
@@ -25,16 +24,16 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
 const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef }, {
     isPresenter,
     hasWBAccess,
-    isMouseDownRef,
     whiteboardToolbarAutoHide,
     animations,
-    publishCursorUpdate,
-    whiteboardId,
     cursorPosition,
     updateCursorPosition,
     toggleToolsAnimations,
     currentPresentationPage,
     zoomChanger,
+    setIsMouseDown,
+    setIsWheelZoom,
+    setWheelZoomTimeout,
 }) => {
 
     const timeoutIdRef = React.useRef();
@@ -49,26 +48,35 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         }
 
         timeoutIdRef.current = setTimeout(() => {
-            isMouseDownRef.current = false;
+            setIsMouseDown(false);
         }, 1000);
+
+        tlEditorRef?.current?.updateInstanceState({ canMoveCamera: true });
     };
 
-    const handleMouseDown = () => {
-        !isPresenter &&
-            !hasWBAccess &&
-            tlEditorRef?.current?.updateInstanceState({ isReadonly: true });
+    const handleMouseDown = (event) => {
+        if (!isPresenter && !hasWBAccess) {
+            const updateProps = { isReadonly: true };
 
-        isMouseDownRef.current = true;
+            if (event.button === 1) {
+                updateProps.canMoveCamera = false;
+            }
+
+            tlEditorRef?.current?.updateInstanceState(updateProps);
+        }
+
+        setIsMouseDown(true);
     };
 
     const handleMouseEnter = () => {
-        whiteboardToolbarAutoHide &&
+        if (whiteboardToolbarAutoHide) {
             toggleToolsAnimations(
                 "fade-out",
                 "fade-in",
                 animations ? ".3s" : "0s",
                 hasWBAccess || isPresenter
             );
+        }
     };
 
     const handleMouseLeave = () => {
@@ -86,24 +94,23 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         }, 150);
     };
 
-
     const handleMouseWheel = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        if (!tlEditorRef.current || !isPresenter) {
+        if (!tlEditorRef.current || !isPresenter || !currentPresentationPage) {
             return;
         }
 
-        isWheelZoomRef.current = true;
+        setIsWheelZoom(true);
 
         const MAX_ZOOM_FACTOR = 4; // Represents 400%
         const MIN_ZOOM_FACTOR = 1; // Represents 100%
         const ZOOM_IN_FACTOR = 0.1;
         const ZOOM_OUT_FACTOR = 0.1;
 
-        const { x: cx, y: cy, z: cz } = tlEditorRef.current.camera;
+        const { x: cx, y: cy, z: cz } = tlEditorRef.current.getCamera();
 
-        let currentZoomLevel = tlEditorRef.current.camera.z / initialZoomRef.current;
+        let currentZoomLevel = tlEditorRef.current.getCamera().z / initialZoomRef.current;
         if (event.deltaY < 0) {
             currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);
         } else {
@@ -117,14 +124,24 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         // Calculate the new camera zoom factor
         const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
 
+        // Break down the calculations for deltaX
+        const scaleAdjustmentX = cursorPosition.x / newCameraZoomFactor - cursorPosition.x;
+        const zoomAdjustmentX = cursorPosition.x / cz - cursorPosition.x;
+        const deltaX = scaleAdjustmentX - zoomAdjustmentX;
+
+        // Break down the calculations for deltaY
+        const scaleAdjustmentY = cursorPosition.y / newCameraZoomFactor - cursorPosition.y;
+        const zoomAdjustmentY = cursorPosition.y / cz - cursorPosition.y;
+        const deltaY = scaleAdjustmentY - zoomAdjustmentY;
+
         const nextCamera = {
-            x: cx + (cursorPosition.x / newCameraZoomFactor - cursorPosition.x) - (cursorPosition.x / cz - cursorPosition.x),
-            y: cy + (cursorPosition.y / newCameraZoomFactor - cursorPosition.y) - (cursorPosition.y / cz - cursorPosition.y),
+            x: cx + deltaX,
+            y: cy + deltaY,
             z: newCameraZoomFactor,
         };
 
         // Apply the bounds restriction logic after the camera has been updated
-        const { maxX, maxY, minX, minY } = tlEditorRef.current.viewportPageBounds;
+        const { maxX, maxY, minX, minY } = tlEditorRef.current.getViewportPageBounds();
         const { scaledWidth, scaledHeight } = currentPresentationPage;
 
         if (maxX > scaledWidth) {
@@ -146,11 +163,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
             clearTimeout(isWheelZoomRef.currentTimeout);
         }
 
-        isWheelZoomRef.currentTimeout = setTimeout(() => {
-            isWheelZoomRef.current = false;
-        }, 300);
+        setWheelZoomTimeout();
     };
-
 
     React.useEffect(() => {
         if (whiteboardToolbarAutoHide) {
@@ -190,10 +204,16 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
                 whiteboardElement.removeEventListener("wheel", handleMouseWheel);
             }
         };
-    }, [whiteboardRef, tlEditorRef, handleMouseDown, handleMouseUp, handleMouseEnter, handleMouseLeave, handleMouseWheel]);
+    }, [
+        whiteboardRef,
+        tlEditorRef, 
+        handleMouseDown,
+        handleMouseUp, 
+        handleMouseEnter,
+        handleMouseLeave, 
+        handleMouseWheel
+    ]);
 };
-
-
 
 export {
     useMouseEvents,

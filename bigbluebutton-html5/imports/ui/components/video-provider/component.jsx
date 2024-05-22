@@ -205,7 +205,7 @@ class VideoProvider extends Component {
     } = this.props;
     const { socketOpen } = this.state;
 
-    // Only debounce when page changes to avoid unecessary debouncing
+    // Only debounce when page changes to avoid unnecessary debouncing
     const shouldDebounce = VideoService.isPaginationEnabled()
       && prevProps.currentVideoPageIndex !== currentVideoPageIndex;
 
@@ -226,9 +226,11 @@ class VideoProvider extends Component {
     this._isMounted = false;
     VideoService.updatePeerDictionaryReference({});
 
-    this.ws.onmessage = null;
-    this.ws.onopen = null;
-    this.ws.onclose = null;
+    if (this.ws) {
+      this.ws.onmessage = null;
+      this.ws.onopen = null;
+      this.ws.onclose = null;
+    }
 
     window.removeEventListener('beforeunload', this.onBeforeUnload);
     VideoService.exitVideo(sendUserUnshareWebcam);
@@ -1174,7 +1176,7 @@ class VideoProvider extends Component {
 
       peer.started = true;
 
-      // Clear camera shared timeout when camera succesfully starts
+      // Clear camera shared timeout when camera successfully starts
       this.clearRestartTimers(stream);
       this.attachVideoStream(stream);
 

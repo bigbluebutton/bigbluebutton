@@ -1,7 +1,15 @@
 import { RedisMessage } from '../types';
-import { ValidationError } from '../types/ValidationError';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'pluginName', type: 'string', required: true},
+        {name: 'channelName', type: 'string', required: true},
+        {name: 'subChannelName', type: 'string', required: true},
+      ]
+  )
+
   const eventName = `PluginDataChannelResetMsg`;
 
   const routing = {
@@ -17,7 +25,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   const body = {
     pluginName: input.pluginName,
-    dataChannel: input.dataChannel
+    channelName: input.channelName,
+    subChannelName: input.subChannelName
   };
 
   return { eventName, routing, header, body };

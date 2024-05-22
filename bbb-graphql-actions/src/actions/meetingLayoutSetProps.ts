@@ -1,8 +1,20 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotModerator} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotModerator(sessionVariables);
+  throwErrorIfNotPresenter(sessionVariables);
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'layout', type: 'string', required: true},
+        {name: 'syncWithPresenterLayout', type: 'boolean', required: true},
+        {name: 'presentationIsOpen', type: 'boolean', required: true},
+        {name: 'isResizing', type: 'boolean', required: true},
+        {name: 'cameraPosition', type: 'string', required: false},
+        {name: 'focusedCamera', type: 'string', required: true},
+        {name: 'presentationVideoRate', type: 'number', required: true},
+      ]
+  )
+
   const eventName = 'BroadcastLayoutMsg';
 
   const routing = {

@@ -7,6 +7,7 @@ import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.UserStateDAO
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.util.HtmlUtil.htmlToHtmlEntities
 
 trait SetPrivateGuestLobbyMessageCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -20,13 +21,14 @@ trait SetPrivateGuestLobbyMessageCmdMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to send private guest lobby messages."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      GuestsWaiting.setPrivateGuestLobbyMessage(liveMeeting.guestsWaiting, msg.body.guestId, msg.body.message)
-      UserStateDAO.updateGuestLobbyMessage(msg.body.guestId, msg.body.message)
+      val sanitizedMessage = htmlToHtmlEntities(msg.body.message)
+      GuestsWaiting.setPrivateGuestLobbyMessage(liveMeeting.guestsWaiting, msg.body.guestId, sanitizedMessage)
+      UserStateDAO.updateGuestLobbyMessage(msg.header.meetingId, msg.body.guestId, sanitizedMessage)
       val event = MsgBuilder.buildPrivateGuestLobbyMsgChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
         msg.header.userId,
         msg.body.guestId,
-        msg.body.message
+        sanitizedMessage
       )
       outGW.send(event)
     }

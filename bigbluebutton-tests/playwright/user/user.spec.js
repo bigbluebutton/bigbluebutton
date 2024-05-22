@@ -6,11 +6,15 @@ const { GuestPolicy } = require('./guestPolicy');
 const { LockViewers } = require('./lockViewers');
 const { MobileDevices } = require('./mobileDevices');
 const { Timer } = require('./timer');
+const { encodeCustomParams } = require('../parameters/util');
+const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
 
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
+
 test.describe.parallel('User', () => {
-  test.describe.parallel('Actions', () => {
+  test.describe.parallel('Actions @ci', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
@@ -24,10 +28,16 @@ test.describe.parallel('User', () => {
       await multiusers.raiseHandRejected();
     });
 
-    test('Toggle user list @ci', async ({ browser, context, page }) => {
+    test('Toggle user list', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.toggleUserList();
+    });
+
+    test('Timer @flaky', async ({ browser, context, page })=> {
+      const timer = new Timer(browser, context);
+      await timer.initModPage(page, true);
+      await timer.timerTest();
     });
   });
 
@@ -35,7 +45,7 @@ test.describe.parallel('User', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
     test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
-      await status.init(true, true);
+      await status.init(true, true, { joinParameter: hidePresentationToast });
       await status.changeUserStatus();
     });
 
@@ -97,8 +107,8 @@ test.describe.parallel('User', () => {
   });
 
   test.describe.parallel('Manage', () => {
-    test.describe.parallel('Guest policy', () => {
-      test.describe.parallel('ASK_MODERATOR @ci', () => {
+    test.describe.parallel('Guest policy @ci', () => {
+      test.describe.parallel('ASK_MODERATOR', () => {
         // https://docs.bigbluebutton.org/2.6/release-tests.html#ask-moderator
         test('Message to guest lobby', async ({ browser, context, page }) => {
           const guestPolicy = new GuestPolicy(browser, context);
@@ -149,7 +159,7 @@ test.describe.parallel('User', () => {
         await guestPolicy.alwaysAccept();
       });
       // https://docs.bigbluebutton.org/2.6/release-tests.html#always-deny
-      test('ALWAYS_DENY @ci', async ({ browser, context, page }) => {
+      test('ALWAYS_DENY', async ({ browser, context, page }) => {
         const guestPolicy = new GuestPolicy(browser, context);
         await guestPolicy.initModPage(page);
         await guestPolicy.alwaysDeny();
@@ -208,7 +218,8 @@ test.describe.parallel('User', () => {
 
       test('Lock see other viewers annotations', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initPages(page);
+        await lockViewers.initModPage(page, true, { joinParameter: hidePresentationToast });
+        await lockViewers.initUserPage(true, context, { joinParameter: hidePresentationToast });
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
@@ -221,17 +232,10 @@ test.describe.parallel('User', () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#saving-usernames
-    test('Save user names', async ({ browser, context, page }, testInfo) => {
+    test('Save user names @ci', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.saveUserNames(testInfo);
-    });
-
-    // following test is not expected to work, the feature will be fully implemented as a plugin only
-    test.skip('Select random user', async ({ browser, context, page }) => {
-      const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page);
-      await multiusers.selectRandomUser();
     });
 
     test('Mute all users', async ({ browser, context, page }) => {
@@ -248,13 +252,6 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage2(false);
       await multiusers.initUserPage(false);
       await multiusers.muteAllUsersExceptPresenter();
-    });
-
-    test('Write closed captions', async ({ browser, context, page }) => {
-      const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, true);
-      await multiusers.initModPage2(true);
-      await multiusers.writeClosedCaptions();
     });
   });
 
@@ -303,10 +300,4 @@ test.describe.parallel('User', () => {
       await mobileDevices.chatPanelNotAppearOnMobile();
     });
   });
-});
-
-test('Timer', async ({ browser, context, page })=> {
-  const timer = new Timer(browser, context);
-  await timer.initModPage(page, true);
-  await timer.timerTest();
 });

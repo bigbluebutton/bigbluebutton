@@ -1,10 +1,9 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, CaptureSharedNotesReqInternalMsg }
+import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg }
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.apps.presentationpod.PresentationSender
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ ChatMessageDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -211,10 +210,15 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
     bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename, presentationId))
 
+    var pres = new PresentationInPod(presentationId, default = false, current = false, name = filename,
+      pages = Map.empty, downloadable = false, downloadFileExtension = "", removable = true, filenameConverted = filename,
+      uploadCompleted = false, numPages = 0, errorMsgKey = "", errorDetails = Map.empty)
+
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
       log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")
+      pres = pres.copy(errorMsgKey = "204")
       bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
     } else {
       val allPages: Boolean = m.allPages
@@ -240,9 +244,13 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
+        pres = pres.copy(errorMsgKey = "204")
+
         // Notify that no content is available to capture
         bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
       }
+
+      PresPresentationDAO.updateConversionStarted(parentMeetingId, pres)
     }
   }
 
@@ -268,35 +276,8 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     bus.outGW.send(buildBroadcastNewPresFileAvailable(m, liveMeeting))
   }
 
-  def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    val parentMeetingId = liveMeeting.props.meetingProp.intId
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, parentMeetingId, "not-used")
-    val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
-    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, parentMeetingId, "not-used")
-    val body = CaptureSharedNotesReqEvtMsgBody(m.breakoutId, m.filename)
-    val event = CaptureSharedNotesReqEvtMsg(header, body)
-
-    bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
-  }
-
   def handle(m: PresAnnStatusMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     PresPresentationDAO.updateExportToChat(m.body.presId, m.body.status, m.body.pageNumber, m.body.error)
     bus.outGW.send(buildBroadcastPresAnnStatusMsg(m, liveMeeting))
-  }
-
-  def handle(m: PadCapturePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-
-    val userId: String = "system"
-    val jobId: String = s"${m.body.breakoutId}-notes" // Used as the temporaryPresentationId upon upload
-    val filename = m.body.filename
-    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
-    val presentationId = PresentationPodsApp.generatePresentationId(m.body.filename)
-
-    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename, presentationId))
-
-    val exportJob = new ExportJob(jobId, JobTypes.CAPTURE_NOTES, filename, filename, m.body.padId, "", true, List(), m.body.parentMeetingId, presentationUploadToken)
-    val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-
-    bus.outGW.send(job)
   }
 }

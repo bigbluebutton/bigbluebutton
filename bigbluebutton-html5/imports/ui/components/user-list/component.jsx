@@ -7,12 +7,13 @@ import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
   compact: PropTypes.bool,
-  CustomLogoUrl: PropTypes.string.isRequired,
+  CustomLogoUrl: PropTypes.string,
   showBranding: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   compact: false,
+  CustomLogoUrl: null,
 };
 
 class UserList extends PureComponent {

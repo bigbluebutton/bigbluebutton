@@ -17,8 +17,8 @@ Disclaimer: the following documentation is neither legal advice, nor complete. T
 
 ## BigBlueButton
 
-This section documents privacy related settings, defaults, and configuration options in BigBlueButton itself. Keep in mind that your configration changes here may be silently overwritten upon upgrades via apt, see [issue 9111](https://github.com/bigbluebutton/bigbluebutton/issues/9111)
-To prevent this, make sure to use the [`apply-config.sh` script](/administration/customize#automatically-apply-configuration-changes-on-restart) to ensure changes are retained upon upgrades and restarts.
+This section documents privacy related settings, defaults, and configuration options in BigBlueButton itself. Keep in mind that your configuration changes here may be silently overwritten upon upgrades via apt, see [issue 9111](https://github.com/bigbluebutton/bigbluebutton/issues/9111)
+To prevent this, make sure to use the directory [`/etc/bigbluebutton`](/administration/configuration-files#local-overrides-for-configuration-settings) to ensure changes are retained upon upgrades and restarts.
 
 ### Recordings
 
@@ -186,7 +186,7 @@ The default installation of FreeSWITCH by default logs with loglevel DEBUG. This
 
 #### kurento
 
-Logs session names and timestamps, as well as user IP addresses. This also includes user IP addresses behind NATs, i.e., the actual client addresses, potentially making users identifiable accross sessions. This can be configured in `/etc/default/kurento-media-server`, see [Kurento logging](https://doc-kurento.readthedocs.io/en/latest/features/logging.html)
+Logs session names and timestamps, as well as user IP addresses. This also includes user IP addresses behind NATs, i.e., the actual client addresses, potentially making users identifiable across sessions. This can be configured in `/etc/default/kurento-media-server`, see [Kurento logging](https://doc-kurento.readthedocs.io/en/latest/features/logging.html)
 
 Note that this can most likely be overridden by kurento's systemd unit file. Hence, `--gst-debug-level=1` should also be set in `/usr/lib/systemd/system/kurento-media-server.service`.
 
@@ -217,7 +217,7 @@ By default, when Greenlight creates a conference, the value 'record=true' is pas
 
 #### Resolution
 
-You can disable the recording globally in the Greenlight room settings for everyone or optinally for everyone in their room. see: [pull request 1296](https://github.com/bigbluebutton/greenlight/pull/1296) Alternatively, if necessary, completely disable the recording feature in the BigBlueButton server configuration.
+You can disable the recording globally in the Greenlight room settings for everyone or optionally for everyone in their room. see: [pull request 1296](https://github.com/bigbluebutton/greenlight/pull/1296) Alternatively, if necessary, completely disable the recording feature in the BigBlueButton server configuration.
 
 ### Greenlight does not request consent to a privacy policy and/or recording of a session when joining a room as a guest.
 

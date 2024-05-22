@@ -28,7 +28,7 @@ const recoverMicState = (toggleVoice) => {
   logger.debug({
     logCode: 'audio_recover_mic_state',
   }, `Audio recover previous mic state: muted = ${muted}`);
-  toggleVoice(null, muted);
+  toggleVoice(Auth.userID, muted);
 };
 
 const audioEventHandler = (toggleVoice) => (event) => {
@@ -45,7 +45,7 @@ const audioEventHandler = (toggleVoice) => (event) => {
   }
 };
 
-const init = (messages, intl, toggleVoice) => {
+const init = (messages, intl, toggleVoice, speechLocale) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
@@ -53,8 +53,8 @@ const init = (messages, intl, toggleVoice) => {
   const { sessionToken } = Auth;
   const User = Users.findOne({ userId }, { fields: { name: 1 } });
   const username = User.name;
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceProp.voiceConf': 1 } });
-  const voiceBridge = Meeting.voiceProp.voiceConf;
+  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceSettings.voiceConf': 1 } });
+  const voiceBridge = Meeting.voiceSettings.voiceConf;
 
   // FIX ME
   const microphoneLockEnforced = false;
@@ -66,6 +66,7 @@ const init = (messages, intl, toggleVoice) => {
     username,
     voiceBridge,
     microphoneLockEnforced,
+    speechLocale,
   };
 
   return AudioManager.init(userData, audioEventHandler(toggleVoice));
@@ -82,7 +83,7 @@ const muteMicrophone = (toggleVoice) => {
       extraInfo: { logType: 'user_action' },
     }, 'User wants to leave conference. Microphone muted');
     AudioManager.setSenderTrackEnabled(false);
-    toggleVoice();
+    toggleVoice(Auth.userID, true);
   }
 };
 
@@ -104,13 +105,13 @@ const toggleMuteMicrophone = throttle((toggleVoice) => {
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
-    toggleVoice();
+    toggleVoice(Auth.userID, false);
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
-    toggleVoice();
+    toggleVoice(Auth.userID, true);
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 

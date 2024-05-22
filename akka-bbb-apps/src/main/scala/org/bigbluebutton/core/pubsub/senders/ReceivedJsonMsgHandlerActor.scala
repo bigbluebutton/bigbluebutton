@@ -3,9 +3,10 @@ package org.bigbluebutton.core.pubsub.senders
 import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.common2.msgs.{ PluginDataChannelDeleteEntryMsgBody, _ }
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
+
 import scala.reflect.runtime.universe._
 import org.bigbluebutton.common2.bus.ReceivedJsonMessage
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
@@ -113,12 +114,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
       case UserConnectionAliveReqMsg.NAME =>
         routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
-      case UserConnectionUpdateRttReqMsg.NAME =>
-        routeGenericMsg[UserConnectionUpdateRttReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
-      case SelectRandomViewerReqMsg.NAME =>
-        routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
+      case SetUserSpeechOptionsReqMsg.NAME =>
+        routeGenericMsg[SetUserSpeechOptionsReqMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -159,8 +158,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
 
       // Pads
-      case PadCreateGroupReqMsg.NAME =>
-        routeGenericMsg[PadCreateGroupReqMsg](envelope, jsonNode)
       case PadGroupCreatedEvtMsg.NAME =>
         routePadMsg[PadGroupCreatedEvtMsg](envelope, jsonNode)
       case PadCreateReqMsg.NAME =>
@@ -181,8 +178,6 @@ class ReceivedJsonMsgHandlerActor(
         routePadMsg[PadPatchSysMsg](envelope, jsonNode)
       case PadUpdatePubMsg.NAME =>
         routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
-      case PadCapturePubMsg.NAME =>
-        routePadMsg[PadCapturePubMsg](envelope, jsonNode)
       case PadPinnedReqMsg.NAME =>
         routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
@@ -268,8 +263,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
       case ChangeUserReactionEmojiReqMsg.NAME =>
         routeGenericMsg[ChangeUserReactionEmojiReqMsg](envelope, jsonNode)
-      case UserReactionTimeExpiredCmdMsg.NAME =>
-        routeGenericMsg[UserReactionTimeExpiredCmdMsg](envelope, jsonNode)
       case ClearAllUsersEmojiCmdMsg.NAME =>
         routeGenericMsg[ClearAllUsersEmojiCmdMsg](envelope, jsonNode)
       case ClearAllUsersReactionCmdMsg.NAME =>
@@ -408,6 +401,8 @@ class ReceivedJsonMsgHandlerActor(
       // AudioCaptions
       case UpdateTranscriptPubMsg.NAME =>
         routeGenericMsg[UpdateTranscriptPubMsg](envelope, jsonNode)
+      case TranscriptionProviderErrorMsg.NAME =>
+        routeGenericMsg[TranscriptionProviderErrorMsg](envelope, jsonNode)
 
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>
@@ -420,11 +415,11 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
 
       //Plugin
-      case PluginDataChannelDispatchMessageMsg.NAME =>
-        routeGenericMsg[PluginDataChannelDispatchMessageMsg](envelope, jsonNode)
+      case PluginDataChannelPushEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelPushEntryMsg](envelope, jsonNode)
 
-      case PluginDataChannelDeleteMessageMsg.NAME =>
-        routeGenericMsg[PluginDataChannelDeleteMessageMsg](envelope, jsonNode)
+      case PluginDataChannelDeleteEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelDeleteEntryMsg](envelope, jsonNode)
 
       case PluginDataChannelResetMsg.NAME =>
         routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
@@ -438,8 +433,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
 
       // Timer
-      case CreateTimerPubMsg.NAME =>
-        routeGenericMsg[CreateTimerPubMsg](envelope, jsonNode)
       case ActivateTimerReqMsg.NAME =>
         routeGenericMsg[ActivateTimerReqMsg](envelope, jsonNode)
       case DeactivateTimerReqMsg.NAME =>
@@ -456,8 +449,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ResetTimerReqMsg](envelope, jsonNode)
       case SetTrackReqMsg.NAME =>
         routeGenericMsg[SetTrackReqMsg](envelope, jsonNode)
-      case TimerEndedPubMsg.NAME =>
-        routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
 
       // Messages from Graphql Middleware
       case UserGraphqlConnectionEstablishedSysMsg.NAME =>
@@ -470,7 +461,7 @@ class ReceivedJsonMsgHandlerActor(
         route[CheckGraphqlMiddlewareAlivePongSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       case _ =>
-        log.error("Cannot route envelope name " + envelope.name)
+        log.debug("Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }

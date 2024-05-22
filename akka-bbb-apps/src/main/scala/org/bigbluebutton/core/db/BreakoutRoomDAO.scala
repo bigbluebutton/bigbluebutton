@@ -67,7 +67,7 @@ object BreakoutRoomDAO {
               userId <- room.assignedUsers
               (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
             } yield {
-              BreakoutRoomUserDAO.prepareInsert(room.id, userId, redirectToHtml5JoinURL)
+              BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL)
             }
           ).transactionally)
             .onComplete {
@@ -193,7 +193,7 @@ object BreakoutRoomDAO {
 //      TableQuery[BreakoutRoomDbTableDef]
 //        .filter(_.meetingId === meetingId)
 //        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.endedAt, t.songTrack))
-//        .update((getStopwatch(breakoutRoomModel), getRunning(breakoutRoomModel), getIsACtive(breakoutRoomModel), getTime(breakoutRoomModel), getAccumulated(breakoutRoomModel), getStartedAt(breakoutRoomModel), getEndedAt(breakoutRoomModel), getTrack(breakoutRoomModel))
+//        .update((isStopwatch(breakoutRoomModel), getRunning(breakoutRoomModel), getIsACtive(breakoutRoomModel), getTime(breakoutRoomModel), getAccumulated(breakoutRoomModel), getStartedAt(breakoutRoomModel), getEndedAt(breakoutRoomModel), getTrack(breakoutRoomModel))
 //        )
 //    ).onComplete {
 //      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on BreakoutRoom table!")

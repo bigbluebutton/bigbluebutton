@@ -2,11 +2,13 @@ package org.bigbluebutton.core.running
 
 import org.apache.pekko.actor.ActorContext
 import org.bigbluebutton.ClientSettings
+import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsStringOrElse}
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.apps.pads.PadslHdlrHelpers
 import org.bigbluebutton.core2.MeetingStatus2x
 
 object RunningMeeting {

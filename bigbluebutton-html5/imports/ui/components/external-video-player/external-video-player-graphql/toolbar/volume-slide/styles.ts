@@ -3,8 +3,8 @@ import styled from 'styled-components';
 const Slider = styled.div`
   width: 0.9em;
   display: flex;
-  position: absolute;
-  bottom: 2.5em;
+  position: relative;
+  bottom: 3em;
   left: 1em;
   padding: 0.25rem 0.5rem;
   min-width: 200px;
@@ -17,13 +17,13 @@ const Slider = styled.div`
     font-size: 200%;
     cursor: pointer;
   }
-  z-index: 5;
+  z-index: 0;
 `;
 
 const Volume = styled.span`
   margin-right: 0.5em;
   cursor: pointer;
-  z-index: 5;
+  z-index: 0;
 `;
 
 const VolumeSlider = styled.input`

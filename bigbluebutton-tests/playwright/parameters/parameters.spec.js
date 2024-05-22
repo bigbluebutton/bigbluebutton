@@ -4,22 +4,25 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
+const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
+
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Create Parameters', () => {
-  test('Record Meeting', async ({ browser, context, page }) => {
+  test('Record Meeting @ci', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.recordMeeting });
     await createParam.recordMeeting();
   });
 
-  test.describe.parallel('Banner', () => {
-    test('Banner Text @ci', async ({ browser, context, page }) => {
+  test.describe.parallel('Banner @ci', () => {
+    test('Banner Text', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.bannerText });
       await createParam.bannerText();
     });
 
-    test('Banner Color @ci', async ({ browser, context, page }) => {
+    test('Banner Color', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
       const colorToRGB = hexToRgb(c.color.substring(1));
       await createParam.initModPage(page, true, { createParameter: `${encodeCustomParams(c.bannerColor)}&${c.bannerText}` });
@@ -131,6 +134,9 @@ test.describe.parallel('Create Parameters', () => {
     });
   
     test.describe.serial(() => {
+      // current testing code is checking the old (write) captions
+      // this parameter should works the same way with the automatic captions
+      test.fixme();
       test('Captions', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.captionsDisabled });
@@ -359,7 +365,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.clientTitle();
   });
 
-  test('Ask For Feedback On Logout', async ({ browser, context, page }) => {
+  test('Ask for feedback on logout', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.askForFeedbackOnLogout });
     await customParam.askForFeedbackOnLogout();
@@ -443,7 +449,7 @@ test.describe.parallel('Custom Parameters', () => {
       await customParam.forceListenOnly(page);
     });
 
-    test('Skip audio check', async ({ browser, context, page }) => {
+    test('Skip audio check @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.skipCheck });
       await customParam.skipCheck();
@@ -451,7 +457,7 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Skip audio check on first join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, false, { joinParameter: c.skipCheckOnFirstJoin });
+      await customParam.initModPage(page, false, { joinParameter: `${c.skipCheckOnFirstJoin}&${hidePresentationToast}` });
       await customParam.skipCheckOnFirstJoin();
     });
   });
@@ -474,14 +480,14 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Force Restore Presentation On New Poll Result', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      const joinParameter = c.forceRestorePresentationOnNewEvents;
+      const joinParameter = `${c.forceRestorePresentationOnNewEvents}&${hidePresentationToast}`;
       await customParam.initModPage(page, true, { joinParameter });
       await customParam.forceRestorePresentationOnNewPollResult(joinParameter);
     });
   });
 
-  test.describe.parallel('Webcam', () => {
-    test('Disable Webcam Sharing @ci', async ({ browser, context, page }) => {
+  test.describe.parallel('Webcam @ci', () => {
+    test('Disable Webcam Sharing', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.enableVideo });
       await customParam.enableVideo();
@@ -493,13 +499,13 @@ test.describe.parallel('Custom Parameters', () => {
       await customParam.skipVideoPreview();
     });
 
-    test('Skip Video Preview on First Join @ci', async ({ browser, context, page }) => {
+    test('Skip Video Preview on First Join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.skipVideoPreviewOnFirstJoin });
       await customParam.skipVideoPreviewOnFirstJoin();
     });
 
-    test('Mirror Own Webcam @ci', async ({ browser, context, page }) => {
+    test('Mirror Own Webcam', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.mirrorOwnWebcam });
       await customParam.mirrorOwnWebcam();

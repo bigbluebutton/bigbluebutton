@@ -6,6 +6,7 @@ const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultip
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
+const { waitAndClearNotification } = require('../notifications/util.js');
 
 const defaultZoomLevel = '100%';
 
@@ -39,11 +40,27 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.shareCameraAsContent);
     await this.modPage.waitForSelector(e.videoPreview);
     await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.hasElement(e.screenshareConnecting);
 
-    await sleep(1000);
-
+    await this.modPage.wasRemoved(e.screenshareConnecting);
+    await this.modPage.hasElement(e.screenShareVideo);
+    // close all notifications displayed before comparing screenshots
+    for (const closeButton of await this.modPage.getLocator(e.closeToastBtn).all()) {
+      await closeButton.click();
+    }
     const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-share-camera-as-content.png', {
+      maxDiffPixels: 1000,
+    });
+
+    await this.userPage.wasRemoved(e.screenshareConnecting);
+    await this.userPage.hasElement(e.screenShareVideo);
+    // close all notifications displayed before comparing screenshots
+    for (const closeButton of await this.userPage.getLocator(e.closeToastBtn).all()) {
+      await closeButton.click();
+    }
+    const viewerWhiteboardLocator = this.userPage.getLocator(e.screenShareVideo);
+    await expect(viewerWhiteboardLocator).toHaveScreenshot('viewer-share-camera-as-content.png', {
       maxDiffPixels: 1000,
     });
   }
@@ -74,8 +91,8 @@ class Presentation extends MultiUsers {
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
-    const modFrame = await this.getFrame(this.modPage, e.youtubeFrame);
-    const userFrame = await this.getFrame(this.userPage, e.youtubeFrame);
+    const modFrame = await this.modPage.getYoutubeFrame();
+    const userFrame = await this.userPage.getYoutubeFrame();
 
     await modFrame.hasElement('video');
     await userFrame.hasElement('video');
@@ -310,15 +327,6 @@ class Presentation extends MultiUsers {
     await this.userPage.waitAndClick(e.actions);
     await this.userPage.waitAndClick(e.managePresentations);
     await this.userPage.wasRemoved(e.presentationsList);
-  }
-
-  async getFrame(page, frameSelector) {
-    await page.waitForSelector(frameSelector);
-    const iframeElement = await page.getLocator('iframe').elementHandle();
-    const frame = await iframeElement.contentFrame();
-    await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    const ytFrame = new Page(page.browser, frame);
-    return ytFrame;
   }
 
   async presentationFullscreen() {

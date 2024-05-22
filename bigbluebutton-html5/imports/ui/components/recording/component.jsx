@@ -59,7 +59,7 @@ class RecordingComponent extends PureComponent {
     let title;
 
     if (!recordingStatus) {
-      title = recordingTime >= 0 ? intl.formatMessage(intlMessages.resumeTitle)
+      title = recordingTime > 0 ? intl.formatMessage(intlMessages.resumeTitle)
         : intl.formatMessage(intlMessages.startTitle);
     } else {
       title = intl.formatMessage(intlMessages.stopTitle);

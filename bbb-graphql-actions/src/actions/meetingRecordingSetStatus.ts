@@ -1,8 +1,14 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotModerator} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotModerator(sessionVariables);
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'recording', type: 'boolean', required: true},
+      ]
+  )
+
   const eventName = 'SetRecordingStatusCmdMsg';
 
   const routing = {
@@ -21,7 +27,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     recording: input.recording
   };
 
-  //TODO check if backend velidate it
+  //TODO check if backend validates it
 
   // const recordObject = await RecordMeetings.findOneAsync({ meetingId });
   //

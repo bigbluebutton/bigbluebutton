@@ -16,7 +16,7 @@ object Dependencies {
     val pekkoHttpVersion = "1.0.0"
     val gson = "2.8.9"
     val jackson = "2.13.5"
-    val logback = "1.2.11"
+    val logback = "1.2.13"
     val quicklens = "1.7.5"
     val spray = "1.3.6"
 
@@ -68,7 +68,6 @@ object Dependencies {
 
     val postgresql = "org.postgresql" % "postgresql" % Versions.postgresql
     val jacksonDataFormat = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jacksonDataFormat
-    val snakeYaml = "org.yaml" % "snakeyaml"
   }
 
   object Test {

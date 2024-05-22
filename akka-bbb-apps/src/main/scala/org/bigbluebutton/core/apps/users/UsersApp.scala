@@ -44,7 +44,7 @@ object UsersApp {
       u <- RegisteredUsers.findWithUserId(guest.guest, liveMeeting.registeredUsers)
     } yield {
       RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, guest.status)
-      UserStateDAO.updateGuestStatus(guest.guest, guest.status, approvedBy)
+      UserStateDAO.updateGuestStatus(liveMeeting.props.meetingProp.intId, guest.guest, guest.status, approvedBy)
       // send message to user that he has been approved
 
       val event = MsgBuilder.buildGuestApprovedEvtMsg(
@@ -131,7 +131,7 @@ object UsersApp {
         // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
-      UserStateDAO.updateEjected(userId, reason, reasonCode, ejectedBy)
+      UserStateDAO.updateEjected(meetingId, userId, reason, reasonCode, ejectedBy)
     }
 
     for {
@@ -158,18 +158,17 @@ class UsersApp(
   with RegisterUserReqMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
+  with SetUserSpeechOptionsMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr
   with GetRecordingStatusReqMsgHdlr
-  with SelectRandomViewerReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with ChangeUserMobileFlagReqMsgHdlr
   with UserConnectionAliveReqMsgHdlr
-  with UserConnectionUpdateRttReqMsgHdlr
   with ChangeUserReactionEmojiReqMsgHdlr
   with ChangeUserRaiseHandReqMsgHdlr
   with ChangeUserAwayReqMsgHdlr

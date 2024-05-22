@@ -70,10 +70,16 @@ class PushLayoutEngine extends React.Component {
       pushLayoutMeeting,
     } = this.props;
 
-    const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
-    Settings.application.selectedLayout = enforceLayout || userLayout || meetingLayout;
+    const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
+    const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
+    const enforcedLayout = LAYOUT_TYPE[enforceLayout] || null;
 
-    let selectedLayout = Settings.application.selectedLayout;
+    Settings.application.selectedLayout = enforcedLayout
+      || changeLayout
+      || defaultLayout
+      || meetingLayout;
+
+    let { selectedLayout } = Settings.application;
     if (isMobile()) {
       selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
       Settings.application.selectedLayout = selectedLayout;
@@ -98,7 +104,7 @@ class PushLayoutEngine extends React.Component {
 
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition,
+          value: meetingLayoutCameraPosition || 'contentTop',
         });
 
         if (!equalDouble(meetingLayoutVideoRate, 0)) {

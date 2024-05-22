@@ -116,7 +116,7 @@ const BBBMenuItem = styled(MenuItem)`
       }
     }
   `}
-  ${({ $roundButtons }) => $roundButtons && `
+  ${({ $roundButtons, $isToggle }) => $roundButtons && !$isToggle && `
     &:focus,
     &:hover {
       background-color: ${colorWhite} !important;
@@ -126,6 +126,22 @@ const BBBMenuItem = styled(MenuItem)`
       }
     }
   `}
+  ${({ $isToggle }) => $isToggle && `
+    &:focus,
+    &:hover {
+        color: inherit !important;
+    }
+  `}
+`;
+
+const Skeleton = styled.div`
+  padding: 12px 16px;
+  font-size: 0.9em !important;
+  line-height: 1;
+`;
+
+const SkeletonWrapper = styled.span`
+  width: 100%;
 `;
 
 export default {
@@ -136,4 +152,6 @@ export default {
   IconRight,
   BBBMenuItem,
   BBBMenuInformation,
+  Skeleton,
+  SkeletonWrapper,
 };

@@ -79,4 +79,4 @@ hasura metadata apply --skip-update-check
 echo ""
 echo ""
 echo "Bbb-graphql-server Installed!"
-echo "http://$(hostname -f):8080/console"
+echo "http://$(hostname -f):8085/console"

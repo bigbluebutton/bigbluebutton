@@ -3,9 +3,11 @@ package org.bigbluebutton.api.model.request;
 import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.service.SessionService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-public class Stuns implements Request<Stuns.Params> {
+@ContentTypeConstraint
+public class Stuns extends RequestWithSession<Stuns.Params> {
 
     public enum Params implements RequestParameters {
         SESSION_TOKEN("sessionToken");
@@ -26,7 +28,10 @@ public class Stuns implements Request<Stuns.Params> {
 
     private SessionService sessionService;
 
-    public Stuns() { sessionService = new SessionService(); }
+    public Stuns(HttpServletRequest servletRequest) {
+        super(servletRequest);
+        sessionService = new SessionService();
+    }
 
     public String getSessionToken() {
         return sessionToken;

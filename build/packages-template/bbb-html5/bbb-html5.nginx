@@ -1,10 +1,26 @@
 location @html5client {
-  # proxy_pass http://127.0.0.1:4100; # use for development
-  proxy_pass http://poolhtml5servers; # use for production
+  proxy_pass http://127.0.0.1:4100;
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
 }
+
+location /html5client/__meteor__/dynamic-import/fetch {
+        proxy_cache revproxy;
+        proxy_cache_methods POST;
+        proxy_cache_key "$request_uri|$request_body";
+        proxy_cache_use_stale updating;
+        proxy_cache_valid 24h;
+        proxy_cache_lock on;
+        add_header X-Cached $upstream_cache_status;
+
+        proxy_pass http://127.0.0.1:4100;
+        proxy_http_version 1.1;
+}
+
+  #location /html5client/join {
+  #  alias /usr/share/meteor/bundle/programs/web.browser;
+  #}
 
 location /html5client/locales {
   alias /usr/share/meteor/bundle/programs/web.browser/app/locales;

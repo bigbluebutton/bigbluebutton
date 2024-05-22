@@ -33,7 +33,7 @@ test.describe('Chat', () => {
     await chat.saveChat(testInfo);
   });
 
-  test('Verify character limit', async () => {
+  test('Verify character limit @ci', async () => {
     await chat.characterLimit();
   });
 

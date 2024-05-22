@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.TimerModel
-import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getEndedAt, getIsActive, getRunning, getStartedAt, getStopwatch, getTime, getTrack}
+import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getIsActive, isRunning, getStartedAt, isStopwatch, getTime, getTrack}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.util.{Failure, Success}
@@ -15,7 +15,6 @@ case class TimerDbModel(
     time:             Long,
     accumulated:      Long,
     startedOn:        Long,
-    endedOn:          Long,
     songTrack:        String,
 )
 
@@ -27,39 +26,39 @@ class TimerDbTableDef(tag: Tag) extends Table[TimerDbModel](tag, None, "timer") 
   val time = column[Long]("time")
   val accumulated = column[Long]("accumulated")
   val startedOn = column[Long]("startedOn")
-  val endedOn = column[Long]("endedOn")
   val songTrack = column[String]("songTrack")
-  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedOn, endedOn, songTrack) <> (TimerDbModel.tupled, TimerDbModel.unapply)
+  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedOn, songTrack) <> (TimerDbModel.tupled, TimerDbModel.unapply)
 }
 
 object TimerDAO {
-  def insert(meetingId: String) = {
+  def insert(meetingId: String, model: TimerModel) = {
     DatabaseConnection.db.run(
       TableQuery[TimerDbTableDef].insertOrUpdate(
         TimerDbModel(
           meetingId = meetingId,
-          stopwatch = true,
-          running = false,
-          active = false,
-          time = 300000,
-          accumulated = 0,
-          startedOn = 0,
-          endedOn = 0,
-          songTrack = "noTrack",
+          stopwatch = isStopwatch(model),
+          running = isRunning(model),
+          active = getIsActive(model),
+          time = getTime(model),
+          accumulated = getAccumulated(model),
+          startedOn = getStartedAt(model),
+          songTrack = getTrack(model),
         )
       )
     ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Timer table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting Timer: $e")
-      }
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Timer table!")
+      case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting Timer: $e")
+    }
   }
 
   def update(meetingId: String, timerModel: TimerModel) = {
     DatabaseConnection.db.run(
       TableQuery[TimerDbTableDef]
         .filter(_.meetingId === meetingId)
-        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedOn, t.endedOn, t.songTrack))
-        .update((getStopwatch(timerModel), getRunning(timerModel), getIsActive(timerModel), getTime(timerModel), getAccumulated(timerModel), getStartedAt(timerModel), getEndedAt(timerModel), getTrack(timerModel))
+        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedOn, t.songTrack))
+        .update(
+          (isStopwatch(timerModel), isRunning(timerModel), getIsActive(timerModel), getTime(timerModel),
+          getAccumulated(timerModel), getStartedAt(timerModel), getTrack(timerModel))
         )
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on Timer table!")

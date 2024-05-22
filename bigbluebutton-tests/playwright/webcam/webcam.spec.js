@@ -43,8 +43,9 @@ test.describe.parallel('Webcam', () => {
     await webcam.init(true, true);
     await webcam.webcamFullscreen();
   });
-  
-  test('Disable Self-view', async ({ browser, page }) => {
+
+
+  test('Disable Self-view @ci', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.disableSelfView();

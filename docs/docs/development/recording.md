@@ -15,7 +15,7 @@ This document assumes the reader understands the current [BigBlueButton architec
 
 BigBlueButton records all the events and media data generated during a BigBlueButton session for later playback.
 
-If you want to see the Record and Playback (RaP) feature in action, there is a [demo](https://demo.bigbluebutton.org/gl) where you can record a BigBlueButton session and play it back after it is listed under "Recorded Sessions" on the same page. This demo is also available on your server if you have [installed it](/administration/install#6.-install-api-demos). Processing and publishing the media for playback after the end of your session may take a few minutes.
+If you want to see the Record and Playback (RaP) feature in action, use Greenlight on the demo server and record a session [demo](https://demo.bigbluebutton.org/gl). You can then play it back after it is listed under "Recorded Sessions" on the same page. Processing and publishing the media for playback after the end of your session may take a few minutes.
 
 Like BigBlueButton sessions, the management of recordings should be handled by [third-party software](https://bigbluebutton.org/integrations/). Third-party software consumes the [BigBlueButton API](/development/api) to accomplish that. As a user, you may want to use third-party software which sets the right value to the parameter "record". As a developer, you may want to use a (not official) library that implements the API calls in your preferred language or implement it by yourself.
 
@@ -96,12 +96,10 @@ Some Record and Playback phases store the media they handle in different directo
 ### Captured files
 
 - AUDIO: `/var/freeswitch/meetings`
-- WEBCAM (Flash): `/usr/share/red5/webapps/video/streams`
-- WEBCAM (HTML5): `/var/kurento/recordings`
-- SCREEN SHARING (Flash): `/var/usr/share/red5/webapps/screenshare/streams`
-- SCREEN SHARING (HTML5): `/var/kurento/screenshare`
-- SLIDES: `/var/bigbluebutton`
-- NOTES: `http://localhost:9001/p` (port 9002 on BBB 2.5+)
+- WEBCAM: `/var/lib/bbb-webrtc-recorder/recordings/<meetingid>`
+- SCREEN SHARING: `/var/lib/bbb-webrtc-recorder/screenshare/<meetingid>`
+- SLIDES: `/var/bigbluebutton/<meetingid>`
+- NOTES: `http://localhost:9002/p`
 - EVENTS: `Redis`
 
 #### Archived files

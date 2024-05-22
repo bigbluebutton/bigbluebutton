@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/time/rate"
 	"net/http"
 	"os"
 	"strconv"
@@ -25,6 +25,11 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 
+	if activitiesOverviewEnabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ACTIVITIES_OVERVIEW_ENABLED"); activitiesOverviewEnabled == "true" {
+		go common.ActivitiesOverviewLogRoutine()
+		//go common.JsonPatchBenchmarkingLogRoutine()
+	}
+
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
 
@@ -35,6 +40,10 @@ func main() {
 
 	// Listen msgs from akka (for example to invalidate connection)
 	go websrv.StartRedisListener()
+
+	if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
+		log.Infof("Json Patch Disabled!")
+	}
 
 	// Websocket listener
 
@@ -53,20 +62,26 @@ func main() {
 	}
 
 	//Define new Connections Rate Limit
-	rateLimitInMs := 50
-	if envRateLimitInMs := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_RATE_LIMIT_IN_MS"); envRateLimitInMs != "" {
-		if envRateLimitInMsAsInt, err := strconv.Atoi(envRateLimitInMs); err == nil {
-			rateLimitInMs = envRateLimitInMsAsInt
+	maxConnPerSecond := 10
+	if envMaxConnPerSecond := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN_PER_SECOND"); envMaxConnPerSecond != "" {
+		if envMaxConnPerSecondAsInt, err := strconv.Atoi(envMaxConnPerSecond); err == nil {
+			maxConnPerSecond = envMaxConnPerSecondAsInt
 		}
 	}
-	limiterInterval := rate.NewLimiter(rate.Every(time.Duration(rateLimitInMs)*time.Millisecond), 1)
+	rateLimiter := common.NewCustomRateLimiter(maxConnPerSecond)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
 		defer cancel()
 
-		if err := limiterInterval.Wait(ctx); err != nil {
-			http.Error(w, "Rate limit exceeded", http.StatusTooManyRequests)
+		common.ActivitiesOverviewStarted("__WebsocketConnection")
+		defer common.ActivitiesOverviewCompleted("__WebsocketConnection")
+
+		if err := rateLimiter.Wait(ctx); err != nil {
+			if !errors.Is(err, context.Canceled) {
+				http.Error(w, "Request cancelled or rate limit exceeded", http.StatusTooManyRequests)
+			}
+
 			return
 		}
 

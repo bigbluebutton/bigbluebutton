@@ -31,15 +31,17 @@ type GraphQlSubscription struct {
 }
 
 type BrowserConnection struct {
-	Id                       string                         // browser connection id
-	SessionToken             string                         // session token of this connection
-	Context                  context.Context                // browser connection context
-	ActiveSubscriptions      map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
-	ActiveSubscriptionsMutex sync.RWMutex                   // mutex to control the map usage
-	ConnectionInitMessage    map[string]interface{}         // init message received in this connection (to be used on hasura reconnect)
-	HasuraConnection         *HasuraConnection              // associated hasura connection
-	Disconnected             bool                           // indicate if the connection is gone
-	ConnAckSentToBrowser     bool                           // indicate if `connection_ack` msg was already sent to the browser
+	Id                          string                         // browser connection id
+	SessionToken                string                         // session token of this connection
+	Context                     context.Context                // browser connection context
+	ActiveSubscriptions         map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
+	ActiveSubscriptionsMutex    sync.RWMutex                   // mutex to control the map usage
+	ConnectionInitMessage       map[string]interface{}         // init message received in this connection (to be used on hasura reconnect)
+	HasuraConnection            *HasuraConnection              // associated hasura connection
+	Disconnected                bool                           // indicate if the connection is gone
+	ConnAckSentToBrowser        bool                           // indicate if `connection_ack` msg was already sent to the browser
+	GraphqlActionsContext       context.Context                // graphql actions context
+	GraphqlActionsContextCancel context.CancelFunc             // function to cancel the graphql actions context
 }
 
 type HasuraConnection struct {

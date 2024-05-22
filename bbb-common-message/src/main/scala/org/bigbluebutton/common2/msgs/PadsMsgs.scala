@@ -4,11 +4,6 @@ trait PadStandardMsg extends BbbCoreMsg {
   def header: BbbCoreHeaderWithMeetingId
 }
 
-// client -> apps
-object PadCreateGroupReqMsg { val NAME = "PadCreateGroupReqMsg" }
-case class PadCreateGroupReqMsg(header: BbbClientMsgHeader, body: PadCreateGroupReqMsgBody) extends StandardMsg
-case class PadCreateGroupReqMsgBody(externalId: String, model: String, name: String)
-
 // apps -> pads
 object PadCreateGroupCmdMsg { val NAME = "PadCreateGroupCmdMsg" }
 case class PadCreateGroupCmdMsg(header: BbbCoreHeaderWithMeetingId, body: PadCreateGroupCmdMsgBody) extends BbbCoreMsg
@@ -107,7 +102,7 @@ case class PadTailEvtMsgBody(externalId: String, tail: String)
 // client -> apps
 object PadUpdatePubMsg { val NAME = "PadUpdatePubMsg" }
 case class PadUpdatePubMsg(header: BbbClientMsgHeader, body: PadUpdatePubMsgBody) extends StandardMsg
-case class PadUpdatePubMsgBody(externalId: String, text: String)
+case class PadUpdatePubMsgBody(externalId: String, text: String, transcript: Boolean)
 
 // apps -> pads
 object PadUpdateCmdMsg { val NAME = "PadUpdateCmdMsg" }

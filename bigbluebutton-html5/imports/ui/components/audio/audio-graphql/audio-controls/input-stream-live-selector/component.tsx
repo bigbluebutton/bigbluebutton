@@ -16,7 +16,7 @@ import { Meeting } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
-import Mutetoggle from './buttons/muteToggle';
+import MuteToggle from './buttons/muteToggle';
 import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
 
@@ -77,6 +77,7 @@ interface InputStreamLiveSelectorProps {
   outputDeviceId: string;
   inputStream: string;
   meetingIsBreakout: boolean;
+  away: boolean;
 }
 
 const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
@@ -94,6 +95,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   outputDeviceId,
   inputStream,
   meetingIsBreakout,
+  away,
 }) => {
   const intl = useIntl();
   // eslint-disable-next-line no-undef
@@ -161,13 +163,13 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   }, [inputDeviceId]);
 
   useEffect(() => {
-    if (enableDynamicAudioDeviceSelection && !isMobile) {
+    if (enableDynamicAudioDeviceSelection) {
       updateDevices(inAudio);
     }
   }, [inAudio]);
 
   return (
-    <div>
+    <>
       {inAudio && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
         <MutedAlert
           {...{
@@ -178,7 +180,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
       ) : null}
       {
 
-        enableDynamicAudioDeviceSelection && !isMobile ? (
+        enableDynamicAudioDeviceSelection ? (
           <LiveSelection
             listenOnly={listenOnly}
             inputDevices={inputDevices}
@@ -191,27 +193,30 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
             disabled={disabled || isAudioLocked}
             isAudioLocked={isAudioLocked}
             toggleMuteMicrophone={toggleMuteMicrophone}
+            away={away}
           />
         ) : (
           <>
             {(isConnected && !listenOnly) && (
-              <Mutetoggle
+              <MuteToggle
                 talking={talking}
                 muted={muted}
                 disabled={disabled || isAudioLocked}
                 isAudioLocked={isAudioLocked}
                 toggleMuteMicrophone={toggleMuteMicrophone}
+                away={away}
               />
             )}
             <ListenOnly
               listenOnly={listenOnly}
               handleLeaveAudio={handleLeaveAudio}
               meetingIsBreakout={meetingIsBreakout}
+              actAsDeviceSelector={enableDynamicAudioDeviceSelection && isMobile}
             />
           </>
         )
       }
-    </div>
+    </>
   );
 };
 
@@ -229,6 +234,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       presenter: u.presenter,
       isModerator: u.isModerator,
       locked: u?.locked ?? false,
+      away: u?.away,
       voice: {
         muted: u?.voice?.muted ?? false,
         listenOnly: u?.voice?.listenOnly ?? false,
@@ -274,6 +280,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       outputDeviceId={outputDeviceId}
       inputStream={inputStream}
       meetingIsBreakout={currentMeeting?.isBreakout ?? false}
+      away={currentUser?.away ?? false}
     />
   );
 };

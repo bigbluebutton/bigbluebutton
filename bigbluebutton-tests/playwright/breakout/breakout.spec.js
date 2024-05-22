@@ -2,9 +2,9 @@ const { test } = require('../fixtures');
 const { Create } = require('./create');
 const { Join } = require('./join');
 
-test.describe.parallel('Breakout', () => {
+test.describe.parallel('Breakout @ci', () => {
   test.describe.parallel('Creating', () => {
-    test('Create Breakout room @ci', async ({ browser, context, page }) => {
+    test('Create Breakout room', async ({ browser, context, page }) => {
       const create = new Create(browser, context);
       await create.initPages(page);
       await create.create();
@@ -30,13 +30,13 @@ test.describe.parallel('Breakout', () => {
       await create.changeRoomsName();
     });
 
-    test('Remove and reset assignments @ci', async ({ browser, context, page }) => {
+    test('Remove and reset assignments', async ({ browser, context, page }) => {
       const create = new Create(browser, context);
       await create.initPages(page);
       await create.removeAndResetAssignments();
     });
 
-    test('Drag and drop user in a room @ci', async ({ browser, context, page, browserName }) => {
+    test('Drag and drop user in a room', async ({ browser, context, page }) => {
       const create = new Create(browser, context);
       test.skip(browserName === 'webkit', 'Failing on loading the plugins for Webkit.');
       await create.initPages(page);
@@ -44,9 +44,9 @@ test.describe.parallel('Breakout', () => {
     });
   });
 
-  test.describe.parallel('After creating', () => {
+  test.describe.parallel('After creating @ci', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#moderators-creating-breakout-rooms-and-assiging-users-automated
-    test('Join Breakout room @ci', async ({ browser, context, page }) => {
+    test('Join Breakout room', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create()
@@ -77,24 +77,21 @@ test.describe.parallel('Breakout', () => {
       await join.joinWithAudio();
     });
 
-    test('Message to all rooms @ci', async ({ browser, context, page, browserName }) => {
-      test.skip(browserName === 'webkit', 'Failing on loading the plugins for Webkit.');
+    test('Message to all rooms', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
       await join.messageToAllRooms();
     });
-
-    test('Change duration time @ci', async ({ browser, context, page, browserName }) => {
-      test.skip(browserName === 'webkit', 'Failing on loading the plugins for Webkit.');
+      
+    test('Change duration time', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
       await join.changeDurationTime();
     });
 
-    test('User name shows below rooms name @ci', async ({ browser, context, page, browserName }) => {
-      test.skip(browserName === 'webkit', 'Failing on loading the plugins for Webkit.');
+    test('User name shows below rooms name', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
@@ -108,22 +105,21 @@ test.describe.parallel('Breakout', () => {
       await join.showBreakoutRoomTimeRemaining();
     });
 
-    test('End all breakout rooms @ci', async ({ browser, context, page }) => {
+    test('End all breakout rooms', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
       await join.endAllBreakoutRooms();
     });
 
-    test('Invite user after creating rooms @ci @flaky', async ({ browser, context, page }) => {
+    test('Invite user after creating rooms', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
       await join.inviteUserAfterCreatingRooms();
     });
 
-    test('Move user to another room @ci', async ({ browser, context, page, browserName }) => {
-      test.skip(browserName === 'webkit', 'Failing on loading the plugins for Webkit.');
+    test('Move user to another room', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();
@@ -144,8 +140,7 @@ test.describe.parallel('Breakout', () => {
       await join.exportBreakoutWhiteboard();
     });
 
-    test('User can choose a room @ci', async ({ browser, context, page, browserName }) => {
-      test.skip(browserName === 'webkit', 'Failing on loading the plugins for Webkit.');
+    test('User can choose a room', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.createToAllowChooseOwnRoom();

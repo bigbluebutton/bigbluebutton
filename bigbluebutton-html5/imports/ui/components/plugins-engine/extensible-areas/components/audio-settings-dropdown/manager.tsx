@@ -45,7 +45,8 @@ const AudioSettingsDropdownPluginStateContainer = ((
 
   pluginApi.setAudioSettingsDropdownItems = (items: PluginSdk.AudioSettingsDropdownInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.AudioSettingsDropdownInterface[];
-    return setAudioSettingsDropdownItems(itemsWithId);
+    setAudioSettingsDropdownItems(itemsWithId);
+    return itemsWithId.map((i) => i.id);
   };
   return null;
 }) as ExtensibleAreaComponentManager;

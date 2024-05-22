@@ -13,7 +13,6 @@ class Status extends Page {
   async changeUserStatus() {
     const { userStatusEnabled } = getSettings();
 
-    await waitAndClearDefaultPresentationNotification(this);
     if(!userStatusEnabled) {
       await this.waitAndClick(e.currentUser);
       return this.wasRemoved(e.setStatus);

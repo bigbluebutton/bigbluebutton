@@ -43,12 +43,16 @@ const Content = styled.div`
     border: 2px solid ${colorBlack};
     border-radius: 10px;
 
-    ${({ isStream }) => !isStream   && `
+    ${({ isStream }) => !isStream && `
       border: 2px solid ${webcamPlaceholderBorder};
     `}
 
     ${({ talking }) => talking && `
       border: 2px solid ${colorPrimary};
+    `}
+
+    ${({ talking, customHighlight }) => talking && customHighlight && customHighlight.length > 0 && `
+      border: 2px solid rgb(${customHighlight[0]}, ${customHighlight[1]}, ${customHighlight[2]});
     `}
 
     ${({ animations }) => animations && `
