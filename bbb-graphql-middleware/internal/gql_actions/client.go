@@ -91,7 +91,7 @@ RangeLoop:
 						//Action sent successfully, return data msg to client
 						browserResponseData := map[string]interface{}{
 							"id":   queryId,
-							"type": "data",
+							"type": "next",
 							"payload": map[string]interface{}{
 								"data": map[string]interface{}{
 									mutationFuncName: true,
