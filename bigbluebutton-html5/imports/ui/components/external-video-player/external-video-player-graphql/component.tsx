@@ -310,6 +310,19 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
+  const handleOnReady = () => {
+    currentTime = -1;
+  };
+
+  const handleProgress = (state: OnProgressProps) => {
+    setPlayed(state.played);
+    setLoaded(state.loaded);
+
+    if (playing) {
+      currentTime = playerRef.current?.getCurrentTime() || 0;
+    }
+  };
+
   const isMinimized = width === 0 && height === 0;
 
   // @ts-ignore accessing lib private property
@@ -331,10 +344,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       return false;
     }
     return true;
-  };
-
-  const handleOnReady = () => {
-    currentTime = -1;
   };
 
   return (
@@ -379,10 +388,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           onReady={handleOnReady}
           onPlay={handleOnPlay}
           onDuration={handleDuration}
-          onProgress={(state: OnProgressProps) => {
-            setPlayed(state.played);
-            setLoaded(state.loaded);
-          }}
+          onProgress={handleProgress}
           onPause={handleOnStop}
           onEnded={handleOnStop}
           muted={mute || isEchoTest}
