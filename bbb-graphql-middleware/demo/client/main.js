@@ -31,7 +31,7 @@ ws.onopen = (event) => {
       
       const payload = { variables:{}, extensions: {}, query: query };
     //   console.log(`Sending: ${JSON.stringify(payload)}`);
-      ws.send(JSON.stringify({id:"1", type: "start", payload }));
+      ws.send(JSON.stringify({id:"1", type: "subscribe", payload }));
       
 }
 
