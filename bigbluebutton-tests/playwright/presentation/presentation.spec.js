@@ -112,7 +112,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.removeAllPresentation();
     });
 
-    test('Upload and remove all presentations', async ({ browser, context, page }) => {
+    test.only('Upload and remove all presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.uploadAndRemoveAllPresentations();

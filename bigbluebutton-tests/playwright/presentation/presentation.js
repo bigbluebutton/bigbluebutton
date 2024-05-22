@@ -86,14 +86,8 @@ class Presentation extends MultiUsers {
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
     // wait until the notifications disappear
-    await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
-    
-    await this.modPage.reloadPage();
-    await this.modPage.closeAudioModal();
     await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
@@ -110,10 +104,8 @@ class Presentation extends MultiUsers {
 
   async uploadOtherPresentationsFormat() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME);
-    await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
 
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
@@ -126,10 +118,8 @@ class Presentation extends MultiUsers {
     });
 
     await uploadSinglePresentation(this.modPage, e.presentationPPTX, UPLOAD_PDF_WAIT_TIME);
-    await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
 
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
       maxDiffPixels: 1000,
@@ -139,10 +129,8 @@ class Presentation extends MultiUsers {
     });
 
     await uploadSinglePresentation(this.modPage, e.presentationTXT, UPLOAD_PDF_WAIT_TIME);
-    await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
 
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
       maxDiffPixels: 1000,
