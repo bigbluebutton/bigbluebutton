@@ -37,6 +37,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
+import logger from '/imports/startup/client/logger';
 
 // @ts-ignore - temporary, while meteor exists in the project
 const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -81,6 +82,9 @@ const messages = defineMessages({
   },
   errorMaxMessageLength: {
     id: 'app.chat.errorMaxMessageLength',
+  },
+  errorOnSendMessage: {
+    id: 'app.chat.errorOnSendMessage',
   },
   errorServerDisconnected: {
     id: 'app.chat.disconnected',
@@ -388,7 +392,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     });
 
-    if (chatSendMessageError) { return <div>something went wrong</div>; }
+    useEffect(() => {
+      if (chatSendMessageError && error == null) {
+        logger.debug('Error on sending chat message: ', chatSendMessageError?.message);
+        setError(intl.formatMessage(messages.errorOnSendMessage));
+      }
+    }, [chatSendMessageError]);
 
     return (
       <Styled.Form
