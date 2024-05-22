@@ -177,7 +177,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     hasWBAccessRef.current = hasWBAccess;
 
     if (!hasWBAccess && !isPresenter) {
-      tlEditorRef?.current?.setCurrentTool("noop");
+      tlEditorRef?.current?.setCurrentTool('noop');
+    } else if (hasWBAccess && !isPresenter) {
+      tlEditorRef?.current?.setCurrentTool('draw');
     }
   }, [hasWBAccess]);
 
@@ -185,7 +187,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       isPresenterRef.current = isPresenter;
 
       if (!hasWBAccessRef.current && !isPresenter) {
-        tlEditorRef?.current?.setCurrentTool("noop");
+        tlEditorRef?.current?.setCurrentTool('noop');
       }
   }, [isPresenter]);
 
@@ -477,6 +479,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
         return next;
       };
+
+      if (!isPresenterRef.current && !hasWBAccessRef.current) {
+        editor.setCurrentTool('noop');
+      }
     }
 
     isMountedRef.current = true;
