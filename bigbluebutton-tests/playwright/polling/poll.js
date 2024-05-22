@@ -312,7 +312,7 @@ class Polling extends MultiUsers {
     await util.startPoll(this.modPage);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.questionSlideFileName);
-    await this.modPage.hasElement(e.quickPoll);
+    await this.modPage.hasElement(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.publishPollingLabel);
     // Check poll results
     await this.modPage.hasElement(e.wbDrawnRectangle);
