@@ -102,7 +102,6 @@
     "smile2emoji": "^3.8.3",
     "string-hash": "~1.1.3",
     "styled-components": "^5.3.3",
-    "subscriptions-transport-ws": "^0.11.0",
     "tippy.js": "^6.3.7",
     "use-context-selector": "^1.3.7",
     "uuid": "^9.0.0",
