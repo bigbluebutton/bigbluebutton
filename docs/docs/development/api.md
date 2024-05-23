@@ -109,8 +109,8 @@ Updated in 2.7:
 
 Updated in 3.0:
 
-- **create** - **Added:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`.
-- **join** - **Added:** `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`).
+- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`.
+- **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET.
 
 ## API Data Types
 
@@ -215,6 +215,8 @@ To use the security model, you must be able to create a SHA-1 checksum out of th
 
 You **MUST** send this checksum with **EVERY** API call. Since end users do not know your shared secret, they can not fake calls to the server, and they can not modify any API calls since changing a single parameter name or value by only one character will completely change the checksum required to validate the call.
 
+**NOTE** Checksums for POST requests must be calculated using the URL query string as well. For example, if all request parameters are in the request body then the checksum will be calculated using an empty query string.
+
 Implementations of the SHA-1 functionality exist in nearly all programming languages. Here are example methods or links to example implementations for various languages:
 
 - [JavaScript](http://pajhome.org.uk/crypt/md5/)
@@ -284,7 +286,7 @@ The following response parameters are standard to every call and may be returned
 | message    | Sometimes | String | A message that gives additional information about the status of the call. A message parameter will always be returned if the returncode was `FAILED`. A message may also be returned in some cases where returncode was `SUCCESS` if additional information would be helpful.|
 | messageKey | Sometimes | String | Provides similar functionality to the message and follows the same rules. However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.|
 
-### create
+### `GET` `POST` create
 
 Creates a BigBlueButton meeting.
 
@@ -402,7 +404,44 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 
 In the case more than a single document is provided, the first one will be loaded in the client, the processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
-For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79). For a complete example of the pre-upload slides check the following demos: [demo7](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo7.jsp) and [demo8](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo8.jsp)
+For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
+
+#### clientSettingsOverride
+
+You can modify the `settings.yml` configuration for the HTML5 client as part of the create call (in addition to modifying `/etc/bigbluebutton/bbb-html5.yml`).
+You can construct the HTTPS POST request as follows:
+
+```
+curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-Type: application/xml" --data '
+<modules>
+   <module name="clientSettingsOverride">
+         <![CDATA[
+         {
+            "public": {
+               "kurento": {
+                  "wsUrl": "wss://test.bigbluebutton.org//bbb-webrtc-sfu"
+               },
+               "media": {
+                  "sipjsHackViaWs": false
+               },
+               "app": {
+                    "appName": "Test",
+                    "helpLink": "https://www.bigbluebutton.org",
+                    "autoJoin": false,
+                    "askForConfirmationOnLeave": false,
+                    "userSettingsStorage": "localStorage",
+                    "defaultSettings": {
+                     "application": {
+                        "overrideLocale": "en"
+                     }
+                    }
+                }
+            }
+         }
+         ]]>
+   </module>
+</modules>'
+```
 
 #### Upload slides from external application to a live BigBlueButton session
 
@@ -470,7 +509,7 @@ The receiving endpoint should respond with one of the following HTTP codes to in
 
 All other HTTP response codes will be treated as transient errors.
 
-### join
+### `GET` join
 
 Joins a user to the meeting specified in the meetingID parameter.
 
@@ -507,7 +546,7 @@ There is a XML response for this call only when the `redirect` parameter is set 
 </response>
 ```
 
-### insertDocument
+### `POST` insertDocument
 
 This endpoint insert one or more documents into a running meeting via API call
 
@@ -559,7 +598,7 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 
 There is also the possibility of passing the removable and downloadable variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides) 
 
-### isMeetingRunning
+### `GET` `POST` isMeetingRunning
 
 This call enables you to simply check on whether or not a meeting is running by looking it up with your meeting ID.
 
@@ -588,7 +627,7 @@ http&#58;//yourserver.com/bigbluebutton/api/isMeetingRunning?meetingID=test01&ch
 
 running can be “true” or “false” that signals whether a meeting with this ID is currently running.
 
-### end
+### `GET` `POST` end
 
 Use this to forcibly end a meeting and kick all participants out of the meeting.
 
@@ -632,7 +671,7 @@ curl --request POST \
 
 **IMPORTANT NOTE:** You should note that when you call end meeting, it is simply sending a request to the backend (Red5) server that is handling all the conference traffic. That backend server will immediately attempt to send every connected client a logout event, kicking them from the meeting. It will then disconnect them, and the meeting will be ended. However, this may take several seconds, depending on network conditions. Therefore, the end meeting call will return a success as soon as the request is sent. But to be sure that it completed, you should then check back a few seconds later by using the `getMeetingInfo` or `isMeetingRunning` calls to verify that all participants have left the meeting and that it successfully ended.
 
-### getMeetingInfo
+### `GET` `POST` getMeetingInfo
 
 This call will return all of a meeting's information, including the list of attendees as well as start and end times.
 
@@ -654,53 +693,50 @@ Resource URL:
 
 ```xml
 <response>
-  <returncode>SUCCESS</returncode>
-  <meetingName>Demo Meeting</meetingName>
-  <meetingID>Demo Meeting</meetingID>
-  <internalMeetingID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1531240585189</internalMeetingID>
-  <createTime>1531240585189</createTime>
-  <createDate>Tue Jul 10 16:36:25 UTC 2018</createDate>
-  <`voiceBridge`>70066</`voiceBridge`>
-  <dialNumber>613-555-1234</dialNumber>
-  <attendeePW>ap</attendeePW>
-  <moderatorPW>mp</moderatorPW>
-  <running>true</running>
-  <duration>0</duration>
-  <hasUserJoined>true</hasUserJoined>
-  <recording>false</recording>
-  <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
-  <startTime>1531240585239</startTime>
-  <endTime>0</endTime>
-  <participantCount>2</participantCount>
-  <listenerCount>1</listenerCount>
-  <voiceParticipantCount>1</voiceParticipantCount>
-  <videoCount>1</videoCount>
-  <maxUsers>20</maxUsers>
-  <moderatorCount>1</moderatorCount>
-  <attendees>
-    <attendee>
-      <userID>w_2wzzszfaptsp</userID>
-      <fullName>stu</fullName>
-      <role>VIEWER</role>
-      <isPresenter>false</isPresenter>
-      <isListeningOnly>true</isListeningOnly>
-      <hasJoinedVoice>false</hasJoinedVoice>
-      <hasVideo>false</hasVideo>
-      <clientType>FLASH</clientType>
-    </attendee>
-    <attendee>
-      <userID>w_eo7lxnx3vwuj</userID>
-      <fullName>mod</fullName>
-      <role>MODERATOR</role>
-      <isPresenter>true</isPresenter>
-      <isListeningOnly>false</isListeningOnly>
-      <hasJoinedVoice>true</hasJoinedVoice>
-      <hasVideo>true</hasVideo>
-      <clientType>HTML5</clientType>
-    </attendee>
-  </attendees>
-  <metadata />
-  <isBreakout>false</isBreakout>
+	<returncode>SUCCESS</returncode>
+	<meetingName>Anton G's Room</meetingName>
+	<meetingID>gbesu6dht08uobpislzqxsizjzihn87cmewqyacs</meetingID>
+	<internalMeetingID>a0715c95000a2bcb90604ecc7097dbc94592c690-1715261728123</internalMeetingID>
+	<createTime>1715261728123</createTime>
+	<createDate>Thu May 09 13:35:28 UTC 2024</createDate>
+	<voiceBridge>66052</voiceBridge>
+	<dialNumber>613-555-1234</dialNumber>
+	<attendeePW>1umEM3ic</attendeePW>
+	<moderatorPW>V91JirCa</moderatorPW>
+	<running>true</running>
+	<duration>0</duration>
+	<hasUserJoined>true</hasUserJoined>
+	<recording>true</recording>
+	<hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+	<startTime>1715261728142</startTime>
+	<endTime>0</endTime>
+	<participantCount>1</participantCount>
+	<listenerCount>0</listenerCount>
+	<voiceParticipantCount>1</voiceParticipantCount>
+	<videoCount>1</videoCount>
+	<maxUsers>0</maxUsers>
+	<moderatorCount>1</moderatorCount>
+	<attendees>
+		<attendee>
+			<userID>w_ftcrsyuh44oj</userID>
+			<fullName>Anton G</fullName>
+			<role>MODERATOR</role>
+			<isPresenter>true</isPresenter>
+			<isListeningOnly>false</isListeningOnly>
+			<hasJoinedVoice>true</hasJoinedVoice>
+			<hasVideo>true</hasVideo>
+			<clientType>HTML5</clientType>
+			<customdata></customdata>
+		</attendee>
+	</attendees>
+	<metadata>
+		<bbb-origin-version>summit2024-6d8120x</bbb-origin-version>
+		<bbb-origin-server-name>test30.bigbluebutton.org</bbb-origin-server-name>
+		<bbb-recording-ready-url>https://test30.bigbluebutton.org/recording_ready</bbb-recording-ready-url>
+		<bbb-origin>greenlight</bbb-origin>
+		<endcallbackurl>https://test30.bigbluebutton.org/meeting_ended</endcallbackurl>
+	</metadata>
+	<isBreakout>false</isBreakout>
 </response>
 ```
 
@@ -732,7 +768,7 @@ If a meeting is a breakout room itself, then `getMeetingInfo` will also return a
  </response>
 ```
 
-### getMeetings
+### `GET` `POST` getMeetings
 
 This call will return a list of all the meetings found on this server.
 
@@ -785,7 +821,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
 </response>
 ```
 
-### getRecordings
+### `GET` getRecordings
 
 Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs). Support for pagination was added in 2.6.
 
@@ -900,7 +936,7 @@ Here the `getRecordings` API call returned back two recordings for the meetingID
 </response>
 ```
 
-### publishRecordings
+### `GET` publishRecordings
 
 Publish and unpublish recordings for a given recordID (or set of record IDs).
 
@@ -928,7 +964,7 @@ Publish and unpublish recordings for a given recordID (or set of record IDs).
 </response>
 ```
 
-### deleteRecordings
+### `GET` deleteRecordings
 
 Delete one or more recordings for a given recordID (or set of record IDs).
 
@@ -956,7 +992,7 @@ http&#58;//yourserver.com/bigbluebutton/api/deleteRecordings?[parameters]&checks
 </response>
 ```
 
-### updateRecordings
+### `GET` `POST` updateRecordings
 
 Update metadata for a given recordID (or set of record IDs). Available since version 1.1
 
@@ -983,7 +1019,7 @@ Update metadata for a given recordID (or set of record IDs). Available since ver
 </response>
 ```
 
-### getRecordingTextTracks
+### `GET` `POST` getRecordingTextTracks
 
 Get a list of the caption/subtitle files currently available for a recording. It will include information about the captions (language, etc.), as well as a download link. This may be useful to retrieve live or automatically transcribed subtitles from a recording for manual editing.
 
@@ -1063,7 +1099,7 @@ missingParameter
 noRecordings
 : No recording was found matching the provided recording ID.
 
-### putRecordingTextTrack
+### `POST` putRecordingTextTrack
 
 Upload a caption or subtitle file to add it to the recording. If there is any existing track with the same values for kind and lang, it will be replaced.
 

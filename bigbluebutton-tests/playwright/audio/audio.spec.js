@@ -26,7 +26,7 @@ test.describe('Audio', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#muteunmute
-  test('Mute yourself by clicking the mute button', async () => {
+  test('Mute yourself by clicking the mute button @ci', async () => {
     await audio.muteYourselfByButton();
   });
 
@@ -37,12 +37,12 @@ test.describe('Audio', () => {
 
   // Talking Indicator
   // https://docs.bigbluebutton.org/2.6/release-tests.html#talking-indicator
-  test('Mute yourself by clicking the talking indicator', async () => {
+  test('Mute yourself by clicking the talking indicator @ci', async () => {
     await audio.muteYourselfByTalkingIndicator();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#talking-indicator
-  test('Mute another user by clicking the talking indicator', async () => {
+  test('Mute another user by clicking the talking indicator @ci', async () => {
     await audio.muteAnotherUser();
   });
 });

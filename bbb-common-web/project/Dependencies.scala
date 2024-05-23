@@ -19,6 +19,7 @@ object Dependencies {
     val freemarker = "2.3.31"
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
+    val jsoup = "1.14.3"
 
     // Office and document conversion
     val apachePoi = "5.1.0"
@@ -54,6 +55,7 @@ object Dependencies {
     val freemarker = "org.freemarker" % "freemarker" % Versions.freemarker
     val apacheHttp = "org.apache.httpcomponents" % "httpclient" % Versions.apacheHttp
     val apacheHttpAsync = "org.apache.httpcomponents" % "httpasyncclient" % Versions.apacheHttpAsync
+    val jsoup = "org.jsoup" % "jsoup" % Versions.jsoup
 
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
@@ -93,6 +95,7 @@ object Dependencies {
     Compile.freemarker,
     Compile.apacheHttp,
     Compile.apacheHttpAsync,
+    Compile.jsoup,
     Compile.poiXml,
     Compile.nuProcess,
     Compile.tika,

@@ -20,8 +20,7 @@ export interface groups {
 
 export interface WelcomeSettings {
   welcomeMsg: string;
-  modOnlyMessage: string;
-  welcomeMsgTemplate: string;
+  welcomeMsgForModerators: string;
   meetingId: string;
 }
 

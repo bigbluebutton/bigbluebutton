@@ -385,15 +385,15 @@ const PresentationMenu = (props) => {
       },
     );
 
-    if (props.amIPresenter) {
-      menuItems.push({
-        key: 'list-item-load-shapes',
-        dataTest: 'loadShapes',
-        label: 'Load .tldr Data',
-        icon: 'pen_tool',
-        onClick: handleFileClick,
-      });
-    }
+    // if (props.amIPresenter) {
+    //   menuItems.push({
+    //     key: 'list-item-load-shapes',
+    //     dataTest: 'loadShapes',
+    //     label: 'Load .tldr Data',
+    //     icon: 'pen_tool',
+    //     onClick: handleFileClick,
+    //   });
+    // }
 
     presentationDropdownItems.forEach((item, index) => {
       switch (item.type) {

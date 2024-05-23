@@ -5,6 +5,7 @@ import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
+import Auth from '/imports/ui/services/auth';
 
 const MUTED_KEY = 'muted';
 // @ts-ignore - temporary, while meteor exists in the project
@@ -42,7 +43,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
 
 export const toggleMuteMicrophone = (
   muted: boolean,
-  toggleVoice: (userId?: string | null, muted?: boolean | null) => void,
+  toggleVoice: (userId: string, muted: boolean) => void,
 ) => {
   Storage.setItem(MUTED_KEY, !muted);
 
@@ -54,7 +55,7 @@ export const toggleMuteMicrophone = (
       },
       'microphone unmuted by user',
     );
-    toggleVoice();
+    toggleVoice(Auth.userID!, false);
   } else {
     logger.info(
       {
@@ -63,7 +64,7 @@ export const toggleMuteMicrophone = (
       },
       'microphone muted by user',
     );
-    toggleVoice();
+    toggleVoice(Auth.userID!, true);
   }
 };
 
@@ -98,7 +99,7 @@ export const setSpeakerLevel = (level: number) => {
 export const muteAway = (
   muted: boolean,
   away: boolean,
-  voiceToggle: (userId?: string | null, muted?: boolean | null) => void,
+  voiceToggle: (userId: string, muted: boolean) => void,
 ) => {
   const prevAwayMuted = Storage.getItem('prevAwayMuted') || false;
   const prevSpeakerLevelValue = Storage.getItem('prevSpeakerLevel') || 1;

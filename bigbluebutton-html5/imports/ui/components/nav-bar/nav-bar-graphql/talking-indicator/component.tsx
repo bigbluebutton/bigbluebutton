@@ -58,7 +58,7 @@ interface TalkingIndicatorProps {
   isBreakout: boolean;
   moreThanMaxIndicators: boolean;
   isModerator: boolean;
-  toggleVoice: (userId?: string | null, muted?: boolean | null) => void;
+  toggleVoice: (userId: string, muted: boolean) => void;
 }
 
 const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({

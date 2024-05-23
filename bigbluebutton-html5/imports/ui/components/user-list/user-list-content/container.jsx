@@ -26,7 +26,7 @@ const UserContentContainer = (props) => {
       {...{
         isGuestLobbyMessageEnabled,
         currentUser,
-        isTimerActive: currentMeeting?.componentsFlags?.hasTimer && currentUser.isModerator,
+        isTimerActive: currentMeeting?.componentsFlags?.hasTimer && currentUser?.isModerator,
         ...props,
       }}
     />
