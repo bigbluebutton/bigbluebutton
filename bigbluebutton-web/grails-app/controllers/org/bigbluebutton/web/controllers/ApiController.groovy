@@ -1192,6 +1192,63 @@ class ApiController {
     }
   }
 
+  def sendChatMessage = {
+    String API_CALL = 'sendChatMessage'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    String respMessage = ""
+    boolean reject = false
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.SEND_CHAT_MESSAGE,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
+
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
+
+    String userName = "System";
+    String chatMessage = params.message;
+
+    if (params.userName != null && params.userName != "") {
+      userName = params.userName;
+    }
+
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    boolean isRunning = meeting != null && meeting.isRunning();
+
+    if(!reject && !isRunning) {
+      reject = true
+      respMessage = "Meeting not found"
+    }
+
+
+    if (reject) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            message respMessage
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    } else {
+      meetingService.sendChatMessage(meeting.internalId, userName, chatMessage);
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
+                  , contentType: "text/xml")
+        }
+      }
+    }
+  }
+
   def getJoinUrl = {
     String API_CALL = 'getJoinUrl'
     log.debug CONTROLLER_NAME + "#${API_CALL}"

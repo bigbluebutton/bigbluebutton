@@ -5,6 +5,8 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.api.domain.{BreakoutRoomsParams, Group, LockSettingsParams}
 import org.bigbluebutton.api.messaging.converters.messages._
+import org.bigbluebutton.api.messaging.messages.ChatMessageFromApi
+import org.bigbluebutton.api.model.request.SendChatMessage
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
@@ -374,6 +376,13 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocInvalidMimeType]) {
       val event = MsgBuilder.buildPresentationHasInvalidMimeType(msg.asInstanceOf[DocInvalidMimeType])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    }
+  }
+
+  def sendChatMessage(msg: ChatMessageFromApi): Unit ={
+    if (msg.isInstanceOf[ChatMessageFromApi]){
+      val event = MsgBuilder.buildSendChatMessageFromApi(msg.asInstanceOf[ChatMessageFromApi])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
