@@ -160,43 +160,58 @@ export default function Auth() {
                     <MeetingInfo />
                     <br />
 
-                    <TotalOfUsers />
-                    <TotalOfModerators />
-                    <TotalOfViewers />
-                    <TotalOfUsersTalking />
-                    <TotalOfUniqueNames />
-                    <br />
-                    <UserList user={curr} />
-
-                    <br />
-                    <UserConnectionStatus />
-                    <br />
-                    <UserConnectionStatusReport />
-                    <br />
-                    <UserClientSettings userId={curr.userId} />
-                    <br />
-                    <ChatsInfo />
-                    <br />
-                    <ChatMessages userId={curr.userId} />
-                    <br />
-                    <ChatPublicMessages userId={curr.userId} />
-                    <br />
-                    <CursorsAll />
-                    <br />
-                    <TalkingStream />
-                    <br />
-                    <CursorsStream />
-                    <br />
-                    <Annotations />
-                    <br />
-                    <AnnotationsHistory />
+                    <MeetingInfo />
                     <br />
 
-                    <PluginDataChannel userId={curr.userId} />
+                    <MeetingInfo />
                     <br />
 
-                    <PresPresentationUploadToken />
+                    <MeetingInfo />
                     <br />
+
+                    <MeetingInfo />
+                    <br />
+
+                    <MeetingInfo />
+                    <br />
+
+                    {/*<TotalOfUsers />*/}
+                    {/*<TotalOfModerators />*/}
+                    {/*<TotalOfViewers />*/}
+                    {/*<TotalOfUsersTalking />*/}
+                    {/*<TotalOfUniqueNames />*/}
+                    {/*<br />*/}
+                    {/*<UserList user={curr} />*/}
+
+                    {/*<br />*/}
+                    {/*<UserConnectionStatus />*/}
+                    {/*<br />*/}
+                    {/*<UserConnectionStatusReport />*/}
+                    {/*<br />*/}
+                    {/*<UserClientSettings userId={curr.userId} />*/}
+                    {/*<br />*/}
+                    {/*<ChatsInfo />*/}
+                    {/*<br />*/}
+                    {/*<ChatMessages userId={curr.userId} />*/}
+                    {/*<br />*/}
+                    {/*<ChatPublicMessages userId={curr.userId} />*/}
+                    {/*<br />*/}
+                    {/*<CursorsAll />*/}
+                    {/*<br />*/}
+                    {/*<TalkingStream />*/}
+                    {/*<br />*/}
+                    {/*<CursorsStream />*/}
+                    {/*<br />*/}
+                    {/*<Annotations />*/}
+                    {/*<br />*/}
+                    {/*<AnnotationsHistory />*/}
+                    {/*<br />*/}
+
+                    {/*<PluginDataChannel userId={curr.userId} />*/}
+                    {/*<br />*/}
+
+                    {/*<PresPresentationUploadToken />*/}
+                    {/*<br />*/}
 
                 </div>
             }
