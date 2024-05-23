@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Local from './local';
 import Session from './session';
 import { type StorageData } from './observable';
@@ -12,10 +12,13 @@ const APP_CONFIG = window.meetingClientSettings.public.app;
  * @returns Last key value.
  */
 const useStorageKey = (key: string, storage?: 'local' | 'session') => {
-  const [value, setValue] = useState<StorageData>();
-  useEffect(() => {
+  const source = useMemo(() => {
     const actualStorage = storage ?? APP_CONFIG.userSettingsStorage;
     const source = actualStorage === 'local' ? Local : Session;
+    return source;
+  }, [storage]);
+  const [value, setValue] = useState<StorageData>(source.getItem(key));
+  useEffect(() => {
     const observer = (newValue: StorageData) => {
       setValue(newValue);
     };
@@ -23,7 +26,7 @@ const useStorageKey = (key: string, storage?: 'local' | 'session') => {
     return () => {
       source.revokeObserver(key, observer);
     };
-  }, [storage, key]);
+  }, [source, key]);
   return value;
 };
 
