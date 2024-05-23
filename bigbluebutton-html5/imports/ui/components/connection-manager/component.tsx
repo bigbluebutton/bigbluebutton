@@ -1,8 +1,8 @@
 import {
   ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject, ApolloLink,
 } from '@apollo/client';
-import { WebSocketLink } from '@apollo/client/link/ws';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
 import React, { useContext, useEffect } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
@@ -82,24 +82,24 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
 
       let wsLink;
       try {
-        const subscription = new SubscriptionClient(graphqlUrl, {
-          reconnect: true,
-          timeout: 30000,
-          minTimeout: 30000,
+        const subscription = createClient({
+          url: graphqlUrl,
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,
             },
           },
+          on: {
+            error: (error) => {
+              loadingContextInfo.setLoading(false, '');
+              throw new Error(`Error: on subscription to server: ${JSON.stringify(error)}`);
+            },
+          },
         });
-        subscription.onError(() => {
-          loadingContextInfo.setLoading(false, '');
-          throw new Error('Error: on subscription to server');
-        });
-        wsLink = new WebSocketLink(
+        const graphWsLink = new GraphQLWsLink(
           subscription,
         );
-        wsLink = ApolloLink.from([payloadSizeCheckLink, wsLink]);
+        wsLink = ApolloLink.from([payloadSizeCheckLink, graphWsLink]);
         wsLink.setOnError((error) => {
           loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));

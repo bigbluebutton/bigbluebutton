@@ -381,7 +381,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         // if not new connection is made
         apolloClient.setLink(ApolloLink.empty());
         // closes the connection
-        ws.close();
+        ws.terminate();
       }, 5000);
     }
   }, []);

@@ -380,7 +380,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
   return (
     <Styled.TimerSidebarContent
-      data-test="timer"
+      data-test={`${stopwatch ? 'stopwatch' : 'timer'}Container`}
     >
       {/* @ts-ignore - JS code */}
       <Header
@@ -407,7 +407,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
             }}
             disabled={stopwatch}
             color={stopwatch ? 'primary' : 'secondary'}
-            data-test="stopwatch"
+            data-test="stopwatchButton"
           />
           <Styled.TimerSwitchButton
             label={intl.formatMessage(intlMessages.timer)}
@@ -417,7 +417,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
             }}
             disabled={!stopwatch}
             color={!stopwatch ? 'primary' : 'secondary'}
-            data-test="timer"
+            data-test="timerButton"
           />
         </Styled.TimerType>
         {timerControls}

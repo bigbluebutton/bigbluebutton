@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import logger, { generateLoggerStreams } from '/imports/startup/client/logger';
+import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import { ApolloLink } from '@apollo/client';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -53,6 +55,27 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
+    window.dispatchEvent(new Event('StopAudioTracks'));
+    const data = JSON.parse((sessionStorage.getItem('clientStartupSettings')) || '{}');
+    const mediaElement = document.querySelector(data?.mediaTag || '#remote-media');
+    if (mediaElement) {
+      mediaElement.pause();
+      mediaElement.srcObject = null;
+    }
+    const apolloClient = apolloContextHolder.getClient();
+
+    if (apolloClient) {
+      apolloClient.stop();
+    }
+
+    const ws = apolloContextHolder.getLink();
+    if (ws) {
+      // delay to termintate the connection, for user receive the end eject message
+      setTimeout(() => {
+        apolloClient.setLink(ApolloLink.empty());
+        ws.close();
+      }, 5000);
+    }
     this.setState({
       error,
       errorInfo,
