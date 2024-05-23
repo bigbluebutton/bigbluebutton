@@ -1190,8 +1190,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.SEND_CHAT_MESSAGE,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
