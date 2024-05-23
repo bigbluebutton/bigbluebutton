@@ -1185,9 +1185,6 @@ class ApiController {
     String API_CALL = 'sendChatMessage'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    String respMessage = ""
-    boolean reject = false
-
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.SEND_CHAT_MESSAGE,
             request
@@ -1208,31 +1205,16 @@ class ApiController {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
     boolean isRunning = meeting != null && meeting.isRunning();
 
-    if(!reject && !isRunning) {
-      reject = true
-      respMessage = "Meeting not found"
+    if(!isRunning) {
+      invalid("meetingNotFound", "Meeting not found")
+      return
     }
 
-
-    if (reject) {
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        json {
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_FAILED
-            message respMessage
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
-      }
-    } else {
-      meetingService.sendChatMessage(meeting.internalId, userName, chatMessage);
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
-                  , contentType: "text/xml")
-        }
+    meetingService.sendChatMessage(meeting.internalId, userName, chatMessage);
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
+                , contentType: "text/xml")
       }
     }
   }
