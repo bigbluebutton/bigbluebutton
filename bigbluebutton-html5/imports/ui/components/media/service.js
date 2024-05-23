@@ -9,10 +9,6 @@ import UserService from '/imports/ui/components/user-list/service';
 import VideoStreams from '/imports/api/video-streams';
 import Auth from '/imports/ui/services/auth/index';
 
-const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
-const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
-
 function shouldShowWhiteboard() {
   return true;
 }
@@ -25,6 +21,7 @@ function shouldShowScreenshare() {
 }
 
 function shouldShowOverlay() {
+  const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 

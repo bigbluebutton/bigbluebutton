@@ -68,9 +68,6 @@ interface LiveResultProps {
   isSecret: boolean;
 }
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
-
 const LiveResult: React.FC<LiveResultProps> = ({
   questionText,
   responses,
@@ -81,6 +78,9 @@ const LiveResult: React.FC<LiveResultProps> = ({
   users,
   isSecret,
 }) => {
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
+
   const intl = useIntl();
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
   const [stopPoll] = useMutation(POLL_CANCEL);

@@ -2,9 +2,9 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-
 const isModerator = () => {
+  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+
   const user = Users.findOne(
     {
       meetingId: Auth.meetingID,

@@ -52,12 +52,8 @@ import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmat
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 
+// [move settings]
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
-const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -178,6 +174,11 @@ class App extends Component {
     });
 
     ReactModal.setAppElement('#app');
+
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+    const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
+    const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
@@ -397,6 +398,8 @@ class App extends Component {
       selectedLayout,
     } = this.props;
 
+    const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+
     const { showPushLayoutButton } = LAYOUT_CONFIG;
 
     if (hideActionsBar) return null;
@@ -520,7 +523,7 @@ class App extends Component {
     this.setState({isVideoPreviewModalOpen: value});
   }
 
-setRandomUserSelectModalIsOpen(value) {
+  setRandomUserSelectModalIsOpen(value) {
     const {setMountRandomUserModal} = this.props;
     this.setState({isRandomUserSelectModalOpen: value});
     setMountRandomUserModal(false);

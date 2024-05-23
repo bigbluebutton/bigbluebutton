@@ -545,6 +545,8 @@ const ChatMessageFormContainer: React.FC = ({
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
 
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+
   return (
     <ChatMessageForm
       {...{

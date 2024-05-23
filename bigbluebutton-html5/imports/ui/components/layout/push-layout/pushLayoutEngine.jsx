@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Meteor } from 'meteor/meteor';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
@@ -8,8 +7,6 @@ import { LAYOUT_TYPE, ACTIONS } from '../enums';
 import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 import { Session } from 'meteor/session';
-
-const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -87,6 +84,8 @@ class PushLayoutEngine extends React.Component {
     Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
 
     Settings.save(setLocalSettings);
+
+    const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
 
     const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
     let presentationIsOpen = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);

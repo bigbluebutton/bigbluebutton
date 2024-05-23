@@ -23,8 +23,6 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
 import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
 const PresentationContainer = (props) => {
@@ -45,6 +43,9 @@ const PresentationContainer = (props) => {
 
   const [getUsers, { data: usersData }] = useLazyQuery(GET_USER_IDS, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
+
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 
   const addWhiteboardGlobalAccess = () => {
     const usersIds = users.map((user) => user.userId);

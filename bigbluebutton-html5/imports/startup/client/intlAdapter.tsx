@@ -11,7 +11,6 @@ import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
-const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
 
 interface IntlAdapterProps {
   children: React.ReactNode;
@@ -23,6 +22,9 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
   const [currentLocale, setCurrentLocale] = useCurrentLocale();
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
+
+  const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
+
   const sendUiDataToPlugins = () => {
     window.dispatchEvent(new CustomEvent(PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE, {
       detail: {
