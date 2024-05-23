@@ -45,13 +45,13 @@ import {
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
 
-const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
-
 const WhiteboardContainer = (props) => {
   const {
     intl,
     zoomChanger,
   } = props;
+
+  const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
 
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState({});

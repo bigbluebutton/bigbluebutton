@@ -17,8 +17,6 @@ import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
 import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
 import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
 
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
 const intlMessages = defineMessages({
   title: {
     id: 'app.userList.notesTitle',
@@ -195,6 +193,9 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   const { userLocks } = props;
   const disableNotes = userLocks.userNotes;
   const { data: pinnedPadData } = useSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
   const isPinned = !!pinnedPadData && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

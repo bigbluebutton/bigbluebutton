@@ -22,9 +22,6 @@ import {
   isScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
-
 const intlMessages = defineMessages({
   hide: {
     id: 'app.notes.hide',
@@ -96,6 +93,9 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     style.padding = 0;
     style.display = 'none';
   }
+
+  const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
+
   useEffect(() => {
     if (isToSharedNotesBeShow) {
       setShouldRenderNotes(true);
@@ -184,6 +184,8 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
   const amIPresenter = !!currentUserData?.presenter;
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const shouldShowSharedNotesOnPresentationArea = !!pinnedPadData

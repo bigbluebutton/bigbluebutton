@@ -11,10 +11,6 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 
 const MIN_FONTSIZE = 0;
-const SHOW_AUDIO_FILTERS = (window.meetingClientSettings.public.app
-  .showAudioFilters === undefined)
-  ? true
-  : window.meetingClientSettings.public.app.showAudioFilters;
 const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
@@ -275,6 +271,11 @@ class ApplicationMenu extends BaseMenu {
 
   renderAudioFilters() {
     let audioFilterOption = null;
+
+    const SHOW_AUDIO_FILTERS = (window.meetingClientSettings.public.app
+      .showAudioFilters === undefined)
+      ? true
+      : window.meetingClientSettings.public.app.showAudioFilters;
 
     if (SHOW_AUDIO_FILTERS) {
       const { intl, showToggleLabel, displaySettingsStatus } = this.props;

@@ -30,9 +30,6 @@ const VIEW_STATES = {
   error: 'error',
 };
 
-const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
-const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
-
 const propTypes = {
   intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
@@ -368,6 +365,9 @@ class VideoPreview extends Component {
   }
 
   startCameraBrightness() {
+    const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+    const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
+
     if (CAMERA_BRIGHTNESS_AVAILABLE) {
       const setBrightnessInfo = () => {
         const stream = this.currentVideoStream || {};
@@ -431,6 +431,9 @@ class VideoPreview extends Component {
     const { sharedDevices } = this.props;
     const { webcamDeviceId } = this.state;
     const shared = this.isAlreadyShared(webcamDeviceId);
+
+    const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+    const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
     if (type !== EFFECT_TYPES.NONE_TYPE || CAMERA_BRIGHTNESS_AVAILABLE) {
       return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
@@ -876,6 +879,9 @@ class VideoPreview extends Component {
     const {
       webcamDeviceId,
     } = this.state;
+
+    const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+
     if (!ENABLE_CAMERA_BRIGHTNESS) return null;
 
     const { intl } = this.props;

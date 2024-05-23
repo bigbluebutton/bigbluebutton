@@ -31,7 +31,6 @@ const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;
 const MILLI_IN_MINUTE = 60000;
 const MILLI_IN_SECOND = 1000;
-const TIMER_CONFIG = window.meetingClientSettings.public.timer;
 
 const TRACKS = [
   'noTrack',
@@ -257,6 +256,8 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
     const label = running ? intlMessages.stop : intlMessages.start;
     const color = running ? 'danger' : 'primary';
+
+    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
 
     return (
       <div>

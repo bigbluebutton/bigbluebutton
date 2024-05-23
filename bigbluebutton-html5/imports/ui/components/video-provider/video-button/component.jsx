@@ -13,9 +13,6 @@ import VideoPreviewContainer from '/imports/ui/components/video-preview/containe
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
 import Settings from '/imports/ui/services/settings';
 
-const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
-const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
-
 const intlMessages = defineMessages({
   videoSettings: {
     id: 'app.video.videoSettings',
@@ -80,6 +77,9 @@ const JoinVideoButton = ({
   setLocalSettings,
   away,
 }) => {
+  const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
+  const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
   const isDesktopSharingCamera = hasVideoStream && !isMobile;
