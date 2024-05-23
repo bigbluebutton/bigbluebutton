@@ -44,7 +44,7 @@ class PluginDataChannelEntryDbTableDef(tag: Tag) extends Table[PluginDataChannel
 
 object PluginDataChannelEntryDAO {
   def insert(meetingId: String, pluginName: String, channelName: String, subChannelName: String, senderUserId: String,
-             payloadJson: Map[String, Object], toRoles: List[String], toUserIds: List[String]) = {
+             payloadJson: Map[String, Any], toRoles: List[String], toUserIds: List[String]) = {
     DatabaseConnection.db.run(
       TableQuery[PluginDataChannelEntryDbTableDef].forceInsert(
         PluginDataChannelEntryDbModel(
