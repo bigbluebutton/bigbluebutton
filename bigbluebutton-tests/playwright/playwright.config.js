@@ -3,6 +3,7 @@ const { chromiumConfig, firefoxConfig, webkitConfig } = require('./core/browsers
 const { ELEMENT_WAIT_TIME } = require('./core/constants');
 
 const CI = process.env.CI === 'true';
+const isParallel = !!process.env.npm_config_parallel;
 
 const config = {
   workers: CI ? 1 : 2,
@@ -12,12 +13,12 @@ const config = {
     : [['list'], ['html', { open: 'never' }],
   ],
   forbidOnly: CI,
-  fullyParallel: CI,
+  fullyParallel: CI || isParallel,
   use: {
     headless: true,
     trace: 'on',
     screenshot: 'on',
-    video: 'on',
+    video: CI ? 'retain-on-failure' : 'on',
   },
   projects: [
     chromiumConfig,

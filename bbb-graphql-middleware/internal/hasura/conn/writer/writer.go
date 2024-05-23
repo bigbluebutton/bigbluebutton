@@ -55,7 +55,7 @@ RangeLoop:
 
 				var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
-				if fromBrowserMessageAsMap["type"] == "start" {
+				if fromBrowserMessageAsMap["type"] == "subscribe" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
 
 					//Identify type based on query string
@@ -154,7 +154,7 @@ RangeLoop:
 					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessageAsMap)
 				}
 
-				if fromBrowserMessageAsMap["type"] == "stop" {
+				if fromBrowserMessageAsMap["type"] == "complete" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
 					browserConnection.ActiveSubscriptionsMutex.RLock()
 					jsonPatchSupported := browserConnection.ActiveSubscriptions[queryId].JsonPatchSupported

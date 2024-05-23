@@ -241,13 +241,13 @@ You can use the `messageKey` to determine the type of error and look up internat
 
 The following section describes the administration calls
 
-| Resource        | Description                              |
-|:----------------|:-----------------------------------------|
-| create          | Creates a new meeting.                   |
-| join            | Join a new user to an existing meeting.  |
-| end             | Ends meeting.                            |
-| sendChatMessage | Send a message to the public chat.       |
-| insertDocument  | Insert a batch of documents via API call |
+| Resource            | Description                                                                                    |
+| :------------------ | :--------------------------------------------------------------------------------------------- |
+| create              | Creates a new meeting.                                                                         |
+| join                | Join a new user to an existing meeting.                                                        |
+| end                 | Ends meeting.                                                                                  |
+| sendChatMessage     | Send a message to the public chat.                                                             |
+| insertDocument      | Insert a batch of documents via API call                                                       |
 
 ### Monitoring
 
