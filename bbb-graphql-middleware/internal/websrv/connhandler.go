@@ -44,7 +44,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Add sub-protocol
 	var acceptOptions websocket.AcceptOptions
-	acceptOptions.Subprotocols = append(acceptOptions.Subprotocols, "graphql-ws")
+	acceptOptions.Subprotocols = append(acceptOptions.Subprotocols, "graphql-transport-ws")
 	bbbOrigin := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ORIGIN")
 	if bbbOrigin != "" {
 		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, bbbOrigin)
