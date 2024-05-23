@@ -36,7 +36,7 @@ test.describe.parallel('Breakout @ci', () => {
       await create.removeAndResetAssignments();
     });
 
-    test('Drag and drop user in a room', async ({ browser, context, page }) => {
+    test('Drag and drop user in a room', async ({ browser, context, page, browserName }) => {
       const create = new Create(browser, context);
       test.skip(browserName === 'webkit', 'Failing on loading the plugins for Webkit.');
       await create.initPages(page);
