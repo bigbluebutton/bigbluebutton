@@ -21,6 +21,8 @@ import AudioModalContainer from './audio-modal/container';
 import Settings from '/imports/ui/services/settings';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -90,6 +92,8 @@ const AudioContainer = (props) => {
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
+  const { data: currentUserMuted } = useCurrentUser((u) => u?.voice?.muted ?? false);
+
   const joinAudio = () => {
     if (Service.isConnected()) return;
 
@@ -118,8 +122,8 @@ const AudioContainer = (props) => {
   if (Service.isConnected() && !Service.isListenOnly()) {
     Service.updateAudioConstraints(microphoneConstraints);
 
-    if (userLocks.userMic && !Service.isMuted()) {
-      Service.toggleMuteMicrophone(toggleVoice);
+    if (userLocks.userMic && !currentUserMuted) {
+      toggleMuteMicrophone(!currentUserMuted, toggleVoice);
       notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
     }
   }
