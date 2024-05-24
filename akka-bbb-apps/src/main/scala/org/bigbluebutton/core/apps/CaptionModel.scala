@@ -71,20 +71,6 @@ class CaptionModel {
     locale
   }
 
-  def checkCaptionOwnerLogOut(userId: String): Option[(String, TranscriptVO)] = {
-    var rtnTranscript: Option[(String, TranscriptVO)] = None
-
-    if (userId.length > 0) {
-      findTranscriptByOwnerId(userId).foreach(t => {
-        val oldTranscript = t._2.copy(ownerId = "")
-
-        transcripts += t._1 -> oldTranscript
-        rtnTranscript = Some((t._1, oldTranscript))
-      })
-    }
-    rtnTranscript
-  }
-
   def isUserCaptionOwner(userId: String, name: String): Boolean = {
     var isOwner: Boolean = false;
 

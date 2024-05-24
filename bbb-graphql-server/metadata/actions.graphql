@@ -60,9 +60,8 @@ type Mutation {
 }
 
 type Mutation {
-  captionSetOwner(
+  captionAddLocale(
     locale: String!
-    ownerUserId: String!
   ): Boolean
 }
 

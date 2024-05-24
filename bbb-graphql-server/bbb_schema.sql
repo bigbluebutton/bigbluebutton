@@ -1777,11 +1777,11 @@ CREATE TABLE "caption_locale" (
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
     "locale" varchar(15) NOT NULL,
     "captionType" varchar(100) NOT NULL, --Audio Transcription or Typed Caption
-    "ownerUserId" varchar(50),
+    "createdBy" varchar(50),
     "createdAt" timestamp with time zone default current_timestamp,
     "updatedAt" timestamp with time zone,
     CONSTRAINT "caption_locale_pk" primary key ("meetingId","locale","captionType"),
-    FOREIGN KEY ("meetingId", "ownerUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+    FOREIGN KEY ("meetingId", "createdBy") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_caption_locale_pk_reverse" on "caption_locale"("locale","meetingId","captionType");
 create index "idx_caption_locale_pk_reverse_b" on "caption_locale"("captionType","meetingId","locale");
@@ -1802,11 +1802,11 @@ CREATE OR REPLACE FUNCTION "update_caption_locale_owner_func"() RETURNS TRIGGER 
 BEGIN
     WITH upsert AS (
         UPDATE "caption_locale" SET
-        "ownerUserId" = NEW."userId",
+        "createdBy" = NEW."userId",
         "updatedAt" = current_timestamp
         WHERE "meetingId"=NEW."meetingId" AND "locale"=NEW."locale" AND "captionType"= NEW."captionType"
     RETURNING *)
-    INSERT INTO "caption_locale"("meetingId","locale","captionType","ownerUserId")
+    INSERT INTO "caption_locale"("meetingId","locale","captionType","createdBy")
     SELECT NEW."meetingId", NEW."locale", NEW."captionType", NEW."userId"
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
@@ -1826,7 +1826,7 @@ FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
 CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
-select distinct "meetingId", "locale", "ownerUserId", "captionType"
+select distinct "meetingId", "locale", "createdBy", "captionType"
 from "caption_locale";
 
 create index "idx_caption_typed_activeLocales" on "caption"("meetingId","locale","userId") where "captionType" = 'TYPED';

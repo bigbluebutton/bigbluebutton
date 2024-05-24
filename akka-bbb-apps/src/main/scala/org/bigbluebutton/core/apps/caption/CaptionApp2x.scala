@@ -19,10 +19,6 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
     liveMeeting.captionModel.editHistory(userId, startIndex, endIndex, name, text)
   }
 
-  def checkCaptionOwnerLogOut(liveMeeting: LiveMeeting, userId: String): Option[(String, TranscriptVO)] = {
-    liveMeeting.captionModel.checkCaptionOwnerLogOut(userId)
-  }
-
   def isUserCaptionOwner(liveMeeting: LiveMeeting, userId: String, name: String): Boolean = {
     liveMeeting.captionModel.isUserCaptionOwner(userId, name)
   }
