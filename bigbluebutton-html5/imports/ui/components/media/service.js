@@ -17,11 +17,14 @@ function shouldShowWhiteboard() {
   return true;
 }
 
-function shouldShowScreenshare() {
+function shouldShowScreenshare(active, sharingContentType) {
   const { viewScreenshare } = Settings.dataSaving;
   return (isScreenSharingEnabled() || isCameraAsContentEnabled())
     && (viewScreenshare || UserService.isUserPresenter())
-    && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
+    && (
+      isScreenBroadcasting(active, sharingContentType)
+      || isCameraAsContentBroadcasting(active, sharingContentType)
+    );
 }
 
 function shouldShowOverlay() {

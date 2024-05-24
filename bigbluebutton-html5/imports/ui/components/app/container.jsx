@@ -32,6 +32,7 @@ import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import { useIsSharing, useSharingContentType } from '../screenshare/service';
 
 const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -259,7 +260,7 @@ const currentUserEmoji = (currentUser) => (currentUser
   }
 );
 
-export default withTracker(() => {
+const AppTracker = withTracker((props) => {
   const currentUser = Users.findOne(
     { userId: Auth.userID },
     {
@@ -287,11 +288,17 @@ export default withTracker(() => {
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
 
-
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
-  const shouldShowScreenshare = MediaService.shouldShowScreenshare();
+  const {
+    isScreenSharing,
+    screenSharingContentType,
+  } = props;
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare(
+    isScreenSharing,
+    screenSharingContentType,
+  );
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
@@ -340,3 +347,19 @@ export default withTracker(() => {
     User: currentUser,
   };
 })(AppContainer);
+
+// TODO: Remove this
+// Temporary component until we remove all trackers
+export default (props) => {
+  const isScreenSharing = useIsSharing();
+  const screenSharingContentType = useSharingContentType();
+  return (
+    <AppTracker
+      {...{
+        ...props,
+        isScreenSharing,
+        screenSharingContentType,
+      }}
+    />
+  );
+};

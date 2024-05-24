@@ -5,6 +5,8 @@ import { isScreenSharingEnabled } from '/imports/ui/services/features';
 import {
   isScreenBroadcasting,
   dataSavingSetting,
+  useIsSharing,
+  useSharingContentType,
 } from '/imports/ui/components/screenshare/service';
 
 const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
@@ -17,8 +19,24 @@ const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
  * isMeteorConnected,
  * screenshareDataSavingSetting,
  */
-export default withTracker(() => ({
-  isScreenBroadcasting: isScreenBroadcasting(),
+const ScreenshareButtonContainerTracker = withTracker(({ isSharing, sharingContentType }) => ({
+  isScreenBroadcasting: isScreenBroadcasting(isSharing, sharingContentType),
   screenshareDataSavingSetting: dataSavingSetting(),
   enabled: isScreenSharingEnabled(),
 }))(ScreenshareButtonContainer);
+
+// TODO: Remove this
+// Temporary component until we remove all trackers
+export default (props) => {
+  const isSharing = useIsSharing();
+  const sharingContentType = useSharingContentType();
+  return (
+    <ScreenshareButtonContainerTracker
+      {...{
+        ...props,
+        isSharing,
+        sharingContentType,
+      }}
+    />
+  );
+};
