@@ -8,7 +8,7 @@ import React, {
 import { useSubscription, useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
-} from '@tldraw/tldraw';
+} from '@bigbluebutton/tldraw';
 import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
