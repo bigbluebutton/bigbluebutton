@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation, useSubscription } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import NotesService from '/imports/ui/components/notes/service';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -126,6 +125,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     ) : null;
   };
 
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes
       data-test="notes"
@@ -156,7 +157,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         />
       ) : renderHeaderOnMedia()}
       <PadContainer
-        externalId={NotesService.ID}
+        externalId={NOTES_CONFIG.id}
         hasPermission={hasPermission}
         isResizing={isResizing}
         isRTL={isRTL}

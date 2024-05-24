@@ -203,7 +203,7 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
 
-  const rev = useRev(NotesService.ID);
+  const rev = useRev(NOTES_CONFIG.id);
   const { setNotesLastRev } = useNotesLastRev();
 
   const hasUnreadNotes = useHasUnreadNotes();
