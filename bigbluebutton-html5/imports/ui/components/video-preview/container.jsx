@@ -17,47 +17,32 @@ import { useStorageKey } from '../../services/storage/hooks';
 
 const VideoPreviewContainer = (props) => {
   const {
-    buildStartSharingCameraAsContent,
-    buildStopSharing,
-    hasCapReached,
-    ...rest
+    callbackToClose,
+    setIsOpen,
   } = props;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   const { streams } = useStreams();
   const exitVideo = useExitVideo();
   const stopVideo = useStopVideo();
-  const startSharingCameraAsContent = buildStartSharingCameraAsContent(stopExternalVideoShare);
-  const stopSharing = buildStopSharing(streams, exitVideo, stopVideo);
   const sharedDevices = useSharedDevices();
   const hasVideoStream = useHasVideoStream();
   const camCapReached = useHasCapReached();
   const isCamLocked = useIsUserLocked();
   const webcamDeviceId = useStorageKey('WebcamDeviceId');
 
-  return (
-    <VideoPreview
-      {...{
-        startSharingCameraAsContent,
-        stopSharing,
-        sharedDevices,
-        hasVideoStream,
-        camCapReached,
-        isCamLocked,
-        webcamDeviceId,
-        ...rest,
-      }}
-    />
-  );
-};
-
-export default withTracker(({ setIsOpen, callbackToClose }) => ({
-  startSharing: (deviceId) => {
+  const stopSharing = (deviceId) => {
     callbackToClose();
     setIsOpen(false);
-    VideoService.joinVideo(deviceId);
-  },
-  buildStartSharingCameraAsContent: (stopExternalVideoShare) => (deviceId) => {
+    if (deviceId) {
+      const streamId = VideoService.getMyStreamId(deviceId, streams);
+      if (streamId) stopVideo(streamId);
+    } else {
+      exitVideo();
+    }
+  };
+
+  const startSharingCameraAsContent = (deviceId) => {
     callbackToClose();
     setIsOpen(false);
     const handleFailure = (error) => {
@@ -78,16 +63,29 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
       true, handleFailure, { stream: Service.getStream(deviceId)._mediaStream },
     );
     ScreenShareService.setCameraAsContentDeviceId(deviceId);
-  },
-  buildStopSharing: (streams, exitVideo, stopVideo) => (deviceId) => {
+  };
+
+  return (
+    <VideoPreview
+      {...{
+        startSharingCameraAsContent,
+        stopSharing,
+        sharedDevices,
+        hasVideoStream,
+        camCapReached,
+        isCamLocked,
+        webcamDeviceId,
+        ...props,
+      }}
+    />
+  );
+};
+
+export default withTracker(({ setIsOpen, callbackToClose }) => ({
+  startSharing: (deviceId) => {
     callbackToClose();
     setIsOpen(false);
-    if (deviceId) {
-      const streamId = VideoService.getMyStreamId(deviceId, streams);
-      if (streamId) stopVideo(streamId);
-    } else {
-      exitVideo();
-    }
+    VideoService.joinVideo(deviceId);
   },
   stopSharingCameraAsContent: () => {
     callbackToClose();

@@ -12,8 +12,8 @@ import {
   InstancePresenceRecordType,
   setDefaultUiAssetUrls,
   setDefaultEditorAssetUrls,
-} from "@tldraw/tldraw";
-import "@tldraw/tldraw/tldraw.css";
+} from "@bigbluebutton/tldraw";
+import "@bigbluebutton/tldraw/tldraw.css";
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
 import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies

@@ -44,8 +44,8 @@ export type Stream = {
   deviceId: string;
   userId: string;
   name: string;
-  sortName: string;
-  pin: boolean;
+  nameSortable: string;
+  pinned: boolean;
   floor: boolean;
   lastFloorTime: string;
   isModerator: boolean;

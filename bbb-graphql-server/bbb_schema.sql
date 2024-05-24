@@ -665,7 +665,7 @@ LEFT JOIN "user_voice" user_talking ON (
 
 
 CREATE TABLE "user_camera" (
-	"streamId" varchar(100) PRIMARY KEY,
+	"streamId" varchar(150) PRIMARY KEY,
 	"meetingId" varchar(100),
     "userId" varchar(50),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
