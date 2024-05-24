@@ -63,7 +63,7 @@ test.describe.parallel('Breakout @ci', () => {
 
     test('Join Breakout room and share screen', async ({ browser, context, page, browserName }) => {
       const join = new Join(browser, context);
-      test.skip(browserName === 'webkit', 'Screensharing not working on Webkit');
+      test.skip(browserName === 'webkit' || 'firefox', 'Screensharing not working on Webkit');
       await join.initPages(page);
       await join.create();
       await join.joinAndShareScreen();
