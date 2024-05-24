@@ -1,5 +1,6 @@
 package org.bigbluebutton.core
 
+import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models._
@@ -80,7 +81,7 @@ trait AppsTestFixtures {
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
   val breakoutRooms = new BreakoutRooms()
-  val captionModel = new CaptionModel()
+//  val captionModel = new CaptionModel()
   val registeredUsers = new RegisteredUsers
   val meetingStatux2x = new MeetingStatus2x
   val webcams = new Webcams
@@ -89,13 +90,16 @@ trait AppsTestFixtures {
   val polls2x = new Polls
   val guestsWaiting = new GuestsWaiting
   val deskshareModel = new ScreenshareModel
+  private val audioCaptions = new AudioCaptions
+  private val timerModel = new TimerModel
 
   def newLiveMeeting(): LiveMeeting = {
+    val externalVideoModel = new ExternalVideoModel()
     val chatModel = new ChatModel()
     val layouts = new Layouts()
+    val pads = new Pads()
     val wbModel = new WhiteboardModel()
     val presModel = new PresentationModel()
-    val captionModel = new CaptionModel()
     val registeredUsers = new RegisteredUsers
     val meetingStatux2x = new MeetingStatus2x
     val webcams = new Webcams
@@ -104,11 +108,15 @@ trait AppsTestFixtures {
     val polls2x = new Polls
     val guestsWaiting = new GuestsWaiting
     val deskshareModel = new ScreenshareModel
+    val audioCaptions = new AudioCaptions
+    val timerModel = new TimerModel
+    val clientSettings: Map[String, Object] = ClientSettings.getClientSettingsWithOverride("")
 
     // We extract the meeting handlers into this class so it is
     // easy to test.
-    new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layouts,
-      registeredUsers, polls2x, wbModel, presModel, captionModel,
-      webcams, voiceUsers, users2x, guestsWaiting)
+    new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
+      chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel,
+      webcams, voiceUsers, users2x, guestsWaiting, clientSettings)
+
   }
 }

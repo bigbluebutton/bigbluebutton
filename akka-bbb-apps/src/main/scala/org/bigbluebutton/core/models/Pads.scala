@@ -5,15 +5,6 @@ import org.bigbluebutton.core2.{ MeetingStatus2x }
 import scala.collection.immutable.HashMap
 
 object Pads {
-  def hasCaptionsAccess(liveMeeting: LiveMeeting, userId: String, captions: String): Boolean = {
-    // Is user a moderator AND
-    // Is user the captions' owner
-    Users2x.findWithIntId(liveMeeting.users2x, userId) match {
-      case Some(user) => user.role == "MODERATOR" && liveMeeting.captionModel.isUserCaptionOwner(userId, captions)
-      case _          => false
-    }
-  }
-
   def hasNotesAccess(liveMeeting: LiveMeeting, userId: String): Boolean = {
     // Is user a moderator OR
     // Are notes unlocked OR
@@ -28,9 +19,8 @@ object Pads {
     getGroup(liveMeeting.pads, externalId) match {
       case Some(group) => {
         group.model match {
-          case "captions" => hasCaptionsAccess(liveMeeting, userId, group.name)
-          case "notes"    => hasNotesAccess(liveMeeting, userId)
-          case _          => false
+          case "notes" => hasNotesAccess(liveMeeting, userId)
+          case _       => false
         }
       }
       case _ => false

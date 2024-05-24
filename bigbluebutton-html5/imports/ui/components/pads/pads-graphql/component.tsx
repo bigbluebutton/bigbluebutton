@@ -93,9 +93,11 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
   const hasSession = !!session?.sessionId;
   const sessionIds = new Set<string>(sessionData.map((s) => s.sessionId));
 
-  if (hasPad && !hasSession && hasPermission) {
-    createSession({ variables: { externalId } });
-  }
+  useEffect(() => {
+    if (hasPad && !hasSession && hasPermission) {
+      createSession({ variables: { externalId } });
+    }
+  }, [hasPad, hasSession, hasPermission]);
 
   return (
     <PadGraphql

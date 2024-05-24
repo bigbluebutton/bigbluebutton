@@ -12,7 +12,6 @@ import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
 import org.bigbluebutton.core.apps.pads.{ PadsApp2x, PadslHdlrHelpers }
@@ -129,7 +128,6 @@ class MeetingActor(
   val presentationApp2x = new PresentationApp2x
   val screenshareApp2x = new ScreenshareApp2x
   val audioCaptionsApp2x = new AudioCaptionsApp2x
-  val captionApp2x = new CaptionApp2x
   val chatApp2x = new ChatApp2x
   val externalVideoApp2x = new ExternalVideoApp2x
   val padsApp2x = new PadsApp2x
@@ -552,7 +550,6 @@ class MeetingActor(
       case m: PadSessionDeletedSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatedSysMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadContentSysMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadPatchSysMsg          => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatePubMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadPinnedReqMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
 
@@ -593,11 +590,6 @@ class MeetingActor(
       case m: PresentationPageConvertedSysMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageConversionStartedSysMsg        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionEndedSysMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-
-      // Caption
-      case m: EditCaptionHistoryPubMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateCaptionOwnerPubMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendCaptionHistoryReqMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg                 => handleGetGuestsWaitingApprovalReqMsg(m)
@@ -945,8 +937,6 @@ class MeetingActor(
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
         RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
-
-        captionApp2x.handleUserLeavingMsg(leftUser.intId, liveMeeting, msgBus)
 
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
