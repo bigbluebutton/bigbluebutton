@@ -23,7 +23,7 @@ export interface DataChannelItemManagerWriterProps {
 export interface MutationVariables {
   pluginName: string,
   channelName: string,
-  payloadJson: string,
+  payloadJson: object,
   toRoles: PluginSdk.DataChannelPushEntryFunctionUserRole[],
   toUserIds: string[],
 }
@@ -56,7 +56,7 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
         pluginName,
         channelName,
         subChannelName,
-        payloadJson: JSON.stringify(msg),
+        payloadJson: msg,
         toRoles: [],
         toUserIds: [],
       } as MutationVariables,

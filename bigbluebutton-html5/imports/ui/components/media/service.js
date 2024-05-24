@@ -6,8 +6,6 @@ import {
 } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
-import VideoStreams from '/imports/api/video-streams';
-import Auth from '/imports/ui/services/auth/index';
 
 const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
@@ -38,19 +36,13 @@ const setPresentationIsOpen = (layoutContextDispatch, value) => {
   });
 };
 
-const isThereWebcamOn = (meetingID) => {
-  return VideoStreams.find({
-    meetingId: meetingID
-  }).count() > 0;
-}
-
 const buildLayoutWhenPresentationAreaIsDisabled = (
   layoutContextDispatch,
   isSharingVideo,
   isSharedNotesPinned,
+  isThereWebcam,
 ) => {
   const hasScreenshare = isScreenSharingEnabled();
-  const isThereWebcam = isThereWebcamOn(Auth.meetingID);
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
   const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
   const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;

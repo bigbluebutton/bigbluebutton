@@ -24,12 +24,10 @@ import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
 import ContextProviders from '/imports/ui/components/context-providers/component';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
-import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 // The adapter import is "unused" as far as static code is concerned, but it
 // needs to here to override global prototypes. So: don't remove it - prlanzarin 25 Apr 2022
 import adapter from 'webrtc-adapter';
 
-import collectionMirrorInitializer from './collection-mirror-initializer';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import IntlAdapter from '/imports/startup/client/intlAdapter';
 import PresenceAdapter from '../imports/ui/components/presence-adapter/component';
@@ -38,9 +36,6 @@ import CustomUsersSettings from '/imports/ui/components/join-handler/custom-user
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
 });
-
-collectionMirrorInitializer();
-liveDataEventBrokerInitializer();
 
 // eslint-disable-next-line import/prefer-default-export
 const Startup = () => {
