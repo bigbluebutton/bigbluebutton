@@ -1417,7 +1417,9 @@ Useful tools for development:
 | `userdata-bbb_multi_user_pen_only=` | If set to `true`, only the pen tool will be available to non-participants when multi-user whiteboard is enabled | `false`       |
 | `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_presenter_tools=['eraser', 'diamond']` will allow only the eraser and diamond tools.                                                     | all enabled   |
 | `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_multi_user_tools=['eraser', 'diamond']` will allow only the eraser and diamond tools.                                          | all enabled   |
-*more: More includes the rest of the extra shapes, those being: `rectangle, ellipse, diamond, traingle, trapezoid, rhombus, hexagon, cloud, star, oval, x-box,check-box, arrow left, arrow up, arrow down, arrow right, frame, line, laser`.
+*more: More includes the rest of the extra shapes, those being: `rectangle`, `ellipse`, `diamond`, `traingle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow left`, `arrow up`, `arrow down`, `arrow right`, `frame`, `line`, `laser`.
+
+@Scroody what's the exact name of `arrow up`? Does it have underscore as a divider?
 
 OBS: Each tool/shape can be used separately by simply being passed in the parameter or setting by it's name. Example:  "user-data-bbb_example_paremeter=['triangle', 'cloud']".
 The use of *more will include all shapes listed above.
