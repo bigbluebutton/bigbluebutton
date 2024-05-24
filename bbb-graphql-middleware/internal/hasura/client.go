@@ -46,7 +46,7 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 
 	// Add sub-protocol
 	var dialOptions websocket.DialOptions
-	dialOptions.Subprotocols = append(dialOptions.Subprotocols, "graphql-ws")
+	dialOptions.Subprotocols = append(dialOptions.Subprotocols, "graphql-transport-ws")
 
 	// Create cookie jar
 	jar, err := cookiejar.New(nil)

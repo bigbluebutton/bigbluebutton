@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { DocumentNode } from 'graphql';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import { GraphqlResponseWrapper, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DataChannelHooks, DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
@@ -14,14 +13,6 @@ export interface DataChannelItemManagerReaderProps {
   subChannelName: string;
   dataChannelType: DataChannelTypes;
   dataChannelIdentifier: string;
-}
-
-export interface MutationVariables {
-  pluginName: string,
-  dataChannel: string,
-  payloadJson: string,
-  toRoles: PluginSdk.DataChannelPushEntryFunctionUserRole[],
-  toUserIds: string[],
 }
 
 export interface SubscriptionVariables {

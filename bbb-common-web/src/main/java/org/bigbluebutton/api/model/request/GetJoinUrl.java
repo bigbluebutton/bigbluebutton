@@ -2,9 +2,10 @@ package org.bigbluebutton.api.model.request;
 
 import org.bigbluebutton.api.model.constraint.UserSessionConstraint;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-public class GetJoinUrl implements Request<GetJoinUrl.Params> {
+public class GetJoinUrl extends RequestWithSession<GetJoinUrl.Params> {
 
     public enum Params implements RequestParameters {
         SESSION_TOKEN("sessionToken");
@@ -18,6 +19,10 @@ public class GetJoinUrl implements Request<GetJoinUrl.Params> {
 
     @UserSessionConstraint
     private String sessionToken;
+
+    public GetJoinUrl(HttpServletRequest servletRequest) {
+        super(servletRequest);
+    }
 
     public String getSessionToken() {
         return sessionToken;

@@ -166,13 +166,15 @@ exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 
 // Timer
+exports.timerContainer = 'div[data-test="timerContainer"]';
+exports.stopwatchContainer = 'div[data-test="stopwatchContainer"]';
 exports.timerStopwatchFeature = 'li[data-test="timerStopWatchFeature"]';
 exports.timerCurrent = 'span[data-test="timerCurrent"]';
 exports.startStopTimer = 'button[data-test="startStopTimer"]';
 exports.resetTimerStopwatch = 'button[data-test="resetTimerStopWatch"]';
-exports.timerButton = 'button[data-test="timer"]';
+exports.timerButton = 'button[data-test="timerButton"]';
 exports.timerIndicator = 'div[data-test="timeIndicator"]';
-exports.stopwatch = 'button[data-test="stopwatch"]';
+exports.stopwatch = 'button[data-test="stopwatchButton"]';
 exports.hoursInput = 'input[data-test="hoursInput"]';
 exports.minutesInput = 'input[data-test="minutesInput"]';
 exports.secondsInput = 'input[data-test="secondsInput"]';
@@ -374,10 +376,6 @@ exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 exports.deniedMessageElement = 'p[class="error-message"]';
-exports.selectRandomUser = 'li[data-test="selectRandomUser"]';
-exports.noViewersSelectedMessage = 'div[data-test="noViewersSelectedMessage"]';
-exports.selectedUserName = 'div[data-test="selectedUserName"]';
-exports.selectAgainRadomUser = 'button[data-test="selectAgainRadomUser"]';
 exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';
@@ -408,13 +406,6 @@ exports.lockUserList = 'input[data-test="lockUserList"]';
 exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
 exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
-
-// Closed Captions
-exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
-exports.startWritingClosedCaptions = 'button[data-test="startWritingClosedCaptions"]';
-exports.startViewingClosedCaptionsBtn = 'button[data-test="startViewingClosedCaptionsBtn"]';
-exports.startViewingClosedCaptions = 'button[data-test="startViewingClosedCaptions"]';
-exports.liveCaptions = 'div[data-test="liveCaptions"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',

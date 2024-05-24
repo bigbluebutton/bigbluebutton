@@ -409,7 +409,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId, voiceToggle);
+        toggleVoice(user.userId, true, voiceToggle);
         setOpenUserAction(null);
       },
       icon: 'mute',
@@ -421,7 +421,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId, voiceToggle);
+        toggleVoice(user.userId, false, voiceToggle);
         setOpenUserAction(null);
       },
       icon: 'unmute',

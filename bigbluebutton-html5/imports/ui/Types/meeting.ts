@@ -20,8 +20,7 @@ export interface groups {
 
 export interface WelcomeSettings {
   welcomeMsg: string;
-  modOnlyMessage: string;
-  welcomeMsgTemplate: string;
+  welcomeMsgForModerators: string;
   meetingId: string;
 }
 
@@ -115,7 +114,6 @@ export interface Meeting {
   disabledFeatures: Array<string>;
   durationInSeconds: number;
   extId: string;
-  html5InstanceId: string | null;
   isBreakout: boolean;
   learningDashboardAccessToken: string;
   maxPinnedCameras: number;

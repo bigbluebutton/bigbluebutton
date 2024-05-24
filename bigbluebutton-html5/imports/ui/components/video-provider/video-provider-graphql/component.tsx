@@ -448,7 +448,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   findAllPrivilegedStreams() {
     const { streams } = this.props;
     // Privileged streams are: floor holders, pinned users
-    return streams.filter((stream) => stream.type === 'stream' && (stream.floor || stream.pin));
+    return streams.filter((stream) => stream.type === 'stream' && (stream.floor || stream.pinned));
   }
 
   updateQualityThresholds(numberOfPublishers: number) {

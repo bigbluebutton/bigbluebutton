@@ -131,7 +131,7 @@ class BbbWebApiGWApp(
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
-                    welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
+                    welcomeMsgTemplate: String, welcomeMsg: String, welcomeMsgForModerators: String,
                     dialNumber:                             String,
                     maxUsers:                               java.lang.Integer,
                     maxUserConcurrentAccesses:              java.lang.Integer,
@@ -148,7 +148,6 @@ class BbbWebApiGWApp(
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
-                    html5InstanceId:                        java.lang.Integer,
                     loginUrl:                               String,
                     logoutUrl:                              String,
                     customLogoURL:                          String,
@@ -207,8 +206,7 @@ class BbbWebApiGWApp(
       captureSlidesFilename = breakoutParams.captureSlidesFilename,
     )
 
-    val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
-      modOnlyMessage = modOnlyMessage)
+    val welcomeProp = WelcomeProp(welcomeMsg = welcomeMsg, welcomeMsgForModerators = welcomeMsgForModerators)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(
       maxUsers = maxUsers.intValue(),
@@ -235,7 +233,6 @@ class BbbWebApiGWApp(
     )
 
     val systemProps = SystemProps(
-      html5InstanceId,
       loginUrl match {
         case url: String => url
         case _ => ""

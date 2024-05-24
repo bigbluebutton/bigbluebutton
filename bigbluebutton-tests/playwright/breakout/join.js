@@ -39,7 +39,7 @@ class Join extends Create {
   async joinAndShareWebcam() {
     const breakoutPage = await this.joinRoom();
 
-    const { videoPreviewTimeout } = getSettings();
+    const { videoPreviewTimeout } = this.userPage.settings;
     await breakoutPage.shareWebcam(true, videoPreviewTimeout);
   }
 

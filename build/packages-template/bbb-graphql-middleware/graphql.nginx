@@ -6,12 +6,12 @@ location /graphql-test {
 }
 
 # Websocket connection
-location /v1/graphql {
+location /graphql {
 	proxy_http_version 1.1;
 	proxy_set_header Upgrade $http_upgrade;
 	proxy_set_header Connection "Upgrade";
 	proxy_set_header Host $host;
-	#proxy_pass         http://127.0.0.1:8085; #Hasura
+	#proxy_pass         http://127.0.0.1:8085; #Hasura (it requires to change the location to /v1/graphql)
 	proxy_pass         http://127.0.0.1:8378; #Graphql Middleware
 }
 

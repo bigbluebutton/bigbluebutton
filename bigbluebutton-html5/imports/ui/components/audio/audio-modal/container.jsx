@@ -16,8 +16,18 @@ import {
 } from './service';
 import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
+import AudioModalService from '/imports/ui/components/audio/audio-modal/service';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const AudioModalContainer = (props) => <AudioModal {...props} />;
+const AudioModalContainer = (props) => {
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    away: user.away,
+  }));
+
+  const away = currentUserData?.away;
+
+  return <AudioModal away={away} {...props} />;
+};
 
 const APP_CONFIG = window.meetingClientSettings.public.app;
 
@@ -98,5 +108,7 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
     notify: Service.notify,
     isRTL,
     AudioError,
+    getTroubleshootingLink: AudioModalService.getTroubleshootingLink,
+    isListenOnly: Service.isListenOnly(),
   });
 })(AudioModalContainer));

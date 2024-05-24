@@ -380,6 +380,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   }, [isBreakoutRecordable]);
 
   const form = useMemo(() => {
+    if (isUpdate) return null;
+
     return (
       <React.Fragment key="breakout-form">
         <Styled.BreakoutSettings>

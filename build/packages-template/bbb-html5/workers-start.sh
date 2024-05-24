@@ -23,37 +23,19 @@ done;
 
 echo "I'm the master!"
 
+#Allow to run outside of directory
+cd $(dirname $0)
 
-# Start parallel nodejs processes for bbb-html5. Number varies on restrictions file bbb-html5-with-roles.conf
+PORT=4100
 
-source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
-
-if [ -f /etc/bigbluebutton/bbb-html5-with-roles.conf ]; then
-  source /etc/bigbluebutton/bbb-html5-with-roles.conf
+# this might be already set by a systemd unit override in case this node is run
+# behind a load balancer proxy node
+if [[ -z $ROOT_URL ]] ; then
+  export ROOT_URL=http://127.0.0.1/html5client
 fi
-
-MIN_NUMBER_OF_BACKEND_PROCESSES=1
-MAX_NUMBER_OF_BACKEND_PROCESSES=4
-
-MIN_NUMBER_OF_FRONTEND_PROCESSES=0 # 0 means each nodejs process handles both front and backend roles
-MAX_NUMBER_OF_FRONTEND_PROCESSES=8
-
-
-# Start backend nodejs processes
-if ((NUMBER_OF_BACKEND_NODEJS_PROCESSES >= MIN_NUMBER_OF_BACKEND_PROCESSES && NUMBER_OF_BACKEND_NODEJS_PROCESSES <= MAX_NUMBER_OF_BACKEND_PROCESSES)); then
-  for ((i = 1 ; i <= NUMBER_OF_BACKEND_NODEJS_PROCESSES ; i++)); do
-    systemctl start bbb-html5-backend@$i
-  done
-fi
-
-
-# Start frontend nodejs processes
-if ((NUMBER_OF_FRONTEND_NODEJS_PROCESSES >= MIN_NUMBER_OF_FRONTEND_PROCESSES && NUMBER_OF_FRONTEND_NODEJS_PROCESSES <= MAX_NUMBER_OF_FRONTEND_PROCESSES)); then
-  if ((NUMBER_OF_FRONTEND_NODEJS_PROCESSES == 0)); then
-    echo 'Need to modify bbb-html5.nginx to ensure backend IPs are used'
-  fi
-  for ((i = 1 ; i <= NUMBER_OF_FRONTEND_NODEJS_PROCESSES ; i++)); do
-    systemctl start bbb-html5-frontend@$i
-  done
-fi
-
+export MONGO_OPLOG_URL=mongodb://127.0.1.1/local
+export MONGO_URL=mongodb://127.0.1.1/meteor
+export NODE_ENV=production
+export SERVER_WEBSOCKET_COMPRESSION='{"level":5, "maxWindowBits":13, "memLevel":7, "requestMaxWindowBits":13}'
+export BIND_IP=127.0.0.1
+PORT=$PORT /usr/lib/bbb-html5/node/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js
