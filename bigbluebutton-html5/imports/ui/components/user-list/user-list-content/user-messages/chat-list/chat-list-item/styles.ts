@@ -184,7 +184,6 @@ const ChatListItem = styled.button<ChatListItemProps>`
     background-color: ${listItemBgHover};
   }
 
-  &:active,
   &:focus {
     outline: transparent;
     outline-width: ${borderSize};
@@ -213,6 +212,11 @@ const ChatListItem = styled.button<ChatListItemProps>`
     margin-left: 0;
     margin-right: ${borderSize};
   }
+  ${({ active }: ChatListItemProps) => active && `
+    outline: transparent;
+    outline-style: dotted;
+    outline-width: ${borderSize};
+    background-color: ${listItemBgHover};  `}
 `;
 
 const ChatThumbnail = styled.div`

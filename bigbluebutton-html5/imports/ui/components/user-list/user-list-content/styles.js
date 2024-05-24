@@ -129,10 +129,12 @@ const ListItem = styled(Styled.ListItem)`
     text-overflow: ellipsis;
   }
 
-  &:active {
-    background-color: ${listItemBgHover};
-    box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder};
-  }
+  ${({ active }) => active && `
+  outline: transparent;
+  outline-style: dotted;
+  outline-width: ${borderSize};
+  background-color: ${listItemBgHover};
+`}
 `;
 
 const UnreadMessages = styled(FlexColumn)`
