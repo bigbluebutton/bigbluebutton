@@ -15,7 +15,6 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notify } from '/imports/ui/services/notification';
 import {
   EFFECT_TYPES,
-  SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
@@ -960,6 +959,10 @@ class VideoPreview extends Component {
       name: this.currentVideoStream.virtualBgName
     } : getSessionVirtualBackgroundInfo(webcamDeviceId);
 
+    const {
+      showThumbnails: SHOW_THUMBNAILS = true,
+    } = window.meetingClientSettings.public.virtualBackgrounds;
+    
     return (
       <VirtualBgSelector
         handleVirtualBgSelected={this.handleVirtualBgSelected}
