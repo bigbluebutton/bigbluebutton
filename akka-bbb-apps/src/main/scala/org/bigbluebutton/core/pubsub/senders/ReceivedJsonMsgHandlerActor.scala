@@ -342,14 +342,6 @@ class ReceivedJsonMsgHandlerActor(
       case RemovePresentationPodPubMsg.NAME =>
         routeGenericMsg[RemovePresentationPodPubMsg](envelope, jsonNode)
 
-      // Caption
-      case EditCaptionHistoryPubMsg.NAME =>
-        routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
-      case UpdateCaptionOwnerPubMsg.NAME =>
-        routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
-      case SendCaptionHistoryReqMsg.NAME =>
-        routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
-
       // Chat
       case GetChatHistoryReqMsg.NAME =>
         routeGenericMsg[GetChatHistoryReqMsg](envelope, jsonNode)
