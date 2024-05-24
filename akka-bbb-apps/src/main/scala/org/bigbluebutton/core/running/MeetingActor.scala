@@ -639,15 +639,6 @@ class MeetingActor(
       case m: PresentationConversionEndedSysMsg =>
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
-        <<<<<<< HEAD
-          =======
-      // Caption
-      case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendCaptionHistoryReqMsg =>
-        captionApp2x.handle(m, liveMeeting, msgBus)
-
-        >>>>>>> upstream / v3 .0.x - release
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg => handleGetGuestsWaitingApprovalReqMsg(m)
       case m: SetGuestPolicyCmdMsg =>
