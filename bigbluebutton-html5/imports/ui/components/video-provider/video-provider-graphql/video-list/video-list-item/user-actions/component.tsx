@@ -13,7 +13,7 @@ import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
-import { StreamUser, VideoItem } from '../../../types';
+import { VideoItem } from '../../../types';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -76,8 +76,7 @@ const intlMessages = defineMessages({
 
 interface UserActionProps {
   name: string;
-  user: Partial<StreamUser>;
-  stream: VideoItem | undefined;
+  stream: VideoItem;
   cameraId: string;
   numOfStreams: number;
   onHandleVideoFocus: ((id: string) => void) | null;
@@ -95,7 +94,7 @@ interface UserActionProps {
 
 const UserActions: React.FC<UserActionProps> = (props) => {
   const {
-    name, cameraId, numOfStreams, onHandleVideoFocus, user, stream, focused, onHandleMirror,
+    name, cameraId, numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
     isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
     amIModerator,
   } = props;
@@ -116,8 +115,8 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
   const getAvailableActions = () => {
-    const pinned = stream?.type === 'stream' && stream?.pin;
-    const userId = user?.userId;
+    const pinned = stream.type === 'stream' && stream.pinned;
+    const { userId } = stream;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
     const isMirroredIntlKey = !isMirrored ? 'enableMirror' : 'disableMirror';
@@ -268,7 +267,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
             )}
             actions={getAvailableActions()}
             opts={{
-              id: `webcam-${user?.userId}-dropdown-menu`,
+              id: `webcam-${stream.userId}-dropdown-menu`,
               keepMounted: true,
               transitionDuration: 0,
               elevation: 3,

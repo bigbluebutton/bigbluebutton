@@ -4,7 +4,7 @@ import VideoService from '/imports/ui/components/video-provider/video-provider-g
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
-import { StreamUser, VideoItem } from '../../../types';
+import { VideoItem } from '../../../types';
 
 const intlMessages = defineMessages({
   unpinLabel: {
@@ -16,23 +16,21 @@ const intlMessages = defineMessages({
 });
 
 interface PinAreaProps {
-  user: Partial<StreamUser>;
-  stream: VideoItem | undefined;
+  stream: VideoItem;
   amIModerator: boolean;
 }
 
 const PinArea: React.FC<PinAreaProps> = (props) => {
   const intl = useIntl();
 
-  const { stream, user, amIModerator } = props;
-  const pinned = stream?.type === 'stream' && stream?.pin;
-  const userId = user?.userId;
-  const shouldRenderPinButton = pinned && userId;
+  const { stream, amIModerator } = props;
+  const { userId, type } = stream;
+  const pinned = type === 'stream' && stream.pinned;
   const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser(amIModerator);
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
-  if (!shouldRenderPinButton) return <Styled.PinButtonWrapper />;
+  if (!pinned) return <Styled.PinButtonWrapper />;
 
   return (
     <Styled.PinButtonWrapper>
