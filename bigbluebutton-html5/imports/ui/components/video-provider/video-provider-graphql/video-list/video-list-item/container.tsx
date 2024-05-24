@@ -13,8 +13,6 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 type TrackerData = {
   disabledCams: string[];
-  user: Partial<StreamUser>;
-  stream: VideoItem | undefined;
   voiceUser: {
     muted: boolean;
     listenOnly: boolean;
