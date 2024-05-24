@@ -1421,7 +1421,7 @@ Useful tools for development:
 
 @Scroody what's the exact name of `arrow up`? Does it have underscore as a divider?
 
-OBS: Each tool/shape can be used separately by simply being passed in the parameter or setting by it's name. Example:  "user-data-bbb_example_paremeter=['triangle', 'cloud']".
+OBS: Each tool/shape can be used separately by simply being passed in the parameter or setting by it's name. Example:  `user-data-bbb_example_paremeter=['triangle', 'cloud']`.
 The use of *more will include all shapes listed above.
 
 #### Themeing & styling parameters
