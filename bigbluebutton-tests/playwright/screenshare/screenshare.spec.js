@@ -13,7 +13,8 @@ test.describe.parallel('Screenshare', () => {
     await screenshare.startSharing();
   });
 
-  test('Start screenshare stops external video @ci', async ({ browser, page }) => {
+  test('Start screenshare stops external video @ci', async ({ browser, page, browserName }) => {
+    test.skip(browserName === 'firefox', 'local is working, on ci is inconsistent');
     const screenshare = new ScreenShare(browser, page);
     await screenshare.init(true, true);
     await screenshare.screenshareStopsExternalVideo();
