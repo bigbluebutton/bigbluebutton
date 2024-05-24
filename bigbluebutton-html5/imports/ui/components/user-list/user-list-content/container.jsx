@@ -19,12 +19,13 @@ const UserContentContainer = (props) => {
   } = useMeeting((m) => ({
     componentsFlags: m.componentsFlags,
   }));
-  const { isGuestLobbyMessageEnabled } = WaitingUsersService;
+
+  const APP_SETTINGS = window.meetingClientSettings.public.app;
 
   return (
     <UserContent
       {...{
-        isGuestLobbyMessageEnabled,
+        isGuestLobbyMessageEnabled: APP_SETTINGS.enableGuestLobbyMessage,
         currentUser,
         isTimerActive: currentMeeting?.componentsFlags?.hasTimer && currentUser?.isModerator,
         ...props,
