@@ -4,13 +4,14 @@ import { notify } from '/imports/ui/services/notification';
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
 
-const CDN = window.meetingClientSettings.public.app.cdn;
-const BASENAME = window.meetingClientSettings.public.app.basename;
-const HOST = CDN + BASENAME;
 const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
 
 function ringGuestWaitingBell() {
   if (Settings.application.guestWaitingAudioAlerts) {
+    const CDN = window.meetingClientSettings.public.app.cdn;
+    const BASENAME = window.meetingClientSettings.public.app.basename;
+    const HOST = CDN + BASENAME;
+
     const audio = new Audio(`${HOST}/resources/sounds/doorbell.mp3`);
     audio.play();
   }

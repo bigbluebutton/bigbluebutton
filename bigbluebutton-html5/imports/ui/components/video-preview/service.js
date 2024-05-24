@@ -6,31 +6,34 @@ import VideoService from '/imports/ui/components/video-provider/video-provider-g
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import browserInfo from '/imports/utils/browserInfo';
 
-const GUM_TIMEOUT = window.meetingClientSettings.public.kurento.gUMTimeout;
 // GUM retry + delay params (Chrome only for now)
 const GUM_MAX_RETRIES = 5;
 const GUM_RETRY_DELAY = 200;
-// Unfiltered, includes hidden profiles
-const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
-// Filtered, without hidden profiles
-const PREVIEW_CAMERA_PROFILES = CAMERA_PROFILES.filter(p => !p.hidden);
 const CAMERA_AS_CONTENT_PROFILE_ID = 'fhd';
 
 const getDefaultProfile = () => {
+  // Unfiltered, includes hidden profiles
+  const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
+
   return CAMERA_PROFILES.find(profile => profile.id === BBBStorage.getItem('WebcamProfileId'))
     || CAMERA_PROFILES.find(profile => profile.id === VideoService.getUserParameterProfile())
     || CAMERA_PROFILES.find(profile => profile.default)
     || CAMERA_PROFILES[0];
-}
+};
 
 const getCameraAsContentProfile = () => {
+  // Unfiltered, includes hidden profiles
+  const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
+
   return CAMERA_PROFILES.find(profile => profile.id == CAMERA_AS_CONTENT_PROFILE_ID)
     || CAMERA_PROFILES.find(profile => profile.default)
-}
+};
 
 const getCameraProfile = (id) => {
+  // Unfiltered, includes hidden profiles
+  const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
   return CAMERA_PROFILES.find(profile => profile.id === id);
-}
+};
 
 // VIDEO_STREAM_STORAGE: Map<deviceId, MediaStream>. Registers WEBCAM streams.
 // Easier to keep track of them. Easier to centralize their referencing.
@@ -179,6 +182,8 @@ const _retry = (foo, opts) => new Promise((resolve, reject) => {
 
 // Returns a promise that resolves an instance of BBBVideoStream or rejects an *Error
 const doGUM = (deviceId, profile) => {
+  const GUM_TIMEOUT = window.meetingClientSettings.public.kurento.gUMTimeout;
+
   // Check if this is an already loaded stream
   if (deviceId && hasStream(deviceId)) {
     return Promise.resolve(getStream(deviceId));
@@ -225,8 +230,6 @@ const terminateCameraStream = (bbbVideoStream, deviceId) => {
 }
 
 export default {
-  PREVIEW_CAMERA_PROFILES,
-  CAMERA_PROFILES,
   promiseTimeout,
   changeWebcam: (deviceId) => {
     BBBStorage.setItem('WebcamDeviceId', deviceId);

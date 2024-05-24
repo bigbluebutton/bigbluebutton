@@ -755,6 +755,10 @@ class VideoPreview extends Component {
     const shared = sharedDevices.includes(webcamDeviceId);
     const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled() && !cameraAsContent;
 
+    const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
+    // Filtered, without hidden profiles
+    const PREVIEW_CAMERA_PROFILES = CAMERA_PROFILES.filter(p => !p.hidden);
+
     if (isVisualEffects) {
       return (
         <>
@@ -830,14 +834,14 @@ class VideoPreview extends Component {
                 <Styled.Label htmlFor="setQuality">
                   {intl.formatMessage(intlMessages.qualityLabel)}
                 </Styled.Label>
-                {PreviewService.PREVIEW_CAMERA_PROFILES.length > 0
+                {PREVIEW_CAMERA_PROFILES.length > 0
                   ? (
                     <Styled.Select
                       id="setQuality"
                       value={selectedProfile || ''}
                       onChange={this.handleSelectProfile}
                     >
-                      {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
+                      {PREVIEW_CAMERA_PROFILES.map((profile) => {
                         const label = intlMessages[`${profile.id}`]
                           ? intl.formatMessage(intlMessages[`${profile.id}`])
                           : profile.name;

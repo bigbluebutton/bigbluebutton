@@ -3,8 +3,6 @@ import SessionStorage from '/imports/ui/services/storage/session';
 
 import { isEmpty } from 'radash';
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
-
 const SETTINGS = [
   'application',
   'audio',
@@ -60,6 +58,8 @@ class Settings {
   }
 
   loadChanged() {
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     const savedSettings = {};
 
@@ -78,6 +78,8 @@ class Settings {
   }
 
   save(mutation, settings = CHANGED_SETTINGS) {
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
