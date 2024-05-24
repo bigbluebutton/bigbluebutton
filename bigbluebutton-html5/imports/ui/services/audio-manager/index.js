@@ -70,7 +70,7 @@ class AudioManager {
     };
 
     this.defineProperties({
-      isMuted: false,
+      isMuted: makeVar(false),
       isConnected: makeVar(false),
       isConnecting: makeVar(false),
       isHangingUp: makeVar(false),
