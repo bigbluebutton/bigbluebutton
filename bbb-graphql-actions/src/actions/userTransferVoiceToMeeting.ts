@@ -1,6 +1,14 @@
 import { RedisMessage } from '../types';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'fromMeetingId', type: 'string', required: true},
+        {name: 'toMeetingId', type: 'string', required: true},
+      ]
+  )
+
   const eventName = 'TransferUserToMeetingRequestMsg';
 
   const routing = {

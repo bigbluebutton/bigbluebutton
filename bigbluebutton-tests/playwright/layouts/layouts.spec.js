@@ -7,7 +7,7 @@ const { initializePages } = require('../core/helpers');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe("Layout management", () => {
+test.describe("Layout @ci", () => {
   const layouts = new Layouts();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });

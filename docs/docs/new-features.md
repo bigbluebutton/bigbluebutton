@@ -29,7 +29,7 @@ We have made changes so that when you set yourself as being Away, your microphon
 
 ![set yourself away](/img/30/30-set-away.png)
 
- When you return and unmute youself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
+ When you return and unmute yourself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
 
 ![set yourself active](/img/30/30-set-active.png)
 
@@ -156,6 +156,10 @@ Retired events
 - `allowOverrideClientSettingsOnCreateCall=false` added
 - `sessionsCleanupDelayInMinutes=60` added
 - `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
+
+#### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
+
+In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.  
 
 ### Development
 

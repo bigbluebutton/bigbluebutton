@@ -9,6 +9,7 @@ import {
   getAvailableLocales,
 } from './service';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
+import { useShouldRenderPaginationToggle } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -19,6 +20,7 @@ const ASK_MODERATOR = 'ASK_MODERATOR';
 const SettingsContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const setLocalSettings = useUserChangedLocalSettings();
+  const paginationToggleEnabled = useShouldRenderPaginationToggle();
   const { data: currentUser } = useCurrentUser((u) => ({
     presenter: u.presenter,
     isModerator: u.isModerator,
@@ -57,6 +59,7 @@ const SettingsContainer = (props) => {
       }}
       layoutContextDispatch={layoutContextDispatch}
       setLocalSettings={setLocalSettings}
+      paginationToggleEnabled={paginationToggleEnabled}
     />
   );
 };

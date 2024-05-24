@@ -99,11 +99,7 @@ subscription userCurrentSubscription {
       changedModeOn
       pageId
       presentationId
-    }
-    welcomeMsgs {
-      welcomeMsg
-      welcomeMsgForModerators
-    }
+    } 
   }
 }
 `;

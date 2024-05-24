@@ -32,7 +32,7 @@ type TrackerProps = {
   focused: boolean;
   isStream: boolean;
   onHandleVideoFocus: ((id: string) => void) | null;
-  stream: VideoItem | undefined;
+  stream: VideoItem;
   onVideoItemUnmount: (stream: string) => void;
   swapLayout: boolean;
   onVirtualBgDrop: (type: string, name: string, data: string) => void;
@@ -72,8 +72,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
 
   const amIModerator = currentUserData?.isModerator;
 
-  if (!user) return null;
-
   return (
     <VideoListItem
       {...{
@@ -103,8 +101,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
 export default withTracker<TrackerData, TrackerProps>((props) => {
   const {
     userId,
-    user,
-    stream,
   } = props;
 
   return {
@@ -114,8 +110,6 @@ export default withTracker<TrackerData, TrackerProps>((props) => {
           muted: 1, listenOnly: 1, talking: 1, joined: 1,
         },
       }),
-    user,
-    stream,
     disabledCams: Session.get('disabledCams') || [],
   };
 })(VideoListItemContainer);

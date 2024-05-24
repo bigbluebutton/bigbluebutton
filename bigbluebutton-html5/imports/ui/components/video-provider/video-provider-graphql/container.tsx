@@ -44,9 +44,7 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
   const playStart = (cameraId: string) => {
     if (VideoService.isLocalStream(cameraId)) {
       sendUserShareWebcam(cameraId).then(() => {
-        setTimeout(() => {
-          VideoService.joinedVideo();
-        }, 500);
+        VideoService.joinedVideo();
       });
     }
   };

@@ -310,6 +310,19 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
+  const handleOnReady = () => {
+    currentTime = -1;
+  };
+
+  const handleProgress = (state: OnProgressProps) => {
+    setPlayed(state.played);
+    setLoaded(state.loaded);
+
+    if (playing && isPresenter) {
+      currentTime = playerRef.current?.getCurrentTime() || 0;
+    }
+  };
+
   const isMinimized = width === 0 && height === 0;
 
   // @ts-ignore accessing lib private property
@@ -372,12 +385,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           width="100%"
           ref={playerRef}
           volume={volume}
+          onReady={handleOnReady}
           onPlay={handleOnPlay}
           onDuration={handleDuration}
-          onProgress={(state: OnProgressProps) => {
-            setPlayed(state.played);
-            setLoaded(state.loaded);
-          }}
+          onProgress={handleProgress}
           onPause={handleOnStop}
           onEnded={handleOnStop}
           muted={mute || isEchoTest}
@@ -510,10 +521,10 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const playerUpdatedAt = currentMeeting.externalVideo?.updatedAt ?? Date.now();
   const playerUpdatedAtDate = new Date(playerUpdatedAt);
-  const currentDate = new Date(Date.now() + timeSync);
+  const currentDate = new Date(Date.now() + (timeSync ?? 0));
   const isPaused = !currentMeeting.externalVideo?.playerPlaying ?? false;
-  const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
-    + playerCurrentTime) * playerPlaybackRate;
+  const currentTime = isPaused ? playerCurrentTime : ((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
+   + (playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
   const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
 
