@@ -158,8 +158,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
 
       // Pads
-      case PadCreateGroupReqMsg.NAME =>
-        routeGenericMsg[PadCreateGroupReqMsg](envelope, jsonNode)
       case PadGroupCreatedEvtMsg.NAME =>
         routePadMsg[PadGroupCreatedEvtMsg](envelope, jsonNode)
       case PadCreateReqMsg.NAME =>
@@ -265,8 +263,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
       case ChangeUserReactionEmojiReqMsg.NAME =>
         routeGenericMsg[ChangeUserReactionEmojiReqMsg](envelope, jsonNode)
-      case UserReactionTimeExpiredCmdMsg.NAME =>
-        routeGenericMsg[UserReactionTimeExpiredCmdMsg](envelope, jsonNode)
       case ClearAllUsersEmojiCmdMsg.NAME =>
         routeGenericMsg[ClearAllUsersEmojiCmdMsg](envelope, jsonNode)
       case ClearAllUsersReactionCmdMsg.NAME =>
@@ -437,8 +433,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
 
       // Timer
-      case CreateTimerPubMsg.NAME =>
-        routeGenericMsg[CreateTimerPubMsg](envelope, jsonNode)
       case ActivateTimerReqMsg.NAME =>
         routeGenericMsg[ActivateTimerReqMsg](envelope, jsonNode)
       case DeactivateTimerReqMsg.NAME =>
@@ -455,8 +449,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ResetTimerReqMsg](envelope, jsonNode)
       case SetTrackReqMsg.NAME =>
         routeGenericMsg[SetTrackReqMsg](envelope, jsonNode)
-      case TimerEndedPubMsg.NAME =>
-        routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
 
       // Messages from Graphql Middleware
       case UserGraphqlConnectionEstablishedSysMsg.NAME =>

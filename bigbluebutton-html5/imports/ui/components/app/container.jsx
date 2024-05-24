@@ -33,6 +33,7 @@ import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import VideoStreamsState from '../video-provider/video-provider-graphql/state';
 
 const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -91,6 +92,7 @@ const AppContainer = (props) => {
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
+  const isThereWebcam = VideoStreamsState.getStreams().length > 0;
 
   const setMobileUser = (mobile) => {
     setMobileFlag({
@@ -174,7 +176,12 @@ const AppContainer = (props) => {
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo, sharedNotesInput?.isPinned);
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(
+      layoutContextDispatch,
+      isSharingVideo,
+      sharedNotesInput?.isPinned,
+      isThereWebcam,
+    );
   });
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;

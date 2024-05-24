@@ -92,13 +92,14 @@ subscription userCurrentSubscription {
       muted
       spoke
       listenOnly
+      talking
     }
     presPagesWritable {
       isCurrentPage
       changedModeOn
       pageId
       presentationId
-    }
+    } 
   }
 }
 `;

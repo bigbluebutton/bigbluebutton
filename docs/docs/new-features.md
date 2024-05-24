@@ -29,7 +29,7 @@ We have made changes so that when you set yourself as being Away, your microphon
 
 ![set yourself away](/img/30/30-set-away.png)
 
- When you return and unmute youself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
+ When you return and unmute yourself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
 
 ![set yourself active](/img/30/30-set-active.png)
 
@@ -127,6 +127,10 @@ We have removed all use of Kurento Media Server. For the live media transmission
 
 The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/plugins/tree/main/pick-random-user-plugin).
 
+#### Upgrade of config editing tool yq
+
+We have upgraded `yq` from version 3.4.1 (which was no longer maintained) to 4.16.2. This is a major jump and the syntax used is quite different as well. We went through all internal uses of `yq` - packaging, bbb-install.sh, bbb-conf and others and updated the syntax. However, if you have custom scripts, you may have to rework the syntax too. Here is a [guide](https://mikefarah.gitbook.io/yq/upgrading-from-v3).
+
 #### Improved support for various SHA algorithms for checksum calculation
 
 In BigBlueButton 2.6.17/2.7.5/3.0.0-alpha.5 we added a new configuration property for bbb-apps-akka package under `services` called `checkSumAlgorithmForBreakouts`. By default the value is `"sha256"`. It controls the algorithm for checksum calculation for the breakout rooms join link. In case you overwrite bbb-web's `supportedChecksumAlgorithms` property removing sha256 you will need to set a supported algorithm here too. For example if you want to only use `sha512`, set `supportedChecksumAlgorithms=sha512` in `/etc/bigbluebutton/bbb-web.properties` and also set `checkSumAlgorithmForBreakouts="sha512"` in `/etc/bigbluebutton/bbb-apps-akka.conf` and then restart BigBlueButton.
@@ -152,6 +156,10 @@ Retired events
 - `allowOverrideClientSettingsOnCreateCall=false` added
 - `sessionsCleanupDelayInMinutes=60` added
 - `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
+
+#### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
+
+In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.  
 
 ### Development
 

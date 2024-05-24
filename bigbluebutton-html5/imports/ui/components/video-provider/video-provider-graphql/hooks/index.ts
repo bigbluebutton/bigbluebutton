@@ -37,13 +37,14 @@ import {
 } from '../queries';
 import videoService from '../service';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
-import { StreamItem } from '../types';
+import { GridItem, StreamItem, StreamUser } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 
 const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
 const {
+  paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   desktopPageSizes: DESKTOP_PAGE_SIZES,
   mobilePageSizes: MOBILE_PAGE_SIZES,
   desktopGridSizes: DESKTOP_GRID_SIZES,
@@ -65,7 +66,7 @@ const FILTER_VIDEO_STATS = [
 ];
 
 export const useStatus = () => {
-  const videoState = useVideoState()[0];
+  const [videoState] = useVideoState();
   if (videoState.isConnecting) return 'videoConnecting';
   if (videoState.isConnected) return 'connected';
   return 'disconnected';
@@ -104,7 +105,7 @@ export const useVideoStreamsCount = () => {
 
 export const useLocalVideoStreamsCount = () => {
   const { streams } = useStreams();
-  const localStreams = streams.filter((vs) => vs.userId === Auth.userID);
+  const localStreams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
 
   return localStreams.length;
 };
@@ -240,18 +241,11 @@ export const useStreams = () => {
   return { streams: videoStreams };
 };
 
-type StreamUser = VideoStreamsUsersResponse['user'][number] & {
-  pin: boolean;
-  sortName: string;
-};
-
-type GridUser = StreamUser & { type: 'grid' };
-
 export const useStreamUsers = (isGridEnabled: boolean) => {
   const { streams } = useStreams();
   const gridSize = useGridSize();
   const [users, setUsers] = useState<StreamUser[]>([]);
-  const [gridUsers, setGridUsers] = useState<GridUser[]>([]);
+  const [gridUsers, setGridUsers] = useState<GridItem[]>([]);
   const userIds = useMemo(() => streams.map((s) => s.userId), [streams]);
   const streamCount = streams.length;
   const { data, loading, error } = useSubscription<VideoStreamsUsersResponse>(
@@ -277,16 +271,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
       logger.error(`Stream users subscription failed. name=${error.name}`, error);
     }
 
-    if (data) {
-      const newUsers = data.user.map((user) => ({
-        ...user,
-        pin: user.pinned,
-        sortName: user.nameSortable,
-      }));
-      setUsers(newUsers);
-    } else {
-      setUsers([]);
-    }
+    setUsers(data ? data.user : []);
   }, [data]);
 
   useEffect(() => {
@@ -299,8 +284,6 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
     if (gridData) {
       const newGridUsers = gridData.user.map((user) => ({
         ...user,
-        pin: user.pinned,
-        sortName: user.nameSortable,
         type: 'grid' as const,
       }));
       setGridUsers(newGridUsers);
@@ -321,7 +304,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
 export const useSharedDevices = () => {
   const { streams } = useStreams();
   const devices = streams
-    .filter((s) => s.userId === Auth.userID)
+    .filter((s) => videoService.isLocalStream(s.stream))
     .map((vs) => vs.deviceId);
 
   return devices;
@@ -372,17 +355,17 @@ export const useVideoStreams = (
   if (connectingStream) streams.push(connectingStream);
 
   if (!viewParticipantsWebcams) {
-    streams = streams.filter((stream) => stream.userId === Auth.userID);
+    streams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
   }
 
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
-      (vs: StreamItem) => Auth.userID === vs.userId || (vs.type === 'stream' && vs.pin),
+      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === 'stream' && vs.pinned),
     );
     const [pin, mine] = partition(
       filtered,
-      (vs: StreamItem) => vs.type === 'stream' && vs.pin,
+      (vs: StreamItem) => vs.type === 'stream' && vs.pinned,
     );
 
     if (myPageSize !== 0) {
@@ -431,12 +414,17 @@ export const useVideoStreams = (
 
 export const useHasVideoStream = () => {
   const { streams } = useStreams();
-  return streams.some((s) => s.userId === Auth.userID);
+  return streams.some((s) => videoService.isLocalStream(s.stream));
 };
 
 const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
   OWN_VIDEO_STREAMS_QUERY,
-  { variables: { userId: Auth.userID } },
+  {
+    variables: {
+      userId: Auth.userID,
+      streamIdPrefix: `${videoService.getPrefix()}%`,
+    },
+  },
 );
 
 export const useExitVideo = (forceExit = false) => {
@@ -567,4 +555,9 @@ export const useGetStats = (
 
     return stats;
   }, [peers]);
+};
+
+export const useShouldRenderPaginationToggle = () => {
+  const myPageSize = useMyPageSize();
+  return PAGINATION_TOGGLE_ENABLED && myPageSize > 0;
 };

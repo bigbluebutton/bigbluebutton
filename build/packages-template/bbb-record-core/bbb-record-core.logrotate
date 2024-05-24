@@ -1,5 +1,5 @@
-/var/log/bigbluebutton/bbb-rap-worker.log 
-/var/log/bigbluebutton/sanity.log 
+/var/log/bigbluebutton/bbb-rap-worker.log
+/var/log/bigbluebutton/sanity.log
 {
         weekly
         missingok
@@ -9,4 +9,6 @@
         nocreate
         notifempty
         sharedscripts
+        dateext
+        dateformat -%Y-%m-%d
 }

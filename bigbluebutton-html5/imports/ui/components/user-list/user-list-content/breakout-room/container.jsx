@@ -28,7 +28,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
-    isModerator: u.isModerator,
+    isModerator: u?.isModerator,
   }));
 
   if (userIsInvitedError) {
@@ -60,7 +60,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
       layoutContextDispatch,
       sidebarContentPanel,
       hasBreakoutRoom: hasBreakoutRoom
-      && (userIsInvitedData.breakoutRoom.length > 0 || currentUser.isModerator),
+      && (userIsInvitedData.breakoutRoom.length > 0 || currentUser?.isModerator),
       breakoutRoom,
     }}
     />

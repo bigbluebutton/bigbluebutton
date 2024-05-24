@@ -26,7 +26,7 @@ public interface IBbbWebApiGWApp {
                      Integer maxPinnedCameras,
                      String moderatorPass, String viewerPass, String learningDashboardAccessToken, Long createTime,
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
-                     String guestPolicy, Boolean authenticatedGuest, String meetingLayout, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
+                     String guestPolicy, Boolean authenticatedGuest, String meetingLayout, String welcomeMsgTemplate, String welcomeMsg, String welcomeMsgForModerators,
                      String dialNumber, Integer maxUsers, Integer maxUserConcurrentAccesses,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,

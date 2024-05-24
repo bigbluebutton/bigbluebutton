@@ -2,16 +2,14 @@ import React from 'react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import UserListService from '/imports/ui/components/user-list/service';
-import { StreamUser } from '../../../types';
+import { StreamUser, VideoItem } from '../../../types';
 
 interface UserAvatarVideoProps {
   user: Partial<StreamUser>;
+  stream: VideoItem;
   // eslint-disable-next-line react/require-default-props
   voiceUser?: {
-    muted?: boolean;
-    listenOnly?: boolean;
     talking?: boolean;
-    joined?: boolean;
   };
   squeezed: boolean;
   unhealthyStream: boolean;
@@ -19,18 +17,17 @@ interface UserAvatarVideoProps {
 
 const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
   const {
-    user, unhealthyStream, squeezed, voiceUser = {},
+    user, stream, unhealthyStream, squeezed, voiceUser = { talking: false },
   } = props;
+  const data = { ...user, ...stream };
   const {
-    name = '', color, avatar, role, emoji,
-  } = user;
+    name = '', color = '', avatar = '', emoji = '', isModerator,
+  } = data;
   let {
     presenter, clientType,
-  } = user;
+  } = data;
 
-  const talking = voiceUser?.talking || false;
-
-  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+  const { talking = false } = voiceUser;
 
   const handleUserIcon = () => {
     if (emoji !== 'none') {
@@ -48,7 +45,7 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
 
   return (
     <Styled.UserAvatarStyled
-      moderator={role === ROLE_MODERATOR}
+      moderator={isModerator}
       presenter={presenter}
       dialIn={clientType === 'dial-in-user'}
       color={color}
