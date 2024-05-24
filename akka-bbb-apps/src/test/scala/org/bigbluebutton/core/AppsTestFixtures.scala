@@ -81,7 +81,6 @@ trait AppsTestFixtures {
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
   val breakoutRooms = new BreakoutRooms()
-//  val captionModel = new CaptionModel()
   val registeredUsers = new RegisteredUsers
   val meetingStatux2x = new MeetingStatus2x
   val webcams = new Webcams
