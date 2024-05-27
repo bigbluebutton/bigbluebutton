@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { isEmpty } from 'radash';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
@@ -62,6 +63,8 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     userId: v.userId,
   }));
   const voiceUser = voiceUsers.data?.find((v) => v.userId === userId);
+
+  if (!voiceUser || isEmpty(voiceUser)) return null;
 
   return (
     <VideoListItem
