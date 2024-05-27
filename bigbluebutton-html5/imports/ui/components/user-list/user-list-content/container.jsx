@@ -1,9 +1,9 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import UserContent from './component';
-import WaitingUsersService from '/imports/ui/components/waiting-users/service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+
+const ASK_MODERATOR = 'ASK_MODERATOR';
 
 const UserContentContainer = (props) => {
   const { data: currentUser } = useCurrentUser((user) => ({
@@ -18,9 +18,13 @@ const UserContentContainer = (props) => {
     data: currentMeeting,
   } = useMeeting((m) => ({
     componentsFlags: m.componentsFlags,
+    usersPolicies: {
+      guestPolicy: m.usersPolicies.guestPolicy,
+    },
   }));
 
   const APP_SETTINGS = window.meetingClientSettings.public.app;
+  const isWaitingRoomEnabled = currentMeeting?.usersPolicies?.guestPolicy === ASK_MODERATOR;
 
   return (
     <UserContent
@@ -28,12 +32,11 @@ const UserContentContainer = (props) => {
         isGuestLobbyMessageEnabled: APP_SETTINGS.enableGuestLobbyMessage,
         currentUser,
         isTimerActive: currentMeeting?.componentsFlags?.hasTimer && currentUser?.isModerator,
+        isWaitingRoomEnabled,
         ...props,
       }}
     />
   );
 };
 
-export default withTracker(() => ({
-  isWaitingRoomEnabled: WaitingUsersService.isWaitingRoomEnabled(),
-}))(UserContentContainer);
+export default UserContentContainer;

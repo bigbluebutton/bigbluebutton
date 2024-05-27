@@ -15,6 +15,8 @@ import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -182,14 +184,17 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const BaseContainer = (props) => {
+  const { isGridLayout } = props;
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
   const setLocalSettings = useUserChangedLocalSettings();
+  const { paginationEnabled, animations } = useSettings(SETTINGS.APPLICATION);
+  const { viewParticipantsWebcams, viewScreenshare } = useSettings(SETTINGS.DATA_SAVING);
   const { streams: usersVideo } = useVideoStreams(
-    props.isGridLayout,
-    props.paginationEnabled,
-    props.viewParticipantsWebcams,
+    isGridLayout,
+    paginationEnabled,
+    viewParticipantsWebcams,
   );
 
   return (
@@ -199,6 +204,8 @@ const BaseContainer = (props) => {
         layoutContextDispatch,
         setLocalSettings,
         usersVideo,
+        animations,
+        viewScreenshare,
         ...props,
       }}
     />
@@ -206,10 +213,6 @@ const BaseContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const {
-    animations,
-  } = Settings.application;
-
   const {
     loggedIn,
   } = Auth;
@@ -220,13 +223,10 @@ export default withTracker(() => {
   const isGridLayout = Session.get('isGridEnabled');
   return {
     userSubscriptionHandler,
-    animations,
     isMeteorConnected: Meteor.status().connected,
     meetingIsBreakout: AppService.meetingIsBreakout(),
     loggedIn,
     codeError,
-    paginationEnabled: Settings.application.paginationEnabled,
-    viewParticipantsWebcams: Settings.dataSaving.viewParticipantsWebcams,
     isGridLayout,
   };
 })(BaseContainer);

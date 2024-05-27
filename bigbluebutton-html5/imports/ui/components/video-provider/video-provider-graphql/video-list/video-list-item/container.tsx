@@ -3,18 +3,16 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import VoiceUsers from '/imports/api/voice-users/';
-import Settings from '/imports/ui/services/settings';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
 import { StreamUser, VideoItem } from '../../types';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 type TrackerData = {
   disabledCams: string[];
-  settingsSelfViewDisable: boolean;
-  user: Partial<StreamUser>;
-  stream: VideoItem | undefined;
   voiceUser: {
     muted: boolean;
     listenOnly: boolean;
@@ -32,7 +30,7 @@ type TrackerProps = {
   focused: boolean;
   isStream: boolean;
   onHandleVideoFocus: ((id: string) => void) | null;
-  stream: VideoItem | undefined;
+  stream: VideoItem;
   onVideoItemUnmount: (stream: string) => void;
   swapLayout: boolean;
   onVirtualBgDrop: (type: string, name: string, data: string) => void;
@@ -53,7 +51,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     onVideoItemMount,
     onVideoItemUnmount,
     onVirtualBgDrop,
-    settingsSelfViewDisable,
     stream,
     user,
     voiceUser,
@@ -64,14 +61,14 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   const isFullscreenContext = (element === cameraId);
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  // @ts-ignore Untyped object
+  const { selfViewDisable: settingsSelfViewDisable } = useSettings(SETTINGS.APPLICATION);
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
   }));
 
   const amIModerator = currentUserData?.isModerator;
-
-  if (!user) return null;
 
   return (
     <VideoListItem
@@ -102,21 +99,15 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
 export default withTracker<TrackerData, TrackerProps>((props) => {
   const {
     userId,
-    user,
-    stream,
   } = props;
 
   return {
-    // @ts-expect-error -> Untyped object.
-    settingsSelfViewDisable: Settings.application.selfViewDisable,
     voiceUser: VoiceUsers.findOne({ userId },
       {
         fields: {
           muted: 1, listenOnly: 1, talking: 1, joined: 1,
         },
       }),
-    user,
-    stream,
     disabledCams: Session.get('disabledCams') || [],
   };
 })(VideoListItemContainer);

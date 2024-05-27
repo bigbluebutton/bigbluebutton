@@ -1,20 +1,16 @@
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
-import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   isScreenSharingEnabled, isCameraAsContentEnabled, isPresentationEnabled,
 } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
-import VideoStreams from '/imports/api/video-streams';
-import Auth from '/imports/ui/services/auth/index';
 
 function shouldShowWhiteboard() {
   return true;
 }
 
-function shouldShowScreenshare() {
-  const { viewScreenshare } = Settings.dataSaving;
+function shouldShowScreenshare(viewScreenshare) {
   return (isScreenSharingEnabled() || isCameraAsContentEnabled())
     && (viewScreenshare || UserService.isUserPresenter())
     && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
@@ -32,19 +28,13 @@ const setPresentationIsOpen = (layoutContextDispatch, value) => {
   });
 };
 
-const isThereWebcamOn = (meetingID) => {
-  return VideoStreams.find({
-    meetingId: meetingID
-  }).count() > 0;
-}
-
 const buildLayoutWhenPresentationAreaIsDisabled = (
   layoutContextDispatch,
   isSharingVideo,
   isSharedNotesPinned,
+  isThereWebcam,
 ) => {
   const hasScreenshare = isScreenSharingEnabled();
-  const isThereWebcam = isThereWebcamOn(Auth.meetingID);
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
   const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
   const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;

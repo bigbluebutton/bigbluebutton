@@ -3,7 +3,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
     [data-testid="tools.hand"] {
-      display: none;
+      display: none !important;
     }
   `}
 

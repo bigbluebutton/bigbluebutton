@@ -18,11 +18,12 @@ import {
 
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
-import Settings from '/imports/ui/services/settings';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import useSettings from '../../services/settings/hooks/useSettings';
+import { SETTINGS } from '../../services/settings/enums';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -84,8 +85,9 @@ const AudioContainer = (props) => {
     init,
     intl,
     userLocks,
-    microphoneConstraints,
   } = props;
+
+  const { microphoneConstraints } = useSettings(SETTINGS.APPLICATION);
 
   const prevProps = usePreviousValue(props);
   const toggleVoice = useToggleVoice();
@@ -185,7 +187,6 @@ export default lockContextContainer(injectIntl(withTracker(({
   intl, userLocks, isAudioModalOpen, setAudioModalIsOpen, setVideoPreviewModalIsOpen,
   speechLocale,
 }) => {
-  const { microphoneConstraints } = Settings.application;
   const APP_CONFIG = window.meetingClientSettings.public.app;
   const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
 
@@ -212,7 +213,6 @@ export default lockContextContainer(injectIntl(withTracker(({
     userSelectedListenOnly,
     isAudioModalOpen,
     setAudioModalIsOpen,
-    microphoneConstraints,
     init: async (toggleVoice) => {
       await Service.init(messages, intl, toggleVoice, speechLocale);
       if ((!autoJoin || didMountAutoJoin)) {
