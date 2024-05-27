@@ -11,7 +11,6 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
-import Settings from '/imports/ui/services/settings';
 import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -21,6 +20,8 @@ import Storage from '/imports/ui/services/storage/session';
 import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 interface WebcamComponentGraphqlProps {
   cameraDock: Output['cameraDock'];
@@ -302,16 +303,12 @@ interface WebcamContainerGraphqlProps {
   audioModalIsOpen: boolean;
   isLayoutSwapped: boolean;
   layoutType: string;
-  paginationEnabled: boolean;
-  viewParticipantsWebcams: boolean;
 }
 
 const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
   audioModalIsOpen,
   isLayoutSwapped,
   layoutType,
-  paginationEnabled,
-  viewParticipantsWebcams,
 }) => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -322,6 +319,10 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
   const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const hasPresentation = !!presentationPage?.presentationId;
+  // @ts-ignore JS code
+  const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
+  // @ts-ignore JS code
+  const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
 
   const swapLayout = !hasPresentation || isLayoutSwapped;
 
@@ -379,8 +380,6 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
 
 type TrackerData = {
   audioModalIsOpen: boolean;
-  paginationEnabled: boolean;
-  viewParticipantsWebcams: boolean;
 };
 
 type TrackerProps = {
@@ -390,13 +389,7 @@ type TrackerProps = {
 
 export default withTracker<TrackerData, TrackerProps>(() => {
   const audioModalIsOpen = Session.get('audioModalIsOpen');
-  // @ts-expect-error -> Untyped object.
-  const { paginationEnabled } = Settings.application;
-  // @ts-expect-error -> Untyped object.
-  const { viewParticipantsWebcams } = Settings.dataSaving;
   return {
     audioModalIsOpen,
-    paginationEnabled,
-    viewParticipantsWebcams,
   };
 })(WebcamContainerGraphql);

@@ -1,7 +1,6 @@
 import Screenshare from '/imports/api/screenshare';
 import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
-import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import AudioService from '/imports/ui/components/audio/service';
@@ -337,8 +336,6 @@ const screenShareEndAlert = () => AudioService
     + window.meetingClientSettings.public.app.instanceId}`
     + '/resources/sounds/ScreenshareOff.mp3');
 
-const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
-
 /**
    * Get stats about all active screenshare peers.
    *
@@ -397,7 +394,6 @@ export {
   getBroadcastContentType,
   shareScreen,
   screenShareEndAlert,
-  dataSavingSetting,
   isSharing,
   setIsSharing,
   setSharingContentType,
