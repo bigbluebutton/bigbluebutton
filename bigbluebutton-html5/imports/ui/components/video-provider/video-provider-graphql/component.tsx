@@ -121,6 +121,7 @@ interface VideoProviderGraphqlProps {
   exitVideo: () => void;
   lockUser: () => void;
   stopVideo: (cameraId?: string) => void;
+  applyCameraProfile: (peer: WebRtcPeer, profileId: string) => void;
   intl: IntlShape;
 }
 
@@ -447,6 +448,8 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
     const {
       privilegedStreams: CAMERA_QUALITY_THR_PRIVILEGED = true,
     } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
+
+    const { applyCameraProfile } = this.props;
     
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
@@ -460,7 +463,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
           const exempt = threshold === 0
             || (CAMERA_QUALITY_THR_PRIVILEGED && privilegedStreams.some(vs => vs.stream === peer.stream))
           const profileToApply = exempt ? peer.originalProfileId : profile;
-          VideoService.applyCameraProfile(peer, profileToApply);
+          applyCameraProfile(peer, profileToApply);
         });
     }
   }

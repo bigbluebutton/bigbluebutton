@@ -35,10 +35,6 @@ import IntlAdapter from '/imports/startup/client/intlAdapter';
 import PresenceAdapter from '../imports/ui/components/presence-adapter/component';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 
-import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
-  // bridge loading
-});
-
 collectionMirrorInitializer();
 liveDataEventBrokerInitializer();
 

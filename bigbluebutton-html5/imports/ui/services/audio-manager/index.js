@@ -24,13 +24,6 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 
-const STATS = window.meetingClientSettings.public.stats;
-const MEDIA = window.meetingClientSettings.public.media;
-const MEDIA_TAG = MEDIA.mediaTag;
-const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
-  window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
-
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
   STARTED: 'started',
@@ -183,6 +176,8 @@ class AudioManager {
     let FullAudioBridge = SIPBridge;
     let ListenOnlyBridge = SFUAudioBridge;
 
+    const MEDIA = window.meetingClientSettings.public.media;
+
     if (MEDIA.audio) {
       const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
 
@@ -322,6 +317,11 @@ class AudioManager {
     this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = true;
+
+    const MEDIA = window.meetingClientSettings.public.media;
+    const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
+    const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
+    window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
     return this.onAudioJoining
       .bind(this)()
@@ -488,6 +488,8 @@ class AudioManager {
   onAudioJoin() {
     this.isConnecting = false;
     this.isConnected = true;
+
+    const STATS = window.meetingClientSettings.public.stats;
 
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
@@ -717,6 +719,9 @@ class AudioManager {
   async changeOutputDevice(deviceId, isLive) {
     const targetDeviceId = deviceId;
     const currentDeviceId = this.outputDeviceId ?? getCurrentAudioSinkId();
+
+    const MEDIA = window.meetingClientSettings.public.media;
+    const MEDIA_TAG = MEDIA.mediaTag;
     const audioElement = document.querySelector(MEDIA_TAG);
     const sinkIdSupported = audioElement && typeof audioElement.setSinkId === 'function';
 

@@ -41,24 +41,6 @@ import { StreamItem } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
-const {
-  desktopPageSizes: DESKTOP_PAGE_SIZES,
-  mobilePageSizes: MOBILE_PAGE_SIZES,
-  desktopGridSizes: DESKTOP_GRID_SIZES,
-  mobileGridSizes: MOBILE_GRID_SIZES,
-} = window.meetingClientSettings.public.kurento.pagination;
-const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
-const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort(
-  (t1, t2) => t1.users - t2.users,
-);
-const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
-const {
-  paginationSorting: PAGINATION_SORTING,
-  defaultSorting: DEFAULT_SORTING,
-} = window.meetingClientSettings.public.kurento.cameraSortingModes;
-
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',
   'inbound-rtp',
@@ -163,6 +145,17 @@ export const useDisableCam = () => {
 };
 
 export const usePageSizeDictionary = () => {
+  const {
+    desktopPageSizes: DESKTOP_PAGE_SIZES,
+    mobilePageSizes: MOBILE_PAGE_SIZES,
+  } = window.meetingClientSettings.public.kurento.pagination;
+
+  const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
+  const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
+  const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort(
+    (t1, t2) => t1.users - t2.users,
+  );
+
   const { data: countData } = useSubscription(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
   );
@@ -220,6 +213,8 @@ export const useMyRole = () => {
 export const useMyPageSize = () => {
   const myRole = useMyRole();
   const pageSizes = usePageSizeDictionary();
+  const ROLE_MODERATOR = videoService.getRoleModerator();
+  const ROLE_VIEWER = videoService.getRoleViewer();
   let size;
   switch (myRole) {
     case ROLE_MODERATOR:
@@ -340,6 +335,13 @@ export const useCurrentVideoPageIndex = () => {
 export const useGridSize = () => {
   let size;
   const myRole = useMyRole();
+  const ROLE_MODERATOR = videoService.getRoleModerator();
+  const ROLE_VIEWER = videoService.getRoleViewer();
+  const {
+    desktopGridSizes: DESKTOP_GRID_SIZES,
+    mobileGridSizes: MOBILE_GRID_SIZES,
+  } = window.meetingClientSettings.public.kurento.pagination;
+
   const gridSizes = !videoService.isMobile
     ? DESKTOP_GRID_SIZES
     : MOBILE_GRID_SIZES;
@@ -368,6 +370,11 @@ export const useVideoStreams = (
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled(paginationEnabled);
   let streams: StreamItem[] = [...videoStreams];
+
+  const {
+    paginationSorting: PAGINATION_SORTING,
+    defaultSorting: DEFAULT_SORTING,
+  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
   if (connectingStream) streams.push(connectingStream);
 

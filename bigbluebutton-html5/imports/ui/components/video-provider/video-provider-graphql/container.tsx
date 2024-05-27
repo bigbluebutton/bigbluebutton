@@ -20,6 +20,8 @@ import VideoProvider from './component';
 import VideoService from './service';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from './types';
+import { debounce } from '/imports/utils/debounce';
+import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 
 interface VideoProviderContainerGraphqlProps {
   currentUserId: string;
@@ -60,6 +62,16 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
       });
     }
   };
+
+  const {
+    debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
+  } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
+
+  const applyCameraProfile = debounce(
+    VideoService.applyCameraProfile,
+    CAMERA_QUALITY_THR_DEBOUNCE,
+    { leading: false, trailing: true },
+  );
 
   const { data: currentMeeting } = useMeeting((m) => ({
     usersPolicies: m.usersPolicies,
@@ -121,6 +133,7 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
       exitVideo={exitVideo}
       lockUser={lockUser}
       stopVideo={stopVideo}
+      applyCameraProfile={applyCameraProfile as (peer: WebRtcPeer, profileId: string) => void}
     />
   );
 };
