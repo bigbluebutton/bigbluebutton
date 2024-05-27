@@ -138,6 +138,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
         aria-describedby="lockedNotes"
         role="button"
         tabIndex={0}
+        active={notesOpen}
         onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
         // @ts-ignore
         onKeyDown={(e) => {
