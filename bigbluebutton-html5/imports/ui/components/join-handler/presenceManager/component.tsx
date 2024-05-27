@@ -14,6 +14,7 @@ import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
+import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 
 const connectionTimeout = 60000;
 
@@ -40,6 +41,9 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     bannerText: string;
     customLogoUrl: string;
     loggedOut: boolean;
+    guestStatus: string;
+    guestLobbyMessage: string | null;
+    positionInWaitingQueue: number | null;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -62,11 +66,15 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   bannerText,
   customLogoUrl,
   loggedOut,
+  guestLobbyMessage,
+  guestStatus,
+  positionInWaitingQueue,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   const loadingContextInfo = useContext(LoadingContext);
+  const isGuestAllowed = guestStatus === GUEST_STATUSES.ALLOW;
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
@@ -107,7 +115,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, [bannerColor, bannerText]);
 
   useEffect(() => {
-    if (authToken && !joined) {
+    if (authToken && !joined && isGuestAllowed) {
       dispatchUserJoin({
         variables: {
           authToken,
@@ -116,7 +124,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         },
       });
     }
-  }, [joined, authToken]);
+  }, [joined, authToken, isGuestAllowed]);
 
   useEffect(() => {
     if (joined) {
@@ -133,6 +141,17 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   [joinErrorCode, joinErrorMessage]);
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
+
+  if (!isGuestAllowed) {
+    return (
+      <GuestWaitContainer
+        guestLobbyMessage={guestLobbyMessage}
+        guestStatus={guestStatus}
+        logoutUrl={logoutUrl}
+        positionInWaitingQueue={positionInWaitingQueue}
+      />
+    );
+  }
 
   return (
     <>
@@ -181,6 +200,8 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     ejectReasonCode,
     meeting,
     loggedOut,
+    guestStatusDetails,
+    guestStatus,
   } = data.user_current[0];
   const {
     logoutUrl,
@@ -212,6 +233,9 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       bannerText={bannerText}
       loggedOut={loggedOut}
       customLogoUrl={customLogoUrl}
+      guestLobbyMessage={guestStatusDetails?.guestLobbyMessage ?? null}
+      positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
+      guestStatus={guestStatus}
     >
       {children}
     </PresenceManager>

@@ -23,7 +23,7 @@ const SettingsLoader: React.FC = () => {
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
     logger.info('Fetching settings');
-    loadingContextInfo.setLoading(true, '3/4');
+    loadingContextInfo.setLoading(true, '4/5');
   }, []);
 
   useEffect(() => {
