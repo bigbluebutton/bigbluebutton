@@ -16,6 +16,7 @@ import {
   colorSuccess,
   itemFocusBorder,
   unreadMessagesBg,
+  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface UserAvatarProps {
@@ -216,7 +217,8 @@ const ChatListItem = styled.button<ChatListItemProps>`
     outline: transparent;
     outline-style: dotted;
     outline-width: ${borderSize};
-    background-color: ${listItemBgHover};  `}
+    background-color: ${colorGrayLightest};
+  `}
 `;
 
 const ChatThumbnail = styled.div`

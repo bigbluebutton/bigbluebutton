@@ -17,9 +17,8 @@ import {
   colorGrayDark,
   colorGrayLight,
   colorGrayLighter,
-  listItemBgHover,
-  itemFocusBorder,
   unreadMessagesBg,
+  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
@@ -133,7 +132,7 @@ const ListItem = styled(Styled.ListItem)`
   outline: transparent;
   outline-style: dotted;
   outline-width: ${borderSize};
-  background-color: ${listItemBgHover};
+  background-color: ${colorGrayLightest};
 `}
 `;
 
