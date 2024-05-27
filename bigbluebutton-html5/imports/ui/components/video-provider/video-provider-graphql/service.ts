@@ -1,5 +1,4 @@
 import { Session } from 'meteor/session';
-import { v4 as uuid } from 'uuid';
 import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
@@ -61,7 +60,7 @@ class VideoService {
 
   private deviceId: string | null = null;
 
-  private readonly tabId: string;
+  private readonly clientSessionUUID: string;
 
   constructor() {
     this.userParameterProfile = null;
@@ -70,7 +69,7 @@ class VideoService {
     this.numberOfDevices = 0;
     this.record = null;
     this.hackRecordViewer = null;
-    this.tabId = uuid();
+    this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
 
     if (navigator.mediaDevices) {
       this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
@@ -502,12 +501,8 @@ class VideoService {
     });
   }
 
-  getTabId() {
-    return this.tabId;
-  }
-
   getPrefix() {
-    return `${Auth.userID}${TOKEN}${this.tabId}`;
+    return `${Auth.userID}${TOKEN}${this.clientSessionUUID}`;
   }
 }
 
@@ -553,6 +548,5 @@ export default {
     { leading: false, trailing: true },
   ),
   setTrackEnabled: (value: boolean) => videoService.setTrackEnabled(value),
-  getTabId: videoService.getTabId.bind(videoService),
   getPrefix: videoService.getPrefix.bind(videoService),
 };
