@@ -25,19 +25,17 @@ const SmartMediaShareContainer = (props) => {
     startExternalVideo({ variables: { externalVideoUrl } });
   };
 
+  const isRTL = layoutSelect((i) => i.isRTL);
+
   return (
     <SmartMediaShare {...{
       startWatching,
+      isRTL,
+      isMobile: isMobile(),
       ...props,
     }}
     />
   );
 };
 
-export default withTracker(() => {
-  const isRTL = layoutSelect((i) => i.isRTL);
-  return {
-    isRTL,
-    isMobile: isMobile(),
-  };
-})(SmartMediaShareContainer);
+export default SmartMediaShareContainer;
