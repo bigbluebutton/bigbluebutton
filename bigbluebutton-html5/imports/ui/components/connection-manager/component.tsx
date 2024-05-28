@@ -91,6 +91,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
           on: {
             error: (error) => {
+              logger.error(`Error: on subscription to server: ${error}`);
               loadingContextInfo.setLoading(false, '');
               throw new Error(`Error: on subscription to server: ${JSON.stringify(error)}`);
             },
