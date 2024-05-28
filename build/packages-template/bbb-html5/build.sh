@@ -78,18 +78,18 @@ mkdir -p staging/usr/share/meteor/bundle/programs/web.browser/app/files
 cp node_modules/@fontsource/*/files/*.woff[2] staging/usr/share/meteor/bundle/programs/web.browser/app/files/
 
 cp systemd_start.sh staging/usr/share/meteor/bundle
-chmod +x staging/usr/share/meteor/bundle/systemd_start.sh
+chmod +rx staging/usr/share/meteor/bundle/systemd_start.sh
 
 cp systemd_start_frontend.sh staging/usr/share/meteor/bundle
-chmod +x staging/usr/share/meteor/bundle/systemd_start_frontend.sh
+chmod +rx staging/usr/share/meteor/bundle/systemd_start_frontend.sh
 
 cp workers-start.sh staging/usr/share/meteor/bundle
-chmod +x staging/usr/share/meteor/bundle/workers-start.sh
+chmod +rx staging/usr/share/meteor/bundle/workers-start.sh
 
 cp bbb-html5-with-roles.conf staging/usr/share/meteor/bundle
 
 cp mongod_start_pre.sh staging/usr/share/meteor/bundle
-chmod +x staging/usr/share/meteor/bundle/mongod_start_pre.sh
+chmod +rx staging/usr/share/meteor/bundle/mongod_start_pre.sh
 
 cp mongo-ramdisk.conf staging/usr/share/meteor/bundle
 
