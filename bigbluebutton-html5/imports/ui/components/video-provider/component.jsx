@@ -215,6 +215,8 @@ class VideoProvider extends Component {
   }
 
   openWs() {
+    // Default values and default empty object to be backwards compat with 2.2.
+    // FIXME Remove hardcoded defaults 2.3.
     const {
       connectionTimeout: WS_CONN_TIMEOUT = 4000,
       maxRetries: WS_MAX_RETRIES = 5,
@@ -254,6 +256,8 @@ class VideoProvider extends Component {
   }
 
   setupWSHeartbeat() {
+    // Default values and default empty object to be backwards compat with 2.2.
+    // FIXME Remove hardcoded defaults 2.3.
     const {
       heartbeat: WS_HEARTBEAT_OPTS = {
         interval: 15000,
