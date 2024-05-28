@@ -4,12 +4,18 @@ import ScreenshareButton from './component';
 import { isScreenSharingEnabled } from '/imports/ui/services/features';
 import {
   isScreenBroadcasting,
-  dataSavingSetting,
   useIsSharing,
   useSharingContentType,
 } from '/imports/ui/components/screenshare/service';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
-const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
+const ScreenshareButtonContainer = (props) => {
+  const { viewScreenshare: screenshareDataSavingSetting } = useSettings(SETTINGS.DATA_SAVING);
+  return (
+    <ScreenshareButton screenshareDataSavingSetting={screenshareDataSavingSetting} {...props} />
+  );
+};
 
 /*
  * All props, including the ones that are inherited from actions-bar
@@ -21,7 +27,6 @@ const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
  */
 const ScreenshareButtonContainerTracker = withTracker(({ isSharing, sharingContentType }) => ({
   isScreenBroadcasting: isScreenBroadcasting(isSharing, sharingContentType),
-  screenshareDataSavingSetting: dataSavingSetting(),
   enabled: isScreenSharingEnabled(),
 }))(ScreenshareButtonContainer);
 

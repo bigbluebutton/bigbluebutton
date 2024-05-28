@@ -7,7 +7,6 @@ import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graph
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -24,7 +23,6 @@ import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutation
 import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
 
 import {
-  getFontSize,
   getBreakoutRooms,
 } from './service';
 
@@ -34,6 +32,8 @@ import useUserChangedLocalSettings from '../../services/settings/hooks/useUserCh
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import VideoStreamsState from '../video-provider/video-provider-graphql/state';
 import { useIsSharing, useSharingContentType } from '../screenshare/service';
+import useSettings from '../../services/settings/hooks/useSettings';
+import { SETTINGS } from '../../services/settings/enums';
 
 const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -51,8 +51,6 @@ const AppContainer = (props) => {
 
   const {
     actionsbar,
-    selectedLayout,
-    pushLayout,
     pushLayoutMeeting,
     currentUserId,
     shouldShowScreenshare: propsShouldShowScreenshare,
@@ -65,9 +63,20 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
-    viewScreenshare,
     ...otherProps
   } = props;
+
+  const {
+    selectedLayout,
+    pushLayout,
+    audioAlertEnabled,
+    pushAlertEnabled,
+    darkTheme,
+    fontSize = '16px',
+  } = useSettings(SETTINGS.APPLICATION);
+  const {
+    viewScreenshare,
+  } = useSettings(SETTINGS.DATA_SAVING);
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const genericComponent = layoutSelectInput((i) => i.genericComponent);
@@ -249,6 +258,10 @@ const AppContainer = (props) => {
           audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
+          audioAlertEnabled,
+          pushAlertEnabled,
+          darkTheme,
+          fontSize,
         }}
         {...otherProps}
       />
@@ -268,6 +281,11 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 const AppTracker = withTracker((props) => {
+  const {
+    viewScreenshare,
+    isScreenSharing,
+    screenSharingContentType,
+  } = props;
   const currentUser = Users.findOne(
     { userId: Auth.userID },
     {
@@ -294,15 +312,8 @@ const AppTracker = withTracker((props) => {
   const meetingLayoutUpdatedAt = new Date(layout.updatedAt).getTime();
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
-
-  const AppSettings = Settings.application;
-  const { selectedLayout, pushLayout } = AppSettings;
-  const { viewScreenshare } = Settings.dataSaving;
-  const {
-    isScreenSharing,
-    screenSharingContentType,
-  } = props;
   const shouldShowScreenshare = MediaService.shouldShowScreenshare(
+    viewScreenshare,
     isScreenSharing,
     screenSharingContentType,
   );
@@ -316,7 +327,6 @@ const AppTracker = withTracker((props) => {
 
   return {
     audioCaptions: <AudioCaptionsLiveContainer />,
-    fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
     customStyleUrl,
@@ -334,14 +344,8 @@ const AppTracker = withTracker((props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
-    selectedLayout,
-    pushLayout,
     pushLayoutMeeting,
-    audioAlertEnabled: AppSettings.chatAudioAlerts,
-    pushAlertEnabled: AppSettings.chatPushAlerts,
-    darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    viewScreenshare,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',

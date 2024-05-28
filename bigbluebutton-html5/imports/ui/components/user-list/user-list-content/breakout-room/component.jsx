@@ -45,6 +45,7 @@ const BreakoutRoomItem = ({
             <Styled.ListItem
               role="button"
               tabIndex={0}
+              active={sidebarContentPanel === PANELS.BREAKOUT}
               onClick={toggleBreakoutPanel}
               data-test="breakoutRoomsItem"
               aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
