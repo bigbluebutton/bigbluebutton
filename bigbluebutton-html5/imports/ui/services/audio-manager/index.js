@@ -87,6 +87,7 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+    this.isUsingAudio = this.isUsingAudio.bind(this);
 
     this._inputStream = makeVar(null);
     this._inputStreamTracker = new Tracker.Dependency();
@@ -651,7 +652,7 @@ class AudioManager {
   }
 
   isUsingAudio() {
-    return this.isConnected || this.isConnecting || this.isHangingUp || this.isEchoTest;
+    return Boolean(this.isConnected || this.isConnecting || this.isHangingUp || this.isEchoTest);
   }
 
   changeInputDevice(deviceId) {

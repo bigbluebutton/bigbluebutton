@@ -436,19 +436,28 @@ export const useExitVideo = (forceExit = false) => {
 
     if (isConnected || forceExit) {
       const sendUserUnshareWebcam = (cameraId: string) => {
-        cameraBroadcastStop({ variables: { cameraId } });
+        return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      return getOwnVideoStreams().then(({ data }) => {
+      return getOwnVideoStreams().then(async ({ data }) => {
         if (data) {
           const streams = data.user_camera || [];
-          streams.forEach((s: { streamId: string }) => sendUserUnshareWebcam(s.streamId));
-          videoService.exitedVideo();
+          const results = streams.map((s) => sendUserUnshareWebcam(s.streamId));
+          return Promise.all(results).then(() => {
+            videoService.exitedVideo();
+            return true;
+          }).catch((e) => {
+            logger.warn({
+              logCode: 'exit_audio',
+              extraInfo: e,
+            }, 'Exiting audio');
+            return false;
+          });
         }
-        return null;
+        return true;
       });
     }
-    return Promise.resolve(null);
+    return true;
   }, [cameraBroadcastStop]);
 
   return exitVideo;
