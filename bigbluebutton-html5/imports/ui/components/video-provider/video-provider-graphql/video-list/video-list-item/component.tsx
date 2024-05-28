@@ -86,7 +86,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
   const Settings = getSettingsSingletonInstance();
-  // @ts-expect-error -> Untyped object.
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
 

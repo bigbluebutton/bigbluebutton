@@ -159,7 +159,6 @@ class VideoService {
 
   static isPaginationEnabled() {
     const Settings = getSettingsSingletonInstance();
-    // @ts-expect-error -> Untyped object.
     return Settings.application.paginationEnabled;
   }
 

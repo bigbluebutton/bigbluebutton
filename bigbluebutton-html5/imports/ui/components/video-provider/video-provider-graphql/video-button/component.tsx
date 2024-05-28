@@ -105,14 +105,12 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
 
   useEffect(() => {
     const Settings = getSettingsSingletonInstance();
-    // @ts-expect-error -> Untyped object.
     const isSelfViewDisabled = Settings.application.selfViewDisable;
 
     if (isVideoPreviewModalOpen && isSelfViewDisabled) {
       setWasSelfViewDisabled(true);
       const obj = {
         application:
-        // @ts-expect-error -> Untyped object.
           { ...Settings.application, selfViewDisable: false },
       };
       updateSettings(obj, null, setLocalSettings);

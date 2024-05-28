@@ -1,12 +1,11 @@
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { isReactionsEnabled, useIsReactionsEnabled } from '/imports/ui/services/features/index';
 
-const isEnabled = () => {
-  const ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  return isReactionsEnabled() && getFromUserSettings('enable-user-reaction', ENABLED);
-};
+const getEnabledSetting = () => window.meetingClientSettings.public.userReaction.enabled;
 
-const useIsEnabled = () => useIsReactionsEnabled() && getFromUserSettings('enable-user-reaction', ENABLED);
+const isEnabled = () => isReactionsEnabled() && getFromUserSettings('enable-user-reaction', getEnabledSetting());
+
+const useIsEnabled = () => useIsReactionsEnabled() && getFromUserSettings('enable-user-reaction', getEnabledSetting());
 
 export default {
   isEnabled,
