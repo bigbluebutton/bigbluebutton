@@ -10,7 +10,7 @@ import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
@@ -543,6 +543,7 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users) 
 };
 
 const UserJoinedMeetingAlert = (obj) => {
+  const Settings = getSettingsSingletonInstance();
   const {
     userJoinAudioAlerts,
     userJoinPushAlerts,
@@ -571,6 +572,7 @@ const UserJoinedMeetingAlert = (obj) => {
 }
 
 const UserLeftMeetingAlert = (obj) => {
+  const Settings = getSettingsSingletonInstance();
   const {
     userLeaveAudioAlerts,
     userLeavePushAlerts,

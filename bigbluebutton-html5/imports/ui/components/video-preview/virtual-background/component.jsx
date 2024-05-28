@@ -16,7 +16,7 @@ import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
@@ -257,6 +257,7 @@ const VirtualBgSelector = ({
 
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
+    const Settings = getSettingsSingletonInstance();
     const isRTL = Settings.application.isRTL;
     const IMAGE_NAMES = getImageNames();
 

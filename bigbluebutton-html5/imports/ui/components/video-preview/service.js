@@ -1,5 +1,5 @@
 import Storage from '/imports/ui/services/storage/session';
-import BBBStorage from '/imports/ui/services/storage';
+import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
@@ -12,6 +12,7 @@ const GUM_RETRY_DELAY = 200;
 const CAMERA_AS_CONTENT_PROFILE_ID = 'fhd';
 
 const getDefaultProfile = () => {
+  const BBBStorage = getStorageSingletonInstance();
   // Unfiltered, includes hidden profiles
   const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
 
@@ -232,11 +233,11 @@ const terminateCameraStream = (bbbVideoStream, deviceId) => {
 export default {
   promiseTimeout,
   changeWebcam: (deviceId) => {
-    BBBStorage.setItem('WebcamDeviceId', deviceId);
+    getStorageSingletonInstance().setItem('WebcamDeviceId', deviceId);
   },
-  webcamDeviceId: () => BBBStorage.getItem('WebcamDeviceId'),
+  webcamDeviceId: () => getStorageSingletonInstance().getItem('WebcamDeviceId'),
   changeProfile: (profileId) => {
-    BBBStorage.setItem('WebcamProfileId', profileId);
+    getStorageSingletonInstance().setItem('WebcamProfileId', profileId);
   },
   getSkipVideoPreview,
   storeStream,

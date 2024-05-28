@@ -176,12 +176,6 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 };
 
 const TalkingIndicatorContainer: React.FC = (() => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - temporary, while meteor exists in the project
-  const APP_CONFIG = window.meetingClientSettings.public.app;
-  const { enableTalkingIndicator } = APP_CONFIG;
-
-  if (!enableTalkingIndicator) return () => null;
   return () => {
     const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
       userId: u?.userId,

@@ -30,7 +30,7 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { uniqueId } from '/imports/utils/string-utils';
 
@@ -146,6 +146,7 @@ class ScreenshareComponent extends React.Component {
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
+    const Settings = getSettingsSingletonInstance();
     if (Settings.dataSaving.viewScreenshare) {
       notify(intl.formatMessage(this.locales.ended), 'info', this.icon);
     } else {
@@ -530,6 +531,7 @@ class ScreenshareComponent extends React.Component {
       || (!mediaFlowing && loaded && isGloballyBroadcasting);
 
     const display = (width > 0 && height > 0) ? 'inherit' : 'none';
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     return (

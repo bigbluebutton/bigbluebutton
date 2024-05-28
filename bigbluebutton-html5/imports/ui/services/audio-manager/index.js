@@ -84,16 +84,15 @@ class AudioManager {
     this._inputStream = makeVar(null);
     this._inputStreamTracker = new Tracker.Dependency();
     this._inputDeviceId = {
-      value: makeVar(getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID),
+      value: makeVar(DEFAULT_INPUT_DEVICE_ID),
       tracker: new Tracker.Dependency(),
     };
     this._outputDeviceId = {
-      value: makeVar(getCurrentAudioSinkId()),
+      value: makeVar(null),
       tracker: new Tracker.Dependency(),
     };
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
-    this._applyCachedOutputDeviceId();
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
   }
@@ -158,6 +157,11 @@ class AudioManager {
   }
 
   async init(userData, audioEventHandler) {
+    this.inputDeviceId = getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID;
+    this.outputDeviceId = getCurrentAudioSinkId();
+
+    this._applyCachedOutputDeviceId();
+
     this.loadBridges(userData);
     this.userData = userData;
     this.initialized = true;
@@ -454,7 +458,7 @@ class AudioManager {
 
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    return this.bridge.exitAudio();
+    return this.bridge && this.bridge.exitAudio();
   }
 
   transferCall() {

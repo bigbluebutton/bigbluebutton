@@ -1,8 +1,14 @@
 import Local from './local';
 import Session from './session';
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
+let StorageSingleton = null;
+export const getStorageSingletonInstance = () => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
 
-const BBBStorage = APP_CONFIG.userSettingsStorage === 'local' ? Local : Session;
+  if (!StorageSingleton) {
+    StorageSingleton = APP_CONFIG.userSettingsStorage === 'local' ? Local : Session;
+  }
+  return StorageSingleton;
+};
 
-export default BBBStorage;
+export default getStorageSingletonInstance;

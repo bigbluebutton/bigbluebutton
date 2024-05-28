@@ -1,6 +1,6 @@
 import { Session } from 'meteor/session';
 import { v4 as uuid } from 'uuid';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
@@ -11,7 +11,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewService from '/imports/ui/components/video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
-import BBBStorage from '/imports/ui/services/storage';
+import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import {
@@ -158,6 +158,7 @@ class VideoService {
   }
 
   static isPaginationEnabled() {
+    const Settings = getSettingsSingletonInstance();
     // @ts-expect-error -> Untyped object.
     return Settings.application.paginationEnabled;
   }
@@ -308,6 +309,7 @@ class VideoService {
 
   static getCameraProfile() {
     const CAMERA_PROFILES = VideoService.getCameraProfiles();
+    const BBBStorage = getStorageSingletonInstance();
     const profileId = BBBStorage.getItem('WebcamProfileId') || '';
     const cameraProfile = CAMERA_PROFILES.find((profile) => profile.id === profileId)
       || CAMERA_PROFILES.find((profile) => profile.default)

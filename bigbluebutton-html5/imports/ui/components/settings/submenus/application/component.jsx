@@ -8,10 +8,9 @@ import Styled from './styles';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const MIN_FONTSIZE = 0;
-const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -437,6 +436,8 @@ class ApplicationMenu extends BaseMenu {
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
 
     const showSelect = allLocales && allLocales.length > 0;
+    const Settings = getSettingsSingletonInstance();
+    const animations = Settings?.application?.animations;
 
     return (
       <div>

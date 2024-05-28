@@ -19,7 +19,7 @@ import {
   getSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Checkbox from '/imports/ui/components/common/checkbox/component'
 
@@ -985,6 +985,7 @@ class VideoPreview extends Component {
       previewError,
     } = this.state;
 
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     switch (viewState) {

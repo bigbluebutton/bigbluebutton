@@ -13,7 +13,7 @@ import {
   getCurrentPollDataResponse,
 } from '../queries';
 import logger from '/imports/startup/client/logger';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
@@ -224,6 +224,7 @@ const LiveResultContainer: React.FC = () => {
   }
 
   if (!currentPollData.poll.length) return null;
+  const Settings = getSettingsSingletonInstance();
   // @ts-ignore - JS code
   const { animations } = Settings.application;
   const currentPoll = currentPollData.poll[0];

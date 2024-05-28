@@ -1,6 +1,6 @@
 import { makeVar } from '@apollo/client';
 import { Notification } from './queries';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { throttle } from '/imports/utils/throttle';
 
 const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
@@ -21,6 +21,7 @@ export const NotifyPublishedPoll = (
 };
 
 function ringGuestWaitingBell() {
+  const Settings = getSettingsSingletonInstance();
   // @ts-ignore - JS code
   if (Settings.application.guestWaitingAudioAlerts) {
     const CDN = window.meetingClientSettings.public.app.cdn;
@@ -42,6 +43,7 @@ export const pendingGuestAlert = (
   notification: Notification,
   notifier: (notification: Notification) => void,
 ) => {
+  const Settings = getSettingsSingletonInstance();
   // @ts-ignore - JS code
   if (Settings.application.guestWaitingPushAlerts) {
     notifier(notification);
@@ -54,6 +56,7 @@ export const userJoinPushAlert = (
   notification: Notification,
   notifier: (notification: Notification) => void,
 ) => {
+  const Settings = getSettingsSingletonInstance();
   const {
     userJoinAudioAlerts,
     userJoinPushAlerts,
@@ -78,6 +81,7 @@ export const userLeavePushAlert = (
   notification: Notification,
   notifier: (notification: Notification) => void,
 ) => {
+  const Settings = getSettingsSingletonInstance();
   const {
     userLeaveAudioAlerts,
     userLeavePushAlerts,

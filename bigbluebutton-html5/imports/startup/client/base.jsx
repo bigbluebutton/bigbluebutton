@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
 import { Meteor } from 'meteor/meteor';
 import AppService from '/imports/ui/components/app/service';
@@ -115,6 +115,7 @@ class Base extends Component {
           window.meetingClientSettings.public.app.defaultSettings.application.animations
         );
 
+        const Settings = getSettingsSingletonInstance();
         Settings.application.animations = showAnimationsDefault;
         Settings.save(setLocalSettings);
 
@@ -189,7 +190,11 @@ const BaseContainer = (props) => {
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
   const setLocalSettings = useUserChangedLocalSettings();
-  const { paginationEnabled, animations } = useSettings(SETTINGS.APPLICATION);
+
+  const applicationSettings = useSettings(SETTINGS.APPLICATION);
+  const paginationEnabled = applicationSettings?.paginationEnabled;
+  const animations = applicationSettings?.animations;
+
   const { viewParticipantsWebcams, viewScreenshare } = useSettings(SETTINGS.DATA_SAVING);
   const { streams: usersVideo } = useVideoStreams(
     isGridLayout,

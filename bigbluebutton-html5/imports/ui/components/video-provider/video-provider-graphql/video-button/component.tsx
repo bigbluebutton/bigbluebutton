@@ -9,7 +9,7 @@ import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { CameraSettingsDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import VideoService from '../service';
 import Styled from './styles';
@@ -104,6 +104,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
 
   useEffect(() => {
+    const Settings = getSettingsSingletonInstance();
     // @ts-expect-error -> Untyped object.
     const isSelfViewDisabled = Settings.application.selfViewDisable;
 

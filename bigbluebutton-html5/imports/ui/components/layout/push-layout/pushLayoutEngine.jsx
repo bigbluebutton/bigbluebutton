@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import { LAYOUT_TYPE, ACTIONS } from '../enums';
 import { isMobile } from '../utils';
@@ -66,6 +66,8 @@ class PushLayoutEngine extends React.Component {
       setLocalSettings,
       pushLayoutMeeting,
     } = this.props;
+
+    const Settings = getSettingsSingletonInstance();
 
     const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
     const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
@@ -165,6 +167,7 @@ class PushLayoutEngine extends React.Component {
     const shouldSwitchLayout = isPresenter
       ? meetingLayoutDidChange || enforceLayoutDidChange
       : ((meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting) || enforceLayoutDidChange;
+    const Settings = getSettingsSingletonInstance();
 
     if (shouldSwitchLayout) {
       let contextLayout = enforceLayout || meetingLayout;

@@ -1,6 +1,6 @@
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import BBBStorage from '/imports/ui/services/storage';
+import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const DEFAULT_INPUT_DEVICE_ID = '';
@@ -36,10 +36,10 @@ const getCurrentAudioSinkId = () => {
   return audioElement?.sinkId || DEFAULT_OUTPUT_DEVICE_ID;
 };
 
-const getStoredAudioInputDeviceId = () => BBBStorage.getItem(INPUT_DEVICE_ID_KEY);
-const getStoredAudioOutputDeviceId = () => BBBStorage.getItem(OUTPUT_DEVICE_ID_KEY);
-const storeAudioInputDeviceId = (deviceId) => BBBStorage.setItem(INPUT_DEVICE_ID_KEY, deviceId);
-const storeAudioOutputDeviceId = (deviceId) => BBBStorage.setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+const getStoredAudioInputDeviceId = () => getStorageSingletonInstance().getItem(INPUT_DEVICE_ID_KEY);
+const getStoredAudioOutputDeviceId = () => getStorageSingletonInstance().getItem(OUTPUT_DEVICE_ID_KEY);
+const storeAudioInputDeviceId = (deviceId) => getStorageSingletonInstance().setItem(INPUT_DEVICE_ID_KEY, deviceId);
+const storeAudioOutputDeviceId = (deviceId) => getStorageSingletonInstance().setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
 
 /**
  * Filter constraints set in audioDeviceConstraints, based on
@@ -75,6 +75,7 @@ const filterSupportedConstraints = (audioDeviceConstraints) => {
 
 const getAudioConstraints = (constraintFields = {}) => {
   const { deviceId = '' } = constraintFields;
+  const Settings = getSettingsSingletonInstance();
   const userSettingsConstraints = Settings.application.microphoneConstraints;
   const audioDeviceConstraints = userSettingsConstraints
     || window.meetingClientSettings.public.app.defaultSettings.application.microphoneConstraints

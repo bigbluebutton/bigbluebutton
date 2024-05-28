@@ -48,7 +48,7 @@ const initState = {
   isRTL: false,
   layoutType: DEFAULT_VALUES.layoutType,
   fontSize: DEFAULT_VALUES.fontSize,
-  idChatOpen: DEFAULT_VALUES.idChatOpen,
+  idChatOpen: '',
   fullscreen: {
     element: '',
     group: '',

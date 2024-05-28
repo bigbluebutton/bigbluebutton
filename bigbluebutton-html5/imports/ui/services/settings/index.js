@@ -103,5 +103,12 @@ class Settings {
   }
 }
 
-const SettingsSingleton = new Settings(window.meetingClientSettings.public.app.defaultSettings);
-export default SettingsSingleton;
+let SettingsSingleton = null;
+export const getSettingsSingletonInstance = () => {
+  if (!SettingsSingleton) {
+    SettingsSingleton = new Settings(window.meetingClientSettings.public.app.defaultSettings);
+  }
+  return SettingsSingleton;
+};
+
+export default getSettingsSingletonInstance;

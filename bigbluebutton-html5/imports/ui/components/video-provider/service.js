@@ -1,6 +1,6 @@
 import { Tracker } from 'meteor/tracker';
 import { Session } from 'meteor/session';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
@@ -13,7 +13,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
-import BBBStorage from '/imports/ui/services/storage';
+import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
 import { partition } from '/imports/utils/array-utils';
 import {
@@ -234,6 +234,7 @@ class VideoService {
   }
 
   isPaginationEnabled () {
+    const Settings = getSettingsSingletonInstance();
     return Settings.application.paginationEnabled && (this.getMyPageSize() > 0);
   }
 
@@ -477,6 +478,7 @@ class VideoService {
     ).fetch();
 
     // Data savings enabled will only show local streams
+    const Settings = getSettingsSingletonInstance();
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
@@ -529,6 +531,7 @@ class VideoService {
       { meetingId: Auth.meetingID },
     ).fetch()];
 
+    const Settings = getSettingsSingletonInstance();
     const { viewParticipantsWebcams } = Settings.dataSaving;
     if (!viewParticipantsWebcams) streams = this.filterLocalOnly(streams);
 
@@ -800,6 +803,7 @@ class VideoService {
   }
 
   getCameraProfile() {
+    const BBBStorage = getStorageSingletonInstance();
     const CAMERA_PROFILES = this.getCameraProfiles();
     const profileId = BBBStorage.getItem('WebcamProfileId') || '';
     const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
