@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation, useSubscription } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import NotesService from '/imports/ui/components/notes/service';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -23,9 +22,6 @@ import {
   useIsSharing,
   useSharingContentType,
 } from '/imports/ui/components/screenshare/service';
-
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 
 const intlMessages = defineMessages({
   hide: {
@@ -98,6 +94,9 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     style.padding = 0;
     style.display = 'none';
   }
+
+  const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
+
   useEffect(() => {
     if (isToSharedNotesBeShow) {
       setShouldRenderNotes(true);
@@ -127,6 +126,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
       />
     ) : null;
   };
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes
@@ -158,7 +159,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         />
       ) : renderHeaderOnMedia()}
       <PadContainer
-        externalId={NotesService.ID}
+        externalId={NOTES_CONFIG.id}
         hasPermission={hasPermission}
         isResizing={isResizing}
         isRTL={isRTL}
@@ -186,6 +187,8 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
   const amIPresenter = !!currentUserData?.presenter;
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const shouldShowSharedNotesOnPresentationArea = !!pinnedPadData

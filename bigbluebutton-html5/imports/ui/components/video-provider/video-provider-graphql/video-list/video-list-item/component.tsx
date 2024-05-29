@@ -11,7 +11,7 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import Styled from './styles';
 import withDragAndDrop from './drag-and-drop/component';
@@ -85,7 +85,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const videoContainer = useRef<HTMLDivElement | null>(null);
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
-  // @ts-expect-error -> Untyped object.
+  const Settings = getSettingsSingletonInstance();
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
 

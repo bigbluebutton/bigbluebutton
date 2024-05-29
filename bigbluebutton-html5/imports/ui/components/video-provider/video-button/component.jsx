@@ -11,10 +11,7 @@ import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
-import Settings from '/imports/ui/services/settings';
-
-const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
-const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   videoSettings: {
@@ -80,6 +77,9 @@ const JoinVideoButton = ({
   setLocalSettings,
   away,
 }) => {
+  const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
+  const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
   const isDesktopSharingCamera = hasVideoStream && !isMobile;
@@ -96,6 +96,7 @@ const JoinVideoButton = ({
   const [forceOpen, setForceOpen] = useState(false);
   const [isVideoPreviewModalOpen, setVideoPreviewModalIsOpen] = useState(false);
   const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
+  const Settings = getSettingsSingletonInstance();
 
   useEffect(() => {
     const isSelfViewDisabled = Settings.application.selfViewDisable;

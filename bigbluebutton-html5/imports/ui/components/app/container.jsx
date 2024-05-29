@@ -35,18 +35,7 @@ import { useIsSharing, useSharingContentType } from '../screenshare/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 
-const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
 const AppContainer = (props) => {
-  function usePrevious(value) {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
-
   const layoutType = useRef(null);
 
   const {
@@ -65,6 +54,8 @@ const AppContainer = (props) => {
     meetingLayoutVideoRate,
     ...otherProps
   } = props;
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const {
     selectedLayout,
@@ -318,6 +309,8 @@ const AppTracker = withTracker((props) => {
     screenSharingContentType,
   );
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
+
+  const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
     customStyleUrl = CUSTOM_STYLE_URL;

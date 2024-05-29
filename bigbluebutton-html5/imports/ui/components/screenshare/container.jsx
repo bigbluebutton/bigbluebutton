@@ -21,8 +21,6 @@ import MediaService from '/imports/ui/components/media/service';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
   label: {
@@ -104,6 +102,9 @@ const ScreenshareContainer = (props) => {
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
   const isSharedNotesPinned = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
@@ -155,12 +156,14 @@ const ScreenshareContainer = (props) => {
   return null;
 };
 
-const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+export default withTracker(() => {
+  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
-export default withTracker(() => ({
-  isGloballyBroadcasting: isScreenGloballyBroadcasting() || isCameraAsContentGloballyBroadcasting(),
-  toggleSwapLayout: MediaService.toggleSwapLayout,
-  hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
-  enableVolumeControl: shouldEnableVolumeControl(),
-  outputDeviceId: AudioService.outputDeviceId(),
-}))(ScreenshareContainer);
+  return {
+    isGloballyBroadcasting: isScreenGloballyBroadcasting() || isCameraAsContentGloballyBroadcasting(),
+    toggleSwapLayout: MediaService.toggleSwapLayout,
+    hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
+    enableVolumeControl: shouldEnableVolumeControl(),
+    outputDeviceId: AudioService.outputDeviceId(),
+  };
+})(ScreenshareContainer);

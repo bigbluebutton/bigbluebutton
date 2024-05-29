@@ -17,7 +17,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -284,10 +284,14 @@ class NavBar extends Component {
 
     const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
 
+    const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.application;
     const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+
+    const APP_CONFIG = window.meetingClientSettings?.public?.app;
+    const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;
 
     return (
       <Styled.Navbar
@@ -361,7 +365,7 @@ class NavBar extends Component {
           </Styled.Right>
         </Styled.Top>
         <Styled.Bottom>
-          <TalkingIndicator amIModerator={amIModerator} />
+          {enableTalkingIndicator ? <TalkingIndicator amIModerator={amIModerator} /> : null}
           <TimerIndicatorContainer />
         </Styled.Bottom>
       </Styled.Navbar>

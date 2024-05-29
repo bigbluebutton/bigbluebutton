@@ -9,9 +9,6 @@ import ManyUsersComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_WEBCAM_ONLY_FOR_MODERATOR } from '/imports/ui/components/lock-viewers/mutations';
 
-const USER_CONFIG = window.meetingClientSettings.public.user;
-const ROLE_VIEWER = USER_CONFIG.role_viewer;
-
 const ManyUsersContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
@@ -32,6 +29,8 @@ const ManyUsersContainer = (props) => {
 };
 
 export default withTracker(() => {
+  const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
+
   const meeting = Meetings.findOne({
     meetingId: Auth.meetingID,
   }, { fields: { 'usersPolicies.webcamsOnlyForModerator': 1, lockSettings: 1 } });
