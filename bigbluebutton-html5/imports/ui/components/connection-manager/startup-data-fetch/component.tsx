@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Session } from 'meteor/session';
+import { v4 as uuid } from 'uuid';
 import { ErrorScreen } from '../../error-screen/component';
 import LoadingScreen from '../../common/loading-screen/component';
 
@@ -52,6 +53,10 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       setError('Timeout on fetching startup data');
       setLoading(false);
     }, connectionTimeout);
+
+    const clientSessionUUID = uuid();
+    sessionStorage.setItem('clientSessionUUID', clientSessionUUID);
+
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
 

@@ -167,7 +167,6 @@ class UsersApp(
   with GetRecordingStatusReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
-  with ChangeUserMobileFlagReqMsgHdlr
   with UserConnectionAliveReqMsgHdlr
   with ChangeUserReactionEmojiReqMsgHdlr
   with ChangeUserRaiseHandReqMsgHdlr

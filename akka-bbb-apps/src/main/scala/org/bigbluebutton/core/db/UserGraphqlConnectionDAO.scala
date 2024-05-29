@@ -9,6 +9,9 @@ import scala.util.{Failure, Success }
 case class UserGraphqlConnectionDbModel (
        graphqlConnectionId:     Option[Int],
        sessionToken:            String,
+       clientSessionUUID:       String,
+       clientType:              String,
+       clientIsMobile:          Boolean,
        middlewareUID:           String,
        middlewareConnectionId:  String,
        establishedAt:           java.sql.Timestamp,
@@ -17,10 +20,13 @@ case class UserGraphqlConnectionDbModel (
 
 class UserGraphqlConnectionDbTableDef(tag: Tag) extends Table[UserGraphqlConnectionDbModel](tag, None, "user_graphqlConnection") {
   override def * = (
-    graphqlConnectionId, sessionToken, middlewareUID, middlewareConnectionId, establishedAt, closedAt
+    graphqlConnectionId, sessionToken, clientSessionUUID, clientType, clientIsMobile, middlewareUID, middlewareConnectionId, establishedAt, closedAt
   ) <> (UserGraphqlConnectionDbModel.tupled, UserGraphqlConnectionDbModel.unapply)
   val graphqlConnectionId = column[Option[Int]]("graphqlConnectionId", O.PrimaryKey, O.AutoInc)
   val sessionToken = column[String]("sessionToken")
+  val clientSessionUUID = column[String]("clientSessionUUID")
+  val clientType = column[String]("clientType")
+  val clientIsMobile = column[Boolean]("clientIsMobile")
   val middlewareUID = column[String]("middlewareUID")
   val middlewareConnectionId = column[String]("middlewareConnectionId")
   val establishedAt = column[java.sql.Timestamp]("establishedAt")
@@ -29,12 +35,20 @@ class UserGraphqlConnectionDbTableDef(tag: Tag) extends Table[UserGraphqlConnect
 
 
 object UserGraphqlConnectionDAO {
-  def insert(sessionToken: String, middlewareUID:String, middlewareConnectionId: String) = {
+  def insert(sessionToken: String,
+             clientSessionUUID: String,
+             clientType: String,
+             clientIsMobile: Boolean,
+             middlewareUID:String,
+             middlewareConnectionId: String) = {
     DatabaseConnection.db.run(
       TableQuery[UserGraphqlConnectionDbTableDef].insertOrUpdate(
         UserGraphqlConnectionDbModel(
           graphqlConnectionId = None,
           sessionToken = sessionToken,
+          clientSessionUUID = clientSessionUUID,
+          clientType = clientType,
+          clientIsMobile = clientIsMobile,
           middlewareUID = middlewareUID,
           middlewareConnectionId = middlewareConnectionId,
           establishedAt = new java.sql.Timestamp(System.currentTimeMillis()),
@@ -42,10 +56,10 @@ object UserGraphqlConnectionDAO {
         )
       )
     ).onComplete {
-        case Success(rowsAffected) => {
+        case Success(rowsAffected) =>
           DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_graphqlConnection table!")
-        }
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting user_graphqlConnection: $e")
+        case Failure(e) =>
+          DatabaseConnection.logger.debug(s"Error inserting user_graphqlConnection: $e")
       }
   }
 

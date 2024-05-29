@@ -6,6 +6,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       [
         {name: 'authToken', type: 'string', required: true},
         {name: 'clientType', type: 'string', required: true},
+        {name: 'clientIsMobile', type: 'boolean', required: true},
       ]
   )
 
@@ -26,6 +27,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId,
     authToken: input.authToken,
     clientType: input.clientType,
+    clientIsMobile: input.clientIsMobile,
   };
 
   return { eventName, routing, header, body };

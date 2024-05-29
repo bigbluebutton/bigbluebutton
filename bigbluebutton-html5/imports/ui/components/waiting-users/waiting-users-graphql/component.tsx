@@ -344,6 +344,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
                 &quot;
                 {
                   guestLobbyMessage && guestLobbyMessage !== ''
+                  // eslint-disable-next-line react/no-danger
                     ? <span dangerouslySetInnerHTML={{ __html: guestLobbyMessage }} />
                     : intl.formatMessage(intlMessages.emptyMessage)
                 }
