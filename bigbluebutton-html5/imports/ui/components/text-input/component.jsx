@@ -6,8 +6,6 @@ import logger from '/imports/startup/client/logger';
 import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';
 
-const EMOJI_BUTTON = window.meetingClientSettings.public.app.enableEmojiButton;
-
 const propTypes = {
   placeholder: PropTypes.string,
   send: PropTypes.func.isRequired,
@@ -96,6 +94,8 @@ class TextInput extends PureComponent {
 
   emojiEnabled() {
     if (isMobile) return false;
+
+    const EMOJI_BUTTON = window.meetingClientSettings.public.app.enableEmojiButton;
 
     const { enableEmoji } = this.props;
     return enableEmoji && EMOJI_BUTTON;

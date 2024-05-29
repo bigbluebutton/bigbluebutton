@@ -129,8 +129,6 @@ const defaultProps = {
   audioCaptionsEnabled: false,
 };
 
-const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
-const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 const { isSafari, isTabletApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
@@ -182,6 +180,8 @@ class OptionsDropdown extends PureComponent {
       handleToggleFullscreen,
     } = this.props;
     const { isFullscreen } = this.state;
+
+    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
     if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
 
@@ -256,6 +256,8 @@ class OptionsDropdown extends PureComponent {
     this.menuItems = [];
 
     this.getFullscreenItem(this.menuItems);
+
+    const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 
     this.menuItems.push(
       {

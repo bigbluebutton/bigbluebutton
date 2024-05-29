@@ -22,10 +22,17 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 const AudioModalContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     away: user.away,
+    isModerator: user.isModerator,
   }));
   const getEchoTest = useStorageKey('getEchoTest', 'session');
 
   const away = currentUserData?.away;
+  const isModerator = currentUserData?.isModerator;
+
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
+
+  const forceListenOnlyAttendee = forceListenOnly && !isModerator;
 
   const { autoJoin, skipCheck, skipCheckOnJoin } = props;
   const joinFullAudioImmediately = (
@@ -42,6 +49,7 @@ const AudioModalContainer = (props) => {
   return (
     <AudioModal
       away={away}
+      forceListenOnlyAttendee={forceListenOnlyAttendee}
       getEchoTest={getEchoTest}
       joinFullAudioImmediately={joinFullAudioImmediately}
       {...props}
@@ -49,14 +57,12 @@ const AudioModalContainer = (props) => {
   );
 };
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
-
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 
 export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
-  const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
@@ -76,9 +82,13 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
 
-  const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
-
   const { isIe } = browserInfo;
+
+  const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
+
+  const {
+    enabled: LOCAL_ECHO_TEST_ENABLED,
+  } = window.meetingClientSettings.public.media.localEchoTest;
 
   return ({
     meetingIsBreakout,
@@ -100,8 +110,8 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
-    showVolumeMeter: Service.showVolumeMeter,
-    localEchoEnabled: Service.localEchoEnabled,
+    showVolumeMeter: SHOW_VOLUME_METER,
+    localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
     listenOnlyMode,
     formattedDialNum,
     formattedTelVoice,
@@ -110,7 +120,6 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
     autoJoin,
     skipCheck,
     skipCheckOnJoin,
-    forceListenOnlyAttendee,
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIE: isIe,
     autoplayBlocked: Service.autoplayBlocked(),

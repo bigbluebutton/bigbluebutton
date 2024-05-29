@@ -20,12 +20,11 @@ import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
-
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -96,6 +95,8 @@ const AudioContainer = (props) => {
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
+  const { data: currentUserMuted } = useCurrentUser((u) => u?.voice?.muted ?? false);
+
   const joinAudio = () => {
     if (Service.isConnected()) return;
 
@@ -124,8 +125,8 @@ const AudioContainer = (props) => {
   if (Service.isConnected() && !Service.isListenOnly()) {
     Service.updateAudioConstraints(microphoneConstraints);
 
-    if (userLocks.userMic && !Service.isMuted()) {
-      Service.toggleMuteMicrophone(toggleVoice);
+    if (userLocks.userMic && !currentUserMuted) {
+      toggleMuteMicrophone(!currentUserMuted, toggleVoice);
       notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
     }
   }
@@ -187,6 +188,9 @@ export default lockContextContainer(injectIntl(withTracker(({
   intl, userLocks, isAudioModalOpen, setAudioModalIsOpen, setVideoPreviewModalIsOpen,
   speechLocale,
 }) => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
   const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);

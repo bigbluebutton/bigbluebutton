@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import PresentationDownloadDropdown from './presentation-download-dropdown/component';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Radio from '/imports/ui/components/common/radio/component';
 import { unique } from 'radash';
 import { isPresentationEnabled } from '/imports/ui/services/features';
@@ -835,6 +835,7 @@ class PresentationUploader extends Component {
       this.hasError = true;
     }
 
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     const { removable, downloadable } = item;

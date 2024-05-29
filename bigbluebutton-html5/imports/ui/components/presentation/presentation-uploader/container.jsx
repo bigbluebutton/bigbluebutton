@@ -1,5 +1,4 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
@@ -23,8 +22,6 @@ import {
   PRESENTATION_SET_CURRENT,
   PRESENTATION_REMOVE,
 } from '../mutations';
-
-const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
 const PresentationUploaderContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -90,6 +87,8 @@ export default withTracker(() => {
     dispatchEnableDownloadable,
   } = Service;
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
+
+  const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
   return {
     fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,

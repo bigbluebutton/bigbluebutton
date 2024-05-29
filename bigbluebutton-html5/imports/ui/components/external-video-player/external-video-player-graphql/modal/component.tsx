@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
-import SettingsSingleton from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { isUrlValid } from './service';
 import { EXTERNAL_VIDEO_START } from '../../mutations';
 
@@ -54,8 +54,9 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
   priority,
 }) => {
   const intl = useIntl();
+  const Settings = getSettingsSingletonInstance();
   // @ts-ignore - settings is a js singleton
-  const { animations } = SettingsSingleton.application;
+  const { animations } = Settings.application;
   const [videoUrl, setVideoUrl] = React.useState('');
   const [startExternalVideo] = useMutation(EXTERNAL_VIDEO_START);
 

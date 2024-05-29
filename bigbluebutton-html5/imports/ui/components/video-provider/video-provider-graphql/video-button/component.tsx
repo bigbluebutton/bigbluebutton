@@ -9,13 +9,10 @@ import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { CameraSettingsDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import VideoService from '../service';
 import Styled from './styles';
-
-const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
-const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
 
 const intlMessages = defineMessages({
   videoSettings: {
@@ -88,6 +85,10 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
   const isDesktopSharingCamera = hasVideoStream && !isMobile;
+
+  const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
+  const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
     && isDesktopSharingCamera;
   const shouldEnableWebcamVisualEffectsButton = (isVirtualBackgroundsEnabled()
@@ -103,14 +104,13 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
 
   useEffect(() => {
-    // @ts-expect-error -> Untyped object.
+    const Settings = getSettingsSingletonInstance();
     const isSelfViewDisabled = Settings.application.selfViewDisable;
 
     if (isVideoPreviewModalOpen && isSelfViewDisabled) {
       setWasSelfViewDisabled(true);
       const obj = {
         application:
-        // @ts-expect-error -> Untyped object.
           { ...Settings.application, selfViewDisable: false },
       };
       updateSettings(obj, null, setLocalSettings);

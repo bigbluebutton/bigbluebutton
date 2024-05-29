@@ -8,8 +8,6 @@ import useUserChangedLocalSettings from '../../services/settings/hooks/useUserCh
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
-
 const propTypes = {
   areAudioModalsOpen: PropTypes.bool,
   autoJoin: PropTypes.bool.isRequired,
@@ -55,6 +53,8 @@ WakeLockContainer.propTypes = propTypes;
 WakeLockContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+
   return {
     request: Service.request,
     release: Service.release,

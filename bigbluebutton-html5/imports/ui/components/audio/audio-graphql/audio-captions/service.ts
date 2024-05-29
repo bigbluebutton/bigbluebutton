@@ -2,15 +2,16 @@ import { unique } from 'radash';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 
-const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
-const PROVIDER = CONFIG.provider;
-const LANGUAGES = CONFIG.language.available;
-
 export const isAudioTranscriptionEnabled = () => isLiveTranscriptionEnabled();
 
-export const isWebSpeechApi = () => PROVIDER === 'webspeech';
+export const isWebSpeechApi = () => {
+  const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
+  return PROVIDER === 'webspeech';
+};
 
 export const getSpeechVoices = () => {
+  const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
+
   if (!isWebSpeechApi()) return LANGUAGES;
 
   return unique(
@@ -29,10 +30,14 @@ export const setAudioCaptions = (value: boolean) => {
 };
 
 export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
-  setUserSpeechLocale(value, CONFIG.provider);
+  const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
+  setUserSpeechLocale(value, PROVIDER);
 };
 
-export const useFixedLocale = () => isAudioTranscriptionEnabled() && CONFIG.language.forceLocale;
+export const useFixedLocale = () => {
+  const FORCE_LOCALE = window.meetingClientSettings.public.app.audioCaptions.language.forceLocale;
+  return isAudioTranscriptionEnabled() && FORCE_LOCALE;
+};
 
 export default {
   getSpeechVoices,
