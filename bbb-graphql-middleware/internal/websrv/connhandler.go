@@ -217,6 +217,7 @@ func InvalidateSessionTokenConnections(sessionTokenToInvalidate string) {
 		wg.Add(1)
 		go func(bc *common.BrowserConnection) {
 			defer wg.Done()
+			go refreshUserSessionVariables(bc)
 			invalidateHasuraConnectionForSessionToken(bc, sessionTokenToInvalidate)
 		}(browserConnection)
 	}
@@ -265,6 +266,29 @@ func invalidateHasuraConnectionForSessionToken(bc *common.BrowserConnection, ses
 	go SendUserGraphqlReconnectionForcedEvtMsg(sessionToken)
 }
 
+func refreshUserSessionVariables(browserConnection *common.BrowserConnection) error {
+	BrowserConnectionsMutex.RLock()
+	browserSessionToken := browserConnection.SessionToken
+	browserConnectionId := browserConnection.Id
+	browserConnectionCookies := browserConnection.BrowserRequestCookies
+	BrowserConnectionsMutex.RUnlock()
+
+	// Check authorization
+	sessionVariables, err := bbb_web.BBBWebClient(browserConnectionId, browserSessionToken, browserConnectionCookies)
+	if err != nil {
+		log.Error(err)
+		return fmt.Errorf("error on checking sessionToken authorization")
+	} else {
+		log.Trace("Session variables obtained successfully")
+	}
+
+	BrowserConnectionsMutex.Lock()
+	browserConnection.BBBWebSessionVariables = sessionVariables
+	BrowserConnectionsMutex.Unlock()
+
+	return nil
+}
+
 func connectionInitHandler(
 	browserConnection *common.BrowserConnection,
 	fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannel) error {
@@ -310,7 +334,7 @@ func connectionInitHandler(
 			sessionVariables, err := bbb_web.BBBWebClient(browserConnectionId, sessionToken, browserConnectionCookies)
 			if err != nil {
 				log.Error(err)
-				return fmt.Errorf("Error on checking sessionToken authorization")
+				return fmt.Errorf("error on checking sessionToken authorization")
 			} else {
 				log.Trace("Session variables obtained successfully")
 			}
