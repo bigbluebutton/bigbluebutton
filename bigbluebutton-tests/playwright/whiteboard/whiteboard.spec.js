@@ -105,7 +105,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await eraser.test();
   });
 
-  test('Draw arrow', async ({ browser, context, page }) => {
+  test.only('Draw arrow', async ({ browser, context, page }) => {
     const drawArrow = new DrawArrow(browser, context);
     await drawArrow.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await drawArrow.initUserPage(true, context, { joinParameter: hidePresentationToast });
