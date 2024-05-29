@@ -1,7 +1,7 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
-import {notify} from '/imports/ui/services/notification';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { notify } from '/imports/ui/services/notification';
 import GuestService from '/imports/ui/components/waiting-users/service';
 import intlHolder from '../../core/singletons/intlHolder';
 
@@ -32,6 +32,7 @@ const showGuestNotification = () => {
 const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
 
 const updateSettings = (obj, msgDescriptor, mutation) => {
+  const Settings = getSettingsSingletonInstance();
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
   Settings.save(mutation);
 

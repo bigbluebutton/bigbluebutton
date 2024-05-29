@@ -25,32 +25,6 @@ import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { StreamItem, StreamUser, VideoItem } from './types';
 import { Output } from '../../layout/layoutTypes';
 
-// Default values and default empty object to be backwards compat with 2.2.
-// FIXME Remove hardcoded defaults 2.3.
-const {
-  connectionTimeout: WS_CONN_TIMEOUT = 4000,
-  maxRetries: WS_MAX_RETRIES = 5,
-  debug: WS_DEBUG,
-  heartbeat: WS_HEARTBEAT_OPTS = {
-    interval: 15000,
-    delay: 3000,
-    reconnectOnFailure: true,
-  },
-} = window.meetingClientSettings.public.kurento.cameraWsOptions;
-
-const { webcam: NETWORK_PRIORITY } = window.meetingClientSettings.public.media.networkPriorities || {};
-const {
-  baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
-  maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
-} = window.meetingClientSettings.public.kurento.cameraTimeouts || {};
-const {
-  enabled: CAMERA_QUALITY_THRESHOLDS_ENABLED = true,
-  privilegedStreams: CAMERA_QUALITY_THR_PRIVILEGED = true,
-} = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
-const SIGNAL_CANDIDATES = window.meetingClientSettings.public.kurento.signalCandidates;
-const TRACE_LOGS = window.meetingClientSettings.public.kurento.traceLogs;
-const GATHERING_TIMEOUT = window.meetingClientSettings.public.kurento.gatheringTimeout;
-
 const intlClientErrors = defineMessages({
   permissionError: {
     id: 'app.video.permissionError',
@@ -147,6 +121,7 @@ interface VideoProviderGraphqlProps {
   exitVideo: () => void;
   lockUser: () => void;
   stopVideo: (cameraId?: string) => void;
+  applyCameraProfile: (peer: WebRtcPeer, profileId: string) => void;
   intl: IntlShape;
 }
 
@@ -298,6 +273,12 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   }
 
   openWs() {
+    const {
+      connectionTimeout: WS_CONN_TIMEOUT = 4000,
+      maxRetries: WS_MAX_RETRIES = 5,
+      debug: WS_DEBUG,
+    } = window.meetingClientSettings.public.kurento.cameraWsOptions;
+
     const ws = new ReconnectingWebSocket(
       VideoService.getAuthenticatedURL(), [], {
         connectionTimeout: WS_CONN_TIMEOUT,
@@ -333,6 +314,14 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   }
 
   setupWSHeartbeat() {
+    const {
+      heartbeat: WS_HEARTBEAT_OPTS = {
+        interval: 15000,
+        delay: 3000,
+        reconnectOnFailure: true,
+      },
+    } = window.meetingClientSettings.public.kurento.cameraWsOptions;
+    
     if (WS_HEARTBEAT_OPTS.interval === 0 || this.ws == null || this.ws.wsHeartbeat) return;
 
     this.ws.isAlive = true;
@@ -400,6 +389,10 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   }
 
   onWsClose() {
+    const {
+      maxRetries: WS_MAX_RETRIES = 5,
+    } = window.meetingClientSettings.public.kurento.cameraWsOptions;
+    
     const { exitVideo } = this.props;
     logger.info({
       logCode: 'video_provider_onwsclose',
@@ -452,6 +445,12 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   }
 
   updateQualityThresholds(numberOfPublishers: number) {
+    const {
+      privilegedStreams: CAMERA_QUALITY_THR_PRIVILEGED = true,
+    } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
+
+    const { applyCameraProfile } = this.props;
+    
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
       const privilegedStreams = this.findAllPrivilegedStreams();
@@ -464,7 +463,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
           const exempt = threshold === 0
             || (CAMERA_QUALITY_THR_PRIVILEGED && privilegedStreams.some(vs => vs.stream === peer.stream))
           const profileToApply = exempt ? peer.originalProfileId : profile;
-          VideoService.applyCameraProfile(peer, profileToApply);
+          applyCameraProfile(peer, profileToApply);
         });
     }
   }
@@ -506,6 +505,10 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
 
     this.disconnectStreams(streamsToDisconnect);
 
+    const {
+      enabled: CAMERA_QUALITY_THRESHOLDS_ENABLED = true,
+    } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
+    
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
       const { totalNumberOfStreams } = this.props;
       this.updateQualityThresholds(totalNumberOfStreams);
@@ -796,6 +799,10 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
       return;
     }
 
+    const { webcam: NETWORK_PRIORITY } = window.meetingClientSettings.public.media.networkPriorities || {};
+    const TRACE_LOGS = window.meetingClientSettings.public.kurento.traceLogs;
+    const GATHERING_TIMEOUT = window.meetingClientSettings.public.kurento.gatheringTimeout;
+
     this.webRtcPeers[stream] = {};
     this.outboundIceQueues[stream] = [];
     const { constraints, bitrate } = VideoService.getCameraProfile();
@@ -879,6 +886,10 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   private getWebRTCStartTimeout(stream: string, isLocal: boolean) {
     const { intl } = this.props;
 
+    const {
+      maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
+    } = window.meetingClientSettings.public.kurento.cameraTimeouts || {};
+    
     return () => {
       const role = VideoService.getRole(isLocal);
       if (!isLocal) {
@@ -973,6 +984,10 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
     const peer = this.webRtcPeers[stream];
     const shouldSetReconnectionTimeout = !this.restartTimeout[stream] && !isEstablishedConnection;
 
+    const {
+      baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
+    } = window.meetingClientSettings.public.kurento.cameraTimeouts || {};
+    
     // This is an ongoing reconnection which succeeded in the first place but
     // then failed mid call. Try to reconnect it right away. Clear the restart
     // timers since we don't need them in this case.
@@ -997,6 +1012,8 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   }
 
   private getOnIceCandidateCallback(stream: string, isLocal: boolean) {
+    const SIGNAL_CANDIDATES = window.meetingClientSettings.public.kurento.signalCandidates;
+
     if (SIGNAL_CANDIDATES) {
       return (candidate: RTCIceCandidate) => {
         const peer = this.webRtcPeers[stream];

@@ -4,11 +4,7 @@ import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
-
-const STATS = window.meetingClientSettings.public.stats;
-const NOTIFICATION = STATS.notification;
 
 const intlMessages = defineMessages({
   saved: {
@@ -27,12 +23,17 @@ let statsTimeout = null;
 
 const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
 const getHelp = () => {
+  const STATS = window.meetingClientSettings.public.stats;
+
   if (URL_REGEX.test(STATS.help)) return STATS.help;
 
   return null;
 };
 
-const getStats = () => STATS.level[lastLevel()];
+const getStats = () => {
+  const STATS = window.meetingClientSettings.public.stats;
+  return STATS.level[lastLevel()];
+};
 
 const setStats = (level = -1, type = 'recovery', value = {}) => {
   if (lastLevel() !== level) {
@@ -41,6 +42,8 @@ const setStats = (level = -1, type = 'recovery', value = {}) => {
 };
 
 const handleAudioStatsEvent = (event) => {
+  const STATS = window.meetingClientSettings.public.stats;
+
   const { detail } = event;
   if (detail) {
     const { loss, jitter } = detail;
@@ -59,6 +62,8 @@ const handleAudioStatsEvent = (event) => {
 };
 
 const startStatsTimeout = () => {
+  const STATS = window.meetingClientSettings.public.stats;
+
   if (statsTimeout !== null) clearTimeout(statsTimeout);
 
   statsTimeout = setTimeout(() => {
@@ -67,6 +72,8 @@ const startStatsTimeout = () => {
 };
 
 const sortLevel = (a, b) => {
+  const STATS = window.meetingClientSettings.public.stats;
+
   const indexOfA = STATS.level.indexOf(a.level);
   const indexOfB = STATS.level.indexOf(b.level);
 
@@ -81,11 +88,7 @@ const sortOnline = (a, b) => {
   if (a.user.isOnline && !b.user.isOnline) return -1;
 };
 
-const isEnabled = () => STATS.enabled;
-
-if (STATS.enabled) {
-  window.addEventListener('audiostats', handleAudioStatsEvent);
-}
+const isEnabled = () => window.meetingClientSettings.public.stats.enabled;
 
 const getNotified = () => {
   const notified = Session.get('connectionStatusNotified');
@@ -95,6 +98,8 @@ const getNotified = () => {
 };
 
 const notification = (level, intl) => {
+  const NOTIFICATION = window.meetingClientSettings.public.stats.notification;
+
   if (!NOTIFICATION[level]) return null;
 
   // Avoid toast spamming
@@ -380,4 +385,5 @@ export default {
   calculateBitsPerSecondFromMultipleData,
   getDataType,
   sortConnectionData,
+  handleAudioStatsEvent,
 };

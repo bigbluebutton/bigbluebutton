@@ -43,9 +43,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const DEBUG_WINDOW_ENABLED = window.meetingClientSettings.public.app.enableDebugWindow;
-const SHOW_DEBUG_WINDOW_ACCESSKEY = window.meetingClientSettings.public.app.shortcuts.openDebugWindow.accesskey;
-
 class DebugWindow extends Component {
   constructor(props) {
     super(props);
@@ -57,6 +54,9 @@ class DebugWindow extends Component {
   }
 
   componentDidMount() {
+    const DEBUG_WINDOW_ENABLED = window.meetingClientSettings.public.app.enableDebugWindow;
+    const SHOW_DEBUG_WINDOW_ACCESSKEY = window.meetingClientSettings.public.app.shortcuts.openDebugWindow.accesskey;
+
     document.addEventListener('keyup', (event) => {
       const { key, code } = event;
       const eventKey = key?.toUpperCase();
@@ -94,6 +94,8 @@ class DebugWindow extends Component {
   render() {
     const { showDebugWindow, logLevel } = this.state;
     const chatLoggerLevelsNames = Object.keys(ChatLogger.levels);
+
+    const DEBUG_WINDOW_ENABLED = window.meetingClientSettings.public.app.enableDebugWindow;
 
     if (!DEBUG_WINDOW_ENABLED || !showDebugWindow) return false;
 

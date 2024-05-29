@@ -24,13 +24,6 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 
-const STATS = window.meetingClientSettings.public.stats;
-const MEDIA = window.meetingClientSettings.public.media;
-const MEDIA_TAG = MEDIA.mediaTag;
-const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
-  window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
-
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
   STARTED: 'started',
@@ -92,16 +85,15 @@ class AudioManager {
     this._inputStream = makeVar(null);
     this._inputStreamTracker = new Tracker.Dependency();
     this._inputDeviceId = {
-      value: makeVar(getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID),
+      value: makeVar(DEFAULT_INPUT_DEVICE_ID),
       tracker: new Tracker.Dependency(),
     };
     this._outputDeviceId = {
-      value: makeVar(getCurrentAudioSinkId()),
+      value: makeVar(null),
       tracker: new Tracker.Dependency(),
     };
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
-    this._applyCachedOutputDeviceId();
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
   }
@@ -166,6 +158,11 @@ class AudioManager {
   }
 
   async init(userData, audioEventHandler) {
+    this.inputDeviceId = getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID;
+    this.outputDeviceId = getCurrentAudioSinkId();
+
+    this._applyCachedOutputDeviceId();
+
     this.loadBridges(userData);
     this.userData = userData;
     this.initialized = true;
@@ -183,6 +180,8 @@ class AudioManager {
   async loadBridges(userData) {
     let FullAudioBridge = SIPBridge;
     let ListenOnlyBridge = SFUAudioBridge;
+
+    const MEDIA = window.meetingClientSettings.public.media;
 
     if (MEDIA.audio) {
       const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
@@ -324,6 +323,11 @@ class AudioManager {
     this.isListenOnly = false;
     this.isEchoTest = true;
 
+    const MEDIA = window.meetingClientSettings.public.media;
+    const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
+    const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
+    window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
+
     return this.onAudioJoining
       .bind(this)()
       .then(async () => {
@@ -455,7 +459,7 @@ class AudioManager {
 
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    return this.bridge.exitAudio();
+    return this.bridge && this.bridge.exitAudio();
   }
 
   transferCall() {
@@ -489,6 +493,8 @@ class AudioManager {
   onAudioJoin() {
     this.isConnecting = false;
     this.isConnected = true;
+
+    const STATS = window.meetingClientSettings.public.stats;
 
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
@@ -718,6 +724,9 @@ class AudioManager {
   async changeOutputDevice(deviceId, isLive) {
     const targetDeviceId = deviceId;
     const currentDeviceId = this.outputDeviceId ?? getCurrentAudioSinkId();
+
+    const MEDIA = window.meetingClientSettings.public.media;
+    const MEDIA_TAG = MEDIA.mediaTag;
     const audioElement = document.querySelector(MEDIA_TAG);
     const sinkIdSupported = audioElement && typeof audioElement.setSinkId === 'function';
 

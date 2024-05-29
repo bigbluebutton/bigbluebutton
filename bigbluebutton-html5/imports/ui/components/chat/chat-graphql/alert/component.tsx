@@ -54,10 +54,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-
 const ALERT_DURATION = 4000; // 4 seconds
 
 interface ChatAlertContainerGraphqlProps {
@@ -97,6 +93,10 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     (m: Message) => (m.chatId !== idChatOpen || document.hidden) && !history.current.has(m.messageId),
     [idChatOpen, history.current],
   );
+
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   useEffect(() => {
     if (shouldRenderPublicChatAlerts) {
