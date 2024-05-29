@@ -2,6 +2,7 @@
 import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 import { makeVar } from '@apollo/client';
+import Session from '/imports/ui/services/storage/in-memory';
 
 class Auth {
   constructor() {
@@ -12,7 +13,7 @@ class Auth {
 
     const queryParams = new URLSearchParams(document.location.search);
     if (queryParams.has('sessionToken')
-      && queryParams.get('sessionToken') !== Session.get('sessionToken')) {
+      && queryParams.get('sessionToken') !== Session.getItem('sessionToken')) {
       return;
     }
 

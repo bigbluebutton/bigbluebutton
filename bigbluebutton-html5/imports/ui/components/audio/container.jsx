@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { injectIntl, defineMessages } from 'react-intl';
 import { range } from '/imports/utils/array-utils';
 import AppService from '/imports/ui/components/app/service';
@@ -220,7 +220,7 @@ export default lockContextContainer(injectIntl(withTracker(({
         }
         return Promise.resolve(false);
       }
-      Session.set('audioModalIsOpen', true);
+      Session.setItem('audioModalIsOpen', true);
       if (enableVideo && autoShareWebcam) {
         openAudioModal();
         openVideoPreviewModal();

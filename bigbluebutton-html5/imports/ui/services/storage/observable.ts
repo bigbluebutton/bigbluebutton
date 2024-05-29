@@ -1,4 +1,4 @@
-import { isString } from 'radash';
+import { isString, isEqual } from 'radash';
 import logger from '/imports/startup/client/logger';
 
 export type StorageData = string | object | boolean | number | null;
@@ -14,9 +14,9 @@ export default class ObservableStorage {
   private readonly storage: Storage;
 
   constructor(storage: Storage, prefix = '') {
-    if (!(storage instanceof Storage)) {
-      throw Error('Expecting a instanceof Storage');
-    }
+    // if (!(storage instanceof Storage)) {
+    //   throw Error('Expecting a instanceof Storage');
+    // }
 
     this.observers = {};
     this.prefix = prefix;
@@ -99,5 +99,9 @@ export default class ObservableStorage {
     Object.keys(this.observers).forEach((key) => {
       this.removeItem(key);
     });
+  }
+
+  public equals(key: string, value: StorageData) {
+    return isEqual(this.getItem(key), value);
   }
 }

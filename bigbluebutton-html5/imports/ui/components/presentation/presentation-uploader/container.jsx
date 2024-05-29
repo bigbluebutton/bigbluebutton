@@ -22,6 +22,7 @@ import {
   PRESENTATION_SET_CURRENT,
   PRESENTATION_REMOVE,
 } from '../mutations';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const PresentationUploaderContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -65,6 +66,10 @@ const PresentationUploaderContainer = (props) => {
     presentationRemove({ variables: { presentationId } });
   };
 
+  const { presentationEnabled } = props;
+  const isOpen = (useStorageKey('showUploadPresentationView') || false) && presentationEnabled;
+  const selectedToBeNextCurrent = useStorageKey('selectedToBeNextCurrent') || null;
+
   return userIsPresenter && (
     <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader
@@ -75,6 +80,8 @@ const PresentationUploaderContainer = (props) => {
         dispatchChangePresentationDownloadable={dispatchChangePresentationDownloadable}
         setPresentation={setPresentation}
         removePresentation={removePresentation}
+        isOpen={isOpen}
+        selectedToBeNextCurrent={selectedToBeNextCurrent}
         {...props}
       />
     </ErrorBoundary>
@@ -86,7 +93,7 @@ export default withTracker(() => {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
   } = Service;
-  const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
+  const presentationEnabled = isPresentationEnabled();
 
   const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
@@ -104,8 +111,7 @@ export default withTracker(() => {
     renderPresentationItemStatus: PresUploaderToast.renderPresentationItemStatus,
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
-    isOpen,
-    selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
+    presentationEnabled,
     externalUploadData: Service.getExternalUploadData(),
     handleFiledrop: Service.handleFiledrop,
   };

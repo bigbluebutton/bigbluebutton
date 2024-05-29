@@ -7,6 +7,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
+import { useStorageKey } from '../../services/storage/hooks';
 
 const propTypes = {
   areAudioModalsOpen: PropTypes.bool,
@@ -28,7 +29,10 @@ function usePrevious(value) {
 const WakeLockContainer = (props) => {
   if (!Service.isMobile()) return null;
 
-  const { areAudioModalsOpen, autoJoin } = props;
+  const { autoJoin } = props;
+  const inEchoTest = useStorageKey('inEchoTest');
+  const audioModalIsOpen = useStorageKey('audioModalIsOpen');
+  const areAudioModalsOpen = audioModalIsOpen || inEchoTest;
   const wereAudioModalsOpen = usePrevious(areAudioModalsOpen);
   const [endedAudioSetup, setEndedAudioSetup] = useState(false || !autoJoin);
   const setLocalSettings = useUserChangedLocalSettings();
@@ -44,6 +48,7 @@ const WakeLockContainer = (props) => {
     <WakeLock
       setLocalSettings={setLocalSettings}
       wakeLockSettings={wakeLockSettings}
+      areAudioModalsOpen={areAudioModalsOpen}
       {...props}
     />
   ) : null;
@@ -58,7 +63,6 @@ export default withTracker(() => {
   return {
     request: Service.request,
     release: Service.release,
-    areAudioModalsOpen: Session.get('audioModalIsOpen') || Session.get('inEchoTest'),
     autoJoin: getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin),
   };
 })(WakeLockContainer);

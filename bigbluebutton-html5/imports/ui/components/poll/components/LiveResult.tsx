@@ -1,7 +1,7 @@
 import { useMutation, useSubscription } from '@apollo/client';
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
@@ -131,7 +131,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
           <Styled.ButtonsActions>
             <Styled.PublishButton
               onClick={() => {
-                Session.set('pollInitiated', false);
+                Session.setItem('pollInitiated', false);
                 publishPoll(pollId);
                 stopPoll();
                 layoutContextDispatch({
@@ -154,8 +154,8 @@ const LiveResult: React.FC<LiveResultProps> = ({
             />
             <Styled.CancelButton
               onClick={() => {
-                Session.set('pollInitiated', false);
-                Session.set('resetPollPanel', true);
+                Session.setItem('pollInitiated', false);
+                Session.setItem('resetPollPanel', true);
                 stopPoll();
               }}
               label={intl.formatMessage(intlMessages.cancelPollLabel)}

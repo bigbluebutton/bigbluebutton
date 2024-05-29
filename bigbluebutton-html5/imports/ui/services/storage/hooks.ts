@@ -1,20 +1,41 @@
 import { useEffect, useMemo, useState } from 'react';
 import Local from './local';
 import Session from './session';
-import { type StorageData } from './observable';
+import InMemory from './in-memory';
+import type { StorageData } from './observable';
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
+const STORAGES = {
+  LOCAL: 'local',
+  SESSION: 'session',
+  IN_MEMORY: 'in-memory',
+} as const;
+
+type Storage = typeof STORAGES;
 
 /**
  * Observer hook for a specific storage key.
  * @param key Key
- * @param storage Which storage to use. If omitted, `public.app.userSettingsStorage` will be used.
+ * @param storage Which storage to use. The default is `in-memory`.
  * @returns Last key value.
  */
-const useStorageKey = (key: string, storage?: 'local' | 'session') => {
+const useStorageKey = (key: string, storage?: Storage[keyof Storage]) => {
   const source = useMemo(() => {
-    const actualStorage = storage ?? APP_CONFIG.userSettingsStorage;
-    const source = actualStorage === 'local' ? Local : Session;
+    let source;
+    switch (storage) {
+      case STORAGES.LOCAL: {
+        source = Local;
+        break;
+      }
+      case STORAGES.SESSION: {
+        source = Session;
+        break;
+      }
+      case STORAGES.IN_MEMORY:
+      default: {
+        source = InMemory;
+        break;
+      }
+    }
     return source;
   }, [storage]);
   const [value, setValue] = useState<StorageData>(source.getItem(key));
