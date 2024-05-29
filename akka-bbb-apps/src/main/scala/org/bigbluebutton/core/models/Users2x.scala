@@ -46,10 +46,10 @@ object Users2x {
     for {
       u <- findWithIntId(users, intId)
     } yield {
-      val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
+      val newUser = u.copy(userLeftFlag = UserLeftFlag(left = false, 0))
       users.save(newUser)
       UserStateDAO.update(newUser)
-      UserStateDAO.updateExpired(u.meetingId, u.intId, false)
+      UserStateDAO.updateExpired(u.meetingId, u.intId, expired = false)
       newUser
     }
   }

@@ -396,7 +396,7 @@ case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 
 object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg
-case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String)
+case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String, clientIsMobile: Boolean)
 
 /**
  * Sent from Flash client to rejoin meeting after reconnection

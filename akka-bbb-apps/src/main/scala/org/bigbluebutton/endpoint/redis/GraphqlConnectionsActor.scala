@@ -104,14 +104,12 @@ class GraphqlConnectionsActor(
     } yield {
 
       //Send internal message informing user has connected
-      if (!graphqlConnections.values.exists(c => c.sessionToken == msg.body.sessionToken)) {
         eventBus.publish(BigBlueButtonEvent(user.meetingId,
           UserEstablishedGraphqlConnectionInternalMsg(
             user.intId,
             msg.body.clientType,
             msg.body.clientIsMobile)
         ))
-      }
 
       graphqlConnections += (msg.body.browserConnectionId -> GraphqlUserConnection(
         msg.body.middlewareUID,

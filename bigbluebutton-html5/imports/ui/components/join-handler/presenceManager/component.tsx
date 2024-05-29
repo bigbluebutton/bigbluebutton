@@ -13,6 +13,7 @@ import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const connectionTimeout = 60000;
 
@@ -111,6 +112,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         variables: {
           authToken,
           clientType: 'HTML5',
+          clientIsMobile: deviceInfo.isMobile,
         },
       });
     }

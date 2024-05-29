@@ -13,22 +13,30 @@ trait UserEstablishedGraphqlConnectionInternalMsgHdlr extends HandlerHelpers {
   val outGW: OutMsgRouter
 
   def handleUserEstablishedGraphqlConnectionInternalMsg(msg: UserEstablishedGraphqlConnectionInternalMsg, state: MeetingState2x): MeetingState2x = {
-    log.info("Received user established a graphql connection. user {} meetingId={}", msg.userId, liveMeeting.props.meetingProp.intId)
+    log.info("Received user established a graphql connection. msg={} meetingId={}", msg, liveMeeting.props.meetingProp.intId)
     Users2x.findWithIntId(liveMeeting.users2x, msg.userId) match {
       case Some(connectingUser) =>
+        var userNewState = connectingUser
+
         if (connectingUser.userLeftFlag.left) {
           log.info("Resetting flag that user left meeting. user {}", msg.userId)
           sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.userId, leftFlag = false)
-          Users2x.resetUserLeftFlag(liveMeeting.users2x, msg.userId)
+          for {
+            userUpdated <- Users2x.resetUserLeftFlag(liveMeeting.users2x, msg.userId)
+          } yield {
+            userNewState = userUpdated
+          }
         }
 
+        //isMobile and clientType are set on join, but if it is a reconnection join is not necessary
+        //so it need to be set here
         if (connectingUser.mobile != msg.isMobile) {
-          val userMobile = Users2x.setMobile(liveMeeting.users2x, connectingUser)
-          broadcastUserMobileChanged(userMobile, msg.isMobile)
+          userNewState = Users2x.setMobile(liveMeeting.users2x, userNewState)
+          broadcastUserMobileChanged(userNewState, msg.isMobile)
         }
 
         if (connectingUser.clientType != msg.clientType) {
-          Users2x.setClientType(liveMeeting.users2x, connectingUser, msg.clientType)
+          userNewState = Users2x.setClientType(liveMeeting.users2x, userNewState, msg.clientType)
         }
 
         state
