@@ -104,7 +104,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           retryAttempts: 2,
           connectionParams: {
             headers: {
-              'X-Session-Token': `${sessionToken}`,
+              'X-Session-Token': sessionToken,
               'X-ClientSessionUUID': clientSessionUUID,
               'X-ClientType': 'HTML5',
               'X-ClientIsMobile': isMobile ? 'true' : 'false',
@@ -112,7 +112,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
           on: {
             error: (error) => {
-              logger.debug(`Error: on subscription to server: ${error}`);
+              logger.error(`Error: on subscription to server: ${error}`);
               loadingContextInfo.setLoading(false, '');
               throw new Error(`Error: on subscription to server: ${JSON.stringify(error)}`);
             },
