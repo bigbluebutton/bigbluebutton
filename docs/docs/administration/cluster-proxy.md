@@ -124,9 +124,9 @@ public:
     url: 'https://bbb-01.example.com/pad'
 ```
 
-Create (or edit if it already exists) these unit file overrides:
+Create (or edit if it already exists) this unit file overrides:
 
-* `/usr/lib/systemd/system/bbb-html5.service`
+* `/etc/systemd/system/bbb-html5.service.d/cluster.conf`
 
 It should have the following content:
 
@@ -189,10 +189,19 @@ BBB_GRAPHQL_MIDDLEWARE_ORIGIN=bbb-proxy.example.org
 Pay attention that this one is without protocol, just the hostname.
 
 
-Restart BigBlueButton:
+Adjust the CORS setting in `/etc/default/bbb-graphql-server`:
 
 ```shell
-$ bbb-conf --restart
+HASURA_GRAPHQL_CORS_DOMAIN="https://bbb-proxy.example.org"
+```
+
+This one includes the protocol.
+
+Reload systemd and restart BigBlueButton:
+
+```shell
+# systemctl daemon-reload
+# bbb-conf --restart
 ```
 
 Now, opening a new session should show

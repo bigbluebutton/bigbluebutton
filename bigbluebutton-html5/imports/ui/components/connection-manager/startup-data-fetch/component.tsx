@@ -61,8 +61,9 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       return;
     }
     const clientStartupSettings = `/api/rest/clientStartupSettings/?sessionToken=${sessionToken}`;
-    const url = new URL(`${window.location.origin}${clientStartupSettings}`);
-    fetch(url, { method: 'get' })
+    const bbbHost = urlParams.get('bbb-host');
+    const url = new URL(`${bbbHost}${clientStartupSettings}`);
+    fetch(url, { method: 'get', credentials: 'include' })
       .then((resp) => resp.json())
       .then((data: Response) => {
         const settings = data.meeting_clientSettings[0];

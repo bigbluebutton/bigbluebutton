@@ -69,9 +69,12 @@ const MobileAppModalGraphql: React.FC<MobileAppModalGraphqlProps> = (props) => {
   const intl = useIntl();
 
   useEffect(() => {
-    const url = `/bigbluebutton/api/getJoinUrl?sessionToken=${sessionToken}`;
+    const urlParams = new URLSearchParams(window.location.search);
+    const bbbHost = urlParams.get('bbb-host');
+    const url = `${bbbHost}/bigbluebutton/api/getJoinUrl?sessionToken=${sessionToken}`;
     const options = {
       method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

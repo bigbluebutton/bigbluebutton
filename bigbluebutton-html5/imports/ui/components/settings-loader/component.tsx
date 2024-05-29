@@ -29,9 +29,10 @@ const SettingsLoader: React.FC = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
+    const bbbHost = urlParams.get('bbb-host');
     const clientStartupSettings = `/api/rest/clientSettings/?sessionToken=${sessionToken}`;
-    const url = new URL(`${window.location.origin}${clientStartupSettings}`);
-    fetch(url, { method: 'get' })
+    const url = new URL(`${bbbHost}${clientStartupSettings}`);
+    fetch(url, { method: 'get', credentials: 'include' })
       .then((resp) => resp.json())
       .then((data: Response) => {
         const settings = data?.meeting_clientSettings[0].clientSettingsJson;

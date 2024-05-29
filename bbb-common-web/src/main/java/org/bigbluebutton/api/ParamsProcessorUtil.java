@@ -878,6 +878,10 @@ public class ParamsProcessorUtil {
         return graphqlWebsocketUrl;
     }
 
+    public String getServerUrl() {
+        return defaultServerUrl;
+    }
+
 	public String getDefaultGuestWaitURL() {
 		return defaultGuestWaitURL;
         }

@@ -268,6 +268,7 @@ class ApiController {
     //check if exists the param redirect
     boolean redirectClient = REDIRECT_RESPONSE
     String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
+    String serverURL = paramsProcessorUtil.getServerUrl();
 
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
@@ -494,7 +495,7 @@ class ApiController {
     // Keep track of the client url in case this needs to wait for
     // approval as guest. We need to be able to send the user to the
     // client after being approved by moderator.
-    us.clientUrl = clientURL + "?sessionToken=" + sessionToken
+    us.clientUrl = clientURL + "?sessionToken=" + sessionToken + '&bbb-host=' + serverURL;
 
     session[sessionToken] = sessionToken
     meetingService.addUserSession(sessionToken, us)
@@ -507,7 +508,7 @@ class ApiController {
 
     // Process if we send the user directly to the client or
     // have it wait for approval.
-    String destUrl = clientURL + "?sessionToken=" + sessionToken
+    String destUrl = clientURL + "?sessionToken=" + sessionToken + '&bbb-host=' + serverURL;
     if (guestStatusVal.equals(GuestPolicy.WAIT)) {
       String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
       destUrl = guestWaitUrl + "?sessionToken=" + sessionToken

@@ -53,7 +53,10 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
-    fetch(`https://${window.location.hostname}/bigbluebutton/api`, {
+    const urlParams = new URLSearchParams(window.location.search);
+    const bbbHost = urlParams.get('bbb-host');
+    fetch(`${bbbHost}/bigbluebutton/api`, {
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
