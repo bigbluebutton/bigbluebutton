@@ -22,7 +22,10 @@ var lastHasuraConnectionId int
 var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 
 // Hasura client connection
-func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie, fromBrowserToHasuraChannel *common.SafeChannel, fromHasuraToBrowserChannel *common.SafeChannel) error {
+func HasuraClient(
+	browserConnection *common.BrowserConnection,
+	fromBrowserToHasuraChannel *common.SafeChannel,
+	fromHasuraToBrowserChannel *common.SafeChannel) error {
 	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
 	common.ActivitiesOverviewStarted("__HasuraConnection")
 	defer common.ActivitiesOverviewCompleted("__HasuraConnection")
@@ -58,7 +61,7 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 		return xerrors.Errorf("failed to parse url: %w", err)
 	}
 	parsedURL.Scheme = "http"
-	jar.SetCookies(parsedURL, cookies)
+	jar.SetCookies(parsedURL, browserConnection.BrowserRequestCookies)
 	hc := &http.Client{
 		Jar: jar,
 	}
@@ -81,6 +84,12 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 
 	browserConnection.HasuraConnection = &thisConnection
 	defer func() {
+		//When Hasura sends an CloseError, it will forward the error to the browser and close the connection
+		if thisConnection.WebsocketCloseError != nil {
+			browserConnection.Websocket.Close(thisConnection.WebsocketCloseError.Code, thisConnection.WebsocketCloseError.Reason)
+			browserConnection.ContextCancelFunc()
+		}
+
 		browserConnection.HasuraConnection = nil
 
 		//It's necessary to freeze the channel to avoid client trying to start subscriptions before Hasura connection is initialised
@@ -89,15 +98,15 @@ func HasuraClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	}()
 
 	// Make the connection
-	c, _, err := websocket.Dial(hasuraConnectionContext, hasuraEndpoint, &dialOptions)
+	hasuraWsConn, _, err := websocket.Dial(hasuraConnectionContext, hasuraEndpoint, &dialOptions)
 	if err != nil {
 		return xerrors.Errorf("error connecting to hasura: %v", err)
 	}
-	defer c.Close(websocket.StatusInternalError, "the sky is falling")
+	defer hasuraWsConn.Close(websocket.StatusInternalError, "the sky is falling")
 
-	c.SetReadLimit(math.MaxInt64 - 1)
+	hasuraWsConn.SetReadLimit(math.MaxInt64 - 1)
 
-	thisConnection.Websocket = c
+	thisConnection.Websocket = hasuraWsConn
 
 	// Log the connection success
 	log.Debugf("connected with Hasura")

@@ -495,12 +495,6 @@ type Mutation {
 }
 
 type Mutation {
-  userSetMobileFlag(
-    mobile: Boolean!
-  ): Boolean
-}
-
-type Mutation {
   userSetMuted(
     userId: String
     muted: Boolean!

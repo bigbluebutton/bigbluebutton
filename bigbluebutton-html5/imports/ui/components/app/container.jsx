@@ -80,7 +80,6 @@ const AppContainer = (props) => {
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
-  const [setMobileFlag] = useMutation(SET_MOBILE_FLAG);
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
   const toggleVoice = useToggleVoice();
@@ -90,14 +89,6 @@ const AppContainer = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isThereWebcam = VideoStreamsState.getStreams().length > 0;
-
-  const setMobileUser = (mobile) => {
-    setMobileFlag({
-      variables: {
-        mobile,
-      },
-    });
-  };
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -241,7 +232,6 @@ const AppContainer = (props) => {
           shouldShowScreenshare,
           isSharedNotesPinned,
           shouldShowPresentation,
-          setMobileUser,
           toggleVoice,
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,

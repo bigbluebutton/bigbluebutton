@@ -280,13 +280,6 @@ case class ClearedAllUsersReactionEvtMsg(header: BbbClientMsgHeader, body: Clear
 case class ClearedAllUsersReactionEvtMsgBody()
 
 /**
- * Sent from client about a user mobile flag.
- */
-object ChangeUserMobileFlagReqMsg { val NAME = "ChangeUserMobileFlagReqMsg" }
-case class ChangeUserMobileFlagReqMsg(header: BbbClientMsgHeader, body: ChangeUserMobileFlagReqMsgBody) extends StandardMsg
-case class ChangeUserMobileFlagReqMsgBody(userId: String, mobile: Boolean)
-
-/**
  * Sent from client to inform the connection is alive.
  */
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }

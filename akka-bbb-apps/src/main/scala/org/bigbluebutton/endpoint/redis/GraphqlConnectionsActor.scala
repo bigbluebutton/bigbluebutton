@@ -37,6 +37,9 @@ case class GraphqlUserConnection(
                  middlewareUID:       String,
                  browserConnectionId: String,
                  sessionToken:        String,
+                 clientSessionUUID:   String,
+                 clientType:          String,
+                 clientIsMobile:      Boolean,
                  user:                GraphqlUser,
                )
 
@@ -88,7 +91,13 @@ class GraphqlConnectionsActor(
   }
 
   private def handleUserGraphqlConnectionEstablishedSysMsg(msg: UserGraphqlConnectionEstablishedSysMsg): Unit = {
-    UserGraphqlConnectionDAO.insert(msg.body.sessionToken, msg.body.middlewareUID, msg.body.browserConnectionId)
+    UserGraphqlConnectionDAO.insert(
+      msg.body.sessionToken,
+      msg.body.clientSessionUUID,
+      msg.body.clientType,
+      msg.body.clientIsMobile,
+      msg.body.middlewareUID,
+      msg.body.browserConnectionId)
 
     for {
       user <- users.get(msg.body.sessionToken)
@@ -96,13 +105,21 @@ class GraphqlConnectionsActor(
 
       //Send internal message informing user has connected
       if (!graphqlConnections.values.exists(c => c.sessionToken == msg.body.sessionToken)) {
-        eventBus.publish(BigBlueButtonEvent(user.meetingId, UserEstablishedGraphqlConnectionInternalMsg(user.intId)))
+        eventBus.publish(BigBlueButtonEvent(user.meetingId,
+          UserEstablishedGraphqlConnectionInternalMsg(
+            user.intId,
+            msg.body.clientType,
+            msg.body.clientIsMobile)
+        ))
       }
 
       graphqlConnections += (msg.body.browserConnectionId -> GraphqlUserConnection(
         msg.body.middlewareUID,
         msg.body.browserConnectionId,
         msg.body.sessionToken,
+        msg.body.clientSessionUUID,
+        msg.body.clientType,
+        msg.body.clientIsMobile,
         user
       ))
     }
