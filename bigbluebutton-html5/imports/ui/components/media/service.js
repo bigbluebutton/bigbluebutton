@@ -6,10 +6,6 @@ import {
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
 
-const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
-const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
-
 function shouldShowWhiteboard() {
   return true;
 }
@@ -21,6 +17,7 @@ function shouldShowScreenshare(viewScreenshare) {
 }
 
 function shouldShowOverlay() {
+  const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 

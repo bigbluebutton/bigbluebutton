@@ -13,7 +13,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { isPresentationEnabled, isLayoutsEnabled } from '/imports/ui/services/features';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const propTypes = {
   amIPresenter: PropTypes.bool,
@@ -262,6 +262,7 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
+    const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.application;
     const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY

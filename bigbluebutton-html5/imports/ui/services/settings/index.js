@@ -4,8 +4,6 @@ import LocalStorage from '/imports/ui/services/storage/local';
 import SessionStorage from '/imports/ui/services/storage/session';
 import { CHANGED_SETTINGS, DEFAULT_SETTINGS, SETTINGS } from './enums';
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
-
 class Settings {
   constructor(defaultValues = {}) {
     const writableDefaultValues = JSON.parse(JSON.stringify(defaultValues));
@@ -48,6 +46,8 @@ class Settings {
   }
 
   loadChanged() {
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     const savedSettings = {};
 
@@ -66,6 +66,8 @@ class Settings {
   }
 
   save(mutation, settings = CHANGED_SETTINGS) {
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
@@ -101,5 +103,12 @@ class Settings {
   }
 }
 
-const SettingsSingleton = new Settings(window.meetingClientSettings.public.app.defaultSettings);
-export default SettingsSingleton;
+let SettingsSingleton = null;
+export const getSettingsSingletonInstance = () => {
+  if (!SettingsSingleton) {
+    SettingsSingleton = new Settings(window.meetingClientSettings.public.app.defaultSettings);
+  }
+  return SettingsSingleton;
+};
+
+export default getSettingsSingletonInstance;
