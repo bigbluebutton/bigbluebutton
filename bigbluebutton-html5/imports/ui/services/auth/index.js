@@ -1,20 +1,15 @@
 /* eslint prefer-promise-reject-errors: 0 */
-import { Tracker } from 'meteor/tracker';
-
 import Storage from '/imports/ui/services/storage/session';
 
 // import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import logger from '/imports/startup/client/logger';
-import { makeVar } from '@apollo/client';
+import { makeVar, useReactiveVar } from '@apollo/client';
 
 const CONNECTION_TIMEOUT = window.meetingClientSettings.public.app.connectionTimeout;
 
 class Auth {
   constructor() {
-    this._loggedIn = {
-      value: false,
-      tracker: new Tracker.Dependency(),
-    };
+    this._loggedIn = makeVar(false);
 
     const queryParams = new URLSearchParams(document.location.search);
     if (queryParams.has('sessionToken')
@@ -120,13 +115,15 @@ class Auth {
   }
 
   get loggedIn() {
-    this._loggedIn.tracker.depend();
-    return this._loggedIn.value;
+    return this._loggedIn();
   }
 
   set loggedIn(value) {
-    this._loggedIn.value = value;
-    this._loggedIn.tracker.changed();
+    this._loggedIn(value);
+  }
+
+  useLoggedIn() {
+    return useReactiveVar(this._loggedIn);
   }
 
   get credentials() {
