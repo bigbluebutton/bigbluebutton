@@ -156,7 +156,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       results,
     } = event;
 
-    logger.debug("Transcription event", event);
+    logger.debug('Transcription event', event);
 
     const { id } = resultRef.current;
 
@@ -175,7 +175,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   }, [locale]);
 
   const stop = useCallback(() => {
-    logger.debug("Stopping browser speech recognition");
+    logger.debug('Stopping browser speech recognition');
     if (speechRecognitionRef.current) {
       if (!speechHasStarted.started) {
         return;
@@ -198,13 +198,13 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   }, [locale]);
 
   const start = (settedLocale: string) => {
-    logger.debug("Starting browser speech recognition");
+    logger.debug('Starting browser speech recognition');
 
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
       speechRecognitionRef.current.lang = settedLocale;
 
       if (speechHasStarted.started) {
-        logger.warn("Already starting return");
+        logger.warn('Already starting return');
         return;
       }
 
@@ -237,11 +237,11 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   useEffect(() => {
     // Connected
     if ((!connectedRef.current && connected && !muted)) {
-      logger.debug("Audio connected");
+      logger.debug('Audio connected');
       start(locale);
       connectedRef.current = connected;
     } else if (localeRef.current !== locale) {
-      logger.debug("Locale changed", locale);
+      logger.debug('Locale changed', locale);
 
       // Locale changed
       if (connectedRef.current && connected) {
@@ -253,26 +253,24 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     // Disconnected
     if ((connectedRef.current && !connected)) {
-      logger.debug("Audio disconnected");
+      logger.debug('Audio disconnected');
       stop();
       connectedRef.current = connected;
     }
 
     // Unmuted and connected
     if (mutedRef.current && !muted && connected) {
-      logger.debug("Audio unmuted and connected");
+      logger.debug('Audio unmuted and connected');
       start(locale);
       mutedRef.current = muted;
     }
 
     // Muted
     if (!mutedRef.current && muted) {
-      logger.debug("Audio muted");
+      logger.debug('Audio muted');
       stop();
       mutedRef.current = muted;
     }
-
-
   }, [connected, muted, locale]);
 
   return null;
@@ -282,6 +280,7 @@ const AudioCaptionsSpeechContainer: React.FC = () => {
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
+  // @ts-ignore
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
 
   const {
@@ -291,6 +290,7 @@ const AudioCaptionsSpeechContainer: React.FC = () => {
       speechLocale: user.speechLocale,
       voice: user.voice,
     }),
+  );
 
   if (!currentUser) return null;
 
