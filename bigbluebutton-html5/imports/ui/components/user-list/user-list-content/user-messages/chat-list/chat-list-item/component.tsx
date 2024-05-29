@@ -28,14 +28,6 @@ const intlMessages = defineMessages({
 interface ChatListItemProps {
   chat: Chat,
 }
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-// @ts-ignore - temporary, while meteor exists in the project
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-
-const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
 
 const ChatListItem = (props: ChatListItemProps) => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
@@ -57,6 +49,13 @@ const ChatListItem = (props: ChatListItemProps) => {
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
   const isCurrentChat = chat.chatId === idChatOpen && chatPanelOpen;
+
+  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+
+  const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
 
   useEffect(() => {
     if (chat.chatId !== PUBLIC_GROUP_CHAT_ID && chat.chatId === idChatOpen) {

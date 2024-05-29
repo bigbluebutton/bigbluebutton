@@ -16,8 +16,6 @@ import {
 import Service from './service';
 import Styled from './styles';
 
-const MAX_INPUT_CHARS = window.meetingClientSettings.public.poll.maxTypedAnswerLength;
-
 const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
@@ -135,6 +133,8 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
       type,
     } = poll;
     const defaultPoll = isDefaultPoll(type);
+
+    const MAX_INPUT_CHARS = window.meetingClientSettings.public.poll.maxTypedAnswerLength;
 
     return (
       <div>

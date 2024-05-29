@@ -1,5 +1,4 @@
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
-import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   isScreenSharingEnabled, isCameraAsContentEnabled, isPresentationEnabled,
@@ -7,22 +6,18 @@ import {
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
 
-const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
-const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
-
 function shouldShowWhiteboard() {
   return true;
 }
 
-function shouldShowScreenshare() {
-  const { viewScreenshare } = Settings.dataSaving;
+function shouldShowScreenshare(viewScreenshare) {
   return (isScreenSharingEnabled() || isCameraAsContentEnabled())
     && (viewScreenshare || UserService.isUserPresenter())
     && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
 }
 
 function shouldShowOverlay() {
+  const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 

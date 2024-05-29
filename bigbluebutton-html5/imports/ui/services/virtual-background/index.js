@@ -10,7 +10,7 @@ import {
     timerWorkerScript
 } from './TimeWorker';
 import {
-  BASE_PATH,
+  getBasePath,
   MODELS,
   getVirtualBgImagePath,
 } from '/imports/ui/services/virtual-background/service'
@@ -369,6 +369,8 @@ export async function createVirtualBackgroundService(parameters = null) {
     let tflite;
     let modelResponse;
     const simdSupported = await simd();
+
+    const BASE_PATH = getBasePath();
 
     if (simdSupported) {
         tflite = await window.createTFLiteSIMDModule();

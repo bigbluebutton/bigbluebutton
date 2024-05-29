@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
@@ -11,7 +11,6 @@ import intlHolder from '/imports/ui/core/singletons/intlHolder';
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
-const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
 
 interface IntlAdapterProps {
   children: React.ReactNode;
@@ -20,9 +19,12 @@ interface IntlAdapterProps {
 const IntlAdapter: React.FC<IntlAdapterProps> = ({
   children,
 }) => {
+  const Settings = getSettingsSingletonInstance();
   const [currentLocale, setCurrentLocale] = useCurrentLocale();
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
+
+  const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
 
   useEffect(() => {
     intlHolder.setIntl(intl);

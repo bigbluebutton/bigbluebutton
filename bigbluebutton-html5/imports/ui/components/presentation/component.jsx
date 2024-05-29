@@ -57,8 +57,6 @@ const FULLSCREEN_CHANGE_EVENT = isSafari
   ? 'webkitfullscreenchange'
   : 'fullscreenchange';
 
-const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
-
 const getToolbarHeight = () => {
   let height = 0;
   const toolbarEl = document.getElementById('presentationToolbarWrapper');
@@ -84,6 +82,8 @@ class Presentation extends PureComponent {
       isToolbarVisible: true,
       hadPresentation: false,
     };
+
+    const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
 
     this.currentPresentationToastId = null;
 

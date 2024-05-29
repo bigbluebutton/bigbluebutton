@@ -11,8 +11,6 @@ import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import VideoProviderContainerGraphql from './video-provider-graphql/container';
 
-const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
-
 const VideoProviderContainer = ({ children, ...props }) => {
   const { streams, isGridEnabled } = props;
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
@@ -94,6 +92,10 @@ withTracker(({ swapLayout, ...rest }) => {
   }
 
   let usersVideo = streams;
+
+  const {
+    defaultSorting: DEFAULT_SORTING,
+  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
   if (gridUsers.length > 0) {
     const items = usersVideo.concat(gridUsers);

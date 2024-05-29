@@ -7,8 +7,6 @@ import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 import Styled from './styles';
 
-const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
-
 const intlMessages = defineMessages({
   title: {
     id: 'app.mobileAppModal.title',
@@ -67,6 +65,8 @@ const MobileAppModalGraphql: React.FC<MobileAppModalGraphqlProps> = (props) => {
   const [url, setUrl] = useState('');
   const [urlMessage, setUrlMessage] = useState('');
   const intl = useIntl();
+
+  const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 
   useEffect(() => {
     const url = `/bigbluebutton/api/getJoinUrl?sessionToken=${sessionToken}`;
