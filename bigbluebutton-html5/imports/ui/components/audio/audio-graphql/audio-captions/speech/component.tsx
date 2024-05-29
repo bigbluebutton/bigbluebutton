@@ -1,10 +1,9 @@
 import React, {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
 } from 'react';
-// @ts-ignore - it's has no types
+// @ts-ignore - it has no types
 import { diff } from '@mconf/bbb-diff';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import { debounce } from '/imports/utils/debounce';
