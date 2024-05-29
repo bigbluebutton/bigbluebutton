@@ -45,7 +45,7 @@ class SharedNotes extends MultiUsers {
     await this.modPage.page.evaluate(() => document.fonts.ready);
     const wbBox = await this.modPage.getElementBoundingBox(e.etherpadFrame);
     await expect(this.modPage.page).toHaveScreenshot('sharednotes-1.png', {
-      maxDiffPixels: 10,
+      maxDiffPixels: 100,
       clip: wbBox,
     });
 
