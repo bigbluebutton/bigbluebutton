@@ -114,6 +114,7 @@ const renderGuestUserItem = (
             <i>
               &quot;
               {privateGuestLobbyMessage && privateGuestLobbyMessage !== ''
+              // eslint-disable-next-line react/no-danger
                 ? <span dangerouslySetInnerHTML={{ __html: privateGuestLobbyMessage }} />
                 : intl.formatMessage(intlMessages.emptyMessage)}
               &quot;

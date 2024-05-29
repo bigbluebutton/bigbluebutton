@@ -160,7 +160,6 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
-      setMobileUser,
       toggleVoice,
     } = this.props;
     const { browserName } = browserInfo;
@@ -218,8 +217,6 @@ class App extends Component {
         event.returnValue = '';
       };
     }
-
-    if (deviceInfo.isMobile) setMobileUser(true);
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
