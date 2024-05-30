@@ -999,7 +999,7 @@
     "app.guest-policy.button.askModerator": "Ρωτήστε τον συντονιστή",
     "app.guest-policy.button.alwaysAccept": "Πάντα αποδοχή",
     "app.guest-policy.button.alwaysDeny": "Πάντα απόρριψη",
-    "app.guest-policy.policyBtnDesc": "Ορισμός πολιτικής συνεδρίας για επισκέπτες",
+    "app.guest-policy.policyBtnDesc": "Ορισμός πολιτικής τηλεδιάσκεψης για επισκέπτες",
     "app.guest-policy.feedbackMessage": "Η πολιτική επισκεπτών είναι:",
     "app.connection-status.ariaTitle": "Τυπική κατάσταση σύνδεσης",
     "app.connection-status.title": "Κατάσταση σύνδεσης",
