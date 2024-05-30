@@ -485,7 +485,7 @@
     "app.endMeeting.contentWarning": "Τα γραπτά μηνύματα, οι κοινόχρηστες σημειώσεις, τα περιεχόμενα πίνακα και τα κοινόχρηστα έγγραφα γι αυτή τη συνεδρία δεν είναι απευθείας διαθέσιμα",
     "app.endMeeting.yesLabel": "Τερματισμός συνεδρίας για όλους τους χρήστες",
     "app.endMeeting.noLabel": "Όχι",
-    "app.about.title": "Περί",
+    "app.about.title": "Πληροφορίες",
     "app.about.version": "Έκδοση εφαρμογής πελάτη:",
     "app.about.version_label": "Έκδοση BigBlueButton:",
     "app.about.copyright": "Πνευματική ιδιοκτησία:",
