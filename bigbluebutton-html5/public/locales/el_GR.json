@@ -870,7 +870,7 @@
     "app.guest.firstPositionInWaitingQueue": "Είστε στην πρώτη θέση της γραμμής αναμονής!",
     "app.guest.positionInWaitingQueue": "Η τρέχουσα θέση σας στην αναμονή:",
     "app.guest.guestInvalid": "Ο χρήστης «επισκέπτη» δεν είναι διαθέσιμος",
-    "app.guest.meetingForciblyEnded": "Δεν μπορείτε να συμμετάσχετε σε μια διάσκεψη που έχει τερματιστεί αναγκαστικά",
+    "app.guest.meetingForciblyEnded": "Δεν μπορείτε να συμμετάσχετε σε μια τηλεδιάσκεψη που έχει τερματιστεί αναγκαστικά",
     "app.userList.guest.waitingUsers": "Αναμονή χρηστών",
     "app.userList.guest.waitingUsersTitle": "Διαχείριση χρηστών",
     "app.userList.guest.optionTitle": "Ελέγξτε τους χρήστες σε αναμονή",
