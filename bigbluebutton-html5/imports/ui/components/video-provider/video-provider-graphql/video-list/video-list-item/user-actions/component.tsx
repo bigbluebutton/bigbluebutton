@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useContext } from 'react';
+import React, { MutableRefObject, useContext, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { Session } from 'meteor/session';
@@ -14,6 +14,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
 import { VideoItem } from '../../../types';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -62,6 +63,10 @@ const intlMessages = defineMessages({
     id: 'app.videoDock.webcamFullscreenLabel',
     description: 'Make fullscreen option label',
   },
+  exitFullscreenLabel: {
+    id: 'app.videoDock.webcamExitFullscreenLabel',
+    description: 'Make exit fullscreen option label',
+  },
   squeezedLabel: {
     id: 'app.videoDock.webcamSqueezedButtonLabel',
     description: 'User selected webcam squeezed options',
@@ -90,13 +95,15 @@ interface UserActionProps {
   amIModerator: boolean;
   isVideoSqueezed?: boolean,
   videoContainer?: MutableRefObject<HTMLDivElement | null>,
+  isFullscreenContext: boolean;
+  layoutContextDispatch: (...args: unknown[]) => void;
 }
 
 const UserActions: React.FC<UserActionProps> = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
     isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
-    amIModerator,
+    amIModerator, isFullscreenContext, layoutContextDispatch,
   } = props;
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -114,6 +121,18 @@ const UserActions: React.FC<UserActionProps> = (props) => {
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
+  useEffect(() => () => {
+    if (isFullscreenContext) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: {
+          element: '',
+          group: '',
+        },
+      });
+    }
+  }, []);
+
   const getAvailableActions = () => {
     const pinned = stream.type === 'stream' && stream.pinned;
     const { userId } = stream;
@@ -123,6 +142,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     const disabledCams = Session.get('disabledCams') || [];
     const isCameraDisabled = disabledCams && disabledCams?.includes(cameraId);
     const enableSelfCamIntlKey = !isCameraDisabled ? 'disable' : 'enable';
+    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
     const menuItems = [];
 
@@ -143,19 +163,8 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         onClick: () => { },
         disabled: true,
       });
-
-      if (isStream) {
-        menuItems.push(
-          {
-            key: `${cameraId}-fullscreen`,
-            label: intl.formatMessage(intlMessages.fullscreenLabel),
-            description: intl.formatMessage(intlMessages.fullscreenLabel),
-            // @ts-expect-error -> Until everything in Typescript.
-            onClick: () => FullscreenService.toggleFullScreen(videoContainer?.current),
-          },
-        );
-      }
     }
+
     if (userId === Auth.userID && isStream && !isSelfViewDisabled) {
       menuItems.push({
         key: `${cameraId}-disable`,
@@ -203,6 +212,35 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       });
     }
 
+    if (isStream && ALLOW_FULLSCREEN) {
+      menuItems.push(
+        {
+          key: `${cameraId}-fullscreen`,
+          label: isFullscreenContext
+            ? intl.formatMessage(intlMessages.exitFullscreenLabel)
+            : intl.formatMessage(intlMessages.fullscreenLabel),
+          description: isFullscreenContext
+            ? intl.formatMessage(intlMessages.exitFullscreenLabel)
+            : intl.formatMessage(intlMessages.fullscreenLabel),
+          dataTest: 'webcamsFullscreenButton',
+          onClick: () => {
+            setTimeout(() => {
+              layoutContextDispatch({
+                type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+                value: {
+                  element: isFullscreenContext ? '' : cameraId,
+                  group: isFullscreenContext ? '' : 'webcams',
+                },
+              });
+
+              // @ts-ignore JS code
+              FullscreenService.toggleFullScreen(videoContainer?.current);
+            }, 100);
+          },
+        },
+      );
+    }
+
     userCameraDropdownItems.forEach((pluginItem) => {
       switch (pluginItem.type) {
         case UserCameraDropdownItemType.OPTION:
@@ -247,6 +285,9 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           />
         )}
         actions={getAvailableActions()}
+        opts={{
+          container: isFullscreenContext ? videoContainer?.current : document.body,
+        }}
       />
     </Styled.MenuWrapperSqueezed>
   );
@@ -275,6 +316,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
               fullwidth: 'true',
               anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
               transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+              container: isFullscreenContext ? videoContainer?.current : document.body,
             }}
           />
         )
