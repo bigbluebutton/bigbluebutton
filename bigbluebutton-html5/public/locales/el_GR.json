@@ -655,7 +655,7 @@
     "app.actionsBar.actionsDropdown.pollBtnDesc": "Εναλλαγή παραθύρου δημοσκόπησης",
     "app.actionsBar.actionsDropdown.saveUserNames": "Αποθήκευση ονομάτων χρηστών",
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Δημιουργία τμημάτων της αίθουσας διάσκεψης",
-    "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "δημιουργεί τμήματα για διαχωρισμό της τρέχουσας σύσκεψης.",
+    "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "δημιουργεί τμήματα για διαχωρισμό της τρέχουσας τηλεδιάσκεψης.",
     "app.actionsBar.actionsDropdown.captionsLabel": "Εγγραφή ενδογλωσσικών υποτίτλων",
     "app.actionsBar.actionsDropdown.captionsDesc": "Εναλλαγή τμήματος υποτίτλων",
     "app.actionsBar.actionsDropdown.takePresenter": "Γίνετε παρουσιαστής",
