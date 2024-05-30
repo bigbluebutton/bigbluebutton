@@ -1237,7 +1237,7 @@
     "app.createBreakoutRoom.manageRoomsLabel": "Διαχείριση αιθουσών",
     "app.createBreakoutRoom.captureNotes": "Αποθήκευση των κοινών σημειώσεων κατά τον τερματισμό του τμήματος αίθουσας",
     "app.createBreakoutRoom.captureSlides": "Αποθήκευση ασπροπίνακα κατά τον τερματισμό του τμήματος αίθουσας",
-    "app.createBreakoutRoom.sendInvitationToMods": "Αποστολή πρόσκλησης σε καθορισμένους διαχειριστές",
+    "app.createBreakoutRoom.sendInvitationToMods": "Αποστολή πρόσκλησης σε καθορισμένους συντονιστές",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Πρέπει να προσθέσετε τουλάχιστο έναν χρήστη στο τμήμα αίθουσας διάσκεψης.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Η ελάχιστη διάρκεια του τμήματος αίθουσας διάσκεψης είναι {0} λεπτά.",
     "app.createBreakoutRoom.modalDesc": "Συμβουλή: Μπορείτε να σύρετε το όνομα χρήστη για να τον προσθέσετε σε τμήμα αίθουσας διάσκεψης.",
