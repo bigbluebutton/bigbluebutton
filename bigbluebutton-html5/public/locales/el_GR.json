@@ -911,7 +911,7 @@
     "app.toast.setEmoji.away": "Ορίσατε την κατάστασή σας σε απών",
     "app.toast.setEmoji.notAway": "Αφαιρέσατε την κατάστασή σας από απών",
     "app.toast.promotedLabel": "Έχετε προαχθεί σε συντονιστή",
-    "app.toast.demotedLabel": "Έχετε υποβιβαστεί σε θεατή",
+    "app.toast.demotedLabel": "Έχετε υποβιβαστεί σε απλό χρήστη",
     "app.notification.recordingStart": "Αυτή η διάσκεψη καταγράφεται",
     "app.notification.recordingStop": "Αυτή η διάσκεψη δεν καταγράφεται",
     "app.notification.recordingPaused": "Η καταγραφή της διάσκεψης τερματίστηκε",
