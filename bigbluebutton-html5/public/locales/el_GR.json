@@ -250,7 +250,7 @@
     "app.meeting.endedByNoModeratorMessagePlural": "Η τηλεδιάσκεψη τερματίστηκε μετά από {0} λεπτά, επειδή δε συμμετέχει κανένας συντονιστής",
     "app.meeting.endedMessage": "Πατήστε το κουμπί για συνέχεια στην αρχική σελίδα.",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Η τηλεδιάσκεψη θα κλείσει σε ένα λεπτό.",
-    "app.meeting.alertMeetingEndsUnderMinutesPlural": "Η διάσκεψη θα κλείσει σε {0} λεπτά.",
+    "app.meeting.alertMeetingEndsUnderMinutesPlural": "Η τηλεδιάσκεψη θα κλείσει σε {0} λεπτά.",
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "Το τμήμα θα κλείσει σε {0} λεπτά.",
     "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Το τμήμα θα κλείσει σε ένα λεπτό.",
     "app.presentation.hide": "Απόκρυψη παρουσίασης",
