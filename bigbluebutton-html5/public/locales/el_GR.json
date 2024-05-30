@@ -26,7 +26,7 @@
     "app.chat.offline": "Εκτός σύνδεσης",
     "app.chat.pollResult": "Αποτελέσματα δημοσκόπησης",
     "app.chat.breakoutDurationUpdated": "Ο χρόνος του τμήματος αίθουσας είναι {0} λεπτά",
-    "app.chat.breakoutDurationUpdatedModerator": "Ο χρόνος των τμημάτων της αίθουσας είναι πλέον {0} λεπτά. Έχει σταλεί μια ειδοποίηση.",
+    "app.chat.breakoutDurationUpdatedModerator": "Ο χρόνος των τμημάτων της αίθουσας είναι {0} λεπτά. Έχει σταλθεί ειδοποίηση.",
     "app.chat.emptyLogLabel": "Η καταγραφή της συνομιλίας είναι κενή",
     "app.chat.away": "Είναι απών",
     "app.chat.notAway": "Είναι παρών",
