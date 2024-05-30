@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useSubscription } from '@apollo/client';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
@@ -18,6 +17,7 @@ import {
 import ChatPushAlert from './push-alert/component';
 import Styled from './styles';
 import Service from './service';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   appToastChatPublic: {
@@ -192,11 +192,11 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
 const ChatAlertContainerGraphql: React.FC<ChatAlertContainerGraphqlProps> = (props) => {
   const cursor = useRef(new Date());
-  const { data: publicMessages } = useSubscription<PublicMessageStreamResponse>(
+  const { data: publicMessages } = useDeduplicatedSubscription<PublicMessageStreamResponse>(
     CHAT_MESSAGE_PUBLIC_STREAM,
     { variables: { createdAt: cursor.current.toISOString() } },
   );
-  const { data: privateMessages } = useSubscription<PrivateMessageStreamResponse>(
+  const { data: privateMessages } = useDeduplicatedSubscription<PrivateMessageStreamResponse>(
     CHAT_MESSAGE_PRIVATE_STREAM,
     { variables: { createdAt: cursor.current.toISOString() } },
   );

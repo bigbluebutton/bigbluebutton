@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSubscription } from '@apollo/client';
 import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
@@ -19,6 +18,7 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Chat } from '/imports/ui/Types/chat';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBUG_CONSOLE = false;
 
@@ -156,7 +156,7 @@ const TypingIndicatorContainer: React.FC = () => {
   const {
     data: typingUsersData,
     error: typingUsersError,
-  } = useSubscription(typingQuery, {
+  } = useDeduplicatedSubscription(typingQuery, {
     variables: {
       chatId: idChatOpen,
     },

@@ -1,14 +1,14 @@
 import React, { useRef } from 'react';
-import { useSubscription } from '@apollo/client';
 import EmojiRain from './component';
 import { getEmojisToRain } from './queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const EmojiRainContainer = () => {
   const nowDate = useRef(new Date().toUTCString());
 
   const {
     data: emojisToRainData,
-  } = useSubscription(getEmojisToRain, {
+  } = useDeduplicatedSubscription(getEmojisToRain, {
     variables: {
       initialCursor: nowDate.current,
     },

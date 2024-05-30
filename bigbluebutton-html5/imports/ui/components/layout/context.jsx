@@ -1,7 +1,6 @@
 import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
-import { useSubscription } from '@apollo/client';
 import { equals } from 'ramda';
 import { PINNED_PAD_SUBSCRIPTION } from '/imports/ui/components/notes/queries';
 import {
@@ -11,6 +10,7 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
 import { isPresentationEnabled } from '/imports/ui/services/features';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 // variable to debug in console log
 const debug = false;
@@ -1469,7 +1469,7 @@ const LayoutContextProvider = (props) => {
       },
     }],
   );
-  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;

@@ -13,7 +13,7 @@ import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/servi
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -32,6 +32,7 @@ import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -84,7 +85,7 @@ const AppContainer = (props) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
   const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
-  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;

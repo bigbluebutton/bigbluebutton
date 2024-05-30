@@ -1,4 +1,3 @@
-import { useSubscription } from '@apollo/client';
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -14,6 +13,7 @@ import { muteUser } from './service';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
 import TALKING_INDICATOR_SUBSCRIPTION from '/imports/ui/core/graphql/queries/userVoiceSubscription';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface TalkingIndicatorSubscriptionData {
   user_voice: Array<Partial<UserVoice>>;
@@ -192,7 +192,7 @@ const TalkingIndicatorContainer: React.FC = (() => {
       data: talkingIndicatorData,
       loading: talkingIndicatorLoading,
       error: talkingIndicatorError,
-    } = useSubscription<TalkingIndicatorSubscriptionData>(
+    } = useDeduplicatedSubscription<TalkingIndicatorSubscriptionData>(
       TALKING_INDICATOR_SUBSCRIPTION,
       {
         variables: {
@@ -205,7 +205,7 @@ const TalkingIndicatorContainer: React.FC = (() => {
       data: isBreakoutData,
       loading: isBreakoutLoading,
       error: isBreakoutError,
-    } = useSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
+    } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
 
     const toggleVoice = useToggleVoice();
 
