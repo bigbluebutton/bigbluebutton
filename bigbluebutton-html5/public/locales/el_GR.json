@@ -1180,7 +1180,7 @@
     "app.feedback.subtitle": "Θα θέλαμε να μας πείτε για την εμπειρία σας με το BigBlueButton (προαιρετικά)",
     "app.feedback.textarea": "Πώς μπορούμε να κάνουμε καλύτερο το BigBlueButton;",
     "app.feedback.sendFeedback": "Αποστολή σχολίων",
-    "app.feedback.sendFeedbackDesc": "Στείλτε σχόλια και αποχωρήστε από την τηλεδιάσκεψη",
+    "app.feedback.sendFeedbackDesc": "Αποστολή σχολίων και αποχώρηση από την τηλεδιάσκεψη",
     "app.videoDock.webcamEnableMirrorLabel": "Ενεργοποίηση κατοπτρισμού κάμερας",
     "app.videoDock.webcamEnableMirrorDesc": "Κατοπτρισμός επιλεγμένης κάμερας",
     "app.videoDock.webcamDisableMirrorLabel": "Απενεργοποίηση κατοπτρισμού κάμερας",
