@@ -977,7 +977,7 @@
     "app.shortcut-help.delete": "Διαγραφή",
     "app.shortcut-help.duplicate": "Διπλότυπο",
     "app.lock-viewers.title": "Κλείδωμα χρηστών",
-    "app.lock-viewers.description": "Με τις παρακάτω επιλογές μπορείτε να ελέγξετε τη πρόσβαση σε συγκεκριμένες λειτουργίες από τους θεατές.",
+    "app.lock-viewers.description": "Με τις παρακάτω επιλογές μπορείτε να ελέγξετε την πρόσβαση σε συγκεκριμένες λειτουργίες από τους χρήστες.",
     "app.lock-viewers.featuresLable": "Δυνατότητα",
     "app.lock-viewers.lockStatusLabel": "Κατάσταση",
     "app.lock-viewers.webcamLabel": "Διαμοιρασμός κάμερας",
