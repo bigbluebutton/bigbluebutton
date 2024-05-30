@@ -157,7 +157,7 @@
     "app.userList.menu.clearStatus.label": "Επαναφορά κατάστασης",
     "app.userList.menu.removeUser.label": "Αφαίρεση χρήστη",
     "app.userList.menu.removeConfirmation.label": "Αφαίρεση χρήστη ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Αποτροπή επανασύνδεσης αυτού του χρήστη στη συνεδρία.",
+    "app.userlist.menu.removeConfirmation.desc": "Αποτροπή επανασύνδεσης αυτού του χρήστη στην τηλεδιάσκεψη.",
     "app.userList.menu.muteUserAudio.label": "Σίγαση χρήστη",
     "app.userList.menu.unmuteUserAudio.label": "Επαναφορά ήχου χρήστη",
     "app.userList.menu.webcamPin.label": "Καρφίτσωμα κάμερας χρηστών",
