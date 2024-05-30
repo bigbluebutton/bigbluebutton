@@ -986,7 +986,7 @@
     "app.lock-viewers.PublicChatLabel": "Αποστολή μηνυμάτων δημόσιας συνομιλίας",
     "app.lock-viewers.PrivateChatLable": "Αποστολή μηνυμάτων ιδιωτικής συνομιλίας",
     "app.lock-viewers.notesLabel": "Επεξεργασία κοινόχρηστων σημειώσεων",
-    "app.lock-viewers.userListLabel": "Προβολή άλλων θεατών στη λίστα χρηστών",
+    "app.lock-viewers.userListLabel": "Προβολή άλλων χρηστών στη λίστα χρηστών",
     "app.lock-viewers.ariaTitle": "Κλείδωμα του παραθύρου ρυθμίσεων των θεατών",
     "app.lock-viewers.button.apply": "Εφαρμογή",
     "app.lock-viewers.button.cancel": "Ακύρωση",
