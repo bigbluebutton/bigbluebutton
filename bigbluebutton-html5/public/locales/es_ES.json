@@ -239,7 +239,7 @@
     "app.meeting.endedWhenLastUserLeft": "La reunión finalizó cuando marchó el último usuario",
     "app.meeting.endedAfterExceedingDuration": "reunión se dio por acabada para exceder la duración máxima",
     "app.meeting.breakoutEndedAfterExceedingDuration": "La reunión finalizó debido a que se superó la duración máxima",
-    "app.meeting.breakoutEndedByModerator": "El moderador da por terminada la sesión",
+    "app.meeting.breakoutEndedByModerator": "El moderadorha dado por terminada la sesión",
     "app.meeting.endedDueNoAuthed": "la reunión se dio por acabada porque no había ningún usuario autorizado en la sala",
     "app.meeting.endedDueNoModerators": "La reunión ha acabado porque no ha habido moderador en la reunión",
     "app.meeting.endedDueServiceInterruption": "La reunión ha finalizado a causa de una interrupción temporal del servicio",
