@@ -1248,7 +1248,7 @@
     "app.createBreakoutRoom.setTimeInMinutes": "Ορισμός διάρκειας σε (λεπτά)",
     "app.createBreakoutRoom.setTimeLabel": "Εφαρμογή",
     "app.createBreakoutRoom.setTimeCancel": "Ακύρωση",
-    "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "Η διάρκεια του τμήματος δεν μπορεί να υπερβαίνει τον υπολειπόμενο χρόνο της αίθουσας διάσκεψης.",
+    "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "Η διάρκεια του τμήματος αίθουσας δεν μπορεί να υπερβαίνει τον υπολειπόμενο χρόνο της αίθουσας τηλεδιάσκεψης.",
     "app.createBreakoutRoom.roomNameInputDesc": "Ενημερώνει το όνομα του τμήματος αίθουσας σιάσκεψης",
     "app.createBreakoutRoom.movedUserLabel": "Μετακινήθηκε {0} στην αίθουσα {1}",
     "app.updateBreakoutRoom.modalDesc": "Για ενημέρωση ή πρόσκληση χρήστη, απλώς σύρετέ τον στην επιθυμητή αίθουσα.",
