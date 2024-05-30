@@ -245,7 +245,7 @@
     "app.meeting.endedDueServiceInterruption": "Η συνάντηση τερματίστηκε λόγω προσωρινής διακοπής των υπηρεσιών",
     "app.meeting.meetingTimeRemaining": "Υπολειπόμενος χρόνος σύσκεψης: {0}",
     "app.meeting.meetingTimeHasEnded": "Ο χρόνος τελείωσε.  Η σύσκεψη θα κλείσει σύντομα.",
-    "app.meeting.endedByUserMessage": "Η συνεδρία τερματίστηκε από τον {0}",
+    "app.meeting.endedByUserMessage": "Η συνεδρία τερματίστηκε από {0}",
     "app.meeting.endedByNoModeratorMessageSingular": "Η συνεδρία τερματίστηκε επειδή κανένας διαχειριστής δεν παρουσίασε μετά από ένα λεπτό",
     "app.meeting.endedByNoModeratorMessagePlural": "Η συνεδρία τερματίστηκε επειδή κανένας διαχειριστής δεν παρουσίασε μετά από {0} λεπτά",
     "app.meeting.endedMessage": "Θα μεταφερθείτε πίσω στην αρχική σας σελίδα",
