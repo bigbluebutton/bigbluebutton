@@ -1091,7 +1091,7 @@
     "app.video.mediaTimedOutError": "Η ροή της κάμερας σας διακόπηκε. Προσπαθήστε να τη διαμοιράσετε ξανά",
     "app.video.mediaFlowTimeout1020": "Τα πολυμέσα δεν μπορούν να επικοινωνήσουν με τον διακομιστή (σφάλμα 1020)",
     "app.video.suggestWebcamLock": "Επιβολή ρύθμισης κλειδώματος στις κάμερες των θεατών;",
-    "app.video.suggestWebcamLockReason": "(θα βελτιώσει της σταθερότητα της σύσκεψης)",
+    "app.video.suggestWebcamLockReason": "(θα βελτιώσει της σταθερότητα της τηλεδιάσκεψης)",
     "app.video.enable": "Ενεργοποίηση",
     "app.video.cancel": "Ακύρωση",
     "app.video.swapCam": "Εναλλαγή",
