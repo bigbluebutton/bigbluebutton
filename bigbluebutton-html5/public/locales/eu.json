@@ -236,7 +236,7 @@
     "app.meeting.ended": "Saio hau bukatu da.",
     "app.meeting.endedFromAPI": "Sistemak bilera amaitutzat eman du",
     "app.meeting.endedWhenNoUserJoined": "Bilera amaitu da erabiltzailerik sartu ez delako",
-    "app.meeting.endedWhenLastUserLeft": "Bilera amaitu da azken erabiltzailea joan denean",
+    "app.meeting.endedWhenLastUserLeft": "Bilera amaitu da azken erabiltzailea irten denean",
     "app.meeting.endedAfterExceedingDuration": "bilera amaitu da gehienezko iraupena gainditzeagatik",
     "app.meeting.breakoutEndedAfterExceedingDuration": "Azpitaldeak amaitu dira, gehienezko iraupena gainditzeagatik",
     "app.meeting.breakoutEndedByModerator": "Azpitaldeak moderatzaileak amaitu ditu",
