@@ -991,7 +991,7 @@
     "app.lock-viewers.button.apply": "Εφαρμογή",
     "app.lock-viewers.button.cancel": "Ακύρωση",
     "app.lock-viewers.locked": "Κλειδωμένο",
-    "app.lock-viewers.hideViewersCursor": "Προβολή κέρσορα άλλων θεατών",
+    "app.lock-viewers.hideViewersCursor": "Προβολή κέρσορα άλλων χρηστών",
     "app.lock-viewers.hideAnnotationsLabel": "Δείτε τα σχόλια των θεατών",
     "app.guest-policy.ariaTitle": "Τυπικές ρυθμίσεις πολιτικής για επισκέπτη",
     "app.guest-policy.title": "Πολιτική επισκεπτών",
