@@ -198,7 +198,7 @@
     "app.userList.content.participants.options.clearedReactions": "Εκκαθάριση όλων των αντιδράσεων χρήστη",
     "app.userList.userOptions.enableCam": "Οι κάμερες των χρηστών είναι ενεργοποιημένες.",
     "app.userList.userOptions.enableMic": "Τα μικρόφωνα των χρηστών είναι ενεργοποιημένα.",
-    "app.userList.userOptions.enablePrivChat": "Ιδιωτική συνομιλία είναι ενεργοποιημένη",
+    "app.userList.userOptions.enablePrivChat": "Η ιδιωτική συνομιλία είναι ενεργοποιημένη",
     "app.userList.userOptions.enablePubChat": "Η δημόσια συνομιλία είναι ενεργοποιημένη",
     "app.userList.userOptions.enableNotes": "Οι κοινόχρηστες σημειώσεις είναι ενεργοποιημένες",
     "app.userList.userOptions.showUserList": "Η λίστα χρήστη είναι ορατή στους θεατές.",
