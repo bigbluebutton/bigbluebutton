@@ -445,7 +445,7 @@
     "app.connectingMessage": "Σύνδεση ...",
     "app.waitingMessage": "Αποσυνδεθήκατε. Προσπάθεια επανασύνδεσης σε {0} δευτερόλεπτα ...",
     "app.retryNow": "Επανασύνδεση τώρα",
-    "app.muteWarning.label": "Για κατάργηση της σίγασης κάντε κλικ στο {0}",
+    "app.muteWarning.label": "Για κατάργηση της σίγασης σας κάντε κλικ στο {0}",
     "app.muteWarning.disableMessage": "Η σίγαση των ειδοποιήσεων απενεργοποιήθηκε μέχρι την άρση της σίγασης",
     "app.muteWarning.tooltip": "Κάντε κλικ για κλείσιμο και απενεργοποίηση των προειδοποιήσεων έως την άρση της σίγασης",
     "app.navBar.leaveMeetingBtnLabel": "Έξοδος",
