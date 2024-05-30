@@ -187,7 +187,7 @@
     "app.userList.userOptions.lockViewersDesc": "Κλείδωμα συγκεκριμένων λειτουργιών των συμμετεχόντων της διάσκεψης",
     "app.userList.userOptions.guestPolicyLabel": "Πολιτική επισκεπτών",
     "app.userList.userOptions.guestPolicyDesc": "Αλλαγή ρυθμίσεων πολιτικής επισκεπτών",
-    "app.userList.userOptions.disableCam": "Οι κάμερες των θεατών είναι απενεργοποιημένες.",
+    "app.userList.userOptions.disableCam": "Οι κάμερες των χρηστών είναι απενεργοποιημένες.",
     "app.userList.userOptions.disableMic": "Τα μικρόφωνα των θεατών είναι απενεργοποιημένα.",
     "app.userList.userOptions.disablePrivChat": "Η ιδιωτική συνομιλία είναι απενεργοποιημένη",
     "app.userList.userOptions.disablePubChat": "Η δημόσια συνομιλία είναι απενεργοποιημένη",
