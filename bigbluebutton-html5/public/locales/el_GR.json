@@ -815,7 +815,7 @@
     "app.audio.captions.select.zh-CN": "Κινεζικά",
     "app.error.removed": "Έχετε αφαιρεθεί από τη διάσκεψη.",
     "app.error.meeting.ended": "Έχετε αποσυνδεθεί από τη διάσκεψη.",
-    "app.meeting.logout.duplicateUserEjectReason": "Χρήστης με ίδιο όνομα προσπαθεί να συνδεθεί στη διάσκεψη.",
+    "app.meeting.logout.duplicateUserEjectReason": "Χρήστης με ίδιο όνομα προσπαθεί να συνδεθεί στην τηλεδιάσκεψη.",
     "app.meeting.logout.permissionEjectReason": "Απορρίφθηκε λόγω παραβίασης δικαιωμάτων πρόσβασης.",
     "app.meeting.logout.ejectedFromMeeting": "Έχετε αφαιρεθεί από τη διάσκεψη",
     "app.meeting.logout.validateTokenFailedEjectReason": "Ο έλεγχος αυθεντικοποίησης του αναγνωριστικού απέτυχε.",
