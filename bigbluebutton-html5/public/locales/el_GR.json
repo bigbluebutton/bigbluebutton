@@ -817,7 +817,7 @@
     "app.error.meeting.ended": "Έχετε αποσυνδεθεί από τη διάσκεψη.",
     "app.meeting.logout.duplicateUserEjectReason": "Χρήστης με ίδιο όνομα προσπαθεί να συνδεθεί στην τηλεδιάσκεψη.",
     "app.meeting.logout.permissionEjectReason": "Απορρίφθηκε λόγω παραβίασης δικαιωμάτων πρόσβασης.",
-    "app.meeting.logout.ejectedFromMeeting": "Έχετε αφαιρεθεί από τη διάσκεψη",
+    "app.meeting.logout.ejectedFromMeeting": "Έχετε αφαιρεθεί από την τηλεδιάσκεψη",
     "app.meeting.logout.validateTokenFailedEjectReason": "Ο έλεγχος αυθεντικοποίησης του αναγνωριστικού απέτυχε.",
     "app.meeting.logout.userInactivityEjectReason": "Ο χρήστης είναι ανενεργός για πολύ μεγάλο διάστημα",
     "app.meeting.logout.maxParticipantsReached": "Ο μέγιστος επιτρεπόμενος αριθμός συμμετεχόντων για αυτή τη συνεδρία ολοκληρώθηκε.",
