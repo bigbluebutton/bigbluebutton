@@ -464,7 +464,7 @@
     "app.navBar.optionsDropdown.hotkeysLabel": "Συντομεύσεις πληκτρολογίου",
     "app.navBar.optionsDropdown.hotkeysDesc": "Λίστα διαθέσιμων συντομεύσεων πληκτρολογίου",
     "app.navBar.optionsDropdown.helpLabel": "Βοήθεια",
-    "app.navBar.optionsDropdown.openAppLabel": "Άνοιγμα BigBlueButton στην εφαρμογή για συσκευές",
+    "app.navBar.optionsDropdown.openAppLabel": "Άνοιγμα εφαρμογής BigBlueButton",
     "app.navBar.optionsDropdown.helpDesc": "Σύνδεση χρήστη με εκπαιδευτικά βίντεο (ανοίγει σε νέα καρτέλα)",
     "app.navBar.optionsDropdown.endMeetingDesc": "Τερματίζει την τρέχουσα τηλεδιάσκεψη",
     "app.navBar.optionsDropdown.endMeetingLabel": "Τερματισμός τηλεδιάσκεψης",
