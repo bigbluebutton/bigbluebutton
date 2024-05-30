@@ -399,13 +399,6 @@ case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeeti
 case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String, clientIsMobile: Boolean)
 
 /**
- * Sent from Flash client to rejoin meeting after reconnection
- */
-object UserJoinMeetingAfterReconnectReqMsg { val NAME = "UserJoinMeetingAfterReconnectReqMsg" }
-case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingAfterReconnectReqMsgBody) extends StandardMsg
-case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String, clientType: String)
-
-/**
  * Sent from client to bbb-akka to notify that a user is leaving
  */
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }

@@ -76,7 +76,6 @@ class MeetingActor(
   with UsersApp2x
 
   with UserJoinMeetingReqMsgHdlr
-  with UserJoinMeetingAfterReconnectReqMsgHdlr
   with UserEstablishedGraphqlConnectionInternalMsgHdlr
   with UserConnectedToGlobalAudioMsgHdlr
   with UserDisconnectedFromGlobalAudioMsgHdlr
@@ -420,9 +419,6 @@ class MeetingActor(
       case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
       case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
-        updateModeratorsPresence()
-      case m: UserJoinMeetingAfterReconnectReqMsg =>
-        state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
         updateModeratorsPresence()
       case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
