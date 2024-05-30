@@ -730,7 +730,7 @@
     "app.audioModal.iOSBrowser": "Δεν υποστηρίζεται το Βίντεο/Ήχος",
     "app.audioModal.iOSErrorDescription": "Αυτή την στιγμή ο ήχος και το βίντεο δεν υποστηρίζονται στον Chrome για iOS.",
     "app.audioModal.iOSErrorRecommendation": "Προτείνουμε την χρήση Safari iOS.",
-    "app.audioModal.audioChoiceDesc": "Επιλέξτε πως θα συνδεθεί ο ήχος σε αυτή τη σύσκεψη.",
+    "app.audioModal.audioChoiceDesc": "Επιλέξτε πως θα συνδεθεί ο ήχος σε αυτή την τηλεδιάσκεψη.",
     "app.audioModal.unsupportedBrowserLabel": "Ο φυλλομετρητής σας δεν υποστηρίζεται πλήρως. Παρακαλούμε χρησιμοποιήστε {0} ή {1} για πλήρη συμβατότητα.",
     "app.audioModal.closeLabel": "Κλείσιμο",
     "app.audioModal.yes": "Ναι",
