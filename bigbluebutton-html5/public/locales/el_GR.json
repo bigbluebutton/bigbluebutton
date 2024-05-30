@@ -828,7 +828,7 @@
     "app.modal.confirm": "Ολοκληρώθηκε",
     "app.modal.newTab": "(ανοίγει νέα καρτέλα)",
     "app.modal.confirm.description": "Αποθήκευση αλλαγών και κλείσιμο του παραθύρου διαλόγου",
-    "app.modal.randomUser.noViewers.description": "Δεν υπάρχουν θεατές διαθέσιμοι για τυχαία επιλογή",
+    "app.modal.randomUser.noViewers.description": "Δεν υπάρχουν χρήστες διαθέσιμοι για τυχαία επιλογή",
     "app.modal.randomUser.selected.description": "Έχετε επιλεγεί τυχαία",
     "app.modal.randomUser.title": "Τυχαία επιλεγμένος χρήστης",
     "app.modal.randomUser.who": "Ποιος θα επιλεγεί..;",
