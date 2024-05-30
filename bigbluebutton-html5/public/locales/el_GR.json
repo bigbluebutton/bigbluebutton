@@ -196,7 +196,7 @@
     "app.userList.userOptions.webcamsOnlyForModerator": "Μόνο οι συντονιστές μπορούν να δουν τις κάμερες των χρηστών (λόγω των ρυθμίσεων κλειδώματος)",
     "app.userList.content.participants.options.clearedStatus": "Επαναφορά κατάστασης όλων των χρηστών",
     "app.userList.content.participants.options.clearedReactions": "Εκκαθάριση όλων των αντιδράσεων χρήστη",
-    "app.userList.userOptions.enableCam": "Οι κάμερες των θεατών είναι ενεργοποιημένες.",
+    "app.userList.userOptions.enableCam": "Οι κάμερες των χρηστών είναι ενεργοποιημένες.",
     "app.userList.userOptions.enableMic": "Τα μικρόφωνα των θεατών είναι ενεργοποιημένα.",
     "app.userList.userOptions.enablePrivChat": "Ιδιωτική συνομιλία είναι ενεργοποιημένη",
     "app.userList.userOptions.enablePubChat": "Η δημόσια συνομιλία είναι ενεργοποιημένη",
