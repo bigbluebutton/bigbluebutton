@@ -20,6 +20,8 @@ import browserInfo from '/imports/utils/browserInfo';
 import { addAlert } from '../screenreader-alert/service';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
+import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
+import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -800,6 +802,8 @@ class Presentation extends PureComponent {
     const isVideoFocus = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
     const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
 
+    const APP_CRASH_METADATA = { logCode: 'whiteboard_crash', logMessage: 'Possible whiteboard crash' };
+
     return (
       <>
         <Styled.PresentationContainer
@@ -851,35 +855,37 @@ class Presentation extends PureComponent {
                 {!tldrawIsMounting
                   && currentSlide
                   && this.renderPresentationMenu()}
-                <WhiteboardContainer
-                  whiteboardId={currentSlide?.id}
-                  slidePosition={slidePosition}
-                  getSvgRef={this.getSvgRef}
-                  tldrawAPI={tldrawAPI}
-                  setTldrawAPI={this.setTldrawAPI}
-                  curPageId={currentSlide?.num.toString() || '0'}
-                  svgUri={currentSlide?.svgUri}
-                  intl={intl}
-                  presentationWidth={svgWidth}
-                  presentationHeight={svgHeight}
-                  presentationAreaHeight={presentationBounds?.height}
-                  presentationAreaWidth={presentationBounds?.width}
-                  isPanning={isPanning}
-                  zoomChanger={this.zoomChanger}
-                  fitToWidth={fitToWidth}
-                  zoomValue={zoom}
-                  setTldrawIsMounting={this.setTldrawIsMounting}
-                  setIsToolbarVisible={this.setIsToolbarVisible}
-                  isFullscreen={isFullscreen}
-                  fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
-                  fullscreenElementId={fullscreenElementId}
-                  layoutContextDispatch={layoutContextDispatch}
-                  fullscreenRef={this.refPresentationContainer}
-                  presentationId={currentPresentationId}
-                  darkTheme={darkTheme}
-                  isToolbarVisible={isToolbarVisible}
-                  isViewersAnnotationsLocked={isViewersAnnotationsLocked}
-                />
+                <LocatedErrorBoundary Fallback={FallbackView} logMetadata={APP_CRASH_METADATA}>
+                  <WhiteboardContainer
+                    whiteboardId={currentSlide?.id}
+                    slidePosition={slidePosition}
+                    getSvgRef={this.getSvgRef}
+                    tldrawAPI={tldrawAPI}
+                    setTldrawAPI={this.setTldrawAPI}
+                    curPageId={currentSlide?.num.toString() || '0'}
+                    svgUri={currentSlide?.svgUri}
+                    intl={intl}
+                    presentationWidth={svgWidth}
+                    presentationHeight={svgHeight}
+                    presentationAreaHeight={presentationBounds?.height}
+                    presentationAreaWidth={presentationBounds?.width}
+                    isPanning={isPanning}
+                    zoomChanger={this.zoomChanger}
+                    fitToWidth={fitToWidth}
+                    zoomValue={zoom}
+                    setTldrawIsMounting={this.setTldrawIsMounting}
+                    setIsToolbarVisible={this.setIsToolbarVisible}
+                    isFullscreen={isFullscreen}
+                    fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
+                    fullscreenElementId={fullscreenElementId}
+                    layoutContextDispatch={layoutContextDispatch}
+                    fullscreenRef={this.refPresentationContainer}
+                    presentationId={currentPresentationId}
+                    darkTheme={darkTheme}
+                    isToolbarVisible={isToolbarVisible}
+                    isViewersAnnotationsLocked={isViewersAnnotationsLocked}
+                  />
+                </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}
               </div>
               {!tldrawIsMounting && (
