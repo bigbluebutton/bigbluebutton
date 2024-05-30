@@ -493,7 +493,7 @@
     "app.about.confirmDesc": "OK",
     "app.about.dismissLabel": "Ακύρωση",
     "app.about.dismissDesc": "Κλείσιμο των πληροφοριών εφαρμογής πελάτη",
-    "app.mobileAppModal.title": "Άνοιγμα BigBlueButton στην εφαρμογή για συσκευές",
+    "app.mobileAppModal.title": "Άνοιγμα εφαρμογής BigBlueButton Tablet",
     "app.mobileAppModal.description": "Έχετε την εφαρμογή BigBlueButton Tablet εγκατεστημένη στη συσκευή σας;",
     "app.mobileAppModal.openApp": "Ναι, άνοιγμα της εφαρμογής τώρα",
     "app.mobileAppModal.obtainUrlMsg": "Λήψη URL τηλεδιάσκεψης",
