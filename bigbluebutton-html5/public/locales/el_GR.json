@@ -996,7 +996,7 @@
     "app.guest-policy.ariaTitle": "Τυπικές ρυθμίσεις πολιτικής για επισκέπτη",
     "app.guest-policy.title": "Πολιτική επισκεπτών",
     "app.guest-policy.description": "Αλλαγή ρυθμίσεων της πολιτικής τηλεδιάσκεψης για επισκέπτες",
-    "app.guest-policy.button.askModerator": "Ρωτήστε τον συντονιστή",
+    "app.guest-policy.button.askModerator": "Ρωτήστε ένα συντονιστή",
     "app.guest-policy.button.alwaysAccept": "Πάντα αποδοχή",
     "app.guest-policy.button.alwaysDeny": "Πάντα απόρριψη",
     "app.guest-policy.policyBtnDesc": "Ορισμός πολιτικής τηλεδιάσκεψης για επισκέπτες",
