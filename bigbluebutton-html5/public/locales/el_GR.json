@@ -976,7 +976,7 @@
     "app.shortcut-help.selectAll": "Επιλογή όλων",
     "app.shortcut-help.delete": "Διαγραφή",
     "app.shortcut-help.duplicate": "Διπλότυπο",
-    "app.lock-viewers.title": "Κλείδωμα θεατών",
+    "app.lock-viewers.title": "Κλείδωμα χρηστών",
     "app.lock-viewers.description": "Με τις παρακάτω επιλογές μπορείτε να ελέγξετε τη πρόσβαση σε συγκεκριμένες λειτουργίες από τους θεατές.",
     "app.lock-viewers.featuresLable": "Δυνατότητα",
     "app.lock-viewers.lockStatusLabel": "Κατάσταση",
