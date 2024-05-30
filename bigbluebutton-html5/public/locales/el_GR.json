@@ -192,7 +192,7 @@
     "app.userList.userOptions.disablePrivChat": "Η ιδιωτική συνομιλία είναι απενεργοποιημένη",
     "app.userList.userOptions.disablePubChat": "Η δημόσια συνομιλία είναι απενεργοποιημένη",
     "app.userList.userOptions.disableNotes": "Οι κοινόχρηστες σημειώσεις είναι πλέον κλειδωμένες",
-    "app.userList.userOptions.hideUserList": "Η λίστα χρήστη δεν είναι ορατή στους θεατές.",
+    "app.userList.userOptions.hideUserList": "Η λίστα χρήστη δεν είναι ορατή στους χρήστες.",
     "app.userList.userOptions.webcamsOnlyForModerator": "Μόνο οι συντονιστές μπορούν να δουν τις κάμερες των θεατών (λόγω των ρυθμίσεων κλειδώματος)",
     "app.userList.content.participants.options.clearedStatus": "Επαναφορά κατάστασης όλων των χρηστών",
     "app.userList.content.participants.options.clearedReactions": "Εκκαθάριση όλων των αντιδράσεων χρήστη",
