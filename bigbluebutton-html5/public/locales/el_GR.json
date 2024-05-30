@@ -252,7 +252,7 @@
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Η τηλεδιάσκεψη θα κλείσει σε ένα λεπτό.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Η τηλεδιάσκεψη θα κλείσει σε {0} λεπτά.",
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "Το τμήμα αίθουσας θα κλείσει σε {0} λεπτά.",
-    "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Το τμήμα θα κλείσει σε ένα λεπτό.",
+    "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Το τμήμα αίθουσας θα κλείσει σε ένα λεπτό.",
     "app.presentation.hide": "Απόκρυψη παρουσίασης",
     "app.presentation.notificationLabel": "Τρέχουσα παρουσίαση",
     "app.presentation.downloadLabel": "Λήψη",
