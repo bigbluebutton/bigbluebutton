@@ -995,7 +995,7 @@
     "app.lock-viewers.hideAnnotationsLabel": "Δείτε τα σχόλια των θεατών",
     "app.guest-policy.ariaTitle": "Τυπικές ρυθμίσεις πολιτικής για επισκέπτη",
     "app.guest-policy.title": "Πολιτική επισκεπτών",
-    "app.guest-policy.description": "Αλλαγή ρυθμίσεων της πολιτικής συνεδρίας για επισκέπτη",
+    "app.guest-policy.description": "Αλλαγή ρυθμίσεων της πολιτικής τηλεδιάσκεψης για επισκέπτες",
     "app.guest-policy.button.askModerator": "Ρωτήστε τον συντονιστή",
     "app.guest-policy.button.alwaysAccept": "Πάντα αποδοχή",
     "app.guest-policy.button.alwaysDeny": "Πάντα απόρριψη",
