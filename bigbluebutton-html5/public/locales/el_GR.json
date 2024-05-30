@@ -247,7 +247,7 @@
     "app.meeting.meetingTimeHasEnded": "Ο χρόνος τελείωσε.  Η σύσκεψη θα κλείσει σύντομα.",
     "app.meeting.endedByUserMessage": "Η συνεδρία τερματίστηκε από {0}",
     "app.meeting.endedByNoModeratorMessageSingular": "Η τηλεδιάσκεψη τερματίστηκε μετά από ένα λεπτό, επειδή δε συμμετέχει κανένας συντονιστής",
-    "app.meeting.endedByNoModeratorMessagePlural": "Η συνεδρία τερματίστηκε επειδή κανένας διαχειριστής δεν παρουσίασε μετά από {0} λεπτά",
+    "app.meeting.endedByNoModeratorMessagePlural": "Η τηλεδιάσκεψη τερματίστηκε μετά από {0} λεπτά, επειδή δε συμμετέχει κανένας συντονιστής",
     "app.meeting.endedMessage": "Θα μεταφερθείτε πίσω στην αρχική σας σελίδα",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Η διάσκεψη θα κλείσει σε ένα λεπτό.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Η διάσκεψη θα κλείσει σε {0} λεπτά.",
