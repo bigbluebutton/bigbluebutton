@@ -981,7 +981,7 @@
     "app.lock-viewers.featuresLable": "Δυνατότητα",
     "app.lock-viewers.lockStatusLabel": "Κατάσταση",
     "app.lock-viewers.webcamLabel": "Διαμοιρασμός κάμερας",
-    "app.lock-viewers.otherViewersWebcamLabel": "Προβολή καμερών άλλων θεατών",
+    "app.lock-viewers.otherViewersWebcamLabel": "Προβολή καμερών άλλων χρηστών",
     "app.lock-viewers.microphoneLable": "Διαμοιρασμός μικροφώνου",
     "app.lock-viewers.PublicChatLabel": "Αποστολή μηνυμάτων δημόσιας συνομιλίας",
     "app.lock-viewers.PrivateChatLable": "Αποστολή μηνυμάτων ιδιωτικής συνομιλίας",
