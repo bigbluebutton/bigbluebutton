@@ -812,6 +812,7 @@
     "app.toast.chat.system": "Sistema",
     "app.toast.chat.poll": "Resultats de l'enquesta",
     "app.toast.chat.pollClick": "S'han publicat els resultats de l'enquesta. Prem aquí per a veure.",
+    "app.toast.chat.exportedPresentation": "Arxiu de la presentació",
     "app.toast.clearedEmoji.label": "Estatus d'emoji net",
     "app.toast.setEmoji.label": "Estatus d'emoji configurat {0}",
     "app.toast.meetingMuteOn.label": "Tots els usuaris han estat silenciats",
