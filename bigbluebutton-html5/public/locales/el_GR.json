@@ -174,7 +174,7 @@
     "app.userList.menu.makePresenter.label": "Ορισμός ως παρουσιαστή",
     "app.userList.userOptions.manageUsersLabel": "Διαχείριση χρηστών",
     "app.userList.userOptions.muteAllLabel": "Σίγαση όλων των χρηστών",
-    "app.userList.userOptions.muteAllDesc": "Σίγαση όλων των χρηστών στη διάσκεψη",
+    "app.userList.userOptions.muteAllDesc": "Σίγαση όλων των χρηστών στην τηλεδιάσκεψη",
     "app.userList.userOptions.clearAllLabel": "Επαναφορά όλων των εικονιδίων κατάστασης",
     "app.userList.userOptions.clearAllDesc": "Επαναφορά όλων των εικονιδίων κατάστασης των χρηστών.",
     "app.userList.userOptions.clearAllReactionsLabel": "Εκκαθάριση όλων των αντιδράσεων",
