@@ -201,7 +201,7 @@
     "app.userList.userOptions.enablePrivChat": "Η ιδιωτική συνομιλία είναι ενεργοποιημένη",
     "app.userList.userOptions.enablePubChat": "Η δημόσια συνομιλία είναι ενεργοποιημένη",
     "app.userList.userOptions.enableNotes": "Οι κοινόχρηστες σημειώσεις είναι ενεργοποιημένες",
-    "app.userList.userOptions.showUserList": "Η λίστα χρήστη είναι ορατή στους θεατές.",
+    "app.userList.userOptions.showUserList": "Η λίστα χρήστη είναι ορατή στους χρήστες.",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Μπορείτε να ενεργοποιήσετε την κάμερά σας τώρα, θα σας δουν όλοι",
     "app.userList.userOptions.savedNames.title": "Λίστα χρηστών της σύσκεψης {0} στις {1}.",
     "app.userList.userOptions.sortedFirstName.heading": "Ταξινόμηση ανά όνομα:",
