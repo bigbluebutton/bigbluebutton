@@ -820,7 +820,7 @@
     "app.meeting.logout.ejectedFromMeeting": "Έχετε αφαιρεθεί από την τηλεδιάσκεψη",
     "app.meeting.logout.validateTokenFailedEjectReason": "Ο έλεγχος αυθεντικοποίησης του αναγνωριστικού απέτυχε.",
     "app.meeting.logout.userInactivityEjectReason": "Ο χρήστης είναι ανενεργός για πολύ μεγάλο διάστημα",
-    "app.meeting.logout.maxParticipantsReached": "Ο μέγιστος επιτρεπόμενος αριθμός συμμετεχόντων για αυτή τη συνεδρία ολοκληρώθηκε.",
+    "app.meeting.logout.maxParticipantsReached": "Ο μέγιστος επιτρεπόμενος αριθμός συμμετεχόντων για αυτή την τηλεδιάσκεψη ολοκληρώθηκε.",
     "app.meeting-ended.rating.legendLabel": "Αξιολόγηση σχολίων",
     "app.meeting-ended.rating.starLabel": "Αστέρι",
     "app.modal.close": "Κλείσιμο",
