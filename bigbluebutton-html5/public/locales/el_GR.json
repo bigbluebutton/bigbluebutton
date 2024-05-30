@@ -900,7 +900,7 @@
     "app.toast.clearedEmoji.label": "Εκκαθάριση κατάστασης emoji",
     "app.toast.setEmoji.label": "Η κατάσταση του Emoji ορίστηκε σε {0}",
     "app.toast.meetingMuteOn.label": "Όλοι οι χρήστες είναι σε σίγαση",
-    "app.toast.meetingMuteOnViewers.label": "Όλοι οι θεατές είναι σε σίγαση",
+    "app.toast.meetingMuteOnViewers.label": "Όλοι οι χρήστες είναι σε σίγαση",
     "app.toast.meetingMuteOff.label": "Η σίγαση της τηλεδιάσκεψης απενεργοποιήθηκε.",
     "app.toast.wakeLock.acquireSuccess": "Η επιλογή «μόνιμα ενεργό» είναι ενεργή. Μπορείτε να την απενεργοποιήσετε από τις επιλογές.",
     "app.toast.wakeLock.acquireFailed": "Σφάλμα εφαρμογής της επιλογής «μόνιμα ενεργό».",
