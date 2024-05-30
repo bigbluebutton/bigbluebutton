@@ -707,7 +707,7 @@
     "app.audioNotification.mediaFailedMessage": "Το getUserMicMedia απέτυχε καθώς επιτρέπονται μόνο ασφαλείς προελεύσεις",
     "app.audioNotification.deviceChangeFailed": "Η αλλαγή συσκευής ήχου απέτυχε. Ελέγξτε εάν η επιλεγμένη συσκευή είναι σωστά ρυθμισμένη και διαθέσιμη",
     "app.audioNotification.closeLabel": "Κλείσιμο",
-    "app.audioNotificaion.reconnectingAsListenOnly": "Το μικρόφωνο είναι ανενεργό για τους θεατές, έχετε συνδεθεί μόνο για ακρόαση.",
+    "app.audioNotificaion.reconnectingAsListenOnly": "Το μικρόφωνο είναι ανενεργό για τους χρήστες, έχετε συνδεθεί μόνο για ακρόαση.",
     "app.breakoutJoinConfirmation.title": "Συμμετοχή σε τμήμα αίθουσας διάσκεψης",
     "app.breakoutJoinConfirmation.message": "Θέλετε να συνδεθείτε;",
     "app.breakoutJoinConfirmation.confirmDesc": "Προστεθήκατε σε τμήμα αίθουσας διάσκεψης",
