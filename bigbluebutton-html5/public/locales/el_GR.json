@@ -832,7 +832,7 @@
     "app.modal.randomUser.selected.description": "Έχετε επιλεγεί τυχαία",
     "app.modal.randomUser.title": "Τυχαία επιλεγμένος χρήστης",
     "app.modal.randomUser.who": "Ποιος θα επιλεγεί..;",
-    "app.modal.randomUser.alone": "Υπάρχει μόνο ένας θεατής",
+    "app.modal.randomUser.alone": "Υπάρχει μόνο ένας χρήστης",
     "app.modal.randomUser.reselect.label": "Επιλέξτε ξανά",
     "app.modal.randomUser.ariaLabel.title": "Τυχαία επιλογή λειτουργίας χρήστη",
     "app.dropdown.close": "Κλείσιμο",
