@@ -478,7 +478,7 @@
     "app.navBar.recording.off": "Δεν γίνετε εγγραφή",
     "app.navBar.emptyAudioBrdige": "Κανένα ενεργό μικρόφωνο. Διαμοιράστε το μικρόφωνο σας, για να προσθέσετε ήχο στην καταγραφή.",
     "app.leaveConfirmation.confirmLabel": "Αποχώρηση",
-    "app.leaveConfirmation.confirmDesc": "Σας αποσυνδέει από τη διάσκεψη",
+    "app.leaveConfirmation.confirmDesc": "Σας αποσυνδέει από την τηλεδιάσκεψη",
     "app.endMeeting.title": "Τερματισμός {0}",
     "app.endMeeting.description": "Αυτή η ενέργεια θα τερματίσει τη συνεδρία για {0} ενεργούς χρήστες. Είστε σίγουροι ότι θέλετε να τερματίσετε αυτή τη συνεδρία;",
     "app.endMeeting.noUserDescription": "Είστε σίγουροι ότι θέλετε να τερματίσετε αυτή τη συνεδρία;",
