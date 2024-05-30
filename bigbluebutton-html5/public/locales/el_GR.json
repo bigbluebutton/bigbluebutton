@@ -27,7 +27,7 @@
     "app.chat.pollResult": "Αποτελέσματα δημοσκόπησης",
     "app.chat.breakoutDurationUpdated": "Ο χρόνος του τμήματος αίθουσας είναι {0} λεπτά",
     "app.chat.breakoutDurationUpdatedModerator": "Ο χρόνος των τμημάτων της αίθουσας είναι {0} λεπτά. Έχει σταλθεί ειδοποίηση.",
-    "app.chat.emptyLogLabel": "Η καταγραφή της συνομιλίας είναι κενή",
+    "app.chat.emptyLogLabel": "Το αρχείο καταγραφής συνομιλίας είναι κενό",
     "app.chat.away": "Είναι απών",
     "app.chat.notAway": "Είναι παρών",
     "app.chat.clearPublicChatMessage": "Το ιστορικό δημόσιας συνομιλίας έχει διαγραφεί από τον συντονιστή.",
