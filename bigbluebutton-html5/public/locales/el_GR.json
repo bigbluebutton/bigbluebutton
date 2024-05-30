@@ -2,7 +2,7 @@
     "app.home.greeting": "Η παρουσίασή σας θα ξεκινήσει σε λίγο...",
     "app.chat.submitLabel": "Αποστολή μηνύματος",
     "app.chat.loading": "Φόρτωση μηνυμάτων: {0}%",
-    "app.chat.errorMaxMessageLength": "Το μήνυμα είναι πολύ μεγάλο, ξεπερνά το μέγιστο όριο των {0} χαρακτήρων",
+    "app.chat.errorMaxMessageLength": "Πολύ μεγάλο μήνυμα, ξεπερνά το μέγιστο όριο των {0} χαρακτήρων",
     "app.chat.errorMinMessageLength": "Ελάχιστος αριθμός χαρακτήρων μηνύματος {0}",
     "app.chat.errorOnSendMessage": "Σφάλμα κατά την αποστολή μηνύματος συνομιλίας",
     "app.chat.disconnected": "Έχετε αποσυνδεθεί, δεν μπορείτε να στείλετε μηνύματα.",
