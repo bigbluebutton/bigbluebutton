@@ -151,7 +151,7 @@
     "app.userList.menuTitleContext": "Διαθέσιμες επιλογές",
     "app.userList.chatListItem.unreadSingular": "Ένα νέο μήνυμα",
     "app.userList.chatListItem.unreadPlural": "{0} νέα μηνύματα",
-    "app.userList.menu.away": "Θέστε τον εαυτό σας απών",
+    "app.userList.menu.away": "Ορισμός ως απών",
     "app.userList.menu.notAway": "Θέστε τον εαυτό σας παρών",
     "app.userList.menu.chat.label": "Έναρξη ιδιωτικής συνομιλίας",
     "app.userList.menu.clearStatus.label": "Επαναφορά κατάστασης",
