@@ -1,11 +1,14 @@
 import {
   FetchPolicy,
-  ObservableSubscription, ReactiveVar, makeVar } from '@apollo/client';
+  ObservableSubscription,
+  ReactiveVar,
+  makeVar,
+} from '@apollo/client';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import apolloContextHolder from '../graphql/apolloContextHolder/apolloContextHolder';
 
-export interface SubscriptionStructure<T = {}> {
+export interface SubscriptionStructure<T> {
   count: number;
   data: Record<string, unknown> | T | null;
   error: Error | null;
@@ -22,6 +25,7 @@ export function stringToHash(string: string) {
 }
 
 class GrahqlSubscriptionStore {
+  // @ts-ignore
   private graphqlSubscriptions: { [key: string]: ReactiveVar<SubscriptionStructure> } = {};
 
   makeSubscription<T>(
@@ -42,7 +46,7 @@ class GrahqlSubscriptionStore {
       return subscriptionStored;
     }
 
-    const newSubStructure = makeVar<SubscriptionStructure>({
+    const newSubStructure = makeVar<SubscriptionStructure<T>>({
       count: 0,
       data: null,
       error: null,
