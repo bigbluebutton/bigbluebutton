@@ -1122,7 +1122,7 @@
     "app.video.virtualBackground.uploading": "Μεταφόρτωση...",
     "app.video.virtualBackground.button.customDesc": "Προσθέτει νέα εικονική εικόνα φόντου",
     "app.video.camCapReached": "Δεν μπορείτε να διαμοιραστείτε περισσότερες κάμερες",
-    "app.video.meetingCamCapReached": "Η σύσκεψη έφτασε το όριο ταυτόχρονων καμερών",
+    "app.video.meetingCamCapReached": "Η τηλεδιάσκεψη έφτασε στο όριο ταυτόχρονων καμερών",
     "app.video.dropZoneLabel": "Εναποθέστε εδώ",
     "app.fullscreenButton.label": "Εναλλαγή {0} σε πλήρη οθόνη",
     "app.fullscreenUndoButton.label": "Έξοδος {0} από πλήρη οθόνη",
