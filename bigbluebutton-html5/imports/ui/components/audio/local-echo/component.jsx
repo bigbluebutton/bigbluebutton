@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Service from '/imports/ui/components/audio/local-echo/service';
 
 const propTypes = {
@@ -39,6 +39,7 @@ const LocalEcho = ({
 }) => {
   const loopbackAgent = useRef(null);
   const [hearing, setHearing] = useState(initialHearingState);
+  const Settings = getSettingsSingletonInstance();
   const { animations } = Settings.application;
   const icon = hearing ? 'mute' : 'unmute';
   const label = hearing ? intlMessages.stopAudioFeedbackLabel : intlMessages.testSpeakerLabel;

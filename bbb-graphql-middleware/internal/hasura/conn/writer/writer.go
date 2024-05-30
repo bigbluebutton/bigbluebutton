@@ -27,13 +27,16 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChan
 
 	//Send authentication (init) message at first
 	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
-	if initMessage != nil {
-		log.Infof("it's a reconnection, injecting authentication (init) message")
-		err := wsjson.Write(hc.Context, hc.Websocket, initMessage)
-		if err != nil {
-			log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
-			return
-		}
+	if initMessage == nil {
+		log.Errorf("it can't start Hasura Connection because initMessage is null")
+		return
+	}
+
+	//Send init connection message to Hasura to start
+	err := wsjson.Write(hc.Context, hc.Websocket, initMessage)
+	if err != nil {
+		log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+		return
 	}
 
 RangeLoop:
@@ -174,7 +177,9 @@ RangeLoop:
 				}
 
 				if fromBrowserMessageAsMap["type"] == "connection_init" {
-					browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
+					//browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
+					//Skip message once it is handled by ConnInitHandler already
+					continue
 				}
 
 				log.Tracef("sending to hasura: %v", fromBrowserMessageAsMap)

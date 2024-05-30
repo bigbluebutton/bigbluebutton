@@ -1,9 +1,10 @@
 import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Styled from './styles';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const MenuSkeleton: React.FC = () => {
+  const Settings = getSettingsSingletonInstance();
   // @ts-ignore
   const { isRTL } = Settings.application;
 

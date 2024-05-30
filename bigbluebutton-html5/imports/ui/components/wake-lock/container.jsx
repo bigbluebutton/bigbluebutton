@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import WakeLock from './component';
 import Service from './service';
-import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
-
-const APP_CONFIG = window.meetingClientSettings.public.app;
+import useSettings from '../../services/settings/hooks/useSettings';
+import { SETTINGS } from '../../services/settings/enums';
 
 const propTypes = {
   areAudioModalsOpen: PropTypes.bool,
@@ -33,6 +32,7 @@ const WakeLockContainer = (props) => {
   const wereAudioModalsOpen = usePrevious(areAudioModalsOpen);
   const [endedAudioSetup, setEndedAudioSetup] = useState(false || !autoJoin);
   const setLocalSettings = useUserChangedLocalSettings();
+  const { wakeLock: wakeLockSettings } = useSettings(SETTINGS.APPLICATION);
 
   useEffect(() => {
     if (wereAudioModalsOpen && !areAudioModalsOpen && !endedAudioSetup) {
@@ -40,17 +40,24 @@ const WakeLockContainer = (props) => {
     }
   }, [areAudioModalsOpen]);
 
-  return endedAudioSetup ? <WakeLock setLocalSettings={setLocalSettings} {...props} /> : null;
+  return endedAudioSetup ? (
+    <WakeLock
+      setLocalSettings={setLocalSettings}
+      wakeLockSettings={wakeLockSettings}
+      {...props}
+    />
+  ) : null;
 };
 
 WakeLockContainer.propTypes = propTypes;
 WakeLockContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+
   return {
     request: Service.request,
     release: Service.release,
-    wakeLockSettings: Settings.application.wakeLock,
     areAudioModalsOpen: Session.get('audioModalIsOpen') || Session.get('inEchoTest'),
     autoJoin: getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin),
   };

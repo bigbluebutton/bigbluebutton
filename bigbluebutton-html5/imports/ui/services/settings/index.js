@@ -1,43 +1,28 @@
+import { makeVar } from '@apollo/client';
+import { isEmpty } from 'radash';
 import LocalStorage from '/imports/ui/services/storage/local';
 import SessionStorage from '/imports/ui/services/storage/session';
-
-import { isEmpty } from 'radash';
-
-const APP_CONFIG = window.meetingClientSettings.public.app;
-
-const SETTINGS = [
-  'application',
-  'audio',
-  'video',
-  'cc',
-  'dataSaving',
-  'animations',
-  'selfViewDisable',
-  'transcription',
-];
-
-const CHANGED_SETTINGS = 'changed_settings';
-const DEFAULT_SETTINGS = 'default_settings';
+import { CHANGED_SETTINGS, DEFAULT_SETTINGS, SETTINGS } from './enums';
 
 class Settings {
   constructor(defaultValues = {}) {
     const writableDefaultValues = JSON.parse(JSON.stringify(defaultValues));
-    SETTINGS.forEach((p) => {
+    Object.values(SETTINGS).forEach((p) => {
       const privateProp = `_${p}`;
       this[privateProp] = {
-        tracker: new Tracker.Dependency(),
-        value: undefined,
+        reactiveVar: makeVar(undefined),
       };
 
+      const varProp = `${p}Var`;
+      Object.defineProperty(this, varProp, {
+        get: () => this[privateProp].reactiveVar,
+      });
+
       Object.defineProperty(this, p, {
-        get: () => {
-          this[privateProp].tracker.depend();
-          return this[privateProp].value;
-        },
+        get: () => this[privateProp].reactiveVar(),
 
         set: (v) => {
-          this[privateProp].value = v;
-          this[privateProp].tracker.changed();
+          this[privateProp].reactiveVar(v);
         },
       });
     });
@@ -61,10 +46,12 @@ class Settings {
   }
 
   loadChanged() {
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     const savedSettings = {};
 
-    SETTINGS.forEach((s) => {
+    Object.values(SETTINGS).forEach((s) => {
       savedSettings[s] = Storage.getItem(`${CHANGED_SETTINGS}_${s}`);
     });
 
@@ -79,10 +66,12 @@ class Settings {
   }
 
   save(mutation, settings = CHANGED_SETTINGS) {
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+
     const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
-        const values = this[k].value;
+        const values = this[k].reactiveVar && this[k].reactiveVar();
         const defaultValues = this.defaultSettings[k];
 
         if (!values) return;
@@ -104,7 +93,7 @@ class Settings {
 
     const userSettings = {};
 
-    SETTINGS.forEach((e) => {
+    Object.values(SETTINGS).forEach((e) => {
       userSettings[e] = this[e];
     });
 
@@ -114,5 +103,12 @@ class Settings {
   }
 }
 
-const SettingsSingleton = new Settings(window.meetingClientSettings.public.app.defaultSettings);
-export default SettingsSingleton;
+let SettingsSingleton = null;
+export const getSettingsSingletonInstance = () => {
+  if (!SettingsSingleton) {
+    SettingsSingleton = new Settings(window.meetingClientSettings.public.app.defaultSettings);
+  }
+  return SettingsSingleton;
+};
+
+export default getSettingsSingletonInstance;

@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -18,8 +17,8 @@ import (
 var authHookUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_AUTH_HOOK_URL")
 
 // BBBWebClient handles the web requests for authentication and returns a map of response headers.
-func BBBWebClient(browserConnection *common.BrowserConnection, cookies []*http.Cookie) (map[string]string, error) {
-	logger := log.WithField("_routine", "BBBWebClient").WithField("browserConnectionId", browserConnection.Id)
+func BBBWebClient(browserConnectionId string, sessionToken string, cookies []*http.Cookie) (map[string]string, error) {
+	logger := log.WithField("_routine", "BBBWebClient").WithField("browserConnectionId", browserConnectionId)
 	logger.Debug("Starting BBBWebClient")
 	defer logger.Debug("Finished BBBWebClient")
 
@@ -47,12 +46,12 @@ func BBBWebClient(browserConnection *common.BrowserConnection, cookies []*http.C
 	}
 
 	// Wait for SessionToken to be provided.
-	for browserConnection.SessionToken == "" {
+	for sessionToken == "" {
 		time.Sleep(150 * time.Millisecond)
 	}
 
 	// Execute the HTTP request to obtain user session variables (like X-Hasura-Role)
-	req.Header.Set("x-session-token", browserConnection.SessionToken)
+	req.Header.Set("x-session-token", sessionToken)
 	req.Header.Set("User-Agent", "hasura-graphql-engine")
 	resp, err := client.Do(req)
 	if err != nil {

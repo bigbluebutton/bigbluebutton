@@ -4,13 +4,10 @@ import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { Caption } from './live/queries';
 
-const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
-const LANGUAGES = CONFIG.language.available;
-const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
-const CHARACTERS_PER_LINE = CAPTIONS_CONFIG.lineLimit;
-const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
-
 export const splitTranscript = (obj: Caption) => {
+  const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
+  const CHARACTERS_PER_LINE = CAPTIONS_CONFIG.lineLimit;
+  const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
   const transcripts = [];
   const words = obj.captionText.split(' ');
 
@@ -43,13 +40,15 @@ export const splitTranscript = (obj: Caption) => {
 export const isAudioTranscriptionEnabled = () => isLiveTranscriptionEnabled();
 
 const getSpeechProvider = () => {
-  return getFromUserSettings('bbb_transcription_provider', CONFIG.provider);
+  const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
+  return getFromUserSettings('bbb_transcription_provider', PROVIDER);
 };
 
 export const isWebSpeechApi = () => getSpeechProvider() === 'webspeech';
 export const isGladia = () => getSpeechProvider() === 'gladia';
 
 export const getSpeechVoices = () => {
+  const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
   if (!isWebSpeechApi()) return LANGUAGES;
 
   return unique(
@@ -71,7 +70,10 @@ export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, 
   setUserSpeechLocale(value, getSpeechProvider());
 };
 
-export const useFixedLocale = () => isAudioTranscriptionEnabled() && CONFIG.language.forceLocale;
+export const useFixedLocale = () => {
+  const FORCE_LOCALE = window.meetingClientSettings.public.app.audioCaptions.language.forceLocale;
+  return isAudioTranscriptionEnabled() && FORCE_LOCALE;
+};
 
 export default {
   getSpeechVoices,

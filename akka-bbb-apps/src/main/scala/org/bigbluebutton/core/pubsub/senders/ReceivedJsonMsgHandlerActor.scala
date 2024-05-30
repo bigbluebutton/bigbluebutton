@@ -110,8 +110,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
       case ChangeUserPinStateReqMsg.NAME =>
         routeGenericMsg[ChangeUserPinStateReqMsg](envelope, jsonNode)
-      case ChangeUserMobileFlagReqMsg.NAME =>
-        routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
       case UserConnectionAliveReqMsg.NAME =>
         routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>

@@ -1,7 +1,6 @@
 import Screenshare from '/imports/api/screenshare';
 import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
-import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import AudioService from '/imports/ui/components/audio/service';
@@ -9,7 +8,6 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
 
-const VOLUME_CONTROL_ENABLED = window.meetingClientSettings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
 const DEFAULT_SCREENSHARE_STATS_TYPES = [
@@ -171,7 +169,6 @@ const isCameraAsContentBroadcasting = () => {
   return sharing || cameraAsContentIsShared;
 };
 
-
 const screenshareHasAudio = () => {
   const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID },
     { fields: { 'screenshare.hasAudio': 1 } });
@@ -224,7 +221,11 @@ const setVolume = (volume) => {
 
 const getVolume = () => KurentoBridge.getVolume();
 
-const shouldEnableVolumeControl = () => VOLUME_CONTROL_ENABLED && screenshareHasAudio();
+const shouldEnableVolumeControl = () => {
+  const VOLUME_CONTROL_ENABLED = window.meetingClientSettings.public.kurento.screenshare.enableVolumeControl;
+
+  return VOLUME_CONTROL_ENABLED && screenshareHasAudio();
+}
 
 const attachLocalPreviewStream = (mediaElement) => {
   const {isTabletApp} = browserInfo;
@@ -337,8 +338,6 @@ const screenShareEndAlert = () => AudioService
     + window.meetingClientSettings.public.app.instanceId}`
     + '/resources/sounds/ScreenshareOff.mp3');
 
-const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
-
 /**
    * Get stats about all active screenshare peers.
    *
@@ -397,7 +396,6 @@ export {
   getBroadcastContentType,
   shareScreen,
   screenShareEndAlert,
-  dataSavingSetting,
   isSharing,
   setIsSharing,
   setSharingContentType,

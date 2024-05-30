@@ -14,8 +14,6 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import useHasUnreadNotes from '../notes/hooks/useHasUnreadNotes';
 import { useShortcut } from '../../core/hooks/useShortcut';
 
-const PUBLIC_CONFIG = window.meetingClientSettings.public;
-
 const NavBarContainer = ({ children, ...props }) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const unread = useHasUnreadNotes();
@@ -83,6 +81,8 @@ const NavBarContainer = ({ children, ...props }) => {
 };
 
 export default withTracker(() => {
+  const PUBLIC_CONFIG = window.meetingClientSettings.public;
+
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
 
   let meetingTitle, breakoutNum, breakoutName, meetingName;

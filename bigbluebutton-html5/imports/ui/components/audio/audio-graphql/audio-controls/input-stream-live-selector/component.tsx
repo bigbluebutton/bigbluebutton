@@ -7,7 +7,6 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import { defineMessages, useIntl } from 'react-intl';
-import Settings from '/imports/ui/services/settings';
 import {
   handleLeaveAudio, liveChangeInputDevice, liveChangeOutputDevice, notify, toggleMuteMicrophone,
 } from './service';
@@ -20,20 +19,9 @@ import MuteToggle from './buttons/muteToggle';
 import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
 
-// @ts-ignore - temporary, while meteor exists in the project
-const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
-// @ts-ignore - temporary, while meteor exists in the project
-const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
-
-// @ts-ignore - temporary while settings are still in .js
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { animations } = Settings.application;
-
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
 const DEFAULT_DEVICE = 'default';
-
-const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
 const intlMessages = defineMessages({
   changeAudioDevice: {
@@ -102,6 +90,12 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   const [inputDevices, setInputDevices] = React.useState<InputDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = React.useState<MediaDeviceInfo[]>([]);
   const { isMobile } = deviceInfo;
+
+  // @ts-ignore - temporary, while meteor exists in the project
+  const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
+  // @ts-ignore - temporary, while meteor exists in the project
+  const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
+  const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
   const updateDevices = (isAudioConnected: boolean) => {
     navigator.mediaDevices.enumerateDevices()

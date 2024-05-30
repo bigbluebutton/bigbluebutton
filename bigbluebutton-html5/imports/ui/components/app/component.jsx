@@ -36,7 +36,7 @@ import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineManager from '../plugins-engine/manager';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
@@ -51,13 +51,9 @@ import PresentationUploaderToastContainer from '/imports/ui/components/presentat
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
+import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
-const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -164,7 +160,6 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
-      setMobileUser,
       toggleVoice,
       transcriptionSettings,
       setSpeechOptions,
@@ -180,6 +175,12 @@ class App extends Component {
     });
 
     ReactModal.setAppElement('#app');
+
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+    const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
+    const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    const Settings = getSettingsSingletonInstance();
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
@@ -219,15 +220,15 @@ class App extends Component {
       };
     }
 
-    if (deviceInfo.isMobile) setMobileUser(true);
-
     if (transcriptionSettings) {
       const { partialUtterances, minUtteranceLength } = transcriptionSettings;
+      const setLocalSettings = useUserChangedLocalSettings();
       if (partialUtterances !== undefined || minUtteranceLength !== undefined) {
         logger.info({ logCode: 'app_component_set_speech_options' }, 'Setting initial speech options');
 
         Settings.transcription.partialUtterances = !!partialUtterances;
         Settings.transcription.minUtteranceLength = parseInt(minUtteranceLength, 10);
+        Settings.save(setLocalSettings);
 
         setSpeechOptions(
           Settings.transcription.partialUtterances,
@@ -298,6 +299,9 @@ class App extends Component {
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
 
+    const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+
     if (
       selectedLayout !== prevProps.selectedLayout
       && selectedLayout?.toLowerCase?.()?.includes?.('focus')
@@ -313,7 +317,7 @@ class App extends Component {
         });
         layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: DEFAULT_VALUES.idChatOpen,
+          value: PUBLIC_CHAT_ID,
         });
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
@@ -413,6 +417,8 @@ class App extends Component {
       presentationIsOpen,
       selectedLayout,
     } = this.props;
+
+    const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
     const { showPushLayoutButton } = LAYOUT_CONFIG;
 
@@ -537,7 +543,7 @@ class App extends Component {
     this.setState({isVideoPreviewModalOpen: value});
   }
 
-setRandomUserSelectModalIsOpen(value) {
+  setRandomUserSelectModalIsOpen(value) {
     const {setMountRandomUserModal} = this.props;
     this.setState({isRandomUserSelectModalOpen: value});
     setMountRandomUserModal(false);

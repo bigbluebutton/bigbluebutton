@@ -2,9 +2,10 @@ import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Styled from './styles';
 import listItemStyles from '../styles';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const SkeletonUserListItem: React.FC = () => {
+  const Settings = getSettingsSingletonInstance();
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary while settings are still in .js
   const { isRTL } = Settings.application;
