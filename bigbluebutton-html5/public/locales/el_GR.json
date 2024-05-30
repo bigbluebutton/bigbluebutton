@@ -1040,7 +1040,7 @@
     "app.recording.notify.continue": "Συνέχεια",
     "app.recording.notify.leave": "Αποχώρηση από τη συνεδρία",
     "app.recording.notify.continueLabel": "Αποδοχή καταγραφής και συνέχεια",
-    "app.recording.notify.leaveLabel": "Μη αποδοχή καταγραφής και αποχώρηση από τη διάσκεψη",
+    "app.recording.notify.leaveLabel": "Μη αποδοχή καταγραφής και αποχώρηση από την τηλεδιάσκεψη",
     "app.videoPreview.cameraLabel": "Κάμερα",
     "app.videoPreview.profileLabel": "Ποιότητα",
     "app.videoPreview.quality.low": "Χαμηλό",
