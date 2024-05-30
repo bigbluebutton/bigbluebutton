@@ -992,7 +992,7 @@
     "app.lock-viewers.button.cancel": "Ακύρωση",
     "app.lock-viewers.locked": "Κλειδωμένο",
     "app.lock-viewers.hideViewersCursor": "Προβολή κέρσορα άλλων χρηστών",
-    "app.lock-viewers.hideAnnotationsLabel": "Δείτε τα σχόλια των θεατών",
+    "app.lock-viewers.hideAnnotationsLabel": "Δείτε τα σχόλια χρηστών",
     "app.guest-policy.ariaTitle": "Τυπικές ρυθμίσεις πολιτικής για επισκέπτη",
     "app.guest-policy.title": "Πολιτική επισκεπτών",
     "app.guest-policy.description": "Αλλαγή ρυθμίσεων της πολιτικής τηλεδιάσκεψης για επισκέπτες",
