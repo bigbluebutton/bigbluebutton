@@ -224,7 +224,6 @@ class Join extends Create {
     await this.modPage.waitAndClick('i[type="info"]');
     await this.modPage.waitAndClick(e.currentPresentationToast);
 
-    await this.modPage.page.evaluate(() => document.fonts.ready);
     const wbBox = await this.modPage.getLocator(e.whiteboard);
     await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
       maxDiffPixels: 1500,
