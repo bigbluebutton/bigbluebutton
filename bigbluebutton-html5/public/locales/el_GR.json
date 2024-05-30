@@ -492,7 +492,7 @@
     "app.about.confirmLabel": "OK",
     "app.about.confirmDesc": "OK",
     "app.about.dismissLabel": "Ακύρωση",
-    "app.about.dismissDesc": "Κλείσιμο των πληροφοριών πελάτη",
+    "app.about.dismissDesc": "Κλείσιμο των πληροφοριών εφαρμογής πελάτη",
     "app.mobileAppModal.title": "Άνοιγμα εφαρμογής Tablet του BigBlueButton",
     "app.mobileAppModal.description": "Έχετε την εφαρμογή BigBlueButton Tablet εγκατεστημένη στη συσκευή σας;",
     "app.mobileAppModal.openApp": "Ναι, άνοιγμα της εφαρμογής τώρα",
