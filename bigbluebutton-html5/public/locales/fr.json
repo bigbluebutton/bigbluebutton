@@ -314,7 +314,7 @@
     "app.presentationUploder.dismissDesc": "Ferme la fenêtre de dialogue et supprime vos modifications",
     "app.presentationUploder.dropzoneLabel": "Faites glisser les fichiers ici pour les téléverser",
     "app.presentationUploder.dropzoneImagesLabel": "Faites glisser les images ici pour les téléverser",
-    "app.presentationUploder.browseFilesLabel": "ou parcourrez vos fichiers",
+    "app.presentationUploder.browseFilesLabel": "ou parcourez vos fichiers",
     "app.presentationUploder.browseImagesLabel": "ou recherchez/capturez des images",
     "app.presentationUploder.externalUploadTitle": "Ajouter du contenu depuis une application tierce",
     "app.presentationUploder.externalUploadLabel": "Parcourir les fichiers",
