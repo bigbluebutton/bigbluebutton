@@ -296,7 +296,7 @@
     "app.presentationUploader.sent": "Envoyé",
     "app.presentationUploader.exportingTimeout": "L'export dure trop longtemps...",
     "app.presentationUploader.export": "Envoi dans la discussion",
-    "app.presentationUploader.exportCurrentStatePresentation": "Envoyer un lien de téléchargement pour la présentation qui inclut les annotation du tableau blanc",
+    "app.presentationUploader.exportCurrentStatePresentation": "Envoyer un lien de téléchargement pour la présentation qui inclut les annotations du tableau blanc",
     "app.presentationUploader.enableOriginalPresentationDownload": "Autoriser le téléchargement de la présentation ({0})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Désactiver le téléchargement de la présentation de départ ({0})",
     "app.presentationUploader.dropdownExportOptions": "Exporter les options",
