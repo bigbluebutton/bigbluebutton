@@ -1245,7 +1245,7 @@
     "app.createBreakoutRoom.setTimeCancel": "Cancelar",
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "A duración das salas parciais non pode exceder o tempo restante da xuntanza.",
     "app.createBreakoutRoom.roomNameInputDesc": "Actualiza o nome da sala parcial",
-    "app.createBreakoutRoom.movedUserLabel": "{0} foi movido cara a sala {1}",
+    "app.createBreakoutRoom.movedUserLabel": "{0} foi movido cara á sala {1}",
     "app.updateBreakoutRoom.modalDesc": "Para actualizar ou convidar un usuario, só ten que arrastrar o seu nome cara á sala desexada.",
     "app.updateBreakoutRoom.cancelLabel": "Cancelar",
     "app.updateBreakoutRoom.title": "Actualizar as salas parciais",
