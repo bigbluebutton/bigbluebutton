@@ -438,7 +438,7 @@
     "app.muteWarning.disableMessage": "Alertas de silenciamento desactivadas ata que se active o son",
     "app.muteWarning.tooltip": "Prema para pechar e desactivar a advertencia ata a próxima vez que se desactive o silenciamento",
     "app.navBar.leaveMeetingBtnLabel": "Deixar",
-    "app.navBar.leaveMeetingBtnDesc": "Seleccione para abandonar ou rematar a xuntanza",
+    "app.navBar.leaveMeetingBtnDesc": "Seleccione para deixar ou rematar a xuntanza",
     "app.navBar.settingsDropdown.optionsLabel": "Opcións",
     "app.navBar.settingsDropdown.fullscreenLabel": "Aplicación de pantalla completa",
     "app.navBar.settingsDropdown.settingsLabel": "Axustes",
