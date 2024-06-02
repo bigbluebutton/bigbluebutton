@@ -48,6 +48,7 @@ export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
   allowModsToUnmuteUsers: boolean;
   authenticatedGuest: boolean;
+  allowPromoteGuestToModerator: boolean;
   guestPolicy: string;
   maxUserConcurrentAccesses: number;
   maxUsers: number;
