@@ -42,10 +42,11 @@ class SharedNotes extends MultiUsers {
     const editedMessage = '!Hello';
     await expect(notesLocator).toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
 
-    const wbBox = await this.modPage.getLocator(e.etherpadFrame);
-    await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
-      maxDiffPixels: 100,
-    });
+    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
+    // const wbBox = await this.modPage.getLocator(e.etherpadFrame);
+    // await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
+    //   maxDiffPixels: 100,
+    // });
 
     await notesLocator.press('Control+Z');
     await notesLocator.press('Control+Z');

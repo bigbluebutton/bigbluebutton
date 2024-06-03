@@ -224,10 +224,11 @@ class Join extends Create {
     await this.modPage.waitAndClick('i[type="info"]');
     await this.modPage.waitAndClick(e.currentPresentationToast);
 
-    const wbBox = await this.modPage.getLocator(e.whiteboard);
-    await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
-      maxDiffPixels: 1500,
-    });
+    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
+    // const wbBox = await this.modPage.getLocator(e.whiteboard);
+    // await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
+    //   maxDiffPixels: 1500,
+    // });
   }
 
   async userCanChooseRoom() {
