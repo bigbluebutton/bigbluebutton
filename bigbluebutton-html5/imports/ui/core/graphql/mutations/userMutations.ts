@@ -18,14 +18,6 @@ export const SET_RAISE_HAND = gql`
   }
 `;
 
-export const SET_MOBILE_FLAG = gql`
-  mutation SetMobileFlag($mobile: Boolean!) {
-    userSetMobileFlag(
-      mobile: $mobile,
-    )
-  }
-`;
-
 export const EJECT_FROM_MEETING = gql`
   mutation EjectFromMeeting($userId: String!, $banUser: Boolean!) {
     userEjectFromMeeting(
@@ -124,7 +116,6 @@ export const USER_LEAVE_MEETING = gql`
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
-  SET_MOBILE_FLAG,
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
   SET_PRESENTER,

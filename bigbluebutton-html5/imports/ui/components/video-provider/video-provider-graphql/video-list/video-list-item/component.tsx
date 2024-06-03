@@ -11,7 +11,7 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import Styled from './styles';
 import withDragAndDrop from './drag-and-drop/component';
@@ -41,7 +41,7 @@ interface VideoListItemProps {
   onVideoItemMount: (ref: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   settingsSelfViewDisable: boolean;
-  stream: VideoItem | undefined;
+  stream: VideoItem;
   user: Partial<StreamUser>;
   makeDragOperations: (userId?: string) => {
     onDragOver: (e: DragEvent) => void,
@@ -85,7 +85,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const videoContainer = useRef<HTMLDivElement | null>(null);
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
-  // @ts-expect-error -> Untyped object.
+  const Settings = getSettingsSingletonInstance();
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
 
@@ -154,7 +154,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const renderSqueezedButton = () => (
     <UserActions
       name={name}
-      user={user}
       stream={stream}
       videoContainer={videoContainer}
       isVideoSqueezed={isVideoSqueezed}
@@ -178,7 +177,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       animations={animations}
     >
       <UserAvatarVideo
-        user={{ ...user, ...stream }}
+        user={user}
+        stream={stream}
         voiceUser={voiceUser}
         unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed={false}
@@ -186,7 +186,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       <Styled.BottomBar>
         <UserActions
           name={name}
-          user={user}
           stream={stream}
           cameraId={cameraId}
           numOfStreams={numOfStreams}
@@ -202,7 +201,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         />
         <UserStatus
           voiceUser={voiceUser}
-          user={{ ...user, ...stream }}
+          user={user}
+          stream={stream}
         />
       </Styled.BottomBar>
     </Styled.WebcamConnecting>
@@ -215,6 +215,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     >
       <UserAvatarVideo
         user={user}
+        stream={stream}
         unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed
       />
@@ -226,7 +227,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     <>
       <Styled.TopBar>
         <PinArea
-          user={user}
           stream={stream}
           amIModerator={amIModerator}
         />
@@ -242,7 +242,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       <Styled.BottomBar>
         <UserActions
           name={name}
-          user={user}
           stream={stream}
           cameraId={cameraId}
           numOfStreams={numOfStreams}
@@ -258,7 +257,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         />
         <UserStatus
           voiceUser={voiceUser}
-          user={{ ...user, ...stream }}
+          user={user}
+          stream={stream}
         />
       </Styled.BottomBar>
     </>

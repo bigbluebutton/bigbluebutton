@@ -24,9 +24,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const PUBLIC_CONFIG = window.meetingClientSettings.public;
-const ENABLE_WEBCAM_BACKGROUND_UPLOAD = PUBLIC_CONFIG.virtualBackgrounds.enableVirtualBackgroundUpload;
-
 interface DragAndDropProps {
   readFile: (
     file: File,
@@ -134,6 +131,9 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
   };
 
   const makeDragOperations = useCallback((userId: string) => {
+    const PUBLIC_CONFIG = window.meetingClientSettings.public;
+    const ENABLE_WEBCAM_BACKGROUND_UPLOAD = PUBLIC_CONFIG.virtualBackgrounds.enableVirtualBackgroundUpload;
+
     if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD || !isStream) return {};
 
     const startAndSaveVirtualBackground = (file: File) => handleStartAndSaveVirtualBackground(file);

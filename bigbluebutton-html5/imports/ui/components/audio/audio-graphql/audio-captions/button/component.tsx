@@ -17,9 +17,6 @@ import { SET_CAPTION_LOCALE } from '/imports/ui/core/graphql/mutations/userMutat
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
 
-const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
-const PROVIDER = CONFIG.provider;
-
 const intlMessages = defineMessages({
   start: {
     id: 'app.audio.captions.button.start',
@@ -105,6 +102,8 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   isSupported,
 }) => {
   const knownLocales = window.meetingClientSettings.public.captions.locales;
+  const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
+
   const intl = useIntl();
   const [active] = useAudioCaptionEnable();
   const [setCaptionLocaleMutation] = useMutation(SET_CAPTION_LOCALE);

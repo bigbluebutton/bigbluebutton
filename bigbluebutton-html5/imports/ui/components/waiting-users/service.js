@@ -12,11 +12,6 @@ const getGuestPolicy = () => {
 
 const isWaitingRoomEnabled = () => getGuestPolicy() === 'ASK_MODERATOR';
 
-const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
-
-// We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
-const allowRememberChoice = window.meetingClientSettings.public.app.dynamicGuestPolicy;
-
 const getGuestLobbyMessage = () => {
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
@@ -41,7 +36,5 @@ export default {
   privateMessageVisible,
   getGuestPolicy,
   isWaitingRoomEnabled,
-  isGuestLobbyMessageEnabled,
   getGuestLobbyMessage,
-  allowRememberChoice,
 };

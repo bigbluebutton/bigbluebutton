@@ -46,10 +46,10 @@ object Users2x {
     for {
       u <- findWithIntId(users, intId)
     } yield {
-      val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
+      val newUser = u.copy(userLeftFlag = UserLeftFlag(left = false, 0))
       users.save(newUser)
       UserStateDAO.update(newUser)
-      UserStateDAO.updateExpired(u.meetingId, u.intId, false)
+      UserStateDAO.updateExpired(u.meetingId, u.intId, expired = false)
       newUser
     }
   }
@@ -121,6 +121,13 @@ object Users2x {
     val newUserState = modify(u)(_.mobile).setTo(true)
     users.save(newUserState)
     UserStateDAO.update((newUserState))
+    newUserState
+  }
+
+  def setClientType(users: Users2x, u: UserState, clientType: String): UserState = {
+    val newUserState = modify(u)(_.clientType).setTo(clientType)
+    users.save(newUserState)
+    UserStateDAO.update(newUserState)
     newUserState
   }
 

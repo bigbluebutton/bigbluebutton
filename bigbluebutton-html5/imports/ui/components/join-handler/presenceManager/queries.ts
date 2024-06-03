@@ -70,10 +70,11 @@ subscription getUserCurrent {
   }
 `;
 export const userJoinMutation = gql`
-mutation UserJoin($authToken: String!, $clientType: String!) {
+mutation UserJoin($authToken: String!, $clientType: String!, $clientIsMobile: Boolean!) {
   userJoinMeeting(
     authToken: $authToken,
     clientType: $clientType,
+    clientIsMobile: $clientIsMobile,
   )
 }
 `;

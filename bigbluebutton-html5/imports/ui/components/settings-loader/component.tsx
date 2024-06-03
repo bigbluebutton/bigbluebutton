@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
 import MeetingClientSettings from '../../Types/meetingClientSettings';
-import ClientStartup from '/client/clientStartup';
+import MeetingClient from '/client/meetingClient';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import CustomUsersSettings from '../join-handler/custom-users-settings/component';
 import logger from '/imports/startup/client/logger';
@@ -51,7 +51,7 @@ const SettingsLoader: React.FC = () => {
     (allowToRender)
       ? (
         <CustomUsersSettings>
-          <ClientStartup />
+          <MeetingClient />
         </CustomUsersSettings>
       )
       : null

@@ -24,7 +24,7 @@ import {
   isValidShapeType,
 } from "./utils";
 import { useMouseEvents, useCursor } from "./hooks";
-import { notifyShapeNumberExceeded, customEditorAssetUrls, customAssetUrls } from "./service";
+import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from "./service";
 
 import NoopTool from './custom-tools/noop-tool/component';
 
@@ -56,10 +56,6 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
       currentPresentationPage?.scaledHeight
   );
 };
-
-setDefaultEditorAssetUrls(customEditorAssetUrls);
-
-setDefaultUiAssetUrls(customAssetUrls);
 
 const Whiteboard = React.memo(function Whiteboard(props) {
   const {
@@ -115,6 +111,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const [isMounting, setIsMounting] = React.useState(true);
   const [initialZoomSet, setInitialZoomSet] = React.useState(false);
   const [initialViewBoxWidth, setInitialViewBoxWidth] = React.useState(null);
+
+  if (isMounting) {
+    setDefaultEditorAssetUrls(getCustomEditorAssetUrls());
+    setDefaultUiAssetUrls(getCustomAssetUrls());
+  }
 
   const whiteboardRef = React.useRef(null);
   const zoomValueRef = React.useRef(null);
@@ -177,7 +178,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     hasWBAccessRef.current = hasWBAccess;
 
     if (!hasWBAccess && !isPresenter) {
-      tlEditorRef?.current?.setCurrentTool("noop");
+      tlEditorRef?.current?.setCurrentTool('noop');
+    } else if (hasWBAccess && !isPresenter) {
+      tlEditorRef?.current?.setCurrentTool('draw');
     }
   }, [hasWBAccess]);
 
@@ -185,7 +188,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       isPresenterRef.current = isPresenter;
 
       if (!hasWBAccessRef.current && !isPresenter) {
-        tlEditorRef?.current?.setCurrentTool("noop");
+        tlEditorRef?.current?.setCurrentTool('noop');
       }
   }, [isPresenter]);
 
@@ -477,6 +480,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
         return next;
       };
+
+      if (!isPresenterRef.current && !hasWBAccessRef.current) {
+        editor.setCurrentTool('noop');
+      }
     }
 
     isMountedRef.current = true;

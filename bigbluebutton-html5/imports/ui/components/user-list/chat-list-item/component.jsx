@@ -9,8 +9,6 @@ import { ACTIONS, PANELS } from '../../layout/enums';
 import Icon from '/imports/ui/components/common/icon/component';
 
 const DEBOUNCE_TIME = 1000;
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 let globalAppplyStateToProps = () => {};
 
@@ -68,6 +66,9 @@ const ChatListItem = (props) => {
     sidebarContentPanel,
     layoutContextDispatch,
   } = props;
+
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 

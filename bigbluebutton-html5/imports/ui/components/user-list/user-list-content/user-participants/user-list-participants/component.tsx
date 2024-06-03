@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
-import { AutoSizer } from 'react-virtualized';
+import { AutoSizer, CellMeasurer, CellMeasurerCache } from 'react-virtualized';
 import { debounce } from 'radash';
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { findDOMNode } from 'react-dom';
@@ -26,6 +26,7 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import Service from '/imports/ui/components/user-list/service';
 import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useDeepComparison from '/imports/ui/hooks/useDeepComparison';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -37,6 +38,7 @@ interface UserListParticipantsProps {
   count: number;
   pageId: string;
 }
+
 interface RowRendererProps extends ListProps {
   users: Array<User>;
   validCurrentUser: Partial<User>;
@@ -46,32 +48,61 @@ interface RowRendererProps extends ListProps {
   openUserAction: string | null;
   setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
 }
+
+const cache = new CellMeasurerCache({
+  defaultWidth: 0,
+  defaultHeight: 50,
+  minWidth: 0,
+  minHeight: 50,
+  fixedHeight: false,
+  fixedWidth: false,
+});
+
 const rowRenderer: React.FC<RowRendererProps> = ({
-  index, key, style, users, validCurrentUser, offset, meeting, isRTL, pageId, openUserAction, setOpenUserAction,
+  index,
+  key,
+  style,
+  users,
+  validCurrentUser,
+  offset,
+  meeting,
+  isRTL,
+  pageId,
+  openUserAction,
+  setOpenUserAction,
+  parent,
 }) => {
   const userIndex = index - offset;
   const user = users && users[userIndex];
   const direction = isRTL ? 'rtl' : 'ltr';
 
   return (
-    <div key={key} style={{ ...style, direction }}>
-      {user && validCurrentUser && meeting ? (
-        <UserActions
-          user={user}
-          currentUser={validCurrentUser as User}
-          lockSettings={meeting.lockSettings}
-          usersPolicies={meeting.usersPolicies}
-          isBreakout={meeting.isBreakout}
-          pageId={pageId}
-          open={user.userId === openUserAction}
-          setOpenUserAction={setOpenUserAction}
-        >
-          <ListItem user={user} lockSettings={meeting.lockSettings} />
-        </UserActions>
-      ) : (
-        <Skeleton />
-      )}
-    </div>
+    user && validCurrentUser && meeting ? (
+      <CellMeasurer
+        columnIndex={0}
+        rowIndex={index}
+        parent={parent}
+        cache={cache}
+        key={key}
+      >
+        <Styled.UserListItem style={{ ...style, direction }}>
+          <UserActions
+            user={user}
+            currentUser={validCurrentUser as User}
+            lockSettings={meeting.lockSettings}
+            usersPolicies={meeting.usersPolicies}
+            isBreakout={meeting.isBreakout}
+            pageId={pageId}
+            open={user.userId === openUserAction}
+            setOpenUserAction={setOpenUserAction}
+          >
+            <ListItem user={user} lockSettings={meeting.lockSettings} />
+          </UserActions>
+        </Styled.UserListItem>
+      </CellMeasurer>
+    ) : (
+      <Skeleton key={key} />
+    )
   );
 };
 
@@ -96,6 +127,11 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const { roving } = Service;
 
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const fontSize = layoutSelect((i: Layout) => i.fontSize);
+  const fontSizeDidChange = useDeepComparison(fontSize);
+  if (fontSizeDidChange) {
+    cache.clearAll();
+  }
 
   React.useEffect(() => {
     const firstChild = (selectedUser as HTMLElement)?.firstChild;
@@ -178,7 +214,8 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
               setLimit(limit < 50 ? 50 : limit);
             })}
             overscanRowCount={10}
-            rowHeight={50}
+            rowHeight={cache.rowHeight}
+            deferredMeasurementCache={cache}
           />
         )}
       </AutoSizer>

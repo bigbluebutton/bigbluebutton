@@ -669,7 +669,7 @@ LEFT JOIN "user_voice" user_talking ON (
 
 
 CREATE TABLE "user_camera" (
-	"streamId" varchar(100) PRIMARY KEY,
+	"streamId" varchar(150) PRIMARY KEY,
 	"meetingId" varchar(100),
     "userId" varchar(50),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
@@ -811,6 +811,9 @@ CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connecti
 CREATE TABLE "user_graphqlConnection" (
 	"graphqlConnectionId" serial PRIMARY KEY,
 	"sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
+	"clientType" varchar(50),
+	"clientIsMobile" bool,
 	"middlewareUID" varchar(36),
 	"middlewareConnectionId" varchar(12),
 	"establishedAt" timestamp with time zone,
