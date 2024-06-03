@@ -1,5 +1,4 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import { useMutation } from '@apollo/client';
 import RecordingComponent from './component';
 import { SET_RECORDING_STATUS } from './mutations';
@@ -25,19 +24,17 @@ const RecordingContainer = (props) => {
     setIsOpen(false);
   };
   return (
-    <RecordingComponent {
-      ...{
+    <RecordingComponent
+      {...{
         recordingStatus: recording,
         recordingTime: time,
         toggleRecording,
         ...props,
-      }
-    }
+      }}
+      // TODO: Remove this
+      isMeteorConnected
     />
   );
 };
 
-export default withTracker(({ setIsOpen }) => ({
-    isMeteorConnected: Meteor.status().connected,
-    setIsOpen,
-  }))(RecordingContainer);
+export default RecordingContainer;

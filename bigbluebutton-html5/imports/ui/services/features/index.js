@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
+import useMeeting from '../../core/hooks/useMeeting';
 
 export function getDisabledFeatures() {
   const selector = {
@@ -12,8 +13,20 @@ export function getDisabledFeatures() {
   return disabledFeatures;
 }
 
+export function useDisabledFeatures() {
+  const { data: meetingData } = useMeeting((m) => ({
+    disabledFeatures: m.disabledFeatures,
+  }));
+  const disabledFeatures = meetingData?.disabledFeatures || [];
+  return disabledFeatures;
+}
+
 export function isScreenSharingEnabled() {
   return getDisabledFeatures().indexOf('screenshare') === -1 && window.meetingClientSettings.public.kurento.enableScreensharing;
+}
+
+export function useIsScreenSharingEnabled() {
+  return useDisabledFeatures().indexOf('screenshare') === -1 && window.meetingClientSettings.public.kurento.enableScreensharing;
 }
 
 export function isLearningDashboardEnabled() {
@@ -22,6 +35,10 @@ export function isLearningDashboardEnabled() {
 
 export function isPollingEnabled() {
   return getDisabledFeatures().indexOf('polls') === -1 && window.meetingClientSettings.public.poll.enabled;
+}
+
+export function useIsPollingEnabled() {
+  return useDisabledFeatures().indexOf('polls') === -1 && window.meetingClientSettings.public.poll.enabled;
 }
 
 export function isExternalVideoEnabled() {
@@ -93,6 +110,13 @@ export function isReactionsEnabled() {
   const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
 
   return getDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+}
+
+export function useIsReactionsEnabled() {
+  const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
+  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
+
+  return useDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
 }
 
 export function isTimerFeatureEnabled() {

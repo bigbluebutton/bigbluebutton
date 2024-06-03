@@ -2,10 +2,6 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = window.meetingClientSettings.public.app;
-
 interface ChatMessagePresentationContentProps {
   metadata: string;
 }
@@ -43,6 +39,10 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   const intl = useIntl();
   const presentationData = JSON.parse(string) as unknown;
   assertAsMetadata(presentationData);
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - temporary, while meteor exists in the project
+  const APP_CONFIG = window.meetingClientSettings.public.app;
 
   const downloadUrl = `${APP_CONFIG.bbbWebBase}/${presentationData.fileURI}`;
   const parseFilename = (filename = '') => {

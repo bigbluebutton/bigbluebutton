@@ -34,15 +34,6 @@ import {
 } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
-// @ts-ignore - temporary, while meteor exists in the project
-const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
-// @ts-ignore - temporary, while meteor exists in the project
-const { guestPolicyExtraAllowOptions } = window.meetingClientSettings.public.app;
-
-// We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
-// @ts-ignore - temporary, while meteor exists in the project
-const allowRememberChoice = window.meetingClientSettings.public.app.dynamicGuestPolicy;
-
 interface LayoutDispatchProps {
   type: string,
   value: boolean | string,
@@ -166,6 +157,15 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   guestLobbyEnabled,
   guestLobbyMessage,
 }) => {
+  // @ts-ignore - temporary, while meteor exists in the project
+  const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
+  // @ts-ignore - temporary, while meteor exists in the project
+  const { guestPolicyExtraAllowOptions } = window.meetingClientSettings.public.app;
+
+  // We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
+  // @ts-ignore - temporary, while meteor exists in the project
+  const allowRememberChoice = window.meetingClientSettings.public.app.dynamicGuestPolicy;
+
   const intl = useIntl();
   const { isChrome } = browserInfo;
   const [rememberChoice, setRememberChoice] = useState(false);
@@ -345,6 +345,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
                 &quot;
                 {
                   guestLobbyMessage && guestLobbyMessage !== ''
+                  // eslint-disable-next-line react/no-danger
                     ? <span dangerouslySetInnerHTML={{ __html: guestLobbyMessage }} />
                     : intl.formatMessage(intlMessages.emptyMessage)
                 }

@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { withTracker } from 'meteor/react-meteor-data';
 import { useMutation } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { isPollingEnabled } from '/imports/ui/services/features';
+import { useIsPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
@@ -83,6 +82,8 @@ const PresentationToolbarContainer = (props) => {
     });
   };
 
+  const isPollingEnabled = useIsPollingEnabled();
+
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
@@ -94,6 +95,9 @@ const PresentationToolbarContainer = (props) => {
         {...props}
         amIPresenter={userIsPresenter}
         endCurrentPoll={endCurrentPoll}
+        isPollingEnabled={isPollingEnabled}
+        // TODO: Remove this
+        isMeteorConnected
         {...{
           pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,
@@ -108,10 +112,7 @@ const PresentationToolbarContainer = (props) => {
   return null;
 };
 
-export default withTracker(() => ({
-  isMeteorConnected: Meteor.status().connected,
-  isPollingEnabled: isPollingEnabled(),
-}))(PresentationToolbarContainer);
+export default PresentationToolbarContainer;
 
 PresentationToolbarContainer.propTypes = {
   // Number of current slide being displayed

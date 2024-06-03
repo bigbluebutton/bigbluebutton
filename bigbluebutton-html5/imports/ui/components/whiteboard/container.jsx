@@ -8,7 +8,7 @@ import React, {
 import { useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
-} from '@tldraw/tldraw';
+} from '@bigbluebutton/tldraw';
 import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -46,13 +46,13 @@ import {
 import { useMergedCursorData } from './hooks.ts';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
-const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
-
 const WhiteboardContainer = (props) => {
   const {
     intl,
     zoomChanger,
   } = props;
+
+  const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
 
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState({});

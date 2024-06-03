@@ -4,7 +4,6 @@ import { useQuery } from '@apollo/client';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import NotesService from '/imports/ui/components/notes/service';
 import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { PROCESSED_PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
@@ -13,8 +12,6 @@ import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBOUNCE_TIMEOUT = 15000;
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-const NOTES_IS_PINNABLE = NOTES_CONFIG.pinnable;
 
 const intlMessages = defineMessages({
   convertAndUploadLabel: {
@@ -49,6 +46,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
+  const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
 
   const getAvailableActions = () => {
     const uploadIcon = 'upload';
@@ -134,9 +132,11 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
   const { data: presentationData } = useDeduplicatedSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
 
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
   const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
     GET_PAD_ID,
-    { variables: { externalId: NotesService.ID } },
+    { variables: { externalId: NOTES_CONFIG.id } },
   );
   const padId = padIdData?.sharedNotes?.[0]?.padId;
 

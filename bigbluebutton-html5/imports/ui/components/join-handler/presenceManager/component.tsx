@@ -13,6 +13,8 @@ import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import logger from '/imports/startup/client/logger';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const connectionTimeout = 60000;
 
@@ -111,6 +113,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         variables: {
           authToken,
           clientType: 'HTML5',
+          clientIsMobile: deviceInfo.isMobile,
         },
       });
     }
@@ -163,7 +166,8 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   if (loading || userInfoLoading) return null;
   if (error || userInfoError) {
     loadingContextInfo.setLoading(false, '');
-    throw new Error('Error on user authentication: ', error);
+    logger.debug(`Error on user authentication: ${error}`);
+    throw new Error('Error on user authentication');
   }
 
   if (!data || data.user_current.length === 0) return null;

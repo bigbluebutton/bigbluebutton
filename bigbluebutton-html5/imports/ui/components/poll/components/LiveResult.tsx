@@ -13,7 +13,7 @@ import {
   getCurrentPollDataResponse,
 } from '../queries';
 import logger from '/imports/startup/client/logger';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
@@ -69,9 +69,6 @@ interface LiveResultProps {
   isSecret: boolean;
 }
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
-
 const LiveResult: React.FC<LiveResultProps> = ({
   questionText,
   responses,
@@ -82,6 +79,9 @@ const LiveResult: React.FC<LiveResultProps> = ({
   users,
   isSecret,
 }) => {
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
+
   const intl = useIntl();
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
   const [stopPoll] = useMutation(POLL_CANCEL);
@@ -225,6 +225,7 @@ const LiveResultContainer: React.FC = () => {
   }
 
   if (!currentPollData.poll.length) return null;
+  const Settings = getSettingsSingletonInstance();
   // @ts-ignore - JS code
   const { animations } = Settings.application;
   const currentPoll = currentPollData.poll[0];

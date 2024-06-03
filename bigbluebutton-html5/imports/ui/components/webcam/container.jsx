@@ -13,7 +13,6 @@ import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-s
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
-const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import WebcamContainerGraphql from './webcam-graphql/component';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
@@ -86,6 +85,7 @@ withTracker(() => {
   };
 
   const { streams: usersVideo, gridUsers } = VideoService.getVideoStreams();
+  const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
   if (gridUsers.length > 0) {
     const items = usersVideo.concat(gridUsers);

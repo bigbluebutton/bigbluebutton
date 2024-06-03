@@ -24,8 +24,6 @@ import {
 } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
-const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
-
 const PresentationUploaderContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
@@ -90,6 +88,8 @@ export default withTracker(() => {
     dispatchEnableDownloadable,
   } = Service;
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
+
+  const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
   return {
     fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,

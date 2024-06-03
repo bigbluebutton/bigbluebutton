@@ -29,7 +29,6 @@ sudo chmod 777 /usr/share/meteor
 METEOR_DISABLE_OPTIMISTIC_CACHING=1 meteor build $UPPER_DESTINATION_DIR --architecture os.linux.x86_64 --allow-superuser --directory
 
 sudo chown -R root:root "$UPPER_DESTINATION_DIR"/
-echo 'stage3'
 
 cd "$DESTINATION_DIR"/programs/server/ || exit
 sudo chmod -R 777 .
@@ -51,6 +50,11 @@ sudo chmod +x "$DESTINATION_DIR"/workers-start.sh
 
 echo "writing $SERVICE_FILES_DIR/bbb-html5.service"
 sudo cp $LOCAL_PACKAGING_DIR/bbb-html5.service "$SERVICE_FILES_DIR"/bbb-html5.service
+
+# generate index.json locales file if it does not exist
+if [ ! -f /usr/share/meteor/bundle/programs/web.browser/app/locales/index.json ]; then
+  sudo sh -c 'find /usr/share/meteor/bundle/programs/web.browser/app/locales -maxdepth 1 -type f -name "*.json" -exec basename {} \; | awk '\''BEGIN{printf "["}{printf "\"%s\", ", $0}END{print "]"}'\'' | sed '\''s/, ]/]/'\'' > /usr/share/meteor/bundle/programs/web.browser/app/locales/index.json'
+fi
 
 sudo systemctl daemon-reload
 

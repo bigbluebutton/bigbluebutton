@@ -5,7 +5,7 @@ import VoiceUsers from '/imports/api/voice-users/';
 import Users from '/imports/api/users/';
 import VideoListItem from './component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const VideoListItemContainer = (props) => {
@@ -44,6 +44,8 @@ export default withTracker((props) => {
     users,
     stream,
   } = props;
+
+  const Settings = getSettingsSingletonInstance();
 
   return {
     settingsSelfViewDisable: Settings.application.selfViewDisable,

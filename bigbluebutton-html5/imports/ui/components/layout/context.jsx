@@ -42,16 +42,13 @@ const initPresentationAreaContentActions = [{
   },
 }];
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-
 const initState = {
   presentationAreaContentActions: initPresentationAreaContentActions,
   deviceType: null,
   isRTL: false,
   layoutType: DEFAULT_VALUES.layoutType,
   fontSize: DEFAULT_VALUES.fontSize,
-  idChatOpen: DEFAULT_VALUES.idChatOpen,
+  idChatOpen: '',
   fullscreen: {
     element: '',
     group: '',
@@ -1347,6 +1344,9 @@ const updatePresentationAreaContent = (
     currentPresentationAreaContentActions,
     previousPresentationAreaContentActions.current,
   )) {
+    const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+
     // eslint-disable-next-line no-param-reassign
     previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
     const lastIndex = currentPresentationAreaContentActions.length - 1;

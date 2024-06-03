@@ -15,9 +15,6 @@ import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
 
-const TIMER_CONFIG = window.meetingClientSettings.public.timer;
-const MILLI_IN_MINUTE = 60000;
-
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
@@ -52,6 +49,8 @@ const ActionsDropdownContainer = (props) => {
   };
 
   const activateTimer = () => {
+    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
+    const MILLI_IN_MINUTE = 60000;
     const stopwatch = true;
     const running = false;
     const time = TIMER_CONFIG.time * MILLI_IN_MINUTE;

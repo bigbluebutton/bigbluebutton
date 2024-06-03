@@ -10,8 +10,6 @@ import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
-const ALWAYS_SHOW_WAITING_ROOM = window.meetingClientSettings.public.app.alwaysShowWaitingRoomUI;
-
 interface GuestPanelOpenerProps {
   count: number;
 }
@@ -110,6 +108,8 @@ const GuestPanelOpenerContainer: React.FC = () => {
   }
 
   if (guestsCountLoading || !currentMeeting) return null;
+
+  const ALWAYS_SHOW_WAITING_ROOM = window.meetingClientSettings.public.app.alwaysShowWaitingRoomUI;
 
   const showWaitingRoom = (ALWAYS_SHOW_WAITING_ROOM
         && currentMeeting?.usersPolicies?.guestPolicy === 'ASK_MODERATOR')

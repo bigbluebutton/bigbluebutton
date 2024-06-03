@@ -7,11 +7,6 @@ import { PANELS, ACTIONS } from '../../layout/enums';
 import { uniqueId, safeMatch } from '/imports/utils/string-utils';
 import PollService from '/imports/ui/components/poll/service';
 
-const POLL_SETTINGS = window.meetingClientSettings.public.poll;
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
-const CANCELED_POLL_DELAY = 250;
-
 const intlMessages = defineMessages({
   quickPollLabel: {
     id: 'app.poll.quickPollTitle',
@@ -62,6 +57,11 @@ const QuickPollDropdown = (props) => {
     layoutContextDispatch,
     pollTypes,
   } = props;
+
+  const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+  const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
+  const CANCELED_POLL_DELAY = 250;
 
   // Utility function to escape special characters for regex
   const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

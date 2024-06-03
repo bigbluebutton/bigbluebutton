@@ -68,8 +68,6 @@ class ReceivedJsonMsgHandlerActor(
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
-      case UserJoinMeetingAfterReconnectReqMsg.NAME =>
-        routeGenericMsg[UserJoinMeetingAfterReconnectReqMsg](envelope, jsonNode)
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
@@ -110,8 +108,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
       case ChangeUserPinStateReqMsg.NAME =>
         routeGenericMsg[ChangeUserPinStateReqMsg](envelope, jsonNode)
-      case ChangeUserMobileFlagReqMsg.NAME =>
-        routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
       case UserConnectionAliveReqMsg.NAME =>
         routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>

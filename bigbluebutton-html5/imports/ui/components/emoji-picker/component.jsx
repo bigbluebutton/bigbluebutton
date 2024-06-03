@@ -4,18 +4,12 @@ import { injectIntl } from 'react-intl';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
-const DISABLE_EMOJIS = window.meetingClientSettings.public.chat.disableEmojis;
-
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   onEmojiSelect: PropTypes.func.isRequired,
 };
-
-const emojisToExclude = [
-  ...DISABLE_EMOJIS,
-];
 
 const EmojiPicker = (props) => {
   const {
@@ -50,6 +44,12 @@ const EmojiPicker = (props) => {
       6: intl.formatMessage({ id: 'app.emojiPicker.skintones.6' }),
     },
   };
+
+  const DISABLE_EMOJIS = window.meetingClientSettings.public.chat.disableEmojis;
+
+  const emojisToExclude = [
+    ...DISABLE_EMOJIS,
+  ];
 
   return (
     <Picker
