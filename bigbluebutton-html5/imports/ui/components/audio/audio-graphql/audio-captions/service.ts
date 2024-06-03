@@ -31,11 +31,8 @@ export const setAudioCaptions = (value: boolean) => {
 
 // SpeechLocale or CaptionLocale
 export const setUserLocaleProperty = (value: string, setUserLocaleCallback: (a: string, b: string) => void) => {
-  setUserLocaleCallback(value, CONFIG.provider);
-
-export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
   const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
-  setUserSpeechLocale(value, PROVIDER);
+  setUserLocaleCallback(value, PROVIDER);
 };
 
 export const useFixedLocale = () => {
