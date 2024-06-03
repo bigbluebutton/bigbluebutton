@@ -236,7 +236,7 @@ const AppContainer = (props) => {
           toggleVoice,
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,
-          audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
+          audioCaptions: <AudioCaptionsLiveContainer />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
           audioAlertEnabled,
