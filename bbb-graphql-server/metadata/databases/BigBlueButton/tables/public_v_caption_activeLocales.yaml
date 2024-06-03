@@ -12,7 +12,7 @@ object_relationships:
       manual_configuration:
         column_mapping:
           meetingId: meetingId
-          ownerUserId: userId
+          createdBy: userId
         insertion_order: null
         remote_table:
           name: v_user_ref

@@ -24,7 +24,9 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
               captionText,
             } = caption;
             return (
-              <Styled.CaptionWrapper>
+              <Styled.CaptionWrapper
+                key={caption.captionId}
+              >
                 {!user ? null : (
                   <Styled.UserAvatarWrapper>
                     <Styled.UserAvatar
@@ -58,7 +60,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
-    speechLocale: u.speechLocale,
+    captionLocale: u.captionLocale,
   }));
 
   const {

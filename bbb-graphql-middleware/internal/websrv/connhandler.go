@@ -98,7 +98,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Configure the wait group (to hold this routine execution until both are completed)
 	var wgAll sync.WaitGroup
-	wgAll.Add(3)
+	wgAll.Add(2)
 
 	// Other wait group to close this connection once Browser Reader dies
 	var wgReader sync.WaitGroup

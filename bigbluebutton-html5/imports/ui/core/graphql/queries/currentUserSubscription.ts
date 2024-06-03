@@ -43,6 +43,7 @@ subscription userCurrentSubscription {
     registeredOn
     role
     speechLocale
+    captionLocale
     userId
     customParameters {
       parameter
