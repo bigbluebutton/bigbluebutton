@@ -10,10 +10,13 @@ function shouldShowWhiteboard() {
   return true;
 }
 
-function shouldShowScreenshare(viewScreenshare) {
+function shouldShowScreenshare(viewScreenshare, active, sharingContentType) {
   return (isScreenSharingEnabled() || isCameraAsContentEnabled())
     && (viewScreenshare || UserService.isUserPresenter())
-    && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
+    && (
+      isScreenBroadcasting(active, sharingContentType)
+      || isCameraAsContentBroadcasting(active, sharingContentType)
+    );
 }
 
 function shouldShowOverlay() {

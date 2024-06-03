@@ -1,3 +1,4 @@
+import { makeVar, useReactiveVar } from '@apollo/client';
 import Screenshare from '/imports/api/screenshare';
 import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
@@ -15,58 +16,38 @@ const DEFAULT_SCREENSHARE_STATS_TYPES = [
   'inbound-rtp',
 ];
 
-const CONTENT_TYPE_CAMERA = "camera";
-const CONTENT_TYPE_SCREENSHARE = "screenshare";
+const CONTENT_TYPE_CAMERA = 'camera';
+const CONTENT_TYPE_SCREENSHARE = 'screenshare';
 
-let _isSharingScreen = false;
-const _isSharingDep = {
-  value: false,
-  tracker: new Tracker.Dependency(),
-};
+const isSharingVar = makeVar(false);
+const sharingContentTypeVar = makeVar(false);
+const cameraAsContentDeviceIdTypeVar = makeVar('');
 
-const _sharingContentTypeDep = {
-  value: false,
-  tracker: new Tracker.Dependency(),
-};
+const useIsSharing = () => useReactiveVar(isSharingVar);
+const useSharingContentType = () => useReactiveVar(sharingContentTypeVar);
+const useCameraAsContentDeviceIdType = () => useReactiveVar(cameraAsContentDeviceIdTypeVar);
 
-const _cameraAsContentDeviceIdTypeDep = {
-  value: '',
-  tracker: new Tracker.Dependency(),
-};
+const isSharing = () => isSharingVar();
 
-const isSharing = () => {
-  _isSharingDep.tracker.depend();
-  return _isSharingDep.value;
-};
-
-const setIsSharing = (isSharing) => {
-  if (_isSharingDep.value !== isSharing) {
-    _isSharingDep.value = isSharing;
-    _isSharingDep.tracker.changed();
+const setIsSharing = (sharing) => {
+  if (isSharing() !== sharing) {
+    isSharingVar(sharing);
   }
 };
+
+const getSharingContentType = () => sharingContentTypeVar();
 
 const setSharingContentType = (contentType) => {
-  if (_sharingContentTypeDep.value !== contentType) {
-    _sharingContentTypeDep.value = contentType;
-    _sharingContentTypeDep.tracker.changed();
+  if (getSharingContentType() !== contentType) {
+    sharingContentTypeVar(contentType);
   }
-}
-
-const getSharingContentType = () => {
-  _sharingContentTypeDep.tracker.depend();
-  return _sharingContentTypeDep.value;
 };
 
-const getCameraAsContentDeviceId = () => {
-  _cameraAsContentDeviceIdTypeDep.tracker.depend();
-  return _cameraAsContentDeviceIdTypeDep.value;
-};
+const getCameraAsContentDeviceId = () => cameraAsContentDeviceIdTypeVar();
 
 const setCameraAsContentDeviceId = (deviceId) => {
-  if (_cameraAsContentDeviceIdTypeDep.value !== deviceId) {
-    _cameraAsContentDeviceIdTypeDep.value = deviceId;
-    _cameraAsContentDeviceIdTypeDep.tracker.changed();
+  if (getCameraAsContentDeviceId() !== deviceId) {
+    cameraAsContentDeviceIdTypeVar(deviceId);
   }
 };
 
@@ -108,10 +89,10 @@ const _trackStreamTermination = (stream, handler) => {
 };
 
 const _isStreamActive = (stream) => {
-  const tracksAreActive = !stream.getTracks().some(track => track.readyState === 'ended');
+  const tracksAreActive = !stream.getTracks().some((track) => track.readyState === 'ended');
 
   return tracksAreActive && stream.active;
-}
+};
 
 const _handleStreamTermination = () => {
   screenshareHasEnded();
@@ -121,28 +102,28 @@ const _handleStreamTermination = () => {
 // account for the presenter's local sharing state.
 // It reflects the GLOBAL screen sharing state (akka-apps)
 const isScreenGloballyBroadcasting = () => {
-  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_SCREENSHARE },
+  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, 'screenshare.contentType': CONTENT_TYPE_SCREENSHARE },
     { fields: { 'screenshare.stream': 1 } });
 
   return (!screenshareEntry ? false : !!screenshareEntry.screenshare.stream);
-}
+};
 
 // A simplified, trackable version of isCameraContentBroadcasting that DOES NOT
 // account for the presenter's local sharing state.
 // It reflects the GLOBAL camera as content sharing state (akka-apps)
 const isCameraAsContentGloballyBroadcasting = () => {
-  const cameraAsContentEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_CAMERA },
+  const cameraAsContentEntry = Screenshare.findOne({ meetingId: Auth.meetingID, 'screenshare.contentType': CONTENT_TYPE_CAMERA },
     { fields: { 'screenshare.stream': 1 } });
 
   return (!cameraAsContentEntry ? false : !!cameraAsContentEntry.screenshare.stream);
-}
+};
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
 // and display it, or end the call and hide the video
-const isScreenBroadcasting = () => {
-  const sharing = isSharing() && getSharingContentType() == CONTENT_TYPE_SCREENSHARE;
-  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_SCREENSHARE },
+const isScreenBroadcasting = (active, sharingContentType) => {
+  const sharing = active && sharingContentType === CONTENT_TYPE_SCREENSHARE;
+  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, 'screenshare.contentType': CONTENT_TYPE_SCREENSHARE },
     { fields: { 'screenshare.stream': 1 } });
   const screenIsShared = !screenshareEntry ? false : !!screenshareEntry.screenshare.stream;
 
@@ -156,9 +137,9 @@ const isScreenBroadcasting = () => {
 // when the meeting information has been updated check to see if it was
 // sharing camera as content. If it has changed either trigger a call to receive video
 // and display it, or end the call and hide the video
-const isCameraAsContentBroadcasting = () => {
-  const sharing = isSharing() && getSharingContentType() === CONTENT_TYPE_CAMERA;
-  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_CAMERA },
+const isCameraAsContentBroadcasting = (active, sharingContentType) => {
+  const sharing = active && sharingContentType === CONTENT_TYPE_CAMERA;
+  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, 'screenshare.contentType': CONTENT_TYPE_CAMERA },
     { fields: { 'screenshare.stream': 1 } });
   const cameraAsContentIsShared = !screenshareEntry ? false : !!screenshareEntry.screenshare.stream;
 
@@ -178,11 +159,11 @@ const screenshareHasAudio = () => {
   }
 
   return !!screenshareEntry.screenshare.hasAudio;
-}
+};
 
 const getBroadcastContentType = () => {
-  const screenshareEntry = Screenshare.findOne({meetindId: Auth.meedingID},
-    { fields: { 'screenshare.contentType': 1} });
+  const screenshareEntry = Screenshare.findOne({ meetindId: Auth.meedingID },
+    { fields: { 'screenshare.contentType': 1 } });
 
   if (!screenshareEntry) {
     // defaults to contentType: "camera"
@@ -190,10 +171,10 @@ const getBroadcastContentType = () => {
   }
 
   return screenshareEntry.screenshare.contentType;
-}
+};
 
 const screenshareHasEnded = () => {
-  if (isSharing()) {
+  if (isSharingVar()) {
     setIsSharing(false);
   }
   if (getSharingContentType() === CONTENT_TYPE_CAMERA) {
@@ -203,9 +184,7 @@ const screenshareHasEnded = () => {
   KurentoBridge.stop();
 };
 
-const getMediaElement = () => {
-  return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
-}
+const getMediaElement = () => document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
 
 const getMediaElementDimensions = () => {
   const element = getMediaElement();
@@ -228,7 +207,7 @@ const shouldEnableVolumeControl = () => {
 }
 
 const attachLocalPreviewStream = (mediaElement) => {
-  const {isTabletApp} = browserInfo;
+  const { isTabletApp } = browserInfo;
   if (isTabletApp) {
     // We don't show preview for mobile app, as the stream is only available in native code
     return;
@@ -279,7 +258,7 @@ const screenshareHasStarted = (isPresenter, options = {}) => {
 };
 
 const shareScreen = async (stopWatching, isPresenter, onFail, options = {}) => {
-  if (isCameraAsContentBroadcasting()) {
+  if (isCameraAsContentBroadcasting(isSharingVar(), sharingContentTypeVar())) {
     screenshareHasEnded();
   }
 
@@ -412,4 +391,7 @@ export {
   setCameraAsContentDeviceId,
   getCameraAsContentDeviceId,
   setOutputDeviceId,
+  useCameraAsContentDeviceIdType,
+  useIsSharing,
+  useSharingContentType,
 };

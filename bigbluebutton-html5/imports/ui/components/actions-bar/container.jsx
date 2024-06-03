@@ -8,7 +8,7 @@ import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
-import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting, useIsSharing, useSharingContentType } from '/imports/ui/components/screenshare/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -105,13 +105,29 @@ const isReactionsButtonEnabled = () => {
   return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
 };
 
-export default withTracker(() => ({
+const ActionsBarTracker = withTracker(({ isSharing, sharingContentType }) => ({
   enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  hasScreenshare: isScreenBroadcasting(),
-  hasCameraAsContent: isCameraAsContentBroadcasting(),
+  hasScreenshare: isScreenBroadcasting(isSharing, sharingContentType),
+  hasCameraAsContent: isCameraAsContentBroadcasting(isSharing, sharingContentType),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
   allowExternalVideo: isExternalVideoEnabled(),
 }))(injectIntl(ActionsBarContainer));
+
+// TODO: Remove this
+// Temporary component until we remove all trackers
+export default (props) => {
+  const isSharing = useIsSharing();
+  const sharingContentType = useSharingContentType();
+  return (
+    <ActionsBarTracker
+      {...{
+        ...props,
+        isSharing,
+        sharingContentType,
+      }}
+    />
+  );
+};
