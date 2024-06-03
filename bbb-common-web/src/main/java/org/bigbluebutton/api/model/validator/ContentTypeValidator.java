@@ -31,7 +31,12 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
         if (requestBodyPresent) {
             if (contentType == null || contentTypeHeader == null) return false;
             else {
-                return request.getSupportedContentTypes().contains(contentType);
+                String[] contentTypeParts = contentType.split(";");
+                for (Object o: request.getSupportedContentTypes()) {
+                    String supportedContentType = (String) o;
+                    if (contentTypeParts[0].equals(supportedContentType)) return true;
+                }
+                return false;
             }
         }
 
