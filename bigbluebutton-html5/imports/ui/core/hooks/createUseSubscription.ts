@@ -2,7 +2,7 @@ import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
-import { FetchResult, gql, useApolloClient } from '@apollo/client';
+import { FetchResult, ObservableSubscription, gql, useApolloClient } from '@apollo/client';
 import R from 'ramda';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
@@ -42,6 +42,14 @@ function createUseSubscription<T>(
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
+    const [subscription, setSubscription] = useState<ObservableSubscription | null>(null);
+    useEffect(() => {
+      return () => {
+        if (subscription) {
+          subscription.unsubscribe();
+        }
+      };
+    }, []);
     const subHash = useMemo(() => stringToHash(
       JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }),
     ),
@@ -90,7 +98,10 @@ function createUseSubscription<T>(
       };
       //  @ts-ignore
       window.addEventListener('graphqlSubscription', listener);
-      GrahqlSubscriptionStore.makeSubscription(newSubscriptionGQL, queryVariables, usePatchedSubscription ? 'no-cache' : undefined);
+      const sub = GrahqlSubscriptionStore.makeSubscription(newSubscriptionGQL, queryVariables, usePatchedSubscription ? 'no-cache' : undefined);
+      if (sub) {
+        setSubscription(sub().sub);
+      }
       return () => {
         //  @ts-ignore
         window.removeEventListener('graphqlSubscription', listener);
