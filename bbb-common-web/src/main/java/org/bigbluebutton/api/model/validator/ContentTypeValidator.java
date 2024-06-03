@@ -34,7 +34,7 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
                 String[] contentTypeParts = contentType.split(";");
                 for (Object o: request.getSupportedContentTypes()) {
                     String supportedContentType = (String) o;
-                    if (contentTypeParts[0].equals(supportedContentType)) return true;
+                    if (contentTypeParts[0].trim().equalsIgnoreCase(supportedContentType)) return true;
                 }
                 return false;
             }
