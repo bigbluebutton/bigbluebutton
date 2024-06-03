@@ -5,6 +5,8 @@ subscription userCurrentSubscription {
   user_current {
     authToken
     authed
+    avatar
+    away
     banned
     clientType
     color

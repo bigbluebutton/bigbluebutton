@@ -8,6 +8,7 @@ const MEETING_SUBSCRIPTION = gql`
         extId
         endWhenNoModerator
         endWhenNoModeratorDelayInMinutes
+        createdTime
         loginUrl
         lockSettings {
           disableCam
