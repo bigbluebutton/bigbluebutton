@@ -1,7 +1,7 @@
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -15,6 +15,7 @@ import {
 } from './queries';
 import Service from './service';
 import Styled from './styles';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const MAX_INPUT_CHARS = window.meetingClientSettings.public.poll.maxTypedAnswerLength;
 
@@ -330,7 +331,7 @@ const PollingGraphqlContainer: React.FC = () => {
     userId: u.userId,
     presenter: u.presenter,
   }));
-  const { data: hasPendingPollData, error, loading } = useSubscription<HasPendingPollResponse>(
+  const { data: hasPendingPollData, error, loading } = useDeduplicatedSubscription<HasPendingPollResponse>(
     hasPendingPoll,
     {
       variables: { userId: currentUserData?.userId },

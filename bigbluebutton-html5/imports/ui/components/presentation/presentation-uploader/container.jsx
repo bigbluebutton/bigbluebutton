@@ -1,9 +1,8 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
-import { useSubscription, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import Service from './service';
 import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';
@@ -23,6 +22,7 @@ import {
   PRESENTATION_SET_CURRENT,
   PRESENTATION_REMOVE,
 } from '../mutations';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
@@ -32,7 +32,7 @@ const PresentationUploaderContainer = (props) => {
   }));
   const userIsPresenter = currentUserData?.presenter;
 
-  const { data: presentationData } = useSubscription(PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
 

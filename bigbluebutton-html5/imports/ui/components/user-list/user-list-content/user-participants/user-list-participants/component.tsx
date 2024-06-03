@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useSubscription } from '@apollo/client';
 import { AutoSizer } from 'react-virtualized';
 import { debounce } from 'radash';
 import { ListProps } from 'react-virtualized/dist/es/List';
@@ -26,6 +25,7 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import Service from '/imports/ui/components/user-list/service';
 import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface UserListParticipantsProps {
   users: Array<User>;
@@ -192,12 +192,12 @@ const UserListParticipantsContainer: React.FC = () => {
 
   const {
     data: meetingData,
-  } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION);
+  } = useDeduplicatedSubscription(MEETING_PERMISSIONS_SUBSCRIPTION);
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
   const {
     data: countData,
-  } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
   useEffect(() => () => {
@@ -206,6 +206,8 @@ const UserListParticipantsContainer: React.FC = () => {
 
   const {
     data: usersData,
+    // @ts-ignore
+    sub,
   } = useLoadedUserList({ offset, limit }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
   const users = usersData ?? [];
 
@@ -215,9 +217,15 @@ const UserListParticipantsContainer: React.FC = () => {
     presenter: c.presenter,
   }));
 
-  const { data: presentationData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationData?.pres_page_curr[0] || {};
   const pageId = presentationPage?.pageId;
+
+  useEffect(() => {
+    return () => {
+      sub?.unsubscribe();
+    };
+  }, []);
 
   setLocalUserList(users);
   return (

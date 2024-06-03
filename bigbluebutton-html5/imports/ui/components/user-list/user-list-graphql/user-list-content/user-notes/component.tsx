@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
@@ -16,6 +15,7 @@ import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
 import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
 import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
@@ -194,7 +194,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
 const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
   const { userLocks } = props;
   const disableNotes = userLocks.userNotes;
-  const { data: pinnedPadData } = useSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
   const isPinned = !!pinnedPadData && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

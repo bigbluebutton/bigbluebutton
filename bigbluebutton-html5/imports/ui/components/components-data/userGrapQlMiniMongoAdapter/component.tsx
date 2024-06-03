@@ -22,7 +22,7 @@ const UserGrapQlMiniMongoAdapter: React.FC<AdapterProps> = ({
   }, [error]);
 
   useEffect(() => {
-    if (data && data) {
+    if (data) {
       if (!ready.current) {
         ready.current = true;
         onReady('UserGrapQlMiniMongoAdapter');

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useQuery, useSubscription } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -10,6 +10,7 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { PROCESSED_PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBOUNCE_TIMEOUT = 15000;
 const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -130,7 +131,7 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isRTL = layoutSelect((i: any) => i.isRTL);
 
-  const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
 
   const { data: padIdData } = useQuery<GetPadIdQueryResponse>(

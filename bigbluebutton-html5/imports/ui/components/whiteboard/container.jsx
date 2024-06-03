@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { useSubscription, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
 } from '@tldraw/tldraw';
@@ -44,6 +44,7 @@ import {
   PRESENTATION_PUBLISH_CURSOR,
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
 
@@ -67,7 +68,9 @@ const WhiteboardContainer = (props) => {
   const isPresenter = currentUser?.presenter;
   const isModerator = currentUser?.isModerator;
 
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationPageData } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const curPageNum = currentPresentationPage?.num;
@@ -80,10 +83,14 @@ const WhiteboardContainer = (props) => {
 
   const presentationId = currentPresentationPage?.presentationId;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
-    variables: { pageId: curPageId },
-    skip: !curPageId,
-  });
+  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+    {
+      variables: { pageId: curPageId },
+      skip: !curPageId,
+    },
+  );
+
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
@@ -170,7 +177,7 @@ const WhiteboardContainer = (props) => {
 
   const cursorArray = useMergedCursorData();
 
-  const { data: annotationStreamData } = useSubscription(
+  const { data: annotationStreamData } = useDeduplicatedSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
     {
       variables: { lastUpdatedAt: new Date(0).toISOString() },

@@ -10,7 +10,7 @@ import apolloContextHolder from '../graphql/apolloContextHolder/apolloContextHol
 
 export interface SubscriptionStructure<T> {
   count: number;
-  data: Record<string, unknown> | T | null;
+  data: T | null;
   error: Error | null;
   loading: boolean;
   sub: ObservableSubscription | null;
@@ -32,9 +32,8 @@ class GrahqlSubscriptionStore {
     subscription: DocumentNode | TypedQueryDocumentNode,
     variables?: Record<string, unknown>,
     fetchPolicy?: FetchPolicy,
-  ) {
+  ): ReactiveVar<SubscriptionStructure<T>> {
     const subscriptionHash = stringToHash(JSON.stringify({ subscription, variables }));
-
     const subscriptionStored = this.graphqlSubscriptions[subscriptionHash];
     if (subscriptionStored) {
       const subStored = subscriptionStored();
@@ -75,7 +74,7 @@ class GrahqlSubscriptionStore {
         } else {
           values.data = data.data;
         }
-        newSubStructure(values);
+        newSubStructure({ ...values });
 
         window.dispatchEvent(new CustomEvent('graphqlSubscription', { detail: { subscriptionHash, type: 'next', response: values } }));
       },
@@ -94,7 +93,7 @@ class GrahqlSubscriptionStore {
     newSubStructure(subValues);
     this.graphqlSubscriptions[subscriptionHash] = newSubStructure;
 
-    return this.graphqlSubscriptions[subscriptionHash];
+    return newSubStructure;
   }
 
   unsubscribe(subscription: DocumentNode | TypedQueryDocumentNode, variables?: Record<string, unknown>) {
@@ -110,7 +109,7 @@ class GrahqlSubscriptionStore {
     });
 
     if (subscriptionStored().count === 0) {
-      // subscriptionStored()?.sub?.unsubscribe();
+      subscriptionStored()?.sub?.unsubscribe();
       delete this.graphqlSubscriptions[subscriptionHash];
     }
   }

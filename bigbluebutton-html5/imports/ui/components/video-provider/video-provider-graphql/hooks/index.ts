@@ -5,7 +5,6 @@ import {
   useState,
 } from 'react';
 import {
-  useSubscription,
   useReactiveVar,
   useLazyQuery,
   useMutation,
@@ -40,6 +39,7 @@ import { CAMERA_BROADCAST_STOP } from '../mutations';
 import { StreamItem } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
@@ -163,7 +163,7 @@ export const useDisableCam = () => {
 };
 
 export const usePageSizeDictionary = () => {
-  const { data: countData } = useSubscription(
+  const { data: countData } = useDeduplicatedSubscription(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
   );
   const userCount = countData?.user_aggregate?.aggregate?.count || 0;
@@ -254,7 +254,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
   const [gridUsers, setGridUsers] = useState<GridUser[]>([]);
   const userIds = useMemo(() => streams.map((s) => s.userId), [streams]);
   const streamCount = streams.length;
-  const { data, loading, error } = useSubscription<VideoStreamsUsersResponse>(
+  const { data, loading, error } = useDeduplicatedSubscription<VideoStreamsUsersResponse>(
     VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
     { variables: { userIds } },
   );
@@ -262,7 +262,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
     data: gridData,
     loading: gridLoading,
     error: gridError,
-  } = useSubscription<VideoStreamsUsersResponse>(
+  } = useDeduplicatedSubscription<VideoStreamsUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
       variables: { exceptUserIds: userIds, limit: Math.max(gridSize - streamCount, 0) },
@@ -467,7 +467,7 @@ export const useExitVideo = (forceExit = false) => {
 };
 
 export const useViewersInWebcamCount = (): number => {
-  const { data } = useSubscription(VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION);
+  const { data } = useDeduplicatedSubscription(VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION);
   return data?.user_camera_aggregate?.aggregate?.count || 0;
 };
 

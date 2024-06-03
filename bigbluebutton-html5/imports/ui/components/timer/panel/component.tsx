@@ -8,7 +8,6 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import {
   useMutation,
-  useSubscription,
 } from '@apollo/client';
 import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
@@ -26,6 +25,7 @@ import {
 } from '../mutations';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;
@@ -433,7 +433,7 @@ const TimerPanelContaier: React.FC = () => {
     loading: timerLoading,
     error: timerError,
     data: timerData,
-  } = useSubscription<GetTimerResponse>(GET_TIMER);
+  } = useDeduplicatedSubscription<GetTimerResponse>(GET_TIMER);
 
   if (timerLoading || !timerData) return null;
 

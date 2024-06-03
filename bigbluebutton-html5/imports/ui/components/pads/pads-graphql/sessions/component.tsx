@@ -1,9 +1,11 @@
-import { useSubscription } from '@apollo/client';
 import { PAD_SESSION_SUBSCRIPTION, PadSessionSubscriptionResponse } from './queries';
 import Service from './service';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PadSessionContainerGraphql = () => {
-  const { data: padSessionData } = useSubscription<PadSessionSubscriptionResponse>(PAD_SESSION_SUBSCRIPTION);
+  const { data: padSessionData } = useDeduplicatedSubscription<PadSessionSubscriptionResponse>(
+    PAD_SESSION_SUBSCRIPTION,
+  );
 
   if (padSessionData) {
     const sessions = new Set<string>();

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useSubscription } from '@apollo/client';
 import { patch } from '@mconf/bbb-diff';
 import Styled from './styles';
 import { GET_PAD_CONTENT_DIFF_STREAM, GetPadContentDiffStreamResponse } from './queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface PadContentProps {
   content: string;
@@ -38,7 +38,7 @@ const PadContent: React.FC<PadContentProps> = ({
 
 const PadContentContainer: React.FC<PadContentContainerProps> = ({ externalId }) => {
   const [content, setContent] = useState('');
-  const { data: contentDiffData } = useSubscription<GetPadContentDiffStreamResponse>(
+  const { data: contentDiffData } = useDeduplicatedSubscription<GetPadContentDiffStreamResponse>(
     GET_PAD_CONTENT_DIFF_STREAM,
     { variables: { externalId } },
   );

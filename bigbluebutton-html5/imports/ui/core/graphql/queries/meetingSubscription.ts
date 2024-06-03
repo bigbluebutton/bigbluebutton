@@ -3,7 +3,6 @@ import { gql } from '@apollo/client';
 const MEETING_SUBSCRIPTION = gql`
   subscription MeetingSubscription {
       meeting {
-        createdTime
         disabledFeatures
         durationInSeconds
         extId
