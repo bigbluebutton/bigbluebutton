@@ -812,6 +812,7 @@
     "app.toast.chat.system": "Süsteem",
     "app.toast.chat.poll": "Küsitluse tulemused",
     "app.toast.chat.pollClick": "Küsitluse tulemused avaldati. Vaatamiseks klõpsa siin.",
+    "app.toast.chat.exportedPresentation": "Esitluse fail",
     "app.toast.clearedEmoji.label": "Emoji-olek kustutatud",
     "app.toast.setEmoji.label": "Emoji-olek seatud: {0}",
     "app.toast.meetingMuteOn.label": "Kõik kasutajad on vaigistatud",
