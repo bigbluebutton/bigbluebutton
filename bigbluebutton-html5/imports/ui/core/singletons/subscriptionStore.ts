@@ -70,7 +70,7 @@ class GrahqlSubscriptionStore {
           const patchedData = applyPatch(deepClone(values.data[accessKey]), data.data.patch).newDocument;
           values.data = {
             [accessKey]: patchedData,
-          };
+          } as T;
         } else {
           values.data = data.data;
         }
