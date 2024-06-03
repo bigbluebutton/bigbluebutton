@@ -42,18 +42,15 @@ function createUseSubscription<T>(
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
-    const [subscription, setSubscription] = useState<ObservableSubscription | null>(null);
-    useEffect(() => {
-      return () => {
-        if (subscription) {
-          subscription.unsubscribe();
-        }
-      };
-    }, []);
     const subHash = useMemo(() => stringToHash(
       JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }),
     ),
     []);
+    useEffect(() => {
+      return () => {
+        GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
+      };
+    }, []);
 
     const observer = useRef({
       //  @ts-ignore
@@ -99,12 +96,9 @@ function createUseSubscription<T>(
       //  @ts-ignore
       window.addEventListener('graphqlSubscription', listener);
       const sub = GrahqlSubscriptionStore.makeSubscription(newSubscriptionGQL, queryVariables, usePatchedSubscription ? 'no-cache' : undefined);
-      if (sub) {
-        setSubscription(sub().sub);
-      }
       return () => {
         //  @ts-ignore
-        window.removeEventListener('graphqlSubscription', listener);
+        // window.removeEventListener('graphqlSubscription', listener);
       };
     }, [queryHash]);
 

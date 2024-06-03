@@ -106,15 +106,12 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
   const {
     data: chatMessageData,
-    // @ts-ignore
-    sub,
   } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
   useEffect(() => {
     // component will unmount
     return () => {
       setLoadedMessageGathering(page, []);
-      sub?.unsubscribe();
     };
   }, []);
 
