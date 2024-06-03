@@ -77,11 +77,6 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const isGuestAllowed = guestStatus === GUEST_STATUSES.ALLOW;
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
-      loadingContextInfo.setLoading(false, '');
-      throw new Error('Authentication timeout');
-    }, connectionTimeout);
-
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken') as string;
     setAuthData({
@@ -106,6 +101,15 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       customLogoUrl,
     });
   }, []);
+
+  useEffect(() => {
+    if (isGuestAllowed) {
+      timeoutRef.current = setTimeout(() => {
+        loadingContextInfo.setLoading(false, '');
+        throw new Error('Authentication timeout');
+      }, connectionTimeout);
+    }
+  }, [isGuestAllowed]);
 
   useEffect(() => {
     if (bannerColor || bannerText) {
@@ -142,17 +146,6 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
-  if (!isGuestAllowed) {
-    return (
-      <GuestWaitContainer
-        guestLobbyMessage={guestLobbyMessage}
-        guestStatus={guestStatus}
-        logoutUrl={logoutUrl}
-        positionInWaitingQueue={positionInWaitingQueue}
-      />
-    );
-  }
-
   return (
     <>
       {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut) ? children : null}
@@ -163,6 +156,18 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
               meetingEndedCode={endedReasonCode}
               endedBy={endedBy}
               joinErrorCode={errorCode}
+            />
+          )
+          : null
+      }
+      {
+        !isGuestAllowed && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut)
+          ? (
+            <GuestWaitContainer
+              guestLobbyMessage={guestLobbyMessage}
+              guestStatus={guestStatus}
+              logoutUrl={logoutUrl}
+              positionInWaitingQueue={positionInWaitingQueue}
             />
           )
           : null
