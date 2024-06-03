@@ -105,21 +105,21 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await eraser.test();
   });
 
-  test.only('Draw arrow', async ({ browser, context, page }) => {
+  test('Draw arrow', async ({ browser, context, page }) => {
     const drawArrow = new DrawArrow(browser, context);
     await drawArrow.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await drawArrow.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawArrow.test();
   });
 
-  test('Delete drawing', async ({ browser, context, page }) => {
+  test('Delete drawing @flaky', async ({ browser, context, page }) => {
     const deleteDrawing = new DeleteDrawing(browser, context);
     await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await deleteDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await deleteDrawing.test();
   });
 
-  test('Undo drawing', async ({ browser, context, page }) => {
+  test.only('Undo drawing', async ({ browser, context, page }) => {
     const undoDrawing = new UndoDrawing(browser, context);
     await undoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await undoDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
