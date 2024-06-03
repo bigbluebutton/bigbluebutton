@@ -256,6 +256,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
 
             return (
               <Styled.CheckboxContainer key={option.optionId}>
+                {/* eslint-disable-next-line */}
                 <td>
                   <Styled.PollingCheckbox data-test="optionsAnswers">
                     <Checkbox
