@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/video-provider-graphql/service';
-import ScreenShareService from '/imports/ui/components/screenshare/service';
+import * as ScreenShareService from '/imports/ui/components/screenshare/service';
 import logger from '/imports/startup/client/logger';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
@@ -78,7 +78,7 @@ const VideoPreviewContainer = (props) => {
   );
 };
 
-export default withTracker(({ setIsOpen, callbackToClose }) => ({
+const VideoPreviewContainerTracker = withTracker(({ setIsOpen, callbackToClose }) => ({
   startSharing: (deviceId) => {
     callbackToClose();
     setIsOpen(false);
@@ -89,10 +89,23 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
     setIsOpen(false);
     ScreenShareService.screenshareHasEnded();
   },
-  cameraAsContentDeviceId: ScreenShareService.getCameraAsContentDeviceId(),
   closeModal: () => {
     callbackToClose();
     setIsOpen(false);
   },
   webcamDeviceId: Service.webcamDeviceId(),
 }))(VideoPreviewContainer);
+
+// TODO: Remove this
+// Temporary component until we remove all trackers
+export default (props) => {
+  const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
+  return (
+    <VideoPreviewContainerTracker
+      {...{
+        ...props,
+        cameraAsContentDeviceId,
+      }}
+    />
+  );
+};

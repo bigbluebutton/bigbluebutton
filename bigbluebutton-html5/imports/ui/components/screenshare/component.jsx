@@ -530,6 +530,7 @@ class ScreenshareComponent extends React.Component {
       || (isPresenter && !isGloballyBroadcasting)
       || (!mediaFlowing && loaded && isGloballyBroadcasting);
 
+
     const display = (width > 0 && height > 0) ? 'inherit' : 'none';
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
