@@ -11,7 +11,7 @@ import MediaService from '/imports/ui/components/media/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import { useMutation } from '@apollo/client';
 import {
   layoutSelect,
@@ -79,6 +79,7 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const deviceType = layoutSelect((i) => i.deviceType);
+  const hasExternalVideoOnLayout = layoutSelectInput((i) => i.externalVideo.hasExternalVideo);
   const layoutContextDispatch = layoutDispatch();
 
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
@@ -159,10 +160,10 @@ const AppContainer = (props) => {
   };
 
   const { data: currentMeeting } = useMeeting((m) => ({
-    externalVideo: m.externalVideo,
+    componentsFlags: m.componentsFlags,
   }));
 
-  const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
+  const isSharingVideo = currentMeeting?.componentsFlags.hasExternalVideo;
 
   useEffect(() => {
     MediaService.buildLayoutWhenPresentationAreaIsDisabled(
@@ -172,6 +173,22 @@ const AppContainer = (props) => {
       isThereWebcam,
     );
   });
+
+  useEffect(() => {
+    if (isSharingVideo && !hasExternalVideoOnLayout) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
+          open: true,
+        },
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+        value: true,
+      });
+    }
+  }, [isSharingVideo]);
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
