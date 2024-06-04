@@ -138,7 +138,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const initialViewBoxWidthRef = React.useRef(null);
 
   const THRESHOLD = 0.1;
-  const CAMERA_UPDATE_DELAY = 1000;
+  const CAMERA_UPDATE_DELAY = 650;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
@@ -522,10 +522,12 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         const isCreatedByCurrentUser = remoteShapeMeta?.createdBy === currentUser?.userId;
         const isUpdatedByCurrentUser = remoteShapeMeta?.updatedBy === currentUser?.userId;
 
+        // System-level shapes (background image) lack createdBy and updatedBy metadata, which can cause false positives.
+        // These cases expect an early return and shouldn't be updated.
         if (
           remoteShapeMeta && (
             (isCreatedByCurrentUser && isUpdatedByCurrentUser)
-            || (isCreatedByCurrentUser && !isUpdatedByCurrentUser)
+            || (!isCreatedByCurrentUser && isUpdatedByCurrentUser)
           )
         ) {
           return;
