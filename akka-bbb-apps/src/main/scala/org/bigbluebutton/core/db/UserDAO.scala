@@ -143,6 +143,7 @@ object UserDAO {
       TableQuery[UserDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
+        .filter(_.loggedOut =!= true)
         .map(u => (u.loggedOut))
         .update((true))
     ).onComplete {
