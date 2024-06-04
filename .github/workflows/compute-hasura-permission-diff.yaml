@@ -1,0 +1,18 @@
+name: Compute Hasura permission diff on PR
+
+on:
+  pull_request:
+
+jobs:
+  compute-diff:
+    permissions:
+      # To upload artifacts
+      contents: write
+      # To write a comment on the PR
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: InvariantClub/metadelta-github-action@v1.2
+        with:
+          # Repo-relative path to the hasura metadata folder.
+          hasura_path: bbb-graphql-server/metadata
