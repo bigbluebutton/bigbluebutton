@@ -29,9 +29,10 @@ export const setAudioCaptions = (value: boolean) => {
   Session.set('audioCaptions', value);
 };
 
-export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
+// SpeechLocale or CaptionLocale
+export const setUserLocaleProperty = (value: string, setUserLocaleCallback: (a: string, b: string) => void) => {
   const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
-  setUserSpeechLocale(value, PROVIDER);
+  setUserLocaleCallback(value, PROVIDER);
 };
 
 export const useFixedLocale = () => {
@@ -42,7 +43,7 @@ export const useFixedLocale = () => {
 export default {
   getSpeechVoices,
   isAudioTranscriptionEnabled,
-  setSpeechLocale,
+  setUserLocaleProperty,
   setAudioCaptions,
   isWebSpeechApi,
   useFixedLocale,
