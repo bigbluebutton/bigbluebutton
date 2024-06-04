@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { defineMessages } from 'react-intl';
 import {
   getSharingContentType,
@@ -20,6 +20,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import MediaService from '/imports/ui/components/media/service';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -101,7 +102,7 @@ const ScreenshareContainer = (props) => {
   const fullscreenContext = (element === fullscreenElementId);
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
-  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 

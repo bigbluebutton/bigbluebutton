@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
@@ -22,6 +22,7 @@ import {
   useIsSharing,
   useSharingContentType,
 } from '/imports/ui/components/screenshare/service';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   hide: {
@@ -172,7 +173,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { area, isToSharedNotesBeShow } = props;
 
   const hasPermission = useHasPermission();
-  const { data: pinnedPadData } = useSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));

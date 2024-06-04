@@ -5,7 +5,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import {
   setAudioCaptions, setUserLocaleProperty,
@@ -16,6 +16,7 @@ import { User } from '/imports/ui/Types/user';
 import { SET_CAPTION_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   start: {
@@ -293,7 +294,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   const {
     data: activeCaptionsData,
     loading: activeCaptionsLoading,
-  } = useSubscription<ActiveCaptionsResponse>(getactiveCaptions);
+  } = useDeduplicatedSubscription<ActiveCaptionsResponse>(getactiveCaptions);
 
   if (currentUserLoading) return null;
   if (currentMeetingLoading) return null;

@@ -1,4 +1,3 @@
-import { useSubscription } from '@apollo/client';
 import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Notification, NotificationResponse, getNotificationsStream } from './queries';
@@ -11,6 +10,7 @@ import {
   userJoinPushAlert,
   userLeavePushAlert,
 } from './service';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const Notifications: React.FC = () => {
   const [registeredAt, setRegisteredAt] = React.useState<string>(new Date().toISOString());
@@ -37,7 +37,7 @@ const Notifications: React.FC = () => {
 
   const {
     data: notificationsStream,
-  } = useSubscription<NotificationResponse>(getNotificationsStream, {
+  } = useDeduplicatedSubscription<NotificationResponse>(getNotificationsStream, {
     variables: { initialCursor: '2024-04-18' },
   });
 

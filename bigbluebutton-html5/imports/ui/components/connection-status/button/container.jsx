@@ -1,15 +1,15 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { useSubscription } from '@apollo/client';
 import ConnectionStatusButtonComponent from './component';
 import { USER_CURRENT_STATUS_SUBSCRIPTION } from '../queries';
 import Auth from '/imports/ui/services/auth';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const connectionStatusButtonContainer = (props) => {
-  const { data } = useSubscription(USER_CURRENT_STATUS_SUBSCRIPTION, {
+  const { data } = useDeduplicatedSubscription(USER_CURRENT_STATUS_SUBSCRIPTION, {
     variables: { userId: Auth.userID },
   });
   const myCurrentStatus = data && data.length > 0

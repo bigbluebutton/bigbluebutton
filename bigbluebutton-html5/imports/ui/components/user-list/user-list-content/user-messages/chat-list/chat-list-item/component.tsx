@@ -85,9 +85,27 @@ const ChatListItem = (props: ChatListItemProps) => {
         });
       } else {
         layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: chat.chatId,
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
         });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: '',
+        });
+        setTimeout(() => {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: chat.chatId,
+          });
+        }, 0);
       }
     } else {
       layoutContextDispatch({
