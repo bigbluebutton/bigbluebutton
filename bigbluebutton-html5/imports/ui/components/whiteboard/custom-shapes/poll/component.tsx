@@ -42,6 +42,7 @@ export class PollShapeUtil extends ShapeUtil<IPollShape> {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this
   getGeometry(shape: IPollShape) {
     return new Rectangle2d({
       width: shape.props.w,
