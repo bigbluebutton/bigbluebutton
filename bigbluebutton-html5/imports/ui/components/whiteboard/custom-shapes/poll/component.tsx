@@ -33,6 +33,7 @@ export class PollShapeUtil extends ShapeUtil<IPollShape> {
       w: 300,
       h: 300,
       color: 'black',
+      fill: 'white',
       question: '',
       numRespondents: 0,
       numResponders: 0,

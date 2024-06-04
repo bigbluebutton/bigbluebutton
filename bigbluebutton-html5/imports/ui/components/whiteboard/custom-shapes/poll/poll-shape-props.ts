@@ -1,7 +1,7 @@
 import { DefaultColorStyle, ShapeProps, T } from '@bigbluebutton/tldraw';
-import { ICardShape } from './poll-shape-types';
+import { IPollShape } from './poll-shape-types';
 
-export const pollShapeProps: ShapeProps<ICardShape> = {
+export const pollShapeProps: ShapeProps<IPollShape> = {
   w: T.number,
   h: T.number,
   color: DefaultColorStyle,
