@@ -518,9 +518,15 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         delete remoteShape.questionType;
         toAdd.push(remoteShape);
       } else if (!isEqual(localShape, remoteShape) && prevShape) {
+        const remoteShapeMeta = remoteShape?.meta;
+        const isCreatedByCurrentUser = remoteShapeMeta?.createdBy === currentUser?.userId;
+        const isUpdatedByCurrentUser = remoteShapeMeta?.updatedBy === currentUser?.userId;
+
         if (
-          (remoteShape?.meta?.createdBy === currentUser?.userId && remoteShape?.meta?.updatedBy === currentUser?.userId)
-          || (remoteShape?.meta?.createdBy === currentUser?.userId && !remoteShape?.meta?.updatedBy)
+          remoteShapeMeta && (
+            (isCreatedByCurrentUser && isUpdatedByCurrentUser)
+            || (isCreatedByCurrentUser && !isUpdatedByCurrentUser)
+          )
         ) {
           return;
         }
