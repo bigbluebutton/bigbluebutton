@@ -1176,7 +1176,7 @@ Failed
     "messageKey": "upload_text_track_failed",
     "message": "Text track upload failed.",
     "recordId": "baz",
-    "returncode": "SUCCESS"
+    "returncode": "FAILED"
   }
 }
 ```
