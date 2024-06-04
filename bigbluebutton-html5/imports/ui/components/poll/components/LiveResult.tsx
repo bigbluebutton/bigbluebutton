@@ -1,4 +1,4 @@
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Session } from 'meteor/session';
@@ -17,6 +17,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -208,7 +209,7 @@ const LiveResultContainer: React.FC = () => {
     data: currentPollData,
     loading: currentPollLoading,
     error: currentPollDataError,
-  } = useSubscription<getCurrentPollDataResponse>(getCurrentPollData);
+  } = useDeduplicatedSubscription<getCurrentPollDataResponse>(getCurrentPollData);
 
   if (currentPollLoading || !currentPollData) {
     return null;

@@ -1,10 +1,11 @@
 import React from 'react';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import RaiseHandNotifier from './component';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { RAISED_HAND_USERS } from './queries';
 import logger from '/imports/startup/client/logger';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 
@@ -19,7 +20,7 @@ const StatusNotifierContainer = (props) => {
   const {
     data: usersData,
     error: usersError,
-  } = useSubscription(RAISED_HAND_USERS);
+  } = useDeduplicatedSubscription(RAISED_HAND_USERS);
   const raiseHandUsers = usersData?.user || [];
 
   if (usersError) {

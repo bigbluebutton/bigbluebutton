@@ -7,7 +7,6 @@ import Auth from '/imports/ui/services/auth';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { isSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useSubscription } from '@apollo/client';
 import {
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
@@ -16,6 +15,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   persistShape,
 } from '/imports/ui/components/whiteboard/service';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 
 const PresentationMenuContainer = (props) => {
@@ -33,7 +33,9 @@ const PresentationMenuContainer = (props) => {
     ];
   }
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  );
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
