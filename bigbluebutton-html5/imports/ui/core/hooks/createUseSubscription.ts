@@ -42,10 +42,25 @@ function createUseSubscription<T>(
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
-    const subHash = useMemo(() => stringToHash(
+    const subscriptionHashRef = useRef<string>('');
+    const subscriptionRef = useRef <DocumentNode | TypedQueryDocumentNode | null>(null);
+    const optionsRef = useRef();
+    const subHash = stringToHash(
       JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }),
-    ),
-    []);
+    );
+
+    useEffect(() => {
+      if (subscriptionHashRef.current !== subHash) {
+        subscriptionHashRef.current = subHash;
+        if (subscriptionRef.current && optionsRef.current) {
+          GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, queryVariables);
+        }
+
+        subscriptionRef.current = query;
+        optionsRef.current = queryVariables;
+      }
+    }, [subHash]);
+
     useEffect(() => {
       return () => {
         GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
@@ -196,8 +211,14 @@ export const useCreateUseSubscription = <T>(
   queryVariables = {},
   usePatchedSubscription = false,
 ) => {
+  const subscriptionHash = stringToHash(JSON.stringify({ subscription: query, variables: queryVariables }));
+  const subscriptionHashRef = useRef<string>('');
+  const subscriptionRef = useRef<DocumentNode | TypedQueryDocumentNode | null>(null);
+  const queryVariablesRef = useRef(queryVariables);
+
   const queryString = JSON.stringify(query);
   const queryVariablesString = JSON.stringify(queryVariables);
+
   const createdSubscription = useMemo(() => {
     return createUseSubscription<T>(query, queryVariables, usePatchedSubscription);
   },
