@@ -1,0 +1,128 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  margin: 0;
+  padding-top: 30px;
+
+  background: url(../public/bg.jpg) center no-repeat;
+  background-size: cover;
+  height: 100%;
+
+  font-weight: 400;
+  line-height: 1.71429;
+}
+
+body, html {
+  height: 100%;
+}
+
+.test-steps .ant-steps-item-title {
+  color: whitesmoke !important;
+}
+
+.ant-form-item {
+ margin-bottom: unset !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  monospace;
+}
+
+.App {
+  text-align: center;
+}
+
+.m-20 {
+  margin: 20px;
+}
+
+.mt-30 {
+  margin-top: 30px;
+}
+
+.app-title {
+  font-weight: normal !important;
+  color: whitesmoke !important;
+  margin: 40px 0 !important;
+}
+
+.center-elements {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-title {
+  width: 45px;
+  margin-right: 10px;
+}
+
+.step-content {
+  /*line-height: 260px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px dashed #d9d9d9;
+  border-radius: 8px;*/
+  padding: 24px;
+
+  background-color: rgba(255,255,255,.9);
+  box-shadow: 0 1px 2px 1px rgba(52,53,55,.18);
+}
+
+.tests-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tests-title h5 {
+  margin: 0 !important;
+}
+
+.button-container {
+  display: block;
+  margin: 24px auto 0 !important;
+}
+
+.button-container:not(.ant-row-rtl) .prev {
+  margin-right: 20px;
+}
+.button-container.ant-row-rtl .prev {
+  margin-left: 20px;
+}
+.button-container .ant-form-item-control-input-content {
+  display: flex;
+}
+.button-container.first-step-btn {
+  width: 40%;
+}
+
+.button-container.other-steps-btns {
+  width: 80%;
+}
+
+.ant-statistic .ant-statistic-content {
+  font-size: 16px;
+}
+
+.stat-small {
+  font-size: 70% !important;
+  color: gray;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.list-width {
+  width: 80%;
+}
