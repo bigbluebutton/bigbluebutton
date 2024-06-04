@@ -3,14 +3,13 @@ import {
 } from '@apollo/client';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
-import React, { useContext, useEffect } from 'react';
+import { onError } from '@apollo/client/link/error';
+import React, { useContext, useEffect, useRef } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
-import { onError } from '@apollo/client/link/error';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { useRef } from 'react';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -111,7 +110,14 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       try {
         const subscription = createClient({
           url: graphqlUrl,
-          retryAttempts: 2,
+          retryAttempts: numberOfAttempts.current,
+          retryWait: async () => {
+            return new Promise((res) => {
+              setTimeout(() => {
+                res();
+              }, 10000);
+            });
+          },
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,
@@ -125,7 +131,6 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               logger.error(`Error: on subscription to server: ${error}`);
               loadingContextInfo.setLoading(false, '');
               setErrorCounts((prev: number) => prev + 1);
-              throw new Error(`Error: on subscription to server: ${JSON.stringify(error)}`);
             },
             closed: () => {
               connectionStatus.setConnectedStatus(false);

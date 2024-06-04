@@ -166,7 +166,6 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   if (error || userInfoError) {
     loadingContextInfo.setLoading(false, '');
     logger.debug(`Error on user authentication: ${error}`);
-    throw new Error('Error on user authentication');
   }
 
   if (!data || data.user_current.length === 0) return null;
