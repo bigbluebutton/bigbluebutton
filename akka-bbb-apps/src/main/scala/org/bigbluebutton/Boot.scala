@@ -1,8 +1,9 @@
 package org.bigbluebutton
 
-import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.event.Logging
 import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
 import org.apache.pekko.stream.ActorMaterializer
 import org.bigbluebutton.common2.redis.{MessageSender, RedisConfig, RedisPublisher}
 import org.bigbluebutton.core._
@@ -12,7 +13,10 @@ import org.bigbluebutton.core2.AnalyticsActor
 import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
 import org.bigbluebutton.endpoint.redis.{AppsRedisSubscriberActor, ExportAnnotationsActor, GraphqlConnectionsActor, LearningDashboardActor, RedisRecorderActor}
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
-import org.bigbluebutton.service.{HealthzService, MeetingInfoActor, MeetingInfoService}
+import org.bigbluebutton.service.{BbbCoreServiceImpl, HealthzService, MeetingInfoActor, MeetingInfoService}
+import org.bigbluebutton.protos._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object Boot extends App with SystemConfiguration {
 
@@ -115,4 +119,19 @@ object Boot extends App with SystemConfiguration {
   )
 
   val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
+
+  new GrpcServer(system, bbbActor, grpcHost, grpcPort).run()
+}
+
+class GrpcServer(system: ActorSystem, bbbActor: ActorRef, host: String, port: Int) {
+  def run(): Future[Http.ServerBinding] = {
+    implicit val sys: ActorSystem = system
+    implicit val ec: ExecutionContext = sys.dispatcher
+    implicit val bbb: ActorRef = bbbActor
+
+    val service: HttpRequest => Future[HttpResponse] = BbbCoreServiceHandler(new BbbCoreServiceImpl())
+    val binding = Http().newServerAt(host, port).bind(service)
+    binding.foreach { binding => println(s"gRPC server bound to ${binding.localAddress}")}
+    binding
+  }
 }

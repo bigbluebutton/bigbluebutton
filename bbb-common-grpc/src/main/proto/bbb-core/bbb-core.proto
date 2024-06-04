@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+import "common/meeting.proto";
+
+package org.bigbluebutton.protos;
+
+message MeetingRunningRequest {
+    // The ID, either internal or external, of the meeting to be found.
+    string meeting_id = 1;
+}
+
+message MeetingRunningResponse {
+    // A boolean indicating whether the meeting is running or not.
+    // Value will be false if the meeting does not exist.
+    bool is_running = 1;
+}
+
+message MeetingInfoRequest {
+  // The ID, either internal or external, of the meeting to be found.
+  string meeting_id = 1;
+}
+
+message MeetingInfoResponse {
+  // Information describing the current state of the meeting.
+  MeetingInfo meeting_info = 1;
+}
+
+message ListMeetingsRequest {
+  // The maximum number of meetings to return. The service may return fewer than this value.
+  // If unspecified, at most 50 meetings will be returned.
+  // The maximum value is 100; values above 100 will be coerced to 100.
+  int32 page_size = 1;
+
+  // Token received from the previous `ListMeetings` call.
+  // Provide this to retrieve the subsequent page.
+  string page_token = 2;
+
+  // Number of meetings to be skipped.
+  int32 skip = 3;
+}
+
+message ListMeetingsResponse {
+  repeated MeetingInfo meetings = 1;
+
+  // A token that can be sent as `page_token` to retrieve the next page.
+  // If this field is empty, there are no subsequent pages
+  string next_page_token = 2;
+}
+
+message GetMeetingsStreamRequest {
+  // The ID, either internal or external, of the meeting to start the stream from.
+  // If unspecified, the stream will start from the first meeting.
+  string meeting_id = 1;
+}
+
+service BbbCoreService {
+  rpc isMeetingRunning(MeetingRunningRequest) returns (MeetingRunningResponse);
+  rpc getMeetingInfo(MeetingInfoRequest) returns (MeetingInfoResponse);
+  rpc listMeetings(ListMeetingsRequest) returns (ListMeetingsResponse);
+  rpc getMeetingsStream(GetMeetingsStreamRequest) returns (stream MeetingInfoResponse);
+}

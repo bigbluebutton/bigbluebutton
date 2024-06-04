@@ -46,6 +46,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   }
 
   private def handleSuccessfulUserJoin(msg: UserJoinMeetingReqMsg, regUser: RegisteredUser) = {
+    if (Users2x.numUsers(liveMeeting.users2x) == 0) meetingEndTime = 0
     val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, liveMeeting, state)
     updateParentMeetingWithNewListOfUsers()
     notifyPreviousUsersWithSameExtId(regUser)
