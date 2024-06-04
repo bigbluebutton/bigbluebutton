@@ -115,7 +115,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
 };
 
 ChatPollContent.defaultProps = {
-  height: null,
+  height: undefined,
 };
 
 export default ChatPollContent;
