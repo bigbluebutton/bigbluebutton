@@ -1,14 +1,15 @@
+import { throwErrorIfInvalidInput } from '../imports/validation';
 import { RedisMessage } from '../types';
-import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfInvalidInput(input,
-      [
-        {name: 'mobile', type: 'boolean', required: true},
-      ]
-  )
+  const eventName = `SetUserCaptionLocaleReqMsg`;
 
-  const eventName = `ChangeUserMobileFlagReqMsg`;
+  throwErrorIfInvalidInput(input,
+    [
+      {name: 'locale', type: 'string', required: true},
+      {name: 'provider', type: 'string', required: true},
+    ]
+  )
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -22,8 +23,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    userId: routing.userId,
-    mobile: input.mobile
+    locale: input.locale,
+    provider: input.provider,
   };
 
   return { eventName, routing, header, body };

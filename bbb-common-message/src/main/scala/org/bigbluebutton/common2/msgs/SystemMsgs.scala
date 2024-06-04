@@ -278,7 +278,14 @@ case class UserGraphqlConnectionEstablishedSysMsg(
     header: BbbCoreBaseHeader,
     body:   UserGraphqlConnectionEstablishedSysMsgBody
 ) extends BbbCoreMsg
-case class UserGraphqlConnectionEstablishedSysMsgBody(middlewareUID: String, sessionToken: String, browserConnectionId: String)
+case class UserGraphqlConnectionEstablishedSysMsgBody(
+    middlewareUID:       String,
+    sessionToken:        String,
+    clientSessionUUID:   String,
+    clientType:          String,
+    clientIsMobile:      Boolean,
+    browserConnectionId: String
+)
 
 object UserGraphqlConnectionClosedSysMsg { val NAME = "UserGraphqlConnectionClosedSysMsg" }
 case class UserGraphqlConnectionClosedSysMsg(

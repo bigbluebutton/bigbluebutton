@@ -176,6 +176,7 @@ class Settings extends Component {
       isScreenSharingEnabled,
       isVideoEnabled,
       isReactionsEnabled,
+      paginationToggleEnabled,
     } = this.props;
 
     const {
@@ -229,6 +230,7 @@ class Settings extends Component {
             selectedLayout={selectedLayout}
             isPresenter={isPresenter}
             isReactionsEnabled={isReactionsEnabled}
+            paginationToggleEnabled={paginationToggleEnabled}
           />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">

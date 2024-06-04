@@ -70,8 +70,6 @@ const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
 const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Opera', 'Microsoft Edge', 'Yandex Browser'];
-const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
-const CLIENT_VERSION = window.meetingClientSettings.public.app.html5ClientBuild;
 
 export default class Legacy extends Component {
   constructor(props) {
@@ -85,6 +83,10 @@ export default class Legacy extends Component {
 
     const that = this;
     this.state = { viewState: FETCHING };
+
+    const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
+    const CLIENT_VERSION = window.meetingClientSettings.public.app.html5ClientBuild;
+
     fetch(url)
       .then((response) => {
         if (!response.ok) {

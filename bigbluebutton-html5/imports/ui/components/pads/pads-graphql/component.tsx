@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { HAS_PAD_SUBSCRIPTION, HasPadSubscriptionResponse } from './queries';
 import { PAD_SESSION_SUBSCRIPTION, PadSessionSubscriptionResponse } from './sessions/queries';
 import { CREATE_SESSION } from './mutations';
 import Service from './service';
 import Styled from './styles';
 import PadContent from './content/component';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   hint: {
@@ -80,11 +81,13 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
     isResizing,
   } = props;
 
-  const { data: hasPadData } = useSubscription<HasPadSubscriptionResponse>(
+  const { data: hasPadData } = useDeduplicatedSubscription<HasPadSubscriptionResponse>(
     HAS_PAD_SUBSCRIPTION,
     { variables: { externalId } },
   );
-  const { data: padSessionData } = useSubscription<PadSessionSubscriptionResponse>(PAD_SESSION_SUBSCRIPTION);
+  const { data: padSessionData } = useDeduplicatedSubscription<PadSessionSubscriptionResponse>(
+    PAD_SESSION_SUBSCRIPTION,
+  );
   const [createSession] = useMutation(CREATE_SESSION);
 
   const sessionData = padSessionData?.sharedNotes_session ?? [];

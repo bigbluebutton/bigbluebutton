@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useSubscription } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import {
   VIDEO_STREAMS_SUBSCRIPTION,
@@ -7,20 +6,20 @@ import {
 } from './queries';
 import { setStreams } from './state';
 import { AdapterProps } from '../../components-data/graphqlToMiniMongoAdapterManager/component';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const VideoStreamAdapter: React.FC<AdapterProps> = ({
   onReady,
   children,
 }) => {
   const ready = useRef(false);
-  const { data, loading, error } = useSubscription<VideoStreamsResponse>(VIDEO_STREAMS_SUBSCRIPTION);
+  const { data, loading, error } = useDeduplicatedSubscription<VideoStreamsResponse>(VIDEO_STREAMS_SUBSCRIPTION);
 
   useEffect(() => {
     if (loading) return;
 
     if (error) {
       logger.error(`Video streams subscription failed. ${error.name}: ${error.message}`, error);
-      return;
     }
 
     if (!data) {
@@ -30,11 +29,11 @@ const VideoStreamAdapter: React.FC<AdapterProps> = ({
 
     const streams = data.user_camera.map(({ streamId, user, voice }) => ({
       stream: streamId,
-      deviceId: streamId.split('_')[2],
+      deviceId: streamId.split('_')[3],
       userId: user.userId,
       name: user.name,
-      sortName: user.nameSortable,
-      pin: user.pinned,
+      nameSortable: user.nameSortable,
+      pinned: user.pinned,
       floor: voice?.floor || false,
       lastFloorTime: voice?.lastFloorTime || '0',
       isModerator: user.isModerator,
@@ -45,7 +44,7 @@ const VideoStreamAdapter: React.FC<AdapterProps> = ({
   }, [data]);
 
   useEffect(() => {
-    if (!ready.current && !loading) {
+    if (!ready.current) {
       ready.current = true;
       onReady('VideoStreamAdapter');
     }

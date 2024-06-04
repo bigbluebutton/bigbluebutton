@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -85,6 +85,7 @@ class WakeLock extends Component {
   }
 
   requestWakeLock () {
+    const Settings = getSettingsSingletonInstance();
     const { request, setLocalSettings } = this.props;
     request().then((result) => {
       if (result && result.error) {

@@ -4,6 +4,7 @@ import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { useMutation, useLazyQuery } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -12,7 +13,6 @@ import {
 } from '../layout/context';
 import { DEVICE_TYPE } from '../layout/enums';
 import MediaService from '../media/service';
-import { useSubscription, useMutation, useLazyQuery } from '@apollo/client';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
@@ -22,21 +22,25 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
 import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
 const PresentationContainer = (props) => {
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationPageData } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
-    variables: { pageId: currentPresentationPage?.pageId },
-    skip: !currentPresentationPage?.pageId,
-  });
+  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+    {
+      variables: { pageId: currentPresentationPage?.pageId },
+      skip: !currentPresentationPage?.pageId,
+    },
+  );
 
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
 
@@ -45,6 +49,9 @@ const PresentationContainer = (props) => {
 
   const [getUsers, { data: usersData }] = useLazyQuery(GET_USER_IDS, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
+
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 
   const addWhiteboardGlobalAccess = () => {
     const usersIds = users.map((user) => user.userId);
@@ -104,7 +111,7 @@ const PresentationContainer = (props) => {
     hasAccess: whiteboardWriters?.some((writer) => writer.userId === Auth.userID),
   };
 
-  const { data: pollData } = useSubscription(POLL_SUBSCRIPTION);
+  const { data: pollData } = useDeduplicatedSubscription(POLL_SUBSCRIPTION);
   const poll = pollData?.poll[0] || {};
 
   const currentSlide = currentPresentationPage ? {

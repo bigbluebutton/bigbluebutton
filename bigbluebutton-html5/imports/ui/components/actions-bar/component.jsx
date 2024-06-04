@@ -11,7 +11,7 @@ import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
 
 class ActionsBar extends PureComponent {
@@ -113,6 +113,7 @@ class ActionsBar extends PureComponent {
 
     } = this.props;
 
+    const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.application;
     const shouldShowPresentationButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;

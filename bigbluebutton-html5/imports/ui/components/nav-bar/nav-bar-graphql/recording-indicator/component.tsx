@@ -6,7 +6,6 @@ import React, {
 } from 'react';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { useSubscription } from '@apollo/client';
 import {
   GET_MEETING_RECORDING_DATA,
   GET_MEETING_RECORDING_POLICIES,
@@ -25,6 +24,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import RecordingNotify from './notify/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -286,13 +286,13 @@ const RecordingIndicatorContainer: React.FC = () => {
     data: meetingRecordingPoliciesData,
     loading: meetingRecordingPoliciesLoading,
     error: meetingRecordingPoliciesError,
-  } = useSubscription<getMeetingRecordingPoliciesResponse>(GET_MEETING_RECORDING_POLICIES);
+  } = useDeduplicatedSubscription<getMeetingRecordingPoliciesResponse>(GET_MEETING_RECORDING_POLICIES);
 
   const {
     data: meetingRecordingData,
     loading: meetingRecordingLoading,
     error: meetingRecordingError,
-  } = useSubscription<getMeetingRecordingData>(GET_MEETING_RECORDING_DATA);
+  } = useDeduplicatedSubscription<getMeetingRecordingData>(GET_MEETING_RECORDING_DATA);
 
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
     userId: user.userId,

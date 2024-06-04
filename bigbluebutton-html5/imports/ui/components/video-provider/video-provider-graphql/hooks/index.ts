@@ -5,7 +5,6 @@ import {
   useState,
 } from 'react';
 import {
-  useSubscription,
   useReactiveVar,
   useLazyQuery,
   useMutation,
@@ -37,27 +36,10 @@ import {
 } from '../queries';
 import videoService from '../service';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
-import { StreamItem } from '../types';
+import { GridItem, StreamItem, StreamUser } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
-
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
-const {
-  desktopPageSizes: DESKTOP_PAGE_SIZES,
-  mobilePageSizes: MOBILE_PAGE_SIZES,
-  desktopGridSizes: DESKTOP_GRID_SIZES,
-  mobileGridSizes: MOBILE_GRID_SIZES,
-} = window.meetingClientSettings.public.kurento.pagination;
-const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
-const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort(
-  (t1, t2) => t1.users - t2.users,
-);
-const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
-const {
-  paginationSorting: PAGINATION_SORTING,
-  defaultSorting: DEFAULT_SORTING,
-} = window.meetingClientSettings.public.kurento.cameraSortingModes;
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',
@@ -65,7 +47,7 @@ const FILTER_VIDEO_STATS = [
 ];
 
 export const useStatus = () => {
-  const videoState = useVideoState()[0];
+  const [videoState] = useVideoState();
   if (videoState.isConnecting) return 'videoConnecting';
   if (videoState.isConnected) return 'connected';
   return 'disconnected';
@@ -104,7 +86,7 @@ export const useVideoStreamsCount = () => {
 
 export const useLocalVideoStreamsCount = () => {
   const { streams } = useStreams();
-  const localStreams = streams.filter((vs) => vs.userId === Auth.userID);
+  const localStreams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
 
   return localStreams.length;
 };
@@ -163,7 +145,18 @@ export const useDisableCam = () => {
 };
 
 export const usePageSizeDictionary = () => {
-  const { data: countData } = useSubscription(
+  const {
+    desktopPageSizes: DESKTOP_PAGE_SIZES,
+    mobilePageSizes: MOBILE_PAGE_SIZES,
+  } = window.meetingClientSettings.public.kurento.pagination;
+
+  const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
+  const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
+  const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort(
+    (t1, t2) => t1.users - t2.users,
+  );
+
+  const { data: countData } = useDeduplicatedSubscription(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
   );
   const userCount = countData?.user_aggregate?.aggregate?.count || 0;
@@ -220,6 +213,8 @@ export const useMyRole = () => {
 export const useMyPageSize = () => {
   const myRole = useMyRole();
   const pageSizes = usePageSizeDictionary();
+  const ROLE_MODERATOR = videoService.getRoleModerator();
+  const ROLE_VIEWER = videoService.getRoleViewer();
   let size;
   switch (myRole) {
     case ROLE_MODERATOR:
@@ -240,21 +235,14 @@ export const useStreams = () => {
   return { streams: videoStreams };
 };
 
-type StreamUser = VideoStreamsUsersResponse['user'][number] & {
-  pin: boolean;
-  sortName: string;
-};
-
-type GridUser = StreamUser & { type: 'grid' };
-
 export const useStreamUsers = (isGridEnabled: boolean) => {
   const { streams } = useStreams();
   const gridSize = useGridSize();
   const [users, setUsers] = useState<StreamUser[]>([]);
-  const [gridUsers, setGridUsers] = useState<GridUser[]>([]);
+  const [gridUsers, setGridUsers] = useState<GridItem[]>([]);
   const userIds = useMemo(() => streams.map((s) => s.userId), [streams]);
   const streamCount = streams.length;
-  const { data, loading, error } = useSubscription<VideoStreamsUsersResponse>(
+  const { data, loading, error } = useDeduplicatedSubscription<VideoStreamsUsersResponse>(
     VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
     { variables: { userIds } },
   );
@@ -262,7 +250,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
     data: gridData,
     loading: gridLoading,
     error: gridError,
-  } = useSubscription<VideoStreamsUsersResponse>(
+  } = useDeduplicatedSubscription<VideoStreamsUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
       variables: { exceptUserIds: userIds, limit: Math.max(gridSize - streamCount, 0) },
@@ -277,16 +265,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
       logger.error(`Stream users subscription failed. name=${error.name}`, error);
     }
 
-    if (data) {
-      const newUsers = data.user.map((user) => ({
-        ...user,
-        pin: user.pinned,
-        sortName: user.nameSortable,
-      }));
-      setUsers(newUsers);
-    } else {
-      setUsers([]);
-    }
+    setUsers(data ? data.user : []);
   }, [data]);
 
   useEffect(() => {
@@ -299,8 +278,6 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
     if (gridData) {
       const newGridUsers = gridData.user.map((user) => ({
         ...user,
-        pin: user.pinned,
-        sortName: user.nameSortable,
         type: 'grid' as const,
       }));
       setGridUsers(newGridUsers);
@@ -321,7 +298,7 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
 export const useSharedDevices = () => {
   const { streams } = useStreams();
   const devices = streams
-    .filter((s) => s.userId === Auth.userID)
+    .filter((s) => videoService.isLocalStream(s.stream))
     .map((vs) => vs.deviceId);
 
   return devices;
@@ -340,6 +317,13 @@ export const useCurrentVideoPageIndex = () => {
 export const useGridSize = () => {
   let size;
   const myRole = useMyRole();
+  const ROLE_MODERATOR = videoService.getRoleModerator();
+  const ROLE_VIEWER = videoService.getRoleViewer();
+  const {
+    desktopGridSizes: DESKTOP_GRID_SIZES,
+    mobileGridSizes: MOBILE_GRID_SIZES,
+  } = window.meetingClientSettings.public.kurento.pagination;
+
   const gridSizes = !videoService.isMobile
     ? DESKTOP_GRID_SIZES
     : MOBILE_GRID_SIZES;
@@ -369,20 +353,25 @@ export const useVideoStreams = (
   const isPaginationEnabled = useIsPaginationEnabled(paginationEnabled);
   let streams: StreamItem[] = [...videoStreams];
 
+  const {
+    paginationSorting: PAGINATION_SORTING,
+    defaultSorting: DEFAULT_SORTING,
+  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+
   if (connectingStream) streams.push(connectingStream);
 
   if (!viewParticipantsWebcams) {
-    streams = streams.filter((stream) => stream.userId === Auth.userID);
+    streams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
   }
 
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
-      (vs: StreamItem) => Auth.userID === vs.userId || (vs.type === 'stream' && vs.pin),
+      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === 'stream' && vs.pinned),
     );
     const [pin, mine] = partition(
       filtered,
-      (vs: StreamItem) => vs.type === 'stream' && vs.pin,
+      (vs: StreamItem) => vs.type === 'stream' && vs.pinned,
     );
 
     if (myPageSize !== 0) {
@@ -431,12 +420,17 @@ export const useVideoStreams = (
 
 export const useHasVideoStream = () => {
   const { streams } = useStreams();
-  return streams.some((s) => s.userId === Auth.userID);
+  return streams.some((s) => videoService.isLocalStream(s.stream));
 };
 
 const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
   OWN_VIDEO_STREAMS_QUERY,
-  { variables: { userId: Auth.userID } },
+  {
+    variables: {
+      userId: Auth.userID,
+      streamIdPrefix: `${videoService.getPrefix()}%`,
+    },
+  },
 );
 
 export const useExitVideo = (forceExit = false) => {
@@ -448,26 +442,35 @@ export const useExitVideo = (forceExit = false) => {
 
     if (isConnected || forceExit) {
       const sendUserUnshareWebcam = (cameraId: string) => {
-        cameraBroadcastStop({ variables: { cameraId } });
+        return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      return getOwnVideoStreams().then(({ data }) => {
+      return getOwnVideoStreams().then(async ({ data }) => {
         if (data) {
           const streams = data.user_camera || [];
-          streams.forEach((s: { streamId: string }) => sendUserUnshareWebcam(s.streamId));
-          videoService.exitedVideo();
+          const results = streams.map((s) => sendUserUnshareWebcam(s.streamId));
+          return Promise.all(results).then(() => {
+            videoService.exitedVideo();
+            return true;
+          }).catch((e) => {
+            logger.warn({
+              logCode: 'exit_audio',
+              extraInfo: e,
+            }, 'Exiting audio');
+            return false;
+          });
         }
-        return null;
+        return true;
       });
     }
-    return Promise.resolve(null);
+    return true;
   }, [cameraBroadcastStop]);
 
   return exitVideo;
 };
 
 export const useViewersInWebcamCount = (): number => {
-  const { data } = useSubscription(VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION);
+  const { data } = useDeduplicatedSubscription(VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION);
   return data?.user_camera_aggregate?.aggregate?.count || 0;
 };
 
@@ -567,4 +570,13 @@ export const useGetStats = (
 
     return stats;
   }, [peers]);
+};
+
+export const useShouldRenderPaginationToggle = () => {
+  const myPageSize = useMyPageSize();
+  const {
+    paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
+  } = window.meetingClientSettings.public.kurento.pagination;
+
+  return PAGINATION_TOGGLE_ENABLED && myPageSize > 0;
 };

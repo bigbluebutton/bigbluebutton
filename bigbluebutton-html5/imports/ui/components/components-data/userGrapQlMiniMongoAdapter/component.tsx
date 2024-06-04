@@ -1,14 +1,8 @@
-import { useSubscription } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
-import CURRENT_USER_SUBSCRIPTION from '/imports/ui/core/graphql/queries/currentUserSubscription';
-import { User } from '/imports/ui/Types/user';
 import Users from '/imports/api/users';
 import logger from '/imports/startup/client/logger';
 import { AdapterProps } from '../graphqlToMiniMongoAdapterManager/component';
-
-interface UserCurrentResponse {
-  user_current: Array<User>;
-}
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const UserGrapQlMiniMongoAdapter: React.FC<AdapterProps> = ({
   onReady,
@@ -16,9 +10,9 @@ const UserGrapQlMiniMongoAdapter: React.FC<AdapterProps> = ({
 }) => {
   const ready = useRef(false);
   const {
-    error,
     data,
-  } = useSubscription<UserCurrentResponse>(CURRENT_USER_SUBSCRIPTION);
+    errors: error,
+  } = useCurrentUser((u) => u);
   const [userDataSetted, setUserDataSetted] = useState(false);
 
   useEffect(() => {
@@ -28,13 +22,13 @@ const UserGrapQlMiniMongoAdapter: React.FC<AdapterProps> = ({
   }, [error]);
 
   useEffect(() => {
-    if (data && data.user_current) {
+    if (data) {
       if (!ready.current) {
         ready.current = true;
         onReady('UserGrapQlMiniMongoAdapter');
       }
-      const { userId } = data.user_current[0];
-      Users.upsert({ userId }, data.user_current[0]);
+      const { userId } = data;
+      Users.upsert({ userId }, data);
       if (!userDataSetted) {
         setUserDataSetted(true);
       }

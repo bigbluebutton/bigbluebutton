@@ -6,7 +6,7 @@ import Styled from './styles';
 import {
   EFFECT_TYPES,
   BLUR_FILENAME,
-  IMAGE_NAMES,
+  getImageNames,
   getVirtualBackgroundThumbnail,
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
@@ -16,11 +16,10 @@ import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
-const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -35,64 +34,13 @@ const propTypes = {
   }),
 };
 
-const intlMessages = defineMessages({
-  virtualBackgroundSettingsLabel: {
-    id: 'app.videoPreview.webcamVirtualBackgroundLabel',
-    description: 'Label for the virtual background',
-  },
-  virtualBackgroundSettingsDisabledLabel: {
-    id: 'app.videoPreview.webcamVirtualBackgroundDisabledLabel',
-    description: 'Label for the unsupported virtual background',
-  },
-  noneLabel: {
-    id: 'app.video.virtualBackground.none',
-    description: 'Label for no virtual background selected',
-  },
-  customLabel: {
-    id: 'app.video.virtualBackground.custom',
-    description: 'Label for custom virtual background selected',
-  },
-  removeLabel: {
-    id: 'app.video.virtualBackground.remove',
-    description: 'Label for remove custom virtual background',
-  },
-  blurLabel: {
-    id: 'app.video.virtualBackground.blur',
-    description: 'Label for the blurred camera option',
-  },
-  camBgAriaDesc: {
-    id: 'app.video.virtualBackground.camBgAriaDesc',
-    description: 'Label for virtual background button aria',
-  },
-  customDesc: {
-    id: 'app.video.virtualBackground.button.customDesc',
-    description: 'Aria description for upload virtual background button',
-  },
-  background: {
-    id: 'app.video.virtualBackground.background',
-    description: 'Label for the background word',
-  },
-  backgroundWithIndex: {
-    id: 'app.video.virtualBackground.backgroundWithIndex',
-    description: 'Label for the background word indexed',
-  },
-  ...IMAGE_NAMES.reduce((prev, imageName) => {
-    const id = imageName.split('.').shift();
-    return {
-      ...prev,
-      [id]: {
-        id: `app.video.virtualBackground.${id}`,
-        description: `Label for the ${id} camera option`,
-        defaultMessage: '{background} {index}',
-      },
-    };
-  }, {})
-});
-
 const SKELETON_COUNT = 5;
-const VIRTUAL_BACKGROUNDS_CONFIG = window.meetingClientSettings.public.virtualBackgrounds;
-const ENABLE_UPLOAD = VIRTUAL_BACKGROUNDS_CONFIG.enableVirtualBackgroundUpload;
-const shouldEnableBackgroundUpload = () => ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
+
+const shouldEnableBackgroundUpload = () => {
+  const VIRTUAL_BACKGROUNDS_CONFIG = window.meetingClientSettings.public.virtualBackgrounds;
+  const ENABLE_UPLOAD = VIRTUAL_BACKGROUNDS_CONFIG.enableVirtualBackgroundUpload;
+  return ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
+};
 
 const VirtualBgSelector = ({
   intl,
@@ -103,6 +51,62 @@ const VirtualBgSelector = ({
   isVisualEffects,
   readFile,
 }) => {
+  const IMAGE_NAMES = getImageNames();
+
+  const intlMessages = defineMessages({
+    virtualBackgroundSettingsLabel: {
+      id: 'app.videoPreview.webcamVirtualBackgroundLabel',
+      description: 'Label for the virtual background',
+    },
+    virtualBackgroundSettingsDisabledLabel: {
+      id: 'app.videoPreview.webcamVirtualBackgroundDisabledLabel',
+      description: 'Label for the unsupported virtual background',
+    },
+    noneLabel: {
+      id: 'app.video.virtualBackground.none',
+      description: 'Label for no virtual background selected',
+    },
+    customLabel: {
+      id: 'app.video.virtualBackground.custom',
+      description: 'Label for custom virtual background selected',
+    },
+    removeLabel: {
+      id: 'app.video.virtualBackground.remove',
+      description: 'Label for remove custom virtual background',
+    },
+    blurLabel: {
+      id: 'app.video.virtualBackground.blur',
+      description: 'Label for the blurred camera option',
+    },
+    camBgAriaDesc: {
+      id: 'app.video.virtualBackground.camBgAriaDesc',
+      description: 'Label for virtual background button aria',
+    },
+    customDesc: {
+      id: 'app.video.virtualBackground.button.customDesc',
+      description: 'Aria description for upload virtual background button',
+    },
+    background: {
+      id: 'app.video.virtualBackground.background',
+      description: 'Label for the background word',
+    },
+    backgroundWithIndex: {
+      id: 'app.video.virtualBackground.backgroundWithIndex',
+      description: 'Label for the background word indexed',
+    },
+    ...IMAGE_NAMES.reduce((prev, imageName) => {
+      const id = imageName.split('.').shift();
+      return {
+        ...prev,
+        [id]: {
+          id: `app.video.virtualBackground.${id}`,
+          description: `Label for the ${id} camera option`,
+          defaultMessage: '{background} {index}',
+        },
+      };
+    }, {}),
+  });
+
   const [currentVirtualBg, setCurrentVirtualBg] = useState({
     ...initialVirtualBgState,
   });
@@ -181,6 +185,7 @@ const VirtualBgSelector = ({
 
   const renderDropdownSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
+    const IMAGE_NAMES = getImageNames();
 
     return (
       <div>
@@ -252,7 +257,9 @@ const VirtualBgSelector = ({
 
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
+    const Settings = getSettingsSingletonInstance();
     const isRTL = Settings.application.isRTL;
+    const IMAGE_NAMES = getImageNames();
 
     const renderBlurButton = (index) => {
       return (
@@ -436,6 +443,7 @@ const VirtualBgSelector = ({
     );
 
     const ready = loaded && defaultSetUp;
+    const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
 
     return (
       <Styled.VirtualBackgroundRowThumbnail>

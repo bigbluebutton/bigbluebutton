@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Service from './service';
 import logger from '/imports/startup/client/logger';
 
 const EmojiRain = ({ reactions }) => {
+  const Settings = getSettingsSingletonInstance();
   const containerRef = useRef(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const EMOJI_SIZE = window.meetingClientSettings.public.app.emojiRain.emojiSize;
