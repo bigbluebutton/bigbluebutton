@@ -479,7 +479,8 @@ exports.wbDelete = 'span[id="TD-Delete"]';
 exports.wbUndo = 'button[data-testid="main.undo"]';
 exports.wbRedo = 'button[data-testid="main.redo"]';
 exports.wbStyles = 'button[id="TD-Styles"]';
-exports.wbColorRed = 'button[data-testid="style.color.red"]';
+exports.whiteboardStyles = 'button[data-testid="mobile.styles"]';
+exports.wbColorRed = 'button[data-id="red"]';
 exports.wbFillDrawing = 'button[data-testid="style.fill.solid"]';
 exports.wbDashDotted = 'button[data-testid="style.dash.dotted"]';
 exports.wbSizeLarge = 'button[data-testid="style.size.l"]';
@@ -487,8 +488,8 @@ exports.wbOptions = 'button[data-testid="main.action-menu"]';
 exports.wbDuplicate = 'span[id="TD-Tools-Copy"]';
 exports.wbRotate = 'button[data-testid="menu-item.rotate-cw"]';
 exports.wbMoveBackward = 'button[data-testid="menu-item.send-backward"]';
-exports.wbMoveForward = 'span[id="TD-Tools-ArrowUp"]';
-exports.wbMoveToFront = 'span[id="TD-Tools-PinTop"]';
+exports.wbMoveForward = 'button[data-testid="menu-item.bring-forward"]';
+exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 
 // About modal

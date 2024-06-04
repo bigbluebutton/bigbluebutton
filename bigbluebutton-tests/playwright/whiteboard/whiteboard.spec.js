@@ -119,7 +119,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await deleteDrawing.test();
   });
 
-  test.only('Undo drawing', async ({ browser, context, page }) => {
+  test('Undo drawing', async ({ browser, context, page }) => {
     const undoDrawing = new UndoDrawing(browser, context);
     await undoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await undoDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
@@ -169,7 +169,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
   });
 
   test.describe.parallel('Shape Options', () => {
-    test('Duplicate', async ({ browser, context, page }) => {
+    test('Duplicate @flaky', async ({ browser, context, page }) => {
       const shapeOptions = new ShapeOptions(browser, context);
       await shapeOptions.initModPage(page, true);
       await shapeOptions.initUserPage(true, context);
