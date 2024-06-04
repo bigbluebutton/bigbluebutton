@@ -86,6 +86,7 @@ public class ParamsProcessorUtil {
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
+    private Boolean defaultAllowPromoteGuestToModerator;
     private String defaultMeetingLayout;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
@@ -676,7 +677,12 @@ public class ParamsProcessorUtil {
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
-		    }
+		}
+
+        Boolean allowPromoteGuestToModerator = defaultAllowPromoteGuestToModerator;
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_PROMOTE_GUEST_TO_MODERATOR))) {
+            allowPromoteGuestToModerator = Boolean.parseBoolean(params.get(ApiParams.ALLOW_PROMOTE_GUEST_TO_MODERATOR));
+        }
 
         String presentationUploadExternalDescription = defaultPresentationUploadExternalDescription;
         if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION))) {
@@ -766,6 +772,7 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withAllowPromoteGuestToModerator(allowPromoteGuestToModerator)
                 .withAllowRequestsWithoutSession(allowRequestsWithoutSession)
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
@@ -1297,7 +1304,11 @@ public class ParamsProcessorUtil {
 		this.authenticatedGuest = value;
 	}
 
-  public void setDefaultMeetingLayout(String meetingLayout) {
+    public void setDefaultAllowPromoteGuestToModerator(Boolean value) {
+        this.defaultAllowPromoteGuestToModerator = value;
+    }
+
+	public void setDefaultMeetingLayout(String meetingLayout) {
 		this.defaultMeetingLayout =  meetingLayout;
 	}
 

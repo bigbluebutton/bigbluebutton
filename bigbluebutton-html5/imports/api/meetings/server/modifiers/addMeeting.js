@@ -100,6 +100,7 @@ export default async function addMeeting(meeting) {
       userCameraCap: Number,
       guestPolicy: String,
       authenticatedGuest: Boolean,
+      allowPromoteGuestToModerator: Boolean,
       allowModsToUnmuteUsers: Boolean,
       allowModsToEjectCameras: Boolean,
       meetingLayout: String,

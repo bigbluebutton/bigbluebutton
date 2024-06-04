@@ -44,6 +44,7 @@ trait AppsTestFixtures {
   val allowModsToUnmuteUsers = false
   val allowModsToEjectCameras = false
   val authenticatedGuest = false
+  val allowPromoteGuestToModerator = false
   val meetingLayout = ""
   val captureNotesFilename = s"Room 0${sequence} (Notes)"
   val captureSlidesFilename = s"Room 0${sequence} (Whiteboard)"
@@ -70,7 +71,7 @@ trait AppsTestFixtures {
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     userCameraCap = userCameraCap,
     guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras,
-    authenticatedGuest = authenticatedGuest, meetingLayout = meetingLayout)
+    authenticatedGuest = authenticatedGuest, allowPromoteGuestToModerator = allowPromoteGuestToModerator, meetingLayout = meetingLayout)
   val metadataProp = new MetadataProp(metadata)
 
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,

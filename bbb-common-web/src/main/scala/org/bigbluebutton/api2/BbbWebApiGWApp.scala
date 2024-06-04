@@ -130,7 +130,10 @@ class BbbWebApiGWApp(
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
-                    metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
+                    metadata: java.util.Map[String, String], guestPolicy: String,
+                    authenticatedGuest: java.lang.Boolean,
+                    allowPromoteGuestToModerator: java.lang.Boolean,
+                    meetingLayout: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
                     dialNumber:                             String,
                     maxUsers:                               java.lang.Integer,
@@ -211,7 +214,8 @@ class BbbWebApiGWApp(
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
-      authenticatedGuest = authenticatedGuest.booleanValue()
+      authenticatedGuest = authenticatedGuest.booleanValue(),
+      allowPromoteGuestToModerator = allowPromoteGuestToModerator.booleanValue()
     )
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
