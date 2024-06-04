@@ -5,15 +5,8 @@ import {
 } from '/imports/ui/Types/meeting';
 import Auth from '/imports/ui/services/auth';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
+import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
@@ -27,6 +20,8 @@ export const generateActionsPermissions = (
   isBreakout: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
+
+  const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
 
   const amIModerator = currentUser.isModerator;
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId);
@@ -111,6 +106,8 @@ export const isVideoPinEnabledForCurrentUser = (
   isBreakout: boolean,
 ) => {
   const { isModerator } = currentUser;
+
+  const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
   const isPinEnabled = PIN_WEBCAM;
 
   return !!(isModerator
@@ -124,11 +121,11 @@ export const isVideoPinEnabledForCurrentUser = (
 // so this code is duplicated from the old userlist service
 // session for chats the current user started
 
-export const toggleVoice = (userId: string, voiceToggle: (userId?: string | null, muted?: boolean | null) => void) => {
+export const toggleVoice = (userId: string, muted: boolean, voiceToggle: (userId: string, muted: boolean) => void) => {
   if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone(voiceToggle);
+    toggleMuteMicrophone(!muted, voiceToggle);
   } else {
-    voiceToggle(userId);
+    voiceToggle(userId, muted);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },

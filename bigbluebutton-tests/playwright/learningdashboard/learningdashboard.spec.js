@@ -30,7 +30,7 @@ test.describe('Learning Dashboard', async () => {
     await learningDashboard.basicInfos();
   });
 
-  test('Overview', async () => {
+  test('Overview @ci', async () => {
     await learningDashboard.overview();
   });
 

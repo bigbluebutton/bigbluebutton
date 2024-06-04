@@ -1,11 +1,18 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.models.{UserState}
+import org.bigbluebutton.core.models.UserState
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
+
+case class UserEjectColumnsDbModel(
+    ejected:                      Boolean = false,
+    ejectReason:                  Option[String],
+    ejectReasonCode:              Option[String],
+    ejectedByModerator:           Option[String],
+)
 case class UserStateDbModel(
     meetingId:                    String,
     userId:                       String,
@@ -19,14 +26,12 @@ case class UserStateDbModel(
     clientType:                   String,
     disconnected:                 Boolean = false,
     expired:                      Boolean = false,
-    ejected:                      Boolean = false,
-    ejectReason:                  Option[String],
-    ejectReasonCode:              Option[String],
-    ejectedByModerator:           Option[String],
+    ejectColumns:                 UserEjectColumnsDbModel,
     presenter:                    Boolean = false,
     pinned:                       Boolean = false,
     locked:                       Boolean = false,
     speechLocale:                 String,
+    captionLocale:                String,
     inactivityWarningDisplay:     Boolean = false,
     inactivityWarningTimeoutSecs: Option[Long],
 )
@@ -34,7 +39,7 @@ case class UserStateDbModel(
 class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "user") {
   override def * = (
     meetingId, userId,emoji,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,
-    expired,ejected,ejectReason,ejectReasonCode,ejectedByModerator,presenter,pinned,locked,speechLocale,
+    expired,ejectColumns,presenter,pinned,locked,speechLocale, captionLocale,
     inactivityWarningDisplay, inactivityWarningTimeoutSecs) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
@@ -52,10 +57,12 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val ejectReason = column[Option[String]]("ejectReason")
   val ejectReasonCode = column[Option[String]]("ejectReasonCode")
   val ejectedByModerator = column[Option[String]]("ejectedByModerator")
+  val ejectColumns = (ejected, ejectReason, ejectReasonCode, ejectedByModerator) <> (UserEjectColumnsDbModel.tupled, UserEjectColumnsDbModel.unapply)
   val presenter = column[Boolean]("presenter")
   val pinned = column[Boolean]("pinned")
   val locked = column[Boolean]("locked")
   val speechLocale = column[String]("speechLocale")
+  val captionLocale = column[String]("captionLocale")
   val inactivityWarningDisplay = column[Boolean]("inactivityWarningDisplay")
   val inactivityWarningTimeoutSecs = column[Option[Long]]("inactivityWarningTimeoutSecs")
 }
@@ -66,8 +73,20 @@ object UserStateDAO {
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === userState.meetingId)
         .filter(_.userId === userState.intId)
-        .map(u => (u.presenter, u.pinned, u.locked, u.speechLocale, u.emoji, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected))
-        .update((userState.presenter, userState.pin, userState.locked, userState.speechLocale, userState.emoji, userState.away, userState.raiseHand, userState.mobile, userState.clientType, userState.userLeftFlag.left))
+        .map(u => (u.presenter, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.emoji, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected))
+        .update((
+          userState.presenter,
+          userState.pin,
+          userState.locked,
+          userState.speechLocale,
+          userState.captionLocale,
+          userState.emoji,
+          userState.away,
+          userState.raiseHand,
+          userState.mobile,
+          userState.clientType,
+          userState.userLeftFlag.left
+        ))
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")

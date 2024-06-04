@@ -21,8 +21,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const ENABLE_WEBCAM_BACKGROUND_UPLOAD = window.meetingClientSettings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
-
 const DragAndDrop = (props) => {
   const { children, intl, readFile, onVirtualBgDrop: onAction, isStream } = props;
 
@@ -31,6 +29,8 @@ const DragAndDrop = (props) => {
   const [isConfirmModalOpen, setConfirmModalIsOpen] = useState(false);
   const [file, setFile] = useState(false);
   const { dispatch: dispatchCustomBackground } = useContext(CustomVirtualBackgroundsContext);
+
+  const ENABLE_WEBCAM_BACKGROUND_UPLOAD = window.meetingClientSettings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
   let callback;
   const resetEvent = (e) => {

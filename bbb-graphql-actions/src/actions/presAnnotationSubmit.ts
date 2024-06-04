@@ -1,7 +1,15 @@
 import { RedisMessage } from '../types';
 import { ValidationError } from '../types/ValidationError';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'pageId', type: 'string', required: true},
+        {name: 'annotations', type: 'jsonArray', required: true},
+      ]
+  )
+
   const eventName = `SendWhiteboardAnnotationsPubMsg`;
 
   const routing = {
@@ -15,14 +23,9 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
-  if(typeof input.annotations !== 'object' || !Array.isArray(input.annotations)) {
-    throw new ValidationError('Field `annotations` contains an invalid Json Array.', 400);
-  }
-
   const body = {
     whiteboardId: input.pageId,
     annotations: input.annotations,
-    html5InstanceId: '', //TODO remove this prop from bbb-common-msg
   };
 
   return { eventName, routing, header, body };

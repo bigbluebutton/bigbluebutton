@@ -95,19 +95,28 @@ Like many open source projects, at the core of the project are a team of develop
 
 Committers:
 
+- Guilherme Pereira Leme, plugins
+- Kert Browne, whiteboard
+- Tainan Felipe Pauli De Almeida, client
+- Anton Barboza De Sa, testing
+- Ramón Souza, client
+- Gustavo Trott, core
+- Lucas Zawacki, core
 - Richard Alam, lead architect
 - Felipe Cecagno, core
-- Fred Dixon, project manager
+- Fred Dixon, product manager
 - Jesus Federico, integrations
-- Anton Georgiev, HTML5 client
+- Anton Georgiev, project manager
 - Tiago Jacobs, core
 - Paulo Lanzarin, audio/video
-- Pedro Marin, client
 - Ghazi Triki, core
 - Calvin Walton, record and playback
 
 Past Committers (fondly remembered):
 
+- Mario Gasparoni, media
+- Pedro Marin, client
+- Maxim Khlobystov, testing
 - Oswaldo Acauan, HTML5 client
 - Marco Calderon, server
 - Chad Pilkey, HTML5 client
@@ -199,13 +208,13 @@ BigBlueButton exists because many developers have contributed their time and exp
 
 At first glance at the underlying architecture, BigBlueButton may seem complex, but it's not really once you get to know the system. The BigBlueButton client is written in Javascript. The BigBlueButton server components are written in a combination of Java, Grails, and Scala. You don't need to learn all these languages to help out, but you should be very comfortable programming in Java as JavaScript, Grails, and Scala are all similar to Java.
 
-Before you can contribute as a developer, you need to invest some time into understanding BigBlueButton's [architecture](/development/architecture#architecture-overview), and you need to setup a [development environment](/development/guide). The source code for BigBlueButton is hosted at [github](https://github.com/bigbluebutton/bigbluebutton), so you'll need to understand [how git works](https://git-scm.com/book) and the workflow for distributed software development.
+Before you can contribute as a developer, you need to invest some time into understanding BigBlueButton's [architecture](/development/architecture#high-level-architecture), and you need to setup a [development environment](/development/guide). The source code for BigBlueButton is hosted at [github](https://github.com/bigbluebutton/bigbluebutton), so you'll need to understand [how git works](https://git-scm.com/book) and the workflow for distributed software development.
 
 Like other open source projects, a good place to start is to try fixing an [open issue](https://github.com/bigbluebutton/bigbluebutton/issues).  Some bugs are more important than others. Stability and usability issues are very important to the BigBlueButton community.
 
 ### I'm not a developer, can I still contribute?
 
-Don't worry if you are not a proficient developer -- there are many ways to help out. You can become proficient in the installation and configuration of a BigBlueButton server. Each month, there are many new users in [bigbluebutton-setup](https://groups.google.com/forum/#!forum/bigbluebutton-setup) that need help with setup of BigBlueButton, especially setup behind a [firewall](#can-i-provide-external-access-to-a-bigbluebutton-server-behind-my-firewall). You can [contribute a language file](/development/localization). You could point out any errors to this documentation. Such assistance reduces the support load on us and gives us more time to work on improving BigBlueButton.
+Don't worry if you are not a proficient developer -- there are many ways to help out. You can become proficient in the installation and configuration of a BigBlueButton server. Each month, there are many new users in [bigbluebutton-setup](https://groups.google.com/forum/#!forum/bigbluebutton-setup) that need help with setup of BigBlueButton, especially setup behind a firewall. You can [contribute a language file](/development/localization). You could point out any errors to this documentation. Such assistance reduces the support load on us and gives us more time to work on improving BigBlueButton.
 
 Any contribution by external members for inclusion into BigBlueButton will be reviewed by one (or more) of the committers. The process for submission and review depends on the complexity of the contribution and requires that you have signed a Contributor License Agreement.
 
@@ -308,7 +317,7 @@ We (the core developers) have not installed BigBlueButton on any other version o
 
 There is no support for CentOS.
 
-We do have experience with CentOS. In April, 2010, we released [BigBlueButton 0.64](/release-notes#release-0.64:-lickety-split) with RPM packages for CentOS 5.4. However, based on our experience of developing, building, and testing both Ubuntu and CentOS packages, we stopped supporting RPM packages after that release.
+We do have experience with CentOS. In April, 2010, we released BigBlueButton 0.64 with RPM packages for CentOS 5.4. However, based on our experience of developing, building, and testing both Ubuntu and CentOS packages, we stopped supporting RPM packages after that release.
 
 Why?
 
@@ -446,7 +455,7 @@ Additionally, you can see [commercial support](https://bigbluebutton.org/commerc
 
 Since BigBlueButton is controlled by its [API](/development/api), there isn't an administrative panel for BigBlueButton. Most of the server maintenance functions are handled by [bbb-conf](/administration/bbb-conf).
 
-The most common way to use BigBlueButton is to use an existing application that has a plugin. See [list of integrations](https://bigbluebutton.org/integrations/).
+The most common way to use BigBlueButton is to use an existing application that has a plugin. See [list of integrations](https://bigbluebutton.org/schools/integrations/).
 
 BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/v3/install).
 
@@ -526,7 +535,7 @@ Absolutely. To see an example of this, check out [GreenLight on our pool of demo
 
 #### How do I setup new classrooms in BigBlueButton
 
-If you are using Sakai, Moodle, Drupal, Joomla, Wordpress or other systems that already have a [BigBlueButton integration](https://bigbluebutton.org/support), then installing the integration provides the easiest way to enable your users to access BigBlueButton sessions.
+If you are using Sakai, Moodle, Drupal, Joomla, Wordpress or other systems that already have a [BigBlueButton integration](https://bigbluebutton.org/schools/integrations/), then installing the integration provides the easiest way to enable your users to access BigBlueButton sessions.
 
 Alternatively, you can set up [Greenlight](/greenlight/v3/install) to be able to easily manage classrooms.
 
@@ -766,38 +775,11 @@ You can checkout the latest code from Git. See [BigBlueButton GitHub repository]
 
 #### Users do not appear in the listeners window
 
-For a user to appear in the listener's window, the 3rd party application using the BigBlueButton API to create a room must pass a `voiceBridge` parameter with the `create` call. See [create meeting](/development/api#create) call. This is done using the [built-in API demos](/administration/install#6.-install-api-demos).
+For a user to appear in the listener's window, the 3rd party application using the BigBlueButton API to create a room must pass a `voiceBridge` parameter with the `create` call. See [create meeting](/development/api#create) call.
 
 Next, BigBlueButton must successfully connect to FreeSWITCH's SIP port and FreeSWITCH's Event Socket Layer. To resolve connection problems, see question below.
 
 ### Audio
-
-#### When I click on the headset icon, nothing happens
-
-First, as with most errors, run
-
-```bash
-$ sudo bbb-conf --check
-```
-
-To see if it can determine configuration errors.
-
-If you are running BigBlueButton on EC2, then note that EC2 uses both a public and private IP address. For example, on an EC2 instance if you type `ifconfig` you'll see that eth0 is bound to an internal private IP address.
-
-Here's a sample output:
-
-```
-eth0      Link encap:Ethernet  HWaddr 12:31:33:22:25:c2
-          inet addr:10.242.78.44  Bcast:10.242.7.255  Mask:255.255.254.0
-          inet6 addr: fe80::1034:33ff:fd02:23c2/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:4004469 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:5024657 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:642594447 (642.5 MB)  TX bytes:2670592958 (2.6 GB)
-```
-
-See [audio is not working](/administration/install#audio-not-working) for how to resolve this.
 
 #### I have two microphones and want to choose one to join the voice conference
 
@@ -883,7 +865,7 @@ Log and configuration file information can be found [here](/administration/confi
 
 #### When will feature X be implemented
 
-BigBlueButton is built by a group of (very determined) open source developers that volunteer their time to the project. Some of us also work for companies that provide [commercial support](https://bigbluebutton.org/support) for BigBlueButton.
+BigBlueButton is built by a group of (very determined) open source developers that volunteer their time to the project. Some of us also work for companies that provide [commercial support](https://bigbluebutton.org/commercial-support) for BigBlueButton.
 
 We want to make BigBlueButton the leading open source web conferencing system for on-line learning. That's no small task, but we've been focused since 2008 on this goal. Today, BigBlueButton is used all around the world and localized into over 50 languages.
 
@@ -905,7 +887,7 @@ If your feature belongs in category (3), you have options. BigBlueButton is an o
 
 The BigBlueButton project does not accept donations. We think it's a poor business model for running an open source project as it suggests the developers are working for charity.
 
-If you want to help the project financially, you can approach some of the companies offering [commercial support](https://bigbluebutton.org/support) for BigBlueButton and engage their services. Doing so creates a healthy ecosystem around the project where companies are encouraged to contribute their resources to improve the project to create a larger pool of potential customers wanting their services.
+If you want to help the project financially, you can approach some of the companies offering [commercial support](https://bigbluebutton.org/commercial-support) for BigBlueButton and engage their services. Doing so creates a healthy ecosystem around the project where companies are encouraged to contribute their resources to improve the project to create a larger pool of potential customers wanting their services.
 
 We appreciate positive feedback on our project as well. If you are on Twitter, send us a tweet to `@bigbluebutton`. That helps raise awareness of our project so others can benefit from it as well.
 

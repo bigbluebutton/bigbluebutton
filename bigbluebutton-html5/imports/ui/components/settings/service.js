@@ -1,9 +1,9 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
-import {notify} from '/imports/ui/services/notification';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { notify } from '/imports/ui/services/notification';
 import GuestService from '/imports/ui/components/waiting-users/service';
-import Intl from '/imports/ui/services/locale';
+import intlHolder from '../../core/singletons/intlHolder';
 
 const getUserRoles = () => {
   const user = Users.findOne({
@@ -32,19 +32,19 @@ const showGuestNotification = () => {
 const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
 
 const updateSettings = (obj, msgDescriptor, mutation) => {
+  const Settings = getSettingsSingletonInstance();
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
   Settings.save(mutation);
 
   if (msgDescriptor) {
     // prevents React state update on unmounted component
     setTimeout(() => {
-      Intl.formatMessage(msgDescriptor).then((txt) => {
-        notify(
-          txt,
-          'info',
-          'settings',
-        );
-      });
+      const intl = intlHolder.getIntl();
+      notify(
+        intl.formatMessage(msgDescriptor),
+        'info',
+        'settings',
+      );
     }, 0);
   }
 };

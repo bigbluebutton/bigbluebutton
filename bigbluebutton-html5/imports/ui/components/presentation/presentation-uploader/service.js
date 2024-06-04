@@ -13,8 +13,6 @@ import { getPresentationUploadToken } from './queries';
 import { requestPresentationUploadTokenMutation } from './mutation';
 
 const TOKEN_TIMEOUT = 5000;
-const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
-
 const POD_ID = 'DEFAULT_PRESENTATION_POD';
 
 // fetch doesn't support progress. So we use xhr which support progress.
@@ -242,6 +240,8 @@ const handleSavePresentation = (
   if (!isPresentationEnabled()) {
     return null;
   }
+
+  const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
   if (!isFromPresentationUploaderInterface) {
     if (presentations.length === 0) {

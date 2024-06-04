@@ -35,7 +35,7 @@ case class GetAllMeetingsReqMsg(
     header: BbbCoreBaseHeader,
     body:   GetAllMeetingsReqMsgBody
 ) extends BbbCoreMsg
-case class GetAllMeetingsReqMsgBody(requesterId: String, html5InstanceId: Int)
+case class GetAllMeetingsReqMsgBody(requesterId: String)
 
 object GetRunningMeetingsReqMsg { val NAME = "GetRunningMeetingsReqMsg" }
 case class GetRunningMeetingsReqMsg(
@@ -278,7 +278,14 @@ case class UserGraphqlConnectionEstablishedSysMsg(
     header: BbbCoreBaseHeader,
     body:   UserGraphqlConnectionEstablishedSysMsgBody
 ) extends BbbCoreMsg
-case class UserGraphqlConnectionEstablishedSysMsgBody(middlewareUID: String, sessionToken: String, browserConnectionId: String)
+case class UserGraphqlConnectionEstablishedSysMsgBody(
+    middlewareUID:       String,
+    sessionToken:        String,
+    clientSessionUUID:   String,
+    clientType:          String,
+    clientIsMobile:      Boolean,
+    browserConnectionId: String
+)
 
 object UserGraphqlConnectionClosedSysMsg { val NAME = "UserGraphqlConnectionClosedSysMsg" }
 case class UserGraphqlConnectionClosedSysMsg(

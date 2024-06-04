@@ -97,7 +97,7 @@ $ bbb-conf --secret
 
 ### `--setsecret <new_secret>`
 
-Assigns a new security secret for the BigBlueButton API.  This does not change the security secret for the API demos, so if you run this command and still want to use the API demos, you'll need to update the shared secret in `/var/lib/tomcat8/webapps/demo/bbb_api_conf.jsp`.
+Assigns a new security secret for the BigBlueButton API.
 
 ### `--start`
 

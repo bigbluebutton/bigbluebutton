@@ -60,9 +60,8 @@ type Mutation {
 }
 
 type Mutation {
-  captionSetOwner(
+  captionAddLocale(
     locale: String!
-    ownerUserId: String!
   ): Boolean
 }
 
@@ -495,12 +494,6 @@ type Mutation {
 }
 
 type Mutation {
-  userSetMobileFlag(
-    mobile: Boolean!
-  ): Boolean
-}
-
-type Mutation {
   userSetMuted(
     userId: String
     muted: Boolean!
@@ -535,6 +528,13 @@ type Mutation {
 
 type Mutation {
   userSetSpeechLocale(
+    locale: String!
+    provider: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetCaptionLocale(
     locale: String!
     provider: String!
   ): Boolean

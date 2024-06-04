@@ -59,7 +59,7 @@ public class Meeting {
 	private Boolean notifyRecordingIsOn;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
-	private String modOnlyMessage = "";
+	private String welcomeMsgForModerators = "";
 	private String loginUrl;
 	private String logoutUrl;
 	private int logoutTimer = 0;
@@ -117,8 +117,6 @@ public class Meeting {
 
 	private String meetingEndedCallbackURL = "";
 
-	private Integer html5InstanceId;
-
 	private String overrideClientSettings = "";
 
     public Meeting(Meeting.Builder builder) {
@@ -174,7 +172,6 @@ public class Meeting {
 		maxUserConcurrentAccesses = builder.maxUserConcurrentAccesses;
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
-        html5InstanceId = builder.html5InstanceId;
 		groups = builder.groups;
 		guestUsersWithPositionInWaitingLine = new HashMap<>();
         userCustomData = new HashMap<>();
@@ -286,10 +283,6 @@ public class Meeting {
 		return GuestPolicy.DENY;
 	}
 
-	public int getHtml5InstanceId() { return html5InstanceId; }
-
-    public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
-
 	public ArrayList<Group> getGroups() { return groups; }
 
 	public void setGroups(ArrayList<Group> groups) { this.groups = groups; }
@@ -354,12 +347,12 @@ public class Meeting {
 		return endTime;
 	}
 
-	public void setModeratorOnlyMessage(String msg) {
-		modOnlyMessage = msg;
+	public void setWelcomeMsgForModerators(String msg) {
+		welcomeMsgForModerators = msg;
 	}
 
-	public String getModeratorOnlyMessage() {
-		return modOnlyMessage;
+	public String getWelcomeMsgForModerators() {
+		return welcomeMsgForModerators;
 	}
 
 	public void setEndTime(long t) {
@@ -925,7 +918,6 @@ public class Meeting {
 		private Integer maxUserConcurrentAccesses;
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
-		private int html5InstanceId;
 		private ArrayList<Group> groups;
 
     	public Builder(String externalId, String internalId, long createTime) {
@@ -1059,7 +1051,7 @@ public class Meeting {
     		return this;
     	}
 
-    	public Builder isBreakout(Boolean b) {
+    	public Builder withIsBreakout(Boolean b) {
     	  isBreakout = b;
     	  return this;
     	}
@@ -1136,11 +1128,6 @@ public class Meeting {
 
 		public Builder withEndWhenNoModeratorDelayInMinutes(Integer endWhenNoModeratorDelayInMinutes) {
     		this.endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes;
-    		return this;
-		}
-
-		public Builder withHTML5InstanceId(int instanceId) {
-    		html5InstanceId = instanceId;
     		return this;
 		}
 

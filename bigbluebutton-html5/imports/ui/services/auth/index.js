@@ -1,13 +1,7 @@
 /* eslint prefer-promise-reject-errors: 0 */
 import { Tracker } from 'meteor/tracker';
-
 import Storage from '/imports/ui/services/storage/session';
-
-// import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
-import logger from '/imports/startup/client/logger';
 import { makeVar } from '@apollo/client';
-
-const CONNECTION_TIMEOUT = window.meetingClientSettings.public.app.connectionTimeout;
 
 class Auth {
   constructor() {
@@ -21,7 +15,6 @@ class Auth {
       && queryParams.get('sessionToken') !== Session.get('sessionToken')) {
       return;
     }
-
 
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');

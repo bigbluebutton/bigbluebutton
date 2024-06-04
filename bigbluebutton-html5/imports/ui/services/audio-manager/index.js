@@ -7,7 +7,6 @@ import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
@@ -23,15 +22,7 @@ import {
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
-
-const STATS = window.meetingClientSettings.public.stats;
-const MEDIA = window.meetingClientSettings.public.media;
-const MEDIA_TAG = MEDIA.mediaTag;
-const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-const MAX_LISTEN_ONLY_RETRIES = 1;
-const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
-const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
-  window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
+import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
@@ -72,7 +63,7 @@ class AudioManager {
     };
 
     this.defineProperties({
-      isMuted: false,
+      isMuted: makeVar(false),
       isConnected: makeVar(false),
       isConnecting: makeVar(false),
       isHangingUp: makeVar(false),
@@ -89,20 +80,20 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+    this.isUsingAudio = this.isUsingAudio.bind(this);
 
     this._inputStream = makeVar(null);
     this._inputStreamTracker = new Tracker.Dependency();
     this._inputDeviceId = {
-      value: makeVar(getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID),
+      value: makeVar(DEFAULT_INPUT_DEVICE_ID),
       tracker: new Tracker.Dependency(),
     };
     this._outputDeviceId = {
-      value: makeVar(getCurrentAudioSinkId()),
+      value: makeVar(null),
       tracker: new Tracker.Dependency(),
     };
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
-    this._applyCachedOutputDeviceId();
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
   }
@@ -167,6 +158,11 @@ class AudioManager {
   }
 
   async init(userData, audioEventHandler) {
+    this.inputDeviceId = getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID;
+    this.outputDeviceId = getCurrentAudioSinkId();
+
+    this._applyCachedOutputDeviceId();
+
     this.loadBridges(userData);
     this.userData = userData;
     this.initialized = true;
@@ -184,6 +180,8 @@ class AudioManager {
   async loadBridges(userData) {
     let FullAudioBridge = SIPBridge;
     let ListenOnlyBridge = SFUAudioBridge;
+
+    const MEDIA = window.meetingClientSettings.public.media;
 
     if (MEDIA.audio) {
       const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
@@ -325,6 +323,11 @@ class AudioManager {
     this.isListenOnly = false;
     this.isEchoTest = true;
 
+    const MEDIA = window.meetingClientSettings.public.media;
+    const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
+    const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
+    window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
+
     return this.onAudioJoining
       .bind(this)()
       .then(async () => {
@@ -351,127 +354,79 @@ class AudioManager {
   }
 
   joinAudio(callOptions, callStateCallback) {
-    return this.bridge.joinAudio(callOptions, callStateCallback.bind(this)).catch((error) => {
-      const { name } = error;
+    return this.bridge
+      .joinAudio(callOptions, callStateCallback.bind(this))
+      .catch((error) => {
+        const { name, message } = error;
+        const errorPayload = {
+          type: 'MEDIA_ERROR',
+          errMessage: message || 'MEDIA_ERROR',
+          errCode: AudioErrors.MIC_ERROR.UNKNOWN,
+        };
 
-      if (!name) {
-        throw error;
-      }
-
-      switch (name) {
-        case 'NotAllowedError':
-          logger.error(
-            {
-              logCode: 'audiomanager_error_getting_device',
+        switch (name) {
+          case 'NotAllowedError':
+            errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
+            logger.error({
+                logCode: 'audiomanager_error_getting_device',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                },
+              },
+              `Error getting microphone - {${error.name}: ${error.message}}`,
+            );
+            break;
+          case 'NotFoundError':
+            errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
+            logger.error({
+                logCode: 'audiomanager_error_device_not_found',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                },
+              },
+              `Error getting microphone - {${error.name}: ${error.message}}`,
+            );
+            break;
+          default:
+            logger.error({
+              logCode: 'audiomanager_error_unknown',
               extraInfo: {
                 errorName: error.name,
                 errorMessage: error.message,
               },
-            },
-            `Error getting microphone - {${error.name}: ${error.message}}`
-          );
-          break;
-        case 'NotFoundError':
-          logger.error(
-            {
-              logCode: 'audiomanager_error_device_not_found',
-              extraInfo: {
-                errorName: error.name,
-                errorMessage: error.message,
-              },
-            },
-            `Error getting microphone - {${error.name}: ${error.message}}`
-          );
-          break;
+            }, `Error enabling audio - {${name}: ${message}}`);
+            break;
+        }
 
-        default:
-          break;
-      }
+        this.isConnecting = false;
+        this.isWaitingPermissions = false;
 
-      this.isConnecting = false;
-      this.isWaitingPermissions = false;
-
-      throw {
-        type: 'MEDIA_ERROR',
-      };
-    });
+        throw errorPayload;
+      });
   }
 
-  async joinListenOnly(r = 0) {
+  async joinListenOnly() {
     this.audioJoinStartTime = new Date();
     this.logAudioJoinTime = false;
-    let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
 
-    const callOptions = {
-      isListenOnly: true,
-      extension: null,
-    };
-
-    // Call polyfills for webrtc client if navigator is "iOS Webview"
-    const userAgent = window.navigator.userAgent.toLocaleLowerCase();
-    if (
-      (userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) &&
-      userAgent.indexOf('safari') === -1
-    ) {
-      iosWebviewAudioPolyfills();
-    }
-
-    // We need this until we upgrade to SIP 9x. See #4690
-    const listenOnlyCallTimeoutErr = 'SIP_CALL_TIMEOUT';
-
-    const iceGatheringTimeout = new Promise((resolve, reject) => {
-      setTimeout(reject, LISTEN_ONLY_CALL_TIMEOUT_MS, listenOnlyCallTimeoutErr);
-    });
-
-    const handleListenOnlyError = (err) => {
-      if (iceGatheringTimeout) {
-        clearTimeout(iceGatheringTimeout);
-      }
-
-      const errorReason =
-        (typeof err === 'string' ? err : undefined) || err.errorReason || err.errorMessage;
-
-      logger.error(
-        {
-          logCode: 'audiomanager_listenonly_error',
-          extraInfo: {
-            errorReason,
-            audioBridge: this.bridge?.bridgeName,
-            retries,
-          },
-        },
-        `Listen only error - ${errorReason} - bridge: ${this.bridge?.bridgeName}`
-      );
-    };
-
-    logger.info(
-      {
-        logCode: 'audiomanager_join_listenonly',
-        extraInfo: { logType: 'user_action' },
-      },
-      'user requested to connect to audio conference as listen only'
-    );
+    logger.info({
+      logCode: 'audiomanager_join_listenonly',
+      extraInfo: { logType: 'user_action' },
+    }, 'user requested to connect to audio conference as listen only');
 
     window.addEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    return this.onAudioJoining()
-      .then(() =>
-        Promise.race([
-          this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
-          iceGatheringTimeout,
-        ])
-      )
-      .catch(async (err) => {
-        handleListenOnlyError(err);
-
-        if (retries < MAX_LISTEN_ONLY_RETRIES) {
-          retries += 1;
-          this.joinListenOnly(retries);
-        }
-
-        return null;
+    return this.onAudioJoining.bind(this)()
+      .then(() => {
+        const callOptions = {
+          isListenOnly: true,
+          extension: null,
+        };
+        return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
@@ -504,7 +459,7 @@ class AudioManager {
 
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    return this.bridge.exitAudio();
+    return this.bridge && this.bridge.exitAudio();
   }
 
   transferCall() {
@@ -538,6 +493,8 @@ class AudioManager {
   onAudioJoin() {
     this.isConnecting = false;
     this.isConnected = true;
+
+    const STATS = window.meetingClientSettings.public.stats;
 
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
@@ -701,7 +658,7 @@ class AudioManager {
   }
 
   isUsingAudio() {
-    return this.isConnected || this.isConnecting || this.isHangingUp || this.isEchoTest;
+    return Boolean(this.isConnected || this.isConnecting || this.isHangingUp || this.isEchoTest);
   }
 
   changeInputDevice(deviceId) {
@@ -767,6 +724,9 @@ class AudioManager {
   async changeOutputDevice(deviceId, isLive) {
     const targetDeviceId = deviceId;
     const currentDeviceId = this.outputDeviceId ?? getCurrentAudioSinkId();
+
+    const MEDIA = window.meetingClientSettings.public.media;
+    const MEDIA_TAG = MEDIA.mediaTag;
     const audioElement = document.querySelector(MEDIA_TAG);
     const sinkIdSupported = audioElement && typeof audioElement.setSinkId === 'function';
 

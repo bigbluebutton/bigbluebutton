@@ -1,13 +1,16 @@
 import {
   ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject, ApolloLink,
 } from '@apollo/client';
-import { WebSocketLink } from '@apollo/client/link/ws';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
-import React, { useContext, useEffect, useRef } from 'react';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
+import React, { useContext, useEffect } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
+import { onError } from '@apollo/client/link/error';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import deviceInfo from '/imports/utils/deviceInfo';
+import { useRef } from 'react';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -47,6 +50,18 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
 
   // logger.debug(`Valid ${operation.operationName} payload. Following with the query.`);
   return forward(operation);
+});
+
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach(({ message }) => {
+      logger.error(`[GraphQL error]: Message: ${message}`);
+    });
+  }
+
+  if (networkError) {
+    logger.error(`[Network error]: ${networkError}`);
+  }
 });
 
 const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): React.ReactNode => {
@@ -89,40 +104,44 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       }
       sessionStorage.setItem('sessionToken', sessionToken);
 
+      const clientSessionUUID = sessionStorage.getItem('clientSessionUUID');
+      const { isMobile } = deviceInfo;
+
       let wsLink;
       try {
-        const subscription = new SubscriptionClient(graphqlUrl, {
-          reconnect: true,
-          timeout: 30000,
-          minTimeout: 30000,
-          reconnectionAttempts: numberOfAttempts.current,
+        const subscription = createClient({
+          url: graphqlUrl,
+          retryAttempts: 2,
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,
+              'X-ClientSessionUUID': clientSessionUUID,
+              'X-ClientType': 'HTML5',
+              'X-ClientIsMobile': isMobile ? 'true' : 'false',
+            },
+          },
+          on: {
+            error: (error) => {
+              logger.error(`Error: on subscription to server: ${error}`);
+              loadingContextInfo.setLoading(false, '');
+              setErrorCounts((prev: number) => prev + 1);
+              throw new Error(`Error: on subscription to server: ${JSON.stringify(error)}`);
+            },
+            closed: () => {
+              connectionStatus.setConnectedStatus(false);
+            },
+            connected: () => {
+              connectionStatus.setConnectedStatus(true);
+            },
+            connecting: () => {
+              connectionStatus.setConnectedStatus(false);
             },
           },
         });
-        subscription.onConnected(() => {
-          connectionStatus.setConnectedStatus(true);
-        });
-        subscription.onDisconnected(() => {
-          connectionStatus.setConnectedStatus(false);
-        });
-        subscription.onReconnecting(() => {
-          connectionStatus.setConnectedStatus(false);
-        });
-        subscription.onReconnected(() => {
-          connectionStatus.setConnectedStatus(true);
-        });
-        subscription.onError(() => {
-          loadingContextInfo.setLoading(false, '');
-          // count failed reconnection based on faileds attempts
-          setErrorCounts((prev: number) => prev + 1);
-        });
-        wsLink = new WebSocketLink(
+        const graphWsLink = new GraphQLWsLink(
           subscription,
         );
-        wsLink = ApolloLink.from([payloadSizeCheckLink, wsLink]);
+        wsLink = ApolloLink.from([payloadSizeCheckLink, errorLink, graphWsLink]);
         wsLink.setOnError((error) => {
           loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));

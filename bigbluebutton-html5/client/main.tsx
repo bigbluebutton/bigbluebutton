@@ -13,15 +13,18 @@ import StartupDataFetch from '/imports/ui/components/connection-manager/startup-
 
 import GraphqlToMiniMongoAdapterManager from '/imports/ui/components/components-data/graphqlToMiniMongoAdapterManager/component';
 
+const STARTUP_CRASH_METADATA = { logCode: 'app_startup_crash', logMessage: 'Possible startup crash' };
+const APP_CRASH_METADATA = { logCode: 'app_crash', logMessage: 'Possible app crash' };
+
 const Main: React.FC = () => {
   // Meteor.disconnect();
   return (
     <StartupDataFetch>
-      <ErrorBoundary Fallback={ErrorScreen}>
+      <ErrorBoundary Fallback={ErrorScreen} logMetadata={STARTUP_CRASH_METADATA}>
         <LoadingScreenHOC>
           <IntlLoaderContainer>
             {/* from there the error messages are located */}
-            <LocatedErrorBoundary Fallback={ErrorScreen}>
+            <LocatedErrorBoundary Fallback={ErrorScreen} logMetadata={APP_CRASH_METADATA}>
               <ConnectionManager>
                 <PresenceManager>
                   <GraphqlToMiniMongoAdapterManager>

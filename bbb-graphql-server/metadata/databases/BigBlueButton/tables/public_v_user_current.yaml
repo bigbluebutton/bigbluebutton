@@ -97,6 +97,15 @@ object_relationships:
         remote_table:
           name: v_user_voice
           schema: public
+  - name: welcomeMsgs
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_welcomeMsgs
+          schema: public
 array_relationships:
   - name: breakoutRooms
     using:
@@ -177,6 +186,7 @@ select_permissions:
         - registeredOn
         - role
         - speechLocale
+        - captionLocale
         - inactivityWarningDisplay
         - inactivityWarningTimeoutSecs
         - userId

@@ -31,7 +31,6 @@ const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;
 const MILLI_IN_MINUTE = 60000;
 const MILLI_IN_SECOND = 1000;
-const TIMER_CONFIG = window.meetingClientSettings.public.timer;
 
 const TRACKS = [
   'noTrack',
@@ -114,6 +113,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   running,
   timePassed,
   startedOn,
+  active,
 }) => {
   const [timerReset] = useMutation(TIMER_RESET);
   const [timerStart] = useMutation(TIMER_START);
@@ -241,6 +241,12 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     });
   }, [timePassed, stopwatch, startedOn]);
 
+  useEffect(() => {
+    if (!active) {
+      closePanel();
+    }
+  }, [active]);
+
   const timerControls = useMemo(() => {
     const timeFormatedString = humanizeSeconds(Math.floor(time / 1000));
     const timeSplit = timeFormatedString.split(':');
@@ -250,6 +256,8 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
     const label = running ? intlMessages.stop : intlMessages.start;
     const color = running ? 'danger' : 'primary';
+
+    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
 
     return (
       <div>
@@ -373,7 +381,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
   return (
     <Styled.TimerSidebarContent
-      data-test="timer"
+      data-test={`${stopwatch ? 'stopwatch' : 'timer'}Container`}
     >
       {/* @ts-ignore - JS code */}
       <Header
@@ -400,7 +408,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
             }}
             disabled={stopwatch}
             color={stopwatch ? 'primary' : 'secondary'}
-            data-test="stopwatch"
+            data-test="stopwatchButton"
           />
           <Styled.TimerSwitchButton
             label={intl.formatMessage(intlMessages.timer)}
@@ -410,7 +418,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
             }}
             disabled={!stopwatch}
             color={!stopwatch ? 'primary' : 'secondary'}
-            data-test="timer"
+            data-test="timerButton"
           />
         </Styled.TimerType>
         {timerControls}
@@ -456,7 +464,6 @@ const TimerPanelContaier: React.FC = () => {
       accumulated={timer.accumulated}
       active={timer.active ?? false}
       time={timer.time}
-      endedOn={timer.endedOn}
       startedOn={timer.startedOn}
       startedAt={timer.startedAt}
     />

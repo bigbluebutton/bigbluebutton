@@ -37,12 +37,8 @@ import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
+import logger from '/imports/startup/client/logger';
 
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
 
@@ -82,6 +78,9 @@ const messages = defineMessages({
   errorMaxMessageLength: {
     id: 'app.chat.errorMaxMessageLength',
   },
+  errorOnSendMessage: {
+    id: 'app.chat.errorOnSendMessage',
+  },
   errorServerDisconnected: {
     id: 'app.chat.disconnected',
   },
@@ -113,12 +112,6 @@ const messages = defineMessages({
     description: 'System chat message when the private chat partnet disconnect from the meeting',
   },
 });
-
-// @ts-ignore - temporary, while meteor exists in the project
-const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
-// @ts-ignore - temporary, while meteor exists in the project
-const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
-const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   handleClickOutside,
@@ -156,6 +149,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [chatSendMessage, {
     loading: chatSendMessageLoading, error: chatSendMessageError,
   }] = useMutation(CHAT_SEND_MESSAGE);
+
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+  const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
+  const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
+  const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
 
   const handleUserTyping = (hasError?: boolean) => {
     if (hasError || !ENABLE_TYPING_INDICATOR) return;
@@ -388,7 +388,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     });
 
-    if (chatSendMessageError) { return <div>something went wrong</div>; }
+    useEffect(() => {
+      if (chatSendMessageError && error == null) {
+        logger.debug('Error on sending chat message: ', chatSendMessageError?.message);
+        setError(intl.formatMessage(messages.errorOnSendMessage));
+      }
+    }, [chatSendMessageError]);
 
     return (
       <Styled.Form
@@ -539,6 +544,8 @@ const ChatMessageFormContainer: React.FC = ({
   if (chat?.participant && !chat.participant.isOnline) {
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
+
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
   return (
     <ChatMessageForm

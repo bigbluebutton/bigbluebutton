@@ -1,21 +1,18 @@
 import LocalPCLoopback from '/imports/ui/services/webrtc-base/local-pc-loopback';
 import browserInfo from '/imports/utils/browserInfo';
 
-const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
-const USE_RTC_LOOPBACK_CHR = window.meetingClientSettings.public.media.localEchoTest.useRtcLoopbackInChromium;
-const {
-  enabled: DELAY_ENABLED = true,
-  delayTime = 0.5,
-  maxDelayTime = 2,
-} = window.meetingClientSettings.public.media.localEchoTest.delay;
-
 let audioContext = null;
 let sourceContext = null;
 let contextDestination = null;
 let stubAudioElement = null;
 let delayNode = null;
 
-const useRTCLoopback = () => (browserInfo.isChrome || browserInfo.isEdge) && USE_RTC_LOOPBACK_CHR;
+const useRTCLoopback = () => {
+  const USE_RTC_LOOPBACK_CHR = window.meetingClientSettings.public.media.localEchoTest.useRtcLoopbackInChromium;
+
+  return (browserInfo.isChrome || browserInfo.isEdge) && USE_RTC_LOOPBACK_CHR;
+};
+
 const createAudioRTCLoopback = () => new LocalPCLoopback({ audio: true });
 
 const cleanupDelayNode = () => {
@@ -47,6 +44,12 @@ const cleanupDelayNode = () => {
 };
 
 const addDelayNode = (stream) => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+  const {
+    delayTime = 0.5,
+    maxDelayTime = 2,
+  } = window.meetingClientSettings.public.media.localEchoTest.delay;
+
   if (stream) {
     if (delayNode || audioContext || sourceContext) cleanupDelayNode();
     const audioElement = document.querySelector(MEDIA_TAG);
@@ -73,6 +76,11 @@ const addDelayNode = (stream) => {
 };
 
 const deattachEchoStream = () => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+  const {
+    enabled: DELAY_ENABLED = true,
+  } = window.meetingClientSettings.public.media.localEchoTest.delay;
+
   const audioElement = document.querySelector(MEDIA_TAG);
 
   if (DELAY_ENABLED) {
@@ -85,6 +93,11 @@ const deattachEchoStream = () => {
 };
 
 const playEchoStream = async (stream, loopbackAgent = null) => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+  const {
+    enabled: DELAY_ENABLED = true,
+  } = window.meetingClientSettings.public.media.localEchoTest.delay;
+
   if (stream) {
     deattachEchoStream();
     let streamToPlay = stream;

@@ -32,7 +32,7 @@ When designing the BigBlueButton client, we didn't feel the need to create any r
 
 Designing for mobile first allows us to take a step back from the current user experience and think about the minimal set of features required for a user to engage in an online session (you will see lots of screen shots of this designs below).
 
-The current Flash-based user experience has a series of windows and layouts to accommodate different users. However, a mobile application doesn't have windows. Instead, it a core set of elements that intelligently overlay as the user needs to access them.
+The current user experience has a series of windows and layouts to accommodate different users. However, a mobile application doesn't have windows. Instead, it a core set of elements that intelligently overlay as the user needs to access them.
 
 We have a similar set of elements in BigBlueButton
 
@@ -48,13 +48,11 @@ Providing a unified experience will allow our users to quickly become familiar w
 
 ### Consistent across platforms
 
-While the initial design of the HTML5 client focused mainly on the mobile experience, we want the HTML5 client to run on the desktop as well. The Flash run-time environment has enabled us to provide BigBlueButton across Mac, Linux, and PC computers. We expect, over time as the HTML5 client matures, it will become the default interface across all platforms.
-
 Mobile has different user experience from a web application. After all, they are different forms of interaction: touch vs. mouse, handheld vs. screen, tap vs. keyboard. Over time, we evolved the designs to include interaction on the desktop. We expect as the HTML5 client matures it will become the default interface across all platforms.
 
 ### Accessibility
 
-Accessibility is _very_ important to our target market of online learning. We wanted to make sure the designs would allow us to provide our users with a variety of accessibility best practices, such as Aria landmarks, Aria labels, Aria polite and providing a colour palette that supports visually impaired users. While Flash has very good support for accessibility within the web browser, we wanted to be sure the HTML5 client was equally accessible as well.
+Accessibility is _very_ important to our target market of online learning. We wanted to make sure the designs would allow us to provide our users with a variety of accessibility best practices, such as Aria landmarks, Aria labels, Aria polite and providing a colour palette that supports visually impaired users.
 
 ### Extensible UI design
 
@@ -164,7 +162,7 @@ Updated presentation controls to be included are, zoom, fit to width and fit to 
 
 #### Audio dialog with echo test
 
-When a user joins a session, a dialogue box will appear signifying which auto route they can take, joining audio using a microphone or listen only (similar to the flash experience). If they select join via a microphone, a user will be prompted with another step asking if they can hear themselves (echo test). From there, if selected "Yes", then they will advance into the session.
+When a user joins a session, a dialogue box will appear signifying which auto route they can take, joining audio using a microphone or listen only. If they select join via a microphone, a user will be prompted with another step asking if they can hear themselves (echo test). From there, if selected "Yes", then they will advance into the session.
 
 ![](/img/html5/bbb-html5_audio_dialogue.png)
 
@@ -195,4 +193,4 @@ When a user joins a session, a dialogue box will appear signifying which auto ro
 
 <hr/>
 
-If you have any questions or feedback, please join [the BigBlueButton community](https://bigbluebutton.org/support/community/) and post them to the [bigbluebutton-dev](https://groups.google.com/forum/#!forum/bigbluebutton-dev) mailing list. We look forward to hearing from you.
+If you have any questions or feedback, please join [the BigBlueButton community](https://bigbluebutton.org/community-support/) and post them to the [bigbluebutton-dev](https://groups.google.com/forum/#!forum/bigbluebutton-dev) mailing list. We look forward to hearing from you.

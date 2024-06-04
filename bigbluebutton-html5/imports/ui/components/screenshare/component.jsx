@@ -30,11 +30,10 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { uniqueId } from '/imports/utils/string-utils';
 
-const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 const MOBILE_HOVER_TIMEOUT = 5000;
 const MEDIA_FLOW_PROBE_INTERVAL = 500;
 const SCREEN_SIZE_DISPATCH_INTERVAL = 500;
@@ -147,6 +146,7 @@ class ScreenshareComponent extends React.Component {
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
+    const Settings = getSettingsSingletonInstance();
     if (Settings.dataSaving.viewScreenshare) {
       notify(intl.formatMessage(this.locales.ended), 'info', this.icon);
     } else {
@@ -329,6 +329,8 @@ class ScreenshareComponent extends React.Component {
 
   renderFullscreenButton() {
     const { intl, fullscreenElementId, fullscreenContext } = this.props;
+
+    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
     if (!ALLOW_FULLSCREEN) return null;
 
@@ -528,7 +530,9 @@ class ScreenshareComponent extends React.Component {
       || (isPresenter && !isGloballyBroadcasting)
       || (!mediaFlowing && loaded && isGloballyBroadcasting);
 
+
     const display = (width > 0 && height > 0) ? 'inherit' : 'none';
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     return (

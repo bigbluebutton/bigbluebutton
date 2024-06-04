@@ -43,6 +43,7 @@ subscription userCurrentSubscription {
     registeredOn
     role
     speechLocale
+    captionLocale
     userId
     customParameters {
       parameter
@@ -92,12 +93,17 @@ subscription userCurrentSubscription {
       muted
       spoke
       listenOnly
+      talking
     }
     presPagesWritable {
       isCurrentPage
       changedModeOn
       pageId
       presentationId
+    }
+    welcomeMsgs {
+      welcomeMsg
+      welcomeMsgForModerators
     }
   }
 }

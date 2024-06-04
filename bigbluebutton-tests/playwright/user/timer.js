@@ -3,7 +3,6 @@ const e = require('../core/elements');
 const { timeInSeconds } = require('./util');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class Timer extends MultiUsers {
   constructor(browser, context) {
@@ -17,30 +16,35 @@ class Timer extends MultiUsers {
     const timerCurrentLocator = await this.modPage.getLocator(e.timerCurrent);
     const timerIndicatorLocator = await this.modPage.getLocator(e.timerIndicator);
 
-    const initialValeuStopWatch = await timeInSeconds(timerCurrentLocator);
-    const initialValeuStopWatchIndicator = await timeInSeconds(timerIndicatorLocator);
+    const initialValueStopWatch = await timeInSeconds(timerCurrentLocator);
+    const initialValueStopWatchIndicator = await timeInSeconds(timerIndicatorLocator);
 
-    await this.modPage.hasText(e.timerCurrent, /00:00:00/);
+    await this.modPage.hasText(e.timerCurrent, /00:00/);
     await this.modPage.waitAndClick(e.startStopTimer);
     await sleep(5000);
     const currentValueStopwatch = await timeInSeconds(timerCurrentLocator);
     const currentValueStopwatchIndicator = await timeInSeconds(timerIndicatorLocator);
-    await expect(currentValueStopwatch).toBeGreaterThan(initialValeuStopWatch);
-    await expect(currentValueStopwatchIndicator).toBeGreaterThan(initialValeuStopWatchIndicator);
+    await expect(currentValueStopwatch).toBeGreaterThan(initialValueStopWatch);
+    await expect(currentValueStopwatchIndicator).toBeGreaterThan(initialValueStopWatchIndicator);
 
     await this.modPage.waitAndClick(e.startStopTimer);
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
-    await this.modPage.hasText(e.timerCurrent, /00:00:00/);
-    await this.modPage.hasText(e.timerIndicator, /00:00:00/);
+    await this.modPage.hasText(e.timerCurrent, /00:00/);
+    await this.modPage.hasText(e.timerIndicator, /00:00/);
 
     await this.modPage.waitAndClick(e.timerButton);
-    await this.modPage.hasText(e.timerCurrent, /00:05:00/);
-    await this.modPage.hasText(e.timerIndicator, /00:05:00/);
+    await this.modPage.hasElement(e.timerContainer);
+    await this.modPage.getLocator(e.secondsInput).press('Backspace');
+    await this.modPage.type(e.secondsInput, '4');
+    await this.modPage.waitAndClick(e.startStopTimer);
+    await this.modPage.hasText(e.timerCurrent, /00:02/);
+    await this.modPage.hasText(e.timerIndicator, /00:02/);
 
-    await this.modPage.getLocator(e.minutesInput).press('Backspace');
-    await this.modPage.type(e.minutesInput, '6');
-    await this.modPage.hasText(e.timerCurrent, /00:06:00/);
-    await this.modPage.hasText(e.timerIndicator, /00:06:00/);
+    // await this.modPage.getLocator(e.secondsInput).press('Backspace');
+    await this.modPage.type(e.secondsInput, '6');
+    await this.modPage.type(e.minutesInput, '2');
+    await this.modPage.hasText(e.timerCurrent, /02:44/);
+    await this.modPage.hasText(e.timerIndicator, /02:44/);
 
     const timerInitialValue = await timeInSeconds(timerCurrentLocator);
     await this.modPage.waitAndClick(e.startStopTimer);
@@ -51,8 +55,8 @@ class Timer extends MultiUsers {
     await this.modPage.waitAndClick(e.startStopTimer);
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
 
-    await this.modPage.hasText(e.timerCurrent, /00:06:00/);
-    await this.modPage.hasText(e.timerIndicator, /00:06:00/);
+    await this.modPage.hasText(e.timerCurrent, /00:06/);
+    await this.modPage.hasText(e.timerIndicator, /00:06/);
 
     //Testing Timer Indicator
     const initialValueIndicator = await timeInSeconds(timerIndicatorLocator);

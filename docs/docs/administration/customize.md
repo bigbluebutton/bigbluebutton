@@ -20,7 +20,9 @@ For the full list of the configuration files and their overriding counterpart, s
 
 ### Preserving customizations using apply-conf.sh
 
-Whenever you upgrade a server to the latest version of BigBlueButton, either using the [manual upgrade steps](/administration/install#upgrading-from-bigbluebutton-25) or the [bbb-install-2.6.sh](https://github.com/bigbluebutton/bbb-install) script, if you have made custom changes to BigBlueButton's configuration files, the packaging scripts may overwrite these changes.
+**Note that starting with BigBlueButton 2.6 we strongly recommend adding your custom settings to `/etc/bigbluebutton` instead. See [the list of override files](/administration/configuration-files#local-overrides-for-configuration-settings)**
+
+Whenever you upgrade a server to the latest version of BigBlueButton, either using the [manual upgrade steps](/administration/install#upgrading-from-bigbluebutton-26-or-27) or the [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) script, if you have made custom changes to BigBlueButton's configuration files [that are deployed from packages], the packaging scripts may overwrite these changes.
 
 To make it easier to apply your configuration changes, you can create a BASH script at `/etc/bigbluebutton/bbb-conf/apply-config.sh` that contains commands to apply your changes. The `bbb-conf` script, which is run as part of the last steps in a manual upgrade steps or using `bbb-install.sh`, will detect `apply-config.sh` and invoke it just before starting all of BigBlueButton's components.
 
@@ -35,18 +37,13 @@ For example, if you create `/etc/bigbluebutton/bbb-conf/apply-config.sh` with th
 source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 enableUFWRules
-
-echo " - Disable screen sharing"
-yq e -i $HTML5_CONFIG public.kurento.enableScreensharing false
-chown meteor:meteor $HTML5_CONFIG
 ```
 
 then when called by `bbb-conf`, the above `apply-conf.sh` script will
 
 - use the helper function `enableUFWRules` to restrict access to specific ports, and
-- set `enableScreensharing` to `false` in the HTML5 configuration file at `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`.
 
-Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-config/bin/apply-lib.sh).
+Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-config/bin/apply-lib.sh).
 This helper script contains some functions to make it easy to apply common configuration changes, along with some helper variables, such as `HTML5_CONFIG`.
 
 The contents of `apply-config.sh` are not owned by any package, so it will never be overwritten.
@@ -471,48 +468,33 @@ If you have sessions that like to share lots of webcams, such as ten or more, th
 
 #### Disable webcams
 
-You can disable webcams by setting `enableVideo` to `false` in the `settings.yml` file for the HTML5 client.
+You can disable webcams by setting `enableVideo` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
 
-To do this automatically between package upgrades and restarts of BigBlueButton, add the following lines to [apply-conf.sh](/administration/customize#apply-confsh).
-
-```bash
-echo " - Disable webcams"
-yq e -i '.public.kurento.enableVideo = false' $HTML5_CONFIG
-chown meteor:meteor $HTML5_CONFIG
-```
+`yq e -i '.public.kurento.enableVideo = false' /etc/bigbluebutton/bbb-html5.yml`
 
 and run `bbb-conf --restart`
 
 #### Disable screen sharing
 
-You can disable screen sharing by setting `enableScreensharing` to `false` in the `settings.yml` file for the HTML5 client.
+You can disable screen sharing by setting `enableScreensharing` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
 
-To do this automatically between package upgrades and restarts of BigBlueButton, add the following lines to [apply-conf.sh](/administration/customize#apply-confsh).
-
-```bash
-echo " - Disable screen sharing"
-yq e -i '.public.kurento.enableScreensharing = false' $HTML5_CONFIG 
-chown meteor:meteor $HTML5_CONFIG
-```
+`yq e -i '.public.kurento.enableScreensharing = false' /etc/bigbluebutton/bbb-html5.yml`
 
 #### Reduce bandwidth for webcams
 
 If you expect users to share many webcams, you can [reduce bandwidth for webcams](#reduce-bandwidth-from-webcams).
 
-To do this automatically between package upgrades and restarts of BigBlueButton, add the following lines to [apply-conf.sh](/administration/customize#apply-confsh).
-
 ```bash
 echo "  - Setting camera defaults"
-yq e -i '.public.kurento.cameraProfiles.(id==low).bitrate = 50' $HTML5_CONFIG 
-yq e -i '.public.kurento.cameraProfiles.(id==medium).bitrate = 100' $HTML5_CONFIG 
-yq e -i '.public.kurento.cameraProfiles.(id==high).bitrate = 200' $HTML5_CONFIG 
-yq e -i '.public.kurento.cameraProfiles.(id==hd).bitrate = 300' $HTML5_CONFIG 
+yq e -i '.public.kurento.cameraProfiles.(id==low).bitrate = 50' /etc/bigbluebutton/bbb-html5.yml 
+yq e -i '.public.kurento.cameraProfiles.(id==medium).bitrate = 100' /etc/bigbluebutton/bbb-html5.yml
+yq e -i '.public.kurento.cameraProfiles.(id==high).bitrate = 200' /etc/bigbluebutton/bbb-html5.yml
+yq e -i '.public.kurento.cameraProfiles.(id==hd).bitrate = 300' /etc/bigbluebutton/bbb-html5.yml
 
-yq e -i '.public.kurento.cameraProfiles.(id==low).default = true' $HTML5_CONFIG 
-yq e -i '.public.kurento.cameraProfiles.(id==medium).default = false' $HTML5_CONFIG 
-yq e -i '.public.kurento.cameraProfiles.(id==high).default = false' $HTML5_CONFIG 
-yq e -i '.public.kurento.cameraProfiles.(id==hd).default = false' $HTML5_CONFIG 
-chown meteor:meteor $HTML5_CONFIG
+yq e -i '.public.kurento.cameraProfiles.(id==low).default = true' /etc/bigbluebutton/bbb-html5.yml
+yq e -i '.public.kurento.cameraProfiles.(id==medium).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq e -i '.public.kurento.cameraProfiles.(id==high).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq e -i '.public.kurento.cameraProfiles.(id==hd).default = false' /etc/bigbluebutton/bbb-html5.yml
 ```
 
 #### Change screen sharing quality parameters
@@ -555,69 +537,9 @@ public:
             max: 10
 ```
 
-#### Run three parallel Kurento media servers
-
-[ Available since BigBluebutton 2.2.24+ ]
-
-Kurento media server handles three different types of media streams: listen only, webcams, and screen share.
-
-Running three parallel Kurento media servers (KMS) -- one dedicated to each type of media stream -- should increase the stability of media handling as the load for starting/stopping media streams spreads over three separate KMS processes. Also, it should increase the reliability of media handling as a crash (and automatic restart) by one KMS will not affect the two.
-
-To configure your BigBlueButton server to run three KMS processes, add the following line to [apply-conf.sh](/administration/customize#apply-confsh)
-
-```sh
-enableMultipleKurentos
-```
-
-and run `sudo bbb-conf --restart`, you should see
-
-```
-  - Configuring three Kurento Media Servers: one for listen only, webcam, and screeshare
-Generating a 2048 bit RSA private key
-....................+++
-......+++
-writing new private key to '/tmp/dtls-srtp-key.pem'
------
-Created symlink from /etc/systemd/system/kurento-media-server.service.wants/kurento-media-server-8888.service to /usr/lib/systemd/system/kurento-media-server-8888.service.
-Created symlink from /etc/systemd/system/kurento-media-server.service.wants/kurento-media-server-8889.service to /usr/lib/systemd/system/kurento-media-server-8889.service.
-Created symlink from /etc/systemd/system/kurento-media-server.service.wants/kurento-media-server-8890.service to /usr/lib/systemd/system/kurento-media-server-8890.service.
-```
-
-After BigBlueButton finishes restarting, you should see three KMS processes running using the `netstat -antp | grep kur` command.
-
-```
-# netstat -antp | grep kur
-tcp6       0      0 :::8888                 :::*                    LISTEN      5929/kurento-media-
-tcp6       0      0 :::8889                 :::*                    LISTEN      5943/kurento-media-
-tcp6       0      0 :::8890                 :::*                    LISTEN      5956/kurento-media-
-tcp6       0      0 127.0.0.1:8888          127.0.0.1:49132         ESTABLISHED 5929/kurento-media-
-tcp6       0      0 127.0.0.1:8890          127.0.0.1:55540         ESTABLISHED 5956/kurento-media-
-tcp6       0      0 127.0.0.1:8889          127.0.0.1:41000         ESTABLISHED 5943/kurento-media-
-```
-
-Each process has its own log file (distinguished by its process ID).
-
-```
-# ls -alt /var/log/kurento-media-server/
-total 92
--rw-rw-r--  1 kurento kurento 11965 Sep 13 17:10 2020-09-13T170908.00000.pid5929.log
--rw-rw-r--  1 kurento kurento 10823 Sep 13 17:10 2020-09-13T170908.00000.pid5943.log
--rw-rw-r--  1 kurento kurento 10823 Sep 13 17:10 2020-09-13T170908.00000.pid5956.log
-```
-
-Now, if you now join a session and choose listen only (which causes Kurento setup a single listen only stream to FreeSWITCH), share your webcam, or share your screen, you'll see updates occurring independently to each of the above log files as each KMS process handles your request.
-
-To revert back to running a single KMS server (which handles all three media streams), change the above line in `/etc/bigbluebutton/bbb-conf/apply-config.sh` to
-
-```sh
-disableMultipleKurentos
-```
-
-and run `sudo bbb-conf --restart` again.
-
 #### Limit overall media streams
 
-On a typical BigBlueButton server Kurento can handle about 1000 media streams. A media stream is created when a user broadcasts or receives a webcam or screen share video, or when a user joins audio listening only. If your server will be using webcams, you can set limits per user, per room, and an overall limit per server in `/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml`. The default is no limit.
+On any setup for BigBlueButton server there is a cap for how many media streams can be shared. A media stream is created when a user broadcasts or receives a webcam or screen share video, or when a user joins audio listening only. If your server will be using webcams, you can set limits per user, per room, and an overall limit per server in `/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml`. The default is no limit.
 
 ```
 mediaThresholds:
@@ -638,8 +560,6 @@ mediaThresholds:
 On a BigBlueButton 2.3 (or later) server, you can place the above in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`, which `bbb-webrtc-sfu` will use to override the settings in `default.yml` (even after package upgrades).
 
 If any of these thresholds are reached, then a user will receive a "Media resources not available (2002)" error when sharing webcams.
-
-Thus, we recommend you [enable multiple Kurento](/administration/customize#run-three-parallel-kurento-media-servers) servers, thereby having one Kurento server for webcams, one for screen share, and one for listen only streams. The settings apply to each Kurento server, so in the above example each Kurento server would have a maximum of 1000 media streams.
 
 BigBlueButton will dynamically reduce the number of webcams in a meeting as the meeting grows larger. These are set in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, but you can override them by placing them in `/etc/bigbluebutton/bbb-html5.yml`.
 
@@ -1186,7 +1106,7 @@ mediasoup:
 
 #### Apply custom settings for TURN server
 
-If always want a specific TURN server configuration, the following to [apply-config.sh](#apply-confsh) and modify `aaa.bbb.ccc.ddd` and `secret` with your values.
+If always want a specific TURN server configuration, the following to [apply-config.sh](#preserving-customizations-using-apply-confsh) and modify `aaa.bbb.ccc.ddd` and `secret` with your values.
 
 ```bash
 echo "  - Update TURN server configuration turn-stun-servers.xml"
@@ -1258,7 +1178,7 @@ bbb-conf --restart
 Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached.
 
 Please use caution when replacing/editing locales. If you followed the steps above you should have a backup copy of `de.json` (with ".old" appended) in `/tmp` in case you need to revert.
-Note that the json files accross BigBlueButton versions are not always interchangeable. The workflow described above is only really meant for cases like
+Note that the json files across BigBlueButton versions are not always interchangeable. The workflow described above is only really meant for cases like
  - I would like to tweak a translation for my own use
  - I would like to adopt a change from upstream without having to wait for the official release in a few days
  - This is part of my customization setup and I know what I need to test. I also know how to recover if needed
@@ -1453,7 +1373,7 @@ Useful tools for development:
 | `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
-| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent. 
+| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not permanent. 
 
 | `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false` |                                                                                                                  | `false`        |
 
@@ -1498,7 +1418,7 @@ Useful tools for development:
 | `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`                                                         | all enabled   |
 | `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`                                      | all enabled   |
 
-#### Themeing & styling parameters
+#### Theming & styling parameters
 
 | Parameter                        | Description                                                                                                          | Default value |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -1654,80 +1574,3 @@ $ sudo apt-get install bbb-webhooks
 ```
 
 For information on configuring bbb-webhooks, see [bbb-webhooks](/development/webhooks).
-
-#### Adjust the number of processes for nodejs
-
-BigBlueButton uses 2 "frontend" and 2 "backend" processes by default to handle live meetings. See the description of the [Scalability of HTML5 server component](/development/architecture#scalability-of-html5-server-component) for details.
-
-Depending on the resources available on your system, increasing the number of processes may allow you to support more concurrent users or concurrent meetings on the server. You can update the following settings in `/etc/bigbluebutton/bbb-html5-with-roles.conf`:
-
-```sh
-# Default = 2; Min = 1; Max = 4
-# On powerful systems with high number of meetings you can set values up to 4 to accelerate handling of events
-NUMBER_OF_BACKEND_NODEJS_PROCESSES=2
-# Default = 2; Min = 0; Max = 8
-# If 0 is set, bbb-html5 will handle both backend and frontend roles in one process (default until Feb 2021)
-# Set a number between 1 and 4 times the value of NUMBER_OF_BACKEND_NODEJS_PROCESSES where higher number helps with meetings
-# stretching the recommended number of users in BigBlueButton
-NUMBER_OF_FRONTEND_NODEJS_PROCESSES=2
-```
-
-Changing these values requires restarting BigBlueButton (`bbb-conf --restart`). This configuration is preserved during updates.
-
-#### Run three parallel Kurento media servers
-
-Kurento media server handles three different types of media streams: listen only, webcams, and screen share.
-
-Running three parallel Kurento media servers (KMS) -- one dedicated to each type of media stream -- should increase the stability of media handling as the load for starting/stopping media streams spreads over three separate KMS processes. Also, it should increase the reliability of media handling as a crash (and automatic restart) by one KMS will not affect the two.
-
-To configure your BigBlueButton server to run three KMS processes, add the following line to [apply-conf.sh](/administration/customize#preserving-customizations-using-apply-confsh)
-
-```sh
-enableMultipleKurentos
-```
-
-and run `sudo bbb-conf --restart`, you should see
-
-```
-  - Configuring three Kurento Media Servers: one for listen only, webcam, and screeshare
-Generating a 2048 bit RSA private key
-....................+++
-......+++
-writing new private key to '/tmp/dtls-srtp-key.pem'
------
-Created symlink from /etc/systemd/system/kurento-media-server.service.wants/kurento-media-server-8888.service to /usr/lib/systemd/system/kurento-media-server-8888.service.
-Created symlink from /etc/systemd/system/kurento-media-server.service.wants/kurento-media-server-8889.service to /usr/lib/systemd/system/kurento-media-server-8889.service.
-Created symlink from /etc/systemd/system/kurento-media-server.service.wants/kurento-media-server-8890.service to /usr/lib/systemd/system/kurento-media-server-8890.service.
-```
-
-After BigBlueButton finishes restarting, you should see three KMS processes running using the `netstat -antp | grep kur` command.
-
-```
-# netstat -antp | grep kur
-tcp6       0      0 :::8888                 :::*                    LISTEN      5929/kurento-media-
-tcp6       0      0 :::8889                 :::*                    LISTEN      5943/kurento-media-
-tcp6       0      0 :::8890                 :::*                    LISTEN      5956/kurento-media-
-tcp6       0      0 127.0.0.1:8888          127.0.0.1:49132         ESTABLISHED 5929/kurento-media-
-tcp6       0      0 127.0.0.1:8890          127.0.0.1:55540         ESTABLISHED 5956/kurento-media-
-tcp6       0      0 127.0.0.1:8889          127.0.0.1:41000         ESTABLISHED 5943/kurento-media-
-```
-
-Each process has its own log file (distinguished by its process ID).
-
-```
-# ls -alt /var/log/kurento-media-server/
-total 92
--rw-rw-r--  1 kurento kurento 11965 Sep 13 17:10 2020-09-13T170908.00000.pid5929.log
--rw-rw-r--  1 kurento kurento 10823 Sep 13 17:10 2020-09-13T170908.00000.pid5943.log
--rw-rw-r--  1 kurento kurento 10823 Sep 13 17:10 2020-09-13T170908.00000.pid5956.log
-```
-
-Now, if you now join a session and choose listen only (which causes Kurento setup a single listen only stream to FreeSWITCH), share your webcam, or share your screen, you'll see updates occurring independently to each of the above log files as each KMS process handles your request.
-
-To revert back to running a single KMS server (which handles all three media streams), change the above line in `/etc/bigbluebutton/bbb-conf/apply-config.sh` to
-
-```sh
-disableMultipleKurentos
-```
-
-and run `sudo bbb-conf --restart` again.

@@ -111,10 +111,6 @@ const intlMessages = defineMessages({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
-
 interface RenderModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isOpen: boolean;
@@ -230,6 +226,8 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     );
   };
 
+  const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
+
   const actions = useMemo(() => {
     const canCreateBreakout = isModerator
       && !isBreakout
@@ -320,7 +318,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'learningDashboard',
       },
     ].filter(({ allow }) => allow);
-  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale]);
+  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale, intl]);
 
   const newLocal = 'true';
   return (

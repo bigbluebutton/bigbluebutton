@@ -10,12 +10,17 @@ import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"hash/crc32"
+	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
 	"sync"
 )
 
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
-func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChannel *common.SafeChannel, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup) {
+func HasuraConnectionReader(
+	hc *common.HasuraConnection,
+	fromHasuraToBrowserChannel *common.SafeChannel,
+	fromBrowserToHasuraChannel *common.SafeChannel,
+	wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
@@ -27,10 +32,27 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 		// Read a message from hasura
 		var message interface{}
 		err := wsjson.Read(hc.Context, hc.Websocket, &message)
+
+		var closeError *websocket.CloseError
+
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				log.Debugf("Closing Hasura ws connection as Context was cancelled!")
+			} else if errors.As(err, &closeError) {
+				hc.WebsocketCloseError = closeError
+				log.Debug("WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
+				//TODO check if it should send {"type":"connection_error","payload":"Authentication hook unauthorized this request"}
 			} else {
+				if websocket.CloseStatus(err) == -1 {
+					//It doesn't have a CloseError, it will reconnect do Hasura
+				} else {
+					//In case Hasura sent an CloseError, it will forward it to browser and disconnect
+					hc.WebsocketCloseError = &websocket.CloseError{
+						Code:   websocket.CloseStatus(err),
+						Reason: "Graphql connection closed with error" + err.Error(),
+					}
+				}
+
 				log.Debugf("Error reading message from Hasura: %v", err)
 			}
 			return
@@ -66,11 +88,11 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, fromHasuraToBr
 				common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
 			}
 
-			if messageType == "data" {
+			if messageType == "next" {
 				common.ActivitiesOverviewDataReceived(string(subscription.Type) + "-" + subscription.OperationName)
 			}
 
-			if messageType == "data" &&
+			if messageType == "next" &&
 				subscription.Type == common.Subscription {
 				hasNoPreviousOccurrence := handleSubscriptionMessage(hc, messageMap, subscription, queryId)
 

@@ -76,6 +76,11 @@ export interface UserClientSettings {
   userClientSettingsJson: string;
 }
 
+export interface WelcomeMsgs {
+  welcomeMsg: string;
+  welcomeMsgForModerators: string;
+}
+
 export interface User {
   authToken: string;
   userId: string;
@@ -117,6 +122,7 @@ export interface User {
   cameras: Array<Cameras>;
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
+  captionLocale: string;
   authed: boolean;
   size: number;
   away: boolean;
@@ -125,4 +131,5 @@ export interface User {
   breakoutRooms: BreakoutRooms;
   customParameters: Array<CustomParameter>;
   userClientSettings: UserClientSettings;
+  welcomeMsgs: WelcomeMsgs;
 }

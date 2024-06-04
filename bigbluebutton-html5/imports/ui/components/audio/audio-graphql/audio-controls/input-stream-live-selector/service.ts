@@ -5,16 +5,12 @@ import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
+import Auth from '/imports/ui/services/auth';
 
 const MUTED_KEY = 'muted';
-// @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = window.meetingClientSettings.public.app;
-// @ts-ignore - temporary, while meteor exists in the project
-const TOGGLE_MUTE_THROTTLE_TIME = window.meetingClientSettings.public.media.toggleMuteThrottleTime;
 const DEVICE_LABEL_MAX_LENGTH = 40;
 const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
 const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
-const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
 
 export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   if (!meetingIsBreakout) {
@@ -24,7 +20,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
 
   const skipOnFistJoin = getFromUserSettings(
     'bbb_skip_check_audio_on_first_join',
-    APP_CONFIG.skipCheckOnJoin,
+    window.meetingClientSettings.public.app.skipCheckOnJoin,
   );
   if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
     Storage.setItem('getEchoTest', true);
@@ -42,7 +38,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
 
 export const toggleMuteMicrophone = (
   muted: boolean,
-  toggleVoice: (userId?: string | null, muted?: boolean | null) => void,
+  toggleVoice: (userId: string, muted: boolean) => void,
 ) => {
   Storage.setItem(MUTED_KEY, !muted);
 
@@ -54,7 +50,7 @@ export const toggleMuteMicrophone = (
       },
       'microphone unmuted by user',
     );
-    toggleVoice();
+    toggleVoice(Auth.userID!, false);
   } else {
     logger.info(
       {
@@ -63,7 +59,7 @@ export const toggleMuteMicrophone = (
       },
       'microphone muted by user',
     );
-    toggleVoice();
+    toggleVoice(Auth.userID!, true);
   }
 };
 
@@ -84,11 +80,15 @@ export const liveChangeOutputDevice = (inputDeviceId: string, isLive: boolean) =
   .changeOutputDevice(inputDeviceId, isLive);
 
 export const getSpeakerLevel = () => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+
   const audioElement = document.querySelector(MEDIA_TAG) as HTMLMediaElement;
   return audioElement ? audioElement.volume : 0;
 };
 
 export const setSpeakerLevel = (level: number) => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+
   const audioElement = document.querySelector(MEDIA_TAG) as HTMLMediaElement;
   if (audioElement) {
     audioElement.volume = level;
@@ -98,7 +98,7 @@ export const setSpeakerLevel = (level: number) => {
 export const muteAway = (
   muted: boolean,
   away: boolean,
-  voiceToggle: (userId?: string | null, muted?: boolean | null) => void,
+  voiceToggle: (userId: string, muted: boolean) => void,
 ) => {
   const prevAwayMuted = Storage.getItem('prevAwayMuted') || false;
   const prevSpeakerLevelValue = Storage.getItem('prevSpeakerLevel') || 1;

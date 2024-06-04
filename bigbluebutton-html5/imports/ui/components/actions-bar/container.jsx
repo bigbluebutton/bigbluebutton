@@ -8,7 +8,7 @@ import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
-import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting, useIsSharing, useSharingContentType } from '/imports/ui/components/screenshare/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -19,9 +19,13 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
 const ActionsBarContainer = (props) => {
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+  const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings
+    .public.app.raiseHandActionButton.enabled;
+  const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings
+    .public.app.raiseHandActionButton.centered;
+
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
 
@@ -51,7 +55,6 @@ const ActionsBarContainer = (props) => {
     emoji: user.emoji,
     isModerator: user.isModerator,
   }));
-
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
@@ -87,16 +90,13 @@ const ActionsBarContainer = (props) => {
         isSharedNotesPinned,
         isTimerActive: currentMeeting.componentsFlags.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled(),
+        isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
+        isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
       }
     }
     />
   );
 };
-
-const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings
-  .public.app.raiseHandActionButton.enabled;
-const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings
-  .public.app.raiseHandActionButton.centered;
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
@@ -105,15 +105,29 @@ const isReactionsButtonEnabled = () => {
   return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
 };
 
-export default withTracker(() => ({
+const ActionsBarTracker = withTracker(({ isSharing, sharingContentType }) => ({
   enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  hasScreenshare: isScreenBroadcasting(),
-  hasCameraAsContent: isCameraAsContentBroadcasting(),
+  hasScreenshare: isScreenBroadcasting(isSharing, sharingContentType),
+  hasCameraAsContent: isCameraAsContentBroadcasting(isSharing, sharingContentType),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
-  isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
-  isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
   allowExternalVideo: isExternalVideoEnabled(),
 }))(injectIntl(ActionsBarContainer));
+
+// TODO: Remove this
+// Temporary component until we remove all trackers
+export default (props) => {
+  const isSharing = useIsSharing();
+  const sharingContentType = useSharingContentType();
+  return (
+    <ActionsBarTracker
+      {...{
+        ...props,
+        isSharing,
+        sharingContentType,
+      }}
+    />
+  );
+};
