@@ -15,7 +15,8 @@ export interface SubscriptionStructure<T> {
   loading: boolean;
   sub: ObservableSubscription | null;
 }
-
+// This code was extracted from a geeksforgeeks article
+// https://www.geeksforgeeks.org/how-to-create-hash-from-string-in-javascript/
 export function stringToHash(string: string) {
   return string.split('').reduce((hash, char) => {
     // It's a intended bitwise operation
