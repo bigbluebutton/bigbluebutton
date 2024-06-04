@@ -81,6 +81,7 @@ public class Meeting {
 	private String guestLobbyMessage = "";
 	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
+	private Boolean allowPromoteGuestToModerator = false;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
 	private Map<String, String> guestUsersWithPositionInWaitingLine;
@@ -165,6 +166,7 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
+	      allowPromoteGuestToModerator = builder.allowPromoteGuestToModerator;
 		meetingLayout = builder.meetingLayout;
         allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
         breakoutRoomsParams = builder.breakoutRoomsParams;
@@ -499,6 +501,14 @@ public class Meeting {
 
 	public Boolean getAuthenticatedGuest() {
 		return authenticatedGuest;
+	}
+
+	public void setAllowPromoteGuestToModerator(Boolean value) {
+		allowPromoteGuestToModerator = value;
+	}
+
+	public Boolean getAllowPromoteGuestToModerator() {
+		return allowPromoteGuestToModerator;
 	}
 
 	public void setMeetingLayout(String layout) {
@@ -910,6 +920,7 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
+    	private Boolean allowPromoteGuestToModerator;
     	private Boolean allowRequestsWithoutSession;
 		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
@@ -1093,6 +1104,11 @@ public class Meeting {
 
     	public Builder withAuthenticatedGuest(Boolean authGuest) {
     		authenticatedGuest = authGuest;
+    		return this;
+    	}
+
+    	public Builder withAllowPromoteGuestToModerator(Boolean value) {
+		    allowPromoteGuestToModerator = value;
     		return this;
     	}
 
