@@ -1,5 +1,3 @@
-import { Tracker } from 'meteor/tracker';
-
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
@@ -52,11 +50,6 @@ const FILTER_AUDIO_STATS = [
 
 class AudioManager {
   constructor() {
-    this._inputDevice = {
-      value: DEFAULT_INPUT_DEVICE_ID,
-      tracker: new Tracker.Dependency(),
-    };
-
     this._breakoutAudioTransferStatus = {
       status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
       breakoutMeetingId: null,
@@ -70,11 +63,11 @@ class AudioManager {
       isListenOnly: makeVar(false),
       isEchoTest: makeVar(false),
       isTalking: makeVar(false),
-      isWaitingPermissions: false,
-      error: null,
-      muteHandle: null,
-      autoplayBlocked: false,
-      isReconnecting: false,
+      isWaitingPermissions: makeVar(false),
+      error: makeVar(null),
+      muteHandle: makeVar(null),
+      autoplayBlocked: makeVar(false),
+      isReconnecting: makeVar(false),
     });
 
     this.failedMediaElements = [];
@@ -83,14 +76,11 @@ class AudioManager {
     this.isUsingAudio = this.isUsingAudio.bind(this);
 
     this._inputStream = makeVar(null);
-    this._inputStreamTracker = new Tracker.Dependency();
     this._inputDeviceId = {
       value: makeVar(DEFAULT_INPUT_DEVICE_ID),
-      tracker: new Tracker.Dependency(),
     };
     this._outputDeviceId = {
       value: makeVar(null),
-      tracker: new Tracker.Dependency(),
     };
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
@@ -124,7 +114,6 @@ class AudioManager {
   set inputDeviceId(value) {
     if (this._inputDeviceId.value() !== value) {
       this._inputDeviceId.value(value);
-      this._inputDeviceId.tracker.changed();
     }
 
     if (this.fullAudioBridge) {
@@ -133,14 +122,12 @@ class AudioManager {
   }
 
   get inputDeviceId() {
-    this._inputDeviceId.tracker.depend();
     return this._inputDeviceId.value();
   }
 
   set outputDeviceId(value) {
     if (this._outputDeviceId.value() !== value) {
       this._outputDeviceId.value(value);
-      this._outputDeviceId.tracker.changed();
     }
 
     if (this.fullAudioBridge) {
@@ -153,7 +140,6 @@ class AudioManager {
   }
 
   get outputDeviceId() {
-    this._outputDeviceId.tracker.depend();
     return this._outputDeviceId.value();
   }
 
@@ -228,28 +214,14 @@ class AudioManager {
     Object.keys(obj).forEach((key) => {
       const privateKey = `_${key}`;
       this[privateKey] = {
-        value: typeof obj[key] === 'function' ? obj[key] : obj[key],
-        tracker: new Tracker.Dependency(),
+        value: obj[key],
       };
 
       Object.defineProperty(this, key, {
         set: (value) => {
-          if (typeof this[privateKey].value === 'function') {
-            this[privateKey].value(value);
-          } else {
-            this[privateKey].value = value;
-          }
-          this[privateKey].tracker.changed();
+          this[privateKey].value(value);
         },
-        get: () => {
-          if (typeof this[privateKey].value === 'function') {
-            this[privateKey].tracker.depend();
-            return this[privateKey].value();
-          }
-
-          this[privateKey].tracker.depend();
-          return this[privateKey].value;
-        },
+        get: () => this[privateKey].value(),
         [`getReferece${key}`]: () => this[privateKey],
       });
     });
@@ -784,7 +756,6 @@ class AudioManager {
   }
 
   get inputStream() {
-    this._inputStreamTracker.depend();
     return this._inputStream();
   }
 
@@ -796,9 +767,6 @@ class AudioManager {
     // We store reactive information about input stream
     // because mutedalert component needs to track when it changes
     // and then update hark with the new value for inputStream
-    if (this._inputStream() !== stream) {
-      this._inputStreamTracker.changed();
-    }
 
     this._inputStream(stream);
   }
