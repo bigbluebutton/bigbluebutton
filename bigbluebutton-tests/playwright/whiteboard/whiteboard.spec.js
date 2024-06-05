@@ -36,7 +36,7 @@ test.describe.parallel('Whiteboard @ci', () => {
   });
 });
 
-test.describe.parallel('Whiteboard tools - visual regression', () => {
+test.describe.parallel('Whiteboard tools - visual regression @ci', () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
       'Drawing visual regression tests are enabled for Chromium');
