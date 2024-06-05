@@ -10,8 +10,6 @@ import Logger from './logger';
 import setMinBrowserVersions from './minBrowserVersion';
 import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
-let guestWaitHtml = '';
-
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
 
@@ -353,18 +351,4 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
     };
     Logger.info('FEEDBACK LOG:', feedback);
   }));
-});
-
-WebApp.connectHandlers.use('/guestWait', (req, res) => {
-  if (!guestWaitHtml) {
-    try {
-      guestWaitHtml = Assets.getText('static/guest-wait/guest-wait.html');
-    } catch (e) {
-      Logger.warn(`Could not process guest wait html file: ${e}`);
-    }
-  }
-
-  res.setHeader('Content-Type', 'text/html');
-  res.writeHead(200);
-  res.end(guestWaitHtml);
 });
