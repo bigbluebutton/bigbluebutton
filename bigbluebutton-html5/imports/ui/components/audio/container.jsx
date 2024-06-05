@@ -182,7 +182,7 @@ const AudioContainer = (props) => {
     if (Service.isConnected()) return;
 
     if (userSelectedMicrophone) {
-      joinMicrophone(true);
+      joinMicrophone({ skipEchoTest: true });
       return;
     }
 

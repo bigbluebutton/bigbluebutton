@@ -613,7 +613,8 @@ case class GetMicrophonePermissionRespMsgBody(
     voiceConf:    String,
     userId:       String,
     sfuSessionId: String,
-    allowed:      Boolean
+    allowed:      Boolean,
+    muteOnStart:  Boolean
 )
 
 /**

@@ -70,6 +70,9 @@ class AudioManager {
       muteHandle: makeVar(null),
       autoplayBlocked: makeVar(false),
       isReconnecting: makeVar(false),
+      bypassGUM: makeVar(false),
+      permissionStatus: makeVar(null),
+      transparentListenOnlySupported: makeVar(false),
     });
 
     this.failedMediaElements = [];
@@ -79,7 +82,7 @@ class AudioManager {
 
     this._inputStream = makeVar(null);
     this._inputDeviceId = {
-      value: makeVar(DEFAULT_INPUT_DEVICE_ID),
+      value: makeVar(null),
     };
     this._outputDeviceId = {
       value: makeVar(null),
@@ -88,6 +91,37 @@ class AudioManager {
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
+  }
+
+  _trackPermissionStatus() {
+    const handleTrackingError = (error) => {
+      logger.warn({
+        logCode: 'audiomanager_permission_tracking_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Failed to track microphone permission status: ${error.message}`);
+    };
+
+    if (navigator?.permissions?.query) {
+      navigator.permissions.query({ name: 'microphone' })
+        .then((status) => {
+          // eslint-disable-next-line no-param-reassign
+          status.onchange = () => {
+            logger.debug({
+              logCode: 'audiomanager_permission_status_changed',
+              extraInfo: {
+                newStatus: status.state,
+              },
+            }, `Microphone permission status changed: ${status.state}`);
+            this.permissionStatus = status.state;
+          };
+          this.permissionStatus = status.state;
+        }).catch(handleTrackingError);
+    } else {
+      handleTrackingError(new Error('navigator.permissions.query is not available'));
+    }
   }
 
   _applyCachedOutputDeviceId() {
@@ -145,17 +179,26 @@ class AudioManager {
     return this._outputDeviceId.value();
   }
 
+  shouldBypassGUM() {
+    return this.supportsTransparentListenOnly() && this.inputDeviceId === 'listen-only';
+  }
+
+  supportsTransparentListenOnly() {
+    return this.listenOnlyBridge?.supportsTransparentListenOnly()
+      && this.fullAudioBridge?.supportsTransparentListenOnly();
+  }
+
   async init(userData, audioEventHandler) {
     this.inputDeviceId = getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID;
     this.outputDeviceId = getCurrentAudioSinkId();
-
     this._applyCachedOutputDeviceId();
-
+    this._trackPermissionStatus();
     this.loadBridges(userData);
     this.userData = userData;
     this.initialized = true;
     this.audioEventHandler = audioEventHandler;
     await this.loadBridges(userData);
+    this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
   }
 
   /**
@@ -280,6 +323,7 @@ class AudioManager {
           isListenOnly: false,
           extension: null,
           inputStream: this.inputStream,
+          bypassGUM: this.shouldBypassGUM(),
         };
         return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
@@ -309,6 +353,7 @@ class AudioManager {
           extension: ECHO_TEST_NUMBER,
           inputStream: this.inputStream,
           validIceCandidates,
+          bypassGUM: this.shouldBypassGUM(),
         };
         logger.info(
           {
@@ -369,7 +414,6 @@ class AudioManager {
         }
 
         this.isConnecting = false;
-        this.isWaitingPermissions = false;
 
         throw errorPayload;
       });
@@ -415,17 +459,7 @@ class AudioManager {
   }
 
   forceExitAudio() {
-    this.notifyAudioExit();
-    this.isConnected = false;
-    this.isConnecting = false;
-    this.isHangingUp = false;
-
-    if (this.inputStream) {
-      this.inputStream.getTracks().forEach((track) => track.stop());
-      this.inputStream = null;
-    }
-
-    window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
+    this.onAudioExit();
 
     return this.bridge && this.bridge.exitAudio();
   }
@@ -520,7 +554,7 @@ class AudioManager {
     if (this.inputStream) {
       const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
         this.inputStream,
-        'audio'
+        'audio',
       );
       if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
         this.changeInputDevice(extractedDeviceId);
@@ -639,22 +673,17 @@ class AudioManager {
   }
 
   changeInputDevice(deviceId) {
-    if (typeof deviceId !== 'string') throw new TypeError('Invalid inputDeviceId');
-
     if (deviceId === this.inputDeviceId) return this.inputDeviceId;
 
     const currentDeviceId = this.inputDeviceId ?? 'none';
     this.inputDeviceId = deviceId;
-    logger.debug(
-      {
-        logCode: 'audiomanager_input_device_change',
-        extraInfo: {
-          deviceId: currentDeviceId,
-          newDeviceId: deviceId,
-        },
+    logger.debug({
+      logCode: 'audiomanager_input_device_change',
+      extraInfo: {
+        deviceId: currentDeviceId,
+        newDeviceId: deviceId || 'none',
       },
-      `Microphone input device changed: from ${currentDeviceId} to ${deviceId}`
-    );
+    }, `Microphone input device changed: from ${currentDeviceId} to ${deviceId || 'none'}`);
 
     return this.inputDeviceId;
   }

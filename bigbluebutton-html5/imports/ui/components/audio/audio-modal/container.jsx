@@ -62,7 +62,6 @@ const AudioModalContainer = (props) => {
       combinedDialInNum = `${dialNumber.replace(/\D+/g, '')},,,${telVoice.replace(/\D+/g, '')}`;
     }
   }
-
   const { isIe } = browserInfo;
 
   const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
@@ -81,26 +80,26 @@ const AudioModalContainer = (props) => {
   const isListenOnly = useReactiveVar(AudioManager._isListenOnly.value);
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
   const autoplayBlocked = useReactiveVar(AudioManager._autoplayBlocked.value);
+  const isMuted = useReactiveVar(AudioManager._isMuted.value);
   const meetingIsBreakout = AppService.useMeetingIsBreakout();
+  const supportsTransparentListenOnly = useReactiveVar(
+    AudioManager._transparentListenOnlySupported.value,
+  );
+  const permissionStatus = useReactiveVar(AudioManager._permissionStatus.value);
   const { userLocks } = useLockContext();
-
+  const isListenOnlyInputDevice = Service.inputDeviceId() === 'listen-only';
+  const devicesAlreadyConfigured = skipEchoTestIfPreviousDevice
+    && Service.inputDeviceId();
+  const joinFullAudioImmediately = !isListenOnlyInputDevice
+    && (skipCheck || (skipCheckOnJoin && !getEchoTest) || devicesAlreadyConfigured);
   const { setIsOpen } = props;
   const close = useCallback(() => closeModal(() => setIsOpen(false)), [setIsOpen]);
   const joinMic = useCallback(
-    (skipEchoTest) => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
+    (options = {}) => joinMicrophone({
+      skipEchoTest: options.skipEchoTest || joinFullAudioImmediately,
+    }),
     [skipCheck, skipCheckOnJoin],
   );
-  const joinFullAudioImmediately = (
-    autoJoin
-    && (
-      skipCheck
-      || (skipCheckOnJoin && !getEchoTest)
-    ))
-    || (
-      skipCheck
-      || (skipCheckOnJoin && !getEchoTest)
-      || (skipEchoTestIfPreviousDevice && (inputDeviceId || outputDeviceId))
-    );
 
   return (
     <AudioModal
@@ -114,6 +113,8 @@ const AudioModalContainer = (props) => {
       isConnected={isConnected}
       isListenOnly={isListenOnly}
       isEchoTest={isEchoTest}
+      isMuted={isMuted}
+      toggleMuteMicrophoneSystem={Service.toggleMuteMicrophoneSystem}
       autoplayBlocked={autoplayBlocked}
       getEchoTest={getEchoTest}
       joinFullAudioImmediately={joinFullAudioImmediately}
@@ -123,6 +124,7 @@ const AudioModalContainer = (props) => {
       joinListenOnly={joinListenOnly}
       leaveEchoTest={leaveEchoTest}
       changeInputDevice={Service.changeInputDevice}
+      liveChangeInputDevice={Service.liveChangeInputDevice}
       changeInputStream={Service.changeInputStream}
       changeOutputDevice={Service.changeOutputDevice}
       joinEchoTest={Service.joinEchoTest}
@@ -144,7 +146,14 @@ const AudioModalContainer = (props) => {
       isRTL={isRTL}
       AudioError={AudioError}
       getTroubleshootingLink={AudioModalService.getTroubleshootingLink}
+      getMicrophonePermissionStatus={Service.getMicrophonePermissionStatus}
+      getAudioConstraints={Service.getAudioConstraints}
+      doGUM={Service.doGUM}
+      bypassGUM={Service.bypassGUM}
+      supportsTransparentListenOnly={supportsTransparentListenOnly}
       setIsOpen={setIsOpen}
+      hasMicrophonePermission={Service.hasMicrophonePermission}
+      permissionStatus={permissionStatus}
       {...props}
     />
   );

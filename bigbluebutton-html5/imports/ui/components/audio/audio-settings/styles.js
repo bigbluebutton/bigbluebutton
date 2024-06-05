@@ -1,9 +1,9 @@
-import styled from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const FormWrapper = styled.div`
-  min-width: 0;
+  min-width: 100%;
 `;
 
 const Form = styled.div`
@@ -26,6 +26,10 @@ const EnterAudio = styled.div`
 `;
 
 const AudioNote = styled.div`
+  display: flex;
+  flex-flow: column;
+  text-align: center;
+  justify-content: center;
   @media ${smallOnly} {
     font-size: 0.8rem;
   }
@@ -163,6 +167,31 @@ const BackButton = styled(Button)`
   }
 `;
 
+const ellipsis = keyframes`
+  to {
+    width: 1.5em;
+  }
+`;
+
+const FetchingAnimation = styled.span`
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-left: 0.25em;
+
+    ${({ animations }) => animations && css`
+      animation: ${ellipsis} steps(4, end) 900ms infinite;
+    `}
+  }
+`;
+
 export default {
   FormWrapper,
   Form,
@@ -175,4 +204,5 @@ export default {
   LabelSmallFullWidth,
   SpacedLeftCol,
   BackButton,
+  FetchingAnimation,
 };

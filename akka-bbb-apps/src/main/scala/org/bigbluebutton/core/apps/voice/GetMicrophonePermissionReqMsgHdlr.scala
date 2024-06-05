@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait GetMicrophonePermissionReqMsgHdlr {
   this: MeetingActor =>
@@ -16,7 +17,8 @@ trait GetMicrophonePermissionReqMsgHdlr {
         voiceConf:    String,
         userId:       String,
         sfuSessionId: String,
-        allowed:      Boolean
+        allowed:      Boolean,
+        muteOnStart:  Boolean
     ): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(GetMicrophonePermissionRespMsg.NAME, routing)
@@ -26,7 +28,8 @@ trait GetMicrophonePermissionReqMsgHdlr {
         voiceConf,
         userId,
         sfuSessionId,
-        allowed
+        allowed,
+        muteOnStart
       )
       val event = GetMicrophonePermissionRespMsg(header, body)
       val eventMsg = BbbCommonEnvCoreMsg(envelope, event)
@@ -47,7 +50,8 @@ trait GetMicrophonePermissionReqMsgHdlr {
       liveMeeting.props.voiceProp.voiceConf,
       msg.body.userId,
       msg.body.sfuSessionId,
-      allowed
+      allowed,
+      MeetingStatus2x.isMeetingMuted(liveMeeting.status)
     )
   }
 }

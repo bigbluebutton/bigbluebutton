@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Service from '/imports/ui/components/audio/local-echo/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -14,6 +13,10 @@ const propTypes = {
     id: PropTypes.string,
   }),
   initialHearingState: PropTypes.bool,
+  playEchoStream: PropTypes.func.isRequired,
+  deattachEchoStream: PropTypes.func.isRequired,
+  shouldUseRTCLoopback: PropTypes.func.isRequired,
+  createAudioRTCLoopback: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -31,6 +34,10 @@ const LocalEcho = ({
   intl,
   stream = null,
   initialHearingState = false,
+  playEchoStream,
+  deattachEchoStream,
+  shouldUseRTCLoopback,
+  createAudioRTCLoopback,
 }) => {
   const loopbackAgent = useRef(null);
   const [hearing, setHearing] = useState(initialHearingState);
@@ -41,20 +48,20 @@ const LocalEcho = ({
 
   const applyHearingState = (_stream) => {
     if (hearing) {
-      Service.playEchoStream(_stream, loopbackAgent.current);
+      playEchoStream(_stream, loopbackAgent.current);
     } else {
-      Service.deattachEchoStream();
+      deattachEchoStream();
     }
   };
 
   const cleanup = () => {
     if (loopbackAgent.current) loopbackAgent.current.stop();
-    Service.deattachEchoStream();
+    deattachEchoStream();
   };
 
   useEffect(() => {
-    if (Service.useRTCLoopback()) {
-      loopbackAgent.current = Service.createAudioRTCLoopback();
+    if (shouldUseRTCLoopback()) {
+      loopbackAgent.current = createAudioRTCLoopback();
     }
     return cleanup;
   }, []);
