@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Session } from 'meteor/session';
 import {
   getUserCurrent,
@@ -17,6 +17,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 
 const connectionTimeout = 60000;
+const MESSAGE_TIMEOUT = 3000;
 
 interface PresenceManagerContainerProps {
     children: React.ReactNode;
@@ -74,7 +75,18 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   const loadingContextInfo = useContext(LoadingContext);
-  const isGuestAllowed = guestStatus === GUEST_STATUSES.ALLOW;
+  const [isGuestAllowed, setIsGuestAllowed] = useState(guestStatus === GUEST_STATUSES.ALLOW);
+
+  useEffect(() => {
+    const allowed = guestStatus === GUEST_STATUSES.ALLOW;
+    if (allowed) {
+      setTimeout(() => {
+        setIsGuestAllowed(true);
+      }, MESSAGE_TIMEOUT);
+    } else {
+      setIsGuestAllowed(false);
+    }
+  }, [guestStatus]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
