@@ -1,4 +1,4 @@
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -13,6 +13,7 @@ import {
 } from './queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../../breakout-room/mutations';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
@@ -216,7 +217,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   });
   const {
     data: breakoutData,
-  } = useSubscription<GetBreakoutDataResponse>(getBreakoutData);
+  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
   const exitVideo = useExitVideo(true);
   const { streams: videoStreams } = useStreams();
   const storeVideoDevices = () => {
@@ -233,7 +234,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   }, []);
   const {
     data: breakoutCountData,
-  } = useSubscription<GetBreakoutCountResponse>(getBreakoutCount);
+  } = useDeduplicatedSubscription<GetBreakoutCountResponse>(getBreakoutCount);
   if (!breakoutCountData || !breakoutCountData.breakoutRoom_aggregate.aggregate.count) return null;
   if (!breakoutData || breakoutData.breakoutRoom.length === 0) return null;
   const firstBreakout = breakoutData.breakoutRoom[0];

@@ -1,4 +1,4 @@
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -24,6 +24,7 @@ import {
   stopVideo,
 } from './service';
 import { useExitVideo, useStreams } from '../../video-provider/video-provider-graphql/hooks';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoom[];
@@ -324,7 +325,7 @@ const BreakoutRoomContainer: React.FC = () => {
     data: breakoutData,
     loading: breakoutLoading,
     error: breakoutError,
-  } = useSubscription<GetBreakoutDataResponse>(getBreakoutData);
+  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
 
   if (
     breakoutLoading

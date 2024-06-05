@@ -1,9 +1,9 @@
 import React from 'react';
 import RemainingTime from '/imports/ui/components/common/remaining-time/component';
 import { defineMessages, useIntl } from 'react-intl';
-import { useSubscription } from '@apollo/client';
 import { FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION, breakoutDataResponse } from './queries';
 import logger from '/imports/startup/client/logger';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   calculatingBreakoutTimeRemaining: {
@@ -36,7 +36,7 @@ const BreakoutRemainingTimeContainer: React.FC<BreakoutRemainingTimeContainerPro
     data: breakoutData,
     loading: breakoutLoading,
     error: breakoutError,
-  } = useSubscription<breakoutDataResponse>(FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION);
+  } = useDeduplicatedSubscription<breakoutDataResponse>(FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION);
 
   if (breakoutLoading) return loadingRemainingTime();
   if (!breakoutData) return null;

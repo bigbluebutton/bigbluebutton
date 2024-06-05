@@ -1,9 +1,9 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
-import { useSubscription } from '@apollo/client';
 import UserTitleOptionsContainer from './user-options-dropdown/component';
 import Styled from './styles';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface UserTitleProps {
   count: number;
@@ -34,7 +34,7 @@ const UserTitle: React.FC<UserTitleProps> = ({
 const UserTitleContainer: React.FC = () => {
   const {
     data: countData,
-  } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
   return <UserTitle count={count} />;
 };

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
 import { Session } from 'meteor/session';
 import {
@@ -12,6 +12,7 @@ import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
 import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
@@ -189,7 +190,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 };
 
 const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ children }) => {
-  const { loading, error, data } = useSubscription<GetUserCurrentResponse>(getUserCurrent);
+  const { loading, error, data } = useDeduplicatedSubscription<GetUserCurrentResponse>(getUserCurrent);
 
   const {
     loading: userInfoLoading,

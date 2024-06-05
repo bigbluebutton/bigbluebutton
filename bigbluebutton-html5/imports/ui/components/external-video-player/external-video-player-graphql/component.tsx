@@ -340,7 +340,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }
 
   const shouldShowTools = () => {
-    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen)) {
+    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen) || !videoUrl) {
       return false;
     }
     return true;

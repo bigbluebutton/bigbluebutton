@@ -1,9 +1,9 @@
-import { useSubscription } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
 import VoiceUsers from '/imports/api/voice-users/';
 import logger from '/imports/startup/client/logger';
 import { UserVoiceStreamResponse, voiceUserStream } from './queries';
 import { AdapterProps } from '../graphqlToMiniMongoAdapterManager/component';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const VoiceUserGrapQlMiniMongoAdapter: React.FC<AdapterProps> = ({
   onReady,
@@ -14,7 +14,7 @@ const VoiceUserGrapQlMiniMongoAdapter: React.FC<AdapterProps> = ({
     loading,
     error,
     data,
-  } = useSubscription<UserVoiceStreamResponse>(voiceUserStream);
+  } = useDeduplicatedSubscription<UserVoiceStreamResponse>(voiceUserStream);
   const [voiceUserDataSetted, setVoiceUserDataSetted] = useState(false);
   useEffect(() => {
     if (error) {
@@ -33,12 +33,12 @@ const VoiceUserGrapQlMiniMongoAdapter: React.FC<AdapterProps> = ({
   }, [data]);
 
   useEffect(() => {
+    // loading turns false only first audio join of the meeting, probably because it's a stream
+    if (!ready.current) {
+      ready.current = true;
+      onReady('VoiceUserGrapQlMiniMongoAdapter');
+    }
     if (loading) {
-      // loading turns false only first audio join of the meeting, probably because it's a stream
-      if (!ready.current) {
-        ready.current = true;
-        onReady('VoiceUserGrapQlMiniMongoAdapter');
-      }
       if (!voiceUserDataSetted) {
         setVoiceUserDataSetted(true);
       }

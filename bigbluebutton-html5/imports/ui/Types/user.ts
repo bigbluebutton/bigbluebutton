@@ -122,6 +122,7 @@ export interface User {
   cameras: Array<Cameras>;
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
+  captionLocale: string;
   authed: boolean;
   size: number;
   away: boolean;

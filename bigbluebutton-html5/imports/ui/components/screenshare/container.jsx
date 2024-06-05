@@ -1,6 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { defineMessages } from 'react-intl';
 import {
   getSharingContentType,
   getBroadcastContentType,
@@ -9,15 +10,17 @@ import {
   isScreenBroadcasting,
   isCameraAsContentBroadcasting,
   shouldEnableVolumeControl,
+  useIsSharing,
+  useSharingContentType,
 } from './service';
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaService from '/imports/ui/components/media/service';
-import { defineMessages } from 'react-intl';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -51,7 +54,7 @@ const screenshareIntlMessages = defineMessages({
   endedDueToDataSaving: {
     id: 'app.media.screenshare.endDueToDataSaving',
     description: 'toast to show when a screenshare has ended by changing data savings option',
-  }
+  },
 });
 
 const cameraAsContentIntlMessages = defineMessages({
@@ -99,7 +102,7 @@ const ScreenshareContainer = (props) => {
   const fullscreenContext = (element === fullscreenElementId);
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
-  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
@@ -110,27 +113,30 @@ const ScreenshareContainer = (props) => {
 
   const info = {
     screenshare: {
-      icon: "desktop",
+      icon: 'desktop',
       locales: screenshareIntlMessages,
       startPreviewSizeBig: false,
       showSwitchPreviewSizeButton: true,
     },
     camera: {
-      icon: "video",
+      icon: 'video',
       locales: cameraAsContentIntlMessages,
       startPreviewSizeBig: true,
       showSwitchPreviewSizeButton: false,
     },
   };
 
-  const getContentType = () => {
-    return isPresenter ? getSharingContentType() : getBroadcastContentType();
-  }
+  const getContentType = () => (isPresenter ? getSharingContentType() : getBroadcastContentType());
   const contentTypeInfo = info[getContentType()];
   const defaultInfo = info.camera;
-  const selectedInfo = contentTypeInfo ? contentTypeInfo : defaultInfo;
+  const selectedInfo = contentTypeInfo || defaultInfo;
+  const isSharing = useIsSharing();
+  const sharingContentType = useSharingContentType();
 
-  if (isScreenBroadcasting() || isCameraAsContentBroadcasting()) {
+  if (
+    isScreenBroadcasting(isSharing, sharingContentType)
+    || isCameraAsContentBroadcasting(isSharing, sharingContentType)
+  ) {
     return (
       <ScreenshareComponent
         {

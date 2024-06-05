@@ -201,6 +201,10 @@ const BottomBar = styled.div`
   justify-content: space-between;
 `;
 
+const RaiseHand = styled.div`
+  font-size: 32px;
+`;
+
 export default {
   Content,
   WebcamConnecting,
@@ -210,4 +214,5 @@ export default {
   TopBar,
   BottomBar,
   VideoDisabled,
+  RaiseHand,
 };

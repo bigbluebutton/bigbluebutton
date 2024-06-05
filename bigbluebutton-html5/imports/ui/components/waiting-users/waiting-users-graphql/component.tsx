@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useSubscription, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import { notify } from '/imports/ui/services/notification';
@@ -32,6 +32,7 @@ import {
   SET_LOBBY_MESSAGE,
   SET_LOBBY_MESSAGE_PRIVATE,
 } from '../mutations';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface LayoutDispatchProps {
   type: string,
@@ -405,7 +406,7 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
     data: guestWaitingUsersData,
     loading: guestWaitingUsersLoading,
     error: guestWaitingUsersError,
-  } = useSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
+  } = useDeduplicatedSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
 
   const { data: currentMeeting } = useMeeting((meeting) => {
     const a = {

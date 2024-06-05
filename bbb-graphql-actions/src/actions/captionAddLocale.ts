@@ -1,16 +1,16 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotPresenter(sessionVariables);
+  throwErrorIfNotModerator(sessionVariables);
+
   throwErrorIfInvalidInput(input,
       [
-        {name: 'sharedNotesExtId', type: 'string', required: true},
-        {name: 'pinned', type: 'boolean', required: true},
+        {name: 'locale', type: 'string', required: true},
       ]
   )
 
-  const eventName = `PadPinnedReqMsg`;
+  const eventName = `AddCaptionLocalePubMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -24,8 +24,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    externalId: input.sharedNotesExtId,
-    pinned: input.pinned
+    locale: input.locale,
   };
 
   return { eventName, routing, header, body };

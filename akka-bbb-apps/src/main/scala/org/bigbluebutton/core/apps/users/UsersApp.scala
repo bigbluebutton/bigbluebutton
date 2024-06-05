@@ -158,6 +158,7 @@ class UsersApp(
   with RegisterUserReqMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
+  with SetUserCaptionLocaleMsgHdlr
   with SetUserSpeechOptionsMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr

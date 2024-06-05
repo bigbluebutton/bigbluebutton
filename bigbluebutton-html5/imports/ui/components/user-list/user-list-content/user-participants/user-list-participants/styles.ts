@@ -269,9 +269,14 @@ const VirtualizedList = styled(VirtualizedScrollboxVertical)`
   outline: none;
 `;
 
+const UserListItem = styled.div`
+  padding: .25em 0;
+`;
+
 export default {
   Avatar,
   Skeleton,
   UserListColumn,
   VirtualizedList,
+  UserListItem,
 };
