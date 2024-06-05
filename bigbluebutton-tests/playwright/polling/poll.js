@@ -65,8 +65,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer);
 
-    await this.modPage.hasElement(e.wbDrawnRectangle, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.hasElement(e.wbDrawnRectangle);
+    await this.modPage.hasElement(e.wbPollShape, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.wbPollShape);
   }
 
   async stopPoll() {
