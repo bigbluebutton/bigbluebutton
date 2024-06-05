@@ -3,9 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
-import Settings from '/imports/ui/services/settings';
-import logger from '/imports/startup/client/logger';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
 import { Meteor } from 'meteor/meteor';
 import AppService from '/imports/ui/components/app/service';
@@ -17,9 +15,8 @@ import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
-
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -118,11 +115,14 @@ class Base extends Component {
           window.meetingClientSettings.public.app.defaultSettings.application.animations
         );
 
+        const Settings = getSettingsSingletonInstance();
         Settings.application.animations = showAnimationsDefault;
         Settings.save(setLocalSettings);
 
         if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
           if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+            const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,
@@ -185,15 +185,23 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const BaseContainer = (props) => {
+  const { isGridLayout } = props;
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
   const setLocalSettings = useUserChangedLocalSettings();
+
+  const applicationSettings = useSettings(SETTINGS.APPLICATION);
+  const paginationEnabled = applicationSettings?.paginationEnabled;
+  const animations = applicationSettings?.animations;
+
+  const { viewParticipantsWebcams, viewScreenshare } = useSettings(SETTINGS.DATA_SAVING);
   const { streams: usersVideo } = useVideoStreams(
-    props.isGridLayout,
-    props.paginationEnabled,
-    props.viewParticipantsWebcams,
+    isGridLayout,
+    paginationEnabled,
+    viewParticipantsWebcams,
   );
+  const loggedIn = Auth.useLoggedIn();
 
   return (
     <Base
@@ -202,6 +210,9 @@ const BaseContainer = (props) => {
         layoutContextDispatch,
         setLocalSettings,
         usersVideo,
+        animations,
+        viewScreenshare,
+        loggedIn,
         ...props,
       }}
     />
@@ -209,27 +220,15 @@ const BaseContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const {
-    animations,
-  } = Settings.application;
-
-  const {
-    loggedIn,
-  } = Auth;
-
   let userSubscriptionHandler;
 
   const codeError = Session.get('codeError');
   const isGridLayout = Session.get('isGridEnabled');
   return {
     userSubscriptionHandler,
-    animations,
     isMeteorConnected: Meteor.status().connected,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    loggedIn,
     codeError,
-    paginationEnabled: Settings.application.paginationEnabled,
-    viewParticipantsWebcams: Settings.dataSaving.viewParticipantsWebcams,
     isGridLayout,
   };
 })(BaseContainer);

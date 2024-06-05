@@ -12,8 +12,8 @@ import {
   InstancePresenceRecordType,
   setDefaultUiAssetUrls,
   setDefaultEditorAssetUrls,
-} from "@tldraw/tldraw";
-import "@tldraw/tldraw/tldraw.css";
+} from "@bigbluebutton/tldraw";
+import "@bigbluebutton/tldraw/tldraw.css";
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
 import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -24,7 +24,7 @@ import {
   isValidShapeType,
 } from "./utils";
 import { useMouseEvents, useCursor } from "./hooks";
-import { notifyShapeNumberExceeded, customEditorAssetUrls, customAssetUrls } from "./service";
+import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from "./service";
 
 import NoopTool from './custom-tools/noop-tool/component';
 
@@ -56,10 +56,6 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
       currentPresentationPage?.scaledHeight
   );
 };
-
-setDefaultEditorAssetUrls(customEditorAssetUrls);
-
-setDefaultUiAssetUrls(customAssetUrls);
 
 const Whiteboard = React.memo(function Whiteboard(props) {
   const {
@@ -115,6 +111,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const [isMounting, setIsMounting] = React.useState(true);
   const [initialZoomSet, setInitialZoomSet] = React.useState(false);
   const [initialViewBoxWidth, setInitialViewBoxWidth] = React.useState(null);
+
+  if (isMounting) {
+    setDefaultEditorAssetUrls(getCustomEditorAssetUrls());
+    setDefaultUiAssetUrls(getCustomAssetUrls());
+  }
 
   const whiteboardRef = React.useRef(null);
   const zoomValueRef = React.useRef(null);
@@ -177,7 +178,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     hasWBAccessRef.current = hasWBAccess;
 
     if (!hasWBAccess && !isPresenter) {
-      tlEditorRef?.current?.setCurrentTool("noop");
+      tlEditorRef?.current?.setCurrentTool('noop');
+    } else if (hasWBAccess && !isPresenter) {
+      tlEditorRef?.current?.setCurrentTool('draw');
     }
   }, [hasWBAccess]);
 
@@ -185,7 +188,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       isPresenterRef.current = isPresenter;
 
       if (!hasWBAccessRef.current && !isPresenter) {
-        tlEditorRef?.current?.setCurrentTool("noop");
+        tlEditorRef?.current?.setCurrentTool('noop');
       }
   }, [isPresenter]);
 
@@ -224,6 +227,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   );
 
   const handleKeyDown = (event) => {
+    // Restrict certain actions when not a presenter and without whiteboard access
     if (!isPresenterRef.current) {
       if (
         !hasWBAccessRef.current ||
@@ -233,6 +237,51 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         event.stopPropagation();
         return;
       }
+    }
+
+    // Mapping of simple key shortcuts to tldraw functions
+    const simpleKeyMap = {
+      'v': () => tlEditorRef.current?.setCurrentTool("select"),
+      'd': () => tlEditorRef.current?.setCurrentTool("draw"),
+      'e': () => tlEditorRef.current?.setCurrentTool("eraser"),
+      'h': () => tlEditorRef.current?.setCurrentTool("hand"),
+      'r': () => tlEditorRef.current?.setCurrentTool("rectangle"),
+      'o': () => tlEditorRef.current?.setCurrentTool("ellipse"),
+      'a': () => tlEditorRef.current?.setCurrentTool("arrow"),
+      'l': () => tlEditorRef.current?.setCurrentTool("line"),
+      't': () => tlEditorRef.current?.setCurrentTool("text"),
+      'f': () => tlEditorRef.current?.setCurrentTool("frame"),
+      'n': () => tlEditorRef.current?.setCurrentTool("note"),
+    };
+
+    if (event.ctrlKey) {
+      const ctrlKeyMap = {
+        'a': () => {
+          tlEditorRef.current?.selectAll();
+          tlEditorRef.current?.setCurrentTool("select");
+        },
+        'd': () => {
+          tlEditorRef.current?.duplicateShapes(tlEditorRef.current?.getSelectedShapes(), { x: 10, y: 10 });
+          tlEditorRef.current?.selectNone();
+        },
+      };
+      if (ctrlKeyMap[event.key]) {
+        event.preventDefault();
+        event.stopPropagation();
+        ctrlKeyMap[event.key]();
+        return;
+      }
+    }
+
+    if (simpleKeyMap[event.key]) {
+      event.preventDefault();
+      event.stopPropagation();
+      simpleKeyMap[event.key]();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      tlEditorRef.current?.deselect(tlEditorRef.current?.getSelectedShapes());
     }
   };
 
@@ -477,6 +526,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
         return next;
       };
+
+      if (!isPresenterRef.current && !hasWBAccessRef.current) {
+        editor.setCurrentTool('noop');
+      }
     }
 
     isMountedRef.current = true;

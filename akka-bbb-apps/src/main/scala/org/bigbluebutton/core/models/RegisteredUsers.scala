@@ -26,6 +26,8 @@ object RegisteredUsers {
       System.currentTimeMillis(),
       0,
       false,
+      0,
+      false,
       false,
       enforceLayout,
       customParameters,
@@ -35,6 +37,10 @@ object RegisteredUsers {
 
   def findWithToken(token: String, users: RegisteredUsers): Option[RegisteredUser] = {
     users.toVector.find(u => u.authToken == token)
+  }
+
+  def findAll(users: RegisteredUsers): Vector[RegisteredUser] = {
+    users.toVector
   }
 
   def findWithUserId(id: String, users: RegisteredUsers): Option[RegisteredUser] = {
@@ -123,13 +129,14 @@ object RegisteredUsers {
       u
     } else {
       users.delete(ejectedUser.id)
-//      UserDAO.softDelete(ejectedUser) it's being removed in User2x already
+      UserDAO.softDelete(ejectedUser.meetingId, ejectedUser.id)
       ejectedUser
     }
   }
-  def eject(id: String, users: RegisteredUsers, ban: Boolean): Option[RegisteredUser] = {
+
+  def eject(userId: String, users: RegisteredUsers, ban: Boolean): Option[RegisteredUser] = {
     for {
-      ru <- findWithUserId(id, users)
+      ru <- findWithUserId(userId, users)
     } yield {
       banOrEjectUser(ru, users, ban)
     }
@@ -168,6 +175,23 @@ object RegisteredUsers {
 
   def updateUserLastAuthTokenValidated(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
     val u = user.copy(lastAuthTokenValidatedOn = System.currentTimeMillis())
+    users.save(u)
+    u
+  }
+
+  def updateUserConnectedToGraphql(users: RegisteredUsers, user: RegisteredUser, graphqlConnected: Boolean): RegisteredUser = {
+    val u = user.copy(
+      graphqlConnected = graphqlConnected,
+      graphqlDisconnectedOn = {
+        if(graphqlConnected) {
+          0
+        } else if(!graphqlConnected && user.graphqlDisconnectedOn == 0) {
+          System.currentTimeMillis()
+        } else {
+          user.graphqlDisconnectedOn
+        }
+      }
+    )
     users.save(u)
     u
   }
@@ -216,6 +240,8 @@ case class RegisteredUser(
     excludeFromDashboard:     Boolean,
     registeredOn:             Long,
     lastAuthTokenValidatedOn: Long,
+    graphqlConnected:         Boolean,
+    graphqlDisconnectedOn:    Long,
     joined:                   Boolean,
     banned:                   Boolean,
     enforceLayout:            String,

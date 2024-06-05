@@ -8,7 +8,7 @@ case class CaptionLocaleDbModel(
     meetingId:   String,
     locale:      String,
     captionType: String,
-    ownerUserId: String,
+    createdBy:   String,
     updatedAt:   java.sql.Timestamp
 )
 
@@ -16,20 +16,20 @@ class CaptionLocaleTableDef(tag: Tag) extends Table[CaptionLocaleDbModel](tag, N
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val locale = column[String]("locale", O.PrimaryKey)
   val captionType = column[String]("captionType", O.PrimaryKey)
-  val ownerUserId = column[String]("ownerUserId")
+  val createdBy = column[String]("createdBy")
   val updatedAt = column[java.sql.Timestamp]("updatedAt")
-  def * = (meetingId, locale, captionType, ownerUserId, updatedAt) <> (CaptionLocaleDbModel.tupled, CaptionLocaleDbModel.unapply)
+  def * = (meetingId, locale, captionType, createdBy, updatedAt) <> (CaptionLocaleDbModel.tupled, CaptionLocaleDbModel.unapply)
 }
 
 object CaptionLocaleDAO {
-  def insertOrUpdateCaptionLocale(meetingId: String, locale: String, captionType: String, ownerUserId: String) = {
+  def insertOrUpdateCaptionLocale(meetingId: String, locale: String, captionType: String, userId: String) = {
     DatabaseConnection.db.run(
       TableQuery[CaptionLocaleTableDef].insertOrUpdate(
         CaptionLocaleDbModel(
           meetingId = meetingId,
           locale = locale,
           captionType = captionType,
-          ownerUserId = ownerUserId,
+          createdBy = userId,
           updatedAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )

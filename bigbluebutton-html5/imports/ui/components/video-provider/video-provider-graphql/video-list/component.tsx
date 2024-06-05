@@ -350,9 +350,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     } = this.props;
     const numOfStreams = streams.length;
 
-    const videoItems = streams;
-
-    return videoItems.map((item) => {
+    return streams.map((item) => {
       const { userId, name } = item;
       const isStream = item.type !== 'grid';
       const stream = isStream ? item.stream : null;
@@ -379,7 +377,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
               this.handleCanvasResize();
               if (isStream) onVideoItemMount(item.stream, videoRef);
             }}
-            stream={streams.find((s) => s.userId === userId)}
+            stream={item}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
             onVirtualBgDrop={

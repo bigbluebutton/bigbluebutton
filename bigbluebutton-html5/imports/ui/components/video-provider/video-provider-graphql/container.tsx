@@ -1,11 +1,7 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
 import { useMutation } from '@apollo/client';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import Settings from '/imports/ui/services/settings';
 import {
   useCurrentVideoPageIndex,
   useExitVideo,
@@ -20,29 +16,25 @@ import VideoProvider from './component';
 import VideoService from './service';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from './types';
+import { debounce } from '/imports/utils/debounce';
+import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 interface VideoProviderContainerGraphqlProps {
-  currentUserId: string;
   focusedId: string;
   swapLayout: boolean;
   isGridEnabled: boolean;
-  paginationEnabled: boolean;
-  isMeteorConnected: boolean;
-  viewParticipantsWebcams: boolean;
   cameraDock: Output['cameraDock'];
   handleVideoFocus:(id: string) => void;
 }
 
 const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps> = (props) => {
   const {
-    currentUserId,
-    paginationEnabled,
-    viewParticipantsWebcams,
     cameraDock,
     focusedId,
     handleVideoFocus,
     isGridEnabled,
-    isMeteorConnected,
     swapLayout,
   } = props;
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
@@ -54,12 +46,20 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
   const playStart = (cameraId: string) => {
     if (VideoService.isLocalStream(cameraId)) {
       sendUserShareWebcam(cameraId).then(() => {
-        setTimeout(() => {
-          VideoService.joinedVideo();
-        }, 500);
+        VideoService.joinedVideo();
       });
     }
   };
+
+  const {
+    debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
+  } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
+
+  const applyCameraProfile = debounce(
+    VideoService.applyCameraProfile,
+    CAMERA_QUALITY_THR_DEBOUNCE,
+    { leading: false, trailing: true },
+  );
 
   const { data: currentMeeting } = useMeeting((m) => ({
     usersPolicies: m.usersPolicies,
@@ -67,7 +67,16 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
 
   const { data: currentUser } = useCurrentUser((user) => ({
     locked: user.locked,
+    userId: user.userId,
   }));
+
+  const currentUserId = currentUser?.userId ?? '';
+  // @ts-ignore Untyped object
+  const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
+  // @ts-ignore Untyped object
+  const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
+  // TODO: Remove/Replace this
+  const isMeteorConnected = true;
 
   const {
     streams,
@@ -121,36 +130,9 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
       exitVideo={exitVideo}
       lockUser={lockUser}
       stopVideo={stopVideo}
+      applyCameraProfile={applyCameraProfile as (peer: WebRtcPeer, profileId: string) => void}
     />
   );
 };
 
-type TrackerData = {
-  currentUserId: string;
-  isMeteorConnected: boolean;
-  paginationEnabled: boolean;
-  viewParticipantsWebcams: boolean;
-};
-
-type TrackerProps = {
-  swapLayout: boolean;
-  cameraDock: Output['cameraDock'];
-  focusedId: string;
-  handleVideoFocus:(id: string) => void;
-  isGridEnabled: boolean;
-};
-
-export default withTracker<TrackerData, TrackerProps>(() => {
-  const currentUserId = Auth.userID ?? '';
-  const isMeteorConnected = Meteor.status().connected;
-  // @ts-expect-error -> Untyped object.
-  const { paginationEnabled } = Settings.application;
-  // @ts-expect-error -> Untyped object.
-  const { viewParticipantsWebcams } = Settings.dataSaving;
-  return {
-    currentUserId,
-    isMeteorConnected,
-    paginationEnabled,
-    viewParticipantsWebcams,
-  };
-})(VideoProviderContainerGraphql);
+export default VideoProviderContainerGraphql;

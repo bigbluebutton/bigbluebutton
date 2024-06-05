@@ -1,8 +1,6 @@
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 
-const WAKELOCK_ENABLED = window.meetingClientSettings.public.app.wakeLock.enabled;
-
 const WAKELOCK_ERRORS = {
   NOT_SUPPORTED: {
     locale: 'wakeLockNotSupported',
@@ -21,6 +19,7 @@ class WakeLock {
   }
 
   static isEnabled() {
+    const WAKELOCK_ENABLED = window.meetingClientSettings.public.app.wakeLock.enabled;
     return WAKELOCK_ENABLED;
   }
 

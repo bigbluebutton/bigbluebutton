@@ -400,7 +400,7 @@ If you don't see this, follow the steps below on your BigBlueButton server to se
 
 ![Install](/img/11-install-net3.png)
 
-In this diagram, we've setup a dummy NIC for 203.0.113.1, which will allow FreeSWITCH to connect back to itself. This way, when FreeSWICH receives an internal connection from other parts of BigBlueButton, it will think that it's on the external interface. This will cause it to use the correct IP address on the response.
+In this diagram, we've setup a dummy NIC for 203.0.113.1, which will allow FreeSWITCH to connect back to itself. This way, when FreeSWITCH receives an internal connection from other parts of BigBlueButton, it will think that it's on the external interface. This will cause it to use the correct IP address on the response.
 
 To setup a dummy NIC, on your BigBlueButton enter the following command and substitute `EXTERNAL_IP_ADDRESS` with the external IP address of your firewall.
 

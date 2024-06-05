@@ -125,10 +125,18 @@ func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 	sendBbbCoreMsgToRedis("UserGraphqlReconnectionForcedEvtMsg", body)
 }
 
-func SendUserGraphqlConnectionEstablishedSysMsg(sessionToken string, browserConnectionId string) {
+func SendUserGraphqlConnectionEstablishedSysMsg(
+	sessionToken string,
+	clientSessionUUID string,
+	clientType string,
+	clientIsMobile bool,
+	browserConnectionId string) {
 	var body = map[string]interface{}{
 		"middlewareUID":       common.GetUniqueID(),
 		"sessionToken":        sessionToken,
+		"clientSessionUUID":   clientSessionUUID,
+		"clientType":          clientType,
+		"clientIsMobile":      clientIsMobile,
 		"browserConnectionId": browserConnectionId,
 	}
 

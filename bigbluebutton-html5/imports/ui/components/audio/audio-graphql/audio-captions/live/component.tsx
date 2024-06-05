@@ -1,4 +1,3 @@
-import { useSubscription } from '@apollo/client';
 import React from 'react';
 import { Caption, GET_CAPTIONS, getCaptions } from './queries';
 import logger from '/imports/startup/client/logger';
@@ -6,6 +5,7 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
@@ -24,7 +24,9 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
               captionText,
             } = caption;
             return (
-              <Styled.CaptionWrapper>
+              <Styled.CaptionWrapper
+                key={caption.captionId}
+              >
                 {!user ? null : (
                   <Styled.UserAvatarWrapper>
                     <Styled.UserAvatar
@@ -58,14 +60,14 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
-    speechLocale: u.speechLocale,
+    captionLocale: u.captionLocale,
   }));
 
   const {
     data: AudioCaptionsLiveData,
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
-  } = useSubscription<getCaptions>(GET_CAPTIONS, {
+  } = useDeduplicatedSubscription<getCaptions>(GET_CAPTIONS, {
     variables: { locale: currentUser?.speechLocale ?? 'en-US' },
   });
 

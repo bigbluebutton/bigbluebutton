@@ -77,13 +77,13 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
 
     private String graphqlWebsocketUrl;
-    private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
+    private Long waitingGuestUsersTimeout;
     private String defaultMeetingLayout;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
@@ -767,6 +767,7 @@ public class ParamsProcessorUtil {
                 .withIsBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withWaitingGuestUsersTimeout(waitingGuestUsersTimeout)
                 .withAllowRequestsWithoutSession(allowRequestsWithoutSession)
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
@@ -877,10 +878,6 @@ public class ParamsProcessorUtil {
     public String getGraphqlWebsocketUrl() {
         return graphqlWebsocketUrl;
     }
-
-	public String getDefaultGuestWaitURL() {
-		return defaultGuestWaitURL;
-        }
 
 	public Boolean getUseDefaultLogo() {
 		return useDefaultLogo;
@@ -1245,10 +1242,6 @@ public class ParamsProcessorUtil {
         this.graphqlWebsocketUrl = graphqlWebsocketUrl.replace("https://","wss://");
     }
 
-	public void setDefaultGuestWaitURL(String url) {
-		this.defaultGuestWaitURL = url;
-        }
-
 	public void setUseDefaultLogo(Boolean value) {
 		this.useDefaultLogo = value;
 	}
@@ -1321,7 +1314,11 @@ public class ParamsProcessorUtil {
 		this.authenticatedGuest = value;
 	}
 
-  public void setDefaultMeetingLayout(String meetingLayout) {
+    public void setWaitingGuestUsersTimeout(Long value) {
+        this.waitingGuestUsersTimeout = value;
+    }
+
+    public void setDefaultMeetingLayout(String meetingLayout) {
 		this.defaultMeetingLayout =  meetingLayout;
 	}
 

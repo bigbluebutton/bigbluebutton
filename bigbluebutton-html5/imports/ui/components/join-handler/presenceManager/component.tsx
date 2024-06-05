@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import React, { useContext, useEffect } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
+import React, { useContext, useEffect, useState } from 'react';
 import { Session } from 'meteor/session';
 import {
   getUserCurrent,
@@ -12,8 +12,13 @@ import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
 import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import logger from '/imports/startup/client/logger';
+import deviceInfo from '/imports/utils/deviceInfo';
+import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 
 const connectionTimeout = 60000;
+const MESSAGE_TIMEOUT = 3000;
 
 interface PresenceManagerContainerProps {
     children: React.ReactNode;
@@ -38,6 +43,9 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     bannerText: string;
     customLogoUrl: string;
     loggedOut: boolean;
+    guestStatus: string;
+    guestLobbyMessage: string | null;
+    positionInWaitingQueue: number | null;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -60,18 +68,28 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   bannerText,
   customLogoUrl,
   loggedOut,
+  guestLobbyMessage,
+  guestStatus,
+  positionInWaitingQueue,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   const loadingContextInfo = useContext(LoadingContext);
+  const [isGuestAllowed, setIsGuestAllowed] = useState(guestStatus === GUEST_STATUSES.ALLOW);
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
-      loadingContextInfo.setLoading(false, '');
-      throw new Error('Authentication timeout');
-    }, connectionTimeout);
+    const allowed = guestStatus === GUEST_STATUSES.ALLOW;
+    if (allowed) {
+      setTimeout(() => {
+        setIsGuestAllowed(true);
+      }, MESSAGE_TIMEOUT);
+    } else {
+      setIsGuestAllowed(false);
+    }
+  }, [guestStatus]);
 
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken') as string;
     setAuthData({
@@ -98,6 +116,15 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, []);
 
   useEffect(() => {
+    if (isGuestAllowed) {
+      timeoutRef.current = setTimeout(() => {
+        loadingContextInfo.setLoading(false, '');
+        throw new Error('Authentication timeout');
+      }, connectionTimeout);
+    }
+  }, [isGuestAllowed]);
+
+  useEffect(() => {
     if (bannerColor || bannerText) {
       Session.set('bannerText', bannerText);
       Session.set('bannerColor', bannerColor);
@@ -105,15 +132,16 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, [bannerColor, bannerText]);
 
   useEffect(() => {
-    if (authToken && !joined) {
+    if (authToken && !joined && isGuestAllowed) {
       dispatchUserJoin({
         variables: {
           authToken,
           clientType: 'HTML5',
+          clientIsMobile: deviceInfo.isMobile,
         },
       });
     }
-  }, [joined, authToken]);
+  }, [joined, authToken, isGuestAllowed]);
 
   useEffect(() => {
     if (joined) {
@@ -145,12 +173,24 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
           )
           : null
       }
+      {
+        !isGuestAllowed && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut)
+          ? (
+            <GuestWaitContainer
+              guestLobbyMessage={guestLobbyMessage}
+              guestStatus={guestStatus}
+              logoutUrl={logoutUrl}
+              positionInWaitingQueue={positionInWaitingQueue}
+            />
+          )
+          : null
+      }
     </>
   );
 };
 
 const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ children }) => {
-  const { loading, error, data } = useSubscription<GetUserCurrentResponse>(getUserCurrent);
+  const { loading, error, data } = useDeduplicatedSubscription<GetUserCurrentResponse>(getUserCurrent);
 
   const {
     loading: userInfoLoading,
@@ -162,7 +202,8 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   if (loading || userInfoLoading) return null;
   if (error || userInfoError) {
     loadingContextInfo.setLoading(false, '');
-    throw new Error('Error on user authentication: ', error);
+    logger.debug(`Error on user authentication: ${error}`);
+    throw new Error('Error on user authentication');
   }
 
   if (!data || data.user_current.length === 0) return null;
@@ -177,6 +218,8 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     ejectReasonCode,
     meeting,
     loggedOut,
+    guestStatusDetails,
+    guestStatus,
   } = data.user_current[0];
   const {
     logoutUrl,
@@ -208,6 +251,9 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       bannerText={bannerText}
       loggedOut={loggedOut}
       customLogoUrl={customLogoUrl}
+      guestLobbyMessage={guestStatusDetails?.guestLobbyMessage ?? null}
+      positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
+      guestStatus={guestStatus}
     >
       {children}
     </PresenceManager>

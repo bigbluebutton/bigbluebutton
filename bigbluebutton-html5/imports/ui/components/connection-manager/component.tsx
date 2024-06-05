@@ -6,7 +6,9 @@ import { createClient } from 'graphql-ws';
 import React, { useContext, useEffect } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
+import { onError } from '@apollo/client/link/error';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -48,6 +50,18 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach(({ message }) => {
+      logger.error(`[GraphQL error]: Message: ${message}`);
+    });
+  }
+
+  if (networkError) {
+    logger.error(`[Network error]: ${networkError}`);
+  }
+});
+
 const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): React.ReactNode => {
   const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
@@ -65,12 +79,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
     logger.info('Fetching GraphQL URL');
-    loadingContextInfo.setLoading(true, '1/4');
+    loadingContextInfo.setLoading(true, '1/5');
   }, []);
 
   useEffect(() => {
     logger.info('Connecting to GraphQL server');
-    loadingContextInfo.setLoading(true, '2/4');
+    loadingContextInfo.setLoading(true, '2/5');
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
@@ -80,17 +94,25 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       }
       sessionStorage.setItem('sessionToken', sessionToken);
 
+      const clientSessionUUID = sessionStorage.getItem('clientSessionUUID');
+      const { isMobile } = deviceInfo;
+
       let wsLink;
       try {
         const subscription = createClient({
           url: graphqlUrl,
+          retryAttempts: 2,
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,
+              'X-ClientSessionUUID': clientSessionUUID,
+              'X-ClientType': 'HTML5',
+              'X-ClientIsMobile': isMobile ? 'true' : 'false',
             },
           },
           on: {
             error: (error) => {
+              logger.error(`Error: on subscription to server: ${error}`);
               loadingContextInfo.setLoading(false, '');
               throw new Error(`Error: on subscription to server: ${JSON.stringify(error)}`);
             },
@@ -99,7 +121,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const graphWsLink = new GraphQLWsLink(
           subscription,
         );
-        wsLink = ApolloLink.from([payloadSizeCheckLink, graphWsLink]);
+        wsLink = ApolloLink.from([payloadSizeCheckLink, errorLink, graphWsLink]);
         wsLink.setOnError((error) => {
           loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
