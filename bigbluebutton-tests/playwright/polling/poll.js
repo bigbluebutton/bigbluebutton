@@ -267,7 +267,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage);
 
-    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle);
+    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbPollShape);
     const initialWbDrawnRectangleCount = await wbDrawnRectangleLocator.count();
 
     await this.modPage.hasElementDisabled(e.publishPollingLabel);
@@ -298,7 +298,7 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.zoomInButton);
     await this.userPage.waitAndClick(e.resetZoomButton);
 
-    const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbDrawnRectangle).last();
+    const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbPollShape).last();
     await wbDrawnRectangleUserLocator.dblclick({ timeout: ELEMENT_WAIT_TIME });
     await this.userPage.page.keyboard.type('testUser');
     await expect(wbDrawnRectangleUserLocator).toContainText('testUser');
@@ -315,7 +315,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.publishPollingLabel);
     // Check poll results
-    await this.modPage.hasElement(e.wbDrawnRectangle);
+    await this.modPage.hasElement(e.wbPollShape);
   }
 
   async startNewPoll() {
