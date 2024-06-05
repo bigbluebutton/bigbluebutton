@@ -1,7 +1,6 @@
 package org.bigbluebutton.api.model.validator;
 
-import jakarta.ws.rs.core.MediaType;
-import org.apache.commons.compress.utils.Sets;
+import org.apache.http.entity.ContentType;
 import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.request.Request;
 import org.slf4j.Logger;
@@ -10,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Set;
 
 public class ContentTypeValidator implements ConstraintValidator<ContentTypeConstraint, Request> {
 
@@ -31,7 +29,17 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
         if (requestBodyPresent) {
             if (contentType == null || contentTypeHeader == null) return false;
             else {
-                return request.getSupportedContentTypes().contains(contentType);
+                try {
+                    ContentType c = ContentType.parse(contentType);
+                    String mimeType = c.getMimeType();
+                    for (Object o: request.getSupportedContentTypes()) {
+                        String supportedContentType = (String) o;
+                        if (mimeType.equalsIgnoreCase(supportedContentType)) return true;
+                    }
+                } catch (Exception e) {
+                    return false;
+                }
+                return false;
             }
         }
 
