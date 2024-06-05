@@ -14,10 +14,6 @@ export default class ObservableStorage {
   private readonly storage: Storage;
 
   constructor(storage: Storage, prefix = '') {
-    // if (!(storage instanceof Storage)) {
-    //   throw Error('Expecting a instanceof Storage');
-    // }
-
     this.observers = {};
     this.prefix = prefix;
     this.storage = storage;
