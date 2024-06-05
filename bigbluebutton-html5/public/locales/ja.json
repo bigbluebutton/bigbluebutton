@@ -1197,7 +1197,6 @@
     "app.videoDock.webcamPinLabel": "ピン止め",
     "app.videoDock.webcamPinDesc": "選択したウェブカメラをピン止めする",
     "app.videoDock.webcamFullscreenLabel": "ウェブカメラを全画面表示にする",
-    "app.videoDock.webcamExitFullscreenLabel": "ウェブカメラのフルスクリーンをやめる",
     "app.videoDock.webcamSqueezedButtonLabel": "ウェブカメラの設定",
     "app.videoDock.webcamUnpinLabel": "ピン止めを外す",
     "app.videoDock.webcamUnpinLabelDisabled": "司会者だけがピン止めを外すことができます",
