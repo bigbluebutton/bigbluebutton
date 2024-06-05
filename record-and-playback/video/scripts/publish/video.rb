@@ -40,6 +40,7 @@ end
 props = YAML.safe_load(File.open(File.expand_path('../bigbluebutton.yml', __dir__)))
 video_props = YAML.safe_load(File.open(File.expand_path('../video.yml', __dir__)))
 
+recording_dir = props['recording_dir']
 process_dir = "#{props['recording_dir']}/process/video/#{meeting_id}"
 publish_dir = "#{video_props['publish_dir']}/#{meeting_id}"
 process_donefile = "#{props['recording_dir']}/status/processed/#{meeting_id}-video.done"
@@ -80,6 +81,12 @@ end
 
 # Copy over metadata xml file
 FileUtils.cp("#{process_dir}/metadata.xml", "#{publish_dir}/metadata.xml")
+
+# Get raw size of presentation files
+raw_dir = "#{recording_dir}/raw/#{meeting_id}"
+# After all the processing we'll add the published format and raw sizes to the metadata file
+BigBlueButton.add_raw_size_to_metadata(publish_dir, raw_dir)
+BigBlueButton.add_playback_size_to_metadata(publish_dir)
 
 # Copy over css and js support files
 FileUtils.cp_r("#{process_dir}/css", publish_dir)
