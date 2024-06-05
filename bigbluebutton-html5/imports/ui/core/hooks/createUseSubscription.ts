@@ -44,7 +44,7 @@ function createUseSubscription<T>(
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
     const subscriptionHashRef = useRef<string>('');
     const subscriptionRef = useRef <DocumentNode | TypedQueryDocumentNode | null>(null);
-    const optionsRef = useRef();
+    const optionsRef = useRef({});
     const subHash = stringToHash(
       JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }),
     );
@@ -211,11 +211,6 @@ export const useCreateUseSubscription = <T>(
   queryVariables = {},
   usePatchedSubscription = false,
 ) => {
-  const subscriptionHash = stringToHash(JSON.stringify({ subscription: query, variables: queryVariables }));
-  const subscriptionHashRef = useRef<string>('');
-  const subscriptionRef = useRef<DocumentNode | TypedQueryDocumentNode | null>(null);
-  const queryVariablesRef = useRef(queryVariables);
-
   const queryString = JSON.stringify(query);
   const queryVariablesString = JSON.stringify(queryVariables);
 
