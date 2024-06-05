@@ -227,16 +227,14 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   );
 
   const handleKeyDown = (event) => {
-    // Restrict certain actions when not a presenter and without whiteboard access
-    if (!isPresenterRef.current) {
-      if (
-        !hasWBAccessRef.current ||
-        (hasWBAccessRef.current && !tlEditorRef.current?.getEditingShape())
-      ) {
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
+    if (event.key === 'Escape') {
+      tlEditorRef.current?.deselect(...tlEditorRef.current?.getSelectedShapes());
+      return;
+    }
+
+    const editingShape = tlEditorRef.current?.getEditingShape();
+    if (editingShape && (isPresenterRef.current || hasWBAccessRef.current)) {
+      return;
     }
 
     // Mapping of simple key shortcuts to tldraw functions
@@ -280,8 +278,20 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       return;
     }
 
-    if (event.key === 'Escape') {
-      tlEditorRef.current?.deselect(tlEditorRef.current?.getSelectedShapes());
+    const moveDistance = 10;
+    const selectedShapes = tlEditorRef.current?.getSelectedShapes().map(shape => shape.id);
+
+    const arrowKeyMap = {
+      'ArrowUp': { x: 0, y: -moveDistance },
+      'ArrowDown': { x: 0, y: moveDistance },
+      'ArrowLeft': { x: -moveDistance, y: 0 },
+      'ArrowRight': { x: moveDistance, y: 0 },
+    };
+
+    if (arrowKeyMap[event.key]) {
+      event.preventDefault();
+      event.stopPropagation();
+      tlEditorRef.current?.nudgeShapes(selectedShapes, arrowKeyMap[event.key], { squashing: true });
     }
   };
 
