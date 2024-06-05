@@ -203,6 +203,7 @@ const BaseContainer = (props) => {
     paginationEnabled,
     viewParticipantsWebcams,
   );
+  const loggedIn = Auth.useLoggedIn();
 
   return (
     <Base
@@ -214,6 +215,7 @@ const BaseContainer = (props) => {
         animations,
         viewScreenshare,
         codeError,
+        loggedIn,
         ...props,
       }}
     />
@@ -221,16 +223,11 @@ const BaseContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const {
-    loggedIn,
-  } = Auth;
-
   let userSubscriptionHandler;
 
   return {
     userSubscriptionHandler,
     isMeteorConnected: Meteor.status().connected,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    loggedIn,
   };
 })(BaseContainer);

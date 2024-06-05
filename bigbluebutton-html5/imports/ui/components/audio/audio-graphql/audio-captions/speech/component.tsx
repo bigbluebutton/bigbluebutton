@@ -20,7 +20,7 @@ import {
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { isAudioTranscriptionEnabled, isWebSpeechApi, setSpeechLocale } from '../service';
+import { isAudioTranscriptionEnabled, isWebSpeechApi, setUserLocaleProperty } from '../service';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SUBMIT_TEXT } from './mutations';
 
@@ -81,9 +81,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     speechRecognition.interimResults = true;
 
     if (useFixedLocale() || localeAsDefaultSelected()) {
-      setSpeechLocale(getLocale(), setUserSpeechLocale);
+      setUserLocaleProperty(getLocale(), setUserSpeechLocale);
     } else {
-      setSpeechLocale(navigator.language, setUserSpeechLocale);
+      setUserLocaleProperty(navigator.language, setUserSpeechLocale);
     }
 
     return speechRecognition;

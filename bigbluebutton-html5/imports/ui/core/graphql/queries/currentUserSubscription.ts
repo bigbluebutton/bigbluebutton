@@ -43,6 +43,7 @@ subscription userCurrentSubscription {
     registeredOn
     role
     speechLocale
+    captionLocale
     userId
     customParameters {
       parameter
@@ -99,7 +100,11 @@ subscription userCurrentSubscription {
       changedModeOn
       pageId
       presentationId
-    } 
+    }
+    welcomeMsgs {
+      welcomeMsg
+      welcomeMsgForModerators
+    }
   }
 }
 `;

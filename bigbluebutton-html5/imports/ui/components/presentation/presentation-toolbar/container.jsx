@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { useSubscription, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { useIsPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -9,6 +9,7 @@ import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations'
 import { PRESENTATION_SET_PAGE } from '../mutations';
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationToolbarContainer = (props) => {
   const pluginsContext = useContext(PluginsContext);
@@ -22,7 +23,7 @@ const PresentationToolbarContainer = (props) => {
     numberOfSlides,
   } = props;
 
-  const { data: pollData } = useSubscription(POLL_SUBSCRIPTION);
+  const { data: pollData } = useDeduplicatedSubscription(POLL_SUBSCRIPTION);
   const hasPoll = pollData?.poll?.length > 0;
 
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import React, { useContext, useEffect } from 'react';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
@@ -12,6 +12,7 @@ import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
 import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 
@@ -153,7 +154,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 };
 
 const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ children }) => {
-  const { loading, error, data } = useSubscription<GetUserCurrentResponse>(getUserCurrent);
+  const { loading, error, data } = useDeduplicatedSubscription<GetUserCurrentResponse>(getUserCurrent);
 
   const {
     loading: userInfoLoading,

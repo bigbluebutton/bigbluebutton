@@ -3,7 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Header from '/imports/ui/components/common/control-header/component';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { Input } from '../layout/layoutTypes';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { addAlert } from '../screenreader-alert/service';
@@ -20,6 +20,7 @@ import ResponseTypes from './components/ResponseTypes';
 import PollQuestionArea from './components/PollQuestionArea';
 import LiveResultContainer from './components/LiveResult';
 import Session from '/imports/ui/services/storage/in-memory';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
@@ -543,7 +544,7 @@ const PollCreationPanelContainer: React.FC = () => {
   const {
     data: getHasCurrentPresentationData,
     loading: getHasCurrentPresentationLoading,
-  } = useSubscription<GetHasCurrentPresentationResponse>(getHasCurrentPresentation);
+  } = useDeduplicatedSubscription<GetHasCurrentPresentationResponse>(getHasCurrentPresentation);
 
   if (currentUserLoading || !currentUser) return null;
   if (currentMeetingLoading || !currentMeeting) return null;

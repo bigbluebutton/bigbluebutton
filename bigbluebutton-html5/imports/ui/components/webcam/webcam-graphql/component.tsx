@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Resizable from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
-import { useSubscription } from '@apollo/client';
 import { useVideoStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import {
   layoutSelect,
@@ -18,6 +17,7 @@ import Storage from '/imports/ui/services/storage/session';
 import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -313,7 +313,7 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
   const presentation = layoutSelectOutput((i: Output) => i.presentation);
   const cameraDock = layoutSelectOutput((i: Output) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationPageData } = useDeduplicatedSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const hasPresentation = !!presentationPage?.presentationId;
   // @ts-ignore JS code

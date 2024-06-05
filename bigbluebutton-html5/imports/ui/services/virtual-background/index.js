@@ -16,7 +16,7 @@ import {
 } from '/imports/ui/services/virtual-background/service'
 import logger from '/imports/startup/client/logger';
 
-import { simd } from 'wasm-feature-detect/dist/cjs/index';
+import { simd } from 'wasm-feature-detect';
 
 const blurValue = '25px';
 

@@ -11,15 +11,14 @@ import MediaService from '/imports/ui/components/media/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { useMutation, useSubscription } from '@apollo/client';
+import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
+import { useMutation } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
 
 import {
@@ -30,7 +29,9 @@ import App from './component';
 import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import VideoStreamsState from '../video-provider/video-provider-graphql/state';
+import { useIsSharing, useSharingContentType } from '../screenshare/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
@@ -82,13 +83,14 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const deviceType = layoutSelect((i) => i.deviceType);
+  const hasExternalVideoOnLayout = layoutSelectInput((i) => i.externalVideo.hasExternalVideo);
   const layoutContextDispatch = layoutDispatch();
 
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
   const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
-  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
@@ -162,10 +164,10 @@ const AppContainer = (props) => {
   };
 
   const { data: currentMeeting } = useMeeting((m) => ({
-    externalVideo: m.externalVideo,
+    componentsFlags: m.componentsFlags,
   }));
 
-  const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
+  const isSharingVideo = currentMeeting?.componentsFlags.hasExternalVideo;
 
   useEffect(() => {
     MediaService.buildLayoutWhenPresentationAreaIsDisabled(
@@ -175,6 +177,22 @@ const AppContainer = (props) => {
       isThereWebcam,
     );
   });
+
+  useEffect(() => {
+    if (isSharingVideo && !hasExternalVideoOnLayout) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
+          open: true,
+        },
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+        value: true,
+      });
+    }
+  }, [isSharingVideo]);
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
@@ -239,7 +257,7 @@ const AppContainer = (props) => {
           toggleVoice,
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,
-          audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
+          audioCaptions: <AudioCaptionsLiveContainer />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
           audioAlertEnabled,
@@ -266,8 +284,12 @@ const currentUserEmoji = (currentUser) => (currentUser
   }
 );
 
-export default withTracker((props) => {
-  const { viewScreenshare } = props;
+const AppTracker = withTracker((props) => {
+  const {
+    viewScreenshare,
+    isScreenSharing,
+    screenSharingContentType,
+  } = props;
   const currentUser = Users.findOne(
     { userId: Auth.userID },
     {
@@ -294,7 +316,11 @@ export default withTracker((props) => {
   const meetingLayoutUpdatedAt = new Date(layout.updatedAt).getTime();
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
-  const shouldShowScreenshare = MediaService.shouldShowScreenshare(viewScreenshare);
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare(
+    viewScreenshare,
+    isScreenSharing,
+    screenSharingContentType,
+  );
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
@@ -336,3 +362,19 @@ export default withTracker((props) => {
     User: currentUser,
   };
 })(AppContainer);
+
+// TODO: Remove this
+// Temporary component until we remove all trackers
+export default (props) => {
+  const isScreenSharing = useIsSharing();
+  const screenSharingContentType = useSharingContentType();
+  return (
+    <AppTracker
+      {...{
+        ...props,
+        isScreenSharing,
+        screenSharingContentType,
+      }}
+    />
+  );
+};

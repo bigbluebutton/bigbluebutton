@@ -1,4 +1,5 @@
 import { defineMessages } from 'react-intl';
+import { makeVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import Session from '/imports/ui/services/storage/in-memory';
 import { notify } from '/imports/ui/services/notification';
@@ -16,8 +17,7 @@ const intlMessages = defineMessages({
   },
 });
 
-let lastLevel = -1;
-const levelDep = new Tracker.Dependency();
+const lastLevel = makeVar();
 
 let statsTimeout = null;
 
@@ -32,15 +32,12 @@ const getHelp = () => {
 
 const getStats = () => {
   const STATS = window.meetingClientSettings.public.stats;
-
-  levelDep.depend();
-  return STATS.level[lastLevel];
+  return STATS.level[lastLevel()];
 };
 
 const setStats = (level = -1, type = 'recovery', value = {}) => {
-  if (lastLevel !== level) {
-    lastLevel = level;
-    levelDep.changed();
+  if (lastLevel() !== level) {
+    lastLevel(level);
   }
 };
 
