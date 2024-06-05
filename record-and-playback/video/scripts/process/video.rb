@@ -228,7 +228,7 @@ video_props['formats'].each_with_index do |format, i|
 end
 
 logger.info('Generating closed captions')
-ret = BigBlueButton.exec_ret('/home/bigbluebutton/src/record-and-playback/core/scripts/utils/gen_webvtt', '-i', raw_archive_dir, '-o', process_dir)
+ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', process_dir)
 raise 'Generating closed caption files failed' if ret != 0
 
 captions = JSON.parse(File.read("#{process_dir}/captions.json"))
