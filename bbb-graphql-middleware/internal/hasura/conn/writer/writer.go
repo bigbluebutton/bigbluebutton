@@ -185,7 +185,7 @@ RangeLoop:
 
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
 					if jsonPatchSupported {
-						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection, queryId)
+						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection.Id, browserConnection.SessionToken, queryId)
 					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, queryId)
