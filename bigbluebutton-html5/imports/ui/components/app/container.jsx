@@ -52,7 +52,7 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
-    transcriptionSavedSettings,
+    transcriptionSettings,
     ...otherProps
   } = props;
 
@@ -69,6 +69,7 @@ const AppContainer = (props) => {
   const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
+  const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const genericComponent = layoutSelectInput((i) => i.genericComponent);
@@ -191,12 +192,23 @@ const AppContainer = (props) => {
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
+  // First from settings.yml
+  if (transcriptionSettings.partialUtterances || transcriptionSettings.minUtteranceLength) {
+    useEffect(() => {
+      setSpeechOptions(
+        transcriptionSettings.partialUtterances,
+        transcriptionSettings.minUtteranceLength,
+      );
+    }, [transcriptionSettings.partialUtterances, transcriptionSettings.minUtteranceLength]);
+  }
+
+  // Update after editing app savings
   useEffect(() => {
     setSpeechOptions(
-      transcriptionSavedSettings.partialUtterances,
-      transcriptionSavedSettings.minUtteranceLength,
+      partialUtterances,
+      minUtteranceLength,
     );
-  }, [transcriptionSavedSettings, transcriptionSavedSettings.partialUtterances, transcriptionSavedSettings.minUtteranceLength]);
+  }, [partialUtterances, minUtteranceLength]);
 
   if (!currentUserData) return null;
 
@@ -314,7 +326,6 @@ export default withTracker((props) => {
     partialUtterances: getFromUserSettings('bbb_transcription_partial_utterances'),
     minUtteranceLength: getFromUserSettings('bbb_transcription_min_utterance_length'),
   };
-  const transcriptionSavedSettings = Settings.transcription;
 
   return {
     audioCaptions: <AudioCaptionsLiveContainer />,
@@ -348,6 +359,5 @@ export default withTracker((props) => {
     ignorePollNotifications: Session.get('ignorePollNotifications'),
     User: currentUser,
     transcriptionSettings,
-    transcriptionSavedSettings,
   };
 })(AppContainer);
