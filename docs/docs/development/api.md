@@ -112,7 +112,7 @@ Updated in 2.7:
 Updated in 3.0:
 
 - **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`.
-- **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`).
+- **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET.
 - **sendChatMessage** endpoint was first introduced.
 
 ## API Data Types
@@ -218,6 +218,8 @@ To use the security model, you must be able to create a SHA-1 checksum out of th
 
 You **MUST** send this checksum with **EVERY** API call. Since end users do not know your shared secret, they can not fake calls to the server, and they can not modify any API calls since changing a single parameter name or value by only one character will completely change the checksum required to validate the call.
 
+**NOTE** Checksums for POST requests must be calculated using the URL query string as well. For example, if all request parameters are in the request body then the checksum will be calculated using an empty query string.
+
 Implementations of the SHA-1 functionality exist in nearly all programming languages. Here are example methods or links to example implementations for various languages:
 
 - [JavaScript](http://pajhome.org.uk/crypt/md5/)
@@ -288,7 +290,7 @@ The following response parameters are standard to every call and may be returned
 | message    | Sometimes | String | A message that gives additional information about the status of the call. A message parameter will always be returned if the returncode was `FAILED`. A message may also be returned in some cases where returncode was `SUCCESS` if additional information would be helpful.|
 | messageKey | Sometimes | String | Provides similar functionality to the message and follows the same rules. However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.|
 
-### create
+### `GET` `POST` create
 
 Creates a BigBlueButton meeting.
 
@@ -511,7 +513,7 @@ The receiving endpoint should respond with one of the following HTTP codes to in
 
 All other HTTP response codes will be treated as transient errors.
 
-### join
+### `GET` join
 
 Joins a user to the meeting specified in the meetingID parameter.
 
@@ -602,7 +604,7 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 
 There is also the possibility of passing the removable and downloadable variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides) 
 
-### isMeetingRunning
+### `GET` `POST` isMeetingRunning
 
 This call enables you to simply check on whether or not a meeting is running by looking it up with your meeting ID.
 
@@ -631,7 +633,7 @@ http&#58;//yourserver.com/bigbluebutton/api/isMeetingRunning?meetingID=test01&ch
 
 running can be “true” or “false” that signals whether a meeting with this ID is currently running.
 
-### end
+### `GET` `POST` end
 
 Use this to forcibly end a meeting and kick all participants out of the meeting.
 
@@ -675,7 +677,7 @@ curl --request POST \
 
 **IMPORTANT NOTE:** You should note that when you call end meeting, it is simply sending a request to the backend (Red5) server that is handling all the conference traffic. That backend server will immediately attempt to send every connected client a logout event, kicking them from the meeting. It will then disconnect them, and the meeting will be ended. However, this may take several seconds, depending on network conditions. Therefore, the end meeting call will return a success as soon as the request is sent. But to be sure that it completed, you should then check back a few seconds later by using the `getMeetingInfo` or `isMeetingRunning` calls to verify that all participants have left the meeting and that it successfully ended.
 
-### getMeetingInfo
+### `GET` `POST` getMeetingInfo
 
 This call will return all of a meeting's information, including the list of attendees as well as start and end times.
 
@@ -772,7 +774,7 @@ If a meeting is a breakout room itself, then `getMeetingInfo` will also return a
  </response>
 ```
 
-### getMeetings
+### `GET` `POST` getMeetings
 
 This call will return a list of all the meetings found on this server.
 
@@ -825,7 +827,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
 </response>
 ```
 
-### getRecordings
+### `GET` getRecordings
 
 Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs). Support for pagination was added in 2.6.
 
@@ -940,7 +942,7 @@ Here the `getRecordings` API call returned back two recordings for the meetingID
 </response>
 ```
 
-### publishRecordings
+### `GET` publishRecordings
 
 Publish and unpublish recordings for a given recordID (or set of record IDs).
 
@@ -968,7 +970,7 @@ Publish and unpublish recordings for a given recordID (or set of record IDs).
 </response>
 ```
 
-### deleteRecordings
+### `GET` deleteRecordings
 
 Delete one or more recordings for a given recordID (or set of record IDs).
 
@@ -996,7 +998,7 @@ http&#58;//yourserver.com/bigbluebutton/api/deleteRecordings?[parameters]&checks
 </response>
 ```
 
-### updateRecordings
+### `GET` `POST` updateRecordings
 
 Update metadata for a given recordID (or set of record IDs). Available since version 1.1
 
@@ -1023,7 +1025,7 @@ Update metadata for a given recordID (or set of record IDs). Available since ver
 </response>
 ```
 
-### getRecordingTextTracks
+### `POST` getRecordingTextTracks
 
 Get a list of the caption/subtitle files currently available for a recording. It will include information about the captions (language, etc.), as well as a download link. This may be useful to retrieve live or automatically transcribed subtitles from a recording for manual editing.
 
@@ -1212,7 +1214,7 @@ Missing parameter error
 ```
 
 
-### sendChatMessage
+### `GET` sendChatMessage
 
 This call enables you to send a message to the public chat of a running meeting.
 
