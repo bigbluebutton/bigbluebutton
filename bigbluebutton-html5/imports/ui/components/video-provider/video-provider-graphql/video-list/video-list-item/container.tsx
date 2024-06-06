@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
 import VoiceUsers from '/imports/api/voice-users/';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
@@ -10,9 +9,9 @@ import { StreamUser, VideoItem } from '../../types';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 type TrackerData = {
-  disabledCams: string[];
   voiceUser: {
     muted: boolean;
     listenOnly: boolean;
@@ -42,7 +41,6 @@ type VideoListItemContainerProps = TrackerData & Omit<TrackerProps, 'userId'>;
 const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) => {
   const {
     cameraId,
-    disabledCams,
     focused,
     isStream,
     name,
@@ -69,6 +67,8 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   }));
 
   const amIModerator = currentUserData?.isModerator;
+
+  const disabledCams = useStorageKey('disabledCams') || [];
 
   return (
     <VideoListItem
@@ -108,7 +108,6 @@ export default withTracker<TrackerData, TrackerProps>((props) => {
           muted: 1, listenOnly: 1, talking: 1, joined: 1,
         },
       }),
-    disabledCams: Session.get('disabledCams') || [],
   };
 })(VideoListItemContainer);
 

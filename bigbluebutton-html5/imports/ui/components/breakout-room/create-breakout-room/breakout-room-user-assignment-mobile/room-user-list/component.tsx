@@ -60,6 +60,7 @@ const RoomUserList: React.FC<RoomUserListProps> = ({
                   }
                 }}
               />
+              {/* eslint-disable-next-line */}
               <label htmlFor={`itemId${room.id}`}>
                 <input type="hidden" id={`itemId${room.id}`} />
               </label>

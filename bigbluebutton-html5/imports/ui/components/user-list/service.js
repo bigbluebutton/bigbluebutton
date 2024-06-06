@@ -9,7 +9,7 @@ import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
@@ -191,7 +191,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       const groupChatsParticipants = groupChats[chatId].participants;
       const otherParticipant = groupChatsParticipants.filter((user) => user.id !== Auth.userID)[0];
       const user = users[otherParticipant.id];
-      const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
+      const startedChats = Session.getItem(STARTED_CHAT_LIST_KEY) || [];
 
       const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
@@ -431,13 +431,13 @@ const roving = (...args) => {
 
   this.selectedElement = element;
   const numberOfChilds = elementsList.childElementCount;
-  const menuOpen = Session.get('dropdownOpen') || false;
+  const menuOpen = Session.getItem('dropdownOpen') || false;
 
   if (menuOpen) {
     const menuChildren = document.activeElement.getElementsByTagName('li');
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
-      Session.set('dropdownOpen', false);
+      Session.setItem('dropdownOpen', false);
       document.activeElement.click();
     }
 
@@ -458,7 +458,7 @@ const roving = (...args) => {
   }
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
-    Session.set('dropdownOpen', false);
+    Session.setItem('dropdownOpen', false);
     changeState(null);
   }
 

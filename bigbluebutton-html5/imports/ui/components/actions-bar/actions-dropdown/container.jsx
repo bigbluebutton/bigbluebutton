@@ -1,18 +1,20 @@
 import React, { useContext } from 'react';
+import { useMutation } from '@apollo/client';
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT, ACTIONS, PANELS } from '../../layout/enums';
 import { isCameraAsContentEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useSubscription, useMutation } from '@apollo/client';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import {
   PROCESSED_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
 import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -29,7 +31,9 @@ const ActionsDropdownContainer = (props) => {
 
   const openActions = useShortcut('openActions');
 
-  const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription(
+    PROCESSED_PRESENTATIONS_SUBSCRIPTION,
+  );
   const presentations = presentationData?.pres_presentation || [];
 
   const [setPresenter] = useMutation(SET_PRESENTER);
@@ -66,6 +70,8 @@ const ActionsDropdownContainer = (props) => {
     }, 500);
   };
 
+  const isDropdownOpen = useStorageKey('dropdownOpen');
+
   return (
     <ActionsDropdown
       {...{
@@ -77,7 +83,7 @@ const ActionsDropdownContainer = (props) => {
         actionButtonDropdownItems,
         presentations,
         isTimerFeatureEnabled: isTimerFeatureEnabled(),
-        isDropdownOpen: Session.get('dropdownOpen'),
+        isDropdownOpen,
         setPresentation,
         isCameraAsContentEnabled: isCameraAsContentEnabled(),
         handleTakePresenter,

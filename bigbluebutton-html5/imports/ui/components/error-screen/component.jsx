@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -113,7 +113,7 @@ class ErrorScreen extends PureComponent {
       errorInfo,
     } = this.props;
     let formatedMessage = 'Oops, something went wrong';
-    let errorMessageDescription = Session.get('errorMessageDescription');
+    let errorMessageDescription = Session.getItem('errorMessageDescription');
     if (intl) {
       formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
 
@@ -121,7 +121,7 @@ class ErrorScreen extends PureComponent {
         formatedMessage = intl.formatMessage(intlMessages[code]);
       }
 
-      errorMessageDescription = Session.get('errorMessageDescription');
+      errorMessageDescription = Session.getItem('errorMessageDescription');
 
       if (errorMessageDescription in intlMessages) {
         errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);

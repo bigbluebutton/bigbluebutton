@@ -68,8 +68,6 @@ class ReceivedJsonMsgHandlerActor(
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
-      case UserJoinMeetingAfterReconnectReqMsg.NAME =>
-        routeGenericMsg[UserJoinMeetingAfterReconnectReqMsg](envelope, jsonNode)
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
@@ -84,8 +82,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
       case GuestsWaitingApprovedMsg.NAME =>
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
-      case GuestWaitingLeftMsg.NAME =>
-        routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
       case UpdatePositionInWaitingQueueReqMsg.NAME =>
         routeGenericMsg[UpdatePositionInWaitingQueueReqMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
@@ -114,6 +110,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
+      case SetUserCaptionLocaleReqMsg.NAME =>
+        routeGenericMsg[SetUserCaptionLocaleReqMsg](envelope, jsonNode)
       case SetUserSpeechOptionsReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechOptionsReqMsg](envelope, jsonNode)
 
@@ -345,8 +343,8 @@ class ReceivedJsonMsgHandlerActor(
       // Caption
       case EditCaptionHistoryPubMsg.NAME =>
         routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
-      case UpdateCaptionOwnerPubMsg.NAME =>
-        routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
+      case AddCaptionLocalePubMsg.NAME =>
+        routeGenericMsg[AddCaptionLocalePubMsg](envelope, jsonNode)
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
 

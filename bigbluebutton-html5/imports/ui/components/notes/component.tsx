@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
@@ -19,7 +19,10 @@ import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-playe
 import {
   screenshareHasEnded,
   isScreenBroadcasting,
+  useIsSharing,
+  useSharingContentType,
 } from '/imports/ui/components/screenshare/service';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   hide: {
@@ -170,7 +173,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { area, isToSharedNotesBeShow } = props;
 
   const hasPermission = useHasPermission();
-  const { data: pinnedPadData } = useSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -193,11 +196,13 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const isSharingScreen = useIsSharing();
+  const sharingContentType = useSharingContentType();
 
   const handlePinSharedNotes = (pinned: boolean) => {
     if (pinned) {
       stopExternalVideoShare();
-      if (isScreenBroadcasting()) screenshareHasEnded();
+      if (isScreenBroadcasting(isSharingScreen, sharingContentType)) screenshareHasEnded();
     }
     pinSharedNotes({ variables: { pinned } });
   };

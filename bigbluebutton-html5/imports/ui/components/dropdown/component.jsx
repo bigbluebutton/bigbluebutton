@@ -5,7 +5,7 @@ import TetherComponent from 'react-tether';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import screenreaderTrap from 'makeup-screenreader-trap';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
 
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -137,7 +137,7 @@ class Dropdown extends Component {
   }
 
   handleShow() {
-    Session.set('dropdownOpen', true);
+    Session.setItem('dropdownOpen', true);
     this.updateZIndex(0);
     const {
       onShow,
@@ -150,7 +150,7 @@ class Dropdown extends Component {
   }
 
   handleHide() {
-    Session.set('dropdownOpen', false);
+    Session.setItem('dropdownOpen', false);
     this.updateZIndex(1);
     const { onHide } = this.props;
     this.setState({ isOpen: false }, () => {

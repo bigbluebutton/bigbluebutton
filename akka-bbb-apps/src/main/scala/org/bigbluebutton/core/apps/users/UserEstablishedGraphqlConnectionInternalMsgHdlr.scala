@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, Routing, UserMobileFlagChangedEvtMsg, UserMobileFlagChangedEvtMsgBody }
 import org.bigbluebutton.core.api.UserEstablishedGraphqlConnectionInternalMsg
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.models.{ RegisteredUsers, UserState, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter }
 
 trait UserEstablishedGraphqlConnectionInternalMsgHdlr extends HandlerHelpers {
@@ -14,6 +14,13 @@ trait UserEstablishedGraphqlConnectionInternalMsgHdlr extends HandlerHelpers {
 
   def handleUserEstablishedGraphqlConnectionInternalMsg(msg: UserEstablishedGraphqlConnectionInternalMsg, state: MeetingState2x): MeetingState2x = {
     log.info("Received user established a graphql connection. msg={} meetingId={}", msg, liveMeeting.props.meetingProp.intId)
+
+    for {
+      regUser <- RegisteredUsers.findWithUserId(msg.userId, liveMeeting.registeredUsers)
+    } yield {
+      RegisteredUsers.updateUserConnectedToGraphql(liveMeeting.registeredUsers, regUser, graphqlConnected = true)
+    }
+
     Users2x.findWithIntId(liveMeeting.users2x, msg.userId) match {
       case Some(connectingUser) =>
         var userNewState = connectingUser

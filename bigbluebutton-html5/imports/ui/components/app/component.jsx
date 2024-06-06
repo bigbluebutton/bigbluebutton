@@ -212,7 +212,9 @@ class App extends Component {
 
     if (CONFIRMATION_ON_LEAVE) {
       window.onbeforeunload = (event) => {
-        AudioService.muteMicrophone(toggleVoice);
+        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
+          AudioService.muteMicrophone(toggleVoice);
+        }
         event.stopImmediatePropagation();
         event.preventDefault();
         // eslint-disable-next-line no-param-reassign

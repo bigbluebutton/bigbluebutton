@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import UserActions from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-status/component';
 import PinArea from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/pin-area/component';
 import UserAvatarVideo from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-avatar/component';
-import ViewActions from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/view-actions/component';
 import {
   isStreamStateUnhealthy,
   subscribeToStreamStateChange,
@@ -104,7 +103,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     it is needed in cases where the user has more than one active camera
     so we only share the second camera after the first
     has finished loading (can't share more than one at the same time) */
-    Session.set('canConnect', true);
+    Session.setItem('canConnect', true);
   };
 
   // component did mount
@@ -168,6 +167,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
       isSelfViewDisabled={isSelfViewDisabled}
       amIModerator={amIModerator}
+      isFullscreenContext={isFullscreenContext}
+      layoutContextDispatch={layoutContextDispatch}
     />
   );
 
@@ -183,6 +184,9 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed={false}
       />
+      <Styled.TopBar>
+        {user?.raiseHand && <Styled.RaiseHand>✋</Styled.RaiseHand>}
+      </Styled.TopBar>
       <Styled.BottomBar>
         <UserActions
           name={name}
@@ -198,6 +202,9 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
           isSelfViewDisabled={isSelfViewDisabled}
           amIModerator={amIModerator}
+          videoContainer={videoContainer}
+          isFullscreenContext={isFullscreenContext}
+          layoutContextDispatch={layoutContextDispatch}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -226,17 +233,10 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const renderDefaultButtons = () => (
     <>
       <Styled.TopBar>
+        {user.raiseHand && <Styled.RaiseHand>✋</Styled.RaiseHand>}
         <PinArea
           stream={stream}
           amIModerator={amIModerator}
-        />
-        <ViewActions
-          videoContainer={videoContainer}
-          name={name}
-          cameraId={cameraId}
-          isFullscreenContext={isFullscreenContext}
-          layoutContextDispatch={layoutContextDispatch}
-          isStream={isStream}
         />
       </Styled.TopBar>
       <Styled.BottomBar>
@@ -254,6 +254,9 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
           isSelfViewDisabled={isSelfViewDisabled}
           amIModerator={amIModerator}
+          videoContainer={videoContainer}
+          isFullscreenContext={isFullscreenContext}
+          layoutContextDispatch={layoutContextDispatch}
         />
         <UserStatus
           voiceUser={voiceUser}

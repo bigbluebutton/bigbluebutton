@@ -60,9 +60,8 @@ type Mutation {
 }
 
 type Mutation {
-  captionSetOwner(
+  captionAddLocale(
     locale: String!
-    ownerUserId: String!
   ): Boolean
 }
 
@@ -538,6 +537,13 @@ type Mutation {
   userSetSpeechOptions(
     partialUtterances: Boolean!
     minUtteranceLength: Float!
+  ): Boolean
+}
+
+type Mutation {
+  userSetCaptionLocale(
+    locale: String!
+    provider: String!
   ): Boolean
 }
 

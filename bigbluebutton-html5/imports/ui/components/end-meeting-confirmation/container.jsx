@@ -1,16 +1,17 @@
 import React from 'react';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import EndMeetingComponent from './component';
 import logger from '/imports/startup/client/logger';
 import { MEETING_END } from './mutations';
 import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
 
 const EndMeetingContainer = (props) => {
   const [meetingEnd] = useMutation(MEETING_END);
   const {
     data: countData,
-  } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const users = countData?.user_aggregate?.aggregate?.count || 0;
 
   const { setIsOpen } = props;

@@ -36,6 +36,7 @@ export const splitTranscript = (obj: Caption) => {
 
   return transcripts.map((t) => { return { ...obj, captionText: t }; });
 };
+import Session from '/imports/ui/services/storage/in-memory';
 
 export const isAudioTranscriptionEnabled = () => isLiveTranscriptionEnabled();
 
@@ -63,11 +64,17 @@ export const getSpeechVoices = () => {
 export const setAudioCaptions = (value: boolean) => {
   setAudioCaptionEnable(value);
   // @ts-ignore - Exist while we have meteor in the project
-  Session.set('audioCaptions', value);
+  Session.setItem('audioCaptions', value);
 };
 
 export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
   setUserSpeechLocale(value, getSpeechProvider());
+};
+
+// SpeechLocale or CaptionLocale
+export const setUserLocaleProperty = (value: string, setUserLocaleCallback: (a: string, b: string) => void) => {
+  const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
+  setUserLocaleCallback(value, PROVIDER);
 };
 
 export const useFixedLocale = () => {
@@ -78,6 +85,7 @@ export const useFixedLocale = () => {
 export default {
   getSpeechVoices,
   isAudioTranscriptionEnabled,
+  setUserLocaleProperty,
   setSpeechLocale,
   setAudioCaptions,
   isWebSpeechApi,

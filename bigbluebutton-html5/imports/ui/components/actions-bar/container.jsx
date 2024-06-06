@@ -2,13 +2,13 @@ import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
-import { useSubscription, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
-import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting, useIsSharing, useSharingContentType } from '/imports/ui/components/screenshare/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -18,6 +18,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const ActionsBarContainer = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -29,7 +30,9 @@ const ActionsBarContainer = (props) => {
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
 
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationPageData } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const isThereCurrentPresentation = !!presentationPage?.presentationId;
 
@@ -65,7 +68,7 @@ const ActionsBarContainer = (props) => {
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
 
-  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
@@ -105,13 +108,29 @@ const isReactionsButtonEnabled = () => {
   return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
 };
 
-export default withTracker(() => ({
+const ActionsBarTracker = withTracker(({ isSharing, sharingContentType }) => ({
   enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  hasScreenshare: isScreenBroadcasting(),
-  hasCameraAsContent: isCameraAsContentBroadcasting(),
+  hasScreenshare: isScreenBroadcasting(isSharing, sharingContentType),
+  hasCameraAsContent: isCameraAsContentBroadcasting(isSharing, sharingContentType),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isReactionsButtonEnabled: isReactionsButtonEnabled(),
   allowExternalVideo: isExternalVideoEnabled(),
 }))(injectIntl(ActionsBarContainer));
+
+// TODO: Remove this
+// Temporary component until we remove all trackers
+export default (props) => {
+  const isSharing = useIsSharing();
+  const sharingContentType = useSharingContentType();
+  return (
+    <ActionsBarTracker
+      {...{
+        ...props,
+        isSharing,
+        sharingContentType,
+      }}
+    />
+  );
+};

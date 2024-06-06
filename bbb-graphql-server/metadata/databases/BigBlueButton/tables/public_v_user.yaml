@@ -108,6 +108,7 @@ select_permissions:
         - registeredOn
         - role
         - speechLocale
+        - captionLocale
         - userId
       filter:
         _and:

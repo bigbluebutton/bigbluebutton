@@ -1,5 +1,5 @@
 import { Tracker } from 'meteor/tracker';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
@@ -129,7 +129,7 @@ class VideoService {
       deviceIds.push(s.deviceId);
     }
     );
-    Session.set('deviceIds', deviceIds.join());
+    Session.setItem('deviceIds', deviceIds.join());
   }
 
   exitVideo(sendUserUnshareWebcam) {

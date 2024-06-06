@@ -2,13 +2,16 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { UploadingPresentations } from '/imports/api/presentations';
 import { PresentationUploaderToast } from './component';
-import { useSubscription } from '@apollo/client';
+
 import {
   EXPORTING_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationUploaderToastContainer = (props) => {
-  const { data: presentationData } = useSubscription(EXPORTING_PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription(
+    EXPORTING_PRESENTATIONS_SUBSCRIPTION,
+  );
   const presentations = presentationData?.pres_presentation || [];
 
   const convertingPresentations = presentations.filter(
