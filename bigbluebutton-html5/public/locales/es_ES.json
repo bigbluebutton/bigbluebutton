@@ -812,6 +812,7 @@
     "app.toast.chat.system": "Sistema",
     "app.toast.chat.poll": "Resultados de la encuesta",
     "app.toast.chat.pollClick": "Se han publicado los resultados de la encuesta. Click aquí para verlos.",
+    "app.toast.chat.exportedPresentation": "Fichero de presentación",
     "app.toast.clearedEmoji.label": "Estado de Emoji limpio",
     "app.toast.setEmoji.label": "Estado de Emoji establecido en {0}",
     "app.toast.meetingMuteOn.label": "Todos los usuarios han sido silenciados",
