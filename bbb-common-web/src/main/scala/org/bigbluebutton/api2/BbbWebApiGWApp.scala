@@ -130,7 +130,11 @@ class BbbWebApiGWApp(
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
-                    metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
+                    metadata: java.util.Map[String, String],
+                    guestPolicy: String,
+                    authenticatedGuest: java.lang.Boolean,
+                    waitingGuestUsersTimeout: java.lang.Long,
+                    meetingLayout: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, welcomeMsgForModerators: String,
                     dialNumber:                             String,
                     maxUsers:                               java.lang.Integer,
@@ -215,7 +219,8 @@ class BbbWebApiGWApp(
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
-      authenticatedGuest = authenticatedGuest.booleanValue()
+      authenticatedGuest = authenticatedGuest.booleanValue(),
+      waitingGuestUsersTimeout = waitingGuestUsersTimeout.longValue()
     )
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
@@ -291,11 +296,6 @@ class BbbWebApiGWApp(
       customParameters = (customParameters).asScala.toMap)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
-    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
-  }
-
-  def guestWaitingLeft(meetingId: String, intUserId: String): Unit = {
-    val event = MsgBuilder.buildGuestWaitingLeftMsg(meetingId, intUserId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
