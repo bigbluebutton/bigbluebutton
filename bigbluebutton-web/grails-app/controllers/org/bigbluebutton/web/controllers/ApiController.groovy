@@ -87,6 +87,7 @@ class ApiController {
 
     def contentType = request.getHeader("content-type")
 
+    String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
     if(contentType == 'application/json') {
       withFormat {
         json {
@@ -97,6 +98,7 @@ class ApiController {
             apiVersion paramsProcessorUtil.getApiVersion()
             bbbVersion paramsProcessorUtil.getBbbVersion()
             graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
+            graphqlApiUrl "${defaultServerUrl}/api/rest"
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -108,6 +110,7 @@ class ApiController {
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
                   paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  "${defaultServerUrl}/api/rest",
                   RESP_CODE_SUCCESS),
                   contentType: "text/xml")
         }
