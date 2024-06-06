@@ -104,7 +104,7 @@ class UrlMappings {
     }
 
     "/bigbluebutton/api/insertDocument"(controller: "api") {
-      action = [GET: 'insertDocument', POST: 'insertDocument']
+      action = [POST: 'insertDocument']
     }
 
     "/bigbluebutton/api/getJoinUrl"(controller: "api") {
