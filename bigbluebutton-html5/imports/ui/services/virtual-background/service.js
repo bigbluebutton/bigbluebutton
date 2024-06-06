@@ -1,6 +1,7 @@
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const BLUR_FILENAME = 'blur.jpg';
 const EFFECT_TYPES = {
@@ -85,22 +86,22 @@ const getVirtualBackgroundThumbnail = (name) => {
 //   type: <EFFECT_TYPES>,
 //   name: effect filename, if any
 // }
-const setSessionVirtualBackgroundInfo = (type, name, deviceId) => {
-  return Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name });
-}
+const setSessionVirtualBackgroundInfo = (type, name, deviceId) => (
+  Session.setItem(`VirtualBackgroundInfo_${deviceId}`, { type, name })
+);
 
-const getSessionVirtualBackgroundInfo = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+const getSessionVirtualBackgroundInfo = (deviceId) => (
+  Session.getItem(`VirtualBackgroundInfo_${deviceId}`) || {
     type: EFFECT_TYPES.NONE_TYPE,
-  };
-}
+  }
+);
 
-const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => (
+  Session.getItem(`VirtualBackgroundInfo_${deviceId}`) || {
     type: EFFECT_TYPES.BLUR_TYPE,
     name: BLUR_FILENAME,
-  };
-}
+  }
+);
 
 const isVirtualBackgroundSupported = () => {
   return !(deviceInfo.isIos || browserInfo.isSafari);

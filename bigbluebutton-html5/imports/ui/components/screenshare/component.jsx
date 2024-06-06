@@ -2,7 +2,6 @@ import React from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { debounce } from '/imports/utils/debounce';
-import { Session } from 'meteor/session';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
@@ -33,6 +32,7 @@ import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums'
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { uniqueId } from '/imports/utils/string-utils';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const MOBILE_HOVER_TIMEOUT = 5000;
 const MEDIA_FLOW_PROBE_INTERVAL = 500;
@@ -122,7 +122,7 @@ class ScreenshareComponent extends React.Component {
         value: true,
       });
     }
-    Session.set('pinnedNotesLastState', isSharedNotesPinned);
+    Session.setItem('pinnedNotesLastState', isSharedNotesPinned);
   }
 
   componentDidUpdate(prevProps) {
@@ -174,7 +174,7 @@ class ScreenshareComponent extends React.Component {
     this.clearMediaFlowingMonitor();
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: Session.get('presentationLastState'),
+      value: Session.getItem('presentationLastState'),
     });
   }
 

@@ -14,6 +14,7 @@ import { isPresentationEnabled, isLayoutsEnabled } from '/imports/ui/services/fe
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
   amIPresenter: PropTypes.bool,
@@ -115,7 +116,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
+const handlePresentationClick = () => Session.setItem('showUploadPresentationView', true);
 
 class ActionsDropdown extends PureComponent {
   constructor(props) {
@@ -214,7 +215,7 @@ class ActionsDropdown extends PureComponent {
         key: this.pollId,
         onClick: () => {
           if (Session.equals('pollInitiated', true)) {
-            Session.set('resetPollPanel', true);
+            Session.setItem('resetPollPanel', true);
           }
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -224,7 +225,7 @@ class ActionsDropdown extends PureComponent {
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.POLL,
           });
-          Session.set('forcePollOpen', true);
+          Session.setItem('forcePollOpen', true);
         },
       });
     }

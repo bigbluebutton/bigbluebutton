@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { Meteor } from 'meteor/meteor';
 import AppService from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -17,6 +17,7 @@ import { isChatEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -51,7 +52,7 @@ class Base extends Component {
       || document.webkitFullscreenElement
       || document.mozFullScreenElement
       || document.msFullscreenElement) {
-      Session.set('isFullscreen', true);
+      Session.setItem('isFullscreen', true);
     } else {
       layoutContextDispatch({
         type: ACTIONS.SET_FULLSCREEN_ELEMENT,
@@ -60,7 +61,7 @@ class Base extends Component {
           group: '',
         },
       });
-      Session.set('isFullscreen', false);
+      Session.setItem('isFullscreen', false);
     }
   }
 
@@ -78,7 +79,7 @@ class Base extends Component {
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, this.handleFullscreenChange);
     });
-    Session.set('isFullscreen', false);
+    Session.setItem('isFullscreen', false);
   }
 
   componentDidUpdate(prevProps) {
@@ -185,7 +186,8 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const BaseContainer = (props) => {
-  const { isGridLayout } = props;
+  const codeError = useStorageKey('codeError');
+  const isGridLayout = useStorageKey('isGridEnabled');
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
@@ -212,6 +214,7 @@ const BaseContainer = (props) => {
         usersVideo,
         animations,
         viewScreenshare,
+        codeError,
         loggedIn,
         ...props,
       }}
@@ -222,13 +225,9 @@ const BaseContainer = (props) => {
 export default withTracker(() => {
   let userSubscriptionHandler;
 
-  const codeError = Session.get('codeError');
-  const isGridLayout = Session.get('isGridEnabled');
   return {
     userSubscriptionHandler,
     isMeteorConnected: Meteor.status().connected,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    codeError,
-    isGridLayout,
   };
 })(BaseContainer);

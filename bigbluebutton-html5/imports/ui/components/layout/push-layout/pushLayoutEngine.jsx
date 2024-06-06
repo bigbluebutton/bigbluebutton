@@ -6,7 +6,7 @@ import MediaService from '/imports/ui/components/media/service';
 import { LAYOUT_TYPE, ACTIONS } from '../enums';
 import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -83,7 +83,7 @@ class PushLayoutEngine extends React.Component {
       selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
       Settings.application.selectedLayout = selectedLayout;
     }
-    Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+    Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
 
     Settings.save(setLocalSettings);
 
@@ -94,7 +94,7 @@ class PushLayoutEngine extends React.Component {
     presentationIsOpen = pushLayoutMeeting ? meetingPresentationIsOpen : presentationIsOpen;
     presentationIsOpen = shouldOpenPresentation || presentationIsOpen;
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationIsOpen);
-    Session.set('presentationLastState', presentationIsOpen);
+    Session.setItem('presentationLastState', presentationIsOpen);
 
     if (selectedLayout === 'custom') {
       setTimeout(() => {
@@ -280,7 +280,7 @@ class PushLayoutEngine extends React.Component {
     }
 
     if (selectedLayout !== prevProps.selectedLayout) {
-      Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+      Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
     }
   }
 

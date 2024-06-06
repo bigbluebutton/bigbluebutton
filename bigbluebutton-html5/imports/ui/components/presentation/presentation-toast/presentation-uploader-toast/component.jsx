@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const TIMEOUT_CLOSE_TOAST = 1; // second
 
@@ -239,7 +240,7 @@ function renderToastItem(item, intl) {
     <Styled.UploadRow
       key={item.presentationId || item.temporaryPresentationId}
       onClick={() => {
-        if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
+        if (hasError || isProcessing) Session.setItem('showUploadPresentationView', true);
       }}
     >
       <Styled.FileLine>
@@ -440,14 +441,14 @@ export const PresentationUploaderToast = ({intl, convertingPresentations, upload
       const prevPropPres = prevPresentations.find((pres) => pres.presentationId === p.presentationId);
   
       // display notification when presentation is exported
-      let exportToastId = Session.get('presentationUploaderExportToastId');
+      let exportToastId = Session.getItem('presentationUploaderExportToastId');
 
       if (prevPropPres?.exportToChatStatus
         && p?.exportToChatStatus === EXPORT_STATUSES.EXPORTED
         && prevPropPres?.exportToChatStatus !== p?.exportToChatStatus
       ) {
         notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
-        Session.set('presentationUploaderExportToastId', null);
+        Session.setItem('presentationUploaderExportToastId', null);
         handleDismissToast(exportToastId);
       }
 
@@ -468,16 +469,16 @@ export const PresentationUploaderToast = ({intl, convertingPresentations, upload
             newestOnTop: true,
             closeOnClick: true,
             onClose: () => {
-              Session.set('presentationUploaderExportToastId', null);
+              Session.setItem('presentationUploaderExportToastId', null);
             },
           });
-          Session.set('presentationUploaderExportToastId', exportToastId);
+          Session.setItem('presentationUploaderExportToastId', exportToastId);
         }
       }
     });
   }, [presentations]);
 
-  let activeToast = Session.get('presentationUploaderToastId');
+  let activeToast = Session.getItem('presentationUploaderToastId');
   const showToast = presentationsToConvert.length > 0;
 
   if (showToast && !activeToast) {
@@ -488,10 +489,10 @@ export const PresentationUploaderToast = ({intl, convertingPresentations, upload
       closeOnClick: true,
       className: 'presentationUploaderToast toastClass',
     });
-    Session.set('presentationUploaderToastId', activeToast);
+    Session.setItem('presentationUploaderToastId', activeToast);
   } else if (!showToast && activeToast) {
     handleDismissToast(activeToast);
-    Session.set('presentationUploaderToastId', null);
+    Session.setItem('presentationUploaderToastId', null);
   } else {
     toast.update(activeToast, {
       render: renderToastList(presentationsToConvert, intl),

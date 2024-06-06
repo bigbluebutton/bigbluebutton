@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import {
   getUserCurrent,
   GetUserCurrentResponse,
@@ -126,8 +126,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   useEffect(() => {
     if (bannerColor || bannerText) {
-      Session.set('bannerText', bannerText);
-      Session.set('bannerColor', bannerColor);
+      Session.setItem('bannerText', bannerText);
+      Session.setItem('bannerColor', bannerColor);
     }
   }, [bannerColor, bannerText]);
 

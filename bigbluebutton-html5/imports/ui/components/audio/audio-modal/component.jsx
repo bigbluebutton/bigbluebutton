@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
@@ -21,6 +20,7 @@ import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/use
 import {
   muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -544,7 +544,7 @@ const AudioModal = (props) => {
       exitAudio();
     }
     if (resolve) resolve();
-    Session.set('audioModalIsOpen', false);
+    Session.setItem('audioModalIsOpen', false);
   }, []);
 
   let title = content

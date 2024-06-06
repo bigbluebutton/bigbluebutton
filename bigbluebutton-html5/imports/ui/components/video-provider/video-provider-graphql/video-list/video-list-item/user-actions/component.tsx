@@ -1,7 +1,7 @@
 import React, { MutableRefObject, useContext, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { UserCameraDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import browserInfo from '/imports/utils/browserInfo';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
@@ -139,8 +139,8 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
     const isMirroredIntlKey = !isMirrored ? 'enableMirror' : 'disableMirror';
-    const disabledCams = Session.get('disabledCams') || [];
-    const isCameraDisabled = disabledCams && disabledCams?.includes(cameraId);
+    const disabledCams = (Session.getItem('disabledCams') || []) as string[];
+    const isCameraDisabled = Array.isArray(disabledCams) && disabledCams?.includes(cameraId);
     const enableSelfCamIntlKey = !isCameraDisabled ? 'disable' : 'enable';
     const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
@@ -148,10 +148,10 @@ const UserActions: React.FC<UserActionProps> = (props) => {
 
     const toggleDisableCam = () => {
       if (!isCameraDisabled) {
-        Session.set('disabledCams', [...disabledCams, cameraId]);
+        Session.setItem('disabledCams', [...disabledCams, cameraId]);
         notify(intl.formatMessage(intlMessages.disableWarning), 'info', 'warning');
       } else {
-        Session.set('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
+        Session.setItem('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
       }
     };
 

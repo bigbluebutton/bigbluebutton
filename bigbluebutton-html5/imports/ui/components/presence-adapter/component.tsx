@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import useAuthData from '/imports/ui/core/local-states/useAuthData';
 import Auth from '/imports/ui/services/auth';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 
 interface PresenceAdapterProps {
     children: React.ReactNode;
@@ -33,7 +33,7 @@ const PresenceAdapter: React.FC<PresenceAdapterProps> = ({ children }) => {
       meetingName,
     );
     Auth.loggedIn = true;
-    Session.set('userWillAuth', false);
+    Session.setItem('userWillAuth', false);
     setAuthSetted(true);
   }, []);
 

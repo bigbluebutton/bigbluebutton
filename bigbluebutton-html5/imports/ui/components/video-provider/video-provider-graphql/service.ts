@@ -1,4 +1,3 @@
-import { Session } from 'meteor/session';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
@@ -22,6 +21,7 @@ import {
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const TOKEN = '_';
 
@@ -108,8 +108,8 @@ class VideoService {
       const streamName = this.buildStreamName(deviceId);
       const stream = {
         stream: streamName,
-        userId: Auth.userID ?? '',
-        name: Auth.fullname ?? '',
+        userId: Auth.userID as string,
+        name: Auth.fullname as string,
         type: 'connecting' as const,
       };
       setConnectingStream(stream);
@@ -135,7 +135,7 @@ class VideoService {
       .forEach((s) => {
         deviceIds.push(s.deviceId);
       });
-    Session.set('deviceIds', deviceIds.join());
+    Session.setItem('deviceIds', deviceIds.join());
   }
 
   exitedVideo() {
@@ -205,7 +205,7 @@ class VideoService {
   }
 
   static isGridEnabled() {
-    return Session.get('isGridEnabled');
+    return Session.getItem('isGridEnabled');
   }
 
   stopConnectingStream() {
