@@ -11,6 +11,7 @@ import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
+import org.bigbluebutton.api.messaging.messages.ChatMessageFromApi;
 import org.bigbluebutton.presentation.messages.IDocConversionMsg;
 
 public interface IBbbWebApiGWApp {
@@ -85,4 +86,5 @@ public interface IBbbWebApiGWApp {
   void unpublishedRecording(UnpublishedRecordingMessage msg);
   void deletedRecording(DeletedRecordingMessage msg);
   void sendDocConversionMsg(IDocConversionMsg msg);
+  void sendChatMessage(ChatMessageFromApi msg);
 }

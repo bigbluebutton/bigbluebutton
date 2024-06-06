@@ -1062,6 +1062,44 @@ class ApiController {
     }
   }
 
+  def sendChatMessage = {
+    String API_CALL = 'sendChatMessage'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.SEND_CHAT_MESSAGE,
+            request
+    )
+
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
+
+    String userName = "System";
+    String chatMessage = params.message;
+
+    if (params.userName != null && params.userName != "") {
+      userName = params.userName;
+    }
+
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    boolean isRunning = meeting != null && meeting.isRunning();
+
+    if(!isRunning) {
+      invalid("meetingNotFound", "Meeting not found")
+      return
+    }
+
+    meetingService.sendChatMessage(meeting.internalId, userName, chatMessage);
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
+                , contentType: "text/xml")
+      }
+    }
+  }
+
   def getJoinUrl = {
     String API_CALL = 'getJoinUrl'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
